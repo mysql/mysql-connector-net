@@ -1,3 +1,8 @@
+8.0.16
+- MySqlX: Added prepared statement support (WL12174).
+- MySqlX: Values and binding parameters are not cleared after an execution, so a new execution can use the previous parameters.
+
+
 8.0.15
 - Bug fix: PREPARED COMMANDS EXECUTE WITH ERROR ON MYSQL SERVER 8.0.13 (MySQL Bug #92912, Oracle Bug #28834253).
 

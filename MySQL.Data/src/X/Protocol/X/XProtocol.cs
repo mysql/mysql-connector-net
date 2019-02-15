@@ -712,7 +712,7 @@ namespace MySqlX.Protocol
                 Type = Expr.Types.Type.Placeholder,
                 Position = positionFind++
               },
-              Offset = filter.Offset == -1 ? null : new Expr
+              Offset = new Expr
               {
                 Type = Expr.Types.Type.Placeholder,
                 Position = positionFind++

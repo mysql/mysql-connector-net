@@ -62,7 +62,7 @@ namespace MySqlX.XDevAPI.Common
 
     internal FilterParams FilterData
     {
-      get { return filter;  }
+      get { return filter; }
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ namespace MySqlX.XDevAPI.Common
     /// <returns>A generic object representing the implementing statement type.</returns>
     public T Bind(string parameterName, object value)
     {
-      FilterData.Parameters.Add(parameterName, value);
+      FilterData.Parameters[parameterName.ToLowerInvariant()] = value;
       return (T)this;
     }
 
@@ -130,7 +130,7 @@ namespace MySqlX.XDevAPI.Common
     /// <returns>The implementing statement type.</returns>
     public T Bind(string jsonParams)
     {
-      foreach(var item in JsonParser.Parse(jsonParams))
+      foreach (var item in JsonParser.Parse(jsonParams))
       {
         Bind(item.Key, item.Value);
       }
@@ -170,10 +170,7 @@ namespace MySqlX.XDevAPI.Common
           if (FilterData.HasLimit)
           {
             parameters.Add(FilterData.Limit);
-            if (FilterData.Offset != -1)
-            {
-              parameters.Add(FilterData.Offset);
-            }
+            parameters.Add(FilterData.Offset == -1 ? 0 : FilterData.Offset);
           }
         }
         var result = ConvertToPreparedStatement<T>(executeFunc, t, parameters);
@@ -182,11 +179,8 @@ namespace MySqlX.XDevAPI.Common
       }
       finally
       {
-        FilterData.Parameters.Clear();
         FilterData.hadLimit = FilterData.HasLimit;
         FilterData.hadOffset = FilterData.Offset != -1;
-        FilterData.Limit = -1;
-        FilterData.Offset = -1;
       }
     }
 

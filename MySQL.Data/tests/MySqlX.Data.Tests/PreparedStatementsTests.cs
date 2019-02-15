@@ -130,7 +130,7 @@ namespace MySqlX.Data.Tests
       }
 
       ValidatePreparedStatements(1, 4,
-        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?");
+        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?");
     }
 
     [Fact]
@@ -150,7 +150,7 @@ namespace MySqlX.Data.Tests
       Assert.True(findStmt._isPrepared || !findStmt.Session.SupportsPreparedStatements);
 
       ValidatePreparedStatements(1, 1,
-        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_EXTRACT(doc,'$._id') = 1) LIMIT ?");
+        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_EXTRACT(doc,'$._id') = 1) LIMIT ?, ?");
 
       for (int i = 1; i <= _docs.Length; i++)
       {
@@ -187,7 +187,7 @@ namespace MySqlX.Data.Tests
         if (findStmt.Session.SupportsPreparedStatements)
         {
           ValidatePreparedStatements(1, 1,
-            $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_EXTRACT(doc,'$._id') = 1) LIMIT ?",
+            $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_EXTRACT(doc,'$._id') = 1) LIMIT ?, ?",
             threadId);
         }
 
@@ -215,7 +215,7 @@ namespace MySqlX.Data.Tests
       }
 
       ValidatePreparedStatements(1, 3,
-        $"SELECT * FROM `{schemaName}`.`{_tableName}` WHERE (`id` = ?) LIMIT ?");
+        $"SELECT * FROM `{schemaName}`.`{_tableName}` WHERE (`id` = ?) LIMIT ?, ?");
     }
 
     [Fact]
@@ -235,7 +235,7 @@ namespace MySqlX.Data.Tests
       Assert.True(selectStmt._isPrepared || !selectStmt.Session.SupportsPreparedStatements);
 
       ValidatePreparedStatements(1, 1,
-        $"SELECT * FROM `{schemaName}`.`{_tableName}` WHERE (`id` = 1) LIMIT ?");
+        $"SELECT * FROM `{schemaName}`.`{_tableName}` WHERE (`id` = 1) LIMIT ?, ?");
 
       for (int i = 2; i <= _allRows.Length; i++)
       {
@@ -444,89 +444,6 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
-    public void Insert()
-    {
-      InitTable();
-      Table table = GetTable();
-      var insertStmt = table.Insert().Values(8, "name 8", 40);
-      Result result = ExecuteInsertStatement(insertStmt);
-      Assert.Equal(1ul, result.AffectedItemsCount);
-      Assert.False(insertStmt._isPrepared);
-      ValidatePreparedStatements(0, 0, null);
-
-      for (int i = 9; i <= 12; i++)
-      {
-        result = ExecuteInsertStatement(insertStmt.Values(i, $"name {i}", i * 5));
-        Assert.Equal(1ul, result.AffectedItemsCount);
-        Assert.True(insertStmt._isPrepared || !insertStmt.Session.SupportsPreparedStatements);
-        var row = ExecuteSelectStatement(table.Select().Where($"id={i}")).FetchAll();
-        Assert.Equal(i, row[0]["id"]);
-        Assert.Equal($"name {i}", row[0]["name"]);
-        Assert.Equal(i * 5, row[0]["age"]);
-      }
-
-      ValidatePreparedStatements(1, 4,
-        $"INSERT INTO `{schemaName}`.`{_tableName}` VALUES (?,?,?)");
-    }
-
-    [Fact]
-    public void InsertChainedValues()
-    {
-      InitTable();
-      Table table = GetTable();
-      var insertStmt = table.Insert().Values(7, "name 7", 35).Values(8, "name 8", 40);
-      Result result = ExecuteInsertStatement(insertStmt);
-      Assert.Equal(2ul, result.AffectedItemsCount);
-      Assert.False(insertStmt._isPrepared);
-      ValidatePreparedStatements(0, 0, null);
-      var row = ExecuteSelectStatement(table.Select().Where($"id in (7,8)")).FetchAll();
-      Assert.Equal(7, row[0]["id"]);
-      Assert.Equal($"name 7", row[0]["name"]);
-      Assert.Equal(7 * 5, row[0]["age"]);
-      Assert.Equal(8, row[1]["id"]);
-      Assert.Equal($"name 8", row[1]["name"]);
-      Assert.Equal(8 * 5, row[1]["age"]);
-
-      for (int i = 9; i <= 20; i += 2)
-      {
-        result = ExecuteInsertStatement(insertStmt.Values(i, $"name {i}", i * 5).Values(i + 1, $"name {i + 1}", (i + 1) * 5));
-        Assert.Equal(2ul, result.AffectedItemsCount);
-        Assert.True(insertStmt._isPrepared || !insertStmt.Session.SupportsPreparedStatements);
-        row = ExecuteSelectStatement(table.Select().Where($"id in ({i},{i + 1})")).FetchAll();
-        Assert.Equal(i, row[0]["id"]);
-        Assert.Equal($"name {i}", row[0]["name"]);
-        Assert.Equal(i * 5, row[0]["age"]);
-        Assert.Equal(i + 1, row[1]["id"]);
-        Assert.Equal($"name {i + 1}", row[1]["name"]);
-        Assert.Equal((i + 1) * 5, row[1]["age"]);
-      }
-
-      ValidatePreparedStatements(1, 6,
-        $"INSERT INTO `{schemaName}`.`{_tableName}` VALUES (?,?,?),(?,?,?)");
-    }
-
-    [Fact]
-    public void SqlStatement()
-    {
-      var sqlStmt = GetSession().SQL("SELECT ? as number, ? as letter").Bind(1, "A");
-      var row = ExecuteSQLStatement(sqlStmt).FetchAll();
-      Assert.Equal((sbyte)1, row[0][0]);
-      Assert.Equal("A", row[0][1]);
-      Assert.False(sqlStmt._isPrepared);
-      ValidatePreparedStatements(0, 0, null);
-
-      for (int i = 2; i < 10; i++)
-      {
-        row = ExecuteSQLStatement(sqlStmt.Bind(i, ((char)('@' + i)).ToString())).FetchAll();
-        Assert.Equal((long)i, Convert.ToInt64(row[0][0]));
-        Assert.Equal(((char)('@' + i)).ToString(), row[0][1]);
-        Assert.True(sqlStmt._isPrepared || !sqlStmt.Session.SupportsPreparedStatements);
-      }
-
-      ValidatePreparedStatements(1, 8, "SELECT ? as number, ? as letter");
-    }
-
-    [Fact]
     public void MaxPreparedStmtCount()
     {
       InitCollection();
@@ -572,84 +489,32 @@ namespace MySqlX.Data.Tests
 
       ValidatePreparedStatements(0, 0, null);
 
-      // second execution (prepared statement)
-      result = ExecuteFindStatement(findStmt.Bind("lower", 30).Bind("upper", 30)).FetchAll();
-      Assert.Equal(1, result.Count);
-      Assert.Equal($"Book 2", result[0]["title"].ToString());
-      Assert.True(findStmt._isPrepared || !findStmt.Session.SupportsPreparedStatements);
-
-      ValidatePreparedStatements(1, 1,
-        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$.pages') >= ?) AND (JSON_EXTRACT(doc,'$.pages') <= ?))");
-
-      // execution adding limit and offset (normal again)
-      result = ExecuteFindStatement(findStmt.Bind("lower", 0).Bind("upper", 100).Limit(1).Offset(0)).FetchAll();
+      // second execution adding limit (prepared statement)
+      result = ExecuteFindStatement(findStmt.Bind("lower", 0).Bind("upper", 100).Limit(1)).FetchAll();
       Assert.Equal(1, result.Count);
       Assert.Equal($"Book 1", result[0]["title"].ToString());
-      Assert.False(findStmt._isPrepared);
+      Assert.True(findStmt._isPrepared);
 
-      ValidatePreparedStatements(0, 0, null);
+      ValidatePreparedStatements(1, 1,
+        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$.pages') >= ?) AND (JSON_EXTRACT(doc,'$.pages') <= ?)) LIMIT ?, ?");
 
-      // second execution using a different limit and offset (prepared statement)
+      // new execution using a different limit and offset (prepared statement)
       result = ExecuteFindStatement(findStmt.Bind("lower", 0).Bind("upper", 100).Limit(2).Offset(1)).FetchAll();
       Assert.Equal(2, result.Count);
       Assert.Equal($"Book 2", result[0]["title"].ToString());
       Assert.Equal($"Book 3", result[1]["title"].ToString());
       Assert.True(findStmt._isPrepared || !findStmt.Session.SupportsPreparedStatements);
 
-      ValidatePreparedStatements(1, 1,
+      ValidatePreparedStatements(1, 2,
         $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$.pages') >= ?) AND (JSON_EXTRACT(doc,'$.pages') <= ?)) LIMIT ?, ?");
 
-      // execution without limit (normal again)
+      // execution without limit and offset but persisting previous values (prepared statement)
       result = ExecuteFindStatement(findStmt.Bind("lower", 0).Bind("upper", 100)).FetchAll();
-      Assert.Equal(4, result.Count);
-      Assert.False(findStmt._isPrepared);
-
-      ValidatePreparedStatements(0, 0, null);
-
-      // second execution with limit and offset (prepared statement)
-      result = ExecuteFindStatement(findStmt.Bind("lower", 0).Bind("upper", 100).Limit(2).Offset(2)).FetchAll();
       Assert.Equal(2, result.Count);
-      Assert.Equal($"Book 3", result[0]["title"].ToString());
-      Assert.Equal($"Book 4", result[1]["title"].ToString());
-      Assert.True(findStmt._isPrepared || !findStmt.Session.SupportsPreparedStatements);
+      Assert.True(findStmt._isPrepared);
 
-      ValidatePreparedStatements(1, 1,
+      ValidatePreparedStatements(1, 3,
         $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$.pages') >= ?) AND (JSON_EXTRACT(doc,'$.pages') <= ?)) LIMIT ?, ?");
-    }
-
-    [Fact]
-    public void T1()
-    {
-      InitCollection();
-      var coll = GetCollection();
-      GetSession().SQL("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', '')); ").Execute();
-            var docs1 = new[]
-                                        {
-                                new { _id = 11, name = "jonh doe", age =
-38,profit = 100 },
-                                new { _id = 12, name = "milton green", age =
-45,profit = 200 },
-                                new { _id = 13, name = "larry smith", age =
-24,profit = 300},
-                                new { _id = 14, name = "mary weinstein", age
-= 24 ,profit = 100},
-                                new { _id = 15, name = "jerry pratt", age =
-45 ,profit = 400 },
-                                new { _id = 16, name = "hugh jackman", age =
-20,profit = 500},
-                                new { _id = 117, name = "elizabeth olsen",
-age = 31,profit = 300 },
-                                new { _id = 8, name = "tommy h", age =
-31,profit = 3000}
-                              };
-
-      var r = coll.Add(docs1).Execute();
-      Assert.Equal((ulong)8, r.AffectedItemsCount);
-      var findStmt = coll.Find().Fields("_id as ID", "name as Name",
-          "age as Age", "profit as Profit").GroupBy("age").
-          GroupBy("profit").Sort("profit ASC").Limit(3).Offset(2);
-      ExecuteFindStatement(findStmt);
-      ExecuteFindStatement(findStmt.Offset(0));
     }
   }
 }
