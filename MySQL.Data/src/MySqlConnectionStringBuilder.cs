@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -55,7 +55,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol,connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
         (msb, sender, value) =>
         {
-#if NETSTANDARD1_3 || NETSTANDARD2_0 || NETCOREAPP2_0
+#if NETSTANDARD1_3 || NETSTANDARD2_0 || NETCOREAPP2_2
           MySqlConnectionProtocol enumValue;
           if (Enum.TryParse<MySqlConnectionProtocol>(value.ToString(), true, out enumValue))
           {
@@ -70,7 +70,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("pipe", "pipe name,pipename", typeof(string), "MYSQL", false,
         (msb, sender, value) =>
         {
-#if NETSTANDARD1_3 || NETSTANDARD2_0 || NETCOREAPP2_0
+#if NETSTANDARD1_3 || NETSTANDARD2_0 || NETCOREAPP2_2
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(PipeName)));
 #else
           msb.SetValue("pipe", value);
@@ -92,7 +92,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("sharedmemoryname", "shared memory name", typeof(string), "MYSQL", false,
         (msb, sender, value) => 
         {
-#if NETSTANDARD1_3 || NETSTANDARD2_0 || NETCOREAPP2_0
+#if NETSTANDARD1_3 || NETSTANDARD2_0 || NETCOREAPP2_2
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(SharedMemoryName)));
 #else
           msb.SetValue("sharedmemoryname", value);
@@ -143,7 +143,7 @@ namespace MySql.Data.MySqlClient
         {
           if (!Platform.IsWindows())
             throw new MySqlException("IntegratedSecurity is supported on Windows only");
-#if NETSTANDARD1_3 || NETSTANDARD2_0 || NETCOREAPP2_0
+#if NETSTANDARD1_3 || NETSTANDARD2_0 || NETCOREAPP2_2
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(IntegratedSecurity)));
 #else
           msb.SetValue("Integrated Security", value.ToString().Equals("SSPI", StringComparison.OrdinalIgnoreCase) ? true : value);
@@ -178,7 +178,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("useperformancemonitor", "use performance monitor,useperfmon,perfmon", typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETSTANDARD1_3 || NETSTANDARD2_0 || NETCOREAPP2_0
+#if NETSTANDARD1_3 || NETSTANDARD2_0 || NETCOREAPP2_2
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(UsePerformanceMonitor)));
 #else
           msb.SetValue("useperformancemonitor", value);
