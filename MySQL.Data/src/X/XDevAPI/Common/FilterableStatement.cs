@@ -109,7 +109,7 @@ namespace MySqlX.XDevAPI.Common
     /// <returns>A generic object representing the implementing statement type.</returns>
     public T Bind(string parameterName, object value)
     {
-      FilterData.Parameters[parameterName.ToLowerInvariant()] = value;
+      FilterData.Parameters[parameterName.ToLowerInvariant()] = value is string ? QuoteString((string)value) : value;
       return (T)this;
     }
 
@@ -194,6 +194,11 @@ namespace MySqlX.XDevAPI.Common
       var t = (T)this.MemberwiseClone();
       t.filter = t.FilterData.Clone();
       return t;
+    }
+
+    private static string QuoteString(string value)
+    {
+      return "'" + value.Trim().Replace("'", "\\'") + "'";
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -47,8 +47,8 @@ namespace MySqlX.Data.Tests
 
     static XConnectionStringBuilderTests()
     {
-      _connectionString = "server=localhost;user=root;port=3306;";
-      _xConnectionURI = "mysqlx://root@localhost:33060";
+      _connectionString = $"server=localhost;user=root;port={BaseTest.Port};";
+      _xConnectionURI = $"mysqlx://root@localhost:{BaseTest.XPort}";
       _connectionStringWithSslMode = _connectionString + "sslmode=required;";
     }
 

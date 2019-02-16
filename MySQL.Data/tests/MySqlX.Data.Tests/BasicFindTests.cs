@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -869,6 +869,45 @@ namespace MySqlX.Data.Tests
       // Multiple word field name raises error.
       ex = Assert.Throws<ArgumentException>(() => result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields("Book 1")));
       Assert.Equal("Expression has unexpected token '1' at position 1.", ex.Message);
+    }
+
+    [Theory]
+    [InlineData("", "")]
+    [InlineData("'", "'")]
+    [InlineData("", "'")]
+    [InlineData("'", "")]
+    public void FindIdAsString(string prefix, string suffix)
+    {
+      Collection coll = CreateCollection("test");
+      Result r = null;
+      var docs = new[]
+      {
+        new {  _id = $"{prefix}1{suffix}", title = $"{prefix}Book 1{suffix}", pages = 20 },
+        new {  _id = $"{prefix}2{suffix}", title = $"{prefix}Book 2{suffix}", pages = 30 },
+        new {  _id = $"{prefix}3{suffix}", title = $"{prefix}Book 3{suffix}", pages = 40 },
+        new {  _id = $"{prefix}4{suffix}", title = $"{prefix}Book 4{suffix}", pages = 50 },
+      };
+      r = coll.Add(docs).Execute();
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
+
+      var findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", $"{prefix}3{suffix}").Bind("pages", 40);
+      DocResult doc = ExecuteFindStatement(findStmt);
+      var books = doc.FetchAll();
+      Assert.Equal(1, books.Count);
+      Assert.Equal($"{prefix}3{suffix}", books[0]["_id"]);
+
+      findStmt = coll.Find("_id = :id and pages = :pages").Bind("Id", $"{prefix}2{suffix}").Bind("Pages", 30);
+      doc = ExecuteFindStatement(findStmt);
+      books = doc.FetchAll();
+      Assert.Equal(1, books.Count);
+      Assert.Equal($"{prefix}2{suffix}", books[0]["_id"]);
+
+      findStmt = coll.Find("title = :title").Bind("Title", $"{prefix}Book 4{suffix}");
+      doc = ExecuteFindStatement(findStmt);
+      books = doc.FetchAll();
+      Assert.Equal(1, books.Count);
+      Assert.Equal($"{prefix}4{suffix}", books[0]["_id"]);
+      Assert.Equal(50, books[0]["pages"]);
     }
   }
 }
