@@ -647,6 +647,8 @@ namespace MySqlX.Data.Tests
 
       ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[key=value,key=value2]"));
       Assert.Equal(string.Format(ResourcesX.DuplicateUserDefinedAttribute, "key"), ex.Message);
+
+      ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new { server = "localhost", port=33060, user="root", connectionattributes = "="}));
     }
 
     private void TestConnectionAttributes(string connString, Dictionary<string, object> userAttrs = null)

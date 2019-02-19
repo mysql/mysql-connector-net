@@ -609,6 +609,8 @@ namespace MySqlX.XDevAPI
               throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
             part = keyValue[0] + "=" + (keyValue.Length == 2 ? keyValue[1] : "true").Replace("(", string.Empty).Replace(")", string.Empty);
           }
+          else if (keyValue[1] == string.Empty)
+            throw new MySqlException(ResourcesX.InvalidUriQuery + ": " + keyValue[0]);
           else
             part = keyValue[0] + "=" + query.Replace(keyValue[0] + "=", string.Empty);
 
@@ -636,6 +638,9 @@ namespace MySqlX.XDevAPI
       var connecttimeoutOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD);
       foreach (KeyValuePair<string, string> keyValuePair in connectionOptionsDictionary)
       {
+        if (keyValuePair.Value == "=")
+          throw new MySqlException(string.Format(Resources.InvalidConnectionStringValue, keyValuePair.Value, keyValuePair.Key));
+
         // Key is not server or any of its synonyms.
         if (keyValuePair.Key != serverOption.Keyword && !serverOption.Synonyms.Contains(keyValuePair.Key))
         {
