@@ -345,7 +345,6 @@ namespace MySql.Data.MySqlClient
           {
             string key_name = GetString(reader, reader.GetOrdinal("KEY_NAME"));
             string col_name = GetString(reader, reader.GetOrdinal("COLUMN_NAME"));
-            string index_type = GetString(reader, reader.GetOrdinal("INDEX_TYPE"));
 
             if (restrictions != null)
             {
@@ -361,7 +360,7 @@ namespace MySql.Data.MySqlClient
             row["TABLE_NAME"] = GetString(reader, reader.GetOrdinal("TABLE"));
             row["COLUMN_NAME"] = col_name;
             row["ORDINAL_POSITION"] = reader.GetValue(reader.GetOrdinal("SEQ_IN_INDEX"));
-            row["SORT_ORDER"] = index_type=="FULLTEXT" ? null : reader.GetString("COLLATION");
+            row["SORT_ORDER"] = GetString(reader, reader.GetOrdinal("COLLATION"));
           }
         }
       }
