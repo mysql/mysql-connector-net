@@ -638,8 +638,9 @@ namespace MySqlX.XDevAPI
       var connecttimeoutOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD);
       foreach (KeyValuePair<string, string> keyValuePair in connectionOptionsDictionary)
       {
-        if (keyValuePair.Value == "=")
-          throw new MySqlException(string.Format(Resources.InvalidConnectionStringValue, keyValuePair.Value, keyValuePair.Key));
+        // Value is an equal or a semicolon
+        if (keyValuePair.Value == "=" || keyValuePair.Value == "\"")
+          throw new MySqlException(string.Format(Resources.InvalidConnectionStringValue, (keyValuePair.Value == "\"" ? ";" : "="), keyValuePair.Key));
 
         // Key is not server or any of its synonyms.
         if (keyValuePair.Key != serverOption.Keyword && !serverOption.Synonyms.Contains(keyValuePair.Key))

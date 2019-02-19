@@ -355,6 +355,14 @@ namespace MySqlX.Data.Tests
 
       ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[key=value,key=value2]"));
       Assert.Equal(string.Format(ResourcesX.DuplicateUserDefinedAttribute, "key"), ex.Message);
+
+      MySqlXConnectionStringBuilder builder = new MySqlXConnectionStringBuilder();
+      builder.Server = "localhost";
+      builder.Port = 33060;
+      builder.UserID = "root";
+      builder.ConnectionAttributes = ";";
+      ex = Assert.Throws<MySqlException>(() => MySQLX.GetClient(builder.ConnectionString, "{ \"pooling\": { \"enabled\": true } }"));
+      Assert.Equal("The requested value ';' is invalid for the given keyword 'connection-attributes'.", ex.Message);
     }
 
     private void TestConnectionAttributes(string connString, Dictionary<string, object> userAttrs = null)
