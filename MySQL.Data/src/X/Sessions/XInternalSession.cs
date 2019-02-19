@@ -204,7 +204,16 @@ namespace MySqlX.Sessions
       if (Settings.ConnectionAttributes.ToLower() != "false")
         clientCapabilities.Add("session_connect_attrs", GetConnectionAttributes(Settings.ConnectionAttributes));
 
-      protocol.SetCapabilities(clientCapabilities);
+      try
+      {
+        protocol.SetCapabilities(clientCapabilities);
+      }
+      catch (MySqlException ex)
+      {
+        if (ex.Message == "Capability 'session_connect_attrs' doesn't exist")
+          clientCapabilities.Remove("session_connect_attrs");
+        protocol.SetCapabilities(clientCapabilities);
+      }
     }
 
     private Dictionary<string, string> GetConnectionAttributes(string connectionAttrs)

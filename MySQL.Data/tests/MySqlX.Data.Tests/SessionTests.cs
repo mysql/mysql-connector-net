@@ -613,6 +613,8 @@ namespace MySqlX.Data.Tests
     [Trait("Category", "Security")]
     public void ConnectionAttributes()
     {
+      if (!(session.Version.isAtLeast(8, 0, 16))) return;
+
       // Validate that MySQLX.GetSession() supports a new 'connection-attributes' query parameter
       // with default values and all the client attributes starts with a '_'.
       TestConnectionAttributes(ConnectionString + ";connection-attributes=true;");
