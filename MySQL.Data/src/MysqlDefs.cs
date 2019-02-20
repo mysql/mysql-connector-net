@@ -524,7 +524,16 @@ namespace MySql.Data.MySqlClient
     public string ClientName => "mysql-connector-net";
 
     [DisplayName("_client_licence")]
-    public string ClientLicence => "GPL-2.0";
+    public string ClientLicence
+    {
+      get
+      {
+#if COMMERCIAL
+        return "Commercial";
+#endif
+        return "GPL-2.0";
+      }
+    }
 
     [DisplayName("_pid")]
     public string PID
