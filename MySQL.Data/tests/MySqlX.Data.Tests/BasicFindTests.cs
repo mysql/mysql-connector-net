@@ -909,6 +909,34 @@ namespace MySqlX.Data.Tests
       Assert.Equal($"{prefix}4{suffix}", books[0]["_id"]);
       Assert.Equal(50, books[0]["pages"]);
     }
+
+    [Theory]
+    [InlineData(":hobbies IN $.additionalinfo.hobbies", "hobbies", "painting", 4)]
+    [InlineData(":hobbies IN $.additionalinfo.hobbies", "hobbies", "[\"playing\", \"listening\"]", 0)]
+    [InlineData("[\"playing\", \"listening\"] IN $.additionalinfo.hobbies", null, null, 3)]
+    public void InOperatorBindingJson(string condition, string bind, string value, int id)
+    {
+      Collection coll = CreateCollection("test");
+      Result r = null;
+      var docs = new[]
+      {
+        new { _id = 1, title = $"Book 1", pages = 20, additionalinfo = new DbDoc("{\"company\":\"xyz\",\"vehicle\":\"bike\",\"hobbies\":\"reading\"}") },
+        new { _id = 2, title = $"Book 2", pages = 30, additionalinfo = new DbDoc("{\"company\":\"abc\",\"vehicle\":\"car\",\"hobbies\":\"boxing\"}") },
+        new { _id = 3, title = $"Book 3", pages = 40, additionalinfo = new DbDoc("{\"company\":\"qwe\",\"vehicle\":\"airplane\",\"hobbies\":[\"playing\", \"listening\"]}") },
+        new { _id = 4, title = $"Book 4", pages = 50, additionalinfo = new DbDoc("{\"company\":\"zxc\",\"vehicle\":\"boat\",\"hobbies\":\"painting\"}") },
+      };
+      r = coll.Add(docs).Execute();
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
+
+      var findStmt = coll.Find(condition);
+      if (bind != null) findStmt.Bind(bind, value);
+      var result = findStmt.Execute().FetchAll();
+      Assert.Equal(id == 0 ? 0 : 1, result.Count);
+      if (id > 0)
+      {
+        Assert.Equal(id, result[0]["_id"]);
+      }
+    }
   }
 }
 

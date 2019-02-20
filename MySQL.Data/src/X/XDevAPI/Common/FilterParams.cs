@@ -80,7 +80,8 @@ namespace MySqlX.XDevAPI.Common
       {
         if (!placeholderNameToPosition.ContainsKey(param.Key.ToLowerInvariant()))
           throw new ArgumentNullException(string.Format(ResourcesX.UnknownPlaceholder, param.Key));
-        paramsList[placeholderNameToPosition[param.Key.ToLowerInvariant()]] = ExprUtil.ArgObjectToScalar(param.Value);
+        paramsList[placeholderNameToPosition[param.Key.ToLowerInvariant()]] = ExprUtil.ArgObjectToScalar(param.Value)
+          ?? throw new ArgumentException(param.Key);
       }
       return paramsList;
     }

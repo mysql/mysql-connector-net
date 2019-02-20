@@ -2,6 +2,7 @@
 - MySqlX: Added prepared statement support (WL12174).
 - MySqlX: Values and binding parameters are not cleared after an execution, so a new execution can use the previous parameters.
 - MySqlX bug fix: BIND WITH FIND/REMOVE DOESN'T WORK WHEN STRING IS PASSED (Oracle Bug #29304767).
+- MySqlX bug fix: DELETE WHERE THROWS PARSE EXCEPTION WITH -> OPERATOR FOR ARRAY (Oracle Bug #29347028).
 
 
 8.0.15
