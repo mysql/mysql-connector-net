@@ -232,6 +232,9 @@ namespace MySqlX.Sessions
             string key = keyValue[0].Trim();
             string value = keyValue.Length > 1 ? keyValue[1].Trim() : string.Empty;
 
+            if (key == string.Empty)
+              throw new MySqlException(ResourcesX.EmptyKeyConnectionAttribute);
+
             if (key.StartsWith("_"))
               throw new MySqlException(ResourcesX.InvalidUserDefinedAttribute);
 

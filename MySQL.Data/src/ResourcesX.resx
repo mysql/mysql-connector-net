@@ -279,4 +279,7 @@
   <data name="InvalidConnectionAttributes" xml:space="preserve">
     <value>The value of "connection-attributes" must be either a boolean or a list of key-value pairs.</value>
   </data>
+  <data name="EmptyKeyConnectionAttribute" xml:space="preserve">
+    <value>Key name in connection attribute cannot be an empty string.</value>
+  </data>
 </root>
