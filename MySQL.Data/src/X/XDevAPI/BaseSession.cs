@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,19 +26,19 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data;
+using MySql.Data.Common;
+using MySql.Data.MySqlClient;
+using MySqlX.Common;
+using MySqlX.Failover;
+using MySqlX.Sessions;
+using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MySqlX.Common;
-using MySqlX.Sessions;
-using MySqlX.XDevAPI.Relational;
-using MySql.Data;
-using MySql.Data.MySqlClient;
-using System.Text.RegularExpressions;
-using MySqlX.Failover;
 using System.Net;
-using MySql.Data.Common;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MySqlX.XDevAPI
 {
@@ -80,6 +80,9 @@ namespace MySqlX.XDevAPI
     private DBVersion? _version = null;
 
     internal DBVersion Version => _version ?? (_version = XSession.GetServerVersion()).Value;
+
+    private int? _threadId = null;
+    internal int ThreadId => _threadId ?? (_threadId = XSession.GetThreadId()).Value;
 
     #endregion
 
@@ -202,7 +205,7 @@ namespace MySqlX.XDevAPI
     /// give a priority for every host or no priority to any host.
     /// </para>
     /// </remarks>
-    internal BaseSession(string connectionString, Client client = null): this()
+    internal BaseSession(string connectionString, Client client = null) : this()
     {
       if (string.IsNullOrWhiteSpace(connectionString))
         throw new ArgumentNullException("connectionString");

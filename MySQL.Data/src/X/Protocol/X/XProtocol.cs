@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,30 +26,27 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-
-using MySqlX.Communication;
-using MySqlX.Data;
+using Google.Protobuf;
+using MySql.Data;
+using MySql.Data.MySqlClient;
+using Mysqlx;
+using Mysqlx.Connection;
+using Mysqlx.Crud;
+using Mysqlx.Datatypes;
+using Mysqlx.Expr;
+using Mysqlx.Notice;
 using Mysqlx.Resultset;
 using Mysqlx.Session;
 using Mysqlx.Sql;
+using MySqlX.Communication;
+using MySqlX.Data;
 using MySqlX.Protocol.X;
-using Mysqlx.Expr;
-using Mysqlx.Datatypes;
-using Mysqlx;
-using Mysqlx.Crud;
-using Mysqlx.Notice;
-using Mysqlx.Connection;
 using MySqlX.XDevAPI.Common;
-using MySqlX.XDevAPI.Relational;
 using MySqlX.XDevAPI.CRUD;
-using MySql.Data.MySqlClient;
-using MySql.Data;
-using MySqlX;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using Google.Protobuf;
 using static Mysqlx.Datatypes.Object.Types;
 
 namespace MySqlX.Protocol
@@ -593,18 +590,21 @@ namespace MySqlX.Protocol
       _writer.Write(ClientMessageId.CRUD_FIND, builder);
     }
 
-    public void SendExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key condition)
+    public void SendExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key condition, object value = null)
     {
       var builder = new Mysqlx.Expect.Open();
       var cond = new Mysqlx.Expect.Open.Types.Condition();
       cond.ConditionKey = (uint)condition;
+      cond.ConditionValue = value != null ? ByteString.CopyFromUtf8((string)value) : null;
       builder.Cond.Add(cond);
       _writer.Write(ClientMessageId.EXPECT_OPEN, builder);
     }
 
-    public void SendResetSession()
+    public void SendResetSession(bool sessionResetNoReauthentication)
     {
       var builder = new Mysqlx.Session.Reset();
+
+      if (sessionResetNoReauthentication) { builder.KeepOpen = sessionResetNoReauthentication; }
       _writer.Write(ClientMessageId.SESS_RESET, builder);
     }
 

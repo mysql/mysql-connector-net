@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,25 +26,23 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using MySqlX.XDevAPI;
-using MySqlX.Communication;
-using System.Text;
-using MySql.Data.Common;
-using MySqlX.Protocol;
-using System.Collections.Generic;
-using System.Reflection;
-using MySqlX.XDevAPI.Common;
-using MySqlX.XDevAPI.Relational;
-using MySqlX.XDevAPI.CRUD;
-using MySqlX.Protocol.X;
-using Mysqlx.Datatypes;
-using MySql.Data.MySqlClient;
-using MySqlX.Security;
-using MySqlX;
-using System.Linq;
 using MySql.Data;
+using MySql.Data.Common;
+using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Authentication;
+using MySqlX.Communication;
+using MySqlX.Protocol;
+using MySqlX.Protocol.X;
+using MySqlX.Security;
+using MySqlX.XDevAPI;
+using MySqlX.XDevAPI.Common;
+using MySqlX.XDevAPI.CRUD;
+using MySqlX.XDevAPI.Relational;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace MySqlX.Sessions
 {
@@ -59,7 +57,7 @@ namespace MySqlX.Sessions
     private XPacketReaderWriter _writer;
     private bool serverSupportsTls = false;
     private const string mysqlxNamespace = "mysqlx";
-
+    internal bool? sessionResetNoReauthentication = null;
 
     public XInternalSession(MySqlXConnectionStringBuilder settings) : base(settings)
     {
@@ -487,9 +485,9 @@ namespace MySqlX.Sessions
       return new Result(this);
     }
 
-    protected Result ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key condition)
+    protected Result ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key condition, object value = null)
     {
-      protocol.SendExpectOpen(condition);
+      protocol.SendExpectOpen(condition, value);
       return new Result(this);
     }
 
@@ -500,7 +498,18 @@ namespace MySqlX.Sessions
 
     public void ResetSession()
     {
-      protocol.SendResetSession();
+      if (sessionResetNoReauthentication == null)
+        try
+        {
+          ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key.ExpectFieldExist, "6.1");
+          sessionResetNoReauthentication = true;
+        }
+        catch
+        {
+          sessionResetNoReauthentication = false;
+        }
+
+      protocol.SendResetSession((bool)sessionResetNoReauthentication);
       protocol.ReadOk();
       //return new Result(this);
     }

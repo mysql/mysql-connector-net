@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,10 +29,10 @@
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
+using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using Xunit;
 
 namespace MySqlX.Data.Tests
@@ -314,6 +314,65 @@ namespace MySqlX.Data.Tests
           Assert.Equal(ResourcesX.InvalidSession, ex.Message);
         }
       }
+    }
+
+    /// <summary>
+    /// WL12515 - DevAPI: Support new session reset functionality
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Security")]
+    public void ResetSessionTest()
+    {
+      // This feature was implemented since MySQL Server 8.0.16
+      if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 16))) return;
+
+      int size = 2;
+      using (Client client = MySQLX.GetClient(ConnectionString + ";database=test;", new { pooling = new { maxSize = size } }))
+      {
+        Session session1 = client.GetSession();
+        Session session2 = client.GetSession();
+
+        int threadId1 = session1.ThreadId;
+        int threadId2 = session2.ThreadId;
+
+        ResetTestBeforeClose(session1, 1);
+        ResetTestBeforeClose(session2, 2);
+
+        session1.Close();
+        session2.Close();
+
+        Session session1_1 = client.GetSession();
+        Session session2_1 = client.GetSession();
+
+        ResetTestAfterClose(session1_1, threadId1, 1);
+        ResetTestAfterClose(session2_1, threadId2, 2);
+
+        session1_1.Close();
+      }
+    }
+
+    private void ResetTestBeforeClose(Session session, int id)
+    {
+      session.SQL(string.Format("CREATE TEMPORARY TABLE testResetSession{0} (id int)", id)).Execute();
+      session.SQL(string.Format("SET @a='session{0}'", id)).Execute();
+
+      SqlResult res = session.SQL("SELECT @a AS a").Execute();
+      Assert.Equal("session" + id, res.FetchAll()[0][0]);
+      res = session.SQL("SHOW CREATE TABLE testResetSession" + id).Execute();
+      Assert.Equal("testResetSession" + id, res.FetchAll()[0][0]);
+    }
+
+    private void ResetTestAfterClose(Session session, int threadId, int id)
+    {
+      Assert.Equal(threadId, session.ThreadId);
+      SqlResult res = session.SQL("SELECT @a IS NULL").Execute();
+      Assert.Equal((sbyte)1, res.FetchOne()[0]);
+      var ex = Assert.Throws<MySqlException>(() => session.SQL("SHOW CREATE TABLE testResetSession" + id).Execute());
+      Assert.Equal(string.Format("Table 'test.testresetsession{0}' doesn't exist", id), ex.Message);
+
+      session.SQL(string.Format("SET @a='session{0}'", id)).Execute();
+      res = session.SQL("SELECT @a AS a").Execute();
+      Assert.Equal("session" + id, res.FetchAll()[0][0]);
     }
   }
 }

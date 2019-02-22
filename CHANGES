@@ -1,5 +1,6 @@
 8.0.16
 - Bug fix: PREPARED COMMANDS EXECUTE WITH ERROR ON MYSQL SERVER 8.0.13 (MySQL Bug #92912, Oracle Bug #28834253).
+- MySqlX: Added support for new session reset functionality (WL12515).
 
 
 8.0.15
