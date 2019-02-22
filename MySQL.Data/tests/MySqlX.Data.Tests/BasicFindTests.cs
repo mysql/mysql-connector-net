@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -869,6 +869,73 @@ namespace MySqlX.Data.Tests
       // Multiple word field name raises error.
       ex = Assert.Throws<ArgumentException>(() => result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields("Book 1")));
       Assert.Equal("Expression has unexpected token '1' at position 1.", ex.Message);
+    }
+
+    [Theory]
+    [InlineData("", "")]
+    [InlineData("'", "'")]
+    [InlineData("", "'")]
+    [InlineData("'", "")]
+    public void FindIdAsString(string prefix, string suffix)
+    {
+      Collection coll = CreateCollection("test");
+      Result r = null;
+      var docs = new[]
+      {
+        new {  _id = $"{prefix}1{suffix}", title = $"{prefix}Book 1{suffix}", pages = 20 },
+        new {  _id = $"{prefix}2{suffix}", title = $"{prefix}Book 2{suffix}", pages = 30 },
+        new {  _id = $"{prefix}3{suffix}", title = $"{prefix}Book 3{suffix}", pages = 40 },
+        new {  _id = $"{prefix}4{suffix}", title = $"{prefix}Book 4{suffix}", pages = 50 },
+      };
+      r = coll.Add(docs).Execute();
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
+
+      var findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", $"{prefix}3{suffix}").Bind("pages", 40);
+      DocResult doc = ExecuteFindStatement(findStmt);
+      var books = doc.FetchAll();
+      Assert.Equal(1, books.Count);
+      Assert.Equal($"{prefix}3{suffix}", books[0]["_id"]);
+
+      findStmt = coll.Find("_id = :id and pages = :pages").Bind("Id", $"{prefix}2{suffix}").Bind("Pages", 30);
+      doc = ExecuteFindStatement(findStmt);
+      books = doc.FetchAll();
+      Assert.Equal(1, books.Count);
+      Assert.Equal($"{prefix}2{suffix}", books[0]["_id"]);
+
+      findStmt = coll.Find("title = :title").Bind("Title", $"{prefix}Book 4{suffix}");
+      doc = ExecuteFindStatement(findStmt);
+      books = doc.FetchAll();
+      Assert.Equal(1, books.Count);
+      Assert.Equal($"{prefix}4{suffix}", books[0]["_id"]);
+      Assert.Equal(50, books[0]["pages"]);
+    }
+
+    [Theory]
+    [InlineData(":hobbies IN $.additionalinfo.hobbies", "hobbies", "painting", 4)]
+    [InlineData(":hobbies IN $.additionalinfo.hobbies", "hobbies", "[\"playing\", \"listening\"]", 0)]
+    [InlineData("[\"playing\", \"listening\"] IN $.additionalinfo.hobbies", null, null, 3)]
+    public void InOperatorBindingJson(string condition, string bind, string value, int id)
+    {
+      Collection coll = CreateCollection("test");
+      Result r = null;
+      var docs = new[]
+      {
+        new { _id = 1, title = $"Book 1", pages = 20, additionalinfo = new DbDoc("{\"company\":\"xyz\",\"vehicle\":\"bike\",\"hobbies\":\"reading\"}") },
+        new { _id = 2, title = $"Book 2", pages = 30, additionalinfo = new DbDoc("{\"company\":\"abc\",\"vehicle\":\"car\",\"hobbies\":\"boxing\"}") },
+        new { _id = 3, title = $"Book 3", pages = 40, additionalinfo = new DbDoc("{\"company\":\"qwe\",\"vehicle\":\"airplane\",\"hobbies\":[\"playing\", \"listening\"]}") },
+        new { _id = 4, title = $"Book 4", pages = 50, additionalinfo = new DbDoc("{\"company\":\"zxc\",\"vehicle\":\"boat\",\"hobbies\":\"painting\"}") },
+      };
+      r = coll.Add(docs).Execute();
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
+
+      var findStmt = coll.Find(condition);
+      if (bind != null) findStmt.Bind(bind, value);
+      var result = findStmt.Execute().FetchAll();
+      Assert.Equal(id == 0 ? 0 : 1, result.Count);
+      if (id > 0)
+      {
+        Assert.Equal(id, result[0]["_id"]);
+      }
     }
   }
 }

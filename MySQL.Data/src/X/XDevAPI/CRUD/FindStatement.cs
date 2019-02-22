@@ -63,6 +63,7 @@ namespace MySqlX.XDevAPI.CRUD
       }
 
       findParams.Projection = projectionList.Count > 0 ? projectionList.ToArray() : null;
+      SetChanged();
       return this;
     }
 
@@ -88,6 +89,7 @@ namespace MySqlX.XDevAPI.CRUD
 
       findParams.Locking = Protocol.X.RowLock.SharedLock;
       findParams.LockingOption = lockOption;
+      SetChanged();
       return this;
     }
 
@@ -104,6 +106,7 @@ namespace MySqlX.XDevAPI.CRUD
 
       findParams.Locking = Protocol.X.RowLock.ExclusiveLock;
       findParams.LockingOption = lockOption;
+      SetChanged();
       return this;
     }
 
@@ -123,8 +126,9 @@ namespace MySqlX.XDevAPI.CRUD
         if (item != null)
           groupByList.Add(item);
       }
-        
-      findParams.GroupBy = groupByList.Count>0 ? groupByList.ToArray() : null;
+
+      findParams.GroupBy = groupByList.Count > 0 ? groupByList.ToArray() : null;
+      SetChanged();
       return this;
     }
 
@@ -136,6 +140,7 @@ namespace MySqlX.XDevAPI.CRUD
     public FindStatement Having(string having)
     {
       findParams.GroupByCritieria = having;
+      SetChanged();
       return this;
     }
 
@@ -148,6 +153,7 @@ namespace MySqlX.XDevAPI.CRUD
     public FindStatement Sort(params string[] order)
     {
       FilterData.OrderBy = order;
+      SetChanged();
       return this;
     }
   }

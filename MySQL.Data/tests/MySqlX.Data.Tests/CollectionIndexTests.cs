@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -108,7 +108,7 @@ namespace MySqlX.Data.Tests
       // Timestamp index.
       collection.DropIndex("myIndex");
       collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TIMESTAMP\" } ] }");
-      ValidateIndex("myIndex", "test", "ds", false, true, false, 1);
+      ValidateIndex("myIndex", "test", "ds", false, false, false, 1);
 
       // Time index.
       collection.DropIndex("myIndex");
@@ -300,7 +300,7 @@ namespace MySqlX.Data.Tests
     private void ValidateIndex(string fieldName, string collectionName, string dataType, bool unique, bool required, bool isUnsigned, int sequence, int? length = null)
     {
       bool indexFound = false;
-      using (var connection = new MySqlConnection(ConnectionString.Replace("33060", "3306")))
+      using (var connection = new MySqlConnection(ConnectionString.Replace(BaseTest.XPort, BaseTest.Port)))
       {
         connection.Open();
         var command = new MySqlCommand("SHOW INDEX FROM test.test", connection);

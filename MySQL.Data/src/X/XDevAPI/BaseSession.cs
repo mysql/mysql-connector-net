@@ -84,6 +84,11 @@ namespace MySqlX.XDevAPI
     private int? _threadId = null;
     internal int ThreadId => _threadId ?? (_threadId = XSession.GetThreadId()).Value;
 
+    /// <summary>
+    /// Flag to set if prepared statements are supported.
+    /// </summary>
+    internal bool SupportsPreparedStatements { get; set; } = true;
+
     #endregion
 
     /// <summary>

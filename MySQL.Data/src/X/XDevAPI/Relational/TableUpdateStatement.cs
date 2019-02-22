@@ -67,6 +67,7 @@ namespace MySqlX.XDevAPI.Relational
     public TableUpdateStatement Set(string tableField, object value)
     {
       updates.Add(new UpdateSpec(Mysqlx.Crud.UpdateOperation.Types.UpdateType.Set, tableField).SetValue(value));
+      SetChanged();
       return this;
     }
 
@@ -79,6 +80,7 @@ namespace MySqlX.XDevAPI.Relational
     public TableUpdateStatement OrderBy(params string[] order)
     {
       FilterData.OrderBy = order;
+      SetChanged();
       return this;
     }
   }

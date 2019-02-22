@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -62,12 +62,12 @@ namespace MySqlX.Data.Tests
       ConnectionStringUriNative = $"mysqlx://testNative:test@localhost:{XPort}";
     }
 
-    protected static string Port
+    internal static string Port
     {
       get; private set;
     }
 
-    protected static string XPort
+    internal static string XPort
     {
       get; private set;
     }
@@ -101,10 +101,12 @@ namespace MySqlX.Data.Tests
       return r;
     }
 
-    protected Collection CreateCollection(string name)
+    protected Collection CreateCollection(string name, string schema = null)
     {
+      if (schema == null)
+        schema = schemaName;
       Session session = GetSession();
-      Schema test = session.GetSchema(schemaName);
+      Schema test = session.GetSchema(schema);
       test.DropCollection(name);
       return test.CreateCollection(name);
     }
