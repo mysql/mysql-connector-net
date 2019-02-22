@@ -27,7 +27,7 @@
     <NoWarn>CS1591,CS1587,CS1701,CS1702</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.0'">
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.2'">
     <Compile Remove="Framework\netstandard1_3\**" />
     <Compile Remove="Framework\netstandard2_0\**" />
     <Compile Include="Framework\netstandard2_0\TestDataTable.cs" />
