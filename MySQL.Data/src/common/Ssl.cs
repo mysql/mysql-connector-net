@@ -266,8 +266,7 @@ namespace MySql.Data.Common
 
           VerifyEmptyOrWhitespaceSslConnectionOption(_settings.SslKey, nameof(_settings.SslKey));
           var sslKey = ReadKey(_settings.SslKey);
-          VerifyIdentity(sslPolicyErrors);
-          VerifySignature(sslCert, sslKey.Public);
+          VerifyKeyCorrespondsToCertificateKey(sslCert, sslKey);
         }
 
         return true;
@@ -492,6 +491,13 @@ namespace MySql.Data.Common
     {
       if (CACertificate.IssuerDN.ToString() != serverCertificate.Issuer)
         throw new MySqlException(Resources.SslConnectionError, new Exception(Resources.SslCertificateCAMismatch));
+    }
+
+    private void VerifyKeyCorrespondsToCertificateKey(Org.BouncyCastle.X509.X509Certificate certificate, AsymmetricCipherKeyPair key)
+    {
+      var certificateKey = certificate.GetPublicKey().ToString();
+      if (!string.IsNullOrEmpty(certificateKey) && certificateKey != key.Public.ToString())
+        throw new InvalidKeyException();
     }
 
     /// Validates that the certificate provided is a CA certificate.

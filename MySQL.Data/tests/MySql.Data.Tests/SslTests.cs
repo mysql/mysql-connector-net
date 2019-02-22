@@ -387,6 +387,12 @@ namespace MySql.Data.MySqlClient.Tests
         connection.Open();
         connection.Close();
       }
+
+      builder.SslKey = _sslKey.Replace("client-key.pem", "client-key_altered.pem");
+      using (var connection = new MySqlConnection(builder.ConnectionString))
+      {
+        var exception = Assert.Throws<MySqlException>(() => connection.Open());
+      }
     }
 
     [Fact]
@@ -461,7 +467,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     [Fact]
     [Trait("Category", "Security")]
-    public void AttemptConnectionWitSwitchedPemCertificates()
+    public void AttemptConnectionWithSwitchedPemCertificates()
     {
       var builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
       builder.SslCa = _sslCert;

@@ -423,6 +423,9 @@ namespace MySqlX.Data.Tests
       {
         session.Close();
       }
+
+      builder.SslKey = _sslKey.Replace("client-key.pem", "client-key_altered.pem");
+      Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
     }
 
     [Fact]
