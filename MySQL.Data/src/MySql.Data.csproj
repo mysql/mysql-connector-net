@@ -125,6 +125,12 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'commercial' ">
+    <DefineConstants>$(DefineConstants);TRACE;RELEASE;COMMERCIAL</DefineConstants>
+    <TargetFrameworks>net452;</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Update="Framework\net452\Installer.cs">
       <SubType>Component</SubType>
@@ -156,10 +162,6 @@
   <PropertyGroup>
     <PostBuildEvent Condition="'$(OS)' == 'Windows_NT' ">$(ProjectDir)Properties\metadata.sh $(ConfigurationName) $(Version)</PostBuildEvent>
     <PostBuildEvent Condition="'$(OS)' != 'Windows_NT' ">bash $(ProjectDir)Properties/metadata.sh $(ConfigurationName) $(Version)</PostBuildEvent>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'commercial' ">
-    <DefineConstants>$(DefineConstants);COMMERCIAL</DefineConstants>
   </PropertyGroup>
   
 </Project>
