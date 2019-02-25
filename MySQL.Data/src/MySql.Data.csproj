@@ -125,6 +125,12 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'commercial' ">
+    <DefineConstants>$(DefineConstants);TRACE;RELEASE;COMMERCIAL</DefineConstants>
+    <TargetFrameworks>net452;</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Update="Framework\net452\Installer.cs">
       <SubType>Component</SubType>

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -62,6 +62,7 @@ namespace MySqlX.XDevAPI
         },
         (msb, sender) => (uint)msb.values["connect-timeout"]
         ));
+      Options.Add(new MySqlConnectionStringOption("connection-attributes", "connectionattributes", typeof(string), "true", false));
 
       // Authentication options.
       Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false));
@@ -111,6 +112,16 @@ namespace MySqlX.XDevAPI
       }
     }
 
+    [Category("Connection")]
+    [DisplayName("Connection Attributes")]
+    [Description("Gets or sets a comma-delimited list of key-value pairs " +
+      "(in addition to standard XProtocol predefined keys) to be passed to MySQL Server" +
+      "for display as connection attributes.")]
+    public string ConnectionAttributes
+    {
+      get { return (string)values["connection-attributes"]; }
+      set { SetValue("connection-attributes", value); }
+    }
     #endregion
 
     #region Authentication Properties

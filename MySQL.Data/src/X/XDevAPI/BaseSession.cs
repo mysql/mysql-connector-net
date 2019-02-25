@@ -55,6 +55,7 @@ namespace MySqlX.XDevAPI
     private const string PORT_CONNECTION_OPTION_KEYWORD = "port";
     private const string SERVER_CONNECTION_OPTION_KEYWORD = "server";
     private const string CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD = "connect-timeout";
+    private const string CONNECTION_ATTRIBUTES_CONNECTION_OPTION_KEYWORD = "connection-attributes";
     internal QueueTaskScheduler _scheduler = new QueueTaskScheduler();
     protected readonly Client _client;
 
@@ -603,13 +604,24 @@ namespace MySqlX.XDevAPI
         foreach (string query in queries)
         {
           string[] keyValue = query.Split('=');
-          if (keyValue.Length > 2)
-            throw new ArgumentException(ResourcesX.InvalidUriQuery + ":" + keyValue[0]);
-          var connecttimeoutOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD);
-          if ((connecttimeoutOption.Keyword == keyValue[0] || connecttimeoutOption.Synonyms.Contains(keyValue[0])) &&
-            String.IsNullOrWhiteSpace(keyValue[1]))
-            throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
-          string part = keyValue[0] + "=" + (keyValue.Length == 2 ? keyValue[1] : "true").Replace("(", string.Empty).Replace(")", string.Empty);
+          string part;
+          var connectionAttributesOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == CONNECTION_ATTRIBUTES_CONNECTION_OPTION_KEYWORD);
+
+          if (!((connectionAttributesOption.Keyword == keyValue[0]) || connectionAttributesOption.Synonyms.Contains(keyValue[0]) && keyValue.Count() > 2))
+          {
+            if (keyValue.Length > 2)
+              throw new ArgumentException(ResourcesX.InvalidUriQuery + ":" + keyValue[0]);
+            var connecttimeoutOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD);
+            if ((connecttimeoutOption.Keyword == keyValue[0] || connecttimeoutOption.Synonyms.Contains(keyValue[0])) &&
+              String.IsNullOrWhiteSpace(keyValue[1]))
+              throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
+            part = keyValue[0] + "=" + (keyValue.Length == 2 ? keyValue[1] : "true").Replace("(", string.Empty).Replace(")", string.Empty);
+          }
+          else if (keyValue[1] == string.Empty)
+            throw new MySqlException(ResourcesX.InvalidUriQuery + ": " + keyValue[0]);
+          else
+            part = keyValue[0] + "=" + query.Replace(keyValue[0] + "=", string.Empty);
+
           connectionParts.Add(part);
         }
       }
@@ -634,6 +646,10 @@ namespace MySqlX.XDevAPI
       var connecttimeoutOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD);
       foreach (KeyValuePair<string, string> keyValuePair in connectionOptionsDictionary)
       {
+        // Value is an equal or a semicolon
+        if (keyValuePair.Value == "=" || keyValuePair.Value == "\"")
+          throw new MySqlException(string.Format(Resources.InvalidConnectionStringValue, (keyValuePair.Value == "\"" ? ";" : "="), keyValuePair.Key));
+
         // Key is not server or any of its synonyms.
         if (keyValuePair.Key != serverOption.Keyword && !serverOption.Synonyms.Contains(keyValuePair.Key))
         {

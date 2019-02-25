@@ -205,7 +205,64 @@ namespace MySqlX.Sessions
           clientCapabilities.Add("tls", "1");
         }
       }
-      protocol.SetCapabilities(clientCapabilities);
+
+      // set connection-attributes
+      if (Settings.ConnectionAttributes.ToLower() != "false")
+        clientCapabilities.Add("session_connect_attrs", GetConnectionAttributes(Settings.ConnectionAttributes));
+
+      try
+      {
+        protocol.SetCapabilities(clientCapabilities);
+      }
+      catch (MySqlException ex)
+      {
+        if (ex.Message == "Capability 'session_connect_attrs' doesn't exist")
+          clientCapabilities.Remove("session_connect_attrs");
+        protocol.SetCapabilities(clientCapabilities);
+      }
+    }
+
+    private Dictionary<string, string> GetConnectionAttributes(string connectionAttrs)
+    {
+      Dictionary<string, string> attrs = new Dictionary<string, string>();
+
+      if (connectionAttrs.StartsWith("[") && connectionAttrs.EndsWith("]"))
+      {
+        connectionAttrs = connectionAttrs.Substring(1, connectionAttrs.Length - 2);
+
+        if (!string.IsNullOrWhiteSpace(connectionAttrs))
+        {
+          foreach (var pair in connectionAttrs.Split(','))
+          {
+            string[] keyValue = pair.Split('=');
+            string key = keyValue[0].Trim();
+            string value = keyValue.Length > 1 ? keyValue[1].Trim() : string.Empty;
+
+            if (key == string.Empty)
+              throw new MySqlException(ResourcesX.EmptyKeyConnectionAttribute);
+
+            if (key.StartsWith("_"))
+              throw new MySqlException(ResourcesX.InvalidUserDefinedAttribute);
+
+            try { attrs.Add(key, value); }
+            catch (ArgumentException) { throw new MySqlException(string.Format(ResourcesX.DuplicateUserDefinedAttribute, key)); }
+          }
+        }
+      }
+      else if (connectionAttrs != "true")
+        throw new MySqlException(ResourcesX.InvalidConnectionAttributes);
+
+      MySqlConnectAttrs clientAttrs = new MySqlConnectAttrs();
+      attrs.Add("_pid", clientAttrs.PID);
+      attrs.Add("_platform", clientAttrs.Platform);
+      attrs.Add("_os", clientAttrs.OSName);
+      attrs.Add("_source_host", Settings.Server);
+      attrs.Add("_client_name", clientAttrs.ClientName);
+      attrs.Add("_client_version", clientAttrs.ClientVersion);
+      attrs.Add("_client_license", clientAttrs.ClientLicence);
+      attrs.Add("_framework", clientAttrs.Framework);
+
+      return attrs;
     }
 
     private void AuthenticateMySQL41()

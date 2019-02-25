@@ -145,9 +145,23 @@ namespace MySqlX.Protocol
       var capabilities = new Capabilities();
       foreach (var cap in clientCapabilities)
       {
-        var capabilityMsg = new Capability() { Name = (cap.Key), Value = ExprUtil.BuildAny(cap.Value) };
+        var value = new Any();
+
+        if (cap.Key == "tls")
+          value = ExprUtil.BuildAny(cap.Value);
+        else if (cap.Key == "session_connect_attrs")
+        {
+          Mysqlx.Datatypes.Object obj = new Mysqlx.Datatypes.Object();
+          foreach (var pair in (Dictionary<string, string>)cap.Value)
+            obj.Fld.Add(new ObjectField { Key = pair.Key, Value = ExprUtil.BuildAny(pair.Value) });
+
+          value = new Any { Type = Any.Types.Type.Object, Obj = obj };
+        }
+
+        var capabilityMsg = new Capability() { Name = cap.Key, Value = value };
         capabilities.Capabilities_.Add(capabilityMsg);
       }
+
       builder.Capabilities = capabilities;
       _writer.Write(ClientMessageId.CON_CAPABILITIES_SET, builder);
       ReadOk();

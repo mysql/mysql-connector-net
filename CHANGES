@@ -5,6 +5,7 @@
 - MySqlX bug fix: DELETE WHERE THROWS PARSE EXCEPTION WITH -> OPERATOR FOR ARRAY (Oracle Bug #29347028).
 - Bug fix: PREPARED COMMANDS EXECUTE WITH ERROR ON MYSQL SERVER 8.0.13 (MySQL Bug #92912, Oracle Bug #28834253).
 - MySqlX: Added support for new session reset functionality (WL12515).
+- MySqlX: Added the Connection Attributes property (WL12514).
 
 
 8.0.15

@@ -33,6 +33,7 @@ using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Xunit;
 
 namespace MySqlX.Data.Tests
@@ -373,6 +374,94 @@ namespace MySqlX.Data.Tests
       session.SQL(string.Format("SET @a='session{0}'", id)).Execute();
       res = session.SQL("SELECT @a AS a").Execute();
       Assert.Equal("session" + id, res.FetchAll()[0][0]);
+    }
+
+    /// <summary>
+    /// WL12514 - DevAPI: Support session-connect-attributes
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Security")]
+    public void ConnectionAttributes()
+    {
+      if (!(session.Version.isAtLeast(8, 0, 16))) return;
+
+      // Validate that MySQLX.GetSession() supports a new 'connection-attributes' query parameter
+      // with default values and all the client attributes starts with a '_'.
+      TestConnectionAttributes(ConnectionString + ";connection-attributes=true;");
+
+      // Validate that no attributes, client or user defined, are sent to server when the value is "false".
+      TestConnectionAttributes(ConnectionString + ";connection-attributes=false;");
+
+      // Validate default behavior with different scenarios.
+      TestConnectionAttributes(ConnectionString + ";connection-attributes;");
+      TestConnectionAttributes(ConnectionString + ";connection-attributes=true;");
+
+
+      // Validate user-defined attributes to be sent to server.
+      Dictionary<string, object> userAttrs = new Dictionary<string, object>
+      {
+        { "foo", "bar" },
+        { "quua", "qux" },
+        { "key", null }
+      };
+      TestConnectionAttributes(ConnectionString + ";connection-attributes=[foo=bar,quua=qux,key]", userAttrs);
+      TestConnectionAttributes(ConnectionStringUri + "?connectionattributes=[foo=bar,quua=qux,key=]", userAttrs);
+
+      // Errors
+      var ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[_key=value]"));
+      Assert.Equal(ResourcesX.InvalidUserDefinedAttribute, ex.Message);
+
+      ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=123"));
+      Assert.Equal(ResourcesX.InvalidConnectionAttributes, ex.Message);
+
+      ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[key=value,key=value2]"));
+      Assert.Equal(string.Format(ResourcesX.DuplicateUserDefinedAttribute, "key"), ex.Message);
+
+      MySqlXConnectionStringBuilder builder = new MySqlXConnectionStringBuilder();
+      builder.Server = "localhost";
+      builder.Port = 33060;
+      builder.UserID = "root";
+      builder.ConnectionAttributes = ";";
+      ex = Assert.Throws<MySqlException>(() => MySQLX.GetClient(builder.ConnectionString, "{ \"pooling\": { \"enabled\": true } }"));
+      Assert.Equal("The requested value ';' is invalid for the given keyword 'connection-attributes'.", ex.Message);
+    }
+
+    private void TestConnectionAttributes(string connString, Dictionary<string, object> userAttrs = null)
+    {
+      string sql = "SELECT * FROM performance_schema.session_account_connect_attrs WHERE PROCESSLIST_ID = connection_id()";
+
+      using (Client client = MySQLX.GetClient(connString, "{ \"pooling\": { \"enabled\": true } }"))
+      using (Session session = client.GetSession())
+      {
+        Assert.Equal(SessionState.Open, session.XSession.SessionState);
+        var result = session.SQL(sql).Execute().FetchAll();
+
+        if (session.Settings.ConnectionAttributes == "false")
+          Assert.Empty(result);
+        else
+        {
+          Assert.NotEmpty(result);
+          MySqlConnectAttrs clientAttrs = new MySqlConnectAttrs();
+
+          if (userAttrs == null)
+          {
+            Assert.Equal(8, result.Count);
+
+            foreach (Row row in result)
+              Assert.StartsWith("_", row[1].ToString());
+          }
+          else
+          {
+            Assert.Equal(11, result.Count);
+
+            for (int i = 0; i < userAttrs.Count; i++)
+            {
+              Assert.True(userAttrs.ContainsKey(result.ElementAt(i)[1].ToString()));
+              Assert.True(userAttrs.ContainsValue(result.ElementAt(i)[2]));
+            }
+          }
+        }
+      }
     }
   }
 }
