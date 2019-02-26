@@ -1,4 +1,4 @@
-// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,18 +20,16 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using MySql.Data.MySqlClient.Authentication;
+using MySql.Data.Types;
 using System;
 using System.Collections;
-using System.Diagnostics;
-using System.IO;
-using MySql.Data.Common;
-using MySql.Data.Types;
-using System.Text;
-using MySql.Data.MySqlClient.Authentication;
-using System.Reflection;
 using System.ComponentModel;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace MySql.Data.MySqlClient
 {
@@ -306,8 +304,12 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     private void SetConnectionFlags(ClientFlags serverCaps)
     {
+      // We always allow multiple result sets
+      ClientFlags flags = ClientFlags.MULTI_RESULTS;
+
       // allow load data local infile
-      ClientFlags flags = ClientFlags.LOCAL_FILES;
+      if (Settings.AllowLoadLocalInfile)
+        flags |= ClientFlags.LOCAL_FILES;
 
       if (!Settings.UseAffectedRows)
         flags |= ClientFlags.FOUND_ROWS;
@@ -319,9 +321,6 @@ namespace MySql.Data.MySqlClient
       // user allows/disallows batch statements
       if (Settings.AllowBatch)
         flags |= ClientFlags.MULTI_STATEMENTS;
-
-      // We always allow multiple result sets
-      flags |= ClientFlags.MULTI_RESULTS;
 
       // if the server allows it, tell it that we want long column info
       if ((serverCaps & ClientFlags.LONG_FLAG) != 0)
@@ -483,10 +482,18 @@ namespace MySql.Data.MySqlClient
       int fieldCount = (int)packet.ReadFieldLength();
       if (-1 == fieldCount)
       {
-        string filename = packet.ReadString();
-        SendFileToServer(filename);
+        if (this.Settings.AllowLoadLocalInfile)
+        {
+          string filename = packet.ReadString();
+          SendFileToServer(filename);
 
-        return GetResult(ref affectedRow, ref insertedId);
+          return GetResult(ref affectedRow, ref insertedId);
+        }
+        else
+        {
+          stream.Close();
+          throw new MySqlException(Resources.LocalInfileDisabled);
+        }
       }
       else if (fieldCount == 0)
       {

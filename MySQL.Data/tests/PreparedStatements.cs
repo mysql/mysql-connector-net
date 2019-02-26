@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -756,6 +756,32 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(0, ts.Hours);
         Assert.Equal(-10, ts.Minutes);
         Assert.Equal(0, ts.Seconds);
+      }
+    }
+
+    /// <summary>
+    /// Bug #28383726 00:00:00 IS CONVERTED TO NULL WITH PREPARED COMMAND
+    /// </summary>
+    [Fact]
+    public void ZeroTimePrepared()
+    {
+      executeSQL("DROP TABLE IF EXISTS Test");
+      executeSQL(@"CREATE TABLE Test(id int, t time NOT NULL)");
+      executeSQL(@"INSERT INTO Test VALUES(1, 0)");
+
+      MySqlCommand cmd = new MySqlCommand(@"SELECT t FROM Test", Connection);
+      cmd.Prepare();
+
+      using (var reader = cmd.ExecuteReader())
+      {
+        reader.Read();
+        var t = reader.GetValue(0);
+        Assert.Equal("00:00:00", t.ToString());
+
+        TimeSpan timeSpan = reader.GetTimeSpan(0);
+        Assert.Equal(0, timeSpan.Hours);
+        Assert.Equal(0, timeSpan.Minutes);
+        Assert.Equal(0, timeSpan.Seconds);
       }
     }
 

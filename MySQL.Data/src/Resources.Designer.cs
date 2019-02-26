@@ -10,7 +10,7 @@
 
 namespace MySql.Data {
     using System;
-    using System.Reflection;
+  using System.Reflection;
     
     
     /// <summary>
@@ -564,6 +564,15 @@ namespace MySql.Data {
         public static string keywords {
             get {
                 return ResourceManager.GetString("keywords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Server asked for stream in response to LOAD DATA LOCAL INFILE, but the functionality is disabled by client setting &apos;allowlocalinfile&apos; to &apos;false&apos;..
+        /// </summary>
+        public static string LocalInfileDisabled {
+            get {
+                return ResourceManager.GetString("LocalInfileDisabled", resourceCulture);
             }
         }
         

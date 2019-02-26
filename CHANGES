@@ -3,6 +3,8 @@
 - Contribution added: Add CreateCommandBuilder and CreateDataAdapter to MySqlClientFactory (MySQL Bug #92206, Oracle Bug #28560189). Thanks to Cédric Luthi for the contribution.
 - Fix null DbDataAdapter and DbCommandBuilder objects when using CreateDataAdapter and CreateCommandBuilder respectively (MySQL Bug #88660, Oracle Bug #27292344).
 - Bug fix: PREPARED COMMANDS EXECUTE WITH ERROR ON MYSQL SERVER 8.0.13 (MySQL Bug #92912, Oracle Bug #28834253).
+- Fixed an issue that convert 00:00:00 (Time) to null when using prepared commands (MySQL Bug #91752, Oracle Bug #28383726).
+- Added new "allowloadlocalinfile" connection string option that disables or enables the server functionality to load the data local infile.
 
 
 6.10.8

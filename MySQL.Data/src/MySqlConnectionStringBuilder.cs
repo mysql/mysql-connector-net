@@ -119,6 +119,7 @@ namespace MySql.Data.MySqlClient
         ));
       Options.Add(new MySqlConnectionStringOption("defaultcommandtimeout", "command timeout,default command timeout", typeof(uint), (uint)30, false));
       Options.Add(new MySqlConnectionStringOption("usedefaultcommandtimeoutforef", "use default command timeout for ef", typeof(bool), false, false));
+      Options.Add(new MySqlConnectionStringOption("allowloadlocalinfile", "allow load local infile", typeof(bool), false, false));
 
       // authentication options
       Options.Add(new MySqlConnectionStringOption("user id", "uid,username,user name,user,userid", typeof(string), "", false));
@@ -432,9 +433,23 @@ namespace MySql.Data.MySqlClient
       set { SetValue("defaultcommandtimeout", value); }
     }
 
-#endregion
+    /// <summary>
+    /// Gets or sets a boolean value that indicates whether this connection will allow
+    /// to load data local infile.
+    /// </summary>
+    [Category("Connection")]
+    [DisplayName("Allow Load Data Local Infile")]
+    [Description("Allows reading data from a text file.")]
+    [RefreshProperties(RefreshProperties.All)]
+    public bool AllowLoadLocalInfile
+    {
+      get { return (bool)values["allowloadlocalinfile"]; }
+      set { SetValue("allowloadlocalinfile", value); }
+    }
 
-#region Authentication Properties
+    #endregion
+
+    #region Authentication Properties
 
     /// <summary>
     /// Gets or sets the user id that should be used to connect with.

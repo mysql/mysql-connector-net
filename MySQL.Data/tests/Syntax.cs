@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,9 +21,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Xunit;
 using System.Data;
 using System.IO;
+using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -99,31 +99,37 @@ namespace MySql.Data.MySqlClient.Tests
     public void LoadDataLocalInfile()
     {
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
-      string connString = Connection.ConnectionString + ";pooling=false";
-      MySqlConnection c = new MySqlConnection(connString);
-      c.Open();
 
-      string path = Path.GetTempFileName();
-      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
-      for (int i = 0; i < 2000000; i++)
-        sw.WriteLine(i + ",'Test'");
-      sw.Flush();
-      sw.Dispose();
+      LoadFile(new MySqlConnection(Connection.ConnectionString + ";pooling=false;allowloadlocalinfile=true;"));
+      Assert.Throws<MySqlException>(() => LoadFile(new MySqlConnection(Connection.ConnectionString + ";pooling=false;")));
+    }
 
-      path = path.Replace(@"\", @"\\");
-      MySqlCommand cmd = new MySqlCommand(
-        "LOAD DATA LOCAL INFILE '" + path + "' INTO TABLE Test FIELDS TERMINATED BY ','", Connection);
-      cmd.CommandTimeout = 0;
+    private void LoadFile(MySqlConnection conn)
+    {
+      using (conn)
+      {
+        conn.Open();
 
-      object cnt = 0;
-      cnt = cmd.ExecuteNonQuery();
-      Assert.Equal(2000000, Convert.ToInt32(cnt));
+        string path = Path.GetTempFileName();
+        StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
+        for (int i = 0; i < 2000000; i++)
+          sw.WriteLine(i + ",'Test'");
+        sw.Flush();
+        sw.Dispose();
 
-      cmd.CommandText = "SELECT COUNT(*) FROM Test";
-      cnt = cmd.ExecuteScalar();
-      Assert.Equal(2000000, Convert.ToInt32(cnt));
+        path = path.Replace(@"\", @"\\");
+        MySqlCommand cmd = new MySqlCommand(
+          "LOAD DATA LOCAL INFILE '" + path + "' INTO TABLE Test FIELDS TERMINATED BY ','", conn);
+        cmd.CommandTimeout = 0;
 
-      c.Close();
+        object cnt = 0;
+        cnt = cmd.ExecuteNonQuery();
+        Assert.Equal(2000000, Convert.ToInt32(cnt));
+
+        cmd.CommandText = "SELECT COUNT(*) FROM Test";
+        cnt = cmd.ExecuteScalar();
+        Assert.Equal(2000000, Convert.ToInt32(cnt));
+      }
     }
 
     [Fact]

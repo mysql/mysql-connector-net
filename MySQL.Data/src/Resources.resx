@@ -550,4 +550,7 @@
   <data name="UnableToReadRSAKey" xml:space="preserve">
     <value>Error encountered reading the RSA public key.</value>
   </data>
+  <data name="LocalInfileDisabled" xml:space="preserve">
+    <value>Server asked for stream in response to LOAD DATA LOCAL INFILE, but the functionality is disabled by the client setting 'allowlocalinfile' to 'false'.</value>
+  </data>
 </root>
