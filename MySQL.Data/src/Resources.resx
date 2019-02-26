@@ -601,4 +601,7 @@
   <data name="SslCertificateIsNotCA" xml:space="preserve">
     <value>The certificate is not a certificate authority (CA).</value>
   </data>
+  <data name="LocalInfileDisabled" xml:space="preserve">
+    <value>Server asked for stream in response to LOAD DATA LOCAL INFILE, but the functionality is disabled by the client setting 'allowlocalinfile' to 'false'.</value>
+  </data>
 </root>

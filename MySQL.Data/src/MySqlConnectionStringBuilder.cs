@@ -26,18 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Data.Common;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using MySql.Data.Common;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using static MySql.Data.MySqlClient.MySqlConnectionStringOption;
+using System;
+using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 namespace MySql.Data.MySqlClient
 {
@@ -106,6 +98,7 @@ namespace MySql.Data.MySqlClient
         },
         (msb, sender) => (uint)msb.values["connectiontimeout"]
         ));
+      Options.Add(new MySqlConnectionStringOption("allowloadlocalinfile", "allow load local infile", typeof(bool), false, false));
 
       // Authentication options.
       Options.Add(new MySqlConnectionStringOption("persistsecurityinfo", "persist security info", typeof(bool), false, false,
@@ -349,6 +342,20 @@ namespace MySql.Data.MySqlClient
         }
         SetValue("connectiontimeout", timeout);
       }
+    }
+
+    /// <summary>
+    /// Gets or sets a boolean value that indicates whether this connection will allow
+    /// to load data local infile.
+    /// </summary>
+    [Category("Connection")]
+    [DisplayName("Allow Load Data Local Infile")]
+    [Description("Allows reading data from a text file.")]
+    [RefreshProperties(RefreshProperties.All)]
+    public bool AllowLoadLocalInfile
+    {
+      get { return (bool)values["allowloadlocalinfile"]; }
+      set { SetValue("allowloadlocalinfile", value); }
     }
 
     #endregion

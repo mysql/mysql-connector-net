@@ -7,10 +7,12 @@
 - MySqlX: Added support for new session reset functionality (WL12515).
 - MySqlX: Added the Connection Attributes property (WL12514).
 - Added support for SSL connections using PEM certificates with the sslCA, sslCert and sslKey connection options (WL12494).
+- Fixed an issue that convert 00:00:00 (Time) to null when using prepared commands (MySQL Bug #91752, Oracle Bug #28383726).
 
 
 8.0.15
 - Bug fix: Disabled Load Data Local Infile by default (Oracle Bug #29259767).
+- Added new "allowloadlocalinfile" connection string option that disables or enables the server functionality to load the data local infile.
 
 
 8.0.14

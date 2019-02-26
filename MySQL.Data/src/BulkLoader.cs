@@ -106,7 +106,7 @@ namespace MySql.Data.MySqlClient
 
     /// <summary>
     /// Gets or sets a value indicating whether the file name that is to be loaded
-    /// is local to the client or not. The default value is False.
+    /// is local to the client or not. The default value is false.
     /// </summary>
     /// <value><c>true</c> if local; otherwise, <c>false</c>.</value>
     public bool Local { get; set; }
