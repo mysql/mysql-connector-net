@@ -179,7 +179,7 @@ namespace MySqlX.XDevAPI
         Session session = GetPooledSession();
         return session;
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         Interlocked.Increment(ref _available);
         throw;

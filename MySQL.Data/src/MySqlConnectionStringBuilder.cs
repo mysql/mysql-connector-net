@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -386,12 +386,15 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets the authentication mechanism to use with X Protocol connections.
+    /// Gets or sets a boolean value that indicates if RSA public keys should be retrieved from the server.
     /// </summary>
-    /// <remarks>This option is specific to X Protocol connections. Default value is <see cref="MySqlAuthenticationMode.Default"/>.</remarks>
+    /// <remarks>This option is only relevant when SSL is disabled. Setting this option to <c>true</c> in
+    /// 8.0 servers that have the caching_sha2_password authentication plugin as the default plugin will
+    /// cause the connection attempt to fail if the user hasn't successfully connected to the server on a
+    /// previous occasion.</remarks>
     [Category("Authentication")]
     [DisplayName("AllowPublicKeyRetrieval")]
-    [Description("Allow retrieval of RSA public keys when SSL is disabled.")]
+    [Description("Allow retrieval of RSA public keys from server when SSL is disabled.")]
     [DefaultValue(false)]
     public bool AllowPublicKeyRetrieval
     {

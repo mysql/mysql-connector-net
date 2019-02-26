@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -84,17 +84,17 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("certificatestorelocation", "certificate store location", typeof(MySqlCertificateStoreLocation), MySqlCertificateStoreLocation.None, false));
       Options.Add(new MySqlConnectionStringOption("certificatethumbprint", "certificate thumb print", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode,ssl-mode", typeof(MySqlSslMode), MySqlSslMode.Preferred, false));
+      Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
+        (BaseSetterDelegate)((msb, sender, value) => { msb.SslCa = value as string; }),
+        (BaseGetterDelegate)((msb, sender) => { return msb.SslCa; })));
+      Options.Add(new MySqlConnectionStringOption("sslkey", "ssl-key", typeof(string), null, false));
+      Options.Add(new MySqlConnectionStringOption("sslcert", "ssl-cert", typeof(string), null, false));
 
       // Other properties.
       Options.Add(new MySqlConnectionStringOption("keepalive", "keep alive", typeof(uint), (uint)0, false));
 
       // Language and charset options.
       Options.Add(new MySqlConnectionStringOption("characterset", "character set,charset", typeof(string), "", false));
-
-      // X Authentication options.      
-      Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
-        (BaseSetterDelegate)((msb, sender, value) => { msb.SslCa = value as string; }),
-        (BaseGetterDelegate)((msb, sender) => { return msb.SslCa; })));      
     }
 
     public MySqlBaseConnectionStringBuilder()
@@ -310,7 +310,6 @@ namespace MySql.Data.MySqlClient
     #region XAuthentication Properties
 
     [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
-    [Obsolete("Use MySqlXConnectionStringBuilder.SslCa instead.")]
     public string SslCa
     {
       get { return CertificateFile; }
@@ -318,6 +317,26 @@ namespace MySql.Data.MySqlClient
       {
         CertificateFile = value;
       }
+    }
+
+    /// <summary>
+    /// Gets or sets the path to a local key file in PEM format to use for establishing an encrypted connection.
+    /// </summary>
+    [Description("Name of the SSL key file in PEM format to use for establishing an encrypted connection.")]
+    public string SslKey
+    {
+      get { return (string)values["sslkey"]; }
+      set { SetValue("sslkey", value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the path to a local certificate file in PEM format to use for establishing an encrypted connection.
+    /// </summary>
+    [Description("Name of the SSL certificate file in PEM format to use for establishing an encrypted connection.")]
+    public string SslCert
+    {
+      get { return (string)values["sslcert"]; }
+      set { SetValue("sslcert", value); }
     }
 
     #endregion
@@ -466,7 +485,14 @@ namespace MySql.Data.MySqlClient
         var keyword = keyValue[0].ToLowerInvariant().Trim();
         var value = keyValue[1].ToLowerInvariant();
         MySqlConnectionStringOption option = Options.Options.Where(o => o.Keyword == keyword || (o.Synonyms != null && o.Synonyms.Contains(keyword))).FirstOrDefault();
-        if (option == null || (option.Keyword != "sslmode" && option.Keyword != "certificatepassword" && option.Keyword != "sslcrl" && option.Keyword != "sslca"))
+        if (option == null 
+          || (option.Keyword != "sslmode"
+               && option.Keyword != "certificatefile"
+               && option.Keyword != "certificatepassword"
+               && option.Keyword != "sslcrl"
+               && option.Keyword != "sslca"
+               && option.Keyword != "sslcert"
+               && option.Keyword != "sslkey"))
           continue;
 
         // SSL connection options can't be duplicated.
@@ -477,14 +503,26 @@ namespace MySql.Data.MySqlClient
         if (option.Keyword == "sslmode" && (value == "none" || value == "disabled"))
           sslModeIsNone = true;
 
-        if (sslModeIsNone && (option.Keyword == "certificatepassword" || option.Keyword == "sslcrl" || option.Keyword == "sslca"))
+        if (sslModeIsNone &&
+             (option.Keyword == "certificatefile"
+               || option.Keyword == "certificatepassword"
+               || option.Keyword == "sslcrl"
+               || option.Keyword == "sslca"
+               || option.Keyword == "sslcert"
+               || option.Keyword == "sslkey"))
           throw new ArgumentException(Resources.InvalidOptionWhenSslDisabled);
 
         // Preferred is not allowed for the X Protocol.
         if (isXProtocol && option.Keyword == "sslmode" && (value == "preferred" || value == "prefered"))
           throw new ArgumentException(string.Format(Resources.InvalidSslMode, keyValue[1]));
 
-        usedSslOptions.Add(option.Keyword);
+        if (option.Keyword == "sslca" || option.Keyword == "certificatefile")
+        {
+          usedSslOptions.Add("sslca");
+          usedSslOptions.Add("certificatefile");
+        }
+        else
+          usedSslOptions.Add(option.Keyword);
       }
     }
   }

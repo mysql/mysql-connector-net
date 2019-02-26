@@ -43,7 +43,7 @@ namespace MySqlX.Data.Tests
     [Trait("Category", "Security")]
     public void CanCloseSession()
     {
-      Session s = MySqlX.XDevAPI.MySQLX.GetSession(ConnectionString);
+      Session s = MySQLX.GetSession(ConnectionString);
       Assert.True(s.InternalSession.SessionState == SessionState.Open);
       s.Close();
       Assert.Equal(s.InternalSession.SessionState, SessionState.Closed);
@@ -53,7 +53,7 @@ namespace MySqlX.Data.Tests
     [Trait("Category", "Security")]
     public void NoPassword()
     {
-      Session session = MySqlX.XDevAPI.MySQLX.GetSession(ConnectionStringNoPassword);
+      Session session = MySQLX.GetSession(ConnectionStringNoPassword);
       Assert.True(session.InternalSession.SessionState == SessionState.Open);
       session.Close();
       Assert.Equal(session.InternalSession.SessionState, SessionState.Closed);

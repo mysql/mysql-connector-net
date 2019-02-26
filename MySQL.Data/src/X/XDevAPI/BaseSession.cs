@@ -270,6 +270,7 @@ namespace MySqlX.XDevAPI
       {
         if (!Settings.ContainsKey(value.Key))
           throw new KeyNotFoundException(string.Format(ResourcesX.InvalidConnectionStringAttribute, value.Key));
+
         Settings.SetValue(value.Key, value.Value);
         if (!hostsParsed && !string.IsNullOrEmpty(Settings[SERVER_CONNECTION_OPTION_KEYWORD].ToString()))
         {
@@ -286,14 +287,15 @@ namespace MySqlX.XDevAPI
       }
       this._connectionString = Settings.ToString();
 
+      Settings.AnalyzeConnectionString(this._connectionString, true);
       if (FailoverManager.FailoverGroup != null)
       {
         // Multiple hosts were specified.
         _internalSession = FailoverManager.AttemptConnection(this._connectionString, out this._connectionString);
         Settings.ConnectionString = _connectionString;
-        Settings.AnalyzeConnectionString(this._connectionString, true);
       }
-      else _internalSession = InternalSession.GetSession(Settings);
+      else
+        _internalSession = InternalSession.GetSession(Settings);
 
       if (!string.IsNullOrWhiteSpace(Settings.Database))
         DefaultSchema = GetSchema(Settings.Database);

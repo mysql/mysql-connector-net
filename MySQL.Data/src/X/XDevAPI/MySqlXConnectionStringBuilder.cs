@@ -112,6 +112,9 @@ namespace MySqlX.XDevAPI
       }
     }
 
+    /// <summary>
+    /// Gets or sets the connection attributes.
+    /// </summary>
     [Category("Connection")]
     [DisplayName("Connection Attributes")]
     [Description("Gets or sets a comma-delimited list of key-value pairs " +
@@ -136,16 +139,9 @@ namespace MySqlX.XDevAPI
       set { SetValue("auth", value); }
     }
 
-    [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
-    public new string SslCa
-    {
-      get { return CertificateFile; }
-      set
-      {
-        CertificateFile = value;
-      }
-    }
-
+    /// <summary>
+    /// Path to a local file containing certificate revocation lists.
+    /// </summary>
     [Description("Path to a local file containing certificate revocation lists")]
     public new string SslCrl
     {

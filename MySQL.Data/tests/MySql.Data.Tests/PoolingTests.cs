@@ -45,7 +45,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
     }
 
-    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
+    internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
       settings.Pooling = true;
     }
