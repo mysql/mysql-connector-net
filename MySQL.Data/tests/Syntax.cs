@@ -100,24 +100,26 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
-      LoadFile(new MySqlConnection(Connection.ConnectionString + ";pooling=false;allowloadlocalinfile=true;"));
-      Assert.Throws<MySqlException>(() => LoadFile(new MySqlConnection(Connection.ConnectionString + ";pooling=false;")));
+      string path = Path.GetTempFileName();
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
+      for (int i = 0; i < 2000000; i++)
+        sw.WriteLine(i + ",'Test'");
+      sw.Flush();
+      sw.Dispose();
+
+      path = path.Replace(@"\", @"\\");
+
+      LoadFile(new MySqlConnection(Connection.ConnectionString + ";allowloadlocalinfile=true;"), path);
+      Assert.Throws<MySqlException>(() => LoadFile(new MySqlConnection(Connection.ConnectionString), path));
     }
 
-    private void LoadFile(MySqlConnection conn)
+    private void LoadFile(MySqlConnection conn, string path)
     {
       using (conn)
       {
         conn.Open();
 
-        string path = Path.GetTempFileName();
-        StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
-        for (int i = 0; i < 2000000; i++)
-          sw.WriteLine(i + ",'Test'");
-        sw.Flush();
-        sw.Dispose();
 
-        path = path.Replace(@"\", @"\\");
         MySqlCommand cmd = new MySqlCommand(
           "LOAD DATA LOCAL INFILE '" + path + "' INTO TABLE Test FIELDS TERMINATED BY ','", conn);
         cmd.CommandTimeout = 0;

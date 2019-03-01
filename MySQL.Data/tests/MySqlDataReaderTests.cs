@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -523,11 +523,11 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-    [Fact(Skip="Fix This")]
+    [Fact(Skip = "Fix This")]
     public void TestMultipleResultsWithQueryCacheOn()
     {
       //query_cache_type was deprecated in server 5.7.20.
-      if (Connection.driver.Version.isAtLeast(5,7,20)) return;
+      if (Connection.driver.Version.isAtLeast(5, 7, 20)) return;
 
       CreateDefaultTable();
       executeSQL("SET SESSION query_cache_type = ON");
@@ -584,10 +584,15 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (tm TIMESTAMP)");
       executeSQL("INSERT INTO Test VALUES (NULL)");
-
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test WHERE tm = '7/1/2005 12:00:00 AM'", Connection);
-      using (MySqlDataReader reader = cmd.ExecuteReader())
+      MySqlDataReader reader;
+
+      if (Connection.driver.Version.isAtLeast(8, 0, 16))
+        Assert.Throws<MySqlException>(() => reader = cmd.ExecuteReader());
+      else
       {
+        Assert.Empty(reader = cmd.ExecuteReader());
+        reader.Close();
       }
     }
 
