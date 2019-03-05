@@ -41,22 +41,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BouncyCastle.NetCore" Version="1.8.3" />
     <PackageReference Include="Google.Protobuf" Version="3.6.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="BouncyCastle.Crypto" Condition="'$(TargetFramework)'=='net452'">
-      <HintPath>..\..\Dependencies\BouncyCastle.NETCore\net20\BouncyCastle.Crypto.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="BouncyCastle.Crypto" Condition="'$(TargetFramework)'=='netstandard1.6'">
-      <HintPath>..\..\Dependencies\BouncyCastle.NETCore\netstandard1.3\BouncyCastle.Crypto.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="BouncyCastle.Crypto" Condition="'$(TargetFramework)'=='netcoreapp2.0' Or '$(TargetFramework)'=='netstandard2.0'">
-      <HintPath>..\..\Dependencies\BouncyCastle.NETCore\netstandard2.0\BouncyCastle.Crypto.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -178,5 +164,5 @@
     <PostBuildEvent Condition="'$(OS)' == 'Windows_NT' ">$(ProjectDir)Properties\metadata.sh $(ConfigurationName) $(Version)</PostBuildEvent>
     <PostBuildEvent Condition="'$(OS)' != 'Windows_NT' ">bash $(ProjectDir)Properties/metadata.sh $(ConfigurationName) $(Version)</PostBuildEvent>
   </PropertyGroup>
-  
+
 </Project>
