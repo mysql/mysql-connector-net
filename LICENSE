@@ -10,7 +10,7 @@ Introduction
    third-party software which may be included in this distribution of
    MySQL Connector/NET 8.0.
 
-   Last updated: February 2019
+   Last updated: March 2019
 
 Licensing Information
 
@@ -478,7 +478,7 @@ Licenses for Third-Party Components
 Bouncy Castle
 
    The following software may be included in this product:
-The Bouncy Castle Cryptographic C#® API
+The Bouncy Castle Cryptographic C#Â® API
 
 The Bouncy Castle License
 Copyright (c) 2000-2018 The Legion of the Bouncy Castle Inc.
