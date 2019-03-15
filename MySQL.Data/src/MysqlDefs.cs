@@ -497,6 +497,25 @@ namespace MySql.Data.MySqlClient
     SkipLocked = 2
   }
 
+  /// <summary>
+  /// Specifies the SSH tunneling authentication mode.
+  /// </summary>
+  public enum SshAuthenticationMode
+  {
+    /// <summary>
+    /// Do not use SSH tunneling.
+    /// </summary>
+    None = 0,
+    /// <summary>
+    /// Authenticate using a password.
+    /// </summary>
+    Password = 1,
+    /// <summary>
+    /// Authenticate using a private key.
+    /// </summary>
+    KeyFile = 2
+  }
+
   internal class MySqlConnectAttrs
   {
     static string _version;

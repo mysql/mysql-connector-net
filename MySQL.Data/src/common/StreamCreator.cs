@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -35,6 +35,8 @@ using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using System.IO.Pipes;
 using System.Net;
+using Renci.SshNet;
+using Renci.SshNet.Common;
 #if !NETSTANDARD1_6
 using MySql.Data.MySqlClient.Common;
 using System.IO.MemoryMappedFiles;
@@ -93,7 +95,11 @@ namespace MySql.Data.Common
     private static Stream GetTcpStream(MySqlConnectionStringBuilder settings)
     {
       TcpClient client = new TcpClient(AddressFamily.InterNetwork);
-      Task task = client.ConnectAsync(settings.Server, (int)settings.Port);
+      Task task = null;
+      if (settings.SshAuthenticationMode == SshAuthenticationMode.None)
+        task = client.ConnectAsync(settings.Server, (int)settings.Port);
+      else
+        task = client.ConnectAsync(settings.SshHostName, (int)settings.SshPort);
 
       if (!task.Wait(((int)settings.ConnectionTimeout * 1000)))
         throw new MySqlException(Resources.Timeout);
@@ -101,6 +107,7 @@ namespace MySql.Data.Common
       {
         SetKeepAlive(client.Client, settings.Keepalive);
       }
+
       return client.GetStream();
     }
 

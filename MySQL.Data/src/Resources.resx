@@ -565,6 +565,9 @@
   <data name="InvalidSslMode" xml:space="preserve">
     <value>Value '{0}' is not of the correct type.</value>
   </data>
+  <data name="ParameterCannotBeNullOrEmpty" xml:space="preserve">
+    <value>Parameter '{0}' can't be null or empty.</value>
+  </data>
   <data name="EncodingError" xml:space="preserve">
     <value>Encoding error during validation.</value>
   </data>
