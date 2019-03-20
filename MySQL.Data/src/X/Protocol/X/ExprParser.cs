@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -90,7 +90,6 @@ namespace MySqlX.Protocol.X
     {
       this.stringValue = s;
       Lex();
-      // java.util.stream.IntStream.range(0, this.tokens.size()).forEach(i -> System.err.println("[" + i + "] = " + this.tokens.get(i)));
       this.allowRelationalColumns = allowRelationalColumns;
     }
 
@@ -103,7 +102,8 @@ namespace MySqlX.Protocol.X
       LSTRING, LNUM_INT, LNUM_DOUBLE, DOT, AT, COMMA, EQ, NE, GT, GE, LT, LE, BITAND, BITOR, BITXOR, LSHIFT, RSHIFT, PLUS, MINUS, STAR, SLASH, HEX,
       BIN, NEG, BANG, EROTEME, MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR, SECOND_MICROSECOND, MINUTE_MICROSECOND,
       MINUTE_SECOND, HOUR_MICROSECOND, HOUR_SECOND, HOUR_MINUTE, DAY_MICROSECOND, DAY_SECOND, DAY_MINUTE, DAY_HOUR, YEAR_MONTH, DOUBLESTAR, MOD,
-      COLON, ORDERBY_ASC, ORDERBY_DESC, AS, LCURLY, RCURLY, DOTSTAR, CAST, DECIMAL, UNSIGNED, SIGNED, INTEGER, DATE, TIME, DATETIME, CHAR, BINARY, JSON
+      COLON, ORDERBY_ASC, ORDERBY_DESC, AS, LCURLY, RCURLY, DOTSTAR, CAST, DECIMAL, UNSIGNED, SIGNED, INTEGER, DATE, TIME, DATETIME, CHAR, BINARY, JSON,
+      ARROW, DOUBLE_ARROW
     }
 
     /**
@@ -285,7 +285,23 @@ namespace MySqlX.Protocol.X
               this.tokens.Add(new Token(TokenType.PLUS, c));
               break;
             case '-':
-              this.tokens.Add(new Token(TokenType.MINUS, c));
+              if (NextCharEquals(i, '>'))
+              {
+                i++;
+                if (NextCharEquals(i, '>'))
+                {
+                  i++;
+                  this.tokens.Add(new Token(TokenType.DOUBLE_ARROW, "->>"));
+                }
+                else
+                {
+                  this.tokens.Add(new Token(TokenType.ARROW, "->"));
+                }
+              }
+              else
+              {
+                this.tokens.Add(new Token(TokenType.MINUS, c));
+              }
               break;
             case '*':
               if (NextCharEquals(i, '*'))
@@ -782,6 +798,14 @@ namespace MySqlX.Protocol.X
             id.SchemaName = parts[2];
             break;
         }
+      }
+      if(CurrentTokenTypeEquals(TokenType.ARROW))
+      {
+        ConsumeToken(TokenType.ARROW);
+      }
+      else if (CurrentTokenTypeEquals(TokenType.DOUBLE_ARROW))
+      {
+        throw new NotSupportedException("Operator ->> not supported.");
       }
       if (CurrentTokenTypeEquals(TokenType.AT))
       {

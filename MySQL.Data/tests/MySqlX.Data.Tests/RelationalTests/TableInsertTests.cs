@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -89,10 +89,10 @@ namespace MySqlX.Data.Tests.RelationalTests
       var stmt = table.Insert("name", "age");
       var result = ExecuteInsertStatement(stmt.Values("upper('mark')", "50-16"));
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
-      Assert.Throws<MySqlException>(() => result = ExecuteInsertStatement(stmt.Values("George", 34, 1)));
-      result = ExecuteInsertStatement(stmt.Values("George", 34));
-      Assert.Equal<ulong>(1, result.AffectedItemsCount);
-      Assert.Equal(2, ExecuteSelectStatement(table.Select()).FetchAll().Count);
+      // error 5014 - Wrong number of fields in row being inserted
+      Assert.Equal(5014u, Assert.Throws<MySqlException>(() => result = ExecuteInsertStatement(stmt.Values("George", 34, 1))).Code);
+      Assert.Equal(5014u, Assert.Throws<MySqlException>(() => ExecuteInsertStatement(stmt.Values("George", 34))).Code);
+      Assert.Equal(1, ExecuteSelectStatement(table.Select()).FetchAll().Count);
     }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -554,6 +554,28 @@ namespace MySqlX.Data.Tests
       Assert.Equal("$.bL.vT.*", ExprUnparser.ExprToString(expr));
       expr = new ExprParser("dd ** .X", false).Parse();
       Assert.Equal("$.dd**.X", ExprUnparser.ExprToString(expr));
+    }
+
+    [Theory]
+    [InlineData("info$.additionalinfo.hobbies", "info$.additionalinfo.hobbies", true)]
+    [InlineData("info->$.additionalinfo.hobbies", "info$.additionalinfo.hobbies", true)]
+    [InlineData("info->>$.additionalinfo.hobbies", null, true)]
+    [InlineData("info$.additionalinfo.hobbies", null, false)]
+    [InlineData("info->$.additionalinfo.hobbies", null, false)]
+    [InlineData("info->>$.additionalinfo.hobbies", null, false)]
+    [InlineData("$.additionalinfo.hobbies", "$.additionalinfo.hobbies", false)]
+    public void JsonColumnPath(string exprString, string unparserString, bool isRelational)
+    {
+      if(unparserString == null)
+      {
+        Assert.Equal($"Unable to parse query '{exprString}'", 
+          Assert.ThrowsAny<ArgumentException>(() => new ExprParser(exprString, isRelational).Parse()).Message);
+      }
+      else
+      {
+        Expr expr = new ExprParser(exprString, isRelational).Parse();
+        Assert.Equal(unparserString, ExprUnparser.ExprToString(expr));
+      }
     }
   }
 }

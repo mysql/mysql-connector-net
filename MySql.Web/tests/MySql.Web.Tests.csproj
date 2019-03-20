@@ -4,7 +4,7 @@
     <Description>MySql.Web.Tests</Description>
     <Copyright>Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.14</Version>
+    <Version>8.0.16</Version>
     <Authors>Oracle</Authors>
     <TargetFramework>net452</TargetFramework>
     <AssemblyName>MySql.Web.Tests</AssemblyName>

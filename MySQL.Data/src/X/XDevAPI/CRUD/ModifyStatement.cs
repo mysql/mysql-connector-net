@@ -55,6 +55,7 @@ namespace MySqlX.XDevAPI.CRUD
     public ModifyStatement Set(string docPath, object value)
     {
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemSet, docPath).SetValue(value));
+      SetChanged();
       return this;
     }
 
@@ -67,6 +68,7 @@ namespace MySqlX.XDevAPI.CRUD
     public ModifyStatement Change(string docPath, object value)
     {
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemReplace, docPath).SetValue(value));
+      SetChanged();
       return this;
     }
 
@@ -86,6 +88,7 @@ namespace MySqlX.XDevAPI.CRUD
           Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemRemove, item));
       }
 
+      SetChanged();
       return this;
     }
 
@@ -108,6 +111,7 @@ namespace MySqlX.XDevAPI.CRUD
       DbDoc dbDocument = document is DbDoc ? document as DbDoc : new DbDoc(document);
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.MergePatch, string.Empty).SetValue(dbDocument.values));
 
+      SetChanged();
       return this;
     }
 
@@ -123,6 +127,7 @@ namespace MySqlX.XDevAPI.CRUD
         throw new ArgumentException(nameof(value), Resources.StringEmpty);
 
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ArrayInsert, field).SetValue(value));
+      SetChanged();
       return this;
     }
 
@@ -138,6 +143,7 @@ namespace MySqlX.XDevAPI.CRUD
         throw new ArgumentException(nameof(value), Resources.StringEmpty);
 
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ArrayAppend, docPath).SetValue(value));
+      SetChanged();
       return this;
     }
 
@@ -150,6 +156,7 @@ namespace MySqlX.XDevAPI.CRUD
     public ModifyStatement Sort(params string[] order)
     {
       FilterData.OrderBy = order;
+      SetChanged();
       return this;
     }
 

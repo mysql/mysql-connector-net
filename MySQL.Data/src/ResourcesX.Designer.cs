@@ -39,8 +39,8 @@ namespace MySql.Data {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.ResourcesX", typeof(ResourcesX).GetTypeInfo().Assembly);
-                    resourceMan = temp;
+          global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.ResourcesX", typeof(ResourcesX).GetTypeInfo().Assembly);
+          resourceMan = temp;
                 }
                 return resourceMan;
             }
@@ -115,6 +115,24 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Duplicate key &apos;{0}&apos; used in &quot;connection-attributes&quot;..
+        /// </summary>
+        public static string DuplicateUserDefinedAttribute {
+            get {
+                return ResourceManager.GetString("DuplicateUserDefinedAttribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Key name in connection attribute cannot be an empty string..
+        /// </summary>
+        public static string EmptyKeyConnectionAttribute {
+            get {
+                return ResourceManager.GetString("EmptyKeyConnectionAttribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This feature is currently not supported..
         /// </summary>
         public static string FeatureNotSupported {
@@ -138,6 +156,15 @@ namespace MySql.Data {
         public static string InvalidCollationId {
             get {
                 return ResourceManager.GetString("InvalidCollationId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The value of &quot;connection-attributes&quot; must be either a boolean or a list of key-value pairs..
+        /// </summary>
+        public static string InvalidConnectionAttributes {
+            get {
+                return ResourceManager.GetString("InvalidConnectionAttributes", resourceCulture);
             }
         }
         
@@ -255,6 +282,15 @@ namespace MySql.Data {
         public static string InvalidUriQuery {
             get {
                 return ResourceManager.GetString("InvalidUriQuery", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Key names in &quot;connection-attributes&quot; cannot start with &quot;_&quot;..
+        /// </summary>
+        public static string InvalidUserDefinedAttribute {
+            get {
+                return ResourceManager.GetString("InvalidUserDefinedAttribute", resourceCulture);
             }
         }
         

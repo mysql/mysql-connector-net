@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -52,15 +52,8 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>A <see cref="Result"/> object containing the results of the insert statement.</returns>
     public override Result Execute()
     {
-      try
-      {
-        ValidateOpenSession();
-        return Target.Session.XSession.InsertRows(this);
-      }
-      finally
-      {
-        values.Clear();
-      }
+      ValidateOpenSession();
+      return Target.Session.XSession.InsertRows(this);
     }
 
     /// <summary>

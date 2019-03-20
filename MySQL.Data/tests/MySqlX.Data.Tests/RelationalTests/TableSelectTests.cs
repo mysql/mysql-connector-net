@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -39,14 +39,14 @@ namespace MySqlX.Data.Tests.RelationalTests
   public class TableSelectTests : BaseTest
   {
     object[][] allRows = {
-        new object[] { 1, "jonh doe", 38 },
-        new object[] { 2, "milton green", 45 },
-        new object[] { 3, "larry smith", 24}
+        new object[] { 1, "jonh doe", 38, "{\"company\": \"xyz\", \"hobbies\": \"reading\", \"vehicle\": \"bike\"}" },
+        new object[] { 2, "milton green", 45, "{\"company\": \"abc\", \"hobbies\": [\"boxing\", \"running\"], \"vehicle\": \"car\"}" },
+        new object[] { 3, "larry smith", 24, "{\"company\": \"zxc\", \"hobbies\": \"painting\", \"vehicle\": \"boat\"}" }
       };
 
     public TableSelectTests()
     {
-      ExecuteSQL("CREATE TABLE test.test (id INT, name VARCHAR(45), age INT)");
+      ExecuteSQL("CREATE TABLE test.test (id INT, name VARCHAR(45), age INT, additionalinfo JSON)");
       TableInsertStatement stmt = testSchema.GetTable("test").Insert();
       stmt.Values(allRows[0]);
       stmt.Values(allRows[1]);
@@ -58,7 +58,8 @@ namespace MySqlX.Data.Tests.RelationalTests
     public void FetchOne()
     {
       Table t = testSchema.GetTable("test");
-      Assert.Equal(38, ExecuteSelectStatement(t.Select("age")).FetchOne()["age"]);    }
+      Assert.Equal(38, ExecuteSelectStatement(t.Select("age")).FetchOne()["age"]);
+    }
 
     private void MultiTableSelectTest(TableSelectStatement statement, object[][] expectedValues)
     {
@@ -112,11 +113,12 @@ namespace MySqlX.Data.Tests.RelationalTests
       var table = testSchema.GetTable("test");
       var select = ExecuteSelectStatement(table.Select("*, 42 as a_number, '43' as a_string"));
       var rows = select.FetchAll();
-      Assert.Equal(5, select.Columns.Count);
+      Assert.Equal(6, select.Columns.Count);
       Assert.Equal(allRows.Length, rows.Count);
       Assert.Equal(allRows[0][0], rows[0]["id"]);
       Assert.Equal(allRows[0][1], rows[0]["name"]);
       Assert.Equal(allRows[0][2], rows[0]["age"]);
+      Assert.Equal(allRows[0][3], rows[0]["additionalinfo"]);
       Assert.Equal((sbyte)42, rows[0]["a_number"]);
       Assert.Equal("43", rows[0]["a_string"]);
     }
@@ -171,7 +173,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void RowLockingNotSupportedInOlderVersions()
     {
-      if (session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       Table table = session.Schema.GetTable("test");
 
@@ -185,7 +187,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void SimpleSharedLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -214,7 +216,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void SimpleExclusiveLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -245,7 +247,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void SharedLockForbidsToModifyDocuments()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -281,7 +283,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void ExclusiveLockForbidsToModifyDocuments()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -314,7 +316,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void SharedLockAfterExclusiveLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -349,7 +351,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void ExclusiveLockAfterSharedLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -385,7 +387,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Fact]
     public void ExclusiveLockAfterExclusiveLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -443,10 +445,10 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       // Insert additonal users.
       object[][] additionalUsers = {
-        new object[] { 4, "mary weinstein", 24 },
-        new object[] { 5, "jerry pratt", 45 },
-        new object[] { 6, "hugh jackman", 20},
-        new object[] { 7, "elizabeth olsen", 31}
+        new object[] { 4, "mary weinstein", 24, null },
+        new object[] { 5, "jerry pratt", 45, null },
+        new object[] { 6, "hugh jackman", 20, null },
+        new object[] { 7, "elizabeth olsen", 31, null }
       };
       var statement = table.Insert();
       foreach (object[] user in additionalUsers)
@@ -504,6 +506,26 @@ namespace MySqlX.Data.Tests.RelationalTests
       ex2 = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(string.Empty)));
       Assert.Equal("Unable to parse query ''", ex2.Message);
       Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+    }
+
+    [Theory]
+    [InlineData(":hobbies IN additionalinfo->$.hobbies", "hobbies", "painting", 3)]
+    [InlineData(":hobbies IN additionalinfo->$.hobbies", "hobbies", "[\"boxing\", \"running\"]", 0)]
+    [InlineData("[\"boxing\", \"running\"] IN additionalinfo->$.hobbies", null, null, 2)]
+    [InlineData(":hobbies IN additionalinfo$.hobbies", "hobbies", "painting", 3)]
+    public void InOperatorBindingJson(string condition, string bind, string value, int id)
+    {
+      Table table = testSchema.GetTable("test");
+      Assert.Equal(3, ExecuteSelectStatement(table.Select()).FetchAll().Count);
+
+      var stmt = table.Select().Where(condition);
+      if (bind != null) stmt.Bind(bind, value);
+      var result = ExecuteSelectStatement(stmt).FetchAll();
+      Assert.Equal(id == 0 ? 0 : 1, result.Count);
+      if (id > 0)
+      {
+        Assert.Equal(id, result[0]["id"]);
+      }
     }
   }
 }

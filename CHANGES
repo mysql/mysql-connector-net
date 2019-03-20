@@ -1,5 +1,18 @@
-8.0.15
+8.0.16
+- MySqlX: Added prepared statement support (WL12174).
+- MySqlX: Values and binding parameters are not cleared after an execution, so a new execution can use the previous parameters.
+- MySqlX bug fix: BIND WITH FIND/REMOVE DOESN'T WORK WHEN STRING IS PASSED (Oracle Bug #29304767).
+- MySqlX bug fix: DELETE WHERE THROWS PARSE EXCEPTION WITH -> OPERATOR FOR ARRAY (Oracle Bug #29347028).
 - Bug fix: PREPARED COMMANDS EXECUTE WITH ERROR ON MYSQL SERVER 8.0.13 (MySQL Bug #92912, Oracle Bug #28834253).
+- MySqlX: Added support for new session reset functionality (WL12515).
+- MySqlX: Added the Connection Attributes property (WL12514).
+- Added support for SSL connections using PEM certificates with the sslCA, sslCert and sslKey connection options (WL12494).
+- Fixed an issue that convert 00:00:00 (Time) to null when using prepared commands (MySQL Bug #91752, Oracle Bug #28383726).
+
+
+8.0.15
+- Bug fix: Disabled Load Data Local Infile by default (Oracle Bug #29259767).
+- Added new "allowloadlocalinfile" connection string option that disables or enables the server functionality to load the data local infile.
 
 
 8.0.14

@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -321,6 +321,7 @@ namespace MySqlX.Data
       collations.Add(248, "gb18030_chinese_ci");
       collations.Add(249, "gb18030_bin");
       collations.Add(250, "gb18030_unicode_520_ci");
+      collations.Add(308, "utf8mb4_zh_0900_as_cs");
     }
   }
 }

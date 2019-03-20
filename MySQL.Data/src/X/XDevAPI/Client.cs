@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,12 +30,10 @@ using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.Common;
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 
 namespace MySqlX.XDevAPI
@@ -181,7 +179,7 @@ namespace MySqlX.XDevAPI
         Session session = GetPooledSession();
         return session;
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         Interlocked.Increment(ref _available);
         throw;
@@ -198,7 +196,8 @@ namespace MySqlX.XDevAPI
         {
           try
           {
-            session.XSession.Authenticate();
+            if (session.XSession.sessionResetNoReauthentication == false)
+              session.XSession.Authenticate();
             session.XSession.SetState(SessionState.Open, false);
           }
           catch

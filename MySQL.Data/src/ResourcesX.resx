@@ -270,4 +270,16 @@
   <data name="CollectionTableDoesNotExist" xml:space="preserve">
     <value>{0} '{1}' does not exist in schema '{2}'.</value>
   </data>
+  <data name="DuplicateUserDefinedAttribute" xml:space="preserve">
+    <value>Duplicate key '{0}' used in "connection-attributes".</value>
+  </data>
+  <data name="InvalidUserDefinedAttribute" xml:space="preserve">
+    <value>Key names in "connection-attributes" cannot start with "_".</value>
+  </data>
+  <data name="InvalidConnectionAttributes" xml:space="preserve">
+    <value>The value of "connection-attributes" must be either a boolean or a list of key-value pairs.</value>
+  </data>
+  <data name="EmptyKeyConnectionAttribute" xml:space="preserve">
+    <value>Key name in connection attribute cannot be an empty string.</value>
+  </data>
 </root>

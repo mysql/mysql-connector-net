@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,9 +37,9 @@ namespace MySqlX.DataAccess
   }
 
   internal enum AuthenticationMode
-  { 
+  {
     PlainAccess = 0,
-    MySQL41 = 1  
+    MySQL41 = 1
   }
 
   internal enum OS
@@ -48,5 +48,14 @@ namespace MySqlX.DataAccess
     Windows,
     Linux,
     MacOS
+  }
+
+  internal enum PreparedStatementType
+  {
+    Find = 0,
+    Insert,
+    Update,
+    Delete,
+    SqlStatement
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,10 +29,11 @@
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
+using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
+using System.Linq;
 using Xunit;
 
 namespace MySqlX.Data.Tests
@@ -312,6 +313,153 @@ namespace MySqlX.Data.Tests
           Assert.Equal(SessionState.Closed, session.XSession.SessionState);
           MySqlException ex = Assert.ThrowsAny<MySqlException>(() => { action.Invoke(session); });
           Assert.Equal(ResourcesX.InvalidSession, ex.Message);
+        }
+      }
+    }
+
+    /// <summary>
+    /// WL12515 - DevAPI: Support new session reset functionality
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Security")]
+    public void ResetSessionTest()
+    {
+      // This feature was implemented since MySQL Server 8.0.16
+      if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 16))) return;
+
+      int size = 2;
+      using (Client client = MySQLX.GetClient(ConnectionString + ";database=test;", new { pooling = new { maxSize = size } }))
+      {
+        Session session1 = client.GetSession();
+        Session session2 = client.GetSession();
+
+        int threadId1 = session1.ThreadId;
+        int threadId2 = session2.ThreadId;
+
+        ResetTestBeforeClose(session1, 1);
+        ResetTestBeforeClose(session2, 2);
+
+        session1.Close();
+        session2.Close();
+
+        Session session1_1 = client.GetSession();
+        Session session2_1 = client.GetSession();
+
+        ResetTestAfterClose(session1_1, threadId1, 1);
+        ResetTestAfterClose(session2_1, threadId2, 2);
+
+        session1_1.Close();
+      }
+    }
+
+    private void ResetTestBeforeClose(Session session, int id)
+    {
+      session.SQL(string.Format("CREATE TEMPORARY TABLE testResetSession{0} (id int)", id)).Execute();
+      session.SQL(string.Format("SET @a='session{0}'", id)).Execute();
+
+      SqlResult res = session.SQL("SELECT @a AS a").Execute();
+      Assert.Equal("session" + id, res.FetchAll()[0][0]);
+      res = session.SQL("SHOW CREATE TABLE testResetSession" + id).Execute();
+      Assert.Equal("testResetSession" + id, res.FetchAll()[0][0]);
+    }
+
+    private void ResetTestAfterClose(Session session, int threadId, int id)
+    {
+      Assert.Equal(threadId, session.ThreadId);
+      SqlResult res = session.SQL("SELECT @a IS NULL").Execute();
+      Assert.Equal((sbyte)1, res.FetchOne()[0]);
+      var ex = Assert.Throws<MySqlException>(() => session.SQL("SHOW CREATE TABLE testResetSession" + id).Execute());
+      Assert.Equal(string.Format("Table 'test.testresetsession{0}' doesn't exist", id), ex.Message);
+
+      session.SQL(string.Format("SET @a='session{0}'", id)).Execute();
+      res = session.SQL("SELECT @a AS a").Execute();
+      Assert.Equal("session" + id, res.FetchAll()[0][0]);
+    }
+
+    /// <summary>
+    /// WL12514 - DevAPI: Support session-connect-attributes
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Security")]
+    public void ConnectionAttributes()
+    {
+      if (!(session.Version.isAtLeast(8, 0, 16))) return;
+
+      // Validate that MySQLX.GetSession() supports a new 'connection-attributes' query parameter
+      // with default values and all the client attributes starts with a '_'.
+      TestConnectionAttributes(ConnectionString + ";connection-attributes=true;");
+
+      // Validate that no attributes, client or user defined, are sent to server when the value is "false".
+      TestConnectionAttributes(ConnectionString + ";connection-attributes=false;");
+
+      // Validate default behavior with different scenarios.
+      TestConnectionAttributes(ConnectionString + ";connection-attributes;");
+      TestConnectionAttributes(ConnectionString + ";connection-attributes=true;");
+
+
+      // Validate user-defined attributes to be sent to server.
+      Dictionary<string, object> userAttrs = new Dictionary<string, object>
+      {
+        { "foo", "bar" },
+        { "quua", "qux" },
+        { "key", null }
+      };
+      TestConnectionAttributes(ConnectionString + ";connection-attributes=[foo=bar,quua=qux,key]", userAttrs);
+      TestConnectionAttributes(ConnectionStringUri + "?connectionattributes=[foo=bar,quua=qux,key=]", userAttrs);
+
+      // Errors
+      var ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[_key=value]"));
+      Assert.Equal(ResourcesX.InvalidUserDefinedAttribute, ex.Message);
+
+      ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=123"));
+      Assert.Equal(ResourcesX.InvalidConnectionAttributes, ex.Message);
+
+      ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[key=value,key=value2]"));
+      Assert.Equal(string.Format(ResourcesX.DuplicateUserDefinedAttribute, "key"), ex.Message);
+
+      MySqlXConnectionStringBuilder builder = new MySqlXConnectionStringBuilder();
+      builder.Server = "localhost";
+      builder.Port = 33060;
+      builder.UserID = "root";
+      builder.ConnectionAttributes = ";";
+      ex = Assert.Throws<MySqlException>(() => MySQLX.GetClient(builder.ConnectionString, "{ \"pooling\": { \"enabled\": true } }"));
+      Assert.Equal("The requested value ';' is invalid for the given keyword 'connection-attributes'.", ex.Message);
+    }
+
+    private void TestConnectionAttributes(string connString, Dictionary<string, object> userAttrs = null)
+    {
+      string sql = "SELECT * FROM performance_schema.session_account_connect_attrs WHERE PROCESSLIST_ID = connection_id()";
+
+      using (Client client = MySQLX.GetClient(connString, "{ \"pooling\": { \"enabled\": true } }"))
+      using (Session session = client.GetSession())
+      {
+        Assert.Equal(SessionState.Open, session.XSession.SessionState);
+        var result = session.SQL(sql).Execute().FetchAll();
+
+        if (session.Settings.ConnectionAttributes == "false")
+          Assert.Empty(result);
+        else
+        {
+          Assert.NotEmpty(result);
+          MySqlConnectAttrs clientAttrs = new MySqlConnectAttrs();
+
+          if (userAttrs == null)
+          {
+            Assert.Equal(8, result.Count);
+
+            foreach (Row row in result)
+              Assert.StartsWith("_", row[1].ToString());
+          }
+          else
+          {
+            Assert.Equal(11, result.Count);
+
+            for (int i = 0; i < userAttrs.Count; i++)
+            {
+              Assert.True(userAttrs.ContainsKey(result.ElementAt(i)[1].ToString()));
+              Assert.True(userAttrs.ContainsValue(result.ElementAt(i)[2]));
+            }
+          }
         }
       }
     }

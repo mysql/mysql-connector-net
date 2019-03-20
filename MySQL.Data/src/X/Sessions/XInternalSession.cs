@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,25 +26,26 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using MySqlX.XDevAPI;
-using MySqlX.Communication;
-using System.Text;
-using MySql.Data.Common;
-using MySqlX.Protocol;
-using System.Collections.Generic;
-using System.Reflection;
-using MySqlX.XDevAPI.Common;
-using MySqlX.XDevAPI.Relational;
-using MySqlX.XDevAPI.CRUD;
-using MySqlX.Protocol.X;
-using Mysqlx.Datatypes;
-using MySql.Data.MySqlClient;
-using MySqlX.Security;
-using MySqlX;
-using System.Linq;
 using MySql.Data;
+using MySql.Data.Common;
+using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.Authentication;
+using MySqlX.Communication;
+using MySqlX.Protocol;
+using MySqlX.Protocol.X;
+using MySqlX.Security;
+using MySqlX.XDevAPI;
+using MySqlX.XDevAPI.Common;
+using MySqlX.XDevAPI.CRUD;
+using MySqlX.XDevAPI.Relational;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Diagnostics;
+using System.Collections;
+using System.Threading;
 
 namespace MySqlX.Sessions
 {
@@ -59,7 +60,10 @@ namespace MySqlX.Sessions
     private XPacketReaderWriter _writer;
     private bool serverSupportsTls = false;
     private const string mysqlxNamespace = "mysqlx";
-
+    internal bool _supportsPreparedStatements = true;
+    private int _stmtId = 0;
+    private List<int> _preparedStatements = new List<int>();
+    internal bool? sessionResetNoReauthentication = null;
 
     public XInternalSession(MySqlXConnectionStringBuilder settings) : base(settings)
     {
@@ -84,7 +88,7 @@ namespace MySqlX.Sessions
 
       GetAndSetCapabilities();
 
-      // validates TLS use
+      // Validates use of TLS.
       if (Settings.SslMode != MySqlSslMode.None)
       {
         if (serverSupportsTls)
@@ -95,7 +99,10 @@ namespace MySqlX.Sessions
               Settings.CertificateFile,
               Settings.CertificateStoreLocation,
               Settings.CertificatePassword,
-              Settings.CertificateThumbprint)
+              Settings.CertificateThumbprint,
+              Settings.SslCa,
+              Settings.SslCert,
+              Settings.SslKey)
               .StartSSL(ref _stream, encoding, Settings.ToString());
           _reader = new XPacketReaderWriter(_stream);
           _writer = new XPacketReaderWriter(_stream);
@@ -201,7 +208,64 @@ namespace MySqlX.Sessions
           clientCapabilities.Add("tls", "1");
         }
       }
-      protocol.SetCapabilities(clientCapabilities);
+
+      // set connection-attributes
+      if (Settings.ConnectionAttributes.ToLower() != "false")
+        clientCapabilities.Add("session_connect_attrs", GetConnectionAttributes(Settings.ConnectionAttributes));
+
+      try
+      {
+        protocol.SetCapabilities(clientCapabilities);
+      }
+      catch (MySqlException ex)
+      {
+        if (ex.Message == "Capability 'session_connect_attrs' doesn't exist")
+          clientCapabilities.Remove("session_connect_attrs");
+        protocol.SetCapabilities(clientCapabilities);
+      }
+    }
+
+    private Dictionary<string, string> GetConnectionAttributes(string connectionAttrs)
+    {
+      Dictionary<string, string> attrs = new Dictionary<string, string>();
+
+      if (connectionAttrs.StartsWith("[") && connectionAttrs.EndsWith("]"))
+      {
+        connectionAttrs = connectionAttrs.Substring(1, connectionAttrs.Length - 2);
+
+        if (!string.IsNullOrWhiteSpace(connectionAttrs))
+        {
+          foreach (var pair in connectionAttrs.Split(','))
+          {
+            string[] keyValue = pair.Split('=');
+            string key = keyValue[0].Trim();
+            string value = keyValue.Length > 1 ? keyValue[1].Trim() : string.Empty;
+
+            if (key == string.Empty)
+              throw new MySqlException(ResourcesX.EmptyKeyConnectionAttribute);
+
+            if (key.StartsWith("_"))
+              throw new MySqlException(ResourcesX.InvalidUserDefinedAttribute);
+
+            try { attrs.Add(key, value); }
+            catch (ArgumentException) { throw new MySqlException(string.Format(ResourcesX.DuplicateUserDefinedAttribute, key)); }
+          }
+        }
+      }
+      else if (connectionAttrs != "true")
+        throw new MySqlException(ResourcesX.InvalidConnectionAttributes);
+
+      MySqlConnectAttrs clientAttrs = new MySqlConnectAttrs();
+      attrs.Add("_pid", clientAttrs.PID);
+      attrs.Add("_platform", clientAttrs.Platform);
+      attrs.Add("_os", clientAttrs.OSName);
+      attrs.Add("_source_host", Settings.Server);
+      attrs.Add("_client_name", clientAttrs.ClientName);
+      attrs.Add("_client_version", clientAttrs.ClientVersion);
+      attrs.Add("_client_license", clientAttrs.ClientLicence);
+      attrs.Add("_framework", clientAttrs.Framework);
+
+      return attrs;
     }
 
     private void AuthenticateMySQL41()
@@ -266,6 +330,19 @@ namespace MySqlX.Sessions
     {
       try
       {
+        try
+        {
+          // Deallocate all the remaining prepared statements for current session.
+          foreach (int stmtId in _preparedStatements)
+          {
+            DeallocatePreparedStatement(stmtId);
+            _preparedStatements.Remove(stmtId);
+          }
+        }
+        catch (Exception ex)
+        {
+          //TODO log exception
+        }
         protocol.SendSessionClose();
       }
       finally
@@ -487,9 +564,9 @@ namespace MySqlX.Sessions
       return new Result(this);
     }
 
-    protected Result ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key condition)
+    protected Result ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key condition, object value = null)
     {
-      protocol.SendExpectOpen(condition);
+      protocol.SendExpectOpen(condition, value);
       return new Result(this);
     }
 
@@ -500,9 +577,173 @@ namespace MySqlX.Sessions
 
     public void ResetSession()
     {
-      protocol.SendResetSession();
+      if (sessionResetNoReauthentication == null)
+        try
+        {
+          ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key.ExpectFieldExist, "6.1");
+          sessionResetNoReauthentication = true;
+        }
+        catch
+        {
+          sessionResetNoReauthentication = false;
+        }
+
+      protocol.SendResetSession((bool)sessionResetNoReauthentication);
       protocol.ReadOk();
       //return new Result(this);
+    }
+
+    public int PrepareStatement<TResult>(BaseStatement<TResult> statement)
+      where TResult : BaseResult
+    {
+      int stmtId = Interlocked.Increment(ref _stmtId);
+      switch (statement.GetType().Name)
+      {
+        case nameof(FindStatement):
+          FindStatement fs = statement as FindStatement;
+          Debug.Assert(fs != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.Find,
+            fs.Target.Schema.Name,
+            fs.Target.Name,
+            false,
+            fs.FilterData,
+            fs.findParams);
+          break;
+
+        case nameof(TableSelectStatement):
+          TableSelectStatement ss = statement as TableSelectStatement;
+          Debug.Assert(ss != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.Find,
+            ss.Target.Schema.Name,
+            ss.Target.Name,
+            true,
+            ss.FilterData,
+            ss.findParams);
+          break;
+
+        case nameof(ModifyStatement):
+          ModifyStatement ms = statement as ModifyStatement;
+          Debug.Assert(ms != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.Update,
+            ms.Target.Schema.Name,
+            ms.Target.Name,
+            false,
+            ms.FilterData,
+            null,
+            ms.Updates);
+          break;
+
+        case nameof(TableUpdateStatement):
+          TableUpdateStatement us = statement as TableUpdateStatement;
+          Debug.Assert(us != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.Update,
+            us.Target.Schema.Name,
+            us.Target.Name,
+            true,
+            us.FilterData,
+            null,
+            us.updates);
+          break;
+
+        case nameof(RemoveStatement):
+          RemoveStatement rs = statement as RemoveStatement;
+          Debug.Assert(rs != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.Delete,
+            rs.Target.Schema.Name,
+            rs.Target.Name,
+            false,
+            rs.FilterData,
+            null);
+          break;
+
+        case nameof(TableDeleteStatement):
+          TableDeleteStatement ds = statement as TableDeleteStatement;
+          Debug.Assert(ds != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.Delete,
+            ds.Target.Schema.Name,
+            ds.Target.Name,
+            true,
+            ds.FilterData,
+            null);
+          break;
+
+        case nameof(TableInsertStatement):
+          TableInsertStatement insert = statement as TableInsertStatement;
+          Debug.Assert(insert != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.Insert,
+            insert.Target.Schema.Name,
+            insert.Target.Name,
+            true,
+            null,
+            null,
+            null,
+            insert.values.ToArray(),
+            insert.fields,
+            false);
+          break;
+
+        case nameof(SqlStatement):
+          SqlStatement sqlStatement = statement as SqlStatement;
+          Debug.Assert(sqlStatement != null);
+          protocol.SendPrepareStatement(
+            (uint)stmtId,
+            DataAccess.PreparedStatementType.SqlStatement,
+            null,
+            null,
+            true,
+            null,
+            null,
+            null,
+            sqlStatement.parameters.ToArray(),
+            null,
+            false,
+            sqlStatement.SQL);
+          break;
+
+        default:
+          throw new NotSupportedException(statement.GetType().Name);
+      }
+      _preparedStatements.Add(stmtId);
+      return stmtId;
+    }
+
+    public TResult ExecutePreparedStatement<TResult>(int stmtId, IEnumerable args)
+      where TResult : BaseResult
+    {
+      protocol.SendExecutePreparedStatement((uint)stmtId, args);
+      BaseResult result = null;
+      if (typeof(TResult) == typeof(DocResult))
+        result = new DocResult(this);
+      else if (typeof(TResult) == typeof(RowResult))
+        result = new RowResult(this);
+      else if (typeof(TResult) == typeof(SqlResult))
+        result = new SqlResult(this);
+      else if (typeof(TResult) == typeof(Result))
+        result = new Result(this);
+      else
+        throw new ArgumentNullException(typeof(TResult).Name);
+
+      return (TResult)result;
+    }
+
+    public void DeallocatePreparedStatement(int stmtId)
+    {
+      protocol.SendDeallocatePreparedStatement((uint)stmtId);
+      _preparedStatements.Remove(stmtId);
     }
   }
 }

@@ -4,7 +4,7 @@
     <Title>MySql.Data.Tests</Title>
     <Description>MySql.Data.Tests Class Library</Description>
     <Copyright>Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.</Copyright>
-    <Version>8.0.14</Version>
+    <Version>8.0.16</Version>
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
@@ -84,6 +84,46 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ContentWithTargetPath Include="certificates\ca-key.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>ca-key.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\ca.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>ca.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\ca_dummy.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>ca_dummy.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-cert.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>client-cert.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-cert_dummy.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>client-cert_dummy.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-key.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>client-key.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-key_dummy.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>client-key_dummy.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-key_altered.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>client-key_altered.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\server-cert.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>server-cert.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\server-key.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>server-key.pem</TargetPath>
+    </ContentWithTargetPath>
     <None Update="client.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
