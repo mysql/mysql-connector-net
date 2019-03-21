@@ -35,8 +35,6 @@ using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using System.IO.Pipes;
 using System.Net;
-using Renci.SshNet;
-using Renci.SshNet.Common;
 #if !NETSTANDARD1_6
 using MySql.Data.MySqlClient.Common;
 using System.IO.MemoryMappedFiles;
@@ -99,8 +97,12 @@ namespace MySql.Data.Common
       if (settings.SshAuthenticationMode == SshAuthenticationMode.None)
         task = client.ConnectAsync(settings.Server, (int)settings.Port);
       else
-        task = client.ConnectAsync(settings.SshHostName, (int)settings.SshPort);
-
+        task = client.ConnectAsync(
+          settings.Server == "127.0.0.1" || settings.Server == "::1" 
+            ? "localhost"
+            : settings.Server,
+          3306);
+      
       if (!task.Wait(((int)settings.ConnectionTimeout * 1000)))
         throw new MySqlException(Resources.Timeout);
       if (settings.Keepalive > 0)

@@ -41,8 +41,8 @@ namespace MySqlX.Data.Tests
     private const string SSH_USER_NAME = "placeholder";
     private const string SSH_PASSWORD = "placeholder";
     private const int SSH_PORT = 22;
-    private const string KEY_FILE_PATH = "myKeyOpenSSH.ppk";
-    private const string KEY_FILE_PASSPHRASE = "test";
+    private const string KEY_FILE_PATH = "placeholder";
+    private const string KEY_FILE_PASSPHRASE = "placeholder";
 
     private const int MYSQL_SERVER_PORT = 33070;
     private const string MYSQL_HOST_NAME = "localhost";
@@ -52,13 +52,19 @@ namespace MySqlX.Data.Tests
 
     #endregion
 
+    public SshTunnelingTests()
+    {
+
+    }
+
     /// <summary>
     /// Access MySQL Server as a local user.
     /// </summary>
     /// <remarks>MySQL Server and the SSH server are located in the same machine. The root user
     /// is configured to only allow local connections. Via SSH Tunneling the client can connect with
     /// root user as if it were a local connection.</remarks>
-    [Fact(Skip = "Needs SSH setup on PB2")]
+    //[Fact(Skip = "Needs SSH setup on PB2")]
+    [Fact]
     public void ConnectAsLocalUser()
     {
       var builder = new MySqlXConnectionStringBuilder();
