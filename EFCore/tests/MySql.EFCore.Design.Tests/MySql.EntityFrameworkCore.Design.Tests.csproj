@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Design.Tests Class Library</Description>
     <Copyright>Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.</Copyright>
-    <Version>8.0.16</Version>
+    <Version>8.0.17</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>netcoreapp2.0;netcoreapp1.1;net452;net461;</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Design.Tests</AssemblyName>
