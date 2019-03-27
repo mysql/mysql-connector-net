@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,10 +21,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
 using System.Data;
+using System.Linq;
+using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -181,8 +180,8 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Assert.True(dt.Columns["ORDINAL_POSITION"].DataType == typeof(UInt32));
         Assert.True(dt.Columns["CHARACTER_MAXIMUM_LENGTH"].DataType == typeof(Int64));
-        Assert.True(dt.Columns["NUMERIC_PRECISION"].DataType == typeof(UInt32));
-        Assert.True(dt.Columns["NUMERIC_SCALE"].DataType == typeof(UInt32));
+        Assert.True(dt.Columns["NUMERIC_PRECISION"].DataType == typeof(UInt64));
+        Assert.True(dt.Columns["NUMERIC_SCALE"].DataType == typeof(UInt64));
       }
       else
       {
@@ -241,8 +240,6 @@ namespace MySql.Data.MySqlClient.Tests
     ///</summary>
     [Fact(Skip = "Not compatible with netcoreapp2.0")]
     public void CanGetSchemaInformationGeneratedColumns()
-
-
     {
       if (Fixture.Version < new Version(5, 7, 6)) return;
 
@@ -258,7 +255,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (Fixture.Version.Major >= 5 && Fixture.Version.Minor >= 7 && Fixture.Version.Build >= 6)
       {
         Assert.Equal("char", dt.Rows[2]["DATA_TYPE"]);
-        Assert.Equal("Name", (dt.Rows[2]["GENERATION_EXPRESSION"]).ToString().Replace("`", ""));
+        Assert.Equal("Name", dt.Rows[2]["GENERATION_EXPRESSION"].ToString().Trim('`'));
         Assert.Equal("STORED GENERATED", dt.Rows[2]["EXTRA"]);
       }
     }
@@ -696,5 +693,25 @@ namespace MySql.Data.MySqlClient.Tests
     //    Assert.Equal(1, schemaTable.Rows[3]["NumericScale"]);
     //  }
     //}
+
+    /// <summary>
+    /// Bug #29536344 MYSQLCONNECTION.GETSCHEMA RETURNS WRONG ORDER OF RECORDS FOR COLUMNS INFORMATION
+    /// </summary>
+    [Fact]
+    public void GetSchemaReturnColumnsByOrdinalPosition()
+    {
+      executeSQL("CREATE TABLE foo (x int, a VARCHAR(20), z int, c int)");
+      executeSQL("INSERT INTO foo VALUES(1, 'columnName', 2, 3)");
+
+      string[] restrictions = new string[5];
+      restrictions[2] = "foo";
+      restrictions[1] = Connection.Database;
+      var rows = Connection.GetSchema("COLUMNS", restrictions).Rows.OfType<DataRow>();
+
+      Assert.Collection(rows, row => Assert.Equal("x", row["COLUMN_NAME"]),
+        row => Assert.Equal("a", row["COLUMN_NAME"]),
+        row => Assert.Equal("z", row["COLUMN_NAME"]),
+        row => Assert.Equal("c", row["COLUMN_NAME"]));
+    }
   }
 }

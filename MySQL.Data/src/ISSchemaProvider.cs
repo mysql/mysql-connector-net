@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -20,12 +20,12 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using MySql.Data.Types;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using MySql.Data.Common;
-using MySql.Data.Types;
 
 namespace MySql.Data.MySqlClient
 {
@@ -414,6 +414,9 @@ namespace MySql.Data.MySqlClient
 
       if (where.Length > 0)
         query.AppendFormat(CultureInfo.InvariantCulture, " WHERE {0}", where);
+
+      if (tableName.Equals("COLUMNS", StringComparison.OrdinalIgnoreCase))
+        query.Append(" ORDER BY ORDINAL_POSITION");
 
       return GetTable(query.ToString());
     }
