@@ -45,7 +45,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("pipe", "pipe name,pipename", typeof(string), "MYSQL", false,
         (msb, sender, value) =>
         {
-#if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
+#if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_2
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(PipeName)));
 #else
           msb.SetValue("pipe", value);
@@ -69,7 +69,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("sharedmemoryname", "shared memory name", typeof(string), "MYSQL", false,
         (msb, sender, value) =>
         {
-#if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
+#if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_2
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(SharedMemoryName)));
 #else
           msb.SetValue("sharedmemoryname", value);
@@ -108,7 +108,7 @@ namespace MySql.Data.MySqlClient
         {
           if (!Platform.IsWindows())
             throw new MySqlException("IntegratedSecurity is supported on Windows only");
-#if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
+#if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_2
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(IntegratedSecurity)));
 #else
           msb.SetValue("Integrated Security", value.ToString().Equals("SSPI", StringComparison.OrdinalIgnoreCase) ? true : value);
@@ -149,7 +149,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("useperformancemonitor", "use performance monitor,useperfmon,perfmon", typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_0
+#if NETSTANDARD1_6 || NETSTANDARD2_0 || NETCOREAPP2_2
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(UsePerformanceMonitor)));
 #else
           msb.SetValue("useperformancemonitor", value);
