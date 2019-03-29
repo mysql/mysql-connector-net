@@ -38,7 +38,7 @@
     <Compile Remove="Framework\netstandard2_0\StressTestsPipe.cs;Framework\netstandard2_0\StressTestsPipeCompressed.cs;Framework\netstandard2_0\StressTestsSharedMemoryCompressed.cs;Framework\netstandard2_0\StressTestsSharedMemory.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.3' Or '$(TargetFramework)'=='netcoreapp1.1'">
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp1.1'">
     <Compile Remove="Framework\netstandard2_0\**" />
     <Compile Remove="Framework\netstandard2_0\MediumTrust\*.cs" />
     <EmbeddedResource Remove="Framework\netstandard2_0\**" />
