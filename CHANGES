@@ -1,3 +1,7 @@
+8.0.17
+- MySqlX: Added OVERLAPS and NOT_OVERLAPS as operators (WL12749).
+
+
 8.0.16
 - MySqlX: Added prepared statement support (WL12174).
 - MySqlX: Values and binding parameters are not cleared after an execution, so a new execution can use the previous parameters.
