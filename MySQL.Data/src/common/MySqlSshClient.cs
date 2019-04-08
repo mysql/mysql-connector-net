@@ -105,7 +105,7 @@ namespace MySql.Data.common
       }
 
       SshClient.Connect();
-      var forwardedPort = new ForwardedPortLocal("127.0.0.1", (uint)(isXProtocol ? 33060 : 3306), server, port);
+      var forwardedPort = new ForwardedPortLocal("127.0.0.1", (uint)(isXProtocol ? port : 3306), server, port);
       SshClient.AddForwardedPort(forwardedPort);
       forwardedPort.Start();
     }

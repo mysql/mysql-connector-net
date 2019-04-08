@@ -93,7 +93,19 @@ namespace MySqlX.Sessions
 
       SetState(SessionState.Connecting, false);
 
-      GetAndSetCapabilities();
+      try
+      {
+        GetAndSetCapabilities();
+      }
+      catch (Exception)
+      {
+        if (_sshClient != null && _sshClient.IsConnected)
+        {
+          _sshClient.Disconnect();
+        }
+
+        throw;
+      }
 
       // Validates use of TLS.
       if (Settings.SslMode != MySqlSslMode.None)
