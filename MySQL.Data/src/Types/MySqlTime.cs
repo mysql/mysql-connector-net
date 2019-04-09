@@ -65,12 +65,13 @@ namespace MySql.Data.Types
         throw new MySqlException("Only TimeSpan objects can be serialized by MySqlTimeSpan");
 
       TimeSpan ts = (TimeSpan)val;
-      bool negative = ts.TotalMilliseconds < 0;
+      bool negative = ts.Ticks < 0;
       ts = ts.Duration();
+      long Microseconds = (ts.Ticks%10000000)/10;
 
       if (binary)
       {
-        if (ts.Milliseconds > 0)
+        if (Microseconds > 0)
           packet.WriteByte(12);
         else
           packet.WriteByte(8);
@@ -80,15 +81,12 @@ namespace MySql.Data.Types
         packet.WriteByte((byte)ts.Hours);
         packet.WriteByte((byte)ts.Minutes);
         packet.WriteByte((byte)ts.Seconds);
-        if (ts.Milliseconds > 0)
-        {
-          long mval = ts.Milliseconds*1000;
-          packet.WriteInteger(mval, 4);          
-        }
+        if (Microseconds > 0)
+          packet.WriteInteger(Microseconds, 4);          
       }
       else
       {
-        String s = $"'{(negative ? "-" : "")}{ts.Days} {ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Ticks%10000000/10:000000}'";
+        String s = $"'{(negative ? "-" : "")}{ts.Days} {ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{Microseconds:000000}'";
       
         packet.WriteStringNoNull(s);
       }
@@ -120,9 +118,12 @@ namespace MySql.Data.Types
         Value = new TimeSpan(packet.ReadInteger(4),
              packet.ReadByte(), packet.ReadByte(), packet.ReadByte());
       else
-        Value = new TimeSpan(packet.ReadInteger(4),
-             packet.ReadByte(), packet.ReadByte(), packet.ReadByte(),
-             packet.ReadInteger(4) / 1000000);
+      {
+        TimeSpan ts = new TimeSpan(packet.ReadInteger(4),
+             packet.ReadByte(), packet.ReadByte(), packet.ReadByte());
+        long Microseconds = packet.ReadInteger(4);
+        Value = ts.Add(new TimeSpan(10*Microseconds));
+      }
 
       if (negate == 1)
         Value = Value.Negate();
