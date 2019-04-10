@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,17 +26,15 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.IO;
-using MySqlX.Data;
+using MySql.Data;
+using MySql.Data.Common;
+using MySql.Data.MySqlClient;
 using MySqlX.Protocol;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
-using MySql.Data.MySqlClient;
-using MySql.Data.MySqlClient.Authentication;
-using MySql.Data.Common;
-using MySql.Data;
+using System;
+using System.IO;
 
 namespace MySqlX.Sessions
 {
@@ -146,6 +144,15 @@ namespace MySqlX.Sessions
     internal DBVersion GetServerVersion()
     {
       return DBVersion.Parse(GetSqlRowResult("SHOW VARIABLES LIKE 'version'").FetchOne().GetString("Value"));
+    }
+
+    /// <summary>
+    /// Gets the thread Id of the connection.
+    /// </summary>
+    /// <returns>Thread Id</returns>
+    internal int GetThreadId()
+    {
+      return int.Parse(GetSqlRowResult("SELECT CONNECTION_ID()").FetchOne().GetString("connection_id()"));
     }
 
     #region IDisposable

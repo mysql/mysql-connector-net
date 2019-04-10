@@ -50,6 +50,7 @@ namespace MySqlX.XDevAPI.Relational
     public TableDeleteStatement OrderBy(params string[] order)
     {
       FilterData.OrderBy = order;
+      SetChanged();
       return this;
     }
 

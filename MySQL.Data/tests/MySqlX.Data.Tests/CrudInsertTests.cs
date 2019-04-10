@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -164,12 +164,12 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       var stmt = coll.Add(new { _id = 0 });
-      ExecuteAddStatement(stmt);
       foreach (var doc in docs)
       {
-        Result r = ExecuteAddStatement(stmt.Add(doc));
-        Assert.Equal<ulong>(1, r.AffectedItemsCount);
+        stmt.Add(doc);
       }
+      Result r = ExecuteAddStatement(stmt);
+      Assert.Equal<ulong>((ulong)docs.Length + 1, r.AffectedItemsCount);
       Assert.Equal(5, coll.Count());
     }
 

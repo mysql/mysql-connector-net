@@ -31,70 +31,75 @@ namespace Mysqlx.Crud {
             "b24SIQoGc291cmNlGAEgASgLMhEuTXlzcWx4LkV4cHIuRXhwchINCgVhbGlh",
             "cxgCIAEoCSIqCgpDb2xsZWN0aW9uEgwKBG5hbWUYASABKAkSDgoGc2NoZW1h",
             "GAIgASgJIioKBUxpbWl0EhEKCXJvd19jb3VudBgBIAEoBBIOCgZvZmZzZXQY",
-            "AiABKAQijQEKBU9yZGVyEh8KBGV4cHIYASABKAsyES5NeXNxbHguRXhwci5F",
-            "eHByEi8KCWRpcmVjdGlvbhgCIAEoDjIcLk15c3FseC5DcnVkLk9yZGVyLkRp",
-            "cmVjdGlvbiIyCglEaXJlY3Rpb24SEgoOTk9ORV9EaXJlY3Rpb24QABIHCgNB",
-            "U0MQARIICgRERVNDEAIiwQIKD1VwZGF0ZU9wZXJhdGlvbhItCgZzb3VyY2UY",
-            "ASABKAsyHS5NeXNxbHguRXhwci5Db2x1bW5JZGVudGlmaWVyEjoKCW9wZXJh",
-            "dGlvbhgCIAEoDjInLk15c3FseC5DcnVkLlVwZGF0ZU9wZXJhdGlvbi5VcGRh",
-            "dGVUeXBlEiAKBXZhbHVlGAMgASgLMhEuTXlzcWx4LkV4cHIuRXhwciKgAQoK",
-            "VXBkYXRlVHlwZRITCg9OT05FX1VwZGF0ZVR5cGUQABIHCgNTRVQQARIPCgtJ",
-            "VEVNX1JFTU9WRRACEgwKCElURU1fU0VUEAMSEAoMSVRFTV9SRVBMQUNFEAQS",
-            "DgoKSVRFTV9NRVJHRRAFEhAKDEFSUkFZX0lOU0VSVBAGEhAKDEFSUkFZX0FQ",
-            "UEVORBAHEg8KC01FUkdFX1BBVENIEAgi4wQKBEZpbmQSKwoKY29sbGVjdGlv",
-            "bhgCIAEoCzIXLk15c3FseC5DcnVkLkNvbGxlY3Rpb24SKgoKZGF0YV9tb2Rl",
-            "bBgDIAEoDjIWLk15c3FseC5DcnVkLkRhdGFNb2RlbBIrCgpwcm9qZWN0aW9u",
-            "GAQgAygLMhcuTXlzcWx4LkNydWQuUHJvamVjdGlvbhIjCghjcml0ZXJpYRgF",
-            "IAEoCzIRLk15c3FseC5FeHByLkV4cHISJgoEYXJncxgLIAMoCzIYLk15c3Fs",
-            "eC5EYXRhdHlwZXMuU2NhbGFyEiEKBWxpbWl0GAYgASgLMhIuTXlzcWx4LkNy",
-            "dWQuTGltaXQSIQoFb3JkZXIYByADKAsyEi5NeXNxbHguQ3J1ZC5PcmRlchIj",
-            "Cghncm91cGluZxgIIAMoCzIRLk15c3FseC5FeHByLkV4cHISLAoRZ3JvdXBp",
-            "bmdfY3JpdGVyaWEYCSABKAsyES5NeXNxbHguRXhwci5FeHByEioKB2xvY2tp",
-            "bmcYDCABKA4yGS5NeXNxbHguQ3J1ZC5GaW5kLlJvd0xvY2sSOQoPbG9ja2lu",
-            "Z19vcHRpb25zGA0gASgOMiAuTXlzcWx4LkNydWQuRmluZC5Sb3dMb2NrT3B0",
-            "aW9ucyJACgdSb3dMb2NrEhAKDE5PTkVfUm93TG9jaxAAEg8KC1NIQVJFRF9M",
-            "T0NLEAESEgoORVhDTFVTSVZFX0xPQ0sQAiJGCg5Sb3dMb2NrT3B0aW9ucxIX",
-            "ChNOT05FX1Jvd0xvY2tPcHRpb25zEAASCgoGTk9XQUlUEAESDwoLU0tJUF9M",
-            "T0NLRUQQAiKbAgoGSW5zZXJ0EisKCmNvbGxlY3Rpb24YASABKAsyFy5NeXNx",
-            "bHguQ3J1ZC5Db2xsZWN0aW9uEioKCmRhdGFfbW9kZWwYAiABKA4yFi5NeXNx",
-            "bHguQ3J1ZC5EYXRhTW9kZWwSJwoKcHJvamVjdGlvbhgDIAMoCzITLk15c3Fs",
-            "eC5DcnVkLkNvbHVtbhIpCgNyb3cYBCADKAsyHC5NeXNxbHguQ3J1ZC5JbnNl",
-            "cnQuVHlwZWRSb3cSJgoEYXJncxgFIAMoCzIYLk15c3FseC5EYXRhdHlwZXMu",
-            "U2NhbGFyEg4KBnVwc2VydBgGIAEoCBosCghUeXBlZFJvdxIgCgVmaWVsZBgB",
-            "IAMoCzIRLk15c3FseC5FeHByLkV4cHIipQIKBlVwZGF0ZRIrCgpjb2xsZWN0",
-            "aW9uGAIgASgLMhcuTXlzcWx4LkNydWQuQ29sbGVjdGlvbhIqCgpkYXRhX21v",
-            "ZGVsGAMgASgOMhYuTXlzcWx4LkNydWQuRGF0YU1vZGVsEiMKCGNyaXRlcmlh",
-            "GAQgASgLMhEuTXlzcWx4LkV4cHIuRXhwchImCgRhcmdzGAggAygLMhguTXlz",
-            "cWx4LkRhdGF0eXBlcy5TY2FsYXISIQoFbGltaXQYBSABKAsyEi5NeXNxbHgu",
-            "Q3J1ZC5MaW1pdBIhCgVvcmRlchgGIAMoCzISLk15c3FseC5DcnVkLk9yZGVy",
-            "Ei8KCW9wZXJhdGlvbhgHIAMoCzIcLk15c3FseC5DcnVkLlVwZGF0ZU9wZXJh",
-            "dGlvbiL0AQoGRGVsZXRlEisKCmNvbGxlY3Rpb24YASABKAsyFy5NeXNxbHgu",
-            "Q3J1ZC5Db2xsZWN0aW9uEioKCmRhdGFfbW9kZWwYAiABKA4yFi5NeXNxbHgu",
-            "Q3J1ZC5EYXRhTW9kZWwSIwoIY3JpdGVyaWEYAyABKAsyES5NeXNxbHguRXhw",
-            "ci5FeHByEiYKBGFyZ3MYBiADKAsyGC5NeXNxbHguRGF0YXR5cGVzLlNjYWxh",
-            "chIhCgVsaW1pdBgEIAEoCzISLk15c3FseC5DcnVkLkxpbWl0EiEKBW9yZGVy",
-            "GAUgAygLMhIuTXlzcWx4LkNydWQuT3JkZXIioQIKCkNyZWF0ZVZpZXcSKwoK",
-            "Y29sbGVjdGlvbhgBIAEoCzIXLk15c3FseC5DcnVkLkNvbGxlY3Rpb24SDwoH",
-            "ZGVmaW5lchgCIAEoCRItCglhbGdvcml0aG0YAyABKA4yGi5NeXNxbHguQ3J1",
-            "ZC5WaWV3QWxnb3JpdGhtEi4KCHNlY3VyaXR5GAQgASgOMhwuTXlzcWx4LkNy",
-            "dWQuVmlld1NxbFNlY3VyaXR5EisKBWNoZWNrGAUgASgOMhwuTXlzcWx4LkNy",
-            "dWQuVmlld0NoZWNrT3B0aW9uEg4KBmNvbHVtbhgGIAMoCRIfCgRzdG10GAcg",
-            "ASgLMhEuTXlzcWx4LkNydWQuRmluZBIYChByZXBsYWNlX2V4aXN0aW5nGAgg",
-            "ASgIIocCCgpNb2RpZnlWaWV3EisKCmNvbGxlY3Rpb24YASABKAsyFy5NeXNx",
-            "bHguQ3J1ZC5Db2xsZWN0aW9uEg8KB2RlZmluZXIYAiABKAkSLQoJYWxnb3Jp",
-            "dGhtGAMgASgOMhouTXlzcWx4LkNydWQuVmlld0FsZ29yaXRobRIuCghzZWN1",
-            "cml0eRgEIAEoDjIcLk15c3FseC5DcnVkLlZpZXdTcWxTZWN1cml0eRIrCgVj",
-            "aGVjaxgFIAEoDjIcLk15c3FseC5DcnVkLlZpZXdDaGVja09wdGlvbhIOCgZj",
-            "b2x1bW4YBiADKAkSHwoEc3RtdBgHIAEoCzIRLk15c3FseC5DcnVkLkZpbmQi",
-            "SgoIRHJvcFZpZXcSKwoKY29sbGVjdGlvbhgBIAEoCzIXLk15c3FseC5DcnVk",
-            "LkNvbGxlY3Rpb24SEQoJaWZfZXhpc3RzGAIgASgIKjgKCURhdGFNb2RlbBIS",
-            "Cg5OT05FX0RhdGFNb2RlbBAAEgwKCERPQ1VNRU5UEAESCQoFVEFCTEUQAipQ",
-            "Cg1WaWV3QWxnb3JpdGhtEhYKEk5PTkVfVmlld0FsZ29yaXRobRAAEg0KCVVO",
-            "REVGSU5FRBABEgkKBU1FUkdFEAISDQoJVEVNUFRBQkxFEAMqRQoPVmlld1Nx",
-            "bFNlY3VyaXR5EhgKFE5PTkVfVmlld1NxbFNlY3VyaXR5EAASCwoHSU5WT0tF",
-            "UhABEgsKB0RFRklORVIQAipECg9WaWV3Q2hlY2tPcHRpb24SGAoUTk9ORV9W",
-            "aWV3Q2hlY2tPcHRpb24QABIJCgVMT0NBTBABEgwKCENBU0NBREVEEAJCGQoX",
-            "Y29tLm15c3FsLmNqLngucHJvdG9idWZiBnByb3RvMw=="));
+            "AiABKAQiVAoJTGltaXRFeHByEiQKCXJvd19jb3VudBgBIAEoCzIRLk15c3Fs",
+            "eC5FeHByLkV4cHISIQoGb2Zmc2V0GAIgASgLMhEuTXlzcWx4LkV4cHIuRXhw",
+            "ciKNAQoFT3JkZXISHwoEZXhwchgBIAEoCzIRLk15c3FseC5FeHByLkV4cHIS",
+            "LwoJZGlyZWN0aW9uGAIgASgOMhwuTXlzcWx4LkNydWQuT3JkZXIuRGlyZWN0",
+            "aW9uIjIKCURpcmVjdGlvbhISCg5OT05FX0RpcmVjdGlvbhAAEgcKA0FTQxAB",
+            "EggKBERFU0MQAiLBAgoPVXBkYXRlT3BlcmF0aW9uEi0KBnNvdXJjZRgBIAEo",
+            "CzIdLk15c3FseC5FeHByLkNvbHVtbklkZW50aWZpZXISOgoJb3BlcmF0aW9u",
+            "GAIgASgOMicuTXlzcWx4LkNydWQuVXBkYXRlT3BlcmF0aW9uLlVwZGF0ZVR5",
+            "cGUSIAoFdmFsdWUYAyABKAsyES5NeXNxbHguRXhwci5FeHByIqABCgpVcGRh",
+            "dGVUeXBlEhMKD05PTkVfVXBkYXRlVHlwZRAAEgcKA1NFVBABEg8KC0lURU1f",
+            "UkVNT1ZFEAISDAoISVRFTV9TRVQQAxIQCgxJVEVNX1JFUExBQ0UQBBIOCgpJ",
+            "VEVNX01FUkdFEAUSEAoMQVJSQVlfSU5TRVJUEAYSEAoMQVJSQVlfQVBQRU5E",
+            "EAcSDwoLTUVSR0VfUEFUQ0gQCCKPBQoERmluZBIrCgpjb2xsZWN0aW9uGAIg",
+            "ASgLMhcuTXlzcWx4LkNydWQuQ29sbGVjdGlvbhIqCgpkYXRhX21vZGVsGAMg",
+            "ASgOMhYuTXlzcWx4LkNydWQuRGF0YU1vZGVsEisKCnByb2plY3Rpb24YBCAD",
+            "KAsyFy5NeXNxbHguQ3J1ZC5Qcm9qZWN0aW9uEiMKCGNyaXRlcmlhGAUgASgL",
+            "MhEuTXlzcWx4LkV4cHIuRXhwchImCgRhcmdzGAsgAygLMhguTXlzcWx4LkRh",
+            "dGF0eXBlcy5TY2FsYXISIQoFb3JkZXIYByADKAsyEi5NeXNxbHguQ3J1ZC5P",
+            "cmRlchIjCghncm91cGluZxgIIAMoCzIRLk15c3FseC5FeHByLkV4cHISLAoR",
+            "Z3JvdXBpbmdfY3JpdGVyaWEYCSABKAsyES5NeXNxbHguRXhwci5FeHByEioK",
+            "B2xvY2tpbmcYDCABKA4yGS5NeXNxbHguQ3J1ZC5GaW5kLlJvd0xvY2sSOQoP",
+            "bG9ja2luZ19vcHRpb25zGA0gASgOMiAuTXlzcWx4LkNydWQuRmluZC5Sb3dM",
+            "b2NrT3B0aW9ucxIhCgVsaW1pdBgGIAEoCzISLk15c3FseC5DcnVkLkxpbWl0",
+            "EioKCmxpbWl0X2V4cHIYDiABKAsyFi5NeXNxbHguQ3J1ZC5MaW1pdEV4cHIi",
+            "QAoHUm93TG9jaxIQCgxOT05FX1Jvd0xvY2sQABIPCgtTSEFSRURfTE9DSxAB",
+            "EhIKDkVYQ0xVU0lWRV9MT0NLEAIiRgoOUm93TG9ja09wdGlvbnMSFwoTTk9O",
+            "RV9Sb3dMb2NrT3B0aW9ucxAAEgoKBk5PV0FJVBABEg8KC1NLSVBfTE9DS0VE",
+            "EAIimwIKBkluc2VydBIrCgpjb2xsZWN0aW9uGAEgASgLMhcuTXlzcWx4LkNy",
+            "dWQuQ29sbGVjdGlvbhIqCgpkYXRhX21vZGVsGAIgASgOMhYuTXlzcWx4LkNy",
+            "dWQuRGF0YU1vZGVsEicKCnByb2plY3Rpb24YAyADKAsyEy5NeXNxbHguQ3J1",
+            "ZC5Db2x1bW4SKQoDcm93GAQgAygLMhwuTXlzcWx4LkNydWQuSW5zZXJ0LlR5",
+            "cGVkUm93EiYKBGFyZ3MYBSADKAsyGC5NeXNxbHguRGF0YXR5cGVzLlNjYWxh",
+            "chIOCgZ1cHNlcnQYBiABKAgaLAoIVHlwZWRSb3cSIAoFZmllbGQYASADKAsy",
+            "ES5NeXNxbHguRXhwci5FeHByItECCgZVcGRhdGUSKwoKY29sbGVjdGlvbhgC",
+            "IAEoCzIXLk15c3FseC5DcnVkLkNvbGxlY3Rpb24SKgoKZGF0YV9tb2RlbBgD",
+            "IAEoDjIWLk15c3FseC5DcnVkLkRhdGFNb2RlbBIjCghjcml0ZXJpYRgEIAEo",
+            "CzIRLk15c3FseC5FeHByLkV4cHISJgoEYXJncxgIIAMoCzIYLk15c3FseC5E",
+            "YXRhdHlwZXMuU2NhbGFyEiEKBW9yZGVyGAYgAygLMhIuTXlzcWx4LkNydWQu",
+            "T3JkZXISLwoJb3BlcmF0aW9uGAcgAygLMhwuTXlzcWx4LkNydWQuVXBkYXRl",
+            "T3BlcmF0aW9uEiEKBWxpbWl0GAUgASgLMhIuTXlzcWx4LkNydWQuTGltaXQS",
+            "KgoKbGltaXRfZXhwchgJIAEoCzIWLk15c3FseC5DcnVkLkxpbWl0RXhwciKg",
+            "AgoGRGVsZXRlEisKCmNvbGxlY3Rpb24YASABKAsyFy5NeXNxbHguQ3J1ZC5D",
+            "b2xsZWN0aW9uEioKCmRhdGFfbW9kZWwYAiABKA4yFi5NeXNxbHguQ3J1ZC5E",
+            "YXRhTW9kZWwSIwoIY3JpdGVyaWEYAyABKAsyES5NeXNxbHguRXhwci5FeHBy",
+            "EiYKBGFyZ3MYBiADKAsyGC5NeXNxbHguRGF0YXR5cGVzLlNjYWxhchIhCgVv",
+            "cmRlchgFIAMoCzISLk15c3FseC5DcnVkLk9yZGVyEiEKBWxpbWl0GAQgASgL",
+            "MhIuTXlzcWx4LkNydWQuTGltaXQSKgoKbGltaXRfZXhwchgHIAEoCzIWLk15",
+            "c3FseC5DcnVkLkxpbWl0RXhwciKhAgoKQ3JlYXRlVmlldxIrCgpjb2xsZWN0",
+            "aW9uGAEgASgLMhcuTXlzcWx4LkNydWQuQ29sbGVjdGlvbhIPCgdkZWZpbmVy",
+            "GAIgASgJEi0KCWFsZ29yaXRobRgDIAEoDjIaLk15c3FseC5DcnVkLlZpZXdB",
+            "bGdvcml0aG0SLgoIc2VjdXJpdHkYBCABKA4yHC5NeXNxbHguQ3J1ZC5WaWV3",
+            "U3FsU2VjdXJpdHkSKwoFY2hlY2sYBSABKA4yHC5NeXNxbHguQ3J1ZC5WaWV3",
+            "Q2hlY2tPcHRpb24SDgoGY29sdW1uGAYgAygJEh8KBHN0bXQYByABKAsyES5N",
+            "eXNxbHguQ3J1ZC5GaW5kEhgKEHJlcGxhY2VfZXhpc3RpbmcYCCABKAgihwIK",
+            "Ck1vZGlmeVZpZXcSKwoKY29sbGVjdGlvbhgBIAEoCzIXLk15c3FseC5DcnVk",
+            "LkNvbGxlY3Rpb24SDwoHZGVmaW5lchgCIAEoCRItCglhbGdvcml0aG0YAyAB",
+            "KA4yGi5NeXNxbHguQ3J1ZC5WaWV3QWxnb3JpdGhtEi4KCHNlY3VyaXR5GAQg",
+            "ASgOMhwuTXlzcWx4LkNydWQuVmlld1NxbFNlY3VyaXR5EisKBWNoZWNrGAUg",
+            "ASgOMhwuTXlzcWx4LkNydWQuVmlld0NoZWNrT3B0aW9uEg4KBmNvbHVtbhgG",
+            "IAMoCRIfCgRzdG10GAcgASgLMhEuTXlzcWx4LkNydWQuRmluZCJKCghEcm9w",
+            "VmlldxIrCgpjb2xsZWN0aW9uGAEgASgLMhcuTXlzcWx4LkNydWQuQ29sbGVj",
+            "dGlvbhIRCglpZl9leGlzdHMYAiABKAgqOAoJRGF0YU1vZGVsEhIKDk5PTkVf",
+            "RGF0YU1vZGVsEAASDAoIRE9DVU1FTlQQARIJCgVUQUJMRRACKlAKDVZpZXdB",
+            "bGdvcml0aG0SFgoSTk9ORV9WaWV3QWxnb3JpdGhtEAASDQoJVU5ERUZJTkVE",
+            "EAESCQoFTUVSR0UQAhINCglURU1QVEFCTEUQAypFCg9WaWV3U3FsU2VjdXJp",
+            "dHkSGAoUTk9ORV9WaWV3U3FsU2VjdXJpdHkQABILCgdJTlZPS0VSEAESCwoH",
+            "REVGSU5FUhACKkQKD1ZpZXdDaGVja09wdGlvbhIYChROT05FX1ZpZXdDaGVj",
+            "a09wdGlvbhAAEgkKBUxPQ0FMEAESDAoIQ0FTQ0FERUQQAkIZChdjb20ubXlz",
+            "cWwuY2oueC5wcm90b2J1ZmIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Mysqlx.Expr.MysqlxExprReflection.Descriptor, global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Mysqlx.Crud.DataModel), typeof(global::Mysqlx.Crud.ViewAlgorithm), typeof(global::Mysqlx.Crud.ViewSqlSecurity), typeof(global::Mysqlx.Crud.ViewCheckOption), }, new pbr::GeneratedClrTypeInfo[] {
@@ -102,12 +107,13 @@ namespace Mysqlx.Crud {
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Projection), global::Mysqlx.Crud.Projection.Parser, new[]{ "Source", "Alias" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Collection), global::Mysqlx.Crud.Collection.Parser, new[]{ "Name", "Schema" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Limit), global::Mysqlx.Crud.Limit.Parser, new[]{ "RowCount", "Offset" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.LimitExpr), global::Mysqlx.Crud.LimitExpr.Parser, new[]{ "RowCount", "Offset" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Order), global::Mysqlx.Crud.Order.Parser, new[]{ "Expr", "Direction" }, null, new[]{ typeof(global::Mysqlx.Crud.Order.Types.Direction) }, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.UpdateOperation), global::Mysqlx.Crud.UpdateOperation.Parser, new[]{ "Source", "Operation", "Value" }, null, new[]{ typeof(global::Mysqlx.Crud.UpdateOperation.Types.UpdateType) }, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Find), global::Mysqlx.Crud.Find.Parser, new[]{ "Collection", "DataModel", "Projection", "Criteria", "Args", "Limit", "Order", "Grouping", "GroupingCriteria", "Locking", "LockingOptions" }, null, new[]{ typeof(global::Mysqlx.Crud.Find.Types.RowLock), typeof(global::Mysqlx.Crud.Find.Types.RowLockOptions) }, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Find), global::Mysqlx.Crud.Find.Parser, new[]{ "Collection", "DataModel", "Projection", "Criteria", "Args", "Order", "Grouping", "GroupingCriteria", "Locking", "LockingOptions", "Limit", "LimitExpr" }, null, new[]{ typeof(global::Mysqlx.Crud.Find.Types.RowLock), typeof(global::Mysqlx.Crud.Find.Types.RowLockOptions) }, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Insert), global::Mysqlx.Crud.Insert.Parser, new[]{ "Collection", "DataModel", "Projection", "Row", "Args", "Upsert" }, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Insert.Types.TypedRow), global::Mysqlx.Crud.Insert.Types.TypedRow.Parser, new[]{ "Field" }, null, null, null)}),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Update), global::Mysqlx.Crud.Update.Parser, new[]{ "Collection", "DataModel", "Criteria", "Args", "Limit", "Order", "Operation" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Delete), global::Mysqlx.Crud.Delete.Parser, new[]{ "Collection", "DataModel", "Criteria", "Args", "Limit", "Order" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Update), global::Mysqlx.Crud.Update.Parser, new[]{ "Collection", "DataModel", "Criteria", "Args", "Order", "Operation", "Limit", "LimitExpr" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.Delete), global::Mysqlx.Crud.Delete.Parser, new[]{ "Collection", "DataModel", "Criteria", "Args", "Order", "Limit", "LimitExpr" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.CreateView), global::Mysqlx.Crud.CreateView.Parser, new[]{ "Collection", "Definer", "Algorithm", "Security", "Check", "Column", "Stmt", "ReplaceExisting" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.ModifyView), global::Mysqlx.Crud.ModifyView.Parser, new[]{ "Collection", "Definer", "Algorithm", "Security", "Check", "Column", "Stmt" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Crud.DropView), global::Mysqlx.Crud.DropView.Parser, new[]{ "Collection", "IfExists" }, null, null, null)
@@ -394,7 +400,7 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Projection(Projection other) : this() {
-      Source = other.source_ != null ? other.Source.Clone() : null;
+      source_ = other.source_ != null ? other.source_.Clone() : null;
       alias_ = other.alias_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -874,6 +880,192 @@ namespace Mysqlx.Crud {
   }
 
   /// <summary>
+  /// limit expression
+  ///
+  /// LimitExpr in comparison to Limit, is able to specify that row_count and
+  /// offset are placeholders.
+  /// This message support expressions of following types Expr/literal/UINT,
+  /// Expr/PLACEHOLDER.
+  ///
+  /// :param row_count: maximum rows to filter
+  /// :param offset: maximum rows to skip before applying the row_count
+  /// </summary>
+  internal sealed partial class LimitExpr : pb::IMessage<LimitExpr> {
+    private static readonly pb::MessageParser<LimitExpr> _parser = new pb::MessageParser<LimitExpr>(() => new LimitExpr());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<LimitExpr> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[4]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public LimitExpr() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public LimitExpr(LimitExpr other) : this() {
+      rowCount_ = other.rowCount_ != null ? other.rowCount_.Clone() : null;
+      offset_ = other.offset_ != null ? other.offset_.Clone() : null;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public LimitExpr Clone() {
+      return new LimitExpr(this);
+    }
+
+    /// <summary>Field number for the "row_count" field.</summary>
+    public const int RowCountFieldNumber = 1;
+    private global::Mysqlx.Expr.Expr rowCount_;
+    /// <summary>
+    ///required
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Mysqlx.Expr.Expr RowCount {
+      get { return rowCount_; }
+      set {
+        rowCount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "offset" field.</summary>
+    public const int OffsetFieldNumber = 2;
+    private global::Mysqlx.Expr.Expr offset_;
+    /// <summary>
+    ///optional
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Mysqlx.Expr.Expr Offset {
+      get { return offset_; }
+      set {
+        offset_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as LimitExpr);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(LimitExpr other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(RowCount, other.RowCount)) return false;
+      if (!object.Equals(Offset, other.Offset)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (rowCount_ != null) hash ^= RowCount.GetHashCode();
+      if (offset_ != null) hash ^= Offset.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (rowCount_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(RowCount);
+      }
+      if (offset_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(Offset);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (rowCount_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(RowCount);
+      }
+      if (offset_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Offset);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(LimitExpr other) {
+      if (other == null) {
+        return;
+      }
+      if (other.rowCount_ != null) {
+        if (rowCount_ == null) {
+          rowCount_ = new global::Mysqlx.Expr.Expr();
+        }
+        RowCount.MergeFrom(other.RowCount);
+      }
+      if (other.offset_ != null) {
+        if (offset_ == null) {
+          offset_ = new global::Mysqlx.Expr.Expr();
+        }
+        Offset.MergeFrom(other.Offset);
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (rowCount_ == null) {
+              rowCount_ = new global::Mysqlx.Expr.Expr();
+            }
+            input.ReadMessage(rowCount_);
+            break;
+          }
+          case 18: {
+            if (offset_ == null) {
+              offset_ = new global::Mysqlx.Expr.Expr();
+            }
+            input.ReadMessage(offset_);
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  /// <summary>
   /// sort order
   /// </summary>
   internal sealed partial class Order : pb::IMessage<Order> {
@@ -884,7 +1076,7 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[4]; }
+      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -901,7 +1093,7 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Order(Order other) : this() {
-      Expr = other.expr_ != null ? other.Expr.Clone() : null;
+      expr_ = other.expr_ != null ? other.expr_.Clone() : null;
       direction_ = other.direction_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -1076,7 +1268,7 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[5]; }
+      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1093,9 +1285,9 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public UpdateOperation(UpdateOperation other) : this() {
-      Source = other.source_ != null ? other.Source.Clone() : null;
+      source_ = other.source_ != null ? other.source_.Clone() : null;
       operation_ = other.operation_;
-      Value = other.value_ != null ? other.Value.Clone() : null;
+      value_ = other.value_ != null ? other.value_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1330,12 +1522,13 @@ namespace Mysqlx.Crud {
   /// :param projection: list of column projections that shall be returned
   /// :param args: values for parameters used in filter expression
   /// :param criteria: filter criteria
-  /// :param limit: numbers of rows that shall be skipped and returned
+  /// :param limit: numbers of rows that shall be skipped and returned (user can set one of: limit, limit_expr)
   /// :param order: sort-order in which the rows/document shall be returned in
   /// :param grouping: column expression list for aggregation (GROUP BY)
   /// :param grouping_criteria: filter criteria for aggregated groups
   /// :param locking: perform row locking on matches
   /// :param locking_options: additional options how to handle locked rows
+  /// :param limit_expr: numbers of rows that shall be skipped and returned (user can set one of: limit, limit_expr)
   /// :Returns: :protobuf:msg:`Mysqlx.Resultset::`
   /// </summary>
   internal sealed partial class Find : pb::IMessage<Find> {
@@ -1346,7 +1539,7 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[6]; }
+      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1363,17 +1556,18 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Find(Find other) : this() {
-      Collection = other.collection_ != null ? other.Collection.Clone() : null;
+      collection_ = other.collection_ != null ? other.collection_.Clone() : null;
       dataModel_ = other.dataModel_;
       projection_ = other.projection_.Clone();
-      Criteria = other.criteria_ != null ? other.Criteria.Clone() : null;
+      criteria_ = other.criteria_ != null ? other.criteria_.Clone() : null;
       args_ = other.args_.Clone();
-      Limit = other.limit_ != null ? other.Limit.Clone() : null;
       order_ = other.order_.Clone();
       grouping_ = other.grouping_.Clone();
-      GroupingCriteria = other.groupingCriteria_ != null ? other.GroupingCriteria.Clone() : null;
+      groupingCriteria_ = other.groupingCriteria_ != null ? other.groupingCriteria_.Clone() : null;
       locking_ = other.locking_;
       lockingOptions_ = other.lockingOptions_;
+      limit_ = other.limit_ != null ? other.limit_.Clone() : null;
+      limitExpr_ = other.limitExpr_ != null ? other.limitExpr_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1444,20 +1638,6 @@ namespace Mysqlx.Crud {
       get { return args_; }
     }
 
-    /// <summary>Field number for the "limit" field.</summary>
-    public const int LimitFieldNumber = 6;
-    private global::Mysqlx.Crud.Limit limit_;
-    /// <summary>
-    ///optional
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Mysqlx.Crud.Limit Limit {
-      get { return limit_; }
-      set {
-        limit_ = value;
-      }
-    }
-
     /// <summary>Field number for the "order" field.</summary>
     public const int OrderFieldNumber = 7;
     private static readonly pb::FieldCodec<global::Mysqlx.Crud.Order> _repeated_order_codec
@@ -1520,6 +1700,34 @@ namespace Mysqlx.Crud {
       }
     }
 
+    /// <summary>Field number for the "limit" field.</summary>
+    public const int LimitFieldNumber = 6;
+    private global::Mysqlx.Crud.Limit limit_;
+    /// <summary>
+    ///optional
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Mysqlx.Crud.Limit Limit {
+      get { return limit_; }
+      set {
+        limit_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "limit_expr" field.</summary>
+    public const int LimitExprFieldNumber = 14;
+    private global::Mysqlx.Crud.LimitExpr limitExpr_;
+    /// <summary>
+    ///optional
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Mysqlx.Crud.LimitExpr LimitExpr {
+      get { return limitExpr_; }
+      set {
+        limitExpr_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Find);
@@ -1538,12 +1746,13 @@ namespace Mysqlx.Crud {
       if(!projection_.Equals(other.projection_)) return false;
       if (!object.Equals(Criteria, other.Criteria)) return false;
       if(!args_.Equals(other.args_)) return false;
-      if (!object.Equals(Limit, other.Limit)) return false;
       if(!order_.Equals(other.order_)) return false;
       if(!grouping_.Equals(other.grouping_)) return false;
       if (!object.Equals(GroupingCriteria, other.GroupingCriteria)) return false;
       if (Locking != other.Locking) return false;
       if (LockingOptions != other.LockingOptions) return false;
+      if (!object.Equals(Limit, other.Limit)) return false;
+      if (!object.Equals(LimitExpr, other.LimitExpr)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1555,12 +1764,13 @@ namespace Mysqlx.Crud {
       hash ^= projection_.GetHashCode();
       if (criteria_ != null) hash ^= Criteria.GetHashCode();
       hash ^= args_.GetHashCode();
-      if (limit_ != null) hash ^= Limit.GetHashCode();
       hash ^= order_.GetHashCode();
       hash ^= grouping_.GetHashCode();
       if (groupingCriteria_ != null) hash ^= GroupingCriteria.GetHashCode();
       if (Locking != 0) hash ^= Locking.GetHashCode();
       if (LockingOptions != 0) hash ^= LockingOptions.GetHashCode();
+      if (limit_ != null) hash ^= Limit.GetHashCode();
+      if (limitExpr_ != null) hash ^= LimitExpr.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1606,6 +1816,10 @@ namespace Mysqlx.Crud {
         output.WriteRawTag(104);
         output.WriteEnum((int) LockingOptions);
       }
+      if (limitExpr_ != null) {
+        output.WriteRawTag(114);
+        output.WriteMessage(LimitExpr);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1625,9 +1839,6 @@ namespace Mysqlx.Crud {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Criteria);
       }
       size += args_.CalculateSize(_repeated_args_codec);
-      if (limit_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Limit);
-      }
       size += order_.CalculateSize(_repeated_order_codec);
       size += grouping_.CalculateSize(_repeated_grouping_codec);
       if (groupingCriteria_ != null) {
@@ -1638,6 +1849,12 @@ namespace Mysqlx.Crud {
       }
       if (LockingOptions != 0) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) LockingOptions);
+      }
+      if (limit_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Limit);
+      }
+      if (limitExpr_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(LimitExpr);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1667,12 +1884,6 @@ namespace Mysqlx.Crud {
         Criteria.MergeFrom(other.Criteria);
       }
       args_.Add(other.args_);
-      if (other.limit_ != null) {
-        if (limit_ == null) {
-          limit_ = new global::Mysqlx.Crud.Limit();
-        }
-        Limit.MergeFrom(other.Limit);
-      }
       order_.Add(other.order_);
       grouping_.Add(other.grouping_);
       if (other.groupingCriteria_ != null) {
@@ -1686,6 +1897,18 @@ namespace Mysqlx.Crud {
       }
       if (other.LockingOptions != 0) {
         LockingOptions = other.LockingOptions;
+      }
+      if (other.limit_ != null) {
+        if (limit_ == null) {
+          limit_ = new global::Mysqlx.Crud.Limit();
+        }
+        Limit.MergeFrom(other.Limit);
+      }
+      if (other.limitExpr_ != null) {
+        if (limitExpr_ == null) {
+          limitExpr_ = new global::Mysqlx.Crud.LimitExpr();
+        }
+        LimitExpr.MergeFrom(other.LimitExpr);
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1754,6 +1977,13 @@ namespace Mysqlx.Crud {
             lockingOptions_ = (global::Mysqlx.Crud.Find.Types.RowLockOptions) input.ReadEnum();
             break;
           }
+          case 114: {
+            if (limitExpr_ == null) {
+              limitExpr_ = new global::Mysqlx.Crud.LimitExpr();
+            }
+            input.ReadMessage(limitExpr_);
+            break;
+          }
         }
       }
     }
@@ -1810,7 +2040,7 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[7]; }
+      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1827,7 +2057,7 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Insert(Insert other) : this() {
-      Collection = other.collection_ != null ? other.Collection.Clone() : null;
+      collection_ = other.collection_ != null ? other.collection_.Clone() : null;
       dataModel_ = other.dataModel_;
       projection_ = other.projection_.Clone();
       row_ = other.row_.Clone();
@@ -2197,9 +2427,10 @@ namespace Mysqlx.Crud {
   /// :param data_model: datamodel that the operations refer to
   /// :param criteria: filter expression to match rows that the operations will apply on
   /// :param args: values for parameters used in filter expression
-  /// :param limit: limits the number of rows to match
+  /// :param limit: limits the number of rows to match (user can set one of: limit, limit_expr)
   /// :param order: specifies order of matched rows
   /// :param operation: list of operations to be applied. Valid operations will depend on the data_model.
+  /// :param limit_expr: limits the number of rows to match (user can set one of: limit, limit_expr)
   /// :Returns: :protobuf:msg:`Mysqlx.Resultset::`
   /// </summary>
   internal sealed partial class Update : pb::IMessage<Update> {
@@ -2210,7 +2441,7 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[8]; }
+      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2227,13 +2458,14 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Update(Update other) : this() {
-      Collection = other.collection_ != null ? other.Collection.Clone() : null;
+      collection_ = other.collection_ != null ? other.collection_.Clone() : null;
       dataModel_ = other.dataModel_;
-      Criteria = other.criteria_ != null ? other.Criteria.Clone() : null;
+      criteria_ = other.criteria_ != null ? other.criteria_.Clone() : null;
       args_ = other.args_.Clone();
-      Limit = other.limit_ != null ? other.Limit.Clone() : null;
       order_ = other.order_.Clone();
       operation_ = other.operation_.Clone();
+      limit_ = other.limit_ != null ? other.limit_.Clone() : null;
+      limitExpr_ = other.limitExpr_ != null ? other.limitExpr_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -2294,20 +2526,6 @@ namespace Mysqlx.Crud {
       get { return args_; }
     }
 
-    /// <summary>Field number for the "limit" field.</summary>
-    public const int LimitFieldNumber = 5;
-    private global::Mysqlx.Crud.Limit limit_;
-    /// <summary>
-    ///optional
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Mysqlx.Crud.Limit Limit {
-      get { return limit_; }
-      set {
-        limit_ = value;
-      }
-    }
-
     /// <summary>Field number for the "order" field.</summary>
     public const int OrderFieldNumber = 6;
     private static readonly pb::FieldCodec<global::Mysqlx.Crud.Order> _repeated_order_codec
@@ -2328,6 +2546,34 @@ namespace Mysqlx.Crud {
       get { return operation_; }
     }
 
+    /// <summary>Field number for the "limit" field.</summary>
+    public const int LimitFieldNumber = 5;
+    private global::Mysqlx.Crud.Limit limit_;
+    /// <summary>
+    ///optional
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Mysqlx.Crud.Limit Limit {
+      get { return limit_; }
+      set {
+        limit_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "limit_expr" field.</summary>
+    public const int LimitExprFieldNumber = 9;
+    private global::Mysqlx.Crud.LimitExpr limitExpr_;
+    /// <summary>
+    ///optional
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Mysqlx.Crud.LimitExpr LimitExpr {
+      get { return limitExpr_; }
+      set {
+        limitExpr_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as Update);
@@ -2345,9 +2591,10 @@ namespace Mysqlx.Crud {
       if (DataModel != other.DataModel) return false;
       if (!object.Equals(Criteria, other.Criteria)) return false;
       if(!args_.Equals(other.args_)) return false;
-      if (!object.Equals(Limit, other.Limit)) return false;
       if(!order_.Equals(other.order_)) return false;
       if(!operation_.Equals(other.operation_)) return false;
+      if (!object.Equals(Limit, other.Limit)) return false;
+      if (!object.Equals(LimitExpr, other.LimitExpr)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -2358,9 +2605,10 @@ namespace Mysqlx.Crud {
       if (DataModel != 0) hash ^= DataModel.GetHashCode();
       if (criteria_ != null) hash ^= Criteria.GetHashCode();
       hash ^= args_.GetHashCode();
-      if (limit_ != null) hash ^= Limit.GetHashCode();
       hash ^= order_.GetHashCode();
       hash ^= operation_.GetHashCode();
+      if (limit_ != null) hash ^= Limit.GetHashCode();
+      if (limitExpr_ != null) hash ^= LimitExpr.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -2393,6 +2641,10 @@ namespace Mysqlx.Crud {
       order_.WriteTo(output, _repeated_order_codec);
       operation_.WriteTo(output, _repeated_operation_codec);
       args_.WriteTo(output, _repeated_args_codec);
+      if (limitExpr_ != null) {
+        output.WriteRawTag(74);
+        output.WriteMessage(LimitExpr);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -2411,11 +2663,14 @@ namespace Mysqlx.Crud {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Criteria);
       }
       size += args_.CalculateSize(_repeated_args_codec);
+      size += order_.CalculateSize(_repeated_order_codec);
+      size += operation_.CalculateSize(_repeated_operation_codec);
       if (limit_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Limit);
       }
-      size += order_.CalculateSize(_repeated_order_codec);
-      size += operation_.CalculateSize(_repeated_operation_codec);
+      if (limitExpr_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(LimitExpr);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -2443,14 +2698,20 @@ namespace Mysqlx.Crud {
         Criteria.MergeFrom(other.Criteria);
       }
       args_.Add(other.args_);
+      order_.Add(other.order_);
+      operation_.Add(other.operation_);
       if (other.limit_ != null) {
         if (limit_ == null) {
           limit_ = new global::Mysqlx.Crud.Limit();
         }
         Limit.MergeFrom(other.Limit);
       }
-      order_.Add(other.order_);
-      operation_.Add(other.operation_);
+      if (other.limitExpr_ != null) {
+        if (limitExpr_ == null) {
+          limitExpr_ = new global::Mysqlx.Crud.LimitExpr();
+        }
+        LimitExpr.MergeFrom(other.LimitExpr);
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -2499,6 +2760,13 @@ namespace Mysqlx.Crud {
             args_.AddEntriesFrom(input, _repeated_args_codec);
             break;
           }
+          case 74: {
+            if (limitExpr_ == null) {
+              limitExpr_ = new global::Mysqlx.Crud.LimitExpr();
+            }
+            input.ReadMessage(limitExpr_);
+            break;
+          }
         }
       }
     }
@@ -2512,8 +2780,9 @@ namespace Mysqlx.Crud {
   /// :param data_model: datamodel that the operations refer to
   /// :param criteria: filter expression to match rows that the operations will apply on
   /// :param args: values for parameters used in filter expression
-  /// :param limit: limits the number of rows to match
+  /// :param limit: limits the number of rows to match (user can set one of: limit, limit_expr)
   /// :param order: specifies order of matched rows
+  /// :param limit_expr: limits the number of rows to match (user can set one of: limit, limit_expr)
   /// :Returns: :protobuf:msg:`Mysqlx.Resultset::`
   /// </summary>
   internal sealed partial class Delete : pb::IMessage<Delete> {
@@ -2524,7 +2793,7 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[9]; }
+      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2541,12 +2810,13 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Delete(Delete other) : this() {
-      Collection = other.collection_ != null ? other.Collection.Clone() : null;
+      collection_ = other.collection_ != null ? other.collection_.Clone() : null;
       dataModel_ = other.dataModel_;
-      Criteria = other.criteria_ != null ? other.Criteria.Clone() : null;
+      criteria_ = other.criteria_ != null ? other.criteria_.Clone() : null;
       args_ = other.args_.Clone();
-      Limit = other.limit_ != null ? other.Limit.Clone() : null;
       order_ = other.order_.Clone();
+      limit_ = other.limit_ != null ? other.limit_.Clone() : null;
+      limitExpr_ = other.limitExpr_ != null ? other.limitExpr_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -2607,6 +2877,16 @@ namespace Mysqlx.Crud {
       get { return args_; }
     }
 
+    /// <summary>Field number for the "order" field.</summary>
+    public const int OrderFieldNumber = 5;
+    private static readonly pb::FieldCodec<global::Mysqlx.Crud.Order> _repeated_order_codec
+        = pb::FieldCodec.ForMessage(42, global::Mysqlx.Crud.Order.Parser);
+    private readonly pbc::RepeatedField<global::Mysqlx.Crud.Order> order_ = new pbc::RepeatedField<global::Mysqlx.Crud.Order>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::Mysqlx.Crud.Order> Order {
+      get { return order_; }
+    }
+
     /// <summary>Field number for the "limit" field.</summary>
     public const int LimitFieldNumber = 4;
     private global::Mysqlx.Crud.Limit limit_;
@@ -2621,14 +2901,18 @@ namespace Mysqlx.Crud {
       }
     }
 
-    /// <summary>Field number for the "order" field.</summary>
-    public const int OrderFieldNumber = 5;
-    private static readonly pb::FieldCodec<global::Mysqlx.Crud.Order> _repeated_order_codec
-        = pb::FieldCodec.ForMessage(42, global::Mysqlx.Crud.Order.Parser);
-    private readonly pbc::RepeatedField<global::Mysqlx.Crud.Order> order_ = new pbc::RepeatedField<global::Mysqlx.Crud.Order>();
+    /// <summary>Field number for the "limit_expr" field.</summary>
+    public const int LimitExprFieldNumber = 7;
+    private global::Mysqlx.Crud.LimitExpr limitExpr_;
+    /// <summary>
+    ///optional
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::Mysqlx.Crud.Order> Order {
-      get { return order_; }
+    public global::Mysqlx.Crud.LimitExpr LimitExpr {
+      get { return limitExpr_; }
+      set {
+        limitExpr_ = value;
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2648,8 +2932,9 @@ namespace Mysqlx.Crud {
       if (DataModel != other.DataModel) return false;
       if (!object.Equals(Criteria, other.Criteria)) return false;
       if(!args_.Equals(other.args_)) return false;
-      if (!object.Equals(Limit, other.Limit)) return false;
       if(!order_.Equals(other.order_)) return false;
+      if (!object.Equals(Limit, other.Limit)) return false;
+      if (!object.Equals(LimitExpr, other.LimitExpr)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -2660,8 +2945,9 @@ namespace Mysqlx.Crud {
       if (DataModel != 0) hash ^= DataModel.GetHashCode();
       if (criteria_ != null) hash ^= Criteria.GetHashCode();
       hash ^= args_.GetHashCode();
-      if (limit_ != null) hash ^= Limit.GetHashCode();
       hash ^= order_.GetHashCode();
+      if (limit_ != null) hash ^= Limit.GetHashCode();
+      if (limitExpr_ != null) hash ^= LimitExpr.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -2693,6 +2979,10 @@ namespace Mysqlx.Crud {
       }
       order_.WriteTo(output, _repeated_order_codec);
       args_.WriteTo(output, _repeated_args_codec);
+      if (limitExpr_ != null) {
+        output.WriteRawTag(58);
+        output.WriteMessage(LimitExpr);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -2711,10 +3001,13 @@ namespace Mysqlx.Crud {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Criteria);
       }
       size += args_.CalculateSize(_repeated_args_codec);
+      size += order_.CalculateSize(_repeated_order_codec);
       if (limit_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Limit);
       }
-      size += order_.CalculateSize(_repeated_order_codec);
+      if (limitExpr_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(LimitExpr);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -2742,13 +3035,19 @@ namespace Mysqlx.Crud {
         Criteria.MergeFrom(other.Criteria);
       }
       args_.Add(other.args_);
+      order_.Add(other.order_);
       if (other.limit_ != null) {
         if (limit_ == null) {
           limit_ = new global::Mysqlx.Crud.Limit();
         }
         Limit.MergeFrom(other.Limit);
       }
-      order_.Add(other.order_);
+      if (other.limitExpr_ != null) {
+        if (limitExpr_ == null) {
+          limitExpr_ = new global::Mysqlx.Crud.LimitExpr();
+        }
+        LimitExpr.MergeFrom(other.LimitExpr);
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -2793,6 +3092,13 @@ namespace Mysqlx.Crud {
             args_.AddEntriesFrom(input, _repeated_args_codec);
             break;
           }
+          case 58: {
+            if (limitExpr_ == null) {
+              limitExpr_ = new global::Mysqlx.Crud.LimitExpr();
+            }
+            input.ReadMessage(limitExpr_);
+            break;
+          }
         }
       }
     }
@@ -2807,7 +3113,7 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[10]; }
+      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2824,13 +3130,13 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public CreateView(CreateView other) : this() {
-      Collection = other.collection_ != null ? other.Collection.Clone() : null;
+      collection_ = other.collection_ != null ? other.collection_.Clone() : null;
       definer_ = other.definer_;
       algorithm_ = other.algorithm_;
       security_ = other.security_;
       check_ = other.check_;
       column_ = other.column_.Clone();
-      Stmt = other.stmt_ != null ? other.Stmt.Clone() : null;
+      stmt_ = other.stmt_ != null ? other.stmt_.Clone() : null;
       replaceExisting_ = other.replaceExisting_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -3157,7 +3463,7 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[11]; }
+      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3174,13 +3480,13 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public ModifyView(ModifyView other) : this() {
-      Collection = other.collection_ != null ? other.Collection.Clone() : null;
+      collection_ = other.collection_ != null ? other.collection_.Clone() : null;
       definer_ = other.definer_;
       algorithm_ = other.algorithm_;
       security_ = other.security_;
       check_ = other.check_;
       column_ = other.column_.Clone();
-      Stmt = other.stmt_ != null ? other.Stmt.Clone() : null;
+      stmt_ = other.stmt_ != null ? other.stmt_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -3476,7 +3782,7 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[12]; }
+      get { return global::Mysqlx.Crud.MysqlxCrudReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3493,7 +3799,7 @@ namespace Mysqlx.Crud {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public DropView(DropView other) : this() {
-      Collection = other.collection_ != null ? other.Collection.Clone() : null;
+      collection_ = other.collection_ != null ? other.collection_.Clone() : null;
       ifExists_ = other.ifExists_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }

@@ -44,7 +44,7 @@ namespace MySql.Data.MySqlClient.Tests
       Cleanup();
     }
 
-    public override void Cleanup()
+    protected override void Cleanup()
     {
       executeSQL("DROP PROCEDURE IF EXISTS spTest");
     }

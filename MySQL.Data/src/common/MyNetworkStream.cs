@@ -326,7 +326,7 @@ namespace MySql.Data.Common
       {
         socket.EndConnect(ias);
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         socket.Close();
         throw;

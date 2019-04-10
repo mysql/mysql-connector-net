@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,9 +27,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Xunit;
 using System.Data;
 using System.IO;
+using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -107,9 +107,6 @@ namespace MySql.Data.MySqlClient.Tests
       if (Fixture.Version >= new Version(8,0,2)) executeSQL("SET GLOBAL local_infile = 1");
 
       executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
-      string connString = Connection.ConnectionString + ";pooling=false";
-      MySqlConnection c = new MySqlConnection(connString);
-      c.Open();
 
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
@@ -119,19 +116,30 @@ namespace MySql.Data.MySqlClient.Tests
       sw.Dispose();
 
       path = path.Replace(@"\", @"\\");
-      MySqlCommand cmd = new MySqlCommand(
-        "LOAD DATA LOCAL INFILE '" + path + "' INTO TABLE Test FIELDS TERMINATED BY ','", Connection);
-      cmd.CommandTimeout = 0;
 
-      object cnt = 0;
-      cnt = cmd.ExecuteNonQuery();
-      Assert.Equal(2000000, Convert.ToInt32(cnt));
+      LoadFile(new MySqlConnection(Connection.ConnectionString + ";allowloadlocalinfile=true;"), path);
+      Assert.Throws<MySqlException>(() => LoadFile(new MySqlConnection(Connection.ConnectionString), path));
+    }
 
-      cmd.CommandText = "SELECT COUNT(*) FROM Test";
-      cnt = cmd.ExecuteScalar();
-      Assert.Equal(2000000, Convert.ToInt32(cnt));
+    private void LoadFile(MySqlConnection conn, string path)
+    {
+      using (conn)
+      {
+        conn.Open();
 
-      c.Close();
+
+        MySqlCommand cmd = new MySqlCommand(
+          "LOAD DATA LOCAL INFILE '" + path + "' INTO TABLE Test FIELDS TERMINATED BY ','", conn);
+        cmd.CommandTimeout = 0;
+
+        object cnt = 0;
+        cnt = cmd.ExecuteNonQuery();
+        Assert.Equal(2000000, Convert.ToInt32(cnt));
+
+        cmd.CommandText = "SELECT COUNT(*) FROM Test";
+        cnt = cmd.ExecuteScalar();
+        Assert.Equal(2000000, Convert.ToInt32(cnt));
+      }
     }
 
     [Fact]

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,6 +31,8 @@ using MySqlX.Common;
 using System.Collections.Generic;
 using System;
 using MySql.Data;
+using System.Collections;
+using System.Linq;
 
 namespace MySqlX.XDevAPI.Common
 {
@@ -60,7 +62,7 @@ namespace MySqlX.XDevAPI.Common
 
     internal FilterParams FilterData
     {
-      get { return filter;  }
+      get { return filter; }
     }
 
     /// <summary>
@@ -71,6 +73,7 @@ namespace MySqlX.XDevAPI.Common
     public T Where(string condition)
     {
       filter.Condition = condition;
+      SetChanged();
       return (T)this;
     }
 
@@ -106,7 +109,7 @@ namespace MySqlX.XDevAPI.Common
     /// <returns>A generic object representing the implementing statement type.</returns>
     public T Bind(string parameterName, object value)
     {
-      FilterData.Parameters.Add(parameterName, value);
+      FilterData.Parameters[parameterName.ToLowerInvariant()] = value is string ? QuoteString((string)value) : value;
       return (T)this;
     }
 
@@ -127,7 +130,7 @@ namespace MySqlX.XDevAPI.Common
     /// <returns>The implementing statement type.</returns>
     public T Bind(string jsonParams)
     {
-      foreach(var item in JsonParser.Parse(jsonParams))
+      foreach (var item in JsonParser.Parse(jsonParams))
       {
         Bind(item.Key, item.Value);
       }
@@ -155,11 +158,29 @@ namespace MySqlX.XDevAPI.Common
       try
       {
         ValidateOpenSession();
-        return executeFunc(t);
+        List<object> parameters = new List<object>(FilterData.Parameters.Values);
+        if (_isPrepared && FilterData.hadLimit != FilterData.HasLimit)
+        {
+          SetChanged();
+        }
+        // Add the prepared statement placeholder values for limit and offset
+        if (!_hasChanged)
+        {
+          // Limit and offset placeholder values
+          if (FilterData.HasLimit)
+          {
+            parameters.Add(FilterData.Limit);
+            parameters.Add(FilterData.Offset == -1 ? 0 : FilterData.Offset);
+          }
+        }
+        var result = ConvertToPreparedStatement<T>(executeFunc, t, parameters);
+        _hasChanged = false;
+        return result;
       }
       finally
       {
-        FilterData.Parameters.Clear();
+        FilterData.hadLimit = FilterData.HasLimit;
+        FilterData.hadOffset = FilterData.Offset != -1;
       }
     }
 
@@ -173,6 +194,11 @@ namespace MySqlX.XDevAPI.Common
       var t = (T)this.MemberwiseClone();
       t.filter = t.FilterData.Clone();
       return t;
+    }
+
+    private static string QuoteString(string value)
+    {
+      return "'" + value.Trim().Replace("'", "\\'") + "'";
     }
   }
 }

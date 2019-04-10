@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -106,7 +106,7 @@ namespace MySqlX.XDevAPI
       if (string.IsNullOrWhiteSpace(stringId))
         throw new ArgumentNullException(nameof(id), Resources.ParameterNullOrEmpty);
 
-      return Remove("_id = :id").Bind("id", id is string ? "\"" + stringId + "\"" : stringId).Execute();
+      return Remove("_id = :id").Bind("id", id).Execute();
     }
 
 #endregion
@@ -324,7 +324,7 @@ namespace MySqlX.XDevAPI
       if (string.IsNullOrWhiteSpace(stringId))
         throw new ArgumentNullException(nameof(id), Resources.ParameterNullOrEmpty);
 
-      return Find("_id = :id").Bind("id", id is string ? "\"" + stringId + "\"" : stringId).Execute().FetchOne();
+      return Find("_id = :id").Bind("id", id).Execute().FetchOne();
     }
   }
 }

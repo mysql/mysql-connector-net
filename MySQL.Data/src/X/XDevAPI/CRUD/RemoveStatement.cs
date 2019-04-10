@@ -49,6 +49,7 @@ namespace MySqlX.XDevAPI.CRUD
     public RemoveStatement Sort(params string[] order)
     {
       FilterData.OrderBy = order;
+      SetChanged();
       return this;
     }
 
