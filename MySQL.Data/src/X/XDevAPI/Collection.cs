@@ -272,6 +272,7 @@ namespace MySqlX.XDevAPI
     /// <para />- TIMESTAMP
     /// <para />- DATETIME
     /// <para />- TEXT[(length)]
+    /// <para />- CHAR[(lenght)] 
     /// <para />- GEOJSON (extra options: options, srid)
     /// </para>
     /// </remarks>
