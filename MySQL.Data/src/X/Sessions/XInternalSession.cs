@@ -79,7 +79,14 @@ namespace MySqlX.Sessions
 
       bool isUnix = Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix ||
         Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket;
-      _stream = MyNetworkStream.CreateStream(Settings.Server, Settings.ConnectTimeout, Settings.Keepalive, Settings.Port, isUnix);
+      _stream = MyNetworkStream.CreateStream(
+        Settings.Server == "127.0.0.1" || Settings.Server == "::1"
+            ? "localhost"
+            : Settings.Server,
+        Settings.ConnectTimeout,
+        Settings.Keepalive,
+        Settings.Port,
+        isUnix);
       if (_stream == null)
         throw new MySqlException(ResourcesX.UnableToConnect);
 
