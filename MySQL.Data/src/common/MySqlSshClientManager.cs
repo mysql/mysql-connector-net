@@ -27,51 +27,23 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.MySqlClient;
-using MySqlX.XDevAPI;
 using Renci.SshNet;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace MySql.Data.common
 {
-  internal class MySqlSshClient
+  internal static class MySqlSshClientManager
   {
-    internal SshClient SshClient { get; private set; }
+    private static List<SshClient> _sshClientList;
 
-    public MySqlSshClient(MySqlConnectionStringBuilder settings)
+    static MySqlSshClientManager()
     {
-      SetupSshClient(
-        settings.SshAuthenticationMode,
-        settings.SshHostName,
-        settings.SshUserName,
-        settings.SshPassword,
-        settings.SshKeyFile,
-        settings.SshPassphrase,
-        settings.SshPort,
-        settings.Server,
-        settings.Port,
-        false
-        );
+      _sshClientList = new List<SshClient>();
     }
 
-    public MySqlSshClient(MySqlXConnectionStringBuilder settings)
-    {
-      SetupSshClient(
-        settings.SshAuthenticationMode,
-        settings.SshHostName,
-        settings.SshUserName,
-        settings.SshPassword,
-        settings.SshKeyFile,
-        settings.SshPassphrase,
-        settings.SshPort,
-        settings.Server,
-        settings.Port,
-        true
-        );
-    }
-
-    private void SetupSshClient(
+    internal static SshClient SetupSshClient(
       SshAuthenticationMode sshAuthenticationMode,
       string sshHostName,
       string sshUserName,
@@ -89,8 +61,9 @@ namespace MySql.Data.common
       if (string.IsNullOrEmpty(sshUserName))
         throw new ArgumentException(string.Format(Resources.ParameterCannotBeNullOrEmpty, nameof(sshUserName)));
 
+      SshClient sshClient = null;
       if (sshAuthenticationMode == SshAuthenticationMode.Password)
-        SshClient = new SshClient(sshHostName, (int)sshPort, sshUserName, sshPassword);
+        sshClient = new SshClient(sshHostName, (int)sshPort, sshUserName, sshPassword);
       else
       {
         if (string.IsNullOrEmpty(sshKeyFile))
@@ -101,13 +74,38 @@ namespace MySql.Data.common
           : new PrivateKeyFile(sshKeyFile, sshPassphrase);
         var authenticationMethod = new PrivateKeyAuthenticationMethod(sshUserName, keyFile);
         ConnectionInfo connectionInfo = new ConnectionInfo(sshHostName, (int)sshPort, sshUserName, authenticationMethod);
-        SshClient = new SshClient(connectionInfo);
+        sshClient = new SshClient(connectionInfo);
       }
 
-      SshClient.Connect();
       var forwardedPort = new ForwardedPortLocal("127.0.0.1", (uint)(isXProtocol ? port : 3306), server, port);
-      SshClient.AddForwardedPort(forwardedPort);
+      foreach (var client in _sshClientList)
+      {
+        if (sshClient.ConnectionInfo.Username == client.ConnectionInfo.Username
+            && sshClient.ConnectionInfo.Host == client.ConnectionInfo.Host
+            && sshClient.ConnectionInfo.Port == client.ConnectionInfo.Port
+            && sshClient.ConnectionInfo.AuthenticationMethods[0].Username == client.ConnectionInfo.AuthenticationMethods[0].Username
+            && sshClient.ConnectionInfo.AuthenticationMethods[0].Name == client.ConnectionInfo.AuthenticationMethods[0].Name)
+        {
+          var oldForwardedPort = client.ForwardedPorts.Count() > 0 ? (ForwardedPortLocal)client.ForwardedPorts.First() : null;
+          if (oldForwardedPort != null
+              && forwardedPort.Host == oldForwardedPort.Host
+              && forwardedPort.Port == oldForwardedPort.Port
+              && forwardedPort.BoundHost == oldForwardedPort.BoundHost
+              && forwardedPort.BoundPort == oldForwardedPort.BoundPort)
+          {
+            if (!client.IsConnected) sshClient.Connect();
+            if (!oldForwardedPort.IsStarted) oldForwardedPort.Start();
+            return client;
+          }
+        }
+      }
+
+      sshClient.Connect();
+      sshClient.AddForwardedPort(forwardedPort);
       forwardedPort.Start();
+      _sshClientList.Add(sshClient);
+
+      return sshClient;
     }
   }
 }

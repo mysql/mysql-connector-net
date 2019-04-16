@@ -75,7 +75,19 @@ namespace MySqlX.Sessions
     protected override void Open()
     {
       if (Settings.SshAuthenticationMode != SshAuthenticationMode.None && Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp)
-        _sshClient = new MySqlSshClient(Settings).SshClient;
+      {
+        _sshClient = MySqlSshClientManager.SetupSshClient(
+                    Settings.SshAuthenticationMode,
+                    Settings.SshHostName,
+                    Settings.SshUserName,
+                    Settings.SshPassword,
+                    Settings.SshKeyFile,
+                    Settings.SshPassphrase,
+                    Settings.SshPort,
+                    Settings.Server,
+                    Settings.Port,
+                    true);
+      }
 
       bool isUnix = Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix ||
         Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket;
