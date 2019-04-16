@@ -38,8 +38,10 @@ using AliasText = MySql.Data.MySqlClient.Framework.NetStandard1_6;
 using AliasText = System.Text;
 #endif
 
-public class MySqlPemReader
+namespace MySql.Data.MySqlClient.Authentication
 {
+  public class MySqlPemReader
+  {
 #if NETSTANDARD1_6
     public static RSA ConvertPemToRSAProvider(byte[] rawPublicKey)
 #else
@@ -84,7 +86,7 @@ public class MySqlPemReader
             bool arraysAreEqual = true;
             if (sequence.Length == oidSequence.Length)
             {
-              for (int i=0; i<oidSequence.Length; i++)
+              for (int i = 0; i < oidSequence.Length; i++)
                 if (sequence[i] != oidSequence[i])
                 {
                   arraysAreEqual = false;
@@ -202,7 +204,7 @@ public class MySqlPemReader
       array = trimmedArray.ToArray();
       trimmedArray = new List<byte>();
 
-      for(int i=array.Length-1; i>=0; i--)
+      for (int i = array.Length - 1; i >= 0; i--)
       {
         if (!startCopying)
         {
@@ -229,7 +231,7 @@ public class MySqlPemReader
 
     private static bool EndsWith(byte[] array, byte[] containedArray)
     {
-      for (int i = array.Length-1, j=0 ; i >= 0; i--, j++)
+      for (int i = array.Length - 1, j = 0; i >= 0; i--, j++)
       {
         if (j == containedArray.Length) break;
         if (array[i] != containedArray[containedArray.Length - j - 1]) return false;
@@ -237,4 +239,5 @@ public class MySqlPemReader
 
       return true;
     }
+  }
 }
