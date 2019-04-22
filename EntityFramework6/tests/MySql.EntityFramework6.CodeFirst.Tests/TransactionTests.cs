@@ -1,4 +1,4 @@
-﻿// Copyright © 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -32,8 +32,16 @@ using Xunit;
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
-  public class TransactionTests
+  public class TransactionTests : IClassFixture<CodeFirstFixture>
   {
+    private CodeFirstFixture _fixture;
+
+    public TransactionTests(CodeFirstFixture fixture)
+    {
+      _fixture = fixture;
+      _fixture.Setup(this.GetType());
+    }
+
     [Fact]
     public void DisposeNestedTransactions()
     {

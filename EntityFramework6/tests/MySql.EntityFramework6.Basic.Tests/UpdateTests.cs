@@ -1,4 +1,4 @@
-// Copyright � 2013, 2017 Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -67,7 +67,7 @@ namespace MySql.Data.Entity.Tests
           {
             st.CheckSqlContains(m.Groups["item"].Value,
               @"UPDATE `Products` SET `Name`='Acme 2' WHERE `Id` = 1;
-                SELECT `CreatedDate` FROM `Products` WHERE  row_count() > 0 and `Id` = 1");
+                SELECT `CreatedDate` FROM `Products` WHERE  row_count() = 1 and (`Id` = 1)");
           }
         }
       }

@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -30,68 +30,68 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace MySql.Data.Entity.CodeFirst.Tests
-{   
-    [Table("pagina")]
-    public class pagina
-    {
-        [Key]
-        public long nCdPagina { get; set; }
-        public long nCdVisitante { get; set; }
-        public string sDsUrlReferencia { get; set; }
-        public string sDsPalavraChave { get; set; }
-        public string sDsTitulo { get; set; }
+{
+  [Table("pagina")]
+  public class pagina
+  {
+    [Key]
+    public long nCdPagina { get; set; }
+    public long nCdVisitante { get; set; }
+    public string sDsUrlReferencia { get; set; }
+    public string sDsPalavraChave { get; set; }
+    public string sDsTitulo { get; set; }
 
-        [ForeignKey("nCdVisitante")]
-        public visitante visitante { get; set; }
-    }
+    [ForeignKey("nCdVisitante")]
+    public visitante visitante { get; set; }
+  }
 
-    public class retorno
-    {
-        //[Key]
-        public long Key { get; set; }
-        public int Online { get; set; }
-    }
+  public class retorno
+  {
+    //[Key]
+    public long Key { get; set; }
+    public int Online { get; set; }
+  }
 
-    [Table("site")]
-    public class site
-    {
-        [Key]
-        public long nCdSite { get; set; }
-        public string sDsTitulo { get; set; }
-        public string sDsUrl { get; set; }
-        public DateTime tDtCadastro { get; set; }
-    }
+  [Table("site")]
+  public class site
+  {
+    [Key]
+    public long nCdSite { get; set; }
+    public string sDsTitulo { get; set; }
+    public string sDsUrl { get; set; }
+    public DateTime tDtCadastro { get; set; }
+  }
 
-    [Table("visitante")]
-    public class visitante
-    {
-        [Key]
-        public long nCdVisitante { get; set; }
-        public long nCdSite { get; set; }
-        public string sDsIp { get; set; }
-        public DateTime tDtCadastro { get; set; }
-        public DateTime tDtAtualizacao { get; set; }
+  [Table("visitante")]
+  public class visitante
+  {
+    [Key]
+    public long nCdVisitante { get; set; }
+    public long nCdSite { get; set; }
+    public string sDsIp { get; set; }
+    public DateTime tDtCadastro { get; set; }
+    public DateTime tDtAtualizacao { get; set; }
 
-        [ForeignKey("nCdSite")]
-        public site site { get; set; }
-    }
+    [ForeignKey("nCdSite")]
+    public site site { get; set; }
+  }
 
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
-    public class SiteDbContext : DbContext
-    {
-        public DbSet<visitante> Visitante { get; set; }
-        public DbSet<site> Site { get; set; }
-        //public DbSet<retorno> Retorno { get; set; }
-        public DbSet<pagina> Pagina { get; set; }
+  public class SiteDbContext : DbContext
+  {
+    public DbSet<visitante> Visitante { get; set; }
+    public DbSet<site> Site { get; set; }
+    //public DbSet<retorno> Retorno { get; set; }
+    public DbSet<pagina> Pagina { get; set; }
 
-        public SiteDbContext()
-        {
-            Database.SetInitializer<SiteDbContext>(new SiteDbInitializer());
-            Database.SetInitializer<SiteDbContext>(new MigrateDatabaseToLatestVersion<SiteDbContext, Configuration<SiteDbContext>>());
-        }
-    }
-
-    public class SiteDbInitializer : DropCreateDatabaseReallyAlways<SiteDbContext>
+    public SiteDbContext() : base(CodeFirstFixture.GetEFConnectionString<SiteDbContext>())
     {
+      Database.SetInitializer<SiteDbContext>(new SiteDbInitializer());
+      Database.SetInitializer<SiteDbContext>(new MigrateDatabaseToLatestVersion<SiteDbContext, Configuration<SiteDbContext>>());
     }
+  }
+
+  public class SiteDbInitializer : DropCreateDatabaseReallyAlways<SiteDbContext>
+  {
+  }
 }

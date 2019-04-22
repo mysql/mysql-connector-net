@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, 2015 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -39,9 +39,9 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public DbSet<Manufacturer> Manufacturers { get; set; }
     public DbSet<Distributor> Distributors { get; set; }
 
-    public VehicleDbContext()
+    public VehicleDbContext() : base(CodeFirstFixture.GetEFConnectionString<VehicleDbContext>())
     {
-      Database.SetInitializer<VehicleDbContext>( new VehicleDBInitializer() );
+      Database.SetInitializer<VehicleDbContext>(new VehicleDBInitializer());
     }
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -55,7 +55,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   }
 
   public class VehicleDBInitializer : DropCreateDatabaseReallyAlways<VehicleDbContext>
-  { 
+  {
   }
 
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
@@ -63,14 +63,14 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   {
     public DbSet<Vehicle2> Vehicles { get; set; }
 
-    public VehicleDbContext2()
+    public VehicleDbContext2() : base(CodeFirstFixture.GetEFConnectionString<VehicleDbContext2>())
     {
-      Database.SetInitializer<VehicleDbContext2>( new VehicleDBInitializer2() );
+      Database.SetInitializer<VehicleDbContext2>(new VehicleDBInitializer2());
     }
   }
 
   public class VehicleDBInitializer2 : DropCreateDatabaseReallyAlways<VehicleDbContext2>
-  { 
+  {
   }
 
   /// <summary>
@@ -78,7 +78,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   /// </summary>
   /// <typeparam name="TContext"></typeparam>
   public class DropCreateDatabaseReallyAlways<TContext> : IDatabaseInitializer<TContext> where TContext : DbContext
-  { 
+  {
     public void InitializeDatabase(TContext context)
     {
       context.Database.Delete();
@@ -88,7 +88,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     }
 
     protected virtual void Seed(TContext context)
-    {      
+    {
     }
   }
 
@@ -96,7 +96,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   {
     public int Id { get; set; }
     public int Year { get; set; }
-    
+
     [MaxLength(1024)]
     public string Name { get; set; }
   }
@@ -106,6 +106,10 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   {
     public DbSet<Accessory> Accessories { get; set; }
 
+    public VehicleDbContext3() : base(CodeFirstFixture.GetEFConnectionString<VehicleDbContext3>())
+    {
+
+    }
   }
 
   public class Accessory
@@ -120,8 +124,8 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 
     [Required]
     [MaxLength(16777216)]
-    public string LongDescription { get; set; }       
-    
+    public string LongDescription { get; set; }
+
   }
 
   public class Car : Vehicle
@@ -191,6 +195,11 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   {
     public DbSet<Product> Products { get; set; }
 
+    public ProductsDbContext() : base(CodeFirstFixture.GetEFConnectionString<ProductsDbContext>())
+    {
+
+    }
+
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
       base.OnModelCreating(modelBuilder);
@@ -228,6 +237,11 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   {
     public DbSet<Names> Names { get; set; }
 
+    public ShortDbContext() : base(CodeFirstFixture.GetEFConnectionString<ShortDbContext>())
+    {
+
+    }
+
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
       modelBuilder.Entity<Names>()
@@ -242,10 +256,10 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   {
     public DbSet<AutoIncrementBug> AutoIncrementBug { get; set; }
 
-    public AutoIncrementBugContext()
+    public AutoIncrementBugContext() : base(CodeFirstFixture.GetEFConnectionString<AutoIncrementBugContext>())
     {
       Database.SetInitializer<AutoIncrementBugContext>(new AutoIncrementBugInitialize<AutoIncrementBugContext>());
-      Database.SetInitializer<AutoIncrementBugContext>(new MigrateDatabaseToLatestVersion<AutoIncrementBugContext, AutoIncrementConfiguration<AutoIncrementBugContext>>());
+      Database.SetInitializer<AutoIncrementBugContext>(new DropCreateDatabaseAlways<AutoIncrementBugContext>());
     }
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -301,7 +315,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   public class Order
   {
     [Key]
-    public int Id { get; set; }    
+    public int Id { get; set; }
     public ICollection<Item> Items { get; set; }
     public ICollection<Discount> Discounts { get; set; }
   }
@@ -310,7 +324,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   public class Item
   {
     [Key]
-    public int Id { get; set; }    
+    public int Id { get; set; }
   }
 
   [Table("discount")]
@@ -329,7 +343,12 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 
     public DbSet<Order> Orders { get; set; }
 
-    public DbSet<Discount> Discounts { get; set; } 
+    public DbSet<Discount> Discounts { get; set; }
+
+    public UsingUnionContext() : base(CodeFirstFixture.GetEFConnectionString<UsingUnionContext>())
+    {
+
+    }
   }
 
 
