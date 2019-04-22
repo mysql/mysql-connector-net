@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -158,6 +158,17 @@ namespace MySqlX.XDevAPI.CRUD
       FilterData.OrderBy = order;
       SetChanged();
       return this;
+    }
+
+    /// <summary>
+    /// Enables the setting of Where condition for this operation.
+    /// </summary>
+    /// <param name="condition">The Where condition.</param>
+    /// <returns>The implementing statement type.</returns>
+    [Obsolete("Where(string condition) has been deprecated since version 8.0.17.")]
+    public new ModifyStatement Where(string condition)
+    {
+      return base.Where(condition);
     }
 
     /// <summary>

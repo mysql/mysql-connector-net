@@ -1,5 +1,6 @@
 8.0.17
 - Fixed wrong order of records for columns when using MySqlConnection.GetSchema (MySql Bug #94773, Oracle Bug #29536344).
+- MySqlX: Deprecated Where condition usage in the Find, Modify and Remove methods (WL12983).
 
 
 8.0.16
