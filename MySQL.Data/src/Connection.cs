@@ -1,4 +1,4 @@
-// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -36,6 +36,10 @@ using MySql.Data.Common;
 using System.Security;
 using IsolationLevel = System.Data.IsolationLevel;
 using MySql.Data.MySqlClient.Interceptors;
+using Renci.SshNet;
+using System.Linq;
+using Renci.SshNet.Common;
+using MySql.Data.common;
 #if !NETSTANDARD1_6
 using System.Transactions;
 using MySql.Data.MySqlClient.Replication;
@@ -58,6 +62,7 @@ namespace MySql.Data.MySqlClient
     private bool _isKillQueryConnection;
     private string _database;
     private int _commandTimeout;
+    private SshClient _sshClient;
 
     /// <include file='docs/MySqlConnection.xml' path='docs/InfoMessage/*'/>
     public event MySqlInfoMessageEventHandler InfoMessage;
@@ -388,6 +393,20 @@ namespace MySql.Data.MySqlClient
       try
       {
         MySqlConnectionStringBuilder currentSettings = Settings;
+        if (Settings.SshAuthenticationMode != SshAuthenticationMode.None && Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp)
+        {
+          _sshClient = MySqlSshClientManager.SetupSshClient(
+            Settings.SshAuthenticationMode,
+            Settings.SshHostName,
+            Settings.SshUserName,
+            Settings.SshPassword,
+            Settings.SshKeyFile,
+            Settings.SshPassphrase,
+            Settings.SshPort,
+            Settings.Server,
+            Settings.Port,
+            false);
+        }          
 
         //TODO: SUPPORT FOR 452 AND 46X
         // Load balancing 
@@ -520,6 +539,12 @@ namespace MySql.Data.MySqlClient
         else
           driver.IsInActiveUse = false;
 #endif
+      }
+
+      if (_sshClient != null && _sshClient.IsConnected)
+      {
+        _sshClient.ForwardedPorts.First().Stop();
+        _sshClient.Disconnect();
       }
 
       SetState(ConnectionState.Closed, true);

@@ -865,6 +865,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Parameter &apos;{0}&apos; can&apos;t be null or empty..
+        /// </summary>
+        public static string ParameterCannotBeNullOrEmpty {
+            get {
+                return ResourceManager.GetString("ParameterCannotBeNullOrEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Parameter index was not found in Parameter Collection..
         /// </summary>
         public static string ParameterIndexNotFound {

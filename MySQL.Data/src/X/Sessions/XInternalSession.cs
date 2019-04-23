@@ -46,6 +46,8 @@ using System.Text;
 using System.Diagnostics;
 using System.Collections;
 using System.Threading;
+using Renci.SshNet;
+using MySql.Data.common;
 
 namespace MySqlX.Sessions
 {
@@ -64,6 +66,7 @@ namespace MySqlX.Sessions
     private int _stmtId = 0;
     private List<int> _preparedStatements = new List<int>();
     internal bool? sessionResetNoReauthentication = null;
+    private SshClient _sshClient;
 
     public XInternalSession(MySqlXConnectionStringBuilder settings) : base(settings)
     {
@@ -71,11 +74,34 @@ namespace MySqlX.Sessions
 
     protected override void Open()
     {
+      if (Settings.SshAuthenticationMode != SshAuthenticationMode.None && Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp)
+      {
+        _sshClient = MySqlSshClientManager.SetupSshClient(
+                    Settings.SshAuthenticationMode,
+                    Settings.SshHostName,
+                    Settings.SshUserName,
+                    Settings.SshPassword,
+                    Settings.SshKeyFile,
+                    Settings.SshPassphrase,
+                    Settings.SshPort,
+                    Settings.Server,
+                    Settings.Port,
+                    true);
+      }
+
       bool isUnix = Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix ||
         Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket;
-      _stream = MyNetworkStream.CreateStream(Settings.Server, Settings.ConnectTimeout, Settings.Keepalive, Settings.Port, isUnix);
+      _stream = MyNetworkStream.CreateStream(
+        Settings.Server == "127.0.0.1" || Settings.Server == "::1"
+            ? "localhost"
+            : Settings.Server,
+        Settings.ConnectTimeout,
+        Settings.Keepalive,
+        Settings.Port,
+        isUnix);
       if (_stream == null)
         throw new MySqlException(ResourcesX.UnableToConnect);
+
       _reader = new XPacketReaderWriter(_stream);
       _writer = new XPacketReaderWriter(_stream);
       protocol = new XProtocol(_reader, _writer);
@@ -86,7 +112,19 @@ namespace MySqlX.Sessions
 
       SetState(SessionState.Connecting, false);
 
-      GetAndSetCapabilities();
+      try
+      {
+        GetAndSetCapabilities();
+      }
+      catch (Exception)
+      {
+        if (_sshClient != null && _sshClient.IsConnected)
+        {
+          _sshClient.Disconnect();
+        }
+
+        throw;
+      }
 
       // Validates use of TLS.
       if (Settings.SslMode != MySqlSslMode.None)
@@ -320,7 +358,6 @@ namespace MySqlX.Sessions
       //OnStateChange(new StateChangeEventArgs(oldConnectionState, connectionState));
     }
 
-
     internal override ProtocolBase GetProtocol()
     {
       return protocol;
@@ -347,11 +384,16 @@ namespace MySqlX.Sessions
       }
       finally
       {
+        if (_sshClient != null && _sshClient.IsConnected)
+        {
+          _sshClient.ForwardedPorts.First().Stop();
+          _sshClient.Disconnect();
+        }
+
         SessionState = SessionState.Closed;
         _stream.Dispose();
       }
     }
-
 
     public void CreateCollection(string schemaName, string collectionName)
     {

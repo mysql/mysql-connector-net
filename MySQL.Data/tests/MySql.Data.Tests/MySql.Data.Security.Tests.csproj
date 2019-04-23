@@ -66,6 +66,7 @@
     <Compile Include="OutputParametersBatch.cs" />
     <Compile Include="UnixSockets.cs" />
     <Compile Include="SslTests.cs" />
+    <Compile Include="SshTunnelingTests.cs" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
