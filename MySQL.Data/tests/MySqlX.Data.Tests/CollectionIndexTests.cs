@@ -303,11 +303,11 @@ namespace MySqlX.Data.Tests
       var collection = CreateCollection("test");
 
       // For server not supporting array indexes, array option will be ignored and and old-style index will be created.
-      if (!session.Version.isAtLeast(8,0,17))
+      if (!session.Version.isAtLeast(8, 0, 17))
       {
         collection.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"DATE\", \"array\": true}]}");
         return;
-      }
+      }     
 
       // Supported types
       var doc = new[] { new { _id = 1, name = "Char", myField = new[] { "foo@mail.com", "bar@mail.com", "qux@mail.com" } } };
@@ -343,6 +343,9 @@ namespace MySqlX.Data.Tests
       // There can only be one field with array option per index
       Assert.Throws<MySqlException>(() => collection.CreateIndex("index_1", "{\"fields\": [{\"field\": $.field1, \"type\":\"CHAR(128)\", \"array\": true}, " +
         "{\"field\": $.field2, \"type\":\"CHAR(128)\", \"array\": true}]}"));
+
+      // Setting array option to null
+      Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"TINYINT\", \"array\": null}]}"));
     }
 
     private void CreateArrayIndex(string dataType, XDevAPI.Collection collection)
@@ -387,7 +390,7 @@ namespace MySqlX.Data.Tests
               expression = expression.Substring(pos + 4);
               Assert.Contains("array", expression);
               expression = expression.Substring(0, expression.IndexOf(" array"));
-              Assert.Equal(dataType, expression.Replace(" ",string.Empty), true);
+              Assert.Equal(dataType, expression.Replace(" ", string.Empty), true);
             }
 
             Assert.Equal(required ? "" : "YES", reader["Null"]);
