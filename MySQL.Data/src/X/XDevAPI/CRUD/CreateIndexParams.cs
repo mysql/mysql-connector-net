@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 
@@ -76,9 +77,12 @@ namespace MySqlX.XDevAPI.CRUD
           indexField.Srid = Convert.ToUInt32(field[SRID]);
 
         if (field.ContainsKey(ARRAY))
-          indexField.Array = Convert.ToBoolean(field[ARRAY]);
+          if (field[ARRAY] is MySqlExpression || field[ARRAY] is null)
+            throw new MySqlException("Index field 'array' member must be boolean.");
+          else
+            indexField.Array = Convert.ToBoolean(field[ARRAY]);
 
-          _fields.Add(indexField);
+        _fields.Add(indexField);
       }
     }
 
