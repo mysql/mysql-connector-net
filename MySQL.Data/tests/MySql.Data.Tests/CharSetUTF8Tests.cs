@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -358,7 +358,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_2
     [Fact]
     public void Chinese()
     {
@@ -411,7 +411,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, o);
     }
 
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_2
     [Fact]
     public void Turkish()
     {

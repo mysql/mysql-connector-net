@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -139,7 +139,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal("columnX", r.ColumnNames[2]);
     }
 
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_2
         [Fact]
     public void TableDefaultCharset()
     {

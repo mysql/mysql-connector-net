@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -156,7 +156,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Null(obj);
     }
 
-#if NETCOREAPP1_1 || NETCOREAPP2_0
+#if NETCOREAPP1_1 || NETCOREAPP2_2
     [Fact]
     public void DotnetCoreNotCurrentlySupported()
     {
