@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2019 Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -352,7 +352,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_2
     [Fact]
     public void Chinese()
     {
@@ -405,7 +405,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, o);
     }
 
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_2
     [Fact]
     public void Turkish()
     {

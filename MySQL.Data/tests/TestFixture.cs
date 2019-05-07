@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -61,7 +61,7 @@ namespace MySql.Data.MySqlClient.Tests
       settings.Port = port == null ? 3306 : UInt32.Parse(port);
       settings.UserID = "root";
       settings.Password = null;
-#if !(NETCOREAPP1_1 || NETCOREAPP2_0)
+#if !(NETCOREAPP1_1 || NETCOREAPP2_2)
       var memName = Environment.GetEnvironmentVariable("MYSQL_MEM");
       settings.SharedMemoryName = memName == null ? "MySQLSocket" : memName;
       var pipeName = Environment.GetEnvironmentVariable("MYSQL_PIPE");

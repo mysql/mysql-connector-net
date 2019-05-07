@@ -6,6 +6,7 @@
 - Fixed an issue that convert 00:00:00 (Time) to null when using prepared commands (MySQL Bug #91752, Oracle Bug #28383726).
 - Added new "allowloadlocalinfile" connection string option that disables or enables the server functionality to load the data local infile.
 - Fixed wrong order of records for columns when using MySqlConnection.GetSchema (MySql Bug #94773, Oracle Bug #29536344).
+- Added support for .NET Core 2.2 (WL12337).
 
 
 6.10.8
