@@ -312,7 +312,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the port number to use when authenticating to the SSH server.
     /// </summary>
-    [Category("Connection")]
+    [Category("SSH")]
+    [DisplayName("SSH Port")]
     [Description("Port used to establish a connection using SSH tunneling.")]
     [RefreshProperties(RefreshProperties.All)]
     public uint SshPort
@@ -341,6 +342,9 @@ namespace MySql.Data.MySqlClient
     [DisplayName("SSH Password")]
     [Description("Indicates the password to be used when authenticating to the SSH server.")]
     [RefreshProperties(RefreshProperties.All)]
+#if !NETSTANDARD1_6
+    [PasswordPropertyText(true)]
+#endif
     public string SshPassword
     {
       get { return (string)values["sshpassword"]; }
@@ -367,6 +371,9 @@ namespace MySql.Data.MySqlClient
     [DisplayName("SSH Passphrase")]
     [Description("Indicates the passphrase associated to the key file to be used when authenticating to the SSH server.")]
     [RefreshProperties(RefreshProperties.All)]
+#if !NETSTANDARD1_6
+    [PasswordPropertyText(true)]
+#endif
     public string SshPassphrase
     {
       get { return (string)values["sshpassphrase"]; }
