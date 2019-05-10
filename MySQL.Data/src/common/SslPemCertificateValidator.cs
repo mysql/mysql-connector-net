@@ -32,8 +32,6 @@ using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Security.Certificates;
 using Org.BouncyCastle.Security;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using MySql.Data.MySqlClient;
 using System.Net.Security;
 using System.IO;
@@ -209,11 +207,10 @@ namespace MySql.Data.common
     /// <param name="expectedCAStatus">A flag indicating the expected CA status.</param>
     private static void VerifyCAStatus(Org.BouncyCastle.X509.X509Certificate certificate, bool expectedCAStatus)
     {
-      var certificatePathLength = -1;
-      bool? isCA = IsCA(certificate, out certificatePathLength);
+      bool? isCA = IsCA(certificate, out var certificatePathLength);
       if (isCA == true && !expectedCAStatus)
         throw new MySqlException(Resources.SslConnectionError, new Exception(Resources.InvalidSslCertificate));
-      else if ((isCA == false || isCA == null) && expectedCAStatus)
+      else if (expectedCAStatus && certificate.Version == 3 && (isCA == false || isCA == null))
         throw new MySqlException(Resources.SslConnectionError, new Exception(Resources.SslCertificateIsNotCA));
     }
 
@@ -267,13 +264,14 @@ namespace MySql.Data.common
     }
 
     /// <summary>
-    /// Verifies that the CA by comparing the CA certificate issuer and the server certificate issuer.
+    /// Verifies that the issuer matches the CA by comparing the CA certificate issuer and the server certificate issuer.
     /// </summary>
     /// <param name="CACertificate">The CA certificate.</param>
     /// <param name="serverCertificate">The server certificate.</param>
     private static void VerifyIssuer(Org.BouncyCastle.X509.X509Certificate CACertificate, System.Security.Cryptography.X509Certificates.X509Certificate serverCertificate)
     {
-      if (CACertificate.IssuerDN.ToString() != serverCertificate.Issuer)
+      var certificate = new System.Security.Cryptography.X509Certificates.X509Certificate(CACertificate.GetEncoded());
+      if (certificate.Issuer != serverCertificate.Issuer)
         throw new MySqlException(Resources.SslConnectionError, new Exception(Resources.SslCertificateCAMismatch));
     }
 
