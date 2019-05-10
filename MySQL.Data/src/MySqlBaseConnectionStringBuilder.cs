@@ -220,7 +220,8 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     [Category("Authentication")]
     [DisplayName("Certificate File")]
-    [Description("Certificate file in PKCS#12 format (.pfx)")]
+    [Description("Certificate file in PKCS#12 format (.pfx) or path to a local file that " +
+            "contains a list of trusted TLS/SSL CAs (.pem).")]
     public string CertificateFile
     {
       get { return (string)values["certificatefile"]; }
@@ -270,13 +271,49 @@ namespace MySql.Data.MySqlClient
     /// Indicates whether to use SSL connections and how to handle server certificate errors.
     /// </summary>
     [DisplayName("Ssl Mode")]
-    [Category("Security")]
+    [Category("Authentication")]
     [Description("SSL properties for connection.")]
     [DefaultValue(MySqlSslMode.None)]
     public MySqlSslMode SslMode
     {
       get { return (MySqlSslMode)values["sslmode"]; }
       set { SetValue("sslmode", value); }
+    }
+
+    [DisplayName("Ssl Ca")]
+    [Category("Authentication")]
+    [Description("Path to a local file that contains a list of trusted TLS/SSL CAs.")]
+    public string SslCa
+    {
+      get { return CertificateFile; }
+      set
+      {
+        CertificateFile = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the path to a local key file in PEM format to use for establishing an encrypted connection.
+    /// </summary>
+    [DisplayName("Ssl Key")]
+    [Category("Authentication")]
+    [Description("Name of the SSL key file in PEM format to use for establishing an encrypted connection.")]
+    public string SslKey
+    {
+      get { return (string)values["sslkey"]; }
+      set { SetValue("sslkey", value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the path to a local certificate file in PEM format to use for establishing an encrypted connection.
+    /// </summary>
+    [DisplayName("Ssl Cert")]
+    [Category("Authentication")]
+    [Description("Name of the SSL certificate file in PEM format to use for establishing an encrypted connection.")]
+    public string SslCert
+    {
+      get { return (string)values["sslcert"]; }
+      set { SetValue("sslcert", value); }
     }
 
     #endregion
@@ -413,40 +450,6 @@ namespace MySql.Data.MySqlClient
     {
       get { return (string)values["characterset"]; }
       set { SetValue("characterset", value); }
-    }
-
-    #endregion
-
-    #region XAuthentication Properties
-
-    [Description("Path to a local file that contains a list of trusted TLS/SSL CAs")]
-    public string SslCa
-    {
-      get { return CertificateFile; }
-      set
-      {
-        CertificateFile = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the path to a local key file in PEM format to use for establishing an encrypted connection.
-    /// </summary>
-    [Description("Name of the SSL key file in PEM format to use for establishing an encrypted connection.")]
-    public string SslKey
-    {
-      get { return (string)values["sslkey"]; }
-      set { SetValue("sslkey", value); }
-    }
-
-    /// <summary>
-    /// Gets or sets the path to a local certificate file in PEM format to use for establishing an encrypted connection.
-    /// </summary>
-    [Description("Name of the SSL certificate file in PEM format to use for establishing an encrypted connection.")]
-    public string SslCert
-    {
-      get { return (string)values["sslcert"]; }
-      set { SetValue("sslcert", value); }
     }
 
     #endregion
