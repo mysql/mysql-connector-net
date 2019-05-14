@@ -463,7 +463,7 @@ namespace MySqlX.Protocol.X
                 throw new ArgumentException("Unterminated string starting at " + start);
               }
               var value = val.ToString();
-              this.tokens.Add(new Token(quoteChar == '`' ? TokenType.IDENT : TokenType.LSTRING, value == string.Empty ? " " : value));
+              this.tokens.Add(new Token(quoteChar == '`' ? TokenType.IDENT : TokenType.LSTRING, value == string.Empty ? "" : value));
               break;
             default:
               throw new ArgumentException("Can't parse at pos: " + i);

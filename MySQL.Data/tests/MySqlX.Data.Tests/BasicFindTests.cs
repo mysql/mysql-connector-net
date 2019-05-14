@@ -947,6 +947,8 @@ namespace MySqlX.Data.Tests
       coll.Add("{ \"_id\":2, \"title\": \"Book 2\", \"list\":[5, 7]}").Execute();
       coll.Add("{ \"_id\":3, \"title\": \"Book 3\", \"list\":[4, 9]}").Execute();
       coll.Add("{ \"_id\":4, \"title\": \"Book 4\", \"list\":[2]}").Execute();
+      coll.Add("{ \"_id\":5, \"title\": \"Book 5\",\"list\":[\"\"]}").Execute();
+      coll.Add("{ \"_id\":6, \"title\": \"Book 6\",\"list\":[\" \"]}").Execute();
 
       var result = ExecuteFindStatement(coll.Find("[7] OVERLAPS $.list")).FetchAll();
       Assert.Equal("Book 2", result[0]["title"]);
@@ -961,11 +963,11 @@ namespace MySqlX.Data.Tests
       Assert.Equal("Book 1", result[0]["title"]);
       Assert.Equal("Book 4", result[1]["title"]);
       result = ExecuteFindStatement(coll.Find("'Book 1' NOT OVERLAPS $.title").Fields("_id")).FetchAll();
-      Assert.Equal(3, result.Count);
-      Assert.Equal(3, result[1]["_id"]);
+      Assert.Equal(5, result.Count);
+      Assert.Equal(3, result[1].Id);
       result = ExecuteFindStatement(coll.Find(":title NOT OVERLAPS $.title").Bind("title", "Book 1").Fields("_id")).FetchAll();
-      Assert.Equal(3, result.Count);
-      Assert.Equal(4, result[2]["_id"]);
+      Assert.Equal(5, result.Count);
+      Assert.Equal(4, result[2].Id);
       result = ExecuteFindStatement(coll.Find("$.list OVERLAPS :list").Bind("list", 9)).FetchAll();
       Assert.Equal("Book 3", result[0]["title"]);
       var jsonParams = new { list = 4 };
@@ -973,6 +975,12 @@ namespace MySqlX.Data.Tests
         GroupBy("title", "list").Having("ID > 0")).FetchAll();
       Assert.Equal(2, result.Count);
       Assert.Equal("Book 1", result[0]["Title"]);
+      result = ExecuteFindStatement(coll.Find("[''] OVERLAPS $.list")).FetchAll();
+      Assert.Equal(1, result.Count);
+      Assert.Equal(5, result[0].Id);
+      result = ExecuteFindStatement(coll.Find("[' '] OVERLAPS $.list")).FetchAll();
+      Assert.Equal(1, result.Count);
+      Assert.Equal(6, result[0].Id);
 
       Assert.Throws<ArgumentException>(() => ExecuteFindStatement(coll.Find("$.list OVERLAPS -")).FetchAll());
       Assert.Throws<ArgumentException>(()=> ExecuteFindStatement(coll.Find("[2, 9] OVERLAPS")).FetchAll());
