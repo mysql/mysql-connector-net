@@ -66,7 +66,7 @@ namespace MySqlX.XDevAPI.Common
     }
 
     /// <summary>
-    /// Allows the user to set the where condition for this operation.
+    /// Enables the setting of Where condition for this operation.
     /// </summary>
     /// <param name="condition">The Where condition.</param>
     /// <returns>The implementing statement type.</returns>
