@@ -1,4 +1,4 @@
-﻿// Copyright © 2014 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -21,6 +21,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Globalization;
 using MySql.Data.MySqlClient;
 
 namespace MySql.Web.Personalization
@@ -161,7 +162,7 @@ namespace MySql.Web.Personalization
         findStateCommand.Parameters.AddWithValue("@PageLowerBound", pageLowerBound);
         findStateCommand.Connection = connection.Connection;
 
-        return int.Parse(totalRecords);
+        return int.Parse(totalRecords, CultureInfo.InvariantCulture);
       }
     }
 
@@ -186,7 +187,7 @@ namespace MySql.Web.Personalization
         cmd.Parameters.AddWithValue("@Path", path);
         cmd.Connection = connection.Connection;
         var count = cmd.ExecuteScalar().ToString();
-        return int.Parse(count);
+        return int.Parse(count, CultureInfo.InvariantCulture);
       }
       else {
         MySqlCommand cmd = new MySqlCommand("Select count(*) from my_aspnet_personalizationperuser as peruser, my_aspnet_users as users, "+
@@ -204,7 +205,7 @@ namespace MySql.Web.Personalization
         cmd.Parameters.AddWithValue("@InactiveSinceDate", inactiveSinceDate);
         cmd.Connection = connection.Connection;
         var count = cmd.ExecuteScalar().ToString();
-        return int.Parse(count);
+        return int.Parse(count, CultureInfo.InvariantCulture);
       }    
     }
 
@@ -238,10 +239,10 @@ namespace MySql.Web.Personalization
       var userId = (cmd.ExecuteScalar() ?? "").ToString();
       userId = string.IsNullOrEmpty(userId) ? "0" : userId;
 
-      if (int.Parse(userId) == 0)
+      if (int.Parse(userId, CultureInfo.InvariantCulture) == 0)
         return null;
 
-      UpdateUserLastActiveDate(connection.Connection, int.Parse(userId), currentTimeUtc);      
+      UpdateUserLastActiveDate(connection.Connection, int.Parse(userId, CultureInfo.InvariantCulture), currentTimeUtc);      
 
       cmd = new MySqlCommand("select pagesettings from my_aspnet_personalizationperuser as peruser where peruser.pathid = @PathId and peruser.userid = @UserId");
       cmd.Connection = connection.Connection;
@@ -570,7 +571,7 @@ namespace MySql.Web.Personalization
       userId = string.IsNullOrEmpty(userId) ? "0" : userId;
 
       // create user
-      if (int.Parse(userId) == 0)
+      if (int.Parse(userId, CultureInfo.InvariantCulture) == 0)
       {
         // create path        
         MySqlTransaction trans;
@@ -600,7 +601,7 @@ namespace MySql.Web.Personalization
           userId = (string)cmd.ExecuteScalar();
    
       }
-      var rows = UpdateUserLastActiveDate(connection.Connection, int.Parse(userId), DateTime.UtcNow);
+      var rows = UpdateUserLastActiveDate(connection.Connection, int.Parse(userId, CultureInfo.InvariantCulture), DateTime.UtcNow);
       if (rows == 0)
         throw new Exception("User not found");
 
