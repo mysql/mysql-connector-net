@@ -91,7 +91,6 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("sslcert", "ssl-cert", typeof(string), null, false));
 
       // SSH tunneling options.
-      Options.Add(new MySqlConnectionStringOption("sshauthenticationmode", "ssh authentication mode,ssh-authentication-mode", typeof(SshAuthenticationMode), SshAuthenticationMode.None, false));
       Options.Add(new MySqlConnectionStringOption("sshhostname", "ssh host name,ssh-host-name", typeof(string), "", false));
       Options.Add(new MySqlConnectionStringOption("sshport", "ssh port,ssh-port", typeof(uint), (uint)22, false));
       Options.Add(new MySqlConnectionStringOption("sshusername", "ssh user name,ssh-user-name", typeof(string), "", false));
@@ -319,19 +318,6 @@ namespace MySql.Data.MySqlClient
     #endregion
 
     #region SSH Tunneling Properties
-
-    /// <summary>
-    /// Gets or sets the SSH authentication mode to use.
-    /// </summary>
-    [Category("SSH")]
-    [DisplayName("SSH Authentication Mode")]
-    [Description("Specifies whether the SSH connection will be made using a password or an SSH key file.")]
-    [DefaultValue(MySqlSslMode.None)]
-    public SshAuthenticationMode SshAuthenticationMode
-    {
-      get { return (SshAuthenticationMode)values["sshauthenticationmode"]; }
-      set { SetValue("sshauthenticationmode", value); }
-    }
 
     /// <summary>
     /// Gets or sets the name of the SSH server.
@@ -637,6 +623,12 @@ namespace MySql.Data.MySqlClient
         else
           usedSslOptions.Add(option.Keyword);
       }
+    }
+
+    internal bool IsSshEnabled()
+    {
+      return (!string.IsNullOrEmpty(SshUserName)
+               && (!string.IsNullOrEmpty(SshKeyFile) || !string.IsNullOrEmpty(SshPassword)));
     }
   }
 

@@ -44,7 +44,6 @@ namespace MySql.Data.common
     }
 
     internal static SshClient SetupSshClient(
-      SshAuthenticationMode sshAuthenticationMode,
       string sshHostName,
       string sshUserName,
       string sshPassword,
@@ -61,22 +60,35 @@ namespace MySql.Data.common
       if (string.IsNullOrEmpty(sshUserName))
         throw new ArgumentException(string.Format(Resources.ParameterCannotBeNullOrEmpty, nameof(sshUserName)));
 
-      SshClient sshClient = null;
-      if (sshAuthenticationMode == SshAuthenticationMode.Password)
-        sshClient = new SshClient(sshHostName, (int)sshPort, sshUserName, sshPassword);
-      else
-      {
-        if (string.IsNullOrEmpty(sshKeyFile))
-          throw new ArgumentException(string.Format(Resources.ParameterCannotBeNullOrEmpty, nameof(sshKeyFile)));
+      if (string.IsNullOrEmpty(sshKeyFile) && string.IsNullOrEmpty(sshPassword))
+        throw new ArgumentException(Resources.SshAuthenticationModeNotSet);
 
-        var keyFile = string.IsNullOrEmpty(sshPassphrase)
+      SshClient sshClient = null;
+      var authenticationMethods = new List<AuthenticationMethod>();
+      if (!string.IsNullOrEmpty(sshKeyFile))
+      {
+        try
+        {
+          var keyFile = string.IsNullOrEmpty(sshPassphrase)
           ? new PrivateKeyFile(sshKeyFile)
           : new PrivateKeyFile(sshKeyFile, sshPassphrase);
-        var authenticationMethod = new PrivateKeyAuthenticationMethod(sshUserName, keyFile);
-        ConnectionInfo connectionInfo = new ConnectionInfo(sshHostName, (int)sshPort, sshUserName, authenticationMethod);
-        sshClient = new SshClient(connectionInfo);
+          authenticationMethods.Add(new PrivateKeyAuthenticationMethod(sshUserName, keyFile));
+        }
+        catch (InvalidOperationException)
+        {
+          throw new ArgumentException(Resources.SshInvalidPassphrase);
+        }
       }
 
+      if (!string.IsNullOrEmpty(sshPassword))
+        authenticationMethods.Add(new PasswordAuthenticationMethod(sshUserName, sshPassword));
+
+      ConnectionInfo connectionInfo = new ConnectionInfo(
+        sshHostName,
+        (int)sshPort,
+        sshUserName,
+        authenticationMethods.ToArray());
+      sshClient = new SshClient(connectionInfo);
       var forwardedPort = new ForwardedPortLocal("127.0.0.1", (uint)(isXProtocol ? port : 3306), server, port);
       foreach (var client in _sshClientList)
       {

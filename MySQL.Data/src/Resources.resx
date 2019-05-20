@@ -607,4 +607,10 @@
   <data name="LocalInfileDisabled" xml:space="preserve">
     <value>Server asked for stream in response to LOAD DATA LOCAL INFILE, but the functionality is disabled by the client setting 'allowlocalinfile' to 'false'.</value>
   </data>
+  <data name="SshAuthenticationModeNotSet" xml:space="preserve">
+    <value>The SSH Key File and/or SSH Password must be provided.</value>
+  </data>
+  <data name="SshInvalidPassphrase" xml:space="preserve">
+    <value>The provided passphrase is invalid.</value>
+  </data>
 </root>

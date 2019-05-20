@@ -94,7 +94,7 @@ namespace MySql.Data.Common
     {
       TcpClient client = new TcpClient(AddressFamily.InterNetwork);
       Task task = null;
-      if (settings.SshAuthenticationMode == SshAuthenticationMode.None)
+      if (!settings.IsSshEnabled())
         task = client.ConnectAsync(settings.Server, (int)settings.Port);
       else
         task = client.ConnectAsync(

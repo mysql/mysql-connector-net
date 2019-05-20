@@ -71,7 +71,6 @@ namespace MySqlX.Data.Tests
       builder.UserID = MYSQL_ROOT_USER;
       builder.Server = MYSQL_HOST_NAME;
       builder.Port = MYSQL_SERVER_PORT;
-      builder.SshAuthenticationMode = SshAuthenticationMode.Password;
       builder.SshHostName = SSH_HOST_NAME;
       builder.SshUserName = SSH_USER_NAME;
       builder.SshPassword = SSH_PASSWORD;

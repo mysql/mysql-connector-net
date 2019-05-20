@@ -393,10 +393,9 @@ namespace MySql.Data.MySqlClient
       try
       {
         MySqlConnectionStringBuilder currentSettings = Settings;
-        if (Settings.SshAuthenticationMode != SshAuthenticationMode.None && Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp)
+        if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
         {
           _sshClient = MySqlSshClientManager.SetupSshClient(
-            Settings.SshAuthenticationMode,
             Settings.SshHostName,
             Settings.SshUserName,
             Settings.SshPassword,

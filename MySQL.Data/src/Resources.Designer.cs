@@ -1135,6 +1135,24 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The SSH Key File and/or SSH Password must be provided..
+        /// </summary>
+        public static string SshAuthenticationModeNotSet {
+            get {
+                return ResourceManager.GetString("SshAuthenticationModeNotSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The provided passphrase is invalid..
+        /// </summary>
+        public static string SshInvalidPassphrase {
+            get {
+                return ResourceManager.GetString("SshInvalidPassphrase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The certificate authority (CA) does not match..
         /// </summary>
         public static string SslCertificateCAMismatch {

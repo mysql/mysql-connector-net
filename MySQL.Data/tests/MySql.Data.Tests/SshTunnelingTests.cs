@@ -66,26 +66,18 @@ namespace MySql.Data.MySqlClient.Tests
       builder.UserID = MYSQL_ROOT_USER;
       builder.Server = MYSQL_HOST_NAME;
       builder.Port = MYSQL_SERVER_PORT;
-      builder.SshAuthenticationMode = SshAuthenticationMode.Password;
+      builder.SshUserName = SSH_USER_NAME;
+      builder.SshPassword = SSH_PASSWORD;
 
       var exception = Assert.Throws<ArgumentException>(() => ValidateConnection(builder.ConnectionString));
       Assert.Equal(string.Format(expectedErrorMessage, "sshHostName"), exception.Message);
 
       builder.SshHostName = SSH_HOST_NAME;
-      exception = Assert.Throws<ArgumentException>(() => ValidateConnection(builder.ConnectionString));
-      Assert.Equal(string.Format(expectedErrorMessage, "sshUserName"), exception.Message);
-
-      builder.SshUserName = SSH_USER_NAME;
-      var sshException = Assert.Throws<SshAuthenticationException>(() => ValidateConnection(builder.ConnectionString));
-      Assert.Equal("Permission denied (password).", sshException.Message);
-
       builder.SshPassword = SSH_PASSWORD;
+      builder.SshKeyFile = null;
       ValidateConnection(builder.ConnectionString);
 
-      builder.SshAuthenticationMode = SshAuthenticationMode.KeyFile;
-      exception = Assert.Throws<ArgumentException>(() => ValidateConnection(builder.ConnectionString));
-      Assert.Equal(string.Format(expectedErrorMessage, "sshKeyFile"), exception.Message);
-
+      builder.SshPassword = null;
       builder.SshKeyFile = "invalidFile.ppk";
       var fileException = Assert.Throws<FileNotFoundException>(() => ValidateConnection(builder.ConnectionString));
       Assert.StartsWith("Could not find file", fileException.Message);
@@ -111,7 +103,6 @@ namespace MySql.Data.MySqlClient.Tests
       builder.UserID = MYSQL_ROOT_USER;
       builder.Server = MYSQL_HOST_NAME;
       builder.Port = MYSQL_SERVER_PORT;
-      builder.SshAuthenticationMode = SshAuthenticationMode.KeyFile;
       builder.SshHostName = SSH_HOST_NAME;
       builder.SshUserName = SSH_USER_NAME;
       builder.SshKeyFile = SSH_KEY_FILE_PATH;
@@ -134,7 +125,6 @@ namespace MySql.Data.MySqlClient.Tests
       builder.UserID = MYSQL_ROOT_USER;
       builder.Server = MYSQL_HOST_NAME;
       builder.Port = MYSQL_SERVER_PORT;
-      builder.SshAuthenticationMode = SshAuthenticationMode.Password;
       builder.SshHostName = SSH_HOST_NAME;
       builder.SshUserName = SSH_USER_NAME;
       builder.SshPassword = SSH_PASSWORD;
@@ -163,7 +153,6 @@ namespace MySql.Data.MySqlClient.Tests
       builder.Password = REMOTE_USER_PASSWORD;
       builder.Server = MYSQL_HOST_NAME;
       builder.Port = MYSQL_SERVER_PORT;
-      builder.SshAuthenticationMode = SshAuthenticationMode.Password;
       builder.SshHostName = SSH_HOST_NAME;
       builder.SshUserName = SSH_USER_NAME;
       builder.SshPassword = SSH_PASSWORD;
@@ -174,6 +163,25 @@ namespace MySql.Data.MySqlClient.Tests
       ValidateConnection(builder.ConnectionString);
 
       builder.Server = "::1";
+      ValidateConnection(builder.ConnectionString);
+    }
+
+    /// <summary>
+    /// Performs a fallback to authenticate with password whenever the Ssh connection fails with an error other than invalid passphrase.
+    /// </summary>
+    [Fact(Skip = "Needs SSH setup on PB2")]
+    public void ConnectionFallback()
+    {
+      var builder = new MySqlConnectionStringBuilder();
+      builder.UserID = MYSQL_ROOT_USER;
+      builder.Server = MYSQL_HOST_NAME;
+      builder.Port = MYSQL_SERVER_PORT;
+      builder.SshHostName = SSH_HOST_NAME;
+      builder.SshUserName = SSH_USER_NAME;
+      //builder.SshKeyFile = SSH_KEY_FILE_PATH;
+      builder.SshPassphrase = SSH_KEY_FILE_PASSPHRASE;
+      builder.SshPassword = SSH_PASSWORD;
+      builder.SshPort = SSH_PORT;
       ValidateConnection(builder.ConnectionString);
     }
 
@@ -253,7 +261,6 @@ namespace MySql.Data.MySqlClient.Tests
       builder.UserID = MYSQL_ROOT_USER;
       builder.Server = MYSQL_HOST_NAME;
       builder.Port = MYSQL_SERVER_PORT;
-      builder.SshAuthenticationMode = SshAuthenticationMode.Password;
       builder.SshHostName = SSH_HOST_NAME;
       builder.SshUserName = SSH_USER_NAME;
       builder.SshPassword = SSH_PASSWORD;

@@ -74,10 +74,9 @@ namespace MySqlX.Sessions
 
     protected override void Open()
     {
-      if (Settings.SshAuthenticationMode != SshAuthenticationMode.None && Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp)
+      if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
       {
         _sshClient = MySqlSshClientManager.SetupSshClient(
-                    Settings.SshAuthenticationMode,
                     Settings.SshHostName,
                     Settings.SshUserName,
                     Settings.SshPassword,
