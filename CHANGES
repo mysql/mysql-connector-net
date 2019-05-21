@@ -3,7 +3,7 @@
 - Added SSH tunnelling to X Protocol and MySQL classic protocol connections for use with the SshAuthenticationMode, SshHostName, SshUserName, SshPassword, SshKeyFile, SshPassphrase, and SshPort connection options (WL12747).
 - Added support for .NET Core 2.2 (WL12337).
 - MySqlX: Deprecated Where condition usage in the Find, Modify and Remove methods (WL12983).
-
+- Added the README.md and CONTRIBUTING.md files (WL12970).
 
 8.0.16
 - MySqlX: Added prepared statement support (WL12174).
