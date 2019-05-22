@@ -1,4 +1,4 @@
-﻿// Copyright © 2009, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -51,8 +51,19 @@ namespace MySql.Data.Common
     public void Stop()
     {
       long now = Environment.TickCount;
+      long elapsed;
+
       // Calculate time different, handle possible overflow
-      long elapsed = (now < _startTime) ? Int32.MaxValue - _startTime + now : now - _startTime;
+      if (now < _startTime)
+      {
+        if (now < 0)
+          elapsed = 1 + ((long)Int32.MaxValue - _startTime) + (now - (long)Int32.MinValue);
+        else
+          elapsed = Int32.MaxValue - _startTime + now;
+      }
+      else
+        elapsed = now - _startTime;
+
       ElapsedMilliseconds += elapsed;
     }
 
