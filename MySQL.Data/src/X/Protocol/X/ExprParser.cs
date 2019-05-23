@@ -51,7 +51,7 @@ namespace MySqlX.Protocol.X
   //
   // CompExpr: ^ (GE/GT/LE/LT/EQ/NE ^)*
   //
-  // IlriExpr(ilri=IS/LIKE/REGEXP/IN/BETWEEN): ^ (ilri ^)
+  // IlriExpr(ilri=IS/LIKE/REGEXP/IN/BETWEEN/OVERLAPS): ^ (ilri ^)
   //
   // AndExpr: ^ (AND ^)*
   //
@@ -103,7 +103,7 @@ namespace MySqlX.Protocol.X
       BIN, NEG, BANG, EROTEME, MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR, SECOND_MICROSECOND, MINUTE_MICROSECOND,
       MINUTE_SECOND, HOUR_MICROSECOND, HOUR_SECOND, HOUR_MINUTE, DAY_MICROSECOND, DAY_SECOND, DAY_MINUTE, DAY_HOUR, YEAR_MONTH, DOUBLESTAR, MOD,
       COLON, ORDERBY_ASC, ORDERBY_DESC, AS, LCURLY, RCURLY, DOTSTAR, CAST, DECIMAL, UNSIGNED, SIGNED, INTEGER, DATE, TIME, DATETIME, CHAR, BINARY, JSON,
-      ARROW, DOUBLE_ARROW
+      ARROW, DOUBLE_ARROW, OVERLAPS
     }
 
     /**
@@ -194,6 +194,7 @@ namespace MySqlX.Protocol.X
       reservedWords.Add("char", TokenType.CHAR);
       reservedWords.Add("binary", TokenType.BINARY);
       reservedWords.Add("json", TokenType.BINARY);
+      reservedWords.Add("overlaps", TokenType.OVERLAPS);
     }
 
     /**
@@ -462,7 +463,7 @@ namespace MySqlX.Protocol.X
                 throw new ArgumentException("Unterminated string starting at " + start);
               }
               var value = val.ToString();
-              this.tokens.Add(new Token(quoteChar == '`' ? TokenType.IDENT : TokenType.LSTRING, value == string.Empty ? " " : value));
+              this.tokens.Add(new Token(quoteChar == '`' ? TokenType.IDENT : TokenType.LSTRING, value == string.Empty ? "" : value));
               break;
             default:
               throw new ArgumentException("Can't parse at pos: " + i);
@@ -1127,7 +1128,7 @@ namespace MySqlX.Protocol.X
     Expr IlriExpr()
     {
       Expr lhs = CompExpr();
-      List<TokenType> expected = new List<TokenType>(new TokenType[] { TokenType.IS, TokenType.IN, TokenType.LIKE, TokenType.BETWEEN, TokenType.REGEXP, TokenType.NOT });
+      List<TokenType> expected = new List<TokenType>(new TokenType[] { TokenType.IS, TokenType.IN, TokenType.LIKE, TokenType.BETWEEN, TokenType.REGEXP, TokenType.NOT, TokenType.OVERLAPS });
       while (this.tokenPos < this.tokens.Count && expected.Contains(this.tokens[this.tokenPos].type))
       {
         bool isNot = false;
@@ -1180,6 +1181,10 @@ namespace MySqlX.Protocol.X
               break;
             case TokenType.REGEXP:
               ConsumeToken(TokenType.REGEXP);
+              parameters.Add(CompExpr());
+              break;
+            case TokenType.OVERLAPS:
+              ConsumeToken(TokenType.OVERLAPS);
               parameters.Add(CompExpr());
               break;
             default:
