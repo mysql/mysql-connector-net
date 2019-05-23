@@ -247,6 +247,7 @@ namespace MySqlX.Data
       collations.Add(305, "utf8mb4_0900_as_ci");
       collations.Add(306, "utf8mb4_ru_0900_ai_ci");
       collations.Add(307, "utf8mb4_ru_0900_as_cs");
+      collations.Add(309, "utf8mb4_0900_bin");
       collations.Add(14, "cp1251_bulgarian_ci");
       collations.Add(23, "cp1251_ukrainian_ci");
       collations.Add(50, "cp1251_bin");
