@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -45,6 +45,7 @@ namespace MySql.Data.EntityFramework.Tests
     {
       st = fixture;
       originalCulture = Thread.CurrentThread.CurrentCulture;
+      st.NeedSetup = true;
       st.Setup(this.GetType());
     }
 
@@ -53,6 +54,8 @@ namespace MySql.Data.EntityFramework.Tests
     {
       using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
+        if (ctx.Database.Exists())
+          ctx.Database.Delete();
         Assert.False(ctx.Database.Exists());
         ctx.Database.Create();
         Assert.True(ctx.Database.Exists());
@@ -66,9 +69,9 @@ namespace MySql.Data.EntityFramework.Tests
     {
       using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        ctx.Database.Create();
         DataTable dt = st.Connection.GetSchema("DATABASES", new string[] { st.Connection.Database });
         Assert.Equal(1, dt.Rows.Count);
+        ctx.Database.Delete();
       }
     }
 
@@ -86,7 +89,6 @@ namespace MySql.Data.EntityFramework.Tests
     public void GetDbProviderManifestTokenDoesNotThrowWhenLocalized()
     {
       Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-CA");
-
       using (MySqlConnection connection = new MySqlConnection(st.ConnectionString))
       {
         MySqlProviderServices providerServices = new MySqlProviderServices();
@@ -98,12 +100,13 @@ namespace MySql.Data.EntityFramework.Tests
     [Fact]
     public void GetDbProviderManifestTokenDoesNotThrowWhenMissingPersistSecurityInfo()
     {
-      var conn = new MySqlConnection(st.ConnectionString);
+      using (var conn = new MySqlConnection(st.ConnectionString))
+      {
       conn.Open();
       MySqlProviderServices providerServices = new MySqlProviderServices();
       var token = providerServices.GetProviderManifestToken(conn);
       Assert.NotNull(token);
-      conn.Close();
+    }
     }
 
     public void Dispose()

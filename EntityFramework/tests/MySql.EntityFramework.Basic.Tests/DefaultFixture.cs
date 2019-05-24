@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -81,7 +81,8 @@ namespace MySql.Data.EntityFramework.Tests
 
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder();
       sb.Server = "localhost";
-      sb.Port = 3306;
+      string port = Environment.GetEnvironmentVariable("MYSQL_PORT");
+      sb.Port = string.IsNullOrEmpty(port) ? 3305 : uint.Parse(port);
       sb.UserID = "root";
       sb.Pooling = false;
       sb.AllowUserVariables = true;
@@ -152,6 +153,6 @@ namespace MySql.Data.EntityFramework.Tests
         string sql = q.ToTraceString();
         CheckSql(sql, expected);
       }
-    } 
+  }
   }
 }

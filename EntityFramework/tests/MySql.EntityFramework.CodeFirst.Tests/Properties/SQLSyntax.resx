@@ -509,4 +509,7 @@ FROM `Movies` AS `Extent1`
   <data name="UpdateWithSelectWithNonDbGeneratedLock" xml:space="preserve">
     <value>UPDATE `MovieReleases` SET `Name`='Director\'s Cut' WHERE (`Id` = 1) AND (`Name` = 'Commercial'); SELECT `Timestamp` FROM `MovieReleases` WHERE row_count() = 1 and ((`Id` = 1) AND (`Name` = 'Director\'s Cut'))</value>
   </data>
+  <data name="t1" xml:space="preserve">
+    <value>t1</value>
+  </data>
 </root>

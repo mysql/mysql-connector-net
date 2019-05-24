@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -44,17 +44,18 @@ using System.Data.Entity.Core.Metadata.Edm;
 
 namespace MySql.Data.EntityFramework.Migrations.Tests
 {
-  public class MySqlMigrationsTests : IUseFixture<SetUpMigrationsTests>
+  public class MySqlMigrationsTests : IClassFixture<SetUpMigrationsTests>
   {
     private MySqlProviderManifest ProviderManifest;
 
     private SetUpMigrationsTests st;
 
-    public void SetFixture(SetUpMigrationsTests data)
+    public MySqlMigrationsTests(SetUpMigrationsTests data)
     {
       st = data;
-      Database.SetInitializer(new MigrateDatabaseToLatestVersion<BlogContext, EF6Configuration>()); 
-    }    
+      Database.SetInitializer(new MigrateDatabaseToLatestVersion<BlogContext, EF6Configuration>());
+      st.Setup(this.GetType());
+    }
 
     private MySqlConnection GetConnectionFromContext(DbContext ctx)
     {
@@ -87,14 +88,14 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
       using (BlogContext context = new BlogContext())
       {
         if (context.Database.Exists()) context.Database.Delete();
-        context.Database.Create();        
-        
+        context.Database.Create();
+
         using (MySqlConnection conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
           if (conn.State == System.Data.ConnectionState.Closed) conn.Open();
           Assert.Equal(true, GenerateAndExecuteMySQLStatements(migrationOperations));
-          
-          MySqlCommand query = new MySqlCommand("Select Column_name, Is_Nullable, Data_Type from information_schema.Columns where table_schema ='" + conn.Database + "' and table_name = 'Blogs' and column_name ='TotalPosts'" , conn);
+
+          MySqlCommand query = new MySqlCommand("Select Column_name, Is_Nullable, Data_Type from information_schema.Columns where table_schema ='" + conn.Database + "' and table_name = 'Blogs' and column_name ='TotalPosts'", conn);
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
@@ -105,7 +106,7 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
           reader.Close();
           conn.Close();
         }
-      }        
+    }
     }
 
     /// <summary>
@@ -125,7 +126,7 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
       {
         if (context.Database.Exists()) context.Database.Delete();
         context.Database.Create();
-        
+
         using (var conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
           if (conn.State == System.Data.ConnectionState.Closed) conn.Open();
@@ -139,7 +140,7 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
           reader.Close();
           conn.Close();
         }
-      }      
+    }
     }
 
     /// <summary>
@@ -178,7 +179,7 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
       createForeignkeyOperation.Name = "FKBlogs";
       createForeignkeyOperation.DependentTable = "Posts";
       createForeignkeyOperation.DependentColumns.Add("BlogId");
-      createForeignkeyOperation.CascadeDelete = true;      
+      createForeignkeyOperation.CascadeDelete = true;
       createForeignkeyOperation.PrincipalTable = "Blogs";
       createForeignkeyOperation.PrincipalColumns.Add("BlogId");
 
@@ -186,27 +187,27 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
       migrationOperations.Add(createForeignkeyOperation.CreateCreateIndexOperation());
 
       migrationOperations.Add(createForeignkeyOperation);
-      
-      
+
+
       using (BlogContext context = new BlogContext())
       {
-        
+
         if (context.Database.Exists()) context.Database.Delete();
-        context.Database.Create();        
+        context.Database.Create();
 
         Assert.Equal(true, GenerateAndExecuteMySQLStatements(migrationOperations));
 
         using (var conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
-          if (conn.State == System.Data.ConnectionState.Closed) conn.Open(); 
+          if (conn.State == System.Data.ConnectionState.Closed) conn.Open();
           // check for foreign key creation
-          MySqlCommand query = new MySqlCommand("select Count(*) from information_schema.table_constraints where constraint_type = 'foreign key' and constraint_schema = '" + conn.Database + "' and constraint_name = 'FKBlogs'", conn);
+          MySqlCommand query = new MySqlCommand("select Count(*) from information_schema.table_constraints where LOWER(constraint_type) = 'foreign key' and constraint_schema = '" + conn.Database + "' and constraint_name = 'FKBlogs'", conn);
           int rows = Convert.ToInt32(query.ExecuteScalar());
           Assert.Equal(1, rows);
           // check for table creation          
-          query = new MySqlCommand("select Count(*) from information_schema.Tables WHERE `table_name` = 'Posts' and `table_schema` = '" + conn.Database + "' ", conn);          
+          query = new MySqlCommand("select Count(*) from information_schema.Tables WHERE `table_name` = 'Posts' and `table_schema` = '" + conn.Database + "' ", conn);
           rows = Convert.ToInt32(query.ExecuteScalar());
-          Assert.Equal(1, rows);                    
+          Assert.Equal(1, rows);
           conn.Close();
         }
 
@@ -256,14 +257,14 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
       {
         if (context.Database.Exists())  context.Database.Delete();
         context.Database.Create();
-        
+
 
         Assert.Equal(true, GenerateAndExecuteMySQLStatements(migrationOperations));
 
         using (var conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
-          if (conn.State == System.Data.ConnectionState.Closed) conn.Open();          
-          
+          if (conn.State == System.Data.ConnectionState.Closed) conn.Open();
+
           // check for table creation          
           var query = new MySqlCommand("select Count(*) from information_schema.Tables WHERE `table_name` = 'Posts' and `table_schema` = '" + conn.Database + "' ", conn);
           int rows = Convert.ToInt32(query.ExecuteScalar());
@@ -273,7 +274,7 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
           query = new MySqlCommand("select Count(*) from information_schema.table_constraints where `constraint_type` = 'primary key' and `constraint_schema` = '" + conn.Database + "' and table_name= 'Posts'", conn);
           rows = Convert.ToInt32(query.ExecuteScalar());
           Assert.Equal(0, rows);
-         
+
           //check the definition of the column that was PK
           query = new MySqlCommand("Select Column_name, Is_Nullable, Data_Type from information_schema.Columns where table_schema ='" + conn.Database + "' and table_name = 'Posts' and column_name ='PostId'", conn);
           MySqlDataReader reader = query.ExecuteReader();
@@ -286,10 +287,10 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
           reader.Close();
           conn.Close();
         }
-      }          
+    }
     }
 
-   
+
     /// <summary>
     /// Drop primary key. No anonymous arguments
     /// </summary>
@@ -342,7 +343,7 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
           reader.Close();
           conn.Close();
         }
-      }          
+      }
 
 
     }
@@ -401,9 +402,9 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
       primaryKey.Columns.Add("PostId");
 
       createTableOperation.PrimaryKey = primaryKey;
-      
+
       return createTableOperation;
-    
+
     }
 
 
@@ -414,9 +415,9 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
     /// </summary>
     private bool GenerateAndExecuteMySQLStatements(List<MigrationOperation>  migrationOperations)
     {
-      MySqlProviderServices ProviderServices;      
+      MySqlProviderServices ProviderServices;
 
-      ProviderServices = new MySqlProviderServices();      
+      ProviderServices = new MySqlProviderServices();
 
       using (BlogContext context = new BlogContext())
       {
@@ -438,9 +439,9 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
             catch (Exception)
             {
               return false;
-            }            
           }
         }
+      }
       }
       return true;
     }
@@ -449,4 +450,3 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
 
 
 
-       

@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -35,14 +35,14 @@ using System.Data.Entity.Migrations;
 
 namespace MySql.Data.EntityFramework.Migrations.Tests
 {
-  public class SetUpMigrationsTests : SetUpClass, IDisposable
+  public class SetUpMigrationsTests : DefaultFixture, IDisposable
   {
 
-    private Configuration configuration;            
-    public DbMigrator Migrator;        
-   
-    public SetUpMigrationsTests():base()
-    {            
+    private Configuration configuration;
+    public DbMigrator Migrator;
+
+    public SetUpMigrationsTests() : base()
+    {
       configuration = new Configuration();
       DataSet dataSet = ConfigurationManager.GetSection("system.data") as System.Data.DataSet;
       DataView vi = dataSet.Tables[0].DefaultView;

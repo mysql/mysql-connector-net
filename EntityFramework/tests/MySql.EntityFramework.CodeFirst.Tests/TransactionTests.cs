@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,8 +38,16 @@ using Xunit;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-  public class TransactionTests
+  public class TransactionTests : IClassFixture<CodeFirstFixture>
   {
+    private CodeFirstFixture _fixture;
+
+    public TransactionTests(CodeFirstFixture fixture)
+    {
+      _fixture = fixture;
+      _fixture.Setup(this.GetType());
+    }
+
     [Fact]
     public void DisposeNestedTransactions()
     {

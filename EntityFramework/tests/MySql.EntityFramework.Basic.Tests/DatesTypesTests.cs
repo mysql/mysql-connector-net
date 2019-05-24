@@ -1,4 +1,4 @@
-// Copyright © 2011, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -95,7 +95,7 @@ namespace MySql.Data.EntityFramework.Tests
 
         DataRow row = schema.Rows[3];
         Assert.Equal("datetime", row.Field<string>("DATA_TYPE"));
-        Assert.Equal((ulong)6, row.Field<UInt64>("DATETIME_PRECISION"));
+        Assert.Equal((uint)6, row.Field<UInt32>("DATETIME_PRECISION"));
         Assert.Equal("NO", row.Field<string>("IS_NULLABLE"));
       }
     }
