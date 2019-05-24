@@ -1,4 +1,4 @@
-﻿// Copyright © 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -34,29 +34,30 @@ using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using Xunit;
 using System.Data.Entity.Spatial;
-using MySql.Data.Entity.Tests;
 using MySql.EntityFramework6.CodeFirst.Tests.Properties;
+using MySql.Data.Entity.Tests;
 
 namespace MySql.Data.Entity.CodeFirst.Tests
 {
-  public class CodeFirstTests : IUseFixture<SetUpCodeFirstTests>, IDisposable
+  public class CodeFirstTests : IClassFixture<CodeFirstFixture>, IDisposable
   {
-    private SetUpCodeFirstTests st;
+    private CodeFirstFixture _fixture;
 
-    public void SetFixture(SetUpCodeFirstTests data)
+    public CodeFirstTests(CodeFirstFixture fixture)
     {
-      st = data;
+      _fixture = fixture;
+      _fixture.Setup(this.GetType());
     }
 
     public void Dispose()
     {
     }
 
-    private void ReInitDb()
-    {
-      st.suExecSQL(string.Format("drop database if exists `{0}`", st.conn.Database));
-      st.suExecSQL(string.Format("create database `{0}`", st.conn.Database));
-    }
+    //private void ReInitDb()
+    //{
+    //  _fixture.execSQL(string.Format("drop database if exists `{0}`", _fixture.Connection.Database));
+    //  _fixture.execSQL(string.Format("create database `{0}`", _fixture.Connection.Database));
+    //}
 
     /// <summary>
     /// Tests for fix of http://bugs.mysql.com/bug.php?id=61230
@@ -68,7 +69,6 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
       MovieDBInitialize.DoDataPopulation(db);
@@ -91,7 +91,6 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
       MovieDBInitialize.DoDataPopulation(db);
@@ -120,7 +119,6 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Delete();
@@ -160,7 +158,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
           Match m = rx.Match(s);
           if (m.Success)
           {
-            st.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithNonDbGeneratedLock);
+            _fixture.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithNonDbGeneratedLock);
             //Assert.Pass();
           }
         }
@@ -177,7 +175,6 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
       string dbCreationScript =
@@ -196,7 +193,6 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext context = new MovieDBContext())
       {
         context.Database.Initialize(true);
@@ -218,7 +214,6 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (VehicleDbContext context = new VehicleDbContext())
       {
         context.Database.Delete();
@@ -252,7 +247,6 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (VehicleDbContext2 context = new VehicleDbContext2())
       {
         context.Database.Delete();
@@ -286,16 +280,16 @@ namespace MySql.Data.Entity.CodeFirst.Tests
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
       var l = db.Movies.ToList();
-      IDataReader r = st.execReader(string.Format(
-@"select numeric_precision, numeric_scale from information_schema.columns 
-where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'", st.conn.Database));
-      r.Read();
-      Assert.Equal(16, r.GetInt32(0));
-      Assert.Equal(2, r.GetInt32(1));
+      using (MySqlDataReader r = new MySqlCommand($@"select numeric_precision, numeric_scale from information_schema.columns 
+where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' and column_name = 'Price'", _fixture.Connection).ExecuteReader())
+      {
+        r.Read();
+        Assert.Equal(16, r.GetInt32(0));
+        Assert.Equal(2, r.GetInt32(1));
+      }
     }
 
     /// <summary>
@@ -313,7 +307,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (VehicleDbContext3 context = new VehicleDbContext3())
       {
         if (context.Database.Exists()) context.Database.Delete();
@@ -369,7 +362,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext ctx = new MovieDBContext())
       {
         ctx.Database.Initialize(true);
@@ -394,7 +386,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (VehicleDbContext context = new VehicleDbContext())
       {
         context.Database.ExecuteSqlCommand("SET GLOBAL sql_mode='STRICT_ALL_TABLES'");
@@ -491,7 +482,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext ctx = new MovieDBContext())
       {
         ctx.Database.Initialize(true);
@@ -536,7 +526,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
                   curAddr.city.country.country1
                 };
         string sql = q.ToString();
-        st.CheckSql(sql, SQLSyntax.FirstOrDefaultNestedWithOrderBy);
+        _fixture.CheckSql(sql, SQLSyntax.FirstOrDefaultNestedWithOrderBy);
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
@@ -559,11 +549,11 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
 
-      if (st.Version < new Version(5, 6)) return;
+      if (_fixture.Version < new Version(5, 6)) return;
 
-      ReInitDb();
       using (var db = new ProductsDbContext())
       {
+        db.Database.Initialize(true);
         using (MySqlConnection conn = new MySqlConnection(db.Database.Connection.ConnectionString))
         {
           conn.Open();
@@ -604,11 +594,11 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      if (st.Version < new Version(5, 6)) return;
+      if (_fixture.Version < new Version(5, 6)) return;
 
-      ReInitDb();
       using (var db = new ProductsDbContext())
       {
+        db.Database.Initialize(true);
         MySqlConnection con = (MySqlConnection)db.Database.Connection;
         MySqlCommand cmd = new MySqlCommand("set session sql_mode = '';", con);
         con.Open();
@@ -648,7 +638,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (DinosauriaDBContext db = new DinosauriaDBContext())
       {
         db.Database.Initialize(true);
@@ -671,7 +660,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (var context = new ShipContext())
       {
         context.Database.Initialize(true);
@@ -744,7 +732,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         Dictionary<string, string> outData = new Dictionary<string, string>();
 
         var sqlString = query.ToString();
-        st.CheckSql(sqlString, SQLSyntax.ShipQueryMalformedDueMultipleProjecttionsCorrectedEF6);
+        _fixture.CheckSql(sqlString, SQLSyntax.ShipQueryMalformedDueMultipleProjecttionsCorrectedEF6);
         // see below for the generated SQL query
 
         var harbor = query.Single();
@@ -780,7 +768,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (SiteDbContext ctx = new SiteDbContext())
       {
         ctx.Database.Initialize(true);
@@ -802,7 +789,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
                    Online = g.Select(e => e.sDsIp).Distinct().Count()
                  });
         string sql = q.ToString();
-        st.CheckSql(sql, SQLSyntax.CountGroupBy);
+        _fixture.CheckSql(sql, SQLSyntax.CountGroupBy);
         var q2 = q.ToList<retorno>();
         foreach (var row in q2)
         {
@@ -819,7 +806,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (SiteDbContext ctx = new SiteDbContext())
       {
         ctx.Database.Initialize(true);
@@ -843,7 +829,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
                    Online = g.Select(e => e.visitante.sDsIp).Distinct().Count()
                  });
         string sql = q.ToString();
-        st.CheckSql(sql, SQLSyntax.CountGroupBy2);
+        _fixture.CheckSql(sql, SQLSyntax.CountGroupBy2);
         var q2 = q.ToList<retorno>();
         foreach (var row in q2)
         {
@@ -860,7 +846,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
@@ -869,7 +854,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         var q = db.Movies.Where(p => p.ReleaseDate >= filterDate).
           OrderByDescending(p => p.ReleaseDate).Take(2);
         string sql = q.ToString();
-        st.CheckSql(SQLSyntax.NestedOrderBy, sql);
+        _fixture.CheckSql(SQLSyntax.NestedOrderBy, sql);
         // Data integrity testing
         Movie[] data = new Movie[] {
           new Movie() { ID = 4, Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime( 2005, 5, 19 ) },
@@ -896,7 +881,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
@@ -909,7 +893,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         var q1 = q.Take(10);
         string sql = q1.ToString();
 
-        st.CheckSql(SQLSyntax.QueryWithOrderByTakeContains, sql);
+        _fixture.CheckSql(SQLSyntax.QueryWithOrderByTakeContains, sql);
 
         int i = 0;
         foreach (var row in q1)
@@ -931,7 +915,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (PromotionsDB db = new PromotionsDB())
       {
         db.Database.Initialize(true);
@@ -962,7 +945,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
@@ -995,7 +977,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
@@ -1035,7 +1016,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
@@ -1060,7 +1040,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
@@ -1087,7 +1066,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
@@ -1117,15 +1095,15 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       AutoIncrementBugContext dbContext = new AutoIncrementBugContext();
 
       dbContext.Database.Initialize(true);
       dbContext.AutoIncrementBug.Add(new AutoIncrementBug() { Description = "Test" });
       dbContext.SaveChanges();
-      using (var reader = MySqlHelper.ExecuteReader(dbContext.Database.Connection.ConnectionString, "SHOW COLUMNS FROM AUTOINCREMENTBUGS WHERE EXTRA LIKE '%AUTO_INCREMENT%'"))
+      using (var reader = MySqlHelper.ExecuteReader(dbContext.Database.Connection.ConnectionString,
+        $"SHOW COLUMNS FROM {nameof(dbContext.AutoIncrementBug)}s WHERE UPPER(EXTRA) LIKE '%AUTO_INCREMENT%'"))
       {
-        Assert.Equal(true, reader.HasRows);
+        Assert.True(reader.HasRows);
       }
       dbContext.Database.Delete();
     }
@@ -1168,21 +1146,19 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     [Fact]
     public void MigrationHistoryConfigurationTest()
     {
-      ReInitDb();
       MovieCodedBasedConfigDBContext db = new MovieCodedBasedConfigDBContext();
       db.Database.Initialize(true);
       var l = db.Movies.ToList();
       foreach (var i in l)
       {
       }
-      var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "SELECT COUNT(_MigrationId) FROM __MySqlMigrations;");
+      var result = MySqlHelper.ExecuteScalar($"server=localhost;User Id=root;database={db.Database.Connection.Database};logging=true; port=3305;", "SELECT COUNT(_MigrationId) FROM __MySqlMigrations;");
       Assert.Equal(1, int.Parse(result.ToString()));
     }
 
     [Fact]
     public void DbSetRangeTest()
     {
-      ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
@@ -1296,7 +1272,11 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
     [Fact]
     public void UseTransactionSupportTest()
     {
-      using (var connection = new MySqlConnection("server=localhost;User Id=root;database=test;logging=true; port=3305;"))
+      using (var context = new MovieCodedBasedConfigDBContext())
+      {
+        context.Database.CreateIfNotExists();
+      }
+      using (var connection = new MySqlConnection($"server=localhost;User Id=root;database={nameof(MovieCodedBasedConfigDBContext)};logging=true; port=3305;"))
       {
         connection.Open();
         using (var transaction = connection.BeginTransaction())
@@ -1348,9 +1328,9 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           ReleaseDate = DateTime.Parse("01/07/2013")
         });
 
-        Assert.Equal(true, dbcontext.ChangeTracker.HasChanges());
+        Assert.True(dbcontext.ChangeTracker.HasChanges());
         dbcontext.SaveChanges();
-        Assert.Equal(false, dbcontext.ChangeTracker.HasChanges());
+        Assert.False(dbcontext.ChangeTracker.HasChanges());
       }
     }
 
@@ -1481,7 +1461,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
@@ -1489,7 +1468,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         long myKey = 20;
         var q = (from r in db.Movies where (r.ID == myKey) select (long)r.ID).OrderBy(p => p);
         string sql = q.ToString();
-        st.CheckSql(sql, SQLSyntax.UnknownProjectC1EF6);
+        _fixture.CheckSql(sql, SQLSyntax.UnknownProjectC1EF6);
 
 #if DEBUG
         Debug.WriteLine(sql);
@@ -1504,7 +1483,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
       MovieDBInitialize.DoDataPopulation(db);
@@ -1513,7 +1491,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 
       string sql = l.ToString();
 
-      st.CheckSql(sql, SQLSyntax.QueryWithStartsWith);
+      _fixture.CheckSql(sql, SQLSyntax.QueryWithStartsWith);
 
 #if DEBUG
       Debug.WriteLine(sql);
@@ -1532,7 +1510,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
       MovieDBInitialize.DoDataPopulation(db);
@@ -1541,7 +1518,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 
       string sql = l.ToString();
 
-      st.CheckSql(sql, SQLSyntax.QueryWithEndsWith);
+      _fixture.CheckSql(sql, SQLSyntax.QueryWithEndsWith);
 
 #if DEBUG
       Debug.WriteLine(sql);
@@ -1560,7 +1537,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
       MovieDBInitialize.DoDataPopulation(db);
@@ -1568,7 +1544,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
       var l = db.Movies.Where(p => p.Title.Contains(term));
 
       string sql = l.ToString();
-      st.CheckSql(sql, SQLSyntax.QueryWithContains);
+      _fixture.CheckSql(sql, SQLSyntax.QueryWithContains);
 
 #if DEBUG
       Debug.WriteLine(sql);
@@ -1591,7 +1567,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
@@ -1599,7 +1574,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         long[] longs = new long[] { 1, 2, 3 };
         var q = db.Movies.Where(p => longs.Contains((long)p.ID));
         string sql = q.ToString();
-        st.CheckSql(sql, SQLSyntax.TestContainsListWithCast);
+        _fixture.CheckSql(sql, SQLSyntax.TestContainsListWithCast);
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
@@ -1616,7 +1591,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
@@ -1624,7 +1598,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         List<string> strIds = new List<string>(new string[] { "two" });
         var q = db.Movies.Where(p => strIds.Contains("two"));
         string sql = q.ToString();
-        st.CheckSql(sql, SQLSyntax.TestContainsListWitConstant);
+        _fixture.CheckSql(sql, SQLSyntax.TestContainsListWitConstant);
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
@@ -1641,7 +1615,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
@@ -1650,7 +1623,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         int myNum = 1;
         var q = db.Movies.Where(p => longs.Contains(myNum));
         string sql = q.ToString();
-        st.CheckSql(sql, SQLSyntax.TestContainsListWithParameterReference);
+        _fixture.CheckSql(sql, SQLSyntax.TestContainsListWithParameterReference);
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
@@ -1666,7 +1639,7 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
         var date = new DateTime(2005, 6, 1);
         var rentals = context.customers.Where(t => t.rentals.Any(r => r.rental_date < date)).OrderBy(o => o.customer_id);
         string sql = rentals.ToString();
-        st.CheckSql(sql, SQLSyntax.ReplaceNameVisitorQuery);
+        _fixture.CheckSql(sql, SQLSyntax.ReplaceNameVisitorQuery);
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
@@ -1726,7 +1699,6 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      ReInitDb();
       using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Delete();
@@ -1787,11 +1759,11 @@ where table_schema = '{0}' and table_name = 'movies' and column_name = 'Price'",
           {
             if (n++ == 0)
             {
-              st.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithDbGeneratedLock1);
+              _fixture.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithDbGeneratedLock1);
             }
             else
             {
-              st.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithDbGeneratedLock2);
+              _fixture.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithDbGeneratedLock2);
             }
           }
         }

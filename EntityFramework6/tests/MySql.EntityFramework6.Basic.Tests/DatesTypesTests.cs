@@ -1,4 +1,4 @@
-﻿// Copyright © 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -89,7 +89,7 @@ namespace MySql.Data.Entity.Tests
 
         DataRow row = schema.Rows[3];
         Assert.Equal("datetime", row.Field<string>("DATA_TYPE"));
-        Assert.Equal((ulong)6, row.Field<UInt64>("DATETIME_PRECISION"));
+        Assert.Equal((uint)6, row.Field<UInt32>("DATETIME_PRECISION"));
         Assert.Equal("NO", row.Field<string>("IS_NULLABLE"));
       }
     }

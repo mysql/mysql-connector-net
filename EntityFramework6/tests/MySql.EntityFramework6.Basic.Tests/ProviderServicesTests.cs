@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2016 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -39,6 +39,7 @@ namespace MySql.Data.Entity.Tests
     {
       st = fixture;
       originalCulture = Thread.CurrentThread.CurrentCulture;
+      st.NeedSetup = true;
       st.Setup(this.GetType());
     }
 
@@ -47,6 +48,8 @@ namespace MySql.Data.Entity.Tests
     {
       using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
+        if (ctx.Database.Exists())
+          ctx.Database.Delete();
         Assert.False(ctx.Database.Exists());
         ctx.Database.Create();
         Assert.True(ctx.Database.Exists());
@@ -60,9 +63,9 @@ namespace MySql.Data.Entity.Tests
     {
       using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
       {
-        ctx.Database.Create();
         DataTable dt = st.Connection.GetSchema("DATABASES", new string[] { st.Connection.Database });
         Assert.Equal(1, dt.Rows.Count);
+        ctx.Database.Delete();
       }
     }
 
@@ -80,7 +83,6 @@ namespace MySql.Data.Entity.Tests
     public void GetDbProviderManifestTokenDoesNotThrowWhenLocalized()
     {
       Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-CA");
-
       using (MySqlConnection connection = new MySqlConnection(st.ConnectionString))
       {
         MySqlProviderServices providerServices = new MySqlProviderServices();
@@ -92,12 +94,13 @@ namespace MySql.Data.Entity.Tests
     [Fact]
     public void GetDbProviderManifestTokenDoesNotThrowWhenMissingPersistSecurityInfo()
     {
-      var conn = new MySqlConnection(st.ConnectionString);
-      conn.Open();
-      MySqlProviderServices providerServices = new MySqlProviderServices();
-      var token = providerServices.GetProviderManifestToken(conn);
-      Assert.NotNull(token);
-      conn.Close();
+      using (var conn = new MySqlConnection(st.ConnectionString))
+      {
+        conn.Open();
+        MySqlProviderServices providerServices = new MySqlProviderServices();
+        var token = providerServices.GetProviderManifestToken(conn);
+        Assert.NotNull(token);
+      }
     }
 
     public void Dispose()
