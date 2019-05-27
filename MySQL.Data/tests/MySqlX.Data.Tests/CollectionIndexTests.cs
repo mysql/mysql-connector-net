@@ -33,7 +33,7 @@ using Xunit;
 namespace MySqlX.Data.Tests
 {
   public class CollectionIndexTests : BaseTest
-  {  
+  {
     [Fact]
     public void IncorrectlyFormatedIndexDefinition()
     {
@@ -297,7 +297,67 @@ namespace MySqlX.Data.Tests
       collection.DropIndex("-myIndex");
     }
 
-    private void ValidateIndex(string fieldName, string collectionName, string dataType, bool unique, bool required, bool isUnsigned, int sequence, int? length = null)
+    [Fact]
+    public void CreateIndexWithArrayOption()
+    {
+      var collection = CreateCollection("test");
+
+      // For server not supporting array indexes, array option will be ignored and and old-style index will be created.
+      if (!session.Version.isAtLeast(8, 0, 17))
+      {
+        collection.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"DATE\", \"array\": true}]}");
+        return;
+      }
+
+      // Supported types
+      var doc = new[] { new { _id = 1, name = "Char", myField = new[] { "foo@mail.com", "bar@mail.com", "qux@mail.com" } } };
+      collection.Add(doc).Execute();
+      CreateArrayIndex("CHAR(128)", collection);
+
+      doc = new[] { new { _id = 1, name = "Time", myField = new[] { "01:01:01.001", "23:59:59.15", "12:00:00" } } };
+      collection.Add(doc).Execute();
+      CreateArrayIndex("TIME", collection);
+
+      doc = new[] { new { _id = 1, name = "Date", myField = new[] { "2019-01-01", "2019-01-01 12:15:00" } } };
+      collection.Add(doc).Execute();
+      CreateArrayIndex("DATE", collection);
+
+      doc = new[] { new { _id = 1, name = "Int", myField = new[] { "3", "254", "19" } } };
+      collection.Add(doc).Execute();
+      CreateArrayIndex("SIGNED", collection);
+
+      doc = new[] { new { _id = 1, name = "Decimal", myField = new[] { "3.0", "254.51", "19" } } };
+      collection.Add(doc).Execute();
+      CreateArrayIndex("DECIMAL(10,2)", collection);
+
+      testSchema.DropCollection("test");
+      collection = CreateCollection("test");
+
+      // Invalid data type
+      Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"TINYINT\", \"array\": true}]}"));
+      Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"GEOJSON\", \"required\":true, \"options\":2, \"srid\":4326, \"array\": true } ], \"type\":\"SPATIAL\" }"));
+
+      // "Required = true" option can't be used whith an array field
+      Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"CHAR(128)\", \"array\": true, \"required\":true}]}"));
+
+      // There can only be one field with array option per index
+      Assert.Throws<MySqlException>(() => collection.CreateIndex("index_1", "{\"fields\": [{\"field\": $.field1, \"type\":\"CHAR(128)\", \"array\": true}, " +
+        "{\"field\": $.field2, \"type\":\"CHAR(128)\", \"array\": true}]}"));
+
+      // Setting array option to null/NULL
+      Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"TINYINT\", \"array\": null}]}"));
+      Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"TINYINT\", \"array\": NULL}]}"));
+    }
+
+    private void CreateArrayIndex(string dataType, XDevAPI.Collection collection)
+    {
+      collection.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + dataType + "\", \"array\": true}]}");
+      ValidateIndex("myIndex", "test", dataType, false, false, false, 1, null, true);
+      collection.DropIndex("myIndex");
+      collection.RemoveOne(1);
+    }
+
+    private void ValidateIndex(string fieldName, string collectionName, string dataType, bool unique, bool required, bool isUnsigned, int sequence, int? length = null, bool array = false)
     {
       bool indexFound = false;
       using (var connection = new MySqlConnection(ConnectionString.Replace(BaseTest.XPort, BaseTest.Port)))
@@ -318,8 +378,22 @@ namespace MySqlX.Data.Tests
             indexFound = true;
             Assert.Equal(collectionName, reader["Table"]);
             Assert.Equal(unique ? 0 : 1, Convert.ToInt16(reader["Non_unique"]));
-            var columnNameTokens = reader["Column_name"].ToString().Split('_');
-            Assert.Equal(dataType, isUnsigned ? string.Format("{0}_{1}", columnNameTokens[1], columnNameTokens[2]) : columnNameTokens[1]);
+
+            if (!array && !string.IsNullOrEmpty(reader["Column_name"].ToString()))
+            {
+              var columnNameTokens = reader["Column_name"].ToString().Split('_');
+              Assert.Equal(dataType, isUnsigned ? string.Format("{0}_{1}", columnNameTokens[1], columnNameTokens[2]) : columnNameTokens[1]);
+            }
+            else if (array && !string.IsNullOrEmpty(reader["Expression"].ToString()))
+            {
+              string expression = reader["Expression"].ToString();
+              int pos = reader["Expression"].ToString().IndexOf(" as ");
+              expression = expression.Substring(pos + 4);
+              Assert.Contains("array", expression);
+              expression = expression.Substring(0, expression.IndexOf(" array"));
+              Assert.Equal(dataType, expression.Replace(" ", string.Empty), true);
+            }
+
             Assert.Equal(required ? "" : "YES", reader["Null"]);
             if (length != null)
               Assert.Equal(length, Convert.ToInt32(reader["Sub_part"]));

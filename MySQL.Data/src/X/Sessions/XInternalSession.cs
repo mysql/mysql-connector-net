@@ -440,6 +440,9 @@ namespace MySqlX.Sessions
         if (field.Srid != null)
           dictionary.Add("srid", (ulong)field.Srid);
 
+        if (field.Array != null)
+          dictionary.Add("array", (bool)field.Array);
+
         args.Add(new KeyValuePair<string, object>("constraint", dictionary));
       }
 

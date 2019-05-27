@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -47,7 +47,7 @@ namespace MySqlX.XDevAPI.CRUD
       var allowedFields = new string[]{ "fields", "type" };
 
       // Fields allowed for embedded documents.
-      var allowedInternalFields = new string[] { "field", "type", "required", "options", "srid" };
+      var allowedInternalFields = new string[] { "field", "type", "required", "options", "srid", "array" };
 
       // Validate the index follows the allowed format.
       if (!indexDefinition.values.ContainsKey(allowedFields[0]))
