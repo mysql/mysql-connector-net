@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -189,7 +189,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip ="dotnet core seems to keep objects alive")] // reference https://github.com/dotnet/coreclr/issues/13490
+    [Fact(Skip = "dotnet core seems to keep objects alive")] // reference https://github.com/dotnet/coreclr/issues/13490
     public void ConnectionCloseByGC()
     {
       int threadId;
@@ -575,7 +575,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Trait("Category", "Security")]
     public void PasswordExpiration()
     {
-      if (Fixture.Version < new Version(5, 6, 6)) return;
+      if ((Fixture.Version < new Version(5, 6, 6)) || (Fixture.Version >= new Version(8, 0, 17))) return;
 
       const string expireduser = "expireduser";
       const string expiredhost = "localhost";
