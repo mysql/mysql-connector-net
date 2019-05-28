@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016 Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -63,8 +63,7 @@ namespace MySql.Data.Types
       if (binary)
         packet.Write(BitConverter.GetBytes(v));
       else
-        packet.WriteStringNoNull(v.ToString("R",
-   CultureInfo.InvariantCulture));
+        packet.WriteStringNoNull(v.ToString("R", CultureInfo.InvariantCulture));
     }
 
     IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)

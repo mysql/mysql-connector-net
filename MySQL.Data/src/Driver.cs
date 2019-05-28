@@ -319,7 +319,7 @@ namespace MySql.Data.MySqlClient
       if (timeZoneDiff.HasValue)
         timeZoneString = timeZoneDiff.ToString();
 
-      return int.Parse(timeZoneString.Substring(0, timeZoneString.IndexOf(':')));
+      return int.Parse(timeZoneString.Substring(0, timeZoneString.IndexOf(':')), CultureInfo.InvariantCulture);
     }
 
     /// <summary>

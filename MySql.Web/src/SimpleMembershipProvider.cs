@@ -1,4 +1,4 @@
-// Copyright © 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -36,6 +36,7 @@ using System.Security.Cryptography;
 using System.Web;
 using System.Resources;
 using MySql.Web.Common;
+using System.Globalization;
 
 namespace MySql.Web.Security
 {
@@ -105,10 +106,10 @@ namespace MySql.Web.Security
       base.Initialize(name, config);
 
       var appName = GetConfigValue(config["applicationName"], HostingEnvironment.SiteName);
-      _maxPwdAttempts = Int32.Parse(GetConfigValue(config["maxInvalidPasswordAttempts"], "5"));
-      _pwdAttemptWindow = Int32.Parse(GetConfigValue(config["passwordAttemptWindow"], "10"));
-      _minReqNonAlphanumericalChars = Int32.Parse(GetConfigValue(config["minRequiredNonalphanumericCharacters"], "1"));
-      _minReqPwdLength = Int32.Parse(GetConfigValue(config["minRequiredPasswordLength"], "7"));
+      _maxPwdAttempts = Int32.Parse(GetConfigValue(config["maxInvalidPasswordAttempts"], "5"), CultureInfo.InvariantCulture);
+      _pwdAttemptWindow = Int32.Parse(GetConfigValue(config["passwordAttemptWindow"], "10"), CultureInfo.InvariantCulture);
+      _minReqNonAlphanumericalChars = Int32.Parse(GetConfigValue(config["minRequiredNonalphanumericCharacters"], "1"), CultureInfo.InvariantCulture);
+      _minReqPwdLength = Int32.Parse(GetConfigValue(config["minRequiredPasswordLength"], "7"), CultureInfo.InvariantCulture);
       _pwdStrenghtRegex = GetConfigValue(config["passwordStrengthRegularExpression"], "");
       _enablePwdReset = bool.Parse(GetConfigValue(config["enablePasswordReset"], "True"));
       _enablePwdRetrival = bool.Parse(GetConfigValue(config["enablePasswordRetrieval"], "False"));

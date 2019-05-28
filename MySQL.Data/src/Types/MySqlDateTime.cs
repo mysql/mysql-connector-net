@@ -1,4 +1,4 @@
-// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -303,21 +303,21 @@ namespace MySql.Data.Types
     {
       string[] parts = s.Split('-', ' ', ':', '/', '.');
 
-      int year = int.Parse(parts[0]);
-      int month = int.Parse(parts[1]);
-      int day = int.Parse(parts[2]);
+      int year = int.Parse(parts[0], CultureInfo.InvariantCulture);
+      int month = int.Parse(parts[1], CultureInfo.InvariantCulture);
+      int day = int.Parse(parts[2], CultureInfo.InvariantCulture);
 
       int hour = 0, minute = 0, second = 0, microsecond = 0;
       if (parts.Length > 3)
       {
-        hour = int.Parse(parts[3]);
-        minute = int.Parse(parts[4]);
-        second = int.Parse(parts[5]);
+        hour = int.Parse(parts[3], CultureInfo.InvariantCulture);
+        minute = int.Parse(parts[4], CultureInfo.InvariantCulture);
+        second = int.Parse(parts[5], CultureInfo.InvariantCulture);
       }
 
       if (parts.Length > 6)
       {
-        microsecond = int.Parse(parts[6].PadRight(6, '0'));
+        microsecond = int.Parse(parts[6].PadRight(6, '0'), CultureInfo.InvariantCulture);
       }
 
       return new MySqlDateTime(_type, year, month, day, hour, minute, second, microsecond);
@@ -409,7 +409,7 @@ namespace MySql.Data.Types
       if (this.IsValidDateTime)
       {
         DateTime d = new DateTime(Year, Month, Day, Hour, Minute, Second).AddTicks(_microsecond * 10);
-        return (_type == MySqlDbType.Date) ? d.ToString("d") : d.ToString();
+        return (_type == MySqlDbType.Date) ? d.ToString("d", CultureInfo.InvariantCulture) : d.ToString(CultureInfo.InvariantCulture);
       }
 
       string dateString = FormatDateCustom(
