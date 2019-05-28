@@ -7,6 +7,7 @@
 - Added new "allowloadlocalinfile" connection string option that disables or enables the server functionality to load the data local infile.
 - Fixed wrong order of records for columns when using MySqlConnection.GetSchema (MySql Bug #94773, Oracle Bug #29536344).
 - Added support for .NET Core 2.2 (WL12337).
+- Added a fix to avoid running "SHOW VARIABLES" query (MySQL Bug #93202, Oracle Bug #28928543).
 
 
 6.10.8
