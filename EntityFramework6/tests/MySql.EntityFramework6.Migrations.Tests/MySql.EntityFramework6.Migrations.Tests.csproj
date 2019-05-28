@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>MySql.Data.EF6.Migrations.Tests</Description>
-    <Copyright>Copyright © 2016, 2018 Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright © 2016, 2019, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>6.10.8</Version>
     <Authors>Oracle</Authors>
@@ -20,6 +20,9 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>true</DelaySign>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,11 +32,12 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\MySQL.Data\src\MySql.Data.csproj" />
     <ProjectReference Include="..\..\src\MySql.Data.Entity.EF6.csproj" />
+    <ProjectReference Include="..\MySql.EntityFramework6.Basic.Tests\MySql.EntityFramework6.Basic.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="EntityFramework" Version="6.1.3" />
-    <PackageReference Include="xunit" Version="2.2.0-beta5-build3474" />
+    <PackageReference Include="EntityFramework" Version="6.2.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net451' ">
@@ -50,6 +54,10 @@
     <Reference Include="System.Runtime" />
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
   </ItemGroup>
 
 </Project>

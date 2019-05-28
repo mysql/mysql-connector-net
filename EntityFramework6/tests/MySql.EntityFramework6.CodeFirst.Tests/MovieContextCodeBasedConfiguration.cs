@@ -1,4 +1,4 @@
-﻿// Copyright © 2013 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -47,7 +47,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public decimal Price { get; set; }
   }
 
-  [DbConfigurationType(typeof(MySqlEFConfiguration))] 
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
   public class MovieCodedBasedConfigDBContext : DbContext
   {
     public DbSet<MovieCBC> Movies { get; set; }
@@ -58,7 +58,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MovieCBCDBInitialize<MovieCodedBasedConfigDBContext>());
       Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MigrateDatabaseToLatestVersion<MovieCodedBasedConfigDBContext, Configuration<MovieCodedBasedConfigDBContext>>());
     }
-    public MovieCodedBasedConfigDBContext()
+    public MovieCodedBasedConfigDBContext() : base(CodeFirstFixture.GetEFConnectionString<MovieCodedBasedConfigDBContext>())
     {
       Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MovieCBCDBInitialize<MovieCodedBasedConfigDBContext>());
       Database.SetInitializer<MovieCodedBasedConfigDBContext>(new MigrateDatabaseToLatestVersion<MovieCodedBasedConfigDBContext, Configuration<MovieCodedBasedConfigDBContext>>());
@@ -70,7 +70,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
       //modelBuilder.Entity<MovieCBC>().Property(x => x.Price).HasPrecision(16, 2);
       modelBuilder.Conventions.Add<MyCustomConventions>();
       modelBuilder.Entity<MovieCBC>().MapToStoredProcedures(
-        sp => sp.Insert( i => i.HasName("insert_movie").Parameter(p => p.Title, "movie_name"))
+        sp => sp.Insert(i => i.HasName("insert_movie").Parameter(p => p.Title, "movie_name"))
               .Update(u => u.HasName("update_movie").Parameter(p => p.Title, "movie_name"))
               .Delete(d => d.HasName("delete_movie"))
         );
@@ -142,7 +142,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   {
     public DbSet<SchoolSchedule> SchoolSchedules { get; set; }
 
-    public EnumTestSupportContext()
+    public EnumTestSupportContext() : base(CodeFirstFixture.GetEFConnectionString<EnumTestSupportContext>())
     {
       Database.SetInitializer<EnumTestSupportContext>(new EnumTestSupportInitialize<EnumTestSupportContext>());
       Database.SetInitializer<EnumTestSupportContext>(new MigrateDatabaseToLatestVersion<EnumTestSupportContext, EnumCtxConfiguration>());
@@ -194,7 +194,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
   public class JourneyContext : DbContext
   {
     public DbSet<MyPlace> MyPlaces { get; set; }
-    public JourneyContext()
+    public JourneyContext() : base(CodeFirstFixture.GetEFConnectionString<JourneyContext>())
     {
       Database.SetInitializer<JourneyContext>(new JourneyInitialize<JourneyContext>());
       Database.SetInitializer<JourneyContext>(new MigrateDatabaseToLatestVersion<JourneyContext, JourneyConfiguration>());
@@ -265,7 +265,7 @@ namespace MySql.Data.Entity.CodeFirst.Tests
     public DbSet<Student> Students { get; set; }
     public DbSet<SchoolSchedule> Schedules { get; set; }
 
-    public EntityAndComplexTypeContext()
+    public EntityAndComplexTypeContext() : base(CodeFirstFixture.GetEFConnectionString<EntityAndComplexTypeContext>())
     {
       Database.SetInitializer<EntityAndComplexTypeContext>(new MovieCBCDBInitialize<EntityAndComplexTypeContext>());
       Database.SetInitializer<EntityAndComplexTypeContext>(new MigrateDatabaseToLatestVersion<EntityAndComplexTypeContext, Configuration<EntityAndComplexTypeContext>>());
