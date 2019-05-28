@@ -1,4 +1,4 @@
-// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -86,7 +86,7 @@ namespace MySql.Data.Types
     /// <returns>The value of this type converted to a dobule value.</returns>
     public double ToDouble()
     {
-      return Double.Parse(_value);
+      return Double.Parse(_value, CultureInfo.InvariantCulture);
     }
 
     public override string ToString()

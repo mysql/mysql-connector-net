@@ -7,6 +7,9 @@
 - MySqlX: Added OVERLAPS and NOT_OVERLAPS as operators (WL12749).
 - MySqlX: Added support for utf8mb4 binary no-pad collation (WL13099).
 - MySqlX: Removed a limitation preventing the creation of an index on document fields that contains arrays (WL12176).
+- Fix to correct wrong TimeZone returned when using MySqlDataReader['columnName'] to get DateTime type values (Oracle Bug #28156187).
+- Contribution added: Add CreateCommandBuilder and CreateDataAdapter to MySqlClientFactory (MySQL Bug #92206, Oracle Bug #28560189). Thanks to Cédric Luthi for the contribution.
+- Fix null DbDataAdapter and DbCommandBuilder objects when using CreateDataAdapter and CreateCommandBuilder respectively (MySQL Bug #88660, Oracle Bug #27292344).
 
 
 8.0.16
@@ -24,6 +27,9 @@
 8.0.15
 - Bug fix: Disabled Load Data Local Infile by default (Oracle Bug #29259767).
 - Added new "allowloadlocalinfile" connection string option that disables or enables the server functionality to load the data local infile.
+- Contribution added: Fix to add missing invariant culture on parse methods (MySQL Bug #94045, Orale Bug #29262195). Thanks to Effy Teva for the contribution.
+- Added a fix to avoid running "SHOW VARIABLES" query (MySQL Bug #93202, Oracle Bug #28928543).
+- Fixed a bug that throws an exception 24.9 days after a server was restarted (MySQL Bug #75604, Oracle Bug #26930306).
 
 
 8.0.14

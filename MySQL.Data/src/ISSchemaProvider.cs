@@ -720,14 +720,14 @@ namespace MySql.Data.MySqlClient
 
       if (!MetaData.IsNumericType(row["DATA_TYPE"].ToString()))
       {
-        row["CHARACTER_MAXIMUM_LENGTH"] = Int32.Parse(parts[0]);
+        row["CHARACTER_MAXIMUM_LENGTH"] = Int32.Parse(parts[0], CultureInfo.InvariantCulture);
         // will set octet length in a minute
       }
       else
       {
-        row["NUMERIC_PRECISION"] = Int32.Parse(parts[0]);
+        row["NUMERIC_PRECISION"] = Int32.Parse(parts[0], CultureInfo.InvariantCulture);
         if (parts.Length == 2)
-          row["NUMERIC_SCALE"] = Int32.Parse(parts[1]);
+          row["NUMERIC_SCALE"] = Int32.Parse(parts[1], CultureInfo.InvariantCulture);
       }
     }
 

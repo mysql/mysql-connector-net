@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -69,8 +69,7 @@ namespace MySql.Data.Types
       if (binary)
         packet.Write(BitConverter.GetBytes(v));
       else
-        packet.WriteStringNoNull(v.ToString("R",
-   CultureInfo.InvariantCulture));
+        packet.WriteStringNoNull(v.ToString("R", CultureInfo.InvariantCulture));
     }
 
     IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)

@@ -28,6 +28,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.Versioning;
 
@@ -543,7 +544,7 @@ namespace MySql.Data.MySqlClient
         string pid = string.Empty;
         try
         {
-          pid = System.Diagnostics.Process.GetCurrentProcess().Id.ToString();
+          pid = System.Diagnostics.Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
         }
         catch (Exception ex)
         {
@@ -574,7 +575,7 @@ namespace MySql.Data.MySqlClient
         string thread = string.Empty;
         try
         {
-          thread = System.Diagnostics.Process.GetCurrentProcess().Threads[0].Id.ToString();
+          thread = System.Diagnostics.Process.GetCurrentProcess().Threads[0].Id.ToString(CultureInfo.InvariantCulture);
         }
         catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.ToString()); }
 

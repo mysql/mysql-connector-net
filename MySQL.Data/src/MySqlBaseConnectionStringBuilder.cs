@@ -750,16 +750,16 @@ namespace MySql.Data.MySqlClient
       if (typeName == "Boolean" && Boolean.TryParse(value.ToString(), out b)) { value = b; return; }
 
       UInt64 uintVal;
-      if (typeName.StartsWith("UInt64") && UInt64.TryParse(value.ToString(), out uintVal)) { value = uintVal; return; }
+      if (typeName.StartsWith("UInt64") && UInt64.TryParse(value.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out uintVal)) { value = uintVal; return; }
 
       UInt32 uintVal32;
-      if (typeName.StartsWith("UInt32") && UInt32.TryParse(value.ToString(), out uintVal32)) { value = uintVal32; return; }
+      if (typeName.StartsWith("UInt32") && UInt32.TryParse(value.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out uintVal32)) { value = uintVal32; return; }
 
       Int64 intVal;
-      if (typeName.StartsWith("Int64") && Int64.TryParse(value.ToString(), out intVal)) { value = intVal; return; }
+      if (typeName.StartsWith("Int64") && Int64.TryParse(value.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out intVal)) { value = intVal; return; }
 
       Int32 intVal32;
-      if (typeName.StartsWith("Int32") && Int32.TryParse(value.ToString(), out intVal32)) { value = intVal32; return; }
+      if (typeName.StartsWith("Int32") && Int32.TryParse(value.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out intVal32)) { value = intVal32; return; }
 
       object objValue;
       Type baseType = BaseType.GetTypeInfo().BaseType;
@@ -779,7 +779,7 @@ namespace MySql.Data.MySqlClient
       switch (keyword)
       {
         case "connect-timeout":
-          if (typeName != valueType.Name  && !uint.TryParse(value.ToString(), out uint uintVal)) throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
+          if (typeName != valueType.Name  && !uint.TryParse(value.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out uint uintVal)) throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
           break;
       }
     }

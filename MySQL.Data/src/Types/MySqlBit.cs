@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,6 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Globalization;
 using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Types
@@ -63,7 +64,7 @@ namespace MySql.Data.Types
       if (binary)
         packet.WriteInteger((long)v, 8);
       else
-        packet.WriteStringNoNull(v.ToString());
+        packet.WriteStringNoNull(v.ToString(CultureInfo.InvariantCulture));
     }
 
     public IMySqlValue ReadValue(MySqlPacket packet, long length, bool isNull)
@@ -76,7 +77,7 @@ namespace MySql.Data.Types
         length = packet.ReadFieldLength();
 
       if (ReadAsString)
-        _value = UInt64.Parse(packet.ReadString(length));
+        _value = UInt64.Parse(packet.ReadString(length), CultureInfo.InvariantCulture);
       else
         _value = (UInt64)packet.ReadBitValue((int)length);
       return this;
@@ -98,7 +99,7 @@ namespace MySql.Data.Types
       row["ProviderDbType"] = MySqlDbType.Bit;
       row["ColumnSize"] = 64;
       row["CreateFormat"] = "BIT";
-      row["CreateParameters"] = DBNull.Value; ;
+      row["CreateParameters"] = DBNull.Value;
       row["DataType"] = typeof(ulong).ToString();
       row["IsAutoincrementable"] = false;
       row["IsBestMatch"] = true;
