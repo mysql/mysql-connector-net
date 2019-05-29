@@ -298,7 +298,7 @@ namespace MySql.Data.MySqlClient
         {
           while (reader.Read())
           {
-            for (int i = 0; i < reader.FieldCount-1; i++)
+            for (int i = 0; i <= reader.FieldCount-1; i++)
             {
               string key = reader.GetName(i).Remove(0,2);
               string value = reader[i].ToString();
