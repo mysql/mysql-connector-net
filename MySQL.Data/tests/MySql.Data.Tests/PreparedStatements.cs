@@ -41,10 +41,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Simple()
     {
-      executeSQL("CREATE TABLE Test (id INT, dec1 DECIMAL(5,2), name VARCHAR(100))");
-      executeSQL("INSERT INTO Test VALUES (1, 345.12, 'abcd')");
+      executeSQL("CREATE TABLE Test (id INT, dec1 DECIMAL(5,2), name VARCHAR(100), year YEAR)");
+      executeSQL("INSERT INTO Test VALUES (1, 345.12, 'abcd', 2019)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1,345.12,'abcd')", Connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1,345.12,'abcd',2019)", Connection);
       cmd.Prepare();
       cmd.ExecuteNonQuery();
 
@@ -56,9 +56,9 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(1, reader.GetInt32(0));
         Assert.Equal((decimal)345.12, reader.GetDecimal(1));
         Assert.Equal("abcd", reader.GetString(2));
+        Assert.Equal(2019, reader.GetInt16(3));
       }
     }
-
 
     [Fact]
     public void SimplePrepareBeforeParms()
