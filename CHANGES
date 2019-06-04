@@ -1,6 +1,6 @@
 8.0.17
 - Fixed wrong order of records for columns when using MySqlConnection.GetSchema (MySql Bug #94773, Oracle Bug #29536344).
-- Added SSH tunnelling to X Protocol and MySQL classic protocol connections for use with the SshAuthenticationMode, SshHostName, SshUserName, SshPassword, SshKeyFile, SshPassphrase, and SshPort connection options (WL12747).
+- Added SSH tunnelling to X Protocol and MySQL classic protocol connections for use with the SshHostName, SshUserName, SshPassword, SshKeyFile, SshPassphrase, and SshPort connection options (WL12747).
 - Added support for .NET Core 2.2 (WL12337).
 - MySqlX: Deprecated Where condition usage in the Find, Modify and Remove methods (WL12983).
 - Added the README.md and CONTRIBUTING.md files (WL12970).
