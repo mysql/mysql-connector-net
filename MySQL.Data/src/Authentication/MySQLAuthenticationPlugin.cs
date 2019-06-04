@@ -1,4 +1,4 @@
-// Copyright Â© 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2012, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,9 +34,16 @@ using MySql.Data.MySqlClient;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
+  /// <summary>
+  /// Defines the default behavior for an authentication plugin.
+  /// </summary>
   public abstract class MySqlAuthenticationPlugin
   {
     private NativeDriver _driver;
+
+    /// <summary>
+    /// Gets or sets the authentication data returned by the server.
+    /// </summary>
     protected byte[] AuthenticationData;
 
     /// <summary>
@@ -62,33 +69,65 @@ namespace MySql.Data.MySqlClient.Authentication
       return plugin;
     }
 
+    /// <summary>
+    /// Gets the connection option settings.
+    /// </summary>
     protected MySqlConnectionStringBuilder Settings => _driver.Settings;
 
+    /// <summary>
+    /// Gets the server version associated with this authentication plugin.
+    /// </summary>
     protected Version ServerVersion => new Version(_driver.Version.Major, _driver.Version.Minor, _driver.Version.Build);
 
     internal ClientFlags Flags => _driver.Flags;
 
+    /// <summary>
+    /// Gets the encoding assigned to the native driver.
+    /// </summary>
     protected Encoding Encoding => _driver.Encoding;
 
+    /// <summary>
+    /// Sets the authentication data required to encode, encrypt, or convert the password of the user.
+    /// </summary>
+    /// <param name="data">A byte array containing the authentication data provided by the server.</param>
+    /// <remarks>This method may be overriden based on the requirements by the implementing authentication plugin.</remarks>
     protected virtual void SetAuthData(byte[] data)
     {
       AuthenticationData = data;
     }
 
+    /// <summary>
+    /// Defines the behavior when checking for constraints.
+    /// </summary>
+    /// <remarks>This method is intended to be overriden.</remarks>
     protected virtual void CheckConstraints()
     {
     }
 
+    /// <summary>
+    /// Throws a <see cref="MySqlException"/> that encapsulates the original exception.
+    /// </summary>
+    /// <param name="ex">The exception to encapsulate.</param>
     protected virtual void AuthenticationFailed(Exception ex)
     {
       string msg = String.Format(Resources.AuthenticationFailed, Settings.Server, GetUsername(), PluginName, ex.Message);
       throw new MySqlException(msg, ex);
     }
 
+    /// <summary>
+    /// Defines the behavior when authentication is successful.
+    /// </summary>
+    /// <remarks>This method is intended to be overriden.</remarks>
     protected virtual void AuthenticationSuccessful()
     {
     }
 
+    /// <summary>
+    /// Defines the behavior when more data is required from the server.
+    /// </summary>
+    /// <param name="data">The data returned by the server.</param>
+    /// <returns>The data to return to the server.</returns>
+    /// <remarks>This method is intended to be overriden.</remarks>
     protected virtual byte[] MoreData(byte[] data)
     {
       return null;
@@ -220,13 +259,25 @@ namespace MySql.Data.MySqlClient.Authentication
       ReadPacket();
     }
 
+    /// <summary>
+    /// Gets the plugin name based on the authentication plugin type defined during the creation of this object.
+    /// </summary>
     public abstract string PluginName { get; }
 
+    /// <summary>
+    /// Gets the user name associated to the connection settings.
+    /// </summary>
+    /// <returns>The user name associated to the connection settings.</returns>
     public virtual string GetUsername()
     {
       return Settings.UserID;
     }
 
+    /// <summary>
+    /// Gets the encoded, encrypted, or converted password based on the authentication plugin type defined during the creation of this object.
+    /// This method is intended to be overriden.
+    /// </summary>
+    /// <returns>An object containing the encoded, encrypted, or converted password.</returns>
     public virtual object GetPassword()
     {
       return null;

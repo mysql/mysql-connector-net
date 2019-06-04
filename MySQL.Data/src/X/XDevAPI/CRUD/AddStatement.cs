@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -66,30 +66,24 @@ namespace MySqlX.XDevAPI.CRUD
     /// <returns>A <see cref="Result"/> object containing the results of the execution.</returns>
     public override Result Execute()
     {
-      try
-      {
-        if (_DbDocs.Count == 0)
-          return new Result(null);
+      ValidateOpenSession();
+      if (_DbDocs.Count == 0)
+        return new Result(null);
 
-        List<string> newIds = AssignIds();
-        return Target.Session.XSession.Insert(Target, _DbDocs.ToArray(), newIds, upsert);
-      }
-      finally
-      {
-        _DbDocs.Clear();
-      }
+      //List<string> newIds = AssignIds();
+      return Target.Session.XSession.Insert(Target, _DbDocs.ToArray(), null, upsert);
     }
 
-    private List<string> AssignIds()
-    {
-      List<string> newIds = new List<string>();
-      foreach (DbDoc doc in _DbDocs)
-      {
-        doc.EnsureId();
-        newIds.Add(doc.Id.ToString());
-      }
+    //private List<string> AssignIds()
+    //{
+    //  List<string> newIds = new List<string>();
+    //  foreach (DbDoc doc in _DbDocs)
+    //  {
+    //    doc.EnsureId();
+    //    newIds.Add(doc.Id.ToString());
+    //  }
 
-      return newIds;
-    }
+    //  return newIds;
+    //}
   }
 }

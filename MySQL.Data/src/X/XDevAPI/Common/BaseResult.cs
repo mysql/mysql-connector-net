@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using MySqlX.Protocol;
 using MySqlX.Sessions;
 using System.Collections.ObjectModel;
+using System;
 
 namespace MySqlX.XDevAPI.Common
 {
@@ -40,10 +41,20 @@ namespace MySqlX.XDevAPI.Common
   {
     private List<WarningInfo> _warnings = new List<WarningInfo>();
     internal ulong _recordsAffected;
+    internal ulong _affectedItemsCount;
     internal ulong _autoIncrementValue;
     internal InternalSession _session;
     internal bool _hasData;
     internal bool _hasMoreResults = false;
+    internal List<string> _documentIds = new List<string>();
+
+    /// <summary>
+    /// Gets the number of records affected by the statement that generated this result.
+    /// </summary>
+    public UInt64 AffectedItemsCount
+    {
+      get { return _affectedItemsCount; }
+    }
 
     internal BaseResult(InternalSession session)
     {
@@ -85,6 +96,14 @@ namespace MySqlX.XDevAPI.Common
 #endif
     {
       get { return _warnings.AsReadOnly(); }
+    }
+
+    /// <summary>
+    /// Gets the number of warnings in the <see cref="Warnings"/> collection derived from statement execution.
+    /// </summary>
+    public Int32 WarningsCount
+    {
+      get { return _warnings.Count; }
     }
 
     /// <summary>

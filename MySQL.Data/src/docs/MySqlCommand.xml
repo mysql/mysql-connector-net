@@ -701,7 +701,7 @@
         the <B>CommandText</B> property should be set to the name of the stored procedure.
         The user may be required to use escape character syntax if the stored procedure name
         contains any special characters. The command executes this stored procedure when
-        you call one of the Execute methods.  Starting with Connector/Net 5.0, having both a stored function
+        you call one of the Execute methods.  Starting with Connector/NET 5.0, having both a stored function
         and stored procedure with the same name in the same database is not supported.  It is
         suggested that you provide unqiue names for your stored routines.
       </para>
@@ -849,7 +849,7 @@
       an empty collection.
     </value>
     <remarks>
-      Connector/Net does not support unnamed parameters.  Every parameter added to the collection must
+      Connector/NET does not support unnamed parameters.  Every parameter added to the collection must
       have an associated name.
     </remarks>
     <example>

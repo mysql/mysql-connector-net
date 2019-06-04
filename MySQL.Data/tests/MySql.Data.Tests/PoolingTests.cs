@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -45,12 +45,12 @@ namespace MySql.Data.MySqlClient.Tests
     {
     }
 
-    public override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
+    internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
       settings.Pooling = true;
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void BasicConnection()
     {
 
@@ -118,7 +118,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.False(threadId == secondThreadId);
     }
 
-    [Fact(Skip="Fix Me")]
+    [Fact]
     public void ReclaimBrokenConnection()
     {
       // now create a new connection string only allowing 1 connection in the pool
@@ -131,16 +131,16 @@ namespace MySql.Data.MySqlClient.Tests
       // now attempting to open a connection should fail
       MySqlConnection c2 = new MySqlConnection(connStr);
       Exception ex = Assert.Throws<MySqlException>(() => c2.Open());
-      Assert.True(ex.Message.Contains("error connecting: Timeout expired.  The timeout period elapsed prior to obtaining a connection from the pool."));
-        
+      Assert.Contains("error connecting: Timeout expired.  The timeout period elapsed prior to obtaining a connection from the pool.", ex.Message);
+
       // we now kill the first connection to simulate a server stoppage
       KillConnection(c);
 
       // now we do something on the first connection
-      
+
       ex = Assert.Throws<InvalidOperationException>(() => c.ChangeDatabase("mysql"));
-      Assert.True(ex.Message.Contains("The connection is not open."));
-  
+      Assert.Contains("The connection is not open.", ex.Message);
+
       // Opening a connection now should work
       MySqlConnection connection = new MySqlConnection(connStr);
       connection.Open();
@@ -242,7 +242,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #24373 High CPU utilization when no idle connection 
     /// </summary>
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void MultipleThreads()
     {
       string connStr = ConnectionSettings.ConnectionString + ";max pool size=1";
@@ -298,7 +298,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnection c = new MySqlConnection(connStr);
       c.Open();
       KillConnection(c);
-    }  
+    }
 
     bool IsConnectionAlive(int serverThread)
     {
@@ -415,7 +415,7 @@ namespace MySql.Data.MySqlClient.Tests
     //  ICollection idleList = (ICollection)idlePool.GetValue(poolHash[settings.ConnectionString]);
     //  Debug.Print("Clear Pool test connection string 2 " + settings.ConnectionString);
     //  Assert.Equal(9, idleList.Count);      
-      
+
     //  FieldInfo inUsePool = poolType.GetField("inUsePool", BindingFlags.NonPublic | BindingFlags.Instance);
     //  ICollection inUseList = (ICollection)inUsePool.GetValue(poolHash[settings.ConnectionString]);
     //  Assert.Equal(1, inUseList.Count);
@@ -474,7 +474,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
         {
           Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
-          Assert.Equal(ex.Message, "Unable to connect to any of the specified MySQL hosts.");          
+          Assert.Equal("Unable to connect to any of the specified MySQL hosts.", ex.Message);
         }
         Thread.Sleep(50);
       }
@@ -524,7 +524,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("DROP TABLE IF EXISTS test");
       executeSQL("CREATE TABLE test (id INT, name VARCHAR(20) CHARSET UCS2)");
       executeSQL("INSERT INTO test VALUES (1, 'test')");
-      
+
       string connStr = ConnectionSettings.ConnectionString + ";connection reset=true;min pool size=1; max pool size=1";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
@@ -590,7 +590,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("DROP TABLE IF EXISTS test");
       executeSQL("CREATE TABLE test (id INT(10), image BLOB)");
-      
+
       InsertSmallBlobInTestTableUsingPoolingConnection();
       InsertSmallBlobInTestTableUsingPoolingConnection();
       InsertSmallBlobInTestTableUsingPoolingConnection();

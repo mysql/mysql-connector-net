@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -52,7 +52,7 @@ namespace MySqlX.Data.Tests
     {
       Session s = GetSession();
       Schema schema = s.GetSchema("test-schema");
-      Assert.False(schema.ExistsInDatabase());
+      Assert.False(SchemaExistsInDatabase(schema));
     }
 
     [Fact]
@@ -83,18 +83,18 @@ namespace MySqlX.Data.Tests
       Assert.Equal(1, colls.Count);
     }
 
-    [Fact]
+    [Fact (Skip = "Fix for 8.0.13")]
     public void GetCollectionAsTable()
     {
       Collection testCollection = CreateCollection("test");
 
-      Result r = testCollection.Add(@"{ ""_id"": 1, ""foo"": 1 }").Execute();
-      Assert.Equal<ulong>(1, r.RecordsAffected);
+      Result r = ExecuteAddStatement(testCollection.Add(@"{ ""_id"": 1, ""foo"": 1 }"));
+      Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       Table test = testSchema.GetCollectionAsTable("test");
-      Assert.True(test.ExistsInDatabase());
+      Assert.True(TableExistsInDatabase(test));
 
-      RowResult result = test.Select("_id").Execute();
+      RowResult result = ExecuteSelectStatement(test.Select("_id"));
       Assert.True(result.Next());
       Assert.Equal("1", result[0]);
     }
@@ -106,15 +106,15 @@ namespace MySqlX.Data.Tests
       Session session = GetSession();
       session.CreateSchema(schemaName);
       Schema schema = session.GetSchema(schemaName);
-      Assert.True(schema.ExistsInDatabase());
+      Assert.True(SchemaExistsInDatabase(schema));
 
       // Drop existing schema.
       session.DropSchema(schemaName);
-      Assert.False(schema.ExistsInDatabase());
+      Assert.False(SchemaExistsInDatabase(schema));
 
       // Drop non-existing schema.
       session.DropSchema(schemaName);
-      Assert.False(schema.ExistsInDatabase());
+      Assert.False(SchemaExistsInDatabase(schema));
 
       // Empty, whitespace and null schema name.
       Assert.Throws<ArgumentNullException>(() => session.DropSchema(string.Empty));

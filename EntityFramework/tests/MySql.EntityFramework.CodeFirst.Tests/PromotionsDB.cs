@@ -1,4 +1,4 @@
-// Copyright © 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,13 +37,29 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
-  public class PromotionsDB: DbContext
+  public class PromotionsDB : DbContext
   {
+    private bool disposed = false;
+
     public virtual DbSet<HomePromo> HomePromoes { get; set; }
 
-    public PromotionsDB()
+    public PromotionsDB() : base(CodeFirstFixture.GetEFConnectionString<PromotionsDB>())
     {
       Database.SetInitializer<PromotionsDB>(new PromotionsDBInitializer());
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+      if (disposed)
+        return;
+
+      if (disposing)
+      {
+        Database.Delete();
+  }
+
+      base.Dispose(disposing);
+      disposed = true;
     }
   }
 

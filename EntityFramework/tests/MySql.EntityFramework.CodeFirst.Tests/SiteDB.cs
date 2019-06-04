@@ -1,4 +1,4 @@
-// Copyright © 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -36,7 +36,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
-{   
+{
     [Table("pagina")]
     public class pagina
     {
@@ -90,7 +90,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
         //public DbSet<retorno> Retorno { get; set; }
         public DbSet<pagina> Pagina { get; set; }
 
-        public SiteDbContext()
+    public SiteDbContext() : base(CodeFirstFixture.GetEFConnectionString<SiteDbContext>())
         {
             Database.SetInitializer<SiteDbContext>(new SiteDbInitializer());
             Database.SetInitializer<SiteDbContext>(new MigrateDatabaseToLatestVersion<SiteDbContext, Configuration<SiteDbContext>>());

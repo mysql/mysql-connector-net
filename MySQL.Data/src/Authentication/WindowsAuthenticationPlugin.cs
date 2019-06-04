@@ -1,4 +1,4 @@
-// Copyright Â© 2012, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2012, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -323,6 +323,9 @@ namespace MySql.Data.MySqlClient.Authentication
 
   }
 
+  /// <summary>
+  /// Defines the type of the security buffer.
+  /// </summary>
   public enum SecBufferType
   {
     SECBUFFER_VERSION = 0,
@@ -331,6 +334,9 @@ namespace MySql.Data.MySqlClient.Authentication
     SECBUFFER_TOKEN = 2
   }
 
+  /// <summary>
+  /// Defines a security handle.
+  /// </summary>
   [StructLayout(LayoutKind.Sequential)]
   public struct SecHandle //=PCtxtHandle
   {
@@ -338,11 +344,25 @@ namespace MySql.Data.MySqlClient.Authentication
     IntPtr dwUpper; // this is crucial for 64-Bit Platforms
   }
 
+  /// <summary>
+  /// Describes a buffer allocated by a transport to pass to a security package.
+  /// </summary>
   [StructLayout(LayoutKind.Sequential)]
   public struct SecBuffer : IDisposable
   {
+    /// <summary>
+    /// Specifies the size, in bytes, of the buffer.
+    /// </summary>
     public int cbBuffer;
+
+    /// <summary>
+    /// Bit flags that indicate the type of the buffer.
+    /// </summary>
     public int BufferType;
+
+    /// <summary>
+    /// Pointer to a buffer.
+    /// </summary>
     public IntPtr pvBuffer;
 
 
@@ -379,10 +399,20 @@ namespace MySql.Data.MySqlClient.Authentication
     }
   }
 
+  /// <summary>
+  /// Hold a numeric value used in defining other data types.
+  /// </summary>
   [StructLayout(LayoutKind.Sequential)]
   public struct SECURITY_INTEGER
   {
+    /// <summary>
+    /// Least significant digits.
+    /// </summary>
     public uint LowPart;
+
+    /// <summary>
+    /// Most significant digits.
+    /// </summary>
     public int HighPart;
     public SECURITY_INTEGER(int dummy)
     {
@@ -391,23 +421,54 @@ namespace MySql.Data.MySqlClient.Authentication
     }
   };
 
+  /// <summary>
+  /// Holds a pointer used to define a security handle.
+  /// </summary>
   [StructLayout(LayoutKind.Sequential)]
   public struct SECURITY_HANDLE
   {
+    /// <summary>
+    /// Least significant digits.
+    /// </summary>
     public IntPtr LowPart;
+
+    /// <summary>
+    /// Most significant digits.
+    /// </summary>
     public IntPtr HighPart;
+
     public SECURITY_HANDLE(int dummy)
     {
       LowPart = HighPart = new IntPtr(0);
     }
   };
 
+  /// <summary>
+  /// Indicates the sizes of important structures used in the message support functions.
+  /// </summary>
   [StructLayout(LayoutKind.Sequential)]
   public struct SecPkgContext_Sizes
   {
+    /// <summary>
+    /// Specifies the maximum size of the security token used in the authentication changes.
+    /// </summary>
     public uint cbMaxToken;
+
+    /// <summary>
+    /// Specifies the maximum size of the signature created by the <b>MakeSignature</b> function.
+    /// This member must be zero if integrity services are not requested or available.
+    /// </summary>
     public uint cbMaxSignature;
+
+    /// <summary>
+    /// Specifies the preferred integral size of the messages.
+    /// </summary>
     public uint cbBlockSize;
+
+    /// <summary>
+    /// Size of the security trailer to be appended to messages.
+    /// This member should be zero if the relevant services are not requested or available.
+    /// </summary>
     public uint cbSecurityTrailer;
   };
 

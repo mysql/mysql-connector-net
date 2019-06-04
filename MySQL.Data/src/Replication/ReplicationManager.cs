@@ -1,4 +1,4 @@
-// Copyright Â© 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2014, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -130,7 +130,7 @@ namespace MySql.Data.MySqlClient.Replication
     /// Validates if the replication group name exists
     /// </summary>
     /// <param name="groupName">Group name to validate</param>
-    /// <returns>True if replication group name is found, otherwise false</returns>
+    /// <returns><c>true</c> if the replication group name is found; otherwise, <c>false</c></returns>
     internal static bool IsReplicationGroup(string groupName)
     {
       foreach (ReplicationServerGroup g in groups)

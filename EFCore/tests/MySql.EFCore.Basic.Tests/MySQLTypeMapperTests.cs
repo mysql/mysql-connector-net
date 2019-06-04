@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,9 +37,10 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Collections.Generic;
 using Xunit;
 
-namespace EntityFrameworkCore.Basic.Tests
+namespace MySql.Data.EntityFrameworkCore.Tests
 {
   public class MySQLTypeMapperTests
   {
@@ -127,6 +128,14 @@ namespace EntityFrameworkCore.Basic.Tests
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
+        Dictionary<string, string> validation = new Dictionary<string, string>
+        {
+          { "TinyString", "varchar(767)" },
+          { "NormalString", "varchar(3000)" },
+          { "MediumString", "mediumtext" },
+          { "LongString", "text" }
+        };
+
         context.Database.OpenConnection();
         MySqlConnection conn = (MySqlConnection)context.Database.GetDbConnection();
         MySqlCommand cmd = new MySqlCommand(
@@ -134,21 +143,15 @@ namespace EntityFrameworkCore.Basic.Tests
           conn);
         using(MySqlDataReader reader = cmd.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          Assert.Equal("TinyString", reader.GetString("field"));
-          Assert.Equal("varchar(767)", reader.GetString("type"));
-
-          Assert.True(reader.Read());
-          Assert.Equal("LongString", reader.GetString("field"));
-          Assert.Equal("text", reader.GetString("type"));
-
-          Assert.True(reader.Read());
-          Assert.Equal("MediumString", reader.GetString("field"));
-          Assert.Equal("mediumtext", reader.GetString("type"));
-
-          Assert.True(reader.Read());
-          Assert.Equal("NormalString", reader.GetString("field"));
-          Assert.Equal("varchar(3000)", reader.GetString("type"));
+          int counter = 0;
+          while (reader.Read())
+          {
+            string field = reader.GetString("field");
+            string type = validation[field];
+            Assert.Equal(type, reader.GetString("type"));
+            counter++;
+          }
+          Assert.Equal(validation.Count, counter);
         }
       }
     }

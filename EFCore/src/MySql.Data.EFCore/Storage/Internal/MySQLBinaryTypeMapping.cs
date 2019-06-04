@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -36,12 +36,14 @@ using System.Data;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  internal class MySQLBinaryTypeMapping : MySQLTypeMapping
+  internal partial class MySQLBinaryTypeMapping : MySQLTypeMapping
   {
     public MySQLBinaryTypeMapping(
       [NotNull] string storeType,
-      [CanBeNull] DbType? dbType = System.Data.DbType.Binary)
-      : base(storeType, typeof(byte[]), dbType)
+      [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
+      int? size = null,
+      bool fixedLength = false)
+      : base(storeType, typeof(byte[]), dbType, size: size)
     {
     }
 

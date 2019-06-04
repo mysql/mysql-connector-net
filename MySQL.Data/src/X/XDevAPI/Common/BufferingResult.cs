@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -62,7 +62,7 @@ namespace MySqlX.XDevAPI.Common
 
     internal BufferingResult(InternalSession session) : base(session)
     {
-      LoadCoumnData();
+      LoadColumnData();
       PageSize = 20;
       _position = -1;
     }
@@ -83,7 +83,7 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Loads the column data into the <see cref="_nameMap"/> field.
     /// </summary>
-    protected void LoadCoumnData()
+    protected void LoadColumnData()
     {
       _columns = new List<Column>();
       if (_hasData)

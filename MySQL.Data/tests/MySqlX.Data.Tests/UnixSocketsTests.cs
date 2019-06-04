@@ -44,6 +44,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void ConnectionWithUriConnectionString()
     {
       if (Platform.IsWindows()) return;
@@ -62,6 +63,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void ConnectionWithUriConnectionStringIncludingSchema()
     {
       if (Platform.IsWindows()) return;
@@ -74,6 +76,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void ConnectionWithParenthesisEnclosedSockets()
     {
       if (Platform.IsWindows()) return;
@@ -103,6 +106,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void ConnectionWithBasicConnectionString()
     {
       if (Platform.IsWindows()) return;
@@ -115,6 +119,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void ConnectionWithAnonymousObject()
     {
       if (Platform.IsWindows()) return;
@@ -132,6 +137,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void SslNotSupported()
     {
       if (Platform.IsWindows()) return;
@@ -140,6 +146,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void MissingProtocolConnectionOption()
     {
       if (Platform.IsWindows()) return;
@@ -148,6 +155,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void Failover()
     {
       if (Platform.IsWindows()) return;

@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data", "..\MySQL.Data
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFramework.Basic.Tests", "tests\MySql.EntityFramework.Basic.Tests\MySql.EntityFramework.Basic.Tests.csproj", "{8B915A81-E17A-489D-9B4D-3AA5C2E72D9A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFramework.CodeFirst.Tests", "tests\MySql.EntityFramework.CodeFirst.Tests\MySql.EntityFramework.CodeFirst.Tests.csproj", "{12009757-61C3-4C6C-953F-7A62A449E057}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFramework.Migrations.Tests", "tests\MySql.EntityFramework.Migrations.Tests\MySql.EntityFramework.Migrations.Tests.csproj", "{8C750081-85B8-4111-A803-A11BF29AC7FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,8 +31,19 @@ Global
 		{8B915A81-E17A-489D-9B4D-3AA5C2E72D9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B915A81-E17A-489D-9B4D-3AA5C2E72D9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B915A81-E17A-489D-9B4D-3AA5C2E72D9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12009757-61C3-4C6C-953F-7A62A449E057}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12009757-61C3-4C6C-953F-7A62A449E057}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12009757-61C3-4C6C-953F-7A62A449E057}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12009757-61C3-4C6C-953F-7A62A449E057}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C750081-85B8-4111-A803-A11BF29AC7FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C750081-85B8-4111-A803-A11BF29AC7FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C750081-85B8-4111-A803-A11BF29AC7FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C750081-85B8-4111-A803-A11BF29AC7FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8086A9BC-EBB3-411C-948E-00D8C55D9E16}
 	EndGlobalSection
 EndGlobal

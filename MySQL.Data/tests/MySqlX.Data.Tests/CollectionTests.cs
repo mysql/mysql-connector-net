@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -51,15 +51,15 @@ namespace MySqlX.Data.Tests
       Session s = GetSession();
       Schema test = s.GetSchema("test");
       Collection testColl = test.CreateCollection("test");
-      Assert.True(testColl.ExistsInDatabase());
+      Assert.True(CollectionExistsInDatabase(testColl));
 
       // Drop existing collection.
       test.DropCollection("test");
-      Assert.False(testColl.ExistsInDatabase());
+      Assert.False(CollectionExistsInDatabase(testColl));
 
       // Drop non-existing collection.
       test.DropCollection("test");
-      Assert.False(testColl.ExistsInDatabase());
+      Assert.False(CollectionExistsInDatabase(testColl));
 
       // Empty, whitespace and null schema name.
       Assert.Throws<ArgumentNullException>(() => test.DropCollection(string.Empty));
@@ -74,10 +74,10 @@ namespace MySqlX.Data.Tests
       Session session = GetSession();
       Schema test = session.GetSchema("test");
       Collection testColl = test.CreateCollection("test");
-      Assert.True(testColl.ExistsInDatabase(), "ExistsInDatabase failed");
-      var result = testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ] }").Execute();
-      result = testColl.Add(new { myId = 1 }).Add(new { myId = 2 }).Execute();
-      Assert.Equal<ulong>(result.RecordsAffected, 2);
+      Assert.True(CollectionExistsInDatabase(testColl), "ExistsInDatabase failed");
+      testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ] }");
+      var result = ExecuteAddStatement(testColl.Add(new { myId = 1 }).Add(new { myId = 2 }));
+      Assert.Equal<ulong>(result.AffectedItemsCount, 2);
     }
 
     [Fact]
@@ -86,7 +86,7 @@ namespace MySqlX.Data.Tests
       Session session = GetSession();
       Schema test = session.GetSchema("test");
       Collection testColl = test.CreateCollection("test");
-      testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ] }").Execute();
+      testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ] }");
 
       // Drop existing index.
       testColl.DropIndex("testIndex");
@@ -99,6 +99,53 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentNullException>(() => testColl.DropIndex(" "));
       Assert.Throws<ArgumentNullException>(() => testColl.DropIndex("  "));
       Assert.Throws<ArgumentNullException>(() => testColl.DropIndex(null));
+    }
+
+    [Fact]
+    public void ValidateExistence()
+    {
+      Session session = GetSession();
+      Schema schema = session.GetSchema("test");
+      var ex = Assert.Throws<MySqlException>(() => schema.GetCollection("nonExistentCollection", true));
+      Assert.Equal("Collection 'nonExistentCollection' does not exist.", ex.Message);
+    }
+
+    [Fact]
+    public void CountCollection()
+    {
+      Session session = GetSession();
+      Schema schema = session.GetSchema("test");
+      schema.CreateCollection("testCount");
+      var count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
+
+      // Zero records
+      var collection = schema.GetCollection("testCount");
+      Assert.Equal(count, collection.Count());
+      var table = schema.GetTable("testCount");
+      Assert.Equal(count, table.Count());
+
+      // Insert some records
+      var stm = collection.Add(@"{ ""_id"": 1, ""foo"": 1 }")
+        .Add(@"{ ""_id"": 2, ""foo"": 2 }")
+        .Add(@"{ ""_id"": 3, ""foo"": 3 }");
+      stm.Execute();
+      count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
+      Assert.Equal(count, collection.Count());
+
+      table.Insert("doc").Values(@"{ ""_id"": 4, ""foo"": 4 }").Execute();
+      count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
+      Assert.Equal(count, table.Count());
+
+      collection.RemoveOne(2);
+      count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
+      Assert.Equal(count, collection.Count());
+      Assert.Equal(count, table.Count());
+
+      // Collection/Table does not exist
+      var ex = Assert.Throws<MySqlException>(() => schema.GetCollection("testCount_").Count());
+      Assert.Equal("Collection 'testCount_' does not exist in schema 'test'.", ex.Message);
+      ex = Assert.Throws<MySqlException>(() => schema.GetTable("testCount_").Count());
+      Assert.Equal("Table 'testCount_' does not exist in schema 'test'.", ex.Message);
     }
   }
 }

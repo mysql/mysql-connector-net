@@ -1,4 +1,4 @@
-// Copyright Â© 2012, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2012, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -36,6 +36,9 @@ using AliasText = System.Text;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
+  /// <summary>
+  /// Allows connections to a user account set with the mysql_native_password authentication plugin.
+  /// </summary>
   public class MySqlNativePasswordPlugin : MySqlAuthenticationPlugin
   {
     public override string PluginName => "mysql_native_password";

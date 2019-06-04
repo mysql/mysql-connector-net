@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -242,18 +242,18 @@ namespace MySql.Data.MySqlClient
 				c.Open();
 				
 				var v = DBVersion.Parse(c.ServerVersion);
-				serverVersion = new Version(v.Major + "." + v.Minor);        
-				
-				double version = double.Parse(c.ServerVersion.Substring(0, 3), CultureInfo.InvariantCulture);
-				if (version < 5.0) throw new NotSupportedException("Versions of MySQL prior to 5.0 are not currently supported");
-				if (version < 5.1) return "5.0";
-				if (version < 5.5) return "5.1";
-				if (version < 5.6) return "5.5";
-				if (version < 5.7) return "5.6";
-				return "5.7";
-				
-			}
-		}
+				serverVersion = new Version(v.Major + "." + v.Minor);
+
+                double version = double.Parse(c.ServerVersion.Substring(0, 3), CultureInfo.InvariantCulture);
+                if (version < 5.0) throw new NotSupportedException("Versions of MySQL prior to 5.0 are not currently supported");
+                if (version < 5.1) return "5.0";
+                if (version < 5.5) return "5.1";
+                if (version < 5.6) return "5.5";
+                if (version < 5.7) return "5.6";
+                if (version < 8.0) return "5.7";
+                return "8.0";
+            }
+        }
 
 		protected override DbProviderManifest GetDbProviderManifest(string manifestToken)
 		{

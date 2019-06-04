@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -53,7 +53,7 @@ namespace MySqlX.XDevAPI.Relational
     /// <summary>
     /// Gets the list of parameters associated to this Sql statement.
     /// </summary>
-    protected List<object> parameters = new List<object>();
+    protected internal List<object> parameters = new List<object>();
 
     /// <summary>
     /// Executes the current Sql statement.
@@ -61,7 +61,13 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>A <see cref="SqlResult"/> object with the resultset and execution status.</returns>
     public override SqlResult Execute()
     {
-      return Session.XSession.GetSQLResult(SQL, parameters.ToArray());
+      ValidateOpenSession();
+      return GetSQLResult(this);
+    }
+
+    private SqlResult GetSQLResult(SqlStatement statement)
+    {
+      return Session.XSession.GetSQLResult(statement.SQL, parameters.ToArray());
     }
 
     /// <summary>

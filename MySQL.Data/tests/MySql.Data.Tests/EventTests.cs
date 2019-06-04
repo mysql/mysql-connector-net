@@ -1,4 +1,4 @@
-// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,6 +38,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void Warnings()
     {
       executeSQL("CREATE TABLE Test (name VARCHAR(10))");
@@ -58,10 +59,11 @@ namespace MySql.Data.MySqlClient.Tests
 
     private void WarningsInfoMessage(object sender, MySqlInfoMessageEventArgs args)
     {
-      Assert.Equal(1, args.errors.Length);
+      Assert.Single(args.errors);
     }
 
     [Fact]
+    [Trait("Category", "Security")]
     public void StateChange()
     {
       using (var connection = Fixture.GetConnection(false))

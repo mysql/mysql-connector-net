@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -150,7 +150,7 @@ namespace MySql.Data.EntityFramework.Tests
     }
 
     /// <summary>
-    /// Bug #62246	Connector/Net Incorrectly Maps Decimal To AnsiString
+    /// Bug #62246	Connector/NET Incorrectly Maps Decimal To AnsiString
     /// </summary>
     [Fact]
     public void CanSetDbTypeDecimalFromNewDecimalParameter()

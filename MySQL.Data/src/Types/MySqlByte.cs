@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -76,19 +76,23 @@ namespace MySql.Data.Types
       if (binary)
         packet.WriteByte((byte)v);
       else
-        packet.WriteStringNoNull(v.ToString());
+        packet.WriteStringNoNull(v.ToString(CultureInfo.InvariantCulture));
     }
 
     IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
     {
       if (nullVal)
-        return new MySqlByte(true);
+        return new MySqlByte(true) { TreatAsBoolean = TreatAsBoolean };
 
+      MySqlByte b;
       if (length == -1)
-        return new MySqlByte((sbyte)packet.ReadByte());
+        b = new MySqlByte((sbyte)packet.ReadByte());
+      else
+      {
+        string s = packet.ReadString(length);
+        b = new MySqlByte(SByte.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture));  
+      }
 
-      string s = packet.ReadString(length);
-      MySqlByte b = new MySqlByte(SByte.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture));
       b.TreatAsBoolean = TreatAsBoolean;
       return b;
     }

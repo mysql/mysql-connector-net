@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -105,17 +105,11 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Adds a <see cref="MySqlParameter"/> to the <see cref="MySqlParameterCollection"/> given the specified parameter name and value.
+    /// Adds a parameter and its value.
     /// </summary>
     /// <param name="parameterName">The name of the parameter.</param>
-    /// <param name="value">The <see cref="MySqlParameter.Value"/> of the <see cref="MySqlParameter"/> to add to the collection.</param>
-    /// <returns>The newly added <see cref="MySqlParameter"/> object.</returns>
-    [Obsolete("Add(String parameterName, Object value) has been deprecated.  Use AddWithValue(String parameterName, Object value)")]
-    public MySqlParameter Add(string parameterName, object value)
-    {
-      return Add(new MySqlParameter(parameterName, value));
-    }
-
+    /// <param name="value">The value of the parameter.</param>
+    /// <returns>A <see cref="MySqlParameter"/> object representing the provided values.</returns>
     public MySqlParameter AddWithValue(string parameterName, object value)
     {
       return Add(new MySqlParameter(parameterName, value));

@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -42,19 +42,10 @@ namespace MySql.Data.EntityFrameworkCore.Tests
   {
 
     DbContext context;
-    DbContextOptions options;
-    IServiceCollection collection = new ServiceCollection()
-                                    .AddEntityFrameworkMySQL();
 
     public LoadingRelatedDataTests()
     {
-
-      options = new DbContextOptionsBuilder()
-                   .UseInternalServiceProvider(collection.BuildServiceProvider())
-                   .UseMySQL(MySQLTestStore.baseConnectionString + "bd-eagerloading")
-                   .Options;
-
-      context = new EagerLoadingContext(options);
+      context = new EagerLoadingContext();
       context.Database.EnsureDeleted();
       context.Database.EnsureCreated();
       AddData(context);
@@ -182,7 +173,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     [FactOnVersions("5.7.0", null)]
     public void JsonDataTest()
     {
-      using(JsonContext context = new JsonContext())
+      using (JsonContext context = new JsonContext())
       {
         var model = context.Model;
         context.Database.EnsureDeleted();
@@ -201,8 +192,11 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           string charset = "latin1";
           if (conn.driver.Version.isAtLeast(8, 0, 1))
             charset = "utf8mb4";
-          Assert.Equal($"CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET={charset}", jsonTableDesc
-              , ignoreCase: true, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+          //Adding "COLLATION" to the string validation at table creation (this happens since MySql 8.0.5 Server)
+          if (jsonTableDesc.Contains("COLLATE=utf8mb4_0900_ai_ci")) Assert.Equal($"CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT," +
+            $"\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET={charset} COLLATE=utf8mb4_0900_ai_ci", jsonTableDesc, true, true, true);
+          else Assert.Equal($"CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) " +
+            $"ENGINE=InnoDB DEFAULT CHARSET={charset}", jsonTableDesc, true, true, true);
         }
 
         context.JsonEntity.Add(new JsonData()
@@ -235,7 +229,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     [FactOnVersions("5.7.0", null)]
     public void ComputedColumns()
     {
-      using(FiguresContext context = new FiguresContext())
+      using (FiguresContext context = new FiguresContext())
       {
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();

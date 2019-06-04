@@ -1,4 +1,4 @@
-// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,6 +31,7 @@ using System;
 using Xunit;
 using System.Data;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -43,7 +44,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #62585	MySql Connector/NET 6.4.3+ Doesn't escape quotation mark (U+0022)
     /// </summary>
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact(Skip = "Not compatible with linux")]
     public void EscapeStringMethodCanEscapeQuotationMark()
     {
       executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
@@ -102,6 +103,29 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(1, ds.Tables[1].Rows.Count);
         Assert.Equal(1, ds.Tables[0].Rows[0]["key"]);
         Assert.Equal(1, ds.Tables[1].Rows[0]["key"]);
+
+        ds = await MySqlHelper.ExecuteDatasetAsync(Connection, sql);
+        Assert.Equal(2, ds.Tables.Count);
+        Assert.Equal(1, ds.Tables[0].Rows.Count);
+        Assert.Equal(1, ds.Tables[1].Rows[0]["key"]);
+
+        ds = await MySqlHelper.ExecuteDatasetAsync(Connection.ConnectionString, sql, null);
+        Assert.Equal(1, ds.Tables[0].Rows.Count);
+        Assert.Equal(1, ds.Tables[1].Rows.Count);
+        Assert.Equal(1, ds.Tables[0].Rows[0]["key"]);
+
+        ds = await MySqlHelper.ExecuteDatasetAsync(Connection.ConnectionString, sql);
+        Assert.Equal(2, ds.Tables.Count);
+        Assert.Equal(1, ds.Tables[0].Rows.Count);
+        Assert.Equal(1, ds.Tables[1].Rows[0]["key"]);
+
+        ds = await MySqlHelper.ExecuteDatasetAsync(Connection.ConnectionString, sql, CancellationToken.None, null);
+        Assert.Equal(2, ds.Tables.Count);
+        Assert.Equal(1, ds.Tables[0].Rows.Count);
+
+        ds = await MySqlHelper.ExecuteDatasetAsync(Connection, sql, CancellationToken.None);
+        Assert.Equal(2, ds.Tables.Count);
+        Assert.Equal(1, ds.Tables[0].Rows[0]["key"]);
       }
       finally
       {
@@ -155,6 +179,90 @@ namespace MySql.Data.MySqlClient.Tests
       {
         executeSQL("DROP TABLE MSHScalarAsyncTable1");
       }
+    }
+
+    [Fact]
+    public async Task ExecuteDataRowAsync()
+    {
+      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
+      executeSQL("INSERT INTO Test VALUES (1, 'name')");
+
+      try
+      {
+        DataRow result = await MySqlHelper.ExecuteDataRowAsync(Connection.ConnectionString, "SELECT name FROM Test WHERE id=1", null);
+        Assert.Equal("name", result[0]);
+
+      }
+      finally
+      {
+        executeSQL("DROP TABLE Test");
+      }
+    }
+
+    [Fact]
+    public void UpdateDataSet()
+    {
+      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100), PRIMARY KEY(`id`))");
+      executeSQL("INSERT INTO Test VALUES (1, 'name')");
+
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
+      da.TableMappings.Add("Table", "Test");
+      DataSet ds = new DataSet();
+      da.Fill(ds);
+      ds.Tables["Test"].Rows[0][1] = "updatedName";
+
+      MySqlHelper.UpdateDataSet(Connection.ConnectionString, "SELECT * FROM Test", ds, "Test");
+      DataRow result = ds.Tables["Test"].Rows[0];
+      Assert.Equal("updatedName", result["name"]);
+    }
+
+    [Fact]
+    public async Task UpdateDataSetAsync()
+    {
+      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100), PRIMARY KEY(`id`))");
+      executeSQL("INSERT INTO Test VALUES (1, 'name')");
+
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
+      da.TableMappings.Add("Table", "Test");
+      DataSet ds = new DataSet();
+      da.Fill(ds);
+      ds.Tables["Test"].Rows[0][1] = "updatedName";
+
+      try
+      {
+        await MySqlHelper.UpdateDataSetAsync(Connection.ConnectionString, "SELECT * FROM Test", ds, "Test");
+        DataRow result = ds.Tables["Test"].Rows[0];
+        Assert.Equal("updatedName", result["name"]);
+      }
+      finally
+      {
+        executeSQL("DROP TABLE Test");
+      }
+    }
+
+    [Fact]
+    public void ExecuteDataset()
+    {
+      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100), PRIMARY KEY(`id`))");
+      executeSQL("INSERT INTO Test VALUES (1, 'name')");
+      executeSQL("INSERT INTO Test VALUES (2, 'name2')");
+
+      DataSet ds = MySqlHelper.ExecuteDataset(Connection, "SELECT * FROM Test");
+      Assert.Single(ds.Tables);
+      Assert.Equal(2, ds.Tables[0].Rows.Count);
+      Assert.Equal("name", ds.Tables[0].Rows[0][1]);
+
+      MySqlParameter mySqlParameter = new MySqlParameter("@id", 2);
+      ds = MySqlHelper.ExecuteDataset(Connection, "SELECT * FROM Test WHERE id = @id", mySqlParameter);
+      Assert.Single(ds.Tables);
+      Assert.Equal(1, ds.Tables[0].Rows.Count);
+      Assert.Equal("name2", ds.Tables[0].Rows[0][1]);
+
+      ds = MySqlHelper.ExecuteDataset(Connection.ConnectionString, "SELECT * FROM Test", null);
+      Assert.Single(ds.Tables);
+      Assert.Equal(2, ds.Tables[0].Rows.Count);
+      Assert.Equal("name", ds.Tables[0].Rows[0][1]);
+      Assert.Equal("name2", ds.Tables[0].Rows[1][1]);
     }
     #endregion
   }

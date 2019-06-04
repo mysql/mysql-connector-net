@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,7 +31,6 @@ using Mysqlx.Crud;
 using MySqlX.XDevAPI.Common;
 using System;
 using MySql.Data;
-using MySql.Data.MySqlClient;
 
 namespace MySqlX.XDevAPI.CRUD
 {
@@ -56,6 +55,7 @@ namespace MySqlX.XDevAPI.CRUD
     public ModifyStatement Set(string docPath, object value)
     {
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemSet, docPath).SetValue(value));
+      SetChanged();
       return this;
     }
 
@@ -68,17 +68,27 @@ namespace MySqlX.XDevAPI.CRUD
     public ModifyStatement Change(string docPath, object value)
     {
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemReplace, docPath).SetValue(value));
+      SetChanged();
       return this;
     }
 
     /// <summary>
-    /// Removes a key or value from a document.
+    /// Removes keys or values from a document.
     /// </summary>
-    /// <param name="docPath">The document path key.</param>
+    /// <param name="docPath">An array of document paths representing the keys to be removed.</param>
     /// <returns>This <see cref="ModifyStatement"/> object.</returns>
-    public ModifyStatement Unset(string docPath)
+    public ModifyStatement Unset(params string[] docPath)
     {
-      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemRemove, docPath));
+      if (docPath == null)
+        return this;
+
+      foreach (var item in docPath)
+      {
+        if (item != null)
+          Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ItemRemove, item));
+      }
+
+      SetChanged();
       return this;
     }
 
@@ -101,13 +111,70 @@ namespace MySqlX.XDevAPI.CRUD
       DbDoc dbDocument = document is DbDoc ? document as DbDoc : new DbDoc(document);
       Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.MergePatch, string.Empty).SetValue(dbDocument.values));
 
+      SetChanged();
       return this;
+    }
+
+    /// <summary>
+    /// Inserts an item into the specified array.
+    /// </summary>
+    /// <param name="field">The document path key including the index on which the item will be inserted.</param>
+    /// <param name="value">The value to insert into the array.</param>
+    /// <returns>A <see cref="ModifyStatement"/> object containing the updated array.</returns>
+    public ModifyStatement ArrayInsert(string field, object value)
+    {
+      if (value is string && value.ToString()==string.Empty)
+        throw new ArgumentException(nameof(value), Resources.StringEmpty);
+
+      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ArrayInsert, field).SetValue(value));
+      SetChanged();
+      return this;
+    }
+
+    /// <summary>
+    /// Appends an item to the specified array.
+    /// </summary>
+    /// <param name="docPath">The document path key.</param>
+    /// <param name="value">The value to append to the array.</param>
+    /// <returns>A <see cref="ModifyStatement"/> object containing the updated array.</returns>
+    public ModifyStatement ArrayAppend(string docPath, object value)
+    {
+      if (value is string && value.ToString() == string.Empty)
+        throw new ArgumentException(nameof(value), Resources.StringEmpty);
+
+      Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.ArrayAppend, docPath).SetValue(value));
+      SetChanged();
+      return this;
+    }
+
+    /// <summary>
+    /// Allows the user to set the sorting criteria for the operation. The strings use normal SQL syntax like
+    /// "order ASC"  or "pages DESC, age ASC".
+    /// </summary>
+    /// <param name="order">The order criteria.</param>
+    /// <returns>A generic object representing the implementing statement type.</returns>
+    public ModifyStatement Sort(params string[] order)
+    {
+      FilterData.OrderBy = order;
+      SetChanged();
+      return this;
+    }
+
+    /// <summary>
+    /// Enables the setting of Where condition for this operation.
+    /// </summary>
+    /// <param name="condition">The Where condition.</param>
+    /// <returns>The implementing statement type.</returns>
+    [Obsolete("Where(string condition) has been deprecated since version 8.0.17.")]
+    public new ModifyStatement Where(string condition)
+    {
+      return base.Where(condition);
     }
 
     /// <summary>
     /// Executes the modify statement.
     /// </summary>
-    /// <returns>A <see cref="Result"/> object containg the results of the execution.</returns>
+    /// <returns>A <see cref="Result"/> object containing the results of the execution.</returns>
     public override Result Execute()
     {
       return Execute(Target.Session.XSession.ModifyDocs, this);

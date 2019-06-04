@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2011, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -48,7 +48,7 @@ using MySql.Web.General;
 namespace MySql.Web.Profile
 {
   /// <summary>
-  /// 
+  /// Manages storage of profile information for an ASP.NET application in a MySQL database.
   /// </summary>
   public class MySQLProfileProvider : ProfileProvider
   {

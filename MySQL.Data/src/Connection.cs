@@ -1,4 +1,4 @@
-// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -36,6 +36,10 @@ using MySql.Data.Common;
 using System.Security;
 using IsolationLevel = System.Data.IsolationLevel;
 using MySql.Data.MySqlClient.Interceptors;
+using Renci.SshNet;
+using System.Linq;
+using Renci.SshNet.Common;
+using MySql.Data.common;
 #if !NETSTANDARD1_6
 using System.Transactions;
 using MySql.Data.MySqlClient.Replication;
@@ -58,6 +62,7 @@ namespace MySql.Data.MySqlClient
     private bool _isKillQueryConnection;
     private string _database;
     private int _commandTimeout;
+    private SshClient _sshClient;
 
     /// <include file='docs/MySqlConnection.xml' path='docs/InfoMessage/*'/>
     public event MySqlInfoMessageEventHandler InfoMessage;
@@ -83,7 +88,6 @@ namespace MySql.Data.MySqlClient
       : this()
     {
       ConnectionString = connectionString;
-      CheckForUnsuporrtedConnectionOptions();
     }
 
     #region Destructor
@@ -223,6 +227,9 @@ namespace MySql.Data.MySqlClient
 #if !NETSTANDARD1_6
     protected override DbProviderFactory DbProviderFactory => MySqlClientFactory.Instance;
 #endif
+    /// <summary>
+    /// Gets a boolean value that indicates whether the password associated to the connection is expired.
+    /// </summary>
     public bool IsPasswordExpired => driver.IsPasswordExpired;
 
     #endregion
@@ -341,9 +348,9 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Ping
+    /// Pings the server.
     /// </summary>
-    /// <returns></returns>
+    /// <returns><c>true</c> if the ping was successful; otherwise, <c>false</c>.</returns>
     public bool Ping()
     {
       if (Reader != null)
@@ -386,6 +393,19 @@ namespace MySql.Data.MySqlClient
       try
       {
         MySqlConnectionStringBuilder currentSettings = Settings;
+        if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
+        {
+          _sshClient = MySqlSshClientManager.SetupSshClient(
+            Settings.SshHostName,
+            Settings.SshUserName,
+            Settings.SshPassword,
+            Settings.SshKeyFile,
+            Settings.SshPassphrase,
+            Settings.SshPort,
+            Settings.Server,
+            Settings.Port,
+            false);
+        }          
 
         //TODO: SUPPORT FOR 452 AND 46X
         // Load balancing 
@@ -520,6 +540,12 @@ namespace MySql.Data.MySqlClient
 #endif
       }
 
+      if (_sshClient != null && _sshClient.IsConnected)
+      {
+        _sshClient.ForwardedPorts.First().Stop();
+        _sshClient.Disconnect();
+      }
+
       SetState(ConnectionState.Closed, true);
     }
 
@@ -580,6 +606,10 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+	/// <summary>
+    /// Cancels the query after the specified time interval.
+    /// </summary>
+    /// <param name="timeout">The length of time (in seconds) to wait for the cancelation of the command execution.</param>
     public void CancelQuery(int timeout)
     {
       MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(
@@ -598,14 +628,6 @@ namespace MySql.Data.MySqlClient
         MySqlCommand cmd = new MySqlCommand(commandText, c) { CommandTimeout = timeout };
         cmd.ExecuteNonQuery();
       }
-    }
-
-    private void CheckForUnsuporrtedConnectionOptions()
-    {
-      if (Settings == null) return;
-
-      if (Settings.Auth != MySqlAuthenticationMode.Default)
-        throw new NotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(Settings.Auth)));
     }
 
 #region Routines for timeout support.
@@ -669,6 +691,12 @@ namespace MySql.Data.MySqlClient
     }
     #endregion
 
+	  /// <summary>
+    /// Gets a schema collection based on the provided restriction values.
+    /// </summary>
+    /// <param name="collectionName">The name of the collection.</param>
+    /// <param name="restrictionValues">The values to restrict.</param>
+	  /// <returns>A schema collection object.</returns>
     public MySqlSchemaCollection GetSchemaCollection(string collectionName, string[] restrictionValues)
     {
       if (collectionName == null)
@@ -722,13 +750,18 @@ namespace MySql.Data.MySqlClient
       return BeginTransactionAsync(IsolationLevel.RepeatableRead, CancellationToken.None);
     }
 
+    /// <summary>
+    /// Asynchronous version of BeginTransaction.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An object representing the new transaction.</returns>
     public Task<MySqlTransaction> BeginTransactionAsync(CancellationToken cancellationToken)
     {
       return BeginTransactionAsync(IsolationLevel.RepeatableRead, cancellationToken);
     }
 
     /// <summary>
-    /// Async version of BeginTransaction
+    /// Asynchronous version of BeginTransaction.
     /// </summary>
     /// <param name="iso">The isolation level under which the transaction should run. </param>
     /// <returns>An object representing the new transaction.</returns>
@@ -737,6 +770,12 @@ namespace MySql.Data.MySqlClient
       return BeginTransactionAsync(iso, CancellationToken.None);
     }
 
+    /// <summary>
+    /// Asynchronous version of BeginTransaction.
+    /// </summary>
+    /// <param name="iso">The isolation level under which the transaction should run. </param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An object representing the new transaction.</returns>
     public Task<MySqlTransaction> BeginTransactionAsync(IsolationLevel iso, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<MySqlTransaction>();
@@ -760,16 +799,21 @@ namespace MySql.Data.MySqlClient
       return result.Task;
     }
 
+	/// <summary>
+    /// Asynchronous version of the ChangeDataBase method.
+    /// </summary>
+    /// <param name="databaseName">The name of the database to use.</param>
+    /// <returns></returns>
     public Task ChangeDataBaseAsync(string databaseName)
     {
       return ChangeDataBaseAsync(databaseName, CancellationToken.None);
     }
 
     /// <summary>
-    /// Async version of ChangeDataBase
+    /// Asynchronous version of the ChangeDataBase method.
     /// </summary>
     /// <param name="databaseName">The name of the database to use.</param>
-    /// <param name="cancellationToken">Cancellation Token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     public Task ChangeDataBaseAsync(string databaseName, CancellationToken cancellationToken)
     {
@@ -802,14 +846,17 @@ namespace MySql.Data.MySqlClient
     //}
 
     /// <summary>
-    /// Async version of Close
+    /// Asynchronous version of the Close method.
     /// </summary>
-    /// <returns></returns>
     public Task CloseAsync()
     {
       return CloseAsync(CancellationToken.None);
     }
 
+	  /// <summary>
+    /// Asynchronous version of the Close method.
+    /// </summary>
+	  /// <param name="cancellationToken">The cancellation token.</param>
     public Task CloseAsync(CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<bool>();
@@ -833,15 +880,19 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Async version of ClearPool
+    /// Asynchronous version of the ClearPool method.
     /// </summary>
     /// <param name="connection">The connection associated with the pool to be cleared.</param>
-    /// <returns></returns>
     public Task ClearPoolAsync(MySqlConnection connection)
     {
       return ClearPoolAsync(connection, CancellationToken.None);
     }
 
+	/// <summary>
+    /// Asynchronous version of the ClearPool method.
+    /// </summary>
+    /// <param name="connection">The connection associated with the pool to be cleared.</param>
+	/// <param name="cancellationToken">The cancellation token.</param>
     public Task ClearPoolAsync(MySqlConnection connection, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<bool>();
@@ -865,14 +916,17 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Async version of ClearAllPools
+    /// Asynchronous version of the ClearAllPools method.
     /// </summary>
-    /// <returns></returns>
     public Task ClearAllPoolsAsync()
     {
       return ClearAllPoolsAsync(CancellationToken.None);
     }
 
+	  /// <summary>
+    /// Asynchronous version of the ClearAllPools method.
+    /// </summary>
+	  /// <param name="cancellationToken">The cancellation token.</param>
     public Task ClearAllPoolsAsync(CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<bool>();
@@ -894,17 +948,25 @@ namespace MySql.Data.MySqlClient
       }
       return result.Task;
     }
+
     /// <summary>
-    /// Async version of GetSchemaCollection
+    /// Asynchronous version of the GetSchemaCollection method.
     /// </summary>
-    /// <param name="collectionName">Name of the collection</param>
-    /// <param name="restrictionValues">Values to restrict</param>
-    /// <returns>A schema collection</returns>
+    /// <param name="collectionName">The name of the collection.</param>
+    /// <param name="restrictionValues">The values to restrict.</param>
+    /// <returns>A collection of schema objects.</returns>
     public Task<MySqlSchemaCollection> GetSchemaCollectionAsync(string collectionName, string[] restrictionValues)
     {
       return GetSchemaCollectionAsync(collectionName, restrictionValues, CancellationToken.None);
     }
 
+	  /// <summary>
+    /// Asynchronous version of the GetSchemaCollection method.
+    /// </summary>
+    /// <param name="collectionName">The name of the collection.</param>
+    /// <param name="restrictionValues">The values to restrict.</param>
+	  /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of schema objects.</returns>
     public Task<MySqlSchemaCollection> GetSchemaCollectionAsync(string collectionName, string[] restrictionValues, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<MySqlSchemaCollection>();
@@ -941,14 +1003,13 @@ namespace MySql.Data.MySqlClient
   public class MySqlInfoMessageEventArgs : EventArgs
   {
     /// <summary>
-    /// 
+    /// Gets or sets an array of <see cref="MySqlError"/> objects set with the errors found.
     /// </summary>
     public MySqlError[] errors { get; set; }
   }
 
   /// <summary>
-  /// IDisposable wrapper around SetCommandTimeout and ClearCommandTimeout
-  /// functionality
+  /// IDisposable wrapper around SetCommandTimeout and ClearCommandTimeout functionality.
   /// </summary>
   internal class CommandTimer : IDisposable
   {

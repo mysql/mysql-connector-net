@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -51,7 +51,7 @@ namespace MySqlX.Protocol.X
   //
   // CompExpr: ^ (GE/GT/LE/LT/EQ/NE ^)*
   //
-  // IlriExpr(ilri=IS/LIKE/REGEXP/IN/BETWEEN): ^ (ilri ^)
+  // IlriExpr(ilri=IS/LIKE/REGEXP/IN/BETWEEN/OVERLAPS): ^ (ilri ^)
   //
   // AndExpr: ^ (AND ^)*
   //
@@ -69,7 +69,7 @@ namespace MySqlX.Protocol.X
     /** Token stream produced by lexer. */
     internal List<Token> tokens = new List<Token>();
     /** Parser's position in token stream. */
-    int tokenPos = 0;
+    internal int tokenPos = 0;
     /**
      * Mapping of names to positions for named placeholders. Used for both string values ":arg" and numeric values ":2".
      */
@@ -90,7 +90,6 @@ namespace MySqlX.Protocol.X
     {
       this.stringValue = s;
       Lex();
-      // java.util.stream.IntStream.range(0, this.tokens.size()).forEach(i -> System.err.println("[" + i + "] = " + this.tokens.get(i)));
       this.allowRelationalColumns = allowRelationalColumns;
     }
 
@@ -103,7 +102,8 @@ namespace MySqlX.Protocol.X
       LSTRING, LNUM_INT, LNUM_DOUBLE, DOT, AT, COMMA, EQ, NE, GT, GE, LT, LE, BITAND, BITOR, BITXOR, LSHIFT, RSHIFT, PLUS, MINUS, STAR, SLASH, HEX,
       BIN, NEG, BANG, EROTEME, MICROSECOND, SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR, SECOND_MICROSECOND, MINUTE_MICROSECOND,
       MINUTE_SECOND, HOUR_MICROSECOND, HOUR_SECOND, HOUR_MINUTE, DAY_MICROSECOND, DAY_SECOND, DAY_MINUTE, DAY_HOUR, YEAR_MONTH, DOUBLESTAR, MOD,
-      COLON, ORDERBY_ASC, ORDERBY_DESC, AS, LCURLY, RCURLY, DOTSTAR, CAST, DECIMAL, UNSIGNED, SIGNED, INTEGER, DATE, TIME, DATETIME, CHAR, BINARY, JSON
+      COLON, ORDERBY_ASC, ORDERBY_DESC, AS, LCURLY, RCURLY, DOTSTAR, CAST, DECIMAL, UNSIGNED, SIGNED, INTEGER, DATE, TIME, DATETIME, CHAR, BINARY, JSON,
+      ARROW, DOUBLE_ARROW, OVERLAPS
     }
 
     /**
@@ -141,7 +141,7 @@ namespace MySqlX.Protocol.X
 
     /** Mapping of reserved words to token types. */
     static private Dictionary<string, TokenType> reservedWords = new Dictionary<string, TokenType>();
-    static ExprParser ()
+    static ExprParser()
     {
       reservedWords.Add("and", TokenType.AND);
       reservedWords.Add("or", TokenType.OR);
@@ -194,6 +194,7 @@ namespace MySqlX.Protocol.X
       reservedWords.Add("char", TokenType.CHAR);
       reservedWords.Add("binary", TokenType.BINARY);
       reservedWords.Add("json", TokenType.BINARY);
+      reservedWords.Add("overlaps", TokenType.OVERLAPS);
     }
 
     /**
@@ -230,11 +231,14 @@ namespace MySqlX.Protocol.X
           {
             i++;
           }
+          else if (Char.IsLetter(stringValue[i + 1]))
+          {
+            Identifier(ref i, start);
+            return i;
+          }
         }
         else if (!Char.IsDigit(c))
-        {
           break;
-        }
       }
       if (isInt)
       {
@@ -263,7 +267,12 @@ namespace MySqlX.Protocol.X
         }
         else if (Char.IsDigit(c))
         {
-          i = LexNumber(i);
+          if (i != stringValue.Length - 1)
+          {
+            if (!Char.IsLetter(stringValue[i + 1]) || NextCharEquals(i, 'e')) i = LexNumber(i);
+            else Identifier(ref i, start);
+          }
+          else i = LexNumber(i);
         }
         else if (!(c == '_' || Char.IsLetter(c)))
         {
@@ -277,7 +286,23 @@ namespace MySqlX.Protocol.X
               this.tokens.Add(new Token(TokenType.PLUS, c));
               break;
             case '-':
-              this.tokens.Add(new Token(TokenType.MINUS, c));
+              if (NextCharEquals(i, '>'))
+              {
+                i++;
+                if (NextCharEquals(i, '>'))
+                {
+                  i++;
+                  this.tokens.Add(new Token(TokenType.DOUBLE_ARROW, "->>"));
+                }
+                else
+                {
+                  this.tokens.Add(new Token(TokenType.ARROW, "->"));
+                }
+              }
+              else
+              {
+                this.tokens.Add(new Token(TokenType.MINUS, c));
+              }
               break;
             case '*':
               if (NextCharEquals(i, '*'))
@@ -438,7 +463,7 @@ namespace MySqlX.Protocol.X
                 throw new ArgumentException("Unterminated string starting at " + start);
               }
               var value = val.ToString();
-              this.tokens.Add(new Token(quoteChar == '`' ? TokenType.IDENT : TokenType.LSTRING, value == string.Empty ? " " : value));
+              this.tokens.Add(new Token(quoteChar == '`' ? TokenType.IDENT : TokenType.LSTRING, value == string.Empty ? "" : value));
               break;
             default:
               throw new ArgumentException("Can't parse at pos: " + i);
@@ -447,41 +472,49 @@ namespace MySqlX.Protocol.X
         else
         {
           // otherwise, it's an identifier
-          for (; i < this.stringValue.Length && (Char.IsLetterOrDigit(this.stringValue[i]) || this.stringValue[i] == '_'); ++i)
-          {
-          }
-          string val = this.stringValue.Substring(start, i - start);
-          string valLower = val.ToLowerInvariant();
-          if (i < this.stringValue.Length)
-          {
-            // last char, this logic is artifact of the preceding loop
-            --i;
-          }
-          if (reservedWords.ContainsKey(valLower))
-          {
-            // Map operator names to values the server understands
-            if ("and".Equals(valLower))
-            {
-              this.tokens.Add(new Token(reservedWords[valLower], "&&"));
-            }
-            else if ("or".Equals(valLower))
-            {
-              this.tokens.Add(new Token(reservedWords[valLower], "||"));
-            }
-            else
-            {
-              // we case-normalize reserved words
-              if (IsReservedWordFunctionCall(valLower, i))
-                this.tokens.Add(new Token(TokenType.IDENT, val));
-              else
-                this.tokens.Add(new Token(reservedWords[valLower], valLower));
-            }
-          }
-          else
-          {
-            this.tokens.Add(new Token(TokenType.IDENT, val));
-          }
+          Identifier(ref i, start);
         }
+      }
+    }
+
+    /*
+     * Adds a token of type identifier.
+     */
+    void Identifier(ref int i, int start)
+    {
+      for (; i < this.stringValue.Length && (Char.IsLetterOrDigit(this.stringValue[i]) || this.stringValue[i] == '_'); ++i)
+      {
+      }
+      string val = this.stringValue.Substring(start, i - start);
+      string valLower = val.ToLowerInvariant();
+      if (i < this.stringValue.Length)
+      {
+        // last char, this logic is artifact of the preceding loop
+        --i;
+      }
+      if (reservedWords.ContainsKey(valLower))
+      {
+        // Map operator names to values the server understands
+        if ("and".Equals(valLower))
+        {
+          this.tokens.Add(new Token(reservedWords[valLower], "&&"));
+        }
+        else if ("or".Equals(valLower))
+        {
+          this.tokens.Add(new Token(reservedWords[valLower], "||"));
+        }
+        else
+        {
+          // we case-normalize reserved words
+          if (IsReservedWordFunctionCall(valLower, i))
+            this.tokens.Add(new Token(TokenType.IDENT, val));
+          else
+            this.tokens.Add(new Token(reservedWords[valLower], valLower));
+        }
+      }
+      else
+      {
+        this.tokens.Add(new Token(TokenType.IDENT, val));
       }
     }
 
@@ -767,6 +800,14 @@ namespace MySqlX.Protocol.X
             break;
         }
       }
+      if(CurrentTokenTypeEquals(TokenType.ARROW))
+      {
+        ConsumeToken(TokenType.ARROW);
+      }
+      else if (CurrentTokenTypeEquals(TokenType.DOUBLE_ARROW))
+      {
+        throw new NotSupportedException("Operator ->> not supported.");
+      }
       if (CurrentTokenTypeEquals(TokenType.AT))
       {
         ConsumeToken(TokenType.AT);
@@ -845,15 +886,15 @@ namespace MySqlX.Protocol.X
           ConsumeToken(TokenType.RPAREN);
           return e;
         case TokenType.LSQBRACKET:
-        {
-          Mysqlx.Expr.Array builder = new Mysqlx.Expr.Array();
-          ParseCommaSeparatedList(() =>
           {
-            return GetExpr();
-          }).ForEach(f => builder.Value.Add(f));
-          ConsumeToken(TokenType.RSQBRACKET);
-          return new Expr() { Type = Expr.Types.Type.Array, Array = builder };
-        }
+            Mysqlx.Expr.Array builder = new Mysqlx.Expr.Array();
+            ParseCommaSeparatedList(() =>
+            {
+              return GetExpr();
+            }).ForEach(f => builder.Value.Add(f));
+            ConsumeToken(TokenType.RSQBRACKET);
+            return new Expr() { Type = Expr.Types.Type.Array, Array = builder };
+          }
         case TokenType.LCURLY:  // JSON object
           {
             Mysqlx.Expr.Object builder = new Mysqlx.Expr.Object();
@@ -1087,7 +1128,7 @@ namespace MySqlX.Protocol.X
     Expr IlriExpr()
     {
       Expr lhs = CompExpr();
-      List<TokenType> expected = new List<TokenType>(new TokenType[] { TokenType.IS, TokenType.IN, TokenType.LIKE, TokenType.BETWEEN, TokenType.REGEXP, TokenType.NOT });
+      List<TokenType> expected = new List<TokenType>(new TokenType[] { TokenType.IS, TokenType.IN, TokenType.LIKE, TokenType.BETWEEN, TokenType.REGEXP, TokenType.NOT, TokenType.OVERLAPS });
       while (this.tokenPos < this.tokens.Count && expected.Contains(this.tokens[this.tokenPos].type))
       {
         bool isNot = false;
@@ -1140,6 +1181,10 @@ namespace MySqlX.Protocol.X
               break;
             case TokenType.REGEXP:
               ConsumeToken(TokenType.REGEXP);
+              parameters.Add(CompExpr());
+              break;
+            case TokenType.OVERLAPS:
+              ConsumeToken(TokenType.OVERLAPS);
               parameters.Add(CompExpr());
               break;
             default:
@@ -1290,9 +1335,14 @@ namespace MySqlX.Protocol.X
       {
         Projection builder = new Projection();
         builder.Source = GetExpr();
-        // alias is not optional for document projection
-        ConsumeToken(TokenType.AS);
-        builder.Alias = ConsumeToken(TokenType.IDENT);
+        if (CurrentTokenTypeEquals(TokenType.AS))
+        {
+          ConsumeToken(TokenType.AS);
+          builder.Alias = ConsumeToken(TokenType.IDENT);
+        }
+        else if (builder.Source.Identifier != null)
+          builder.Alias = builder.Source.Identifier.DocumentPath[0].Value;
+
         return builder;
       });
     }

@@ -1,4 +1,4 @@
-// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,7 +30,8 @@ using System;
 using Xunit;
 using System.Data;
 using System.Threading.Tasks;
-
+using System.Data.Common;
+using System.Threading;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -71,7 +72,7 @@ namespace MySql.Data.MySqlClient.Tests
       DataSet ds = new DataSet();
       da.Fill(ds, "Test");
 
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.Single(ds.Tables);
       Assert.Equal(3, ds.Tables[0].Rows.Count);
 
       Assert.Equal(1, ds.Tables[0].Rows[0]["id2"]);
@@ -100,7 +101,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       // make sure our refresh of auto increment values worked
       Assert.True(count == 1, "checking insert count");
-      Assert.True(dt.Rows[dt.Rows.Count - 1]["id"] != null,"Checking auto increment column");
+      Assert.True(dt.Rows[dt.Rows.Count - 1]["id"] != null, "Checking auto increment column");
 
       dt.Rows.Clear();
       da.Fill(dt);
@@ -242,7 +243,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       Assert.Equal(500, dt.Rows.Count);
     }
-  
+
     [Fact]
     public void DiscreteValues()
     {
@@ -294,7 +295,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("INSERT INTO Test VALUES (2, 'Test2')");
       executeSQL("INSERT INTO Test VALUES (3, 'Test3')");
       executeSQL("INSERT INTO Test VALUES (4, 'Test4')");
-    
+
     }
 
     [Fact]
@@ -355,12 +356,12 @@ namespace MySql.Data.MySqlClient.Tests
       DataSet ds = new DataSet();
       da.Fill(ds);
 
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.Single(ds.Tables);
       Assert.Equal(3, ds.Tables[0].Rows.Count);
       Assert.Equal(88, ds.Tables[0].Rows[2]["amount"]);
       Assert.Equal(DBNull.Value, ds.Tables[0].Rows[2]["id"]);
     }
-   
+
     /// <summary>
     /// Bug #16307 @@Identity returning incorrect value 
     /// </summary>
@@ -557,7 +558,7 @@ namespace MySql.Data.MySqlClient.Tests
       da.Fill(0, 2, new DataTable[] { dt });
     }
 
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact(Skip = "Not compatible with linux")]
     public void TestBatchingInserts()
     {
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20), PRIMARY KEY(id))");
@@ -678,7 +679,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("foobar", dt.Rows[2]["name"]);
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact(Skip = "Fix This")]
     public void TestBatchingInsertsMoreThanMaxPacket()
     {
       int blobSize = 64000;
@@ -797,7 +798,7 @@ namespace MySql.Data.MySqlClient.Tests
       table.Rows.Add(r);
       da.Update(table);
 
-      Assert.Equal(r.RowState, DataRowState.Unchanged);
+      Assert.Equal(DataRowState.Unchanged, r.RowState);
 
       table.Rows[0].Delete();
 
@@ -807,8 +808,8 @@ namespace MySql.Data.MySqlClient.Tests
 
       da.Update(table); // here was concurrencyviolation
       da.Fill(ds);
-      Assert.Equal(ds.Tables["T"].Rows.Count, 1);
-      Assert.Equal(ds.Tables["T"].Rows[0]["field"], "row2");
+      Assert.Equal(1, ds.Tables["T"].Rows.Count);
+      Assert.Equal("row2", ds.Tables["T"].Rows[0]["field"]);
     }
 
     /// <summary>
@@ -878,7 +879,7 @@ namespace MySql.Data.MySqlClient.Tests
       da.Update(dt);
       dt.Rows.Clear();
       da.Fill(dt);
-      Assert.Equal(dt.Rows.Count, 0);
+      Assert.Equal(0, dt.Rows.Count);
 
     }
     /// <summary>
@@ -942,13 +943,13 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable table = ds.Tables["bugtable"];
       DataRow row = table.Rows[0];
       row["field"] = "newvalue";
-      Assert.Equal(row.RowState, DataRowState.Modified);
-      Assert.Equal((int)row["counter"], 0);
+      Assert.Equal(DataRowState.Modified, row.RowState);
+      Assert.Equal(0, (int)row["counter"]);
 
       da.Update(table);
 
       // Verify that "counter" field was changed by updating stored procedure.
-      Assert.Equal((int)row["counter"], 1);
+      Assert.Equal(1, (int)row["counter"]);
     }
 
     [Fact]
@@ -1012,7 +1013,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     #region Async
     [Fact]
-    public async Task FillAsync()
+    public async Task FillAsyncDataSet()
     {
       executeSQL("CREATE TABLE DAFillAsyncTest (id INT NOT NULL AUTO_INCREMENT, id2 INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, OriginalId INT, PRIMARY KEY(id, id2))");
       executeSQL("INSERT INTO DAFillAsyncTest (id, id2, name, dt) VALUES (NULL, 1, 'Name 1', Now())");
@@ -1023,7 +1024,7 @@ namespace MySql.Data.MySqlClient.Tests
       DataSet ds = new DataSet();
       await da.FillAsync(ds, "DAFillAsyncTest");
 
-      Assert.Equal(1, ds.Tables.Count);
+      Assert.Single(ds.Tables);
       Assert.Equal(3, ds.Tables[0].Rows.Count);
 
       Assert.Equal(1, ds.Tables[0].Rows[0]["id2"]);
@@ -1033,6 +1034,101 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("Name 1", ds.Tables[0].Rows[0]["name"]);
       Assert.Equal(DBNull.Value, ds.Tables[0].Rows[1]["name"]);
       Assert.Equal(String.Empty, ds.Tables[0].Rows[2]["name"]);
+
+      ds.Reset();
+      await da.FillAsync(ds);
+
+      Assert.Single(ds.Tables);
+      Assert.Equal(3, ds.Tables[0].Rows.Count);
+      Assert.Equal("Name 1", ds.Tables[0].Rows[0]["name"]);
+
+      ds.Reset();
+      await da.FillAsync(ds, 1, 2, "DAFillAsyncTest");
+
+      Assert.Single(ds.Tables);
+      Assert.Equal(2, ds.Tables[0].Rows.Count);
+      Assert.Equal(2, ds.Tables[0].Rows[0]["id2"]);
+      Assert.Equal(DBNull.Value, ds.Tables[0].Rows[0]["name"]);
+      Assert.Equal(String.Empty, ds.Tables[0].Rows[1]["name"]);
+
+      ds.Reset();
+      using (MySqlCommand cmd = new MySqlCommand("select * from DAFillAsyncTest", Connection))
+      using (MySqlDataReader reader = cmd.ExecuteReader())
+        await da.FillAsync(ds, "DAFillAsyncTest", reader, 0, 1);
+
+      Assert.Single(ds.Tables);
+      Assert.Equal(1, ds.Tables[0].Rows.Count);
+      Assert.Equal(1, ds.Tables[0].Rows[0]["id2"]);
+      Assert.Equal("Name 1", ds.Tables[0].Rows[0]["name"]);
+
+      ds.Reset();
+      using (MySqlCommand cmd = new MySqlCommand("select * from DAFillAsyncTest", Connection))
+        await da.FillAsync(ds, 0, 2, "DAFillAsyncTest", cmd, CommandBehavior.Default);
+
+      Assert.Single(ds.Tables);
+      Assert.Equal(2, ds.Tables[0].Rows.Count);
+      Assert.Equal(1, ds.Tables[0].Rows[0]["id2"]);
+      Assert.Equal(DBNull.Value, ds.Tables[0].Rows[1]["name"]);
+    }
+
+    [Fact]
+    public async Task FillAsyncDataTable()
+    {
+      executeSQL("CREATE TABLE DAFillAsyncDtTest (id INT NOT NULL AUTO_INCREMENT, id2 INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, OriginalId INT, PRIMARY KEY(id, id2))");
+      executeSQL("INSERT INTO DAFillAsyncDtTest (id, id2, name, dt) VALUES (NULL, 1, 'Name 1', Now())");
+      executeSQL("INSERT INTO DAFillAsyncDtTest (id, id2, name, dt) VALUES (NULL, 2, NULL, Now())");
+      executeSQL("INSERT INTO DAFillAsyncDtTest (id, id2, name, dt) VALUES (NULL, 3, '', Now())");
+
+      MySqlDataAdapter da = new MySqlDataAdapter("select * from DAFillAsyncDtTest", Connection);
+
+      DataTable dt = new DataTable();
+      await da.FillAsync(dt);
+
+      Assert.Equal(3, dt.Rows.Count);
+      Assert.Equal(7, dt.Columns.Count);
+      Assert.Equal("Name 1", dt.Rows[0]["name"]);
+      Assert.Equal(DBNull.Value, dt.Rows[1]["name"]);
+      Assert.Equal(String.Empty, dt.Rows[2]["name"]);
+
+      dt.Reset();
+      using (MySqlCommand cmd = new MySqlCommand("select * from DAFillAsyncDtTest", Connection))
+      using (MySqlDataReader reader = cmd.ExecuteReader())
+        await da.FillAsync(dt, reader);
+
+      Assert.Equal(3, dt.Rows.Count);
+      Assert.Equal(7, dt.Columns.Count);
+      Assert.Equal(1, dt.Rows[0]["id2"]);
+      Assert.Equal(2, dt.Rows[1]["id2"]);
+      Assert.Equal(3, dt.Rows[2]["id2"]);
+
+      dt.Reset();
+      using (MySqlCommand cmd = new MySqlCommand("select * from DAFillAsyncDtTest", Connection))
+        await da.FillAsync(dt, cmd, CommandBehavior.Default);
+
+      Assert.Equal(3, dt.Rows.Count);
+      Assert.Equal(7, dt.Columns.Count);
+      Assert.Equal(DBNull.Value, dt.Rows[1]["name"]);
+      Assert.Equal(2, dt.Rows[1]["id2"]);
+      Assert.Equal(3, dt.Rows[2]["id2"]);
+
+      dt.Reset();
+      DataTable[] dataTables = { dt };
+      await da.FillAsync(0, 1, dataTables);
+
+      Assert.Single(dataTables);
+      Assert.Equal(1, dataTables[0].Rows.Count);
+      Assert.Equal(1, dataTables[0].Rows[0]["id2"]);
+      Assert.Equal("Name 1", dataTables[0].Rows[0]["name"]);
+
+      dt.Reset();
+      using (MySqlCommand cmd = new MySqlCommand("select * from DAFillAsyncDtTest", Connection))
+        await da.FillAsync(dataTables, 1, 2, cmd, CommandBehavior.Default);
+
+      Assert.Single(dataTables);
+      Assert.Equal(2, dataTables[0].Rows.Count);
+      Assert.Equal(2, dataTables[0].Rows[0]["id2"]);
+      Assert.Equal(DBNull.Value, dataTables[0].Rows[0]["name"]);
+      Assert.Equal(String.Empty, dataTables[0].Rows[1]["name"]);
     }
 
     [Fact]
@@ -1052,6 +1148,47 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable schema = new DataTable();
       await da.FillSchemaAsync(schema, SchemaType.Source);
       Assert.Equal(2, schema.Columns.Count);
+
+      DataSet ds = new DataSet();
+      await da.FillSchemaAsync(ds, SchemaType.Source);
+      Assert.True(ds.Tables.Count == 1);
+      Assert.Equal(2, ds.Tables[0].Columns.Count);
+
+      ds.Reset();
+      using (cmd)
+      using (reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
+        await da.FillSchemaAsync(ds, SchemaType.Source, "DAFillSchemaAsyncTest", reader);
+
+      Assert.True(ds.Tables.Count == 1);
+      Assert.Equal(2, ds.Tables[0].Columns.Count);
+
+      ds.Reset();
+      using (cmd)
+        await da.FillSchemaAsync(ds, SchemaType.Source, cmd, "DAFillSchemaAsyncTest", CommandBehavior.SchemaOnly);
+
+      Assert.True(ds.Tables.Count == 1);
+      Assert.Equal(2, ds.Tables[0].Columns.Count);
+
+      ds.Reset();
+      using (cmd)
+        await da.FillSchemaAsync(ds, SchemaType.Source, "DAFillSchemaAsyncTest", CancellationToken.None);
+
+      Assert.True(ds.Tables.Count == 1);
+      Assert.Equal(2, ds.Tables[0].Columns.Count);
+
+      DataTable dataTable = new DataTable();
+      using (cmd)
+      using (reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
+        await da.FillSchemaAsync(dataTable, SchemaType.Source, reader);
+
+      Assert.Equal(2, dataTable.Columns.Count);
+
+      dataTable.Reset();
+      using (cmd)
+        await da.FillSchemaAsync(dataTable, SchemaType.Source, cmd, CommandBehavior.SchemaOnly);
+
+      Assert.Equal(2, dataTable.Columns.Count);
+      Assert.Equal("id", dataTable.Columns[0].ColumnName);
     }
 
     [Fact]
@@ -1101,6 +1238,50 @@ namespace MySql.Data.MySqlClient.Tests
       dt.Rows.Clear();
       da.Fill(dt);
       Assert.True(dt.Rows.Count == 0, "checking row count");
+
+      dr = dt.NewRow();
+      dr["id2"] = 3;
+      dr["name"] = "TestName2";
+      dt.Rows.Add(dr);
+
+      DataRow[] dataRows = dt.Select(null, null, DataViewRowState.Added);
+      count = await da.UpdateAsync(dataRows);
+      Assert.True(count == 1, "checking update count");
+
+      DataSet ds = new DataSet();
+      da.Fill(ds);
+      dr = ds.Tables[0].NewRow();
+      dr["id2"] = 6;
+      dr["name"] = "TestName6";
+      ds.Tables[0].Rows.Add(dr);
+
+      count = await da.UpdateAsync(ds);
+      Assert.True(count == 1, "checking update count");
+
+      dr = dt.NewRow();
+      dr["id2"] = 4;
+      dr["name"] = "TestName4";
+      dt.Rows.Add(dr);
+
+      DataTableMapping mapping = new DataTableMapping();
+      mapping.SourceTable = "DAUpdateAsyncTest";
+      mapping.DataSetTable = "DAUpdateAsyncTest";
+
+      dataRows = dt.Select(null, null, DataViewRowState.Added);
+      count = await da.UpdateAsync(dataRows, mapping);
+      Assert.True(count == 1, "checking update count");
+
+      ds.Reset();
+      da.FillSchema(ds, SchemaType.Mapped);
+      dr = ds.Tables[0].NewRow();
+      dr["id2"] = 6;
+      dr["name"] = "TestName6";
+      dr["ts"] = DateTime.Now;
+      ds.Tables[0].Rows.Add(dr);
+
+      count = await da.UpdateAsync(ds, "Table");
+      Assert.True(count == 1, "checking update count");
+
       cb.Dispose();
     }
     #endregion

@@ -51,7 +51,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);    
        
       Exception ex = Assert.Throws<MySqlException>(() =>  cmd.ExecuteReader());
-      Assert.Equal(ex.Message, "Connection must be valid and open.");     
+      Assert.Equal("Connection must be valid and open.", ex.Message);     
       Assert.Equal(ConnectionState.Closed, connection.State);
       connection.Close();
       

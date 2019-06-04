@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -67,6 +67,20 @@ namespace MySqlX.XDevAPI.Relational
     public TableUpdateStatement Set(string tableField, object value)
     {
       updates.Add(new UpdateSpec(Mysqlx.Crud.UpdateOperation.Types.UpdateType.Set, tableField).SetValue(value));
+      SetChanged();
+      return this;
+    }
+
+    /// <summary>
+    /// Sets user-defined sorting criteria for the operation. The strings use normal SQL syntax like
+    /// "order ASC"  or "pages DESC, age ASC".
+    /// </summary>
+    /// <param name="order">The order criteria.</param>
+    /// <returns>A generic object that represents the implementing statement type.</returns>
+    public TableUpdateStatement OrderBy(params string[] order)
+    {
+      FilterData.OrderBy = order;
+      SetChanged();
       return this;
     }
   }

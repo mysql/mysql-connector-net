@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,14 +26,13 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Types;
 using System;
+using System.Collections;
 using System.Data;
+using System.Data.Common;
 using System.Globalization;
 using System.Threading;
-using MySql.Data.MySqlClient;
-using System.Collections;
-using System.Data.Common;
-using MySql.Data.Types;
 
 namespace MySql.Data.MySqlClient
 {
@@ -42,7 +41,7 @@ namespace MySql.Data.MySqlClient
   {
     // The DataReader should always be open when returned to the user.
     private bool _isOpen = true;
-    
+
     internal long affectedRows;
     internal Driver driver;
 
@@ -71,7 +70,7 @@ namespace MySql.Data.MySqlClient
       affectedRows = -1;
       this.Statement = statement;
 
-      if (cmd.CommandType == CommandType.StoredProcedure 
+      if (cmd.CommandType == CommandType.StoredProcedure
         && cmd.UpdatedRowSource == UpdateRowSource.FirstReturnedRecord
       )
       {
@@ -114,7 +113,7 @@ namespace MySql.Data.MySqlClient
       // is not completely accurate until .Close() has been called.
       get
       {
-        if (!_disableZeroAffectedRows) return (int) affectedRows;
+        if (!_disableZeroAffectedRows) return (int)affectedRows;
         // In special case of updating stored procedure called from 
         // within data adapter, we return -1 to avoid exceptions 
         // (s. Bug#54895)
@@ -226,7 +225,7 @@ namespace MySql.Data.MySqlClient
       _isOpen = false;
     }
 
-#region TypeSafe Accessors
+    #region TypeSafe Accessors
 
     /// <summary>
     /// Gets the value of the specified column as a Boolean.
@@ -244,7 +243,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="i"></param>
     /// <returns></returns>
     public override bool GetBoolean(int i)
-    {      
+    {
       var asValue = GetValue(i);
       int numericValue;
       if (int.TryParse(asValue as string, out numericValue))
@@ -463,11 +462,21 @@ namespace MySql.Data.MySqlClient
         return dt.GetDateTime();
     }
 
+    /// <summary>
+    /// Gets the value of the specified column as a <see cref="MySqlDecimal"/>.
+    /// </summary>
+    /// <param name="column">The name of the colum.</param>
+    /// <returns>The value of the specified column as a <see cref="MySqlDecimal"/>.</returns>
     public MySqlDecimal GetMySqlDecimal(string column)
     {
       return GetMySqlDecimal(GetOrdinal(column));
     }
 
+    /// <summary>
+    /// Gets the value of the specified column as a <see cref="MySqlDecimal"/>.
+    /// </summary>
+    /// <param name="i">The index of the colum.</param>
+    /// <returns>The value of the specified column as a <see cref="MySqlDecimal"/>.</returns>
     public MySqlDecimal GetMySqlDecimal(int i)
     {
       return (MySqlDecimal)GetFieldValue(i, false);
@@ -547,7 +556,11 @@ namespace MySql.Data.MySqlClient
       return Convert.ToSingle(v.Value);
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetGuidS/*'/>
+    /// <summary>
+    /// Gets the value of the specified column as a globally-unique identifier(GUID).
+    /// </summary>
+    /// <param name="column">The name of the column.</param>
+    /// <returns></returns>
     public Guid GetGuid(string column)
     {
       return GetGuid(GetOrdinal(column));
@@ -696,7 +709,10 @@ namespace MySql.Data.MySqlClient
 
       IMySqlValue val = GetFieldValue(i, false);
       if (val.IsNull)
-        return DBNull.Value;
+      {
+        if (!(val.MySqlDbType == MySqlDbType.Time && val.Value.ToString() == "00:00:00"))
+          return DBNull.Value;
+      }
 
       // if the column is a date/time, then we return a MySqlDateTime
       // so .ToString() will print '0000-00-00' correctly
@@ -922,6 +938,11 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    /// <summary>
+    /// Gets the value of the specified column as a <see cref="MySqlGeometry"/>.
+    /// </summary>
+    /// <param name="i">The index of the colum.</param>
+    /// <returns>The value of the specified column as a <see cref="MySqlGeometry"/>.</returns>
     public MySqlGeometry GetMySqlGeometry(int i)
     {
       try
@@ -937,6 +958,11 @@ namespace MySql.Data.MySqlClient
       return new MySqlGeometry(true);
     }
 
+    /// <summary>
+    /// Gets the value of the specified column as a <see cref="MySqlGeometry"/>.
+    /// </summary>
+    /// <param name="column">The name of the colum.</param>
+    /// <returns>The value of the specified column as a <see cref="MySqlGeometry"/>.</returns>
     public MySqlGeometry GetMySqlGeometry(string column)
     {
       return GetMySqlGeometry(GetOrdinal(column));
@@ -957,8 +983,11 @@ namespace MySql.Data.MySqlClient
 
       IMySqlValue v = ResultSet[index];
 
-      if (checkNull && v.IsNull)
-        throw new System.Data.SqlTypes.SqlNullValueException();
+      if (!(v.MySqlDbType is MySqlDbType.Time && v.Value.ToString() == "00:00:00"))
+      {
+        if (checkNull && v.IsNull)
+          throw new System.Data.SqlTypes.SqlNullValueException();
+      }
 
       return v;
     }
@@ -968,7 +997,7 @@ namespace MySql.Data.MySqlClient
     {
       // This query will silently crash because of the Kill call that happened before.
       string dummyStatement = "SELECT * FROM bogus_table LIMIT 0"; /* dummy query used to clear kill flag */
-      MySqlCommand dummyCommand = new MySqlCommand(dummyStatement, _connection) {InternallyCreated = true};
+      MySqlCommand dummyCommand = new MySqlCommand(dummyStatement, _connection) { InternallyCreated = true };
 
       try
       {
@@ -1061,11 +1090,11 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#region Destructor
+    #region Destructor
     ~MySqlDataReader()
     {
       Dispose(false);
     }
-#endregion
+    #endregion
   }
 }

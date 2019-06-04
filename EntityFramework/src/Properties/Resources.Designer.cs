@@ -19,10 +19,10 @@ namespace MySql.Data.EntityFramework.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace MySql.Data.EntityFramework.Properties {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.EntityFramework.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace MySql.Data.EntityFramework.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace MySql.Data.EntityFramework.Properties {
         /// <summary>
         ///   Looks up a localized string similar to The connection parameter must reference an object of type MySql.Data.MySqlConnection.
         /// </summary>
-        internal static string ConnectionMustBeOfTypeMySqlConnection {
+        public static string ConnectionMustBeOfTypeMySqlConnection {
             get {
                 return ResourceManager.GetString("ConnectionMustBeOfTypeMySqlConnection", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace MySql.Data.EntityFramework.Properties {
         /// <summary>
         ///   Looks up a localized string similar to There is no store type corresponding to the EDM type &apos;{0}&apos; of primitive type &apos;{1}&apos;..
         /// </summary>
-        internal static string NoStoreTypeForEdmType {
+        public static string NoStoreTypeForEdmType {
             get {
                 return ResourceManager.GetString("NoStoreTypeForEdmType", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace MySql.Data.EntityFramework.Properties {
         /// <summary>
         ///   Looks up a localized string similar to The underlying provider does not support the type &apos;{0}&apos;..
         /// </summary>
-        internal static string TypeNotSupported {
+        public static string TypeNotSupported {
             get {
                 return ResourceManager.GetString("TypeNotSupported", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace MySql.Data.EntityFramework.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Result type of a function is expected to be a collection of RowType or PrimitiveType.
         /// </summary>
-        internal static string WrongFunctionResultType {
+        public static string WrongFunctionResultType {
             get {
                 return ResourceManager.GetString("WrongFunctionResultType", resourceCulture);
             }

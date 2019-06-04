@@ -1,4 +1,4 @@
-// Copyright © 2008, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -51,7 +51,7 @@ namespace MySql.Data.EntityFramework
   {
     private IEnumerable<KeyValuePair<CreateTableOperation, AddForeignKeyOperation>> _foreignKeys;
     private IEnumerable<KeyValuePair<CreateTableOperation, CreateIndexOperation>> _tableIndexes;
-    
+
     private string TrimSchemaPrefix(string table)
     {
       if (table.StartsWith("dbo."))
@@ -126,10 +126,10 @@ namespace MySql.Data.EntityFramework
     {
       addPrimaryKeyOperation.Table = TrimSchemaPrefix(addPrimaryKeyOperation.Table);
       base.Generate(addPrimaryKeyOperation, writer);
-    }   
+    }
 
     protected override void Generate(AlterColumnOperation alterColumnOperation, IndentedTextWriter writer)
-    {    
+    {
       AlterColumnOperation alter = null;
       if (alterColumnOperation.Inverse != null)
         alter = new AlterColumnOperation(TrimSchemaPrefix(alterColumnOperation.Table), alterColumnOperation.Column, alterColumnOperation.IsDestructiveChange, (AlterColumnOperation)alterColumnOperation.Inverse);
@@ -143,7 +143,7 @@ namespace MySql.Data.EntityFramework
     }
 
     protected override void Generate(CreateIndexOperation createIndexOperation, IndentedTextWriter writer)
-    {      
+    {
       createIndexOperation.Table = TrimSchemaPrefix(createIndexOperation.Table);
       base.Generate(createIndexOperation, writer);
     }
@@ -164,8 +164,8 @@ namespace MySql.Data.EntityFramework
     protected override void Generate(CreateTableOperation createTableOperation, IndentedTextWriter writer)
     {
       var create = new CreateTableOperation(TrimSchemaPrefix(createTableOperation.Name));
-      
-      foreach (var item in createTableOperation.Columns)	    
+
+      foreach (var item in createTableOperation.Columns)
         create.Columns.Add(item);
 
       create.PrimaryKey = createTableOperation.PrimaryKey;
@@ -213,19 +213,19 @@ namespace MySql.Data.EntityFramework
 
     protected override void Generate(DropTableOperation dropTableOperation, IndentedTextWriter writer)
     {
-      var drop = new DropTableOperation(TrimSchemaPrefix(dropTableOperation.Name));                        
+      var drop = new DropTableOperation(TrimSchemaPrefix(dropTableOperation.Name));
       base.Generate(drop, writer);
     }
 
     protected override void Generate(MoveTableOperation moveTableOperation, IndentedTextWriter writer)
     {
-      var move = new MoveTableOperation(TrimSchemaPrefix(moveTableOperation.Name), moveTableOperation.NewSchema);      
+      var move = new MoveTableOperation(TrimSchemaPrefix(moveTableOperation.Name), moveTableOperation.NewSchema);
       base.Generate(move, writer);
     }
 
     protected override void Generate(RenameColumnOperation renameColumnOperation, IndentedTextWriter writer)
     {
-      var rename = new RenameColumnOperation(TrimSchemaPrefix(renameColumnOperation.Table), renameColumnOperation.Name, renameColumnOperation.NewName);      
+      var rename = new RenameColumnOperation(TrimSchemaPrefix(renameColumnOperation.Table), renameColumnOperation.Name, renameColumnOperation.NewName);
       base.Generate(rename, writer);
     }
 
@@ -248,7 +248,7 @@ namespace MySql.Data.EntityFramework
     private List<string> _generatedTables { get; set; }
     private string _tableName { get; set; }
     private string _providerManifestToken;
-  private List<string> autoIncrementCols { get; set; }
+    private List<string> autoIncrementCols { get; set; }
     private List<string> primaryKeyCols { get; set; }
     private IEnumerable<AddPrimaryKeyOperation> _pkOperations = new List<AddPrimaryKeyOperation>();
 
@@ -273,7 +273,7 @@ namespace MySql.Data.EntityFramework
       _dispatcher.Add("RenameColumnOperation", (OpDispatcher)((op) => { return Generate(op as RenameColumnOperation); }));
       _dispatcher.Add("RenameTableOperation", (OpDispatcher)((op) => { return Generate(op as RenameTableOperation); }));
       _dispatcher.Add("SqlOperation", (OpDispatcher)((op) => { return Generate(op as SqlOperation); }));
-    autoIncrementCols = new List<string>();
+      autoIncrementCols = new List<string>();
       primaryKeyCols = new List<string>();
       _dispatcher.Add("HistoryOperation", (OpDispatcher)((op) => { return Generate(op as HistoryOperation); }));
       _dispatcher.Add("CreateProcedureOperation", (OpDispatcher)((op) => { return Generate(op as CreateProcedureOperation); }));
@@ -281,12 +281,12 @@ namespace MySql.Data.EntityFramework
     }
 
     public override IEnumerable<MigrationStatement> Generate(IEnumerable<MigrationOperation> migrationOperations, string providerManifestToken)
-    {      
+    {
       MySqlConnection con = new MySqlConnection();
       List<MigrationStatement> stmts = new List<MigrationStatement>();
       _providerManifestToken = providerManifestToken;
       _providerManifest = DbProviderServices.GetProviderServices(con).GetProviderManifest(providerManifestToken);
-      
+
       //verify if there is one or more add/alter column operation, if there is then look for primary key operations. Alter in case that the user wants to change the current PK column
       if ((from cols in migrationOperations.OfType<AddColumnOperation>() select cols).Count() > 0 || (from cols in migrationOperations.OfType<AlterColumnOperation>() select cols).Count() > 0)
         _pkOperations = (from pks in migrationOperations.OfType<AddPrimaryKeyOperation>() select pks).ToList();
@@ -296,7 +296,7 @@ namespace MySql.Data.EntityFramework
         if (!_dispatcher.ContainsKey(op.GetType().Name))
           throw new NotImplementedException(op.GetType().Name);
         OpDispatcher opdis = _dispatcher[op.GetType().Name];
-        stmts.Add(opdis(op)); 
+        stmts.Add(opdis(op));
       }
       if (_specialStmts.Count > 0)
       {
@@ -525,6 +525,11 @@ namespace MySql.Data.EntityFramework
       return sb.ToString();
     }
 
+    /// <summary>
+    /// Generates a migration operation to add a column.
+    /// </summary>
+    /// <param name="op">The operation that represents a column being added to a table.</param>
+    /// <returns>A migration operation to add a column.</returns>
     protected virtual MigrationStatement Generate(AddColumnOperation op)
     {
       if (op == null) return null;
@@ -534,8 +539,8 @@ namespace MySql.Data.EntityFramework
       MigrationStatement stmt = new MigrationStatement();
       //verify if there is any "AddPrimaryKeyOperation" related with the column that will be added and if it is defined as identity (auto_increment)
       bool uniqueAttr = (from pkOpe in _pkOperations
-                         where (from col in pkOpe.Columns 
-                                where col == op.Column.Name 
+                         where (from col in pkOpe.Columns
+                                where col == op.Column.Name
                                 select col).Count() > 0
                          select pkOpe).Count() > 0 & op.Column.IsIdentity;
 
@@ -545,6 +550,11 @@ namespace MySql.Data.EntityFramework
       return stmt;
     }
 
+    /// <summary>
+    /// Generates a migration operation to drop a column.
+    /// </summary>
+    /// <param name="op">The operation that represents a column being dropped from a table.</param>
+    /// <returns>The migration operation to drop a column.</returns>
     protected virtual MigrationStatement Generate(DropColumnOperation op)
     {
       if (op == null) return null;
@@ -556,6 +566,11 @@ namespace MySql.Data.EntityFramework
       return stmt;
     }
 
+    /// <summary>
+    /// Generates a migration operation to alter a column.
+    /// </summary>
+    /// <param name="op">The operation that represents altering an existing column.</param>
+    /// <returns>A migration operation to alter a column.</returns>
     protected virtual MigrationStatement Generate(AlterColumnOperation op)
     {
       if (op == null) return null;
@@ -580,6 +595,11 @@ namespace MySql.Data.EntityFramework
       return new MigrationStatement { Sql = sb.ToString() };
     }
 
+    /// <summary>
+    /// Generates a migration operation to rename a column.
+    /// </summary>
+    /// <param name="op">The operation that represents a column being renamed.</param>
+    /// <returns>A migration operation to rename a column.</returns>
     protected virtual MigrationStatement Generate(RenameColumnOperation op)
     {
       if (op == null) return null;
@@ -599,7 +619,11 @@ namespace MySql.Data.EntityFramework
 
     }
 
-
+    /// <summary>
+    /// Generates a migration operation to add a foreign key.
+    /// </summary>
+    /// <param name="op">the operation that represents a foreing key constraint being added to a table.</param>
+    /// <returns>A migration operation to add a foreign key constraint.</returns>
     protected virtual MigrationStatement Generate(AddForeignKeyOperation op)
     {
 
@@ -623,6 +647,11 @@ namespace MySql.Data.EntityFramework
       return new MigrationStatement { Sql = sb.ToString() };
     }
 
+    /// <summary>
+    /// Generates an SQL statement of a column model.
+    /// </summary>
+    /// <param name="op">The model that represents a column.</param>
+    /// <returns>A string containing an SQL statement of a column model.</returns>
     protected virtual string Generate(ColumnModel op)
     {
       TypeUsage typeUsage = _providerManifest.GetStoreType(op.TypeUsage);
@@ -633,7 +662,7 @@ namespace MySql.Data.EntityFramework
         type = MySqlProviderServices.Instance.GetColumnType(typeUsage);
       }
 
-      sb.Append(type);      
+      sb.Append(type);
 
       if (!type.EndsWith(")", StringComparison.InvariantCulture))
       {
@@ -647,31 +676,31 @@ namespace MySql.Data.EntityFramework
         }
         if (op.Precision.HasValue && op.Scale.HasValue)
         {
-            sb.AppendFormat("( {0}, {1} ) ", op.Precision.Value, op.Scale.Value);
+          sb.AppendFormat("( {0}, {1} ) ", op.Precision.Value, op.Scale.Value);
         }
         else
         {
           if (type == "datetime" || type == "timestamp" || type == "time")
           {
             if (op.Precision.HasValue && op.Precision.Value >= 1)
-            {            
+            {
               sb.AppendFormat("({0}) ", op.Precision.Value <= 6 ? op.Precision.Value : 6);
             }
             if (op.IsIdentity && (String.Compare(type, "datetime", true) == 0 || String.Compare(type, "timestamp", true) == 0))
             {
-              sb.AppendFormat(" DEFAULT CURRENT_TIMESTAMP{0}", op.Precision.HasValue && op.Precision.Value >= 1 ? "( " + op.Precision.Value.ToString() + " )" : "");                              
+              sb.AppendFormat(" DEFAULT CURRENT_TIMESTAMP{0}", op.Precision.HasValue && op.Precision.Value >= 1 ? "( " + op.Precision.Value.ToString() + " )" : "");
             }
-          }            
-        }         
-      }      
+          }
+        }
+      }
 
       op.StoreType = type;
 
       if (!(op.IsNullable ?? true))
       {
-        sb.Append(string.Format("{0} not null ", 
-          ((!primaryKeyCols.Contains(op.Name) && op.IsIdentity && op.Type != PrimitiveTypeKind.Guid ) ? " unsigned" : 
-          (( op.Type == PrimitiveTypeKind.Guid )? " default '' " : "" ) )));
+        sb.Append(string.Format("{0} not null ",
+          ((!primaryKeyCols.Contains(op.Name) && op.IsIdentity && op.Type != PrimitiveTypeKind.Guid) ? " unsigned" :
+          ((op.Type == PrimitiveTypeKind.Guid) ? " default '' " : ""))));
       }
       if (op.IsIdentity && (new string[] { "tinyint", "smallint", "mediumint", "int", "bigint" }).Contains(type.ToLower()))
       {
@@ -689,6 +718,11 @@ namespace MySql.Data.EntityFramework
       return sb.ToString();
     }
 
+    /// <summary>
+    /// Generates a migration operation to drop a foreign key constraint from a table.
+    /// </summary>
+    /// <param name="op">The operation that represents a foreign key being added from a table.</param>
+    /// <returns>A migration operation to drop a foreign key.</returns>
     protected virtual MigrationStatement Generate(DropForeignKeyOperation op)
     {
       StringBuilder sb = new StringBuilder();
@@ -696,6 +730,11 @@ namespace MySql.Data.EntityFramework
       return new MigrationStatement { Sql = sb.ToString() };
     }
 
+    /// <summary>
+    /// Generates a migration operation to create a database index.
+    /// </summary>
+    /// <param name="op">The operation that represents creating a database index.</param>
+    /// <returns>A migration operation to create a database index.</returns>
     protected virtual MigrationStatement Generate(CreateIndexOperation op)
     {
       StringBuilder sb = new StringBuilder();
@@ -726,9 +765,18 @@ namespace MySql.Data.EntityFramework
 
       sb.Append("using " + indexType);
 
+      // As of MySQL 8.0, ASC and DESC are not permitted for HASH indexes.
+      if (Convert.ToDouble(_providerManifestToken) >= 8.0 && indexType == "HASH")
+        sb.Replace(sortOrder, string.Empty);
+
       return new MigrationStatement() { Sql = sb.ToString() };
     }
 
+    /// <summary>
+    /// Generates a migration operation to drop an existing database index.
+    /// </summary>
+    /// <param name="op">The operation that represents dropping am existing database index.</param>
+    /// <returns>A migration operation to drop an existing database index.</returns>
     protected virtual MigrationStatement Generate(DropIndexOperation op)
     {
       return new MigrationStatement()
@@ -738,12 +786,16 @@ namespace MySql.Data.EntityFramework
       };
     }
 
-
+    /// <summary>
+    /// Generates a migration operation to create a table.
+    /// </summary>
+    /// <param name="op">The operation that represents creating a table.</param>
+    /// <returns>A migration operation to create a table.</returns>
     protected virtual MigrationStatement Generate(CreateTableOperation op)
     {
       StringBuilder sb = new StringBuilder();
       string tableName = TrimSchemaPrefix(op.Name);
-    primaryKeyCols.Clear();
+      primaryKeyCols.Clear();
       autoIncrementCols.Clear();
       if (_generatedTables == null)
         _generatedTables = new List<string>();
@@ -756,7 +808,7 @@ namespace MySql.Data.EntityFramework
 
       _tableName = op.Name;
 
-    if (op.PrimaryKey != null)
+      if (op.PrimaryKey != null)
       {
         op.PrimaryKey.Columns.ToList().ForEach(col => primaryKeyCols.Add(col));
       }
@@ -767,14 +819,14 @@ namespace MySql.Data.EntityFramework
       // Determine columns that are GUID & identity
       List<ColumnModel> guidCols = new List<ColumnModel>();
       ColumnModel guidPK = null;
-      foreach( ColumnModel opCol in op.Columns )
+      foreach (ColumnModel opCol in op.Columns)
       {
         if (opCol.Type == PrimitiveTypeKind.Guid && opCol.IsIdentity && String.Compare(opCol.StoreType, "CHAR(36) BINARY", true) == 0)
         {
-          if( primaryKeyCols.Contains( opCol.Name ) )
+          if (primaryKeyCols.Contains(opCol.Name))
             guidPK = opCol;
           guidCols.Add(opCol);
-        } 
+        }
       }
 
       if (guidCols.Count != 0)
@@ -802,7 +854,7 @@ namespace MySql.Data.EntityFramework
         sb.Append("primary key ( " + string.Join(",", op.PrimaryKey.Columns.Select(c => "`" + c + "`")) + ") ");
       }
 
-    string keyFields = ",";
+      string keyFields = ",";
       autoIncrementCols.ForEach(col => keyFields += (!primaryKeyCols.Contains(col) ? string.Format(" KEY (`{0}`),", col) : ""));
       sb.Append(keyFields.Substring(0, keyFields.LastIndexOf(",")));
       sb.Append(") engine=InnoDb auto_increment=0");
@@ -810,11 +862,21 @@ namespace MySql.Data.EntityFramework
       return new MigrationStatement() { Sql = sb.ToString() };
     }
 
+    /// <summary>
+    /// Generates a migration operation to drop an existing table.
+    /// </summary>
+    /// <param name="op">The operation that represents dropping an existing table.</param>
+    /// <returns>A migration operation to drop an existing table.</returns>
     protected virtual MigrationStatement Generate(DropTableOperation op)
     {
       return new MigrationStatement() { Sql = "drop table " + "`" + TrimSchemaPrefix(op.Name) + "`" };
     }
 
+    /// <summary>
+    /// Generates a migration operation to add a primary key to a table.
+    /// </summary>
+    /// <param name="op">The operation that represents adding a primary key to a table.</param>
+    /// <returns>A migration operation to add a primary key to a table.</returns>
     protected virtual MigrationStatement Generate(AddPrimaryKeyOperation op)
     {
       StringBuilder sb = new StringBuilder();
@@ -827,7 +889,11 @@ namespace MySql.Data.EntityFramework
       return new MigrationStatement { Sql = sb.ToString() };
     }
 
-
+    /// <summary>
+    /// Generates a migration operation to drpo an existing primary key.
+    /// </summary>
+    /// <param name="op">The operation that represents dropping an existing primary key.</param>
+    /// <returns>A migration operation to drop an existing primary key.</returns>
     protected virtual MigrationStatement Generate(DropPrimaryKeyOperation op)
     {
       object obj2;
@@ -851,7 +917,11 @@ namespace MySql.Data.EntityFramework
       return new MigrationStatement { Sql = sb.ToString() + " alter table `" + op.Table + "` drop primary key " };
     }
 
-
+    /// <summary>
+    /// Generates a migration operation to rename an existing table.
+    /// </summary>
+    /// <param name="op">The operation that represents renaming an existing table.</param>
+    /// <returns>A migration operation to rename an existing table.</returns>
     protected virtual MigrationStatement Generate(RenameTableOperation op)
     {
       if (op == null) return null;
@@ -861,12 +931,21 @@ namespace MySql.Data.EntityFramework
       return new MigrationStatement { Sql = sb.ToString() };
     }
 
-
+    /// <summary>
+    /// Not implemented yet.
+    /// </summary>
+    /// <param name="op">NA</param>
+    /// <returns>NA</returns>
     protected virtual MigrationStatement Generate(MoveTableOperation op)
     {
       return null; // TODO :check if we'll suppport this operation
     }
 
+    /// <summary>
+    /// Generates a migration operation with a MySQL statement to be executed.
+    /// </summary>
+    /// <param name="op">The operation representing a MySQL statement to be executed directly against the database.</param>
+    /// <returns>A migration operation with a MySQL statement to be executed.</returns>
     protected virtual MigrationStatement Generate(SqlOperation op)
     {
       return new MigrationStatement { Sql = op.Sql, SuppressTransaction = op.SuppressTransaction };

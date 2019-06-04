@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -67,7 +67,7 @@ namespace MySql.Data.MySqlClient.Tests
       settings.Port = port == null ? 3306 : UInt32.Parse(port);
       settings.UserID = "root";
       settings.Password = null;
-#if !(NETCOREAPP1_1 || NETCOREAPP2_0)
+#if !(NETCOREAPP1_1 || NETCOREAPP2_2)
       var memName = Environment.GetEnvironmentVariable("MYSQL_MEM");
       settings.SharedMemoryName = memName == null ? "MySQLSocket" : memName;
       var pipeName = Environment.GetEnvironmentVariable("MYSQL_PIPE");
@@ -77,6 +77,7 @@ namespace MySql.Data.MySqlClient.Tests
       settings.AllowUserVariables = true;
       settings.Pooling = false;
       settings.IgnorePrepare = false;
+      settings.ConnectionTimeout = 600;
       TestClass.AdjustConnectionSettings(settings);
       MaxPacketSize = 1000 * 1024;
 
@@ -100,6 +101,10 @@ namespace MySql.Data.MySqlClient.Tests
       {
         executeSQL("SET GLOBAL max_allowed_packet=" + MaxPacketSize, root);
         executeSQL("SET GLOBAL SQL_MODE = STRICT_ALL_TABLES", root);
+        executeSQL("SET GLOBAL connect_timeout=600", root);
+        executeSQL("SET GLOBAL net_read_timeout=6000", root);
+        executeSQL("SET GLOBAL net_write_timeout=6000", root);
+
 
         var data = Utils.FillTable("SHOW DATABASES", root);
         foreach (DataRow row in data.Rows)
@@ -168,7 +173,10 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = GetConnection(true))
       {
         string userName = String.Format("{0}{1}", BaseUserName, postfix);
-        executeSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED BY '{1}'", userName, password), connection);
+        if (Version >= new Version("5.7"))
+        executeSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED WITH mysql_native_password BY '{1}'", userName, password), connection);
+        else
+          executeSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED BY '{1}'", userName, password), connection);
         executeSQL(String.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName), connection);
         executeSQL("FLUSH PRIVILEGES", connection);
         return userName;

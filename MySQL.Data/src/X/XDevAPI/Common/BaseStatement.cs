@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,7 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data;
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Relational;
+using System;
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -38,6 +42,10 @@ namespace MySqlX.XDevAPI.Common
   /// <typeparam name="TResult"></typeparam>
   public abstract class BaseStatement<TResult> where TResult : BaseResult
   {
+    // Prepared statements flags
+    internal bool _hasChanged, _isPrepared;
+    protected int _stmtId;
+
     /// <summary>
     /// Initializes a new instance of the BaseStatement class based on the specified session.
     /// </summary>
@@ -45,12 +53,13 @@ namespace MySqlX.XDevAPI.Common
     public BaseStatement(BaseSession session)
     {
       Session = session;
+      _hasChanged = true;
     }
 
     /// <summary>
     /// Gets the <see cref="Session"/> that owns the statement.
     /// </summary>
-    public BaseSession Session { get; private set;  }
+    public BaseSession Session { get; private set; }
 
     /// <summary>
     /// Executes the base statements. This method is intended to be defined by child classes.
@@ -71,7 +80,7 @@ namespace MySqlX.XDevAPI.Common
         {
           (result as BufferingResult<DbDoc>).FetchAll();
         }
-        else if(result is BufferingResult<Row>)
+        else if (result is BufferingResult<Row>)
         {
           (result as BufferingResult<Row>).FetchAll();
         }
@@ -79,7 +88,75 @@ namespace MySqlX.XDevAPI.Common
       },
         CancellationToken.None,
         TaskCreationOptions.None,
-        Session.scheduler);
+        Session._scheduler);
+    }
+
+    /// <summary>
+    /// Validates if the session is open and valid.
+    /// </summary>
+    protected void ValidateOpenSession()
+    {
+      if (Session.XSession.SessionState != SessionState.Open)
+        throw new MySqlException(ResourcesX.InvalidSession);
+    }
+
+    /// <summary>
+    /// Sets the status as Changed for prepared statement validation.
+    /// </summary>
+    protected void SetChanged()
+    {
+      _hasChanged = true;
+    }
+
+    /// <summary>
+    /// Converts a statement to prepared statement for a second execution 
+    /// without any change but Bind, Limit, or Offset.
+    /// </summary>
+    protected virtual TResult ConvertToPreparedStatement<T>(Func<T, TResult> executeFunc, T t, IEnumerable args)
+    //where T : FilterableStatement<T, DatabaseObject, TResult>
+    {
+      if (!Session.SupportsPreparedStatements)
+      {
+        // Normal execution
+        return executeFunc(t);
+      }
+
+      if (_hasChanged)
+      {
+        if (_isPrepared)
+        {
+          // Deallocate prepared statement
+          Session.XSession.DeallocatePreparedStatement(_stmtId);
+          _isPrepared = false;
+        }
+        // Normal execution
+        return executeFunc(t);
+      }
+      else
+      {
+        if (!_isPrepared)
+        {
+          // Create prepared statement
+          try
+          {
+            _stmtId = Session.XSession.PrepareStatement<TResult>(this);
+            _isPrepared = true;
+          }
+          catch (MySqlException ex)
+            when (ex.Code == 1461 // Can't create more than max_prepared_stmt_count statements
+              || ex.Code == 1047) // Unexpected message received
+          {
+            // Set prepared statements not supported to avoid trying it 
+            // on following executions.
+            Session.SupportsPreparedStatements = false;
+            _isPrepared = false;
+            // Normal execution
+            return executeFunc(t);
+          }
+        }
+        // Execute prepared statement
+        return Session.XSession.ExecutePreparedStatement<TResult>(_stmtId, args);
+      }
     }
   }
 }

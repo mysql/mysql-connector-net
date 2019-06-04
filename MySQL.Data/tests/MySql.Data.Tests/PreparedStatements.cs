@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -161,7 +161,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact(Skip = "Fix This")]
     public void DifferentParameterOrder()
     {
       executeSQL("CREATE TABLE Test (id int NOT NULL AUTO_INCREMENT, " +
@@ -275,7 +275,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact(Skip = "Fix This")]
     public void Bug6271()
     {
       MySqlCommand cmd = null;
@@ -426,7 +426,8 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #19261  	Supplying Input Parameters
     /// </summary>
-    [Fact(Skip="Fix This")]
+#if NETCOREAPP20
+    [Fact]
     public void MoreParametersOutOfOrder()
     {
       executeSQL("CREATE TABLE `Test` (`BlackListID` int(11) NOT NULL auto_increment, " +
@@ -468,6 +469,7 @@ namespace MySql.Data.MySqlClient.Tests
       int cnt = cmd.ExecuteNonQuery();
       Assert.Equal(1, cnt);
     }
+#endif
 
     /// <summary>
     /// Bug #16627 Index and length must refer to a location within the string." when executing c
@@ -581,7 +583,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("", Connection);
       cmd.Prepare();
       Exception ex = Assert.Throws<InvalidOperationException>(() => cmd.ExecuteNonQuery());
-      Assert.Equal(ex.Message, "The CommandText property has not been properly initialized.");
+      Assert.Equal("The CommandText property has not been properly initialized.", ex.Message);
     }
 
     /// <summary>
@@ -600,7 +602,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("?t1", MySqlDbType.Int32);
       cmd.Parameters.Add("?t2", MySqlDbType.Int32);
       Exception ex = Assert.Throws<MySqlException>(() => cmd.Prepare());
-      Assert.True(ex.Message.Contains("You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version"));
+      Assert.Contains("You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version", ex.Message);
     }
 
     [Fact]
@@ -627,7 +629,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void ClosingCommandsProperly()
     {
       executeSQL("CREATE TABLE Test (id INT, name VARCHAR(50))");
@@ -715,7 +717,7 @@ namespace MySql.Data.MySqlClient.Tests
       ReadNegativeTime(false);
     }
 
-    public void NegativeTime(bool prepared)
+    internal void NegativeTime(bool prepared)
     {
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL(@"CREATE TABLE Test(id int, t time)");
@@ -768,7 +770,34 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip ="This one is not currently working")]
+    /// <summary>
+    /// Bug #28383726 00:00:00 IS CONVERTED TO NULL WITH PREPARED COMMAND
+    /// </summary>
+    [Fact]
+    public void ZeroTimePrepared()
+    {
+      executeSQL("DROP TABLE IF EXISTS Test");
+      executeSQL(@"CREATE TABLE Test(id int, t time NOT NULL)");
+      executeSQL(@"INSERT INTO Test VALUES(1, 0)");
+
+      MySqlCommand cmd = new MySqlCommand(@"SELECT t FROM Test", Connection);
+      cmd.Prepare();
+
+      using (var reader = cmd.ExecuteReader())
+      {
+        reader.Read();
+        var t = reader.GetValue(0);
+        Assert.Equal("00:00:00", t.ToString());
+
+        TimeSpan timeSpan = reader.GetTimeSpan(0);
+        Assert.Equal(0, timeSpan.Hours);
+        Assert.Equal(0, timeSpan.Minutes);
+        Assert.Equal(0, timeSpan.Seconds);
+      }
+    }
+
+#if NETCOREAPP20
+    [Fact]
     public void SprocOutputParams()
     {
       executeSQL("CREATE PROCEDURE spOutTest(id INT, OUT age INT) BEGIN SET age=id; END");
@@ -793,8 +822,9 @@ namespace MySql.Data.MySqlClient.Tests
       if (!Connection.driver.Version.isAtLeast(8,0,1))
       Assert.Equal(20, cmd.Parameters[1].Value);
     }
+#endif
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void SprocInputOutputParams()
     {
       executeSQL("CREATE PROCEDURE spInOutTest(id INT, INOUT age INT) BEGIN SET age=age*2; END");

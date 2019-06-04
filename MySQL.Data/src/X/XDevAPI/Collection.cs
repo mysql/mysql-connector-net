@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -43,10 +43,6 @@ namespace MySqlX.XDevAPI
   /// </summary>
   public class Collection : DatabaseObject
   {
-    internal Collection() :base(null, null)
-    {
-    }
-
     internal Collection(Schema schema, string name)
       : base(schema, name)
     {
@@ -96,37 +92,6 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Creates a <see cref="RemoveStatement"/> with the given identifier that can be used to remove a single
-    /// document from a collection.
-    /// </summary>
-    /// <param name="id">The identifier to match the document.</param>
-    /// <returns>A <see cref="RemoveStatement"/> object set with the given identifier.</returns>
-    /// <remarks>The statement can then be further modified before execution.</remarks>
-    public RemoveStatement Remove(object id)
-    {
-      string key = id is string ?
-        "\"" + id.ToString() + "\"" : id.ToString();
-      string condition = String.Format("_id = {0}", key);
-      RemoveStatement stmt = new RemoveStatement(this, condition);
-      return stmt;
-    }
-
-    /// <summary>
-    /// Creates a <see cref="RemoveStatement"/> containing the identifier of the provided document that can
-    /// be used to remove a single document from a collection.
-    /// </summary>
-    /// <param name="doc">The <see cref="DbDoc"/> representing the document to remove.</param>
-    /// <returns>A <see cref="RemoveStatement"/> object set with the given document's identifier.</returns>
-    /// <exception cref="InvalidOperationException">No identifier for the document was provided.</exception>
-    /// <remarks>The remove statement can then be further modified before execution.</remarks>
-    public RemoveStatement Remove(DbDoc doc)
-    {
-      if (!doc.HasId)
-        throw new InvalidOperationException(ResourcesX.RemovingRequiresId);
-      return Remove(doc.Id);
-    }
-
-    /// <summary>
     /// Removes the document with the given identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the document to replace.</param>
@@ -141,7 +106,7 @@ namespace MySqlX.XDevAPI
       if (string.IsNullOrWhiteSpace(stringId))
         throw new ArgumentNullException(nameof(id), Resources.ParameterNullOrEmpty);
 
-      return Remove("_id = :id").Bind("id", id is string ? "\"" + stringId + "\"" : stringId).Execute();
+      return Remove("_id = :id").Bind("id", id).Execute();
     }
 
 #endregion
@@ -246,7 +211,8 @@ namespace MySqlX.XDevAPI
     /// <returns>The number of documents found.</returns>
     public long Count()
     {
-      return Session.XSession.TableCount(Schema, Name);
+      ValidateOpenSession();
+      return Session.XSession.TableCount(Schema, Name, "Collection");
     }
 
     /// <summary>
@@ -263,16 +229,11 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Creates a <see cref="CreateCollectionIndexStatement"/> with the given parameters which can be used to create
-    /// an index.
+    /// Creates an index based on the properties provided in the JSON document.
     /// </summary>
     /// <param name="indexName">The index name.</param>
     /// <param name="indexDefinition">JSON document describing the index to be created.</param>
-    /// <returns>A <see cref="CreateCollectionIndexStatement"/> object set with the given index definition.</returns>
     /// <remarks>
-    /// <para><see cref="CreateCollectionIndexStatement"/>:</para>
-    /// <para>The statement be further modified before execution.</para>
-    /// <para>&#160;</para>
     /// <para><paramref name="indexDefinition"/> is a JSON document with the following fields:</para>
     /// <para>
     /// <para />- <c>fields</c>: array of <c>IndexField</c> objects, each describing a single document member to be
@@ -311,12 +272,13 @@ namespace MySqlX.XDevAPI
     /// <para />- TIMESTAMP
     /// <para />- DATETIME
     /// <para />- TEXT[(length)]
+    /// <para />- CHAR[(lenght)] 
     /// <para />- GEOJSON (extra options: options, srid)
     /// </para>
     /// </remarks>
-    public CreateCollectionIndexStatement CreateIndex(string indexName, object indexDefinition)
+    public void CreateIndex(string indexName, object indexDefinition)
     {
-      return new CreateCollectionIndexStatement(this, indexName, new DbDoc(indexDefinition));
+      new CreateCollectionIndexStatement(this, indexName, new DbDoc(indexDefinition)).Execute();
     }
 
     /// <summary>
@@ -327,6 +289,8 @@ namespace MySqlX.XDevAPI
     public void DropIndex(string indexName)
     {
       if (string.IsNullOrWhiteSpace(indexName)) throw new ArgumentNullException(nameof(indexName));
+
+      ValidateOpenSession();
 
       bool indexExists = Convert.ToInt32(Session.XSession.ExecuteQueryAsScalar(
         string.Format("SELECT COUNT(*)>0 FROM information_schema.statistics WHERE table_schema = '{0}' AND table_name = '{1}' AND index_name = '{2}'",
@@ -342,6 +306,7 @@ namespace MySqlX.XDevAPI
     /// <returns><c>true</c> if the collection exists; otherwise, <c>false</c>.</returns>
     public override bool ExistsInDatabase()
     {
+      ValidateOpenSession();
       return Session.XSession.TableExists(Schema, Name);
     }
 
@@ -360,7 +325,7 @@ namespace MySqlX.XDevAPI
       if (string.IsNullOrWhiteSpace(stringId))
         throw new ArgumentNullException(nameof(id), Resources.ParameterNullOrEmpty);
 
-      return Find("_id = :id").Bind("id", id is string ? "\"" + stringId + "\"" : stringId).Execute().FetchOne();
+      return Find("_id = :id").Bind("id", id).Execute().FetchOne();
     }
   }
 }

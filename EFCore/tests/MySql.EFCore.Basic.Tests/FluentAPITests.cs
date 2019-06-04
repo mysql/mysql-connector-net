@@ -32,6 +32,7 @@ using MySql.Data.EntityFrameworkCore.Extensions;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -349,12 +350,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     [Fact]
     public void CharsetTest()
     {
-      using(CharsetTestContext context = new CharsetTestContext())
+      using (CharsetTestContext context = new CharsetTestContext())
       {
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
-        using(MySqlConnection conn = (MySqlConnection)context.Database.GetDbConnection())
+        using (MySqlConnection conn = (MySqlConnection)context.Database.GetDbConnection())
         {
           conn.Open();
           MySqlCommand cmd = conn.CreateCommand();
@@ -375,7 +376,14 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           {
             reader.Read();
             string createTable = reader.GetString(1);
-            Assert.Equal(@"CREATE TABLE `testcharsetfa` (
+
+            //Adding "COLLATION" to the string validation at table creation (this happens since MySql 8.0.5 Server)
+            if (createTable.Contains("COLLATE latin7_general_ci")) Assert.Equal(@"CREATE TABLE `testcharsetfa` (
+  `TestCharsetFAId` varchar(255) CHARACTER SET latin7 COLLATE latin7_general_ci NOT NULL,
+  PRIMARY KEY (`TestCharsetFAId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf16",
+              createTable, true, true, true);
+            else Assert.Equal(@"CREATE TABLE `testcharsetfa` (
   `TestCharsetFAId` varchar(255) CHARACTER SET latin7 NOT NULL,
   PRIMARY KEY (`TestCharsetFAId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf16",

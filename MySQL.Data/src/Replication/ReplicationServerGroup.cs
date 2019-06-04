@@ -1,4 +1,4 @@
-// Copyright Â© 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2014, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -36,14 +36,17 @@ using System.Text;
 namespace MySql.Data.MySqlClient.Replication
 {
   /// <summary>
-  /// Base class used to implement load balancing features
+  /// Base class used to implement load balancing features.
   /// </summary>
   public abstract class ReplicationServerGroup
   {
+    /// <summary>
+    /// List of servers available for replication.
+    /// </summary>
     protected List<ReplicationServer> servers = new List<ReplicationServer>();
 
-    /// <param name="name">Group name</param>
-    /// <param name="retryTime"></param>
+    /// <param name="name">The group name.</param>
+    /// <param name="retryTime">The number of seconds to perform a retry.</param>
     public ReplicationServerGroup(string name, int retryTime)
     {
       Servers = servers;
@@ -52,25 +55,25 @@ namespace MySql.Data.MySqlClient.Replication
     }
 
     /// <summary>
-    /// Group name
+    /// Gets the group name.
     /// </summary>
     public string Name { get; protected set; }
     /// <summary>
-    /// Retry time between connections to failed servers
+    /// Gets the retry time between connections to failed servers.
     /// </summary>
     public int RetryTime { get; protected set; }
     /// <summary>
-    /// Servers list in the group
+    /// Gets the server list in the group.
     /// </summary>
     protected IList<ReplicationServer> Servers { get; private set; }
 
     /// <summary>
-    /// Adds a server into the group
+    /// Adds a server into the group.
     /// </summary>
-    /// <param name="name">Server name</param>
-    /// <param name="isMaster">True if the server to add is master, False for slave server</param>
-    /// <param name="connectionString">Connection string used by this server</param>
-    /// <returns></returns>
+    /// <param name="name">The server name.</param>
+    /// <param name="isMaster">A flag indicating if the server to add is master or slave.</param>
+    /// <param name="connectionString">The connection string used by this server.</param>
+    /// <returns>A <see cref="ReplicationServer"/> object representing the recently added object.</returns>
     internal protected ReplicationServer AddServer(string name, bool isMaster, string connectionString)
     {
       ReplicationServer server = new ReplicationServer(name, isMaster, connectionString);
@@ -79,9 +82,9 @@ namespace MySql.Data.MySqlClient.Replication
     }
 
     /// <summary>
-    /// Removes a server from group
+    /// Removes a server from the group.
     /// </summary>
-    /// <param name="name">Server name</param>
+    /// <param name="name">The server name.</param>
     internal protected void RemoveServer(string name)
     {
       ReplicationServer serverToRemove = GetServer(name);
@@ -91,10 +94,10 @@ namespace MySql.Data.MySqlClient.Replication
     }
 
     /// <summary>
-    /// Gets a server by name
+    /// Gets a server by name.
     /// </summary>
-    /// <param name="name">Server name</param>
-    /// <returns>Replication server</returns>
+    /// <param name="name">The server name.</param>
+    /// <returns>The replication server.</returns>
     internal protected ReplicationServer GetServer(string name)
     {
       foreach (var server in servers)
@@ -105,12 +108,20 @@ namespace MySql.Data.MySqlClient.Replication
     /// <summary>
     /// Must be implemented. Defines the next server for a custom load balancing implementation.
     /// </summary>
-    /// <param name="isMaster">Defines if the server to return is a master or any</param>
-    /// <returns>Next server based on the load balancing implementation.
-    ///   Null if no available server is found.
+    /// <param name="isMaster">Defines if the server to return is a master or any.</param>
+    /// <returns>The next server based on the load balancing implementation.
+    /// Null if no available server is found.
     /// </returns>
     internal protected abstract ReplicationServer GetServer(bool isMaster);
 
+    /// <summary>
+    /// Defines the next server for a custom load balancing implementation.
+    /// </summary>
+    /// <param name="isMaster">Defines if the server to return is a master or any.</param>
+    /// <param name="settings">Currently not being used.</param>
+    /// <returns>The next server based on the load balancing implementation.
+    /// Null if no available server is found.
+    /// </returns>
     internal protected virtual ReplicationServer GetServer(bool isMaster, MySqlConnectionStringBuilder settings)
     {
       return GetServer(isMaster);
@@ -118,9 +129,9 @@ namespace MySql.Data.MySqlClient.Replication
 
     /// <summary>
     /// Handles a failed connection to a server.
-    /// This method can be overrided to implement a custom failover handling
     /// </summary>
-    /// <param name="server">The failed server</param>
+    /// <param name="server">The failed server.</param>
+    /// <remarks>This method can be overrided to implement a custom failover handling.</remarks>
     internal protected virtual void HandleFailover(ReplicationServer server)
     {
       BackgroundWorker worker = new BackgroundWorker();
@@ -195,8 +206,8 @@ namespace MySql.Data.MySqlClient.Replication
     /// <summary>
     /// Handles a failed connection to a server.
     /// </summary>
-    /// <param name="server">The failed server</param>
-    /// <param name="exception">Exception that caused the failover</param>
+    /// <param name="server">The failed server.</param>
+    /// <param name="exception">The exception that caused the failover.</param>
     internal protected virtual void HandleFailover(ReplicationServer server, Exception exception)
     {
       HandleFailover(server);

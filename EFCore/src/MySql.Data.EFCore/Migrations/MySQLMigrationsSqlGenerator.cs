@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -45,7 +45,6 @@ namespace MySql.Data.EntityFrameworkCore.Migrations
   internal partial class MySQLMigrationsSqlGenerator : MigrationsSqlGenerator
   {
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
-    private IRelationalTypeMapper _typeMapper;
 
     protected override void Generate(
       [NotNull] MigrationOperation operation,
@@ -272,7 +271,9 @@ namespace MySql.Data.EntityFrameworkCore.Migrations
       builder
       .Append("CREATE " + (operation.IsUnique ? "UNIQUE " : "") + "INDEX ");
 
-      builder.Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + " ON " + operation.Table + " (" + string.Join(", ", operation.Columns.Select(_sqlGenerationHelper.DelimitIdentifier)) + ")")
+      string schema = string.IsNullOrWhiteSpace(operation.Schema) ? string.Empty : $"`{operation.Schema}`.";
+
+      builder.Append(_sqlGenerationHelper.DelimitIdentifier(operation.Name) + $" ON {schema}`{operation.Table}` ({string.Join(", ", operation.Columns.Select(_sqlGenerationHelper.DelimitIdentifier))})")
              .AppendLine(_sqlGenerationHelper.StatementTerminator);
 
       EndStatement(builder);

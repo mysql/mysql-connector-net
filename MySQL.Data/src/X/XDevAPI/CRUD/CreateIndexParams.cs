@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 
@@ -33,8 +34,15 @@ namespace MySqlX.XDevAPI.CRUD
 {
   internal class CreateIndexParams
   {
+    private const string FIELDS = "fields";
+    private const string FIELD = "field";
+    private const string TYPE = "type";
+    private const string REQUIRED = "required";
+    private const string OPTIONS = "options";
+    private const string SRID = "srid";
+    private const string ARRAY = "array";
+
     private string _indexName;
-    private bool _unique;
     private string _type;
     private List<IndexField> _fields = new List<IndexField>();
 
@@ -42,31 +50,37 @@ namespace MySqlX.XDevAPI.CRUD
     {
       this._indexName = indexName;
 
-      if (indexDefinition.values.ContainsKey("type"))
-        this._type = indexDefinition.values["type"].ToString();
+      if (indexDefinition.values.ContainsKey(TYPE))
+        this._type = indexDefinition.values[TYPE].ToString();
 
       // Read fields from the indexDefinition object.
-      foreach (var item in indexDefinition.values["fields"] as Object[])
+      foreach (var item in indexDefinition.values[FIELDS] as Object[])
       {
         var field = item as Dictionary<string, object>;
         if (field == null) continue;
 
-        var fieldValue = field["field"] is MySqlExpression ? ((MySqlExpression) field["field"]).value : field["field"].ToString();
+        var fieldValue = field[FIELD] is MySqlExpression ? ((MySqlExpression)field[FIELD]).value : field[FIELD].ToString();
         var indexField = new IndexField()
         {
           Field = fieldValue
         };
-        if (field.ContainsKey("type"))
-          indexField.Type = field["type"].ToString();
+        if (field.ContainsKey(TYPE))
+          indexField.Type = field[TYPE].ToString();
 
-        if (field.ContainsKey("required"))
-          indexField.Required = Convert.ToBoolean(field["required"]);
+        if (field.ContainsKey(REQUIRED))
+          indexField.Required = Convert.ToBoolean(field[REQUIRED]);
 
-        if (field.ContainsKey("options"))
-          indexField.Options = Convert.ToUInt32(field["options"]);
+        if (field.ContainsKey(OPTIONS))
+          indexField.Options = Convert.ToUInt32(field[OPTIONS]);
 
-        if (field.ContainsKey("srid"))
-          indexField.Srid = Convert.ToUInt32(field["srid"]);
+        if (field.ContainsKey(SRID))
+          indexField.Srid = Convert.ToUInt32(field[SRID]);
+
+        if (field.ContainsKey(ARRAY))
+          if (field[ARRAY] is MySqlExpression || field[ARRAY] is null)
+            throw new MySqlException("Index field 'array' member must be boolean.");
+          else
+            indexField.Array = Convert.ToBoolean(field[ARRAY]);
 
         _fields.Add(indexField);
       }
@@ -74,17 +88,12 @@ namespace MySqlX.XDevAPI.CRUD
 
     internal class IndexField
     {
-      private string _field;
-      private string _type;
-      private bool? _required;
-      private uint? _options;
-      private uint? _srid;
-
       internal string Field { get; set; }
       internal string Type { get; set; }
       internal bool? Required { get; set; }
       internal uint? Options { get; set; }
       internal uint? Srid { get; set; }
+      internal bool? Array { get; set; }
     }
 
     public string IndexName

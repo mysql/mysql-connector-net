@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -93,14 +93,23 @@ namespace MySql.Data.Common
     private static Stream GetTcpStream(MySqlConnectionStringBuilder settings)
     {
       TcpClient client = new TcpClient(AddressFamily.InterNetwork);
-      Task task = client.ConnectAsync(settings.Server, (int)settings.Port);
-
+      Task task = null;
+      if (!settings.IsSshEnabled())
+        task = client.ConnectAsync(settings.Server, (int)settings.Port);
+      else
+        task = client.ConnectAsync(
+          settings.Server == "127.0.0.1" || settings.Server == "::1" 
+            ? "localhost"
+            : settings.Server,
+          3306);
+      
       if (!task.Wait(((int)settings.ConnectionTimeout * 1000)))
         throw new MySqlException(Resources.Timeout);
       if (settings.Keepalive > 0)
       {
         SetKeepAlive(client.Client, settings.Keepalive);
       }
+
       return client.GetStream();
     }
 
@@ -108,7 +117,7 @@ namespace MySql.Data.Common
     {
       try
       {
-        return new NetworkStream(GetUnixSocket(settings), true);
+        return new NetworkStream(GetUnixSocket(settings.Server, settings.ConnectionTimeout, settings.Keepalive), true);
       }
       catch (Exception)
       {
@@ -116,20 +125,20 @@ namespace MySql.Data.Common
       }
     }
 
-    internal static Socket GetUnixSocket(MySqlConnectionStringBuilder settings)
+    internal static Socket GetUnixSocket(string server, uint connectionTimeout, uint keepAlive)
     {
       if (Platform.IsWindows())
         throw new InvalidOperationException(Resources.NoUnixSocketsOnWindows);
 
-      EndPoint endPoint = new UnixEndPoint(settings.Server);
+      EndPoint endPoint = new UnixEndPoint(server);
       Socket socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
-      if (settings.Keepalive > 0)
+      if (keepAlive > 0)
       {
-        SetKeepAlive(socket, settings.Keepalive);
+        SetKeepAlive(socket, keepAlive);
       }
       try
       {
-        socket.ReceiveTimeout = (int)settings.ConnectionTimeout * 1000;
+        socket.ReceiveTimeout = (int)connectionTimeout * 1000;
         socket.Connect(endPoint);
         return socket;
       }

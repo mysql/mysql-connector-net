@@ -1,4 +1,4 @@
-// Copyright (c) 2009, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,7 +31,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Common
 {
@@ -74,7 +73,6 @@ namespace MySql.Data.Common
       return (e.SocketErrorCode == SocketError.WouldBlock);
     }
 
-
     private void HandleOrRethrowException(Exception e)
     {
       Exception currentException = e;
@@ -100,7 +98,6 @@ namespace MySql.Data.Common
       }
       throw (e);
     }
-
 
     public override int Read(byte[] buffer, int offset, int count)
     {
@@ -189,26 +186,35 @@ namespace MySql.Data.Common
 
     #region Create Code
 
-    public static MyNetworkStream CreateStream(MySqlConnectionStringBuilder settings, bool unix)
+    public static MyNetworkStream CreateStream(string server, uint connectionTimeout, uint keepAlive, uint port, bool unix)
     {
-      if (unix) return new MyNetworkStream(StreamCreator.GetUnixSocket(settings), true);
+      if (unix) return new MyNetworkStream(StreamCreator.GetUnixSocket(server, connectionTimeout, keepAlive), true);
 
       MyNetworkStream stream = null;
 
-      IPHostEntry ipHE = GetHostEntry(settings.Server);
+      IPHostEntry ipHE = GetHostEntry(server);
       foreach (IPAddress address in ipHE.AddressList)
       {
         try
         {
-          stream = CreateSocketStream(settings, address, unix);
+          stream = CreateSocketStream(port, keepAlive, connectionTimeout, address, unix);
           if (stream != null) break;
         }
         catch (Exception ex)
         {
+          string exTimeOutMessage = connectionTimeout == 0 ? ResourcesX.TimeOutSingleHost0ms : String.Format(ResourcesX.TimeOutSingleHost, connectionTimeout);
+
+          if (ex is TimeoutException) throw new TimeoutException(exTimeOutMessage);
+
           SocketException socketException = ex as SocketException;
+
+#if NETSTANDARD1_6
+          socketException = ex.InnerException as SocketException;
+#endif
           // if the exception is a ConnectionRefused then we eat it as we may have other address
           // to attempt
           if (socketException == null) throw;
+          if (socketException.SocketErrorCode == SocketError.TimedOut) throw new TimeoutException(exTimeOutMessage);
           if (socketException.SocketErrorCode != SocketError.ConnectionRefused) throw;
         }
       }
@@ -238,51 +244,60 @@ namespace MySql.Data.Common
       return t.Result;
     }
 
-//#if NETSTANDARD1_6
-//    private static EndPoint CreateUnixEndPoint(string host)
-//    {
-//      // first we need to load the Mono.posix assembly			
-//      Assembly a = Assembly.Load(@"Mono.Posix, Version=2.0.0.0, 				
-//                Culture=neutral, PublicKeyToken=0738eb9f132ed756");
+    //#if NETSTANDARD1_6
+    //    private static EndPoint CreateUnixEndPoint(string host)
+    //    {
+    //      // first we need to load the Mono.posix assembly			
+    //      Assembly a = Assembly.Load(@"Mono.Posix, Version=2.0.0.0, 				
+    //                Culture=neutral, PublicKeyToken=0738eb9f132ed756");
 
 
-//      // then we need to construct a UnixEndPoint object
-//      EndPoint ep = (EndPoint)a.CreateInstance("Mono.Posix.UnixEndPoint",
-//          false, BindingFlags.CreateInstance, null,
-//          new object[1] { host }, null, null);
-//      return ep;
-//    }
-//#endif
+    //      // then we need to construct a UnixEndPoint object
+    //      EndPoint ep = (EndPoint)a.CreateInstance("Mono.Posix.UnixEndPoint",
+    //          false, BindingFlags.CreateInstance, null,
+    //          new object[1] { host }, null, null);
+    //      return ep;
+    //    }
+    //#endif
 
-    private static MyNetworkStream CreateSocketStream(MySqlConnectionStringBuilder settings, IPAddress ip, bool unix)
+    private static MyNetworkStream CreateSocketStream(uint port, uint keepAlive, uint connectionTimeout, IPAddress ip, bool unix)
     {
       EndPoint endPoint;
-//#if NETSTANDARD1_6
-//      if (!Platform.IsWindows() && unix)
-//      {
-//        endPoint = CreateUnixEndPoint(settings.Server);
-//        //endPoint = new DnsEndPoint(settings.Server, (int)settings.Port);
-//      }
-//      else
-//      {
-        endPoint = new IPEndPoint(ip, (int)settings.Port);
-//      }
+      //#if NETSTANDARD1_6
+      //      if (!Platform.IsWindows() && unix)
+      //      {
+      //        endPoint = CreateUnixEndPoint(settings.Server);
+      //        //endPoint = new DnsEndPoint(settings.Server, (int)settings.Port);
+      //      }
+      //      else
+      //      {
 
+      endPoint = new IPEndPoint(ip, (int)port);
+      //      }
       Socket socket = unix ?
           new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP) :
           new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-      if (settings.Keepalive > 0)
+
+      socket.NoDelay = true;
+
+      if (keepAlive > 0)
       {
-        SetKeepAlive(socket, settings.Keepalive);
+        SetKeepAlive(socket, keepAlive);
       }
 
 #if NETSTANDARD1_6
       try
       {
         Task ias = socket.ConnectAsync(endPoint);
-        if (!ias.Wait(((int)settings.ConnectionTimeout * 1000)))
+        if (connectionTimeout == 0)
+          ias.Wait();
+        else
         {
-          socket.Dispose();
+          if (!ias.Wait(((int)connectionTimeout)))
+          {
+            socket.Dispose();
+            throw new TimeoutException();
+          }
         }
       }
       catch (Exception)
@@ -293,10 +308,20 @@ namespace MySql.Data.Common
 #else
       IAsyncResult ias = socket.BeginConnect(endPoint, null, null);
 
-      if (!ias.AsyncWaitHandle.WaitOne((int)settings.ConnectionTimeout * 1000, false))
+      if (connectionTimeout == 0)
       {
-        socket.Close();
+        if (!ias.AsyncWaitHandle.WaitOne())
+          socket.Close();
       }
+      else
+      {
+        if (!ias.AsyncWaitHandle.WaitOne((int)connectionTimeout, false))
+        {
+          socket.Close();
+          throw new TimeoutException();
+        }
+      }
+
       try
       {
         socket.EndConnect(ias);
@@ -313,8 +338,6 @@ namespace MySql.Data.Common
       GC.SuppressFinalize(stream);
       return stream;
     }
-
-
 
     /// <summary>
     /// Set keepalive + timeout on socket.
@@ -363,7 +386,7 @@ namespace MySql.Data.Common
       s.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
     }
 
-#endregion
+    #endregion
 
   }
 }

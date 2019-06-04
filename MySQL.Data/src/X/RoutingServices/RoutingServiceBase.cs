@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,28 +29,27 @@
 using MySql.Data.MySqlClient;
 using MySqlX.Data;
 using MySqlX.DataAccess;
+using MySqlX.XDevAPI;
 
 namespace MySqlX.RoutingServices
 {
-
   /// <summary>
   /// Abstract class used to define the kind of server in environments with multiple types of distributed systems.
-  /// </summary>  
+  /// </summary>
   internal abstract class RoutingServiceBase
   {
-    protected MySqlConnectionStringBuilder settings;
+    protected MySqlXConnectionStringBuilder settings;
 
-    public RoutingServiceBase(MySqlConnectionStringBuilder settings)
+    public RoutingServiceBase(MySqlXConnectionStringBuilder settings)
     {
       this.settings = settings;
     }
 
-
-    public virtual MySqlConnectionStringBuilder GetCurrentConnection()
+    public virtual MySqlXConnectionStringBuilder GetCurrentConnection()
     {
       return settings;
     }
 
-    public abstract MySqlConnectionStringBuilder GetCurrentConnection(ConnectionMode mode);
+    public abstract MySqlXConnectionStringBuilder GetCurrentConnection(ConnectionMode mode);
   }
 }

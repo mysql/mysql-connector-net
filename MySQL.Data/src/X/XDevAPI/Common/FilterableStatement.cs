@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,6 +31,8 @@ using MySqlX.Common;
 using System.Collections.Generic;
 using System;
 using MySql.Data;
+using System.Collections;
+using System.Linq;
 
 namespace MySqlX.XDevAPI.Common
 {
@@ -60,22 +62,23 @@ namespace MySqlX.XDevAPI.Common
 
     internal FilterParams FilterData
     {
-      get { return filter;  }
+      get { return filter; }
     }
 
     /// <summary>
-    /// Allows the user to set the where condition for this operation.
+    /// Enables the setting of Where condition for this operation.
     /// </summary>
     /// <param name="condition">The Where condition.</param>
     /// <returns>The implementing statement type.</returns>
     public T Where(string condition)
     {
       filter.Condition = condition;
+      SetChanged();
       return (T)this;
     }
 
     /// <summary>
-    /// Sets the limit and offset for the operation.
+    /// Sets the number of items to be returned by the operation.
     /// </summary>
     /// <param name="rows">The number of items to be returned.</param>
     /// <returns>The implementing statement type.</returns>
@@ -84,19 +87,17 @@ namespace MySqlX.XDevAPI.Common
     {
       if (rows <= 0) throw new ArgumentOutOfRangeException(nameof(rows), string.Format(ResourcesX.NumberNotGreaterThanZero, nameof(rows)));
       filter.Limit = rows;
-      filter.Offset = -1;
       return (T)this;
     }
 
     /// <summary>
-    /// Allows the user to set the sorting criteria for the operation. The strings use normal SQL syntax like
-    /// "order ASC"  or "pages DESC, age ASC".
+    /// Sets the number of items to be skipped before including them into the result.
     /// </summary>
-    /// <param name="order">The order criteria.</param>
-    /// <returns>A generic object representing the implementing statement type.</returns>
-    public T OrderBy(params string[] order)
+    /// <param name="rows">The number of items to be skipped.</param>
+    /// <returns>The implementing statement type.</returns>
+    public T Offset(long rows)
     {
-      filter.OrderBy = order;
+      filter.Offset = rows;
       return (T)this;
     }
 
@@ -108,14 +109,14 @@ namespace MySqlX.XDevAPI.Common
     /// <returns>A generic object representing the implementing statement type.</returns>
     public T Bind(string parameterName, object value)
     {
-      FilterData.Parameters.Add(parameterName, value);
+      FilterData.Parameters[parameterName.ToLowerInvariant()] = value is string ? QuoteString((string)value) : value;
       return (T)this;
     }
 
     /// <summary>
     /// Binds the parameter values in filter expression.
     /// </summary>
-    /// <param name="dbDocParams">The parameters as DbDoc object.</param>
+    /// <param name="dbDocParams">The parameters as a DbDoc object.</param>
     /// <returns>A generic object representing the implementing statement type.</returns>
     public T Bind(DbDoc dbDocParams)
     {
@@ -125,11 +126,11 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Binds the parameter values in filter expression.
     /// </summary>
-    /// <param name="jsonParams">The parameters as JSON string.</param>
+    /// <param name="jsonParams">The parameters as a JSON string.</param>
     /// <returns>The implementing statement type.</returns>
     public T Bind(string jsonParams)
     {
-      foreach(var item in JsonParser.Parse(jsonParams))
+      foreach (var item in JsonParser.Parse(jsonParams))
       {
         Bind(item.Key, item.Value);
       }
@@ -139,7 +140,7 @@ namespace MySqlX.XDevAPI.Common
     /// <summary>
     /// Binds the parameter values in filter expression.
     /// </summary>
-    /// <param name="jsonParams">The parameters as anonymous: new { param1 = value1, param2 = value2, ... }.</param>
+    /// <param name="jsonParams">The parameters as an anonymous object: new { param1 = value1, param2 = value2, ... }.</param>
     /// <returns>The implementing statement type.</returns>
     public T Bind(object jsonParams)
     {
@@ -156,11 +157,30 @@ namespace MySqlX.XDevAPI.Common
     {
       try
       {
-        return executeFunc(t);
+        ValidateOpenSession();
+        List<object> parameters = new List<object>(FilterData.Parameters.Values);
+        if (_isPrepared && FilterData.hadLimit != FilterData.HasLimit)
+        {
+          SetChanged();
+        }
+        // Add the prepared statement placeholder values for limit and offset
+        if (!_hasChanged)
+        {
+          // Limit and offset placeholder values
+          if (FilterData.HasLimit)
+          {
+            parameters.Add(FilterData.Limit);
+            parameters.Add(FilterData.Offset == -1 ? 0 : FilterData.Offset);
+          }
+        }
+        var result = ConvertToPreparedStatement<T>(executeFunc, t, parameters);
+        _hasChanged = false;
+        return result;
       }
       finally
       {
-        FilterData.Parameters.Clear();
+        FilterData.hadLimit = FilterData.HasLimit;
+        FilterData.hadOffset = FilterData.Offset != -1;
       }
     }
 
@@ -174,6 +194,11 @@ namespace MySqlX.XDevAPI.Common
       var t = (T)this.MemberwiseClone();
       t.filter = t.FilterData.Clone();
       return t;
+    }
+
+    private static string QuoteString(string value)
+    {
+      return "'" + value.Trim().Replace("'", "\\'") + "'";
     }
   }
 }

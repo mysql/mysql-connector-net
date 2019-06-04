@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -46,6 +46,8 @@ namespace MySqlX.XDevAPI.Common
     public Dictionary<string, int> placeholderNameToPosition;
     public bool IsRelational;
     public string[] OrderBy;
+    public bool hadLimit = false;
+    public bool hadOffset = false;
 
     public bool HasLimit
     {
@@ -78,7 +80,8 @@ namespace MySqlX.XDevAPI.Common
       {
         if (!placeholderNameToPosition.ContainsKey(param.Key.ToLowerInvariant()))
           throw new ArgumentNullException(string.Format(ResourcesX.UnknownPlaceholder, param.Key));
-        paramsList[placeholderNameToPosition[param.Key.ToLowerInvariant()]] = ExprUtil.ArgObjectToScalar(param.Value);
+        paramsList[placeholderNameToPosition[param.Key.ToLowerInvariant()]] = ExprUtil.ArgObjectToScalar(param.Value)
+          ?? throw new ArgumentException(param.Key);
       }
       return paramsList;
     }

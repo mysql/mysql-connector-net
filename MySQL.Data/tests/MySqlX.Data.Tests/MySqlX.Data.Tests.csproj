@@ -3,12 +3,12 @@
   <PropertyGroup>
     <Title>MySql.Data.Tests</Title>
     <Description>MySql.Data.Tests Class Library</Description>
-    <Copyright>Copyright © 2016, 2018, Oracle and/or its affiliates. All rights reserved.</Copyright>
-    <Version>8.0.10-rc</Version>
+    <Copyright>Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Version>8.0.17</Version>
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
-    <TargetFrameworks>netcoreapp2.0;netcoreapp1.1;net452;</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;netcoreapp1.1;net452;</TargetFrameworks>
     <PackageId>MySqlx.Data.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
@@ -34,10 +34,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\MySql.Data.csproj" />
   </ItemGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp1.1'">
-    <DefineConstants>$(DefineConstants);NET_CORE;NETCORE10</DefineConstants>
-  </PropertyGroup>  
   
   <ItemGroup>
     <Compile Update="Resources.Designer.cs">
@@ -73,6 +69,40 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="..\MySql.Data.Tests\certificates\*" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="..\MySql.Data.Tests\certificates\ca-key.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="..\MySql.Data.Tests\certificates\ca.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="..\MySql.Data.Tests\certificates\ca_dummy.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="..\MySql.Data.Tests\certificates\client-cert.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="..\MySql.Data.Tests\certificates\client-cert_dummy.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="..\MySql.Data.Tests\certificates\client-key.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="..\MySql.Data.Tests\certificates\client-key_dummy.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="..\MySql.Data.Tests\certificates\server-cert.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="..\MySql.Data.Tests\certificates\server-key.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

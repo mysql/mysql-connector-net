@@ -1,14 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Title>MySql.Data.Tests</Title>
     <Description>MySql.Data.Tests Class Library</Description>
-    <Copyright>Copyright © 2016, 2018, Oracle and/or its affiliates. All rights reserved.</Copyright>
-    <Version>8.0.10-rc</Version>
+    <Copyright>Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Version>8.0.17</Version>
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
-    <TargetFrameworks>netcoreapp2.0;netcoreapp1.1;net452;</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;netcoreapp1.1;net452;</TargetFrameworks>
     <PackageId>MySql.Data.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
@@ -27,7 +27,7 @@
     <NoWarn>CS1591,CS1587,CS1701,CS1702,CS1570</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.0'">
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.2'">
     <Compile Remove="Framework\netstandard2_0\MediumTrust\*.cs" />
     <Compile Remove="Framework\netstandard1_3\*.cs" />
     <Compile Remove="Framework\netstandard2_0\PartialTrustSandbox.cs" />
@@ -38,7 +38,7 @@
     <Compile Remove="Framework\netstandard2_0\StressTestsPipe.cs;Framework\netstandard2_0\StressTestsPipeCompressed.cs;Framework\netstandard2_0\StressTestsSharedMemoryCompressed.cs;Framework\netstandard2_0\StressTestsSharedMemory.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.3' Or '$(TargetFramework)'=='netcoreapp1.1'">
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp1.1'">
     <Compile Remove="Framework\netstandard2_0\**" />
     <Compile Remove="Framework\netstandard2_0\MediumTrust\*.cs" />
     <EmbeddedResource Remove="Framework\netstandard2_0\**" />
@@ -69,18 +69,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0-preview-20171031-01" />
-    <PackageReference Include="xunit" Version="2.3.0-beta1-build3642" />
-    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.0-beta1-build3642" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0-beta1-build1309" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="xunit" Version="2.3.1" />
+    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
   </ItemGroup>
-
-  <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\..\src\MySql.Data.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="Renci.SshNet">
+      <HintPath>..\..\..\Dependencies\Renci.SshNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -88,7 +90,50 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ContentWithTargetPath Include="certificates\ca-key.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>ca-key.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\ca.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>ca.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\ca_dummy.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>ca_dummy.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-cert.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>client-cert.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-cert_dummy.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>client-cert_dummy.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-key.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>client-key.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-key_dummy.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>client-key_dummy.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-key_altered.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>client-key_altered.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\server-cert.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>server-cert.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\server-key.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>server-key.pem</TargetPath>
+    </ContentWithTargetPath>
     <None Update="client.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="myKeyOpenSSH.ppk">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

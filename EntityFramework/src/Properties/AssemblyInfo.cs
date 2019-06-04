@@ -1,4 +1,4 @@
-// Copyright © 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
 [assembly: AssemblyProduct("MySql.Data.EntityFramework")]
-[assembly: AssemblyCopyright("Copyright © 2008, 2018, Oracle and/or its affiliates. All rights reserved.")]
+[assembly: AssemblyCopyright("Copyright © 2008, 2019, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -48,7 +48,6 @@ using System.Runtime.InteropServices;
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
-[assembly: AllowPartiallyTrustedCallers]
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 // [assembly: Guid("540e7b3c-bd0b-4980-96d1-5d140d303f7e")]
 

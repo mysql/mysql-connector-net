@@ -1,7 +1,7 @@
-Connector/Net 6.10  Release Notes
+Connector/NET 6.10  Release Notes
 ------------------------------------
 
-Welcome to the release notes for Connector/Net 6.10
+Welcome to the release notes for Connector/NET 6.10
 
 What's new in 6.10
 --------------------

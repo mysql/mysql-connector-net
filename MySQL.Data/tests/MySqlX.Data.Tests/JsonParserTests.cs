@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,6 +28,7 @@
 
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -41,22 +42,22 @@ namespace MySqlX.Data.Tests
       Collection collection = CreateCollection("test");
 
       DbDoc document = new DbDoc(@"{ ""_id"": 1, ""isDocument"": true }");
-      Result result = collection.Add(document).Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Result result = ExecuteAddStatement(collection.Add(document));
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
       document = collection.GetOne(1);
       Assert.True(document.values.ContainsKey("isDocument"));
       Assert.True((bool) document.values["isDocument"]);
 
       document = new DbDoc(new { _id=2, isDocument=false });
-      result = collection.Add(document).Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      result = ExecuteAddStatement(collection.Add(document));
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
       document = collection.GetOne(2);
       Assert.True(document.values.ContainsKey("isDocument"));
       Assert.False((bool) document.values["isDocument"]);
 
-      Assert.True(collection.Find("isDocument = false").Execute().FetchAll().Count > 0);
+      Assert.True(ExecuteFindStatement(collection.Find("isDocument = false")).FetchAll().Count > 0);
     }
 
     [Fact]
@@ -65,10 +66,10 @@ namespace MySqlX.Data.Tests
       Collection collection = CreateCollection("test");
 
       DbDoc document = new DbDoc(@"{ ""isDocument"": null }");
-      Result result = collection.Add(document).Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Result result = ExecuteAddStatement(collection.Add(document));
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
-      document = collection.Find().Execute().FetchOne();
+      document = ExecuteFindStatement(collection.Find()).FetchOne();
       Assert.True(document.values.ContainsKey("isDocument"));
       Assert.Equal(null, document.values["isDocument"]);
     }
@@ -79,10 +80,10 @@ namespace MySqlX.Data.Tests
       Collection collection = CreateCollection("test");
 
       DbDoc document = new DbDoc(@"{ ""id"": 1, ""list"": [1,2,3] }");
-      Result result = collection.Add(document).Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Result result = ExecuteAddStatement(collection.Add(document));
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
-      document = collection.Find().Execute().FetchOne();
+      document = ExecuteFindStatement(collection.Find()).FetchOne();
       Assert.True(document.values.ContainsKey("list"));
       Assert.Equal(new object[] { 1, 2, 3 }, document.values["list"]);
     }
@@ -94,10 +95,10 @@ namespace MySqlX.Data.Tests
 
       DbDoc document = new DbDoc(@"{ ""id"": 1, ""list"": [1,""a""] }");
       //DbDoc document = new DbDoc(@"{ ""id"": 1, ""list"": [1,""a"",true,null] }");
-      Result result = collection.Add(document).Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Result result = ExecuteAddStatement(collection.Add(document));
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
-      document = collection.Find().Execute().FetchOne();
+      document = ExecuteFindStatement(collection.Find()).FetchOne();
       Assert.True(document.values.ContainsKey("list"));
       Assert.Equal(new object[] { 1, "a" }, document.values["list"]);
       //Assert.Equal(new object[] { 1, "a", true, null }, document.values["list"]);
@@ -109,15 +110,48 @@ namespace MySqlX.Data.Tests
       DbDoc document = new DbDoc(@"{ ""id"": 1, ""list"": [1,""a"", { ""b"": 1 } ] }");
       //DbDoc document = new DbDoc(@"{ ""id"": 1, ""list"": [1,""a"",true,null] }");
       Collection collection = CreateCollection("test");
-      Result result = collection.Add(document).Execute();
-      Assert.Equal<ulong>(1, result.RecordsAffected);
+      Result result = ExecuteAddStatement(collection.Add(document));
+      Assert.Equal<ulong>(1, result.AffectedItemsCount);
 
-      document = collection.Find().Execute().FetchOne();
+      document = ExecuteFindStatement(collection.Find()).FetchOne();
       Assert.True(document.values.ContainsKey("list"));
       var dictionary = new Dictionary<string,object>();
       dictionary.Add("b",1);
       Assert.Equal(new object[] { 1, "a", dictionary }, document.values["list"]);
       //Assert.Equal(new object[] { 1, "a", true, null, dictionary }, document.values["list"]);
+    }
+
+    [Fact]
+    public void ParseWithEscapedQuotes()
+    {
+      Collection collection = CreateCollection("test");
+      Result r = ExecuteAddStatement(collection.Add("{ \"_id\": \"123\", \"email\": [\"alice@ora.com\"], \"dates\": [\"4/1/2017\"] }"));
+      var expr = new
+      {
+        email = new MySqlExpression("UPPER($.email)")
+      };
+      ExecuteModifyStatement(collection.Modify("true").ArrayAppend("email", expr));
+      var expr2 = new
+      {
+        email = new MySqlExpression("UPPER($.email[0])")
+      };
+      ExecuteModifyStatement(collection.Modify("true").ArrayAppend("email", expr2));
+
+      var document = collection.GetOne("123");
+      var innerEmail = ((document["email"] as object[])[1]) as Dictionary<string, object>;
+      Assert.Equal("[\\\"ALICE@ORA.COM\\\"]", innerEmail["email"]);
+      innerEmail = ((document["email"] as object[])[2]) as Dictionary<string, object>;
+      Assert.Equal("ALICE@ORA.COM", innerEmail["email"]);
+
+      ExecuteAddStatement(collection.Add("{ \"_id\": \"124\", \"email\": \"\\\"\"  }"));
+      document = collection.GetOne("124");
+      Assert.Equal("\\\"", document["email"]);
+
+      var ex = Assert.Throws<Exception>(() => ExecuteAddStatement(collection.Add("{ \"_id\": \"124\", \"email\": \"\"\"  }")));
+      Assert.Equal("The value provided is not a valid JSON document. Expected token ','", ex.Message);
+
+      ex = Assert.Throws<Exception>(() => ExecuteAddStatement(collection.Add("{ \"_id\": \"124\", \"email\": \"\\\"  }")));
+      Assert.Equal("The value provided is not a valid JSON document. Failed to find ending '\"' while reading stream.", ex.Message);
     }
   }
 }

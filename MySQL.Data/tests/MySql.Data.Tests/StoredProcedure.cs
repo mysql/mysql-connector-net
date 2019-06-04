@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -44,7 +44,7 @@ namespace MySql.Data.MySqlClient.Tests
       Cleanup();
     }
 
-    public override void Cleanup()
+    protected override void Cleanup()
     {
       executeSQL("DROP PROCEDURE IF EXISTS spTest");
     }
@@ -183,11 +183,11 @@ namespace MySql.Data.MySqlClient.Tests
       if (prepare) cmd.Prepare();
       cmd.CommandType = CommandType.StoredProcedure;
       MySqlDataReader reader = cmd.ExecuteReader();
-      Assert.Equal(true, reader.Read());
-      Assert.Equal(true, reader.NextResult());
-      Assert.Equal(true, reader.Read());
-      Assert.Equal(false, reader.NextResult());
-      Assert.Equal(false, reader.Read());
+      Assert.True(reader.Read());
+      Assert.True(reader.NextResult());
+      Assert.True(reader.Read());
+      Assert.False(reader.NextResult());
+      Assert.False(reader.Read());
       reader.Close();
 
 #if !NETCOREAPP1_1
@@ -257,7 +257,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
-    /// Bug #11450  	Connector/Net, current database and stored procedures
+    /// Bug #11450  	Connector/NET, current database and stored procedures
     /// </summary>
     [Fact]
     public void NoDefaultDatabase()

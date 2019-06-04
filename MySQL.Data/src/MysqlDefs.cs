@@ -1,4 +1,4 @@
-// Copyright © 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,7 +28,9 @@
 
 using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.Reflection;
+using System.Runtime.Versioning;
 
 namespace MySql.Data.MySqlClient
 {
@@ -59,7 +61,7 @@ namespace MySql.Data.MySqlClient
     PS_MULTI_RESULTS = 1UL << 18,    // allow multi results using PS protocol
     PLUGIN_AUTH = (1UL << 19), //Client supports plugin authentication
     CONNECT_ATTRS = (1UL << 20),    // Allows client connection attributes
-    CAN_HANDLE_EXPIRED_PASSWORD  = (1UL << 22),   // Support for password expiration > 5.6.6
+    CAN_HANDLE_EXPIRED_PASSWORD = (1UL << 22),   // Support for password expiration > 5.6.6
     CLIENT_SSL_VERIFY_SERVER_CERT = (1UL << 30),
     CLIENT_REMEMBER_OPTIONS = (1UL << 31)
   }
@@ -278,11 +280,11 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Fixed length binary string.
     /// </summary>
-    Binary = 600,
+    Binary = 754,
     /// <summary>
     /// Variable length binary string.
     /// </summary>
-    VarBinary = 601,
+    VarBinary = 753,
     /// <summary>
     /// A text column with a maximum length of 255 (2^8 - 1) characters.
     /// </summary>
@@ -301,10 +303,10 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     Text = 752,
     /// <summary>
-    /// A guid column
+    /// A guid column.
     /// </summary>
-    Guid = 800
-  } ;
+    Guid = 854
+  };
 
 
   internal enum Field_Type : byte
@@ -341,25 +343,40 @@ namespace MySql.Data.MySqlClient
   public enum MySqlConnectionProtocol
   {
     /// <summary>
-    /// TCP/IP style connection.  Works everywhere.
+    /// TCP/IP style connection. Works everywhere.
     /// </summary>
     Sockets = 1,
+    /// <summary>
+    /// TCP/IP style connection. Works everywhere.
+    /// </summary>
     Socket = 1,
+    /// <summary>
+    /// TCP/IP style connection. Works everywhere.
+    /// </summary>
     Tcp = 1,
     /// <summary>
-    /// Named pipe connection.  Works only on Windows systems.
+    /// Named pipe connection. Works only on Windows systems.
     /// </summary>
     Pipe = 2,
+    /// <summary>
+    /// Named pipe connection. Works only on Windows systems.
+    /// </summary>
     NamedPipe = 2,
     /// <summary>
-    /// Unix domain socket connection.  Works only with Unix systems.
+    /// Unix domain socket connection. Works only with Unix systems.
     /// </summary>
     UnixSocket = 3,
+    /// <summary>
+    /// Unix domain socket connection. Works only with Unix systems.
+    /// </summary>
     Unix = 3,
     /// <summary>
-    /// Shared memory connection.  Currently works only with Windows systems.
+    /// Shared memory connection. Currently works only with Windows systems.
     /// </summary>
     SharedMemory = 4,
+    /// <summary>
+    /// Shared memory connection. Currently works only with Windows systems.
+    /// </summary>
     Memory = 4
   }
 
@@ -372,6 +389,11 @@ namespace MySql.Data.MySqlClient
     /// Do not use SSL.
     /// </summary>
     None,
+    /// <summary>
+    /// Use SSL, if server supports it. This option is only available for the classic protocol.
+    /// </summary>
+    Preferred,
+    Prefered = Preferred,
     /// <summary>
     /// Always use SSL. Deny connection if server does not support SSL.
     /// Do not perform server certificate validation.
@@ -407,18 +429,21 @@ namespace MySql.Data.MySqlClient
     Embedded
   }
 
+  /// <summary>
+  /// Defines the location of the certificate store.
+  /// </summary>
   public enum MySqlCertificateStoreLocation
   {
     /// <summary>
-    /// Do not use certificate store
+    /// Do not use certificate store.
     /// </summary>
     None,
     /// <summary>
-    /// Use certificate store for the current user
+    /// Use certificate store for the current user.
     /// </summary>
     CurrentUser,
     /// <summary>
-    /// User certificate store for the machine
+    /// User certificate store for the machine.
     /// </summary>
     LocalMachine
   }
@@ -429,9 +454,11 @@ namespace MySql.Data.MySqlClient
   public enum MySqlAuthenticationMode
   {
     /// <summary>
-    /// If SSL is enabled or Unix sockets are being used, sets PLAIN as the authentication mechanism; otherwise, uses MYSQL41.
+    /// If SSL is enabled or Unix sockets are being used, sets PLAIN as the authentication mechanism;
+    /// otherwise, it tries to use MYSQL41 and then SHA256_MEMORY.
     /// </summary>
     Default = 0,
+    AUTO = 0,
     /// <summary>
     /// Authenticate using PLAIN.
     /// </summary>
@@ -443,13 +470,71 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Authenticate using EXTERNAL.
     /// </summary>
-    EXTERNAL = 3
+    EXTERNAL = 3,
+    /// <summary>
+    /// Authenticate using SHA256_MEMORY.
+    /// </summary>
+    SHA256_MEMORY = 4
+  }
+
+  /// <summary>
+  /// Defines waiting options that may be used with row locking options.
+  /// </summary>
+  public enum LockContention
+  {
+    /// <summary>
+    /// Waits until the blocking transaction releases the row lock.
+    /// </summary>
+    Default = 0,
+    /// <summary>
+    /// Never waits to acquire a row lock. The query executes immediately, 
+    /// failing with an error if a requested row is locked.
+    /// </summary>
+    NoWait = 1,
+    /// <summary>
+    /// Never waits to acquire a row lock. The query executes immediately, 
+    /// removing locked rows from the result set.
+    /// </summary>
+    SkipLocked = 2
   }
 
   internal class MySqlConnectAttrs
   {
+    static string _version;
+    static string _os;
+    static string _platform;
+    static string _osName;
+    static string _framework;
+#if NET452
+    static string _osDetails;
+#endif
+
+    static MySqlConnectAttrs()
+    {
+      InitVersion();
+      InitOS();
+      InitPlatform();
+      InitOSName();
+      InitFramework();
+#if NET452
+      InitOSDetails();
+#endif
+    }
+
     [DisplayName("_client_name")]
-    public string ClientName => "MySql Connector/NET";
+    public string ClientName => "mysql-connector-net";
+
+    [DisplayName("_client_licence")]
+    public string ClientLicence
+    {
+      get
+      {
+#if COMMERCIAL
+        return "Commercial";
+#endif
+        return "GPL-2.0";
+      }
+    }
 
     [DisplayName("_pid")]
     public string PID
@@ -459,7 +544,7 @@ namespace MySql.Data.MySqlClient
         string pid = string.Empty;
         try
         {
-          pid = System.Diagnostics.Process.GetCurrentProcess().Id.ToString();
+          pid = System.Diagnostics.Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
         }
         catch (Exception ex)
         {
@@ -473,77 +558,14 @@ namespace MySql.Data.MySqlClient
     [DisplayName("_client_version")]
     public string ClientVersion
     {
-      get
-      {
-        string version = string.Empty;
-        try
-        {
-          version = typeof(MySqlConnectAttrs).GetTypeInfo().Assembly.GetName().Version.ToString();
-        }
-        catch (Exception ex)
-        {
-          System.Diagnostics.Debug.WriteLine(ex.ToString());
-        }
-        return version;
-      }
+      get { return _version; }
     }
-
-#if !NETSTANDARD1_6
-    [DisplayName("_platform")]
-    public string Platform => Is64BitOS() ? "x86_64" : "x86_32";
-#endif
-
 
     [DisplayName("_os")]
     public string OS
     {
-      get
-      {
-        string os = string.Empty;
-        try
-        {
-          if (MySql.Data.Common.Platform.IsDotNetCore())
-          {
-            return ".Net Core";
-          }
-#if !NETSTANDARD1_6
-          os = Environment.OSVersion.Platform.ToString();
-          if (os == "Win32NT")
-          {
-            os = "Win";
-            os += Is64BitOS() ? "64" : "32";
-          }
-#endif
-        }
-        catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.ToString()); }
-
-        return os;
-      }
+      get { return _os; }
     }
-
-#if NET452
-    [DisplayName("_os_details")]
-    public string OSDetails
-    {
-      get
-      {
-        string os = string.Empty;
-        try
-        {
-          var searcher = new System.Management.ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
-          var collection = searcher.Get();
-          foreach (var mgtObj in collection)
-          {
-            os = mgtObj.GetPropertyValue("Caption").ToString();
-            break;
-          }
-        }
-        catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.ToString()); }
-
-        return os;
-      }
-    }
-#endif
 
     [DisplayName("_thread")]
     public string Thread
@@ -553,7 +575,7 @@ namespace MySql.Data.MySqlClient
         string thread = string.Empty;
         try
         {
-          thread = System.Diagnostics.Process.GetCurrentProcess().Threads[0].Id.ToString();
+          thread = System.Diagnostics.Process.GetCurrentProcess().Threads[0].Id.ToString(CultureInfo.InvariantCulture);
         }
         catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.ToString()); }
 
@@ -561,8 +583,95 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    [DisplayName("_platform")]
+    public string Platform
+    {
+      get { return _platform; }
+    }
+
+#if NET452
+    [DisplayName("_os_details")]
+    public string OSDetails
+    {
+      get { return _osDetails; }
+    }
+#endif
+
+    [DisplayName("_os")]
+    public string OSName
+    {
+      get { return _osName; }
+    }
+
+    [DisplayName("_framework")]
+    public string Framework
+    {
+      get { return _framework; }
+    }
+
+    private static void InitVersion()
+    {
+      _version = string.Empty;
+      try
+      {
+        _version = typeof(MySqlConnectAttrs).GetTypeInfo().Assembly.GetName().Version.ToString();
+      }
+      catch (Exception ex)
+      {
+        System.Diagnostics.Debug.WriteLine(ex.ToString());
+      }
+    }
+
+    private static void InitOS()
+    {
+      _os = string.Empty;
+      try
+      {
+        if (MySql.Data.Common.Platform.IsDotNetCore())
+        {
+          _os = ".Net Core";
+        }
 #if !NETSTANDARD1_6
-    private bool Is64BitOS()
+        _os = Environment.OSVersion.Platform.ToString();
+        if (_os == "Win32NT")
+        {
+          _os = "Win";
+          _os += Is64BitOS() ? "64" : "32";
+        }
+#endif
+      }
+      catch (Exception ex)
+      {
+        System.Diagnostics.Debug.WriteLine(ex.ToString());
+      }
+    }
+
+    private static void InitPlatform()
+    {
+      _platform = Is64BitOS() ? "x86_64" : "x86_32";
+    }
+
+#if NET452
+    private static void InitOSDetails()
+    {
+      _osDetails = string.Empty;
+
+      try
+      {
+        var searcher = new System.Management.ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem");
+        var collection = searcher.Get();
+        foreach (var mgtObj in collection)
+        {
+          _osDetails = mgtObj.GetPropertyValue("Caption").ToString();
+          break;
+        }
+      }
+      catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.ToString()); }
+    }
+#endif
+
+
+    private static bool Is64BitOS()
     {
 #if CLR4
       return Environment.Is64BitOperatingSystem;
@@ -570,6 +679,64 @@ namespace MySql.Data.MySqlClient
       return Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE") == "AMD64";
 #endif
     }
+
+    private static void InitOSName()
+    {
+      _osName = _os;
+
+#if !NETSTANDARD1_6
+      var osInfo = Environment.OSVersion;
+      var major = osInfo.Version.Major;
+      var minor = osInfo.Version.Minor;
+
+      if (osInfo.Platform.ToString().StartsWith("Win"))
+      {
+        switch (major)
+        {
+          case 5:
+            _osName = "Windows-XP-" + major + "." + minor;
+            break;
+          case 6:
+            switch (minor)
+            {
+              case 0:
+                _osName = "Windows-2008-" + major + "." + minor;
+                break;
+              case 1:
+                _osName = "Windows-7-" + major + "." + minor;
+                break;
+              case 2:
+                _osName = "Windows-8-" + major + "." + minor;
+                break;
+              case 3:
+                _osName = "Windows-8.1-" + major + "." + minor;
+                break;
+            }
+            break;
+          case 10:
+            _osName = "Windows-10-" + major + "." + minor;
+            break;
+          default:
+            _osName = "Windows";
+            break;
+        }
+      }
+      else
+        _osName = _os + "-" + major + "." + minor;
 #endif
+    }
+
+    private static void InitFramework()
+    {
+      _framework = string.Empty;
+      try
+      {
+        _framework = Assembly.GetEntryAssembly().GetCustomAttribute<TargetFrameworkAttribute>().FrameworkName;
+      }
+      catch (Exception ex)
+      {
+        System.Diagnostics.Debug.WriteLine(ex.ToString());
+      }
+    }
   }
 }

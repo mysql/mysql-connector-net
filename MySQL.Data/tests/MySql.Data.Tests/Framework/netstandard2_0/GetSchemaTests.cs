@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,10 +27,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
 using System.Data;
+using System.Linq;
+using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -72,15 +71,15 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #25907 DataType Column of DataTypes collection does'nt contain the correct CLR Datatype 
     /// Bug #25947 CreateFormat/CreateParameters Column of DataTypes collection incorrect for CHAR 
     /// </summary>
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact]
     public void DataTypes()
     {
       DataTable dt = Connection.GetSchema("DataTypes", new string[] { });
 
       foreach (DataRow row in dt.Rows)
       {
-        string type = row["TYPENAME"].ToString();
-        Type systemType = Type.GetType(row["DATATYPE"].ToString());
+        string type = row["TypeName"].ToString();
+        Type systemType = Type.GetType(row["DataType"].ToString());
         if (type == "BIT")
           Assert.Equal(typeof(System.UInt64), systemType);
         else if (type == "DATE" || type == "DATETIME" ||
@@ -106,28 +105,28 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.Equal(typeof(System.Single), systemType);
         else if (type == "TINYINT")
         {
-          if (row["CREATEFORMAT"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
+          if (row["CreateFormat"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
             Assert.Equal(typeof(System.Byte), systemType);
           else
             Assert.Equal(typeof(System.SByte), systemType);
         }
         else if (type == "SMALLINT")
         {
-          if (row["CREATEFORMAT"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
+          if (row["CreateFormat"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
             Assert.Equal(typeof(System.UInt16), systemType);
           else
             Assert.Equal(typeof(System.Int16), systemType);
         }
         else if (type == "MEDIUMINT" || type == "INT")
         {
-          if (row["CREATEFORMAT"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
+          if (row["CreateFormat"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
             Assert.Equal(typeof(System.UInt32), systemType);
           else
             Assert.Equal(typeof(System.Int32), systemType);
         }
         else if (type == "BIGINT")
         {
-          if (row["CREATEFORMAT"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
+          if (row["CreateFormat"].ToString().EndsWith("UNSIGNED", StringComparison.OrdinalIgnoreCase))
             Assert.Equal(typeof(System.UInt64), systemType);
           else
             Assert.Equal(typeof(System.Int64), systemType);
@@ -185,8 +184,8 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Assert.True(dt.Columns["ORDINAL_POSITION"].DataType == typeof(UInt32));
         Assert.True(dt.Columns["CHARACTER_MAXIMUM_LENGTH"].DataType == typeof(Int64));
-        Assert.True(dt.Columns["NUMERIC_PRECISION"].DataType == typeof(UInt32));
-        Assert.True(dt.Columns["NUMERIC_SCALE"].DataType == typeof(UInt32));
+        Assert.True(dt.Columns["NUMERIC_PRECISION"].DataType == typeof(UInt64));
+        Assert.True(dt.Columns["NUMERIC_SCALE"].DataType == typeof(UInt64));
       }
       else
       {
@@ -243,9 +242,9 @@ namespace MySql.Data.MySqlClient.Tests
     ///Testing out schema information about generated columns
     /// only in version 5.7.6 or later    
     ///</summary>
-    [Fact(Skip="Not compatible with netcoreapp2.0")]
+    [Fact(Skip = "Not compatible with linux")]
     public void CanGetSchemaInformationGeneratedColumns()
-    {     
+    {
       if (Fixture.Version < new Version(5, 7, 6)) return;
 
       executeSQL("DROP TABLE IF EXISTS test");
@@ -261,7 +260,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Assert.Equal("char", dt.Rows[2]["DATA_TYPE"]);
         Assert.Equal("Name", dt.Rows[2]["GENERATION_EXPRESSION"].ToString().Trim('`'));
-        Assert.Equal("STORED GENERATED", dt.Rows[2]["EXTRA"]);         
+        Assert.Equal("STORED GENERATED", dt.Rows[2]["EXTRA"]);
       }
     }
 
@@ -339,8 +338,8 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = Connection.GetSchema("Indexes", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
-      Assert.Equal(true, dt.Rows[0]["PRIMARY"]);
-      Assert.Equal(true, dt.Rows[0]["UNIQUE"]);
+      Assert.True((bool)dt.Rows[0]["PRIMARY"]);
+      Assert.True((bool)dt.Rows[0]["UNIQUE"]);
 
       executeSQL("DROP TABLE IF EXISTS test");
       executeSQL("CREATE TABLE test (id int, name varchar(50), " +
@@ -350,16 +349,16 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("key2", dt.Rows[0]["INDEX_NAME"]);
-      Assert.Equal(false, dt.Rows[0]["PRIMARY"]);
-      Assert.Equal(true, dt.Rows[0]["UNIQUE"]);
+      Assert.False((bool)dt.Rows[0]["PRIMARY"]);
+      Assert.True((bool)dt.Rows[0]["UNIQUE"]);
 
       restrictions[3] = "key2";
       dt = Connection.GetSchema("Indexes", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("key2", dt.Rows[0]["INDEX_NAME"]);
-      Assert.Equal(false, dt.Rows[0]["PRIMARY"]);
-      Assert.Equal(true, dt.Rows[0]["UNIQUE"]);
+      Assert.False((bool)dt.Rows[0]["PRIMARY"]);
+      Assert.True((bool)dt.Rows[0]["UNIQUE"]);
 
       /// <summary> 
       /// Bug #48101	MySqlConnection.GetSchema on "Indexes" throws when there's a table named "b`a`d" 
@@ -373,8 +372,8 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, dt.Rows.Count);
       Assert.Equal("te`s`t", dt.Rows[0]["TABLE_NAME"]);
       Assert.Equal("key2", dt.Rows[0]["INDEX_NAME"]);
-      Assert.Equal(false, dt.Rows[0]["PRIMARY"]);
-      Assert.Equal(false, dt.Rows[0]["UNIQUE"]);
+      Assert.False((bool)dt.Rows[0]["PRIMARY"]);
+      Assert.False((bool)dt.Rows[0]["UNIQUE"]);
     }
 
     [Fact]
@@ -461,9 +460,11 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("theTime", dt.Rows[0]["COLUMN_NAME"]);
     }
 
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact]
     public void SingleForeignKey()
     {
+      executeSQL("DROP TABLE IF EXISTS child");
+      executeSQL("DROP TABLE IF EXISTS parent");
       executeSQL("CREATE TABLE parent (id INT NOT NULL, PRIMARY KEY (id)) ENGINE=INNODB");
       executeSQL("CREATE TABLE child (id INT, parent_id INT, INDEX par_ind (parent_id), " +
         "CONSTRAINT c1 FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE) ENGINE=INNODB");
@@ -474,18 +475,18 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = Connection.GetSchema("Foreign Keys", restrictions);
       Assert.Equal(1, dt.Rows.Count);
       DataRow row = dt.Rows[0];
-      Assert.Equal(Connection.Database.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
-      Assert.Equal("c1", row["CONSTRAINT_NAME"]);
-      Assert.Equal(Connection.Database.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
-      Assert.Equal("child", row["TABLE_NAME"]);
-      Assert.Equal(Connection.Database.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
-      Assert.Equal("parent", row["REFERENCED_TABLE_NAME"]);
+      Assert.Equal(Connection.Database.ToLower(), row[1].ToString().ToLower());
+      Assert.Equal("c1", row[2]);
+      Assert.Equal(Connection.Database.ToLower(), row[4].ToString().ToLower());
+      Assert.Equal("child", row[5]);
+      Assert.Equal(Connection.Database.ToLower(), row[10].ToString().ToLower());
+      Assert.Equal("parent", row[11]);
     }
 
     /// <summary>
     /// Bug #26660 MySqlConnection.GetSchema fails with NullReferenceException for Foreign Keys 
     /// </summary>
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact(Skip = "Not compatible with linux")]
     public void ForeignKeys()
     {
       executeSQL("DROP TABLE IF EXISTS product_order");
@@ -506,7 +507,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(dt.Columns.Contains("REFERENCED_TABLE_CATALOG"));
     }
 
-    [Fact(Skip = "Not compatible with netcoreapp2.0")]
+    [Fact]
     public void MultiSingleForeignKey()
     {
       executeSQL("DROP TABLE IF EXISTS product_order");
@@ -530,20 +531,20 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = Connection.GetSchema("Foreign Keys", restrictions);
       Assert.Equal(2, dt.Rows.Count);
       DataRow row = dt.Rows[0];
-      Assert.Equal(Connection.Database.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
-      Assert.Equal("product_order_ibfk_1", row["CONSTRAINT_NAME"]);
-      Assert.Equal(Connection.Database.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
-      Assert.Equal("product_order", row["TABLE_NAME"]);
-      Assert.Equal(Connection.Database.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
-      Assert.Equal("product", row["REFERENCED_TABLE_NAME"]);
+      Assert.Equal(Connection.Database.ToLower(), row[1].ToString().ToLower());
+      Assert.Equal("product_order_ibfk_1", row[2]);
+      Assert.Equal(Connection.Database.ToLower(), row[4].ToString().ToLower());
+      Assert.Equal("product_order", row[5]);
+      Assert.Equal(Connection.Database.ToLower(), row[10].ToString().ToLower());
+      Assert.Equal("product", row[11]);
 
       row = dt.Rows[1];
-      Assert.Equal(Connection.Database.ToLower(), row["CONSTRAINT_SCHEMA"].ToString().ToLower());
-      Assert.Equal("product_order_ibfk_2", row["CONSTRAINT_NAME"]);
-      Assert.Equal(Connection.Database.ToLower(), row["TABLE_SCHEMA"].ToString().ToLower());
-      Assert.Equal("product_order", row["TABLE_NAME"]);
-      Assert.Equal(Connection.Database.ToLower(), row["REFERENCED_TABLE_SCHEMA"].ToString().ToLower());
-      Assert.Equal("customer", row["REFERENCED_TABLE_NAME"]);
+      Assert.Equal(Connection.Database.ToLower(), row[1].ToString().ToLower());
+      Assert.Equal("product_order_ibfk_2", row[2]);
+      Assert.Equal(Connection.Database.ToLower(), row[4].ToString().ToLower());
+      Assert.Equal("product_order", row[5]);
+      Assert.Equal(Connection.Database.ToLower(), row[10].ToString().ToLower());
+      Assert.Equal("customer", row[11]);
     }
 
     [Fact]
@@ -592,6 +593,143 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = Connection.GetSchema("ReservedWords");
       foreach (DataRow row in dt.Rows)
         Assert.False(String.IsNullOrEmpty(row[0] as string));
+    }
+
+    [Fact]
+    public void GetSchemaCollections()
+    {
+      executeSQL("CREATE TABLE parent (id int, name_parent VARCHAR(20), PRIMARY KEY(id))");
+      executeSQL(@"CREATE TABLE child (id int, name_child VARCHAR(20), parent_id INT, 
+        PRIMARY KEY(id), INDEX par_id (parent_id), FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE)");
+      executeSQL("INSERT INTO parent VALUES(1, 'parent_1')");
+      executeSQL("INSERT INTO child VALUES(1, 'child_1', 1)");
+
+      SchemaProvider schema = new SchemaProvider(Connection);
+      string[] restrictions = new string[5];
+      restrictions[2] = "parent";
+      restrictions[1] = Connection.Database;
+
+      MySqlSchemaCollection schemaCollection = schema.GetSchema("columns", restrictions);
+
+      Assert.True(schemaCollection.Columns.Count == 20);
+      Assert.True(schemaCollection.Rows.Count == 2);
+      Assert.Equal("parent", schemaCollection.Rows[0]["TABLE_NAME"]);
+      Assert.Equal("id", schemaCollection.Rows[0]["COLUMN_NAME"]);
+
+      schemaCollection = schema.GetForeignKeys(restrictions);
+      Assert.True(schemaCollection.AsDataTable().Columns.Contains("REFERENCED_TABLE_NAME"));
+
+      schemaCollection = schema.GetForeignKeyColumns(restrictions);
+      Assert.True(schemaCollection.AsDataTable().Columns.Contains("REFERENCED_COLUMN_NAME"));
+
+      schemaCollection = schema.GetUDF(restrictions);
+      Assert.True(schemaCollection.AsDataTable().Columns.Contains("RETURN_TYPE"));
+
+      schemaCollection = schema.GetUsers(restrictions);
+      Assert.True(schemaCollection.AsDataTable().Columns.Contains("USERNAME"));
+    }
+
+    /// <summary> 
+    /// Bug #26876582 Unexpected ColumnSize for Char(36) and Blob in GetSchemaTable. 
+    /// Setting OldGuids to True so CHAR(36) is treated as CHAR.
+    /// </summary>
+    [Fact]
+    public void ColumnSizeWithOldGuids()
+    {
+      string connString = Connection.ConnectionString;
+
+      executeSQL("DROP TABLE IF EXISTS test");
+
+      using (MySqlConnection conn = new MySqlConnection(connString + ";oldguids=True;"))
+      {
+        conn.Open();
+        MySqlCommand cmd = new MySqlCommand("CREATE TABLE test(char36 char(36) CHARSET utf8mb4, binary16 binary(16), char37 char(37), `tinyblob` tinyblob, `blob` blob);", conn);
+        cmd.ExecuteNonQuery();
+
+        using (MySqlDataReader reader = ExecuteReader("SELECT * FROM test;"))
+        {
+          DataTable schemaTable = reader.GetSchemaTable();
+
+          Assert.Equal(36, schemaTable.Rows[0]["ColumnSize"]);
+          Assert.Equal(16, schemaTable.Rows[1]["ColumnSize"]);
+          Assert.Equal(37, schemaTable.Rows[2]["ColumnSize"]);
+          Assert.Equal(255, schemaTable.Rows[3]["ColumnSize"]);
+          Assert.Equal(65535, schemaTable.Rows[4]["ColumnSize"]);
+        }
+      }
+    }
+
+    /// <summary> 
+    /// Bug #26876592 Unexpected ColumnSize, IsLong in GetSChemaTable for LongText and LongBlob column.
+    /// Added validation when ColumnLenght equals -1 that is when lenght exceeds Int max size.
+    /// </summary>
+    //[Fact]
+    //public void IsLongProperty()
+    //{
+    //  st.execSQL("DROP TABLE IF EXISTS test;");
+    //  st.execSQL("CREATE TABLE test(`longtext` longtext, `longblob` longblob, `tinytext` tinytext, `tinyblob` tinyblob, `text` text, `blob` blob);");
+
+    //  using (MySqlDataReader reader = ExecuteReader("SELECT * FROM test;"))
+    //  {
+    //    DataTable schemaTable = reader.GetSchemaTable();
+
+    //    Assert.Equal(-1, schemaTable.Rows[0]["ColumnSize"]);
+    //    Assert.True((bool)schemaTable.Rows[0]["IsLong"]);
+    //    Assert.Equal(-1, schemaTable.Rows[1]["ColumnSize"]);
+    //    Assert.True((bool)schemaTable.Rows[1]["IsLong"]);
+    //    Assert.Equal(255, schemaTable.Rows[2]["ColumnSize"]);
+    //    Assert.False((bool)schemaTable.Rows[2]["IsLong"]);
+    //    Assert.Equal(255, schemaTable.Rows[3]["ColumnSize"]);
+    //    Assert.False((bool)schemaTable.Rows[3]["IsLong"]);
+    //    Assert.Equal(65535, schemaTable.Rows[4]["ColumnSize"]);
+    //    Assert.True((bool)schemaTable.Rows[4]["IsLong"]);
+    //    Assert.Equal(65535, schemaTable.Rows[5]["ColumnSize"]);
+    //    Assert.True((bool)schemaTable.Rows[5]["IsLong"]);
+    //  }
+    //}
+
+    /// <summary> 
+    /// Bug #26954812 Decimal with numericScale of 0 has wrong numericPrecision in GetSchemaTable.
+    /// </summary>
+    //[Fact]
+    //public void NumericPrecisionProperty()
+    //{
+    //  st.execSQL("DROP TABLE IF EXISTS test;");
+    //  st.execSQL("CREATE TABLE test(decimal0 decimal(8,0), decimal1 decimal(8), decimal2 decimal(8,2), decimal3 decimal(8,1) UNSIGNED);");
+
+    //  using (MySqlDataReader reader = st.execReader("SELECT * FROM test;"))
+    //  {
+    //    DataTable schemaTable = reader.GetSchemaTable();
+
+    //    Assert.Equal(8, schemaTable.Rows[0]["NumericPrecision"]);
+    //    Assert.Equal(0, schemaTable.Rows[0]["NumericScale"]);
+    //    Assert.Equal(8, schemaTable.Rows[1]["NumericPrecision"]);
+    //    Assert.Equal(0, schemaTable.Rows[1]["NumericScale"]);
+    //    Assert.Equal(8, schemaTable.Rows[2]["NumericPrecision"]);
+    //    Assert.Equal(2, schemaTable.Rows[2]["NumericScale"]);
+    //    Assert.Equal(8, schemaTable.Rows[3]["NumericPrecision"]);
+    //    Assert.Equal(1, schemaTable.Rows[3]["NumericScale"]);
+    //  }
+    //}
+
+    /// <summary>
+    /// Bug #29536344 MYSQLCONNECTION.GETSCHEMA RETURNS WRONG ORDER OF RECORDS FOR COLUMNS INFORMATION
+    /// </summary>
+    [Fact]
+    public void GetSchemaReturnColumnsByOrdinalPosition()
+    {
+      executeSQL("CREATE TABLE foo (x int, a VARCHAR(20), z int, c int)");
+      executeSQL("INSERT INTO foo VALUES(1, 'columnName', 2, 3)");
+
+      string[] restrictions = new string[5];
+      restrictions[2] = "foo";
+      restrictions[1] = Connection.Database;
+      var rows = Connection.GetSchema("COLUMNS", restrictions).Rows.OfType<DataRow>();
+
+      Assert.Collection(rows, row => Assert.Equal("x", row["COLUMN_NAME"]),
+        row => Assert.Equal("a", row["COLUMN_NAME"]),
+        row => Assert.Equal("z", row["COLUMN_NAME"]),
+        row => Assert.Equal("c", row["COLUMN_NAME"]));
     }
   }
 }

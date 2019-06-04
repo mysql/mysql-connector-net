@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -101,7 +101,12 @@ namespace MySqlX.Serialization
       double doubleValue;
       if (int.TryParse(stringValue, out intValue)) return intValue;
       if (long.TryParse(stringValue, out longValue)) return longValue;
-      if (double.TryParse(stringValue, out doubleValue)) return doubleValue;
+      if (double.TryParse(
+        stringValue,
+        System.Globalization.NumberStyles.Any,
+        System.Globalization.CultureInfo.InvariantCulture,
+        out doubleValue))
+        return doubleValue;
 
       // May be a function.
       int openingParen = 0;
@@ -162,14 +167,24 @@ namespace MySqlX.Serialization
     private string ReadUntilToken(params char[] end)
     {
       string val = "";
+      bool escapedQuoteExpected = false;
       while (_pos < _input.Length)
       {
         char c = _input[_pos++];
-        if (TokenInGroup(end, c))
+
+        if (!escapedQuoteExpected)
         {
-          _pos--;
-          return val;
+          if (c == 92)
+            escapedQuoteExpected = true;
+          else if (TokenInGroup(end, c))
+          {
+            _pos--;
+            return val;
+          }
         }
+        else if (c == 34)
+          escapedQuoteExpected = false;
+
         val += c;
       }
       throw new Exception("Failed to find ending '\"' while reading stream.");

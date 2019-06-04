@@ -1041,7 +1041,7 @@
             <td>
               Indicates whether the connection should respect all binary flags sent to the client
               as part of column metadata.  False will cause the connector to behave like
-              Connector/Net 5.0 and earlier.
+              Connector/NET 5.0 and earlier.
             </td>
           </tr>
           <tr>

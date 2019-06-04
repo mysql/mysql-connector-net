@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,6 +33,8 @@ using MySqlX.XDevAPI.Relational;
 using System.Reflection;
 using System.IO;
 using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI.CRUD;
+using MySqlX.XDevAPI.Common;
 
 namespace MySqlX.Data.Tests
 {
@@ -46,29 +48,26 @@ namespace MySqlX.Data.Tests
     public static string ConnectionStringUri { get; private set; }
     public static string ConnectionStringNoPassword { get; private set; }
     public static string ConnectionStringRoot { get; private set; }
+    public static string ConnectionStringUriNative { get; private set; }
 
     static BaseTest()
     {
-#if NETSTANDARD1_6
       Port = Environment.GetEnvironmentVariable("MYSQL_PORT") ?? "3306";
       XPort = Environment.GetEnvironmentVariable("MYSQLX_PORT") ?? "33060";
-#else
-      Port = "3306";
-      XPort = "33060";
-#endif
       schemaName = "test";
       ConnectionStringRoot = $"server=localhost;port={Port};uid=root;password=";
       ConnectionString = $"server=localhost;port={XPort};uid=test;password=test";
       ConnectionStringNoPassword = $"server=localhost;port={XPort};uid=testNoPass;";
       ConnectionStringUri = $"mysqlx://test:test@localhost:{XPort}";
+      ConnectionStringUriNative = $"mysqlx://testNative:test@localhost:{XPort}";
     }
 
-    protected static string Port
+    internal static string Port
     {
       get; private set;
     }
 
-    protected static string XPort
+    internal static string XPort
     {
       get; private set;
     }
@@ -83,7 +82,7 @@ namespace MySqlX.Data.Tests
       ExecuteSqlAsRoot(sql);
       session = GetSession();
       testSchema = session.GetSchema(schemaName);
-      if (testSchema.ExistsInDatabase())
+      if (SchemaExistsInDatabase(testSchema))
         session.DropSchema(schemaName);
       session.CreateSchema(schemaName);
     }
@@ -97,15 +96,17 @@ namespace MySqlX.Data.Tests
     {
       Session session = GetSession();
       session.SetCurrentSchema(schemaName);
-      SqlResult r = session.SQL(sql).Execute();
+      SqlResult r = ExecuteSQLStatement(session.SQL(sql));
       var rows = r.HasData ? r.FetchAll() : null;
       return r;
     }
 
-    protected Collection CreateCollection(string name)
+    protected Collection CreateCollection(string name, string schema = null)
     {
+      if (schema == null)
+        schema = schemaName;
       Session session = GetSession();
-      Schema test = session.GetSchema(schemaName);
+      Schema test = session.GetSchema(schema);
       test.DropCollection(name);
       return test.CreateCollection(name);
     }
@@ -135,10 +136,70 @@ namespace MySqlX.Data.Tests
       using (Session s = GetSession())
       {
         Schema schema = s.GetSchema(schemaName);
-        if(schema.ExistsInDatabase())
+        if(SchemaExistsInDatabase(schema))
             s.DropSchema(schemaName);
-        Assert.False(schema.ExistsInDatabase());
+        Assert.False(SchemaExistsInDatabase(schema));
       }
+    }
+
+    protected Result ExecuteAddStatement(AddStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected Result ExecuteModifyStatement(ModifyStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected DocResult ExecuteFindStatement(FindStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected SqlResult ExecuteSQLStatement(SqlStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected Result ExecuteRemoveStatement(RemoveStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected RowResult ExecuteSelectStatement(TableSelectStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected Result ExecuteInsertStatement(TableInsertStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected Result ExecuteUpdateStatement(TableUpdateStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected Result ExecuteDeleteStatement(TableDeleteStatement stmt)
+    {
+      return stmt.Execute();
+    }
+
+    protected bool SchemaExistsInDatabase(Schema schema)
+    {
+      return schema.ExistsInDatabase();
+    }
+
+    protected bool CollectionExistsInDatabase(Collection collection)
+    {
+      return collection.ExistsInDatabase();
+    }
+
+    protected bool TableExistsInDatabase(Table table)
+    {
+      return table.ExistsInDatabase();
     }
   }
 }

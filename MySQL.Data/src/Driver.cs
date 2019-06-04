@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -290,16 +290,20 @@ namespace MySql.Data.MySqlClient
     {
       // load server properties
       Dictionary<string, string> hash = new Dictionary<string, string>();
-      MySqlCommand cmd = new MySqlCommand("SHOW VARIABLES", connection);
+      MySqlCommand cmd = new MySqlCommand(@"SELECT @@max_allowed_packet, @@character_set_client, 
+        @@character_set_connection, @@license, @@sql_mode, @@lower_case_table_names;", connection);
       try
       {
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           while (reader.Read())
           {
-            string key = reader.GetString(0);
-            string value = reader.GetString(1);
-            hash[key] = value;
+            for (int i = 0; i <= reader.FieldCount-1; i++)
+            {
+              string key = reader.GetName(i).Remove(0,2);
+              string value = reader[i].ToString();
+              hash[key] = value;
+            }
           }
         }
         // Get time zone offset as numerical value
@@ -321,7 +325,7 @@ namespace MySql.Data.MySqlClient
       if (timeZoneDiff.HasValue)
         timeZoneString = timeZoneDiff.ToString();
 
-      return int.Parse(timeZoneString.Substring(0, timeZoneString.IndexOf(':')));
+      return int.Parse(timeZoneString.Substring(0, timeZoneString.IndexOf(':')), CultureInfo.InvariantCulture);
     }
 
     /// <summary>

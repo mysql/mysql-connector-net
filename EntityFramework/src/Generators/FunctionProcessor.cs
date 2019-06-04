@@ -1,4 +1,4 @@
-// Copyright (c) 2008, 2017, , Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2008, 2018,  Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -89,7 +89,7 @@ namespace MySql.Data.EntityFramework
       geoFunctions.Add("SpatialEnvelope", "Envelope({0})");
       geoFunctions.Add("IsSimpleGeometry", "IsSimple({0})");
       geoFunctions.Add("SpatialTypeName", "GeometryType({0})");
-      geoFunctions.Add("CoordinateSystemId", "SRID({0})");
+      geoFunctions.Add("CoordinateSystemId", "ST_SRID({0})");
       geoFunctions.Add("Point", "POINT({0}, {1})");
       geoFunctions.Add("XCoordinate", "X({0})");
       geoFunctions.Add("YCoordinate", "Y({0})");

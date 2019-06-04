@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,8 +38,8 @@ using Xunit;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
-    public class DataTests
-    {
+  public class DataTests
+  {
 
     [Fact]
     public async Task AsyncData()
@@ -68,7 +68,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         var continent = await context.FindAsync<Continent>("AS");
         Assert.Equal("Asia", continent.Name);
 
-        var continents = await context .Continents.ToListAsync();
+        var continents = await context.Continents.ToListAsync();
         Assert.Equal(4, continents.Count);
       }
     }
@@ -89,6 +89,16 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
         var item = context.MyTest.First();
         Assert.Equal(DateTime.MinValue, item.Date);
+      }
+    }
+
+    [Fact]
+    public void SakilaLiteTest()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
       }
     }
   }

@@ -1,4 +1,89 @@
+8.0.17
+- Fixed wrong order of records for columns when using MySqlConnection.GetSchema (MySql Bug #94773, Oracle Bug #29536344).
+- Added SSH tunnelling to X Protocol and MySQL classic protocol connections for use with the SshAuthenticationMode, SshHostName, SshUserName, SshPassword, SshKeyFile, SshPassphrase, and SshPort connection options (WL12747).
+- Added support for .NET Core 2.2 (WL12337).
+- MySqlX: Deprecated Where condition usage in the Find, Modify and Remove methods (WL12983).
+- Added the README.md and CONTRIBUTING.md files (WL12970).
+- MySqlX: Added OVERLAPS and NOT_OVERLAPS as operators (WL12749).
+- MySqlX: Added support for utf8mb4 binary no-pad collation (WL13099).
+- MySqlX: Removed a limitation preventing the creation of an index on document fields that contains arrays (WL12176).
+- Fix to correct wrong TimeZone returned when using MySqlDataReader['columnName'] to get DateTime type values (Oracle Bug #28156187).
+- Contribution added: Add CreateCommandBuilder and CreateDataAdapter to MySqlClientFactory (MySQL Bug #92206, Oracle Bug #28560189). Thanks to Cédric Luthi for the contribution.
+- Fix null DbDataAdapter and DbCommandBuilder objects when using CreateDataAdapter and CreateCommandBuilder respectively (MySQL Bug #88660, Oracle Bug #27292344).
+
+
+8.0.16
+- MySqlX: Added prepared statement support (WL12174).
+- MySqlX: Values and binding parameters are not cleared after an execution, so a new execution can use the previous parameters.
+- MySqlX bug fix: BIND WITH FIND/REMOVE DOESN'T WORK WHEN STRING IS PASSED (Oracle Bug #29304767).
+- MySqlX bug fix: DELETE WHERE THROWS PARSE EXCEPTION WITH -> OPERATOR FOR ARRAY (Oracle Bug #29347028).
+- Bug fix: PREPARED COMMANDS EXECUTE WITH ERROR ON MYSQL SERVER 8.0.13 (MySQL Bug #92912, Oracle Bug #28834253).
+- MySqlX: Added support for new session reset functionality (WL12515).
+- MySqlX: Added the Connection Attributes property (WL12514).
+- Added support for SSL connections using PEM certificates with the sslCA, sslCert and sslKey connection options (WL12494).
+- Fixed an issue that convert 00:00:00 (Time) to null when using prepared commands (MySQL Bug #91752, Oracle Bug #28383726).
+
+
+8.0.15
+- Bug fix: Disabled Load Data Local Infile by default (Oracle Bug #29259767).
+- Added new "allowloadlocalinfile" connection string option that disables or enables the server functionality to load the data local infile.
+- Contribution added: Fix to add missing invariant culture on parse methods (MySQL Bug #94045, Orale Bug #29262195). Thanks to Effy Teva for the contribution.
+- Added a fix to avoid running "SHOW VARIABLES" query (MySQL Bug #93202, Oracle Bug #28928543).
+- Fixed a bug that throws an exception 24.9 days after a server was restarted (MySQL Bug #75604, Oracle Bug #26930306).
+
+
+8.0.14
+- MySqlX: Added revisions to be prepared for unknown types of initial notices on a connection (WL12517).
+- MySqlX: Standardize count method for X Protocol (WL12518).
+- MySqlX: Removed class members that were previously deprecated and replaced with types that support the X DevAPI standard (WL12031).
+- Expose metadata about source and binaries in unified way (WL12274).
+
+
+8.0.13
+- MySqlX: Connect-Timeout connection option implemented for X Protocol.
+- Improved the performance for index creation by removing redundant client-side validations already being done on the server side (MySQL Bug #91631, Oracle Bug #28343828).
+- Improved the performance when opening connections by refactoring the MySqlConnectAttrs class. Improved the performance in Windows environments by optimizing the query that identifies the operating system details (MySQL Bug #80030, Oracle Bug#22580399).
+- Fixed an SQL syntax error thrown when a point type is evaluated. Changed SRID() function to ST_SRID() since SRID() is deprecated. (MySQL Bug #27715007).
+- Removed unused _fieldHashCs field from ResulSet (MySQL Bug #88950, Oracle Bug #27285641).
+- Fix to correct exception, "Incorrect usage of spatial/fulltext/hash index and explicit index order", when using the Entity Framework code-first approach with MySQL 8.0 servers (Oracle Bug #27715069).
+- Fixed in EF Core that when an entity property is numeric and not a key, to avoid adding the autoincrement annotation (MySQL Bug #91551, Oracle Bug #28293927).
+- Contribution added: Fix to correct ArgumentOutOfRangeException raised when trying to create an instance of MySqlGeometry for an empty geometry collection (MySQL Bug #86974, Oracle Bug #26421346). Thanks to Peet Whittaker for the contribution.
+- Added support for Entity Framework Core 2.1 and removed suppport for 2.0 (WL-12182).
+- MySqlX: Fixed bug that throws an exception when using Set and Unset for an alphanumeric field (Oracle Bug #28094094).
+- MySqlX: Added support for session pooling (WL-11841).
+- Fix to correct wrong TimeZone returned when using MySqlDataReader['columnName'] to get DateTime type values (Oracle Bug #28156187).
+- Contribution added: Add CreateCommandBuilder and CreateDataAdapter to MySqlClientFactory (MySQL Bug #92206, Oracle Bug #28560189). Thanks to Cédric Luthi for the contribution.
+- Fix null DbDataAdapter and DbCommandBuilder objects when using CreateDataAdapter and CreateCommandBuilder respectively (MySQL Bug #88660, Oracle Bug #27292344).
+- Re-introduced the Preferred SSL Mode as the default value for the classic protocol (MySQL Bug#92533, Oracle Bug #28687769).
+
+
+8.0.12
+- MySqlX: Created the MySqlXConnectionStringBuilder class to handle X Protocol/X DevAPI specific connection options.
+  X Protocol/X DevAPI connection options have been removed from the MySqlConnectionStringBuilder class (WL11846).
+- MySqlX: Modified multiple elements as an effort to better standarize MySQL Document Store operations with other
+  MySQL connectors (WL11843).
+- MySqlX: Added the ColumnCount and ColumnNames properties to SqlResult and RowResult objects (Oracle Bug #27732175).
+- MySqlX: The RecordsAffected property available in Result objects has been deprecated and replaced with the
+  AffectedItemsCount property. The WarningCount property has been added to Result objects (Oracle Bug #27732235).
+- MySqlX: Added the ArrayInsert() and ArrayAppend() methods to the Modify() chain, enhancing array manipulation
+  (Oracle Bug #27732098).
+- Fixed a bug that prevented the TreatTinyAsBoolean connection option from being set when calling the
+  MySqlCommand.Prepare method (MySQL Bug #88472, Oracle Bug #27113566).
+- Fix to correct wrong result type returned by MySqlDataReader after null found (MySQL Bug #78917, Oracle Bug #22101727).
+- Contribution added: Fixing encoding (MySQL Bug #90316, Oracle Bug #27818822). Thanks to Kleber Syd Moraes da Silva for the contribution.
+- Contribution added: Fixing CONCURRENCYCHECK and DATABASEGENERATEDOPTION.COMPUTED (MySQL Bug #91064, Oracle Bug #28095165). Thanks to Tony OHagan for the contribution.
+- Fixed an SQL syntax error thrown when a point type is evaluated. Changed SRID() function to ST_SRID() since SRID() is deprecated. (MySQL Bug #27715007).
+- Removed unused _fieldHashCs field from ResulSet (MySQL Bug #88950, Oracle Bug #27285641).
+- Fix to correct exception, "Incorrect usage of spatial/fulltext/hash index and explicit index order", when using the Entity Framework code-first approach with MySQL 8.0 servers (Oracle Bug #27715069).
+- Fixed in EF Core that when an entity property is numeric and not a key, to avoid adding the autoincrement annotation (MySQL Bug #91551, Oracle Bug #28293927).
+- Contribution added: Fix to correct ArgumentOutOfRangeException raised when trying to create an instance of MySqlGeometry for an empty geometry collection (MySQL Bug #86974, Oracle Bug #26421346). Thanks to Peet Whittaker for the contribution.
+- Fixed EF Core 2.0 not supported in .NET Framework projects (MySQL Bug #90306, Oracle Bug #27815706).
+- Fixed EF Core 2.0 scaffolding (MySQL Bug #90368, Oracle Bug #27898343).
+
+
 8.0.11
+- Updated the RSA key encryption padding to RSA_PKCS1_OAEP_PADDING for the caching_sha2_password authentication plugin
+  when connecting to server 8.0.5 (or later) (WL11618).
 - Fix for sockets stay in CLOSE_WAIT when using SSL (MySQL Bug #75022, Oracle Bug #20393654).
 - Fix for unexpected ColumnSize for CHAR(63) and BLOB columns in GetSchemaTable (MySQL Bug #87868, Oracle Bug #26876582)
 - Fix to correct unexpected ColummSize and IsLong values returned by MySqlDataReader.GetSchemaTable when using LongText and LongBlob data types. (MySQL Bug #87876, Oracle Bug #26876592)
@@ -9,6 +94,9 @@
 - Fix for bug: could not load file or assembly MySql.ConnectorInstaller when using web providers (MySQL Bug #88544, Oracle Bug #27457398).
 - Fix to enable the creation of an Entity Framework model from a database, also called the database-first approach (MySQL Bug 79163, Oracle Bug #22173048).
 - Fixed a bug that prevented making a connection to MySQL when using TLS/SSL for the MySqlX URI scheme (Oracle Bug #24510329).
+- MySqlX: Added support for SHA256_MEMORY authentication (WL11624).
+- MySqlX: Added support for locking read concurrency with NOWAIT and SKIP LOCKED (WL11307).
+- MySqlX: New server document _id generation support for MySQL 8.0.5 server and higher. Removed client-side _id generation (WL11421).
 
 
 8.0.10

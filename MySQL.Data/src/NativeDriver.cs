@@ -1,4 +1,4 @@
-// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,18 +26,16 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using MySql.Data.MySqlClient.Authentication;
+using MySql.Data.Types;
 using System;
 using System.Collections;
-using System.Diagnostics;
-using System.IO;
-using MySql.Data.Common;
-using MySql.Data.Types;
-using System.Text;
-using MySql.Data.MySqlClient.Authentication;
-using System.Reflection;
 using System.ComponentModel;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace MySql.Data.MySqlClient
 {
@@ -194,8 +192,8 @@ namespace MySql.Data.MySqlClient
       {
         baseStream = StreamCreator.GetStream(Settings);
 #if !NETSTANDARD1_6
-         if (Settings.IncludeSecurityAsserts)
-            MySqlSecurityPermission.CreatePermissionSet(false).Assert();
+        if (Settings.IncludeSecurityAsserts)
+          MySqlSecurityPermission.CreatePermissionSet(false).Assert();
 #endif
       }
       catch (System.Security.SecurityException)
@@ -219,6 +217,8 @@ namespace MySql.Data.MySqlClient
       // read off the welcome packet and parse out it's values
       packet = stream.ReadPacket();
       int protocol = packet.ReadByte();
+      if (protocol != 10)
+        throw new MySqlException("Unsupported protocol version.");
       string versionString = packet.ReadString();
       version = DBVersion.Parse(versionString);
       threadId = packet.ReadInteger(4);
@@ -270,7 +270,8 @@ namespace MySql.Data.MySqlClient
 
       if ((serverCaps & ClientFlags.SSL) == 0)
       {
-        if (Settings.SslMode != MySqlSslMode.None)
+        if (Settings.SslMode != MySqlSslMode.None &&
+            Settings.SslMode != MySqlSslMode.Preferred)
         {
           // Client requires SSL connections.
           string message = String.Format(Resources.NoServerSSLSupport,
@@ -281,7 +282,17 @@ namespace MySql.Data.MySqlClient
       else if (Settings.SslMode != MySqlSslMode.None)
       {
         stream.SendPacket(packet);
-        stream = new Ssl(Settings).StartSSL(ref baseStream, Encoding, Settings.ToString());
+        stream = new Ssl(
+          Settings.Server,
+          Settings.SslMode,
+          Settings.CertificateFile,
+          Settings.CertificateStoreLocation,
+          Settings.CertificatePassword,
+          Settings.CertificateThumbprint,
+          Settings.SslCa,
+          Settings.SslCert,
+          Settings.SslKey)
+          .StartSSL(ref baseStream, Encoding, Settings.ToString());
         packet.Clear();
         packet.WriteInteger((int)connectionFlags, 4);
         packet.WriteInteger(maxSinglePacket, 4);
@@ -303,16 +314,20 @@ namespace MySql.Data.MySqlClient
       stream.MaxBlockSize = maxSinglePacket;
     }
 
-#region Authentication
+    #region Authentication
 
-      /// <summary>
-      /// Return the appropriate set of connection flags for our
-      /// server capabilities and our user requested options.
-      /// </summary>
+    /// <summary>
+    /// Return the appropriate set of connection flags for our
+    /// server capabilities and our user requested options.
+    /// </summary>
     private void SetConnectionFlags(ClientFlags serverCaps)
     {
+      // We always allow multiple result sets
+      ClientFlags flags = ClientFlags.MULTI_RESULTS;
+
       // allow load data local infile
-      ClientFlags flags = ClientFlags.LOCAL_FILES;
+      if (Settings.AllowLoadLocalInfile)
+        flags |= ClientFlags.LOCAL_FILES;
 
       if (!Settings.UseAffectedRows)
         flags |= ClientFlags.FOUND_ROWS;
@@ -324,9 +339,6 @@ namespace MySql.Data.MySqlClient
       // user allows/disallows batch statements
       if (Settings.AllowBatch)
         flags |= ClientFlags.MULTI_STATEMENTS;
-
-      // We always allow multiple result sets
-      flags |= ClientFlags.MULTI_RESULTS;
 
       // if the server allows it, tell it that we want long column info
       if ((serverCaps & ClientFlags.LONG_FLAG) != 0)
@@ -386,7 +398,7 @@ namespace MySql.Data.MySqlClient
       authPlugin.Authenticate(reset);
     }
 
-#endregion
+    #endregion
 
     public void Reset()
     {
@@ -488,10 +500,18 @@ namespace MySql.Data.MySqlClient
       int fieldCount = (int)packet.ReadFieldLength();
       if (-1 == fieldCount)
       {
-        string filename = packet.ReadString();
-        SendFileToServer(filename);
+        if (this.Settings.AllowLoadLocalInfile)
+        {
+          string filename = packet.ReadString();
+          SendFileToServer(filename);
 
-        return GetResult(ref affectedRow, ref insertedId);
+          return GetResult(ref affectedRow, ref insertedId);
+        }
+        else
+        {
+          stream.Close();
+          throw new MySqlException(Resources.LocalInfileDisabled);
+        }
       }
       else if (fieldCount == 0)
       {
@@ -568,7 +588,15 @@ namespace MySql.Data.MySqlClient
 
       packet.Encoding = field.Encoding;
       packet.Version = version;
-      return valObject.ReadValue(packet, length, isNull);
+      var val = valObject.ReadValue(packet, length, isNull);
+
+      if (val is MySqlDateTime d)
+      {
+        d.TimezoneOffset = field.driver.timeZoneOffset;
+        return d;
+      }
+
+      return val;
     }
 
     public void SkipColumnValue(IMySqlValue valObject)
@@ -632,8 +660,8 @@ namespace MySql.Data.MySqlClient
     private void ExecutePacket(MySqlPacket packetToExecute)
     {
       try
-      {      
-        warnings = 0;        
+      {
+        warnings = 0;
         stream.SequenceByte = 0;
         stream.SendPacket(packetToExecute);
       }

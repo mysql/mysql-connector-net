@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,17 +38,25 @@ namespace MySql.Data.MySqlClient
   {
     #region DataRow
     /// <summary>
-    /// Async version of ExecuteDataRow
+    /// Asynchronous version of ExecuteDataRow.
     /// </summary>
-    /// <param name="connectionString">Settings to be used for the connection</param>
-    /// <param name="commandText">Command to execute</param>
-    /// <param name="parms">Parameters to use for the command</param>
-    /// <returns>DataRow containing the first row of the resultset</returns>
+    /// <param name="connectionString">The settings to be used for the connection.</param>
+    /// <param name="commandText">The command to execute.</param>
+    /// <param name="parms">The parameters to use for the command.</param>
+    /// <returns>The DataRow containing the first row of the resultset.</returns>
     public static Task<DataRow> ExecuteDataRowAsync(string connectionString, string commandText, params MySqlParameter[] parms)
     {
       return ExecuteDataRowAsync(connectionString, commandText, CancellationToken.None, parms);
     }
 
+    /// <summary>
+    /// Asynchronous version of ExecuteDataRow.
+    /// </summary>
+    /// <param name="connectionString">The settings to be used for the connection.</param>
+    /// <param name="commandText">The command to execute.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="parms">The parameters to use for the command.</param>
+    /// <returns>The DataRow containing the first row of the resultset.</returns>
     public static Task<DataRow> ExecuteDataRowAsync(string connectionString, string commandText, CancellationToken cancellationToken, params MySqlParameter[] parms)
     {
       var result = new TaskCompletionSource<DataRow>();

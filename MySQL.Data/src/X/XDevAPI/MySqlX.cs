@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,16 +38,9 @@ namespace MySqlX.XDevAPI
   public class MySQLX
   {
     /// <summary>
-    /// Initializes a new instance of the MySQLX class.
-    /// </summary>
-    public MySQLX()
-    {
-    }
-
-    /// <summary>
     /// Opens a session to the server given or to the first available server if multiple servers were specified.
     /// </summary>
-    /// <param name="connectionString">The connection string in basic or URI format.</param>
+    /// <param name="connectionString">The connection string or URI string format.</param>
     /// <returns>A <see cref="Session"/> object representing the established session.</returns>
     /// <remarks>Multiple hosts can be specified as part of the <paramref name="connectionString"/> which
     /// will enable client side failover when trying to establish a connection. For additional details and syntax 
@@ -65,6 +58,76 @@ namespace MySqlX.XDevAPI
     public static Session GetSession(object connectionData)
     {
       return new Session(connectionData);
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Client"/> instance.
+    /// </summary>
+    /// <param name="connectionString">The connection string or URI string format.</param>
+    /// <param name="connectionOptions">The connection options in JSON string format.</param>
+    /// <returns>A <see cref="Client"/> object representing a session pool.</returns>
+    public static Client GetClient(string connectionString, string connectionOptions)
+    {
+      return new Client(connectionString, connectionOptions);
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Client"/> instance.
+    /// </summary>
+    /// <param name="connectionString">The connection string or URI string format.</param>
+    /// <param name="connectionOptions">The connection options in object format.
+    /// <example>
+    /// <code>
+    /// new { pooling = new
+    ///   {
+    ///     enabled = true,
+    ///     maxSize = 15,
+    ///     maxIdleTime = 60000,
+    ///     queueTimeout = 60000
+    ///   }
+    /// }
+    /// </code>
+    /// </example>
+    /// </param>
+    /// <returns>A <see cref="Client"/> object representing a session pool.</returns>
+    public static Client GetClient(string connectionString, object connectionOptions)
+    {
+      return new Client(connectionString, connectionOptions);
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Client"/> instance.
+    /// </summary>
+    /// <param name="connectionData">The connection data.</param>
+    /// <param name="connectionOptions">The connection options in JSON string format.</param>
+    /// <returns>A <see cref="Client"/> object representing a session pool.</returns>
+    public static Client GetClient(object connectionData, string connectionOptions)
+    {
+      return new Client(connectionData, connectionOptions);
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="Client"/> instance.
+    /// </summary>
+    /// <param name="connectionData">The connection data.</param>
+    /// <param name="connectionOptions">The connection options in object format.
+    /// <example>
+    /// <code>
+    /// new { pooling = new
+    ///   {
+    ///     enabled = true,
+    ///     maxSize = 15,
+    ///     maxIdleTime = 60000,
+    ///     queueTimeout = 60000
+    ///   }
+    /// }
+    /// </code>
+    /// </example>
+    /// </param>
+    /// <returns>A <see cref="Client"/> object representing a session pool.</returns>
+    public static Client GetClient(object connectionData, object connectionOptions)
+    {
+      return new Client(connectionData, connectionOptions);
     }
 
     //public static Iterator CsvFileRowIterator()

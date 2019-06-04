@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -57,6 +57,7 @@ namespace MySqlX.XDevAPI.Relational
     {
       if (!isView.HasValue)
       {
+        ValidateOpenSession();
         string type = Session.XSession.GetObjectType(Schema, Name).ToUpperInvariant();
         isView = (type == "VIEW");
       }
@@ -126,15 +127,17 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>The number of rows.</returns>
     public long Count()
     {
-      return Session.XSession.TableCount(Schema, Name);
+      ValidateOpenSession();
+      return Session.XSession.TableCount(Schema, Name, "Table");
     }
 
     /// <summary>
-    /// Verifies if the table exists in database.
+    /// Verifies if the table exists in the database.
     /// </summary>
-    /// <returns>True if table exists, false otherwise.</returns>
+    /// <returns><c>true</c> if the table exists; otherwise, <c>false</c>.</returns>
     public override bool ExistsInDatabase()
     {
+      ValidateOpenSession();
       return Session.XSession.TableExists(Schema, Name);
     }
   }

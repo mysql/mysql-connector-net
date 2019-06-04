@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,12 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using MySql.Data.Types;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using MySql.Data.Common;
-using MySql.Data.Types;
 
 namespace MySql.Data.MySqlClient
 {
@@ -421,6 +421,9 @@ namespace MySql.Data.MySqlClient
       if (where.Length > 0)
         query.AppendFormat(CultureInfo.InvariantCulture, " WHERE {0}", where);
 
+      if (tableName.Equals("COLUMNS", StringComparison.OrdinalIgnoreCase))
+        query.Append(" ORDER BY ORDINAL_POSITION");
+
       return GetTable(query.ToString());
     }
 
@@ -717,14 +720,14 @@ namespace MySql.Data.MySqlClient
 
       if (!MetaData.IsNumericType(row["DATA_TYPE"].ToString()))
       {
-        row["CHARACTER_MAXIMUM_LENGTH"] = Int32.Parse(parts[0]);
+        row["CHARACTER_MAXIMUM_LENGTH"] = Int32.Parse(parts[0], CultureInfo.InvariantCulture);
         // will set octet length in a minute
       }
       else
       {
-        row["NUMERIC_PRECISION"] = Int32.Parse(parts[0]);
+        row["NUMERIC_PRECISION"] = Int32.Parse(parts[0], CultureInfo.InvariantCulture);
         if (parts.Length == 2)
-          row["NUMERIC_SCALE"] = Int32.Parse(parts[1]);
+          row["NUMERIC_SCALE"] = Int32.Parse(parts[1], CultureInfo.InvariantCulture);
       }
     }
 

@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,6 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.Common;
+using MySqlX.XDevAPI;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -61,19 +62,20 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal($"Option not supported.{Environment.NewLine}Parameter name: badkey", ex.Message);        
       sb.Clear();
       Assert.Equal(15, Convert.ToInt32(sb.ConnectionTimeout));
-      Assert.Equal(true, sb.Pooling);
+      Assert.True(sb.Pooling);
+      Assert.True(sb.Pooling);
       Assert.Equal(3306, Convert.ToInt32(sb.Port));
       Assert.Equal(String.Empty, sb.Server);
-      Assert.Equal(false, sb.PersistSecurityInfo);
+      Assert.False(sb.PersistSecurityInfo);
       Assert.Equal(0, Convert.ToInt32(sb.ConnectionLifeTime));
       Assert.False(sb.ConnectionReset);
       Assert.Equal(0, Convert.ToInt32(sb.MinimumPoolSize));
       Assert.Equal(100, Convert.ToInt32(sb.MaximumPoolSize));
       Assert.Equal(String.Empty, sb.UserID);
       Assert.Equal(String.Empty, sb.Password);
-      Assert.Equal(false, sb.UseUsageAdvisor);
+      Assert.False(sb.UseUsageAdvisor);
       Assert.Equal(String.Empty, sb.CharacterSet);
-      Assert.Equal(false, sb.UseCompression);
+      Assert.False(sb.UseCompression);
       Assert.Equal("MYSQL", sb.PipeName);
       Assert.False(sb.Logging);
       Assert.True(sb.AllowBatch);
@@ -97,13 +99,6 @@ namespace MySql.Data.MySqlClient.Tests
       s["database"] = "test";
       s["database"] = "test2";
       Assert.Equal("database=test2", s.ConnectionString);
-    }
-
-    [Fact]
-    public void EncryptKeyword()
-    {
-      string connStr = "database=test;uid=root;server=localhost;encrypt=yes";
-      MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(connStr);
     }
 
     /// <summary>
@@ -141,13 +136,6 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Fact]
-    public void EncrpytSslmode()
-    {
-      MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder("server=localhost;encrypt=true");
-      Assert.Equal(s.SslMode, MySqlSslMode.Required);
-    }
-
-    [Fact]
     public void SettingInvalidKeyThrowsArgumentException()
     {
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder();
@@ -165,10 +153,10 @@ namespace MySql.Data.MySqlClient.Tests
       object obj;
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder("server=localhost;");
       s.TryGetValue("unknownproperty", out obj);
-      Assert.Equal(null, obj);
+      Assert.Null(obj);
     }
 
-#if NETCOREAPP1_1 || NETCOREAPP2_0
+#if NETCOREAPP1_1 || NETCOREAPP2_2
     [Fact]
     public void DotnetCoreNotCurrentlySupported()
     {
@@ -218,7 +206,7 @@ namespace MySql.Data.MySqlClient.Tests
       string[] values = { "OTHER", "Other", "MYSQL42", "PlaINs" };
       foreach (var value in values)
       {
-        Exception ex = Assert.Throws<ArgumentException>(() => new MySqlConnectionStringBuilder(String.Format("server=localhost;aUth={0}", value)));
+        Exception ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder(String.Format("server=localhost;aUth={0}", value)));
         Assert.Equal(String.Format("Value '{0}' is not of the correct type.", value), ex.Message);
       }
     }
@@ -236,10 +224,19 @@ namespace MySql.Data.MySqlClient.Tests
       {
         for (int j = 0; j < values.GetLength(1); j++)
         {
-          MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(String.Format("server=localhost;auth={0}", values[i, j]));
+          var builder = new MySqlXConnectionStringBuilder(String.Format("server=localhost;auth={0}", values[i, j]));
           Assert.Equal((MySqlAuthenticationMode)(i + 1), builder.Auth);
         }
       }
+    }
+
+    // Bug #28157737 TABLE CACHING IS NOT SUPPORTED IN THE MYSQLCONNECTIONSTRINGBUILDER CLASS
+    [Fact]
+    public void SettingTableCachingRaisesException()
+    {
+      var builder = new MySqlConnectionStringBuilder();
+      builder.TableCaching = true;
+      Assert.True(builder.TableCaching);
     }
   }
 }

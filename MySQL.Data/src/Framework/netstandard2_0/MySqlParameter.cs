@@ -1,4 +1,4 @@
-// Copyright © 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -41,6 +41,10 @@ namespace MySql.Data.MySqlClient
     [Category("Data")]
     public override DataRowVersion SourceVersion { get; set; }
 
+    /// <summary>
+    /// CLoses this object.
+    /// </summary>
+    /// <returns>An object that is a clone of this object.</returns>
     public MySqlParameter Clone()
     {
       MySqlParameter clone = new MySqlParameter(_paramName, _mySqlDbType, Direction, SourceColumn, SourceVersion, _paramValue)

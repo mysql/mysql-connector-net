@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -42,24 +42,13 @@ using MySql.Data.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace MySql.EntityFrameworkCore.Design.Tests
 {
-    public class MySQLDatabaseModelFixture : IDisposable
+  public partial class MySQLDatabaseModelFixture : IDisposable
     {
         public MySQLTestStore teststore { get; set; }
         public string dbName { get; set; }
 
         public MySQLDatabaseModelFixture()
-        {            
-        }
-
-        public DatabaseModel CreateModel(string sql, TableSelectionSet selection, ILogger logger = null, bool executeScript=false)
         {
-            if (executeScript)
-                MySQLTestStore.ExecuteScript(sql);
-            else
-                MySQLTestStore.Execute(sql);
-
-            return new MySQLDatabaseModelFactory(new MyTestLoggerFactory(logger).CreateLogger<MySQLDatabaseModelFactory>()).
-                   Create(MySQLTestStore.rootConnectionString + ";database=" + dbName + ";", selection ?? TableSelectionSet.All);
         }
 
         public void Dispose()

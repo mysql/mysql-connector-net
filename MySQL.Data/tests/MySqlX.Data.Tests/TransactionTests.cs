@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -53,13 +53,13 @@ namespace MySqlX.Data.Tests
       // start the transaction
       coll.Session.StartTransaction();
 
-      Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Result r = ExecuteAddStatement(coll.Add(docs));
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       // now roll it back
       coll.Session.Commit();
 
-      DocResult foundDocs = coll.Find().Execute();
+      DocResult foundDocs = ExecuteFindStatement(coll.Find());
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Next());
@@ -82,33 +82,14 @@ namespace MySqlX.Data.Tests
       // start the transaction
       coll.Session.StartTransaction();
 
-      Result r = coll.Add(docs).Execute();
-      Assert.Equal<ulong>(4, r.RecordsAffected);
+      Result r = ExecuteAddStatement(coll.Add(docs));
+      Assert.Equal<ulong>(4, r.AffectedItemsCount);
 
       // now roll it back
       coll.Session.Rollback();
 
-      DocResult foundDocs = coll.Find().Execute();
+      DocResult foundDocs = ExecuteFindStatement(coll.Find());
       Assert.False(foundDocs.Next());
-    }
-
-    [Fact]
-    public void Warnings()
-    {
-      using(Session session = MySQLX.GetSession(ConnectionString))
-      {
-        session.SetCurrentSchema(schemaName);
-        Schema schema = session.GetSchema(schemaName);
-        session.SQL("CREATE TABLE nontrac(id INT primary key) ENGINE=MyISAM").Execute();
-        Table table = schema.GetTable("nontrac");
-        session.StartTransaction();
-        table.Insert().Values(5).Execute();
-        Assert.Throws<MySqlException>(() => { table.Insert().Values(5).Execute(); });
-        var result = session.Rollback();
-        Assert.Equal(1, result.Warnings.Count);
-        // warning message: Some non-transactional changed tables couldn't be rolled back
-        Assert.Equal(1196u, result.Warnings[0].Code);
-      }
     }
 
     #region Savepoints
@@ -137,12 +118,12 @@ namespace MySqlX.Data.Tests
 
         session.StartTransaction();
 
-        coll.Add("{ \"test\": \"test\" }").Execute();
+        ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         var sp = session.SetSavepoint();
-        coll.Add("{ \"test\": \"test\" }").Execute();
-        Assert.Equal(2, coll.Find().Execute().FetchAll().Count);
+        ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
+        Assert.Equal(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
         session.RollbackTo(sp);
-        Assert.Equal(1, coll.Find().Execute().FetchAll().Count);
+        Assert.Equal(1, ExecuteFindStatement(coll.Find()).FetchAll().Count);
 
         session.Rollback();
       }
@@ -158,12 +139,12 @@ namespace MySqlX.Data.Tests
 
         session.StartTransaction();
 
-        coll.Add("{ \"test\": \"test\" }").Execute();
+        ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         var sp = session.SetSavepoint();
-        coll.Add("{ \"test2\": \"test2\" }").Execute();
-        Assert.Equal(2, coll.Find().Execute().FetchAll().Count);
+        ExecuteAddStatement(coll.Add("{ \"test2\": \"test2\" }"));
+        Assert.Equal(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
         session.ReleaseSavepoint(sp);
-        Assert.Equal(2, coll.Find().Execute().FetchAll().Count);
+        Assert.Equal(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
 
         session.Rollback();
       }
@@ -193,12 +174,12 @@ namespace MySqlX.Data.Tests
 
         session.StartTransaction();
 
-        coll.Add("{ \"test\": \"test\" }").Execute();
+        ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         var sp = session.SetSavepoint("mySavedPoint");
-        coll.Add("{ \"test2\": \"test2\" }").Execute();
-        Assert.Equal(2, coll.Find().Execute().FetchAll().Count);
+        ExecuteAddStatement(coll.Add("{ \"test2\": \"test2\" }"));
+        Assert.Equal(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
         session.RollbackTo(sp);
-        Assert.Equal(1, coll.Find().Execute().FetchAll().Count);
+        Assert.Equal(1, ExecuteFindStatement(coll.Find()).FetchAll().Count);
 
         session.Rollback();
       }
@@ -214,12 +195,12 @@ namespace MySqlX.Data.Tests
 
         session.StartTransaction();
 
-        coll.Add("{ \"test\": \"test\" }").Execute();
+        ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         var sp = session.SetSavepoint("mySavedPoint");
-        coll.Add("{ \"test2\": \"test2\" }").Execute();
-        Assert.Equal(2, coll.Find().Execute().FetchAll().Count);
+        ExecuteAddStatement(coll.Add("{ \"test2\": \"test2\" }"));
+        Assert.Equal(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
         session.ReleaseSavepoint(sp);
-        Assert.Equal(2, coll.Find().Execute().FetchAll().Count);
+        Assert.Equal(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
 
         session.Rollback();
       }
@@ -282,16 +263,16 @@ namespace MySqlX.Data.Tests
 
         session.StartTransaction();
 
-        coll.Add("{ \"test\": \"test\" }").Execute();
+        ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         var sp = session.SetSavepoint("mySP");
-        coll.Add("{ \"test2\": \"test2\" }").Execute();
+        ExecuteAddStatement(coll.Add("{ \"test2\": \"test2\" }"));
         sp = session.SetSavepoint("mySP");
-        coll.Add("{ \"test3\": \"test3\" }").Execute();
+        ExecuteAddStatement(coll.Add("{ \"test3\": \"test3\" }"));
         sp = session.SetSavepoint("mySP");
-        coll.Add("{ \"test4\": \"test4\" }").Execute();
+        ExecuteAddStatement(coll.Add("{ \"test4\": \"test4\" }"));
         sp = session.SetSavepoint("mySP");
         session.RollbackTo(sp);
-        Assert.Equal(4, coll.Find().Execute().FetchAll().Count);
+        Assert.Equal(4, ExecuteFindStatement(coll.Find()).FetchAll().Count);
 
         session.Rollback();
       }
@@ -324,7 +305,7 @@ namespace MySqlX.Data.Tests
         session.StartTransaction();
 
         var sp = session.SetSavepoint("mySP");
-        coll.Add("{ \"test\": \"test\" }").Execute();
+        ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
 
         session.Commit();
 
@@ -347,7 +328,7 @@ namespace MySqlX.Data.Tests
         session.StartTransaction();
 
         var sp = session.SetSavepoint("mySP");
-        coll.Add("{ \"test\": \"test\" }").Execute();
+        ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
 
         session.Rollback();
 

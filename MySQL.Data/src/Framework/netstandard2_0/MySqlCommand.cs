@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,10 +40,10 @@ namespace MySql.Data.MySqlClient
   {
 
     /// <summary>
-    /// Creates a clone of this MySqlCommand object.  CommandText, Connection, and Transaction properties
+    /// Creates a clone of this <see cref="MySqlCommand"/> object.  CommandText, Connection, and Transaction properties
     /// are included as well as the entire parameter list.
     /// </summary>
-    /// <returns>The cloned MySqlCommand object</returns>
+    /// <returns>The cloned <see cref="MySqlCommand"/> object.</returns>
     public object Clone()
     {
       MySqlCommand clone = new MySqlCommand(cmdText, connection, Transaction)

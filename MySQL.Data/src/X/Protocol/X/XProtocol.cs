@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,31 +26,31 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-
-using MySqlX.Communication;
-using MySqlX.Data;
+using Google.Protobuf;
+using MySql.Data;
+using MySql.Data.MySqlClient;
+using Mysqlx;
+using Mysqlx.Connection;
+using Mysqlx.Crud;
+using Mysqlx.Datatypes;
+using Mysqlx.Expr;
+using Mysqlx.Notice;
 using Mysqlx.Resultset;
 using Mysqlx.Session;
 using Mysqlx.Sql;
+using MySqlX.Communication;
+using MySqlX.Data;
 using MySqlX.Protocol.X;
-using Mysqlx.Expr;
-using Mysqlx.Datatypes;
-using Mysqlx;
-using Mysqlx.Crud;
-using Mysqlx.Notice;
-using Mysqlx.Connection;
 using MySqlX.XDevAPI.Common;
-using MySqlX.XDevAPI.Relational;
 using MySqlX.XDevAPI.CRUD;
-using MySql.Data.MySqlClient;
-using MySql.Data;
-using MySqlX;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using Google.Protobuf;
 using static Mysqlx.Datatypes.Object.Types;
+using Mysqlx.Prepare;
+using MySqlX.DataAccess;
+using System.Collections;
 
 namespace MySqlX.Protocol
 {
@@ -108,7 +108,7 @@ namespace MySqlX.Protocol
 
         case ServerMessageId.ERROR:
           var error = Error.Parser.ParseFrom(p.Buffer);
-          throw new MySqlException("Unable to connect: " + error.Msg);
+          throw new MySqlException(error.Code, error.SqlState, error.Msg);
 
         case ServerMessageId.NOTICE:
           ///TODO:  fix this
@@ -127,23 +127,41 @@ namespace MySqlX.Protocol
     {
       _writer.Write(ClientMessageId.CON_CAPABILITIES_GET, new CapabilitiesGet());
       CommunicationPacket packet = ReadPacket();
+
+      if (packet.MessageType == (int)ServerMessageId.NOTICE)
+        packet = ReadPacket();
+
       if (packet.MessageType != (int)ServerMessageId.CONN_CAPABILITIES)
         ThrowUnexpectedMessage(packet.MessageType, (int)ServerMessageId.CONN_CAPABILITIES);
       Capabilities = Capabilities.Parser.ParseFrom(packet.Buffer);
     }
 
-    public void SetCapabilities(Dictionary<string,object> clientCapabilities)
+    public void SetCapabilities(Dictionary<string, object> clientCapabilities)
     {
       if (clientCapabilities == null || clientCapabilities.Count == 0)
         return;
 
       var builder = new CapabilitiesSet();
       var capabilities = new Capabilities();
-      foreach(var cap in clientCapabilities)
+      foreach (var cap in clientCapabilities)
       {
-        var capabilityMsg = new Capability() { Name = (cap.Key), Value = ExprUtil.BuildAny(cap.Value) };
+        var value = new Any();
+
+        if (cap.Key == "tls")
+          value = ExprUtil.BuildAny(cap.Value);
+        else if (cap.Key == "session_connect_attrs")
+        {
+          Mysqlx.Datatypes.Object obj = new Mysqlx.Datatypes.Object();
+          foreach (var pair in (Dictionary<string, string>)cap.Value)
+            obj.Fld.Add(new ObjectField { Key = pair.Key, Value = ExprUtil.BuildAny(pair.Value) });
+
+          value = new Any { Type = Any.Types.Type.Object, Obj = obj };
+        }
+
+        var capabilityMsg = new Capability() { Name = cap.Key, Value = value };
         capabilities.Capabilities_.Add(capabilityMsg);
       }
+
       builder.Capabilities = capabilities;
       _writer.Write(ClientMessageId.CON_CAPABILITIES_SET, builder);
       ReadOk();
@@ -151,6 +169,8 @@ namespace MySqlX.Protocol
 
     private void ThrowUnexpectedMessage(int received, int expected)
     {
+      if (received == 10) // Connection to XProtocol using ClassicProtocol port
+        throw new MySqlException("Unsupported protocol version.");
       throw new MySqlException(
         String.Format("Expected message id: {0}.  Received message id: {1}", expected, received));
     }
@@ -224,6 +244,8 @@ namespace MySqlX.Protocol
           break;
         case NoticeType.SessionVariableChanged:
           break;
+        default: // will ignore unknown notices from the server
+          break;
       }
     }
 
@@ -233,16 +255,21 @@ namespace MySqlX.Protocol
       switch (state.Param)
       {
         case SessionStateChanged.Types.Parameter.RowsAffected:
-            rs._recordsAffected = state.Value.VUnsignedInt;
+          rs._recordsAffected = state.Value[0].VUnsignedInt;
+          rs._affectedItemsCount = rs._recordsAffected;
           break;
         case SessionStateChanged.Types.Parameter.GeneratedInsertId:
-            rs._autoIncrementValue = state.Value.VUnsignedInt;
+          rs._autoIncrementValue = state.Value[0].VUnsignedInt;
           break;
         case SessionStateChanged.Types.Parameter.ProducedMessage:
-          rs.AddWarning(new WarningInfo(0, state.Value.VString.Value.ToStringUtf8()));
+          rs.AddWarning(new WarningInfo(0, state.Value[0].VString.Value.ToStringUtf8()));
           break;
-          // handle the other ones
-//      default: SessionStateChanged(state);
+        case SessionStateChanged.Types.Parameter.GeneratedDocumentIds:
+          foreach (var value in state.Value)
+            rs._documentIds.Add(value.VOctets.Value.ToStringUtf8());
+          break;
+          //handle the other ones
+          //default: SessionStateChanged(state);
       }
     }
 
@@ -278,7 +305,7 @@ namespace MySqlX.Protocol
       _writer.Write(ClientMessageId.CON_CLOSE, connClose);
     }
 
-    public void SendExecuteSQLStatement(string stmt, params object[] args)
+    internal StmtExecute CreateExecuteSQLStatement(string stmt, params object[] args)
     {
       StmtExecute stmtExecute = new StmtExecute();
       stmtExecute.Namespace = "sql";
@@ -290,6 +317,12 @@ namespace MySqlX.Protocol
           stmtExecute.Args.Add(CreateAny(arg));
       }
 
+      return stmtExecute;
+    }
+
+    public void SendExecuteSQLStatement(string stmt, params object[] args)
+    {
+      StmtExecute stmtExecute = CreateExecuteSQLStatement(stmt, args);
       _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
     }
 
@@ -304,7 +337,7 @@ namespace MySqlX.Protocol
         var any = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
         foreach (var arg in args)
         {
-          switch(stmt)
+          switch (stmt)
           {
             case "drop_collection_index":
               any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value, false));
@@ -333,7 +366,7 @@ namespace MySqlX.Protocol
         var array = new Mysqlx.Datatypes.Array();
         foreach (var arg in args)
         {
-          if (arg.Value is Dictionary<string, object> && arg.Key=="constraint")
+          if (arg.Value is Dictionary<string, object> && arg.Key == "constraint")
           {
             var innerAny = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
             foreach (var field in arg.Value as Dictionary<string, object>)
@@ -345,7 +378,7 @@ namespace MySqlX.Protocol
             any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value, false));
         }
 
-        if (array.Value.Count>0)
+        if (array.Value.Count > 0)
         {
           var constraint = new ObjectField();
           constraint.Key = "constraint";
@@ -360,7 +393,6 @@ namespace MySqlX.Protocol
 
       _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
     }
-
 
     private void DecodeAndThrowError(CommunicationPacket p)
     {
@@ -436,7 +468,7 @@ namespace MySqlX.Protocol
       XDevAPI.Relational.Column c = new XDevAPI.Relational.Column();
       c._decoder = XValueDecoderFactory.GetValueDecoder(c, colData.Type);
       c._decoder.Column = c;
-      
+
       if (!colData.Name.IsEmpty)
         c.ColumnLabel = colData.Name.ToStringUtf8();
       if (!colData.OriginalName.IsEmpty)
@@ -467,15 +499,15 @@ namespace MySqlX.Protocol
       return c;
     }
 
-    public void SendInsert(string schema, bool isRelational, string collection, object[] rows, string[] columns, bool upsert)
+    internal Insert CreateInsertMessage(string schema, bool isRelational, string collection, object[] rows, string[] columns, bool upsert)
     {
       Insert msg = new Mysqlx.Crud.Insert();
       msg.Collection = ExprUtil.BuildCollection(schema, collection);
       msg.DataModel = (isRelational ? DataModel.Table : DataModel.Document);
       msg.Upsert = upsert;
-      if(columns != null && columns.Length > 0)
+      if (columns != null && columns.Length > 0)
       {
-        foreach(string column in columns)
+        foreach (string column in columns)
         {
           msg.Projection.Add(new ExprParser(column).ParseTableInsertField());
         }
@@ -491,6 +523,13 @@ namespace MySqlX.Protocol
 
         msg.Row.Add(typedRow);
       }
+
+      return msg;
+    }
+
+    public void SendInsert(string schema, bool isRelational, string collection, object[] rows, string[] columns, bool upsert)
+    {
+      Insert msg = CreateInsertMessage(schema, isRelational, collection, rows, columns, upsert);
       _writer.Write(ClientMessageId.CRUD_INSERT, msg);
     }
 
@@ -514,22 +553,26 @@ namespace MySqlX.Protocol
 
     }
 
-    /// <summary>
-    /// Sends the delete documents message
-    /// </summary>
-    public void SendDelete(string schema, string collection, bool isRelational, FilterParams filter)
+    internal Delete CreateDeleteMessage(string schema, string collection, bool isRelational, FilterParams filter)
     {
       var msg = new Delete();
       msg.DataModel = (isRelational ? DataModel.Table : DataModel.Document);
       msg.Collection = ExprUtil.BuildCollection(schema, collection);
       ApplyFilter(v => msg.Limit = v, v => msg.Criteria = v, msg.Order.Add, filter, msg.Args.Add);
-      _writer.Write(ClientMessageId.CRUD_DELETE, msg);
+
+      return msg;
     }
 
     /// <summary>
-    /// Sends the CRUD modify message
+    /// Sends the delete documents message
     /// </summary>
-    public void SendUpdate(string schema, string collection, bool isRelational, FilterParams filter, List<UpdateSpec> updates)
+    public void SendDelete(string schema, string collection, bool isRelational, FilterParams filter)
+    {
+      var msg = CreateDeleteMessage(schema, collection, isRelational, filter);
+      _writer.Write(ClientMessageId.CRUD_DELETE, msg);
+    }
+
+    internal Update CreateUpdateMessage(string schema, string collection, bool isRelational, FilterParams filter, List<UpdateSpec> updates)
     {
       var msg = new Update();
       msg.DataModel = (isRelational ? DataModel.Table : DataModel.Document);
@@ -541,10 +584,22 @@ namespace MySqlX.Protocol
         var updateBuilder = new UpdateOperation();
         updateBuilder.Operation = update.Type;
         updateBuilder.Source = update.GetSource(isRelational);
-        if (update.HasValue)
-          updateBuilder.Value = update.GetValue();
+        if (update.Type != UpdateOperation.Types.UpdateType.ItemRemove
+          || (update.Type == UpdateOperation.Types.UpdateType.ItemRemove && update.HasValue))
+          //updateBuilder.Value = update.GetValue(update.Type == UpdateOperation.Types.UpdateType.MergePatch ? true : false);
+          updateBuilder.Value = update.GetValue(update.Type);
         msg.Operation.Add(updateBuilder);
       }
+
+      return msg;
+    }
+
+    /// <summary>
+    /// Sends the CRUD modify message
+    /// </summary>
+    public void SendUpdate(string schema, string collection, bool isRelational, FilterParams filter, List<UpdateSpec> updates)
+    {
+      var msg = CreateUpdateMessage(schema, collection, isRelational, filter, updates);
       _writer.Write(ClientMessageId.CRUD_UPDATE, msg);
     }
 
@@ -553,9 +608,22 @@ namespace MySqlX.Protocol
       var builder = new Find();
       builder.Collection = ExprUtil.BuildCollection(schema, collection);
       builder.DataModel = (isRelational ? DataModel.Table : DataModel.Document);
-      if (findParams.Locking != 0) builder.Locking = (Find.Types.RowLock) findParams.Locking;
+      if (findParams.GroupBy != null && findParams.GroupBy.Length > 0)
+        builder.Grouping.AddRange(new ExprParser(ExprUtil.JoinString(findParams.GroupBy)).ParseExprList());
+      if (findParams.GroupByCritieria != null)
+        builder.GroupingCriteria = new ExprParser(findParams.GroupByCritieria).Parse();
+      if (findParams.Locking != 0) builder.Locking = (Find.Types.RowLock)findParams.Locking;
+      if (findParams.LockingOption != 0) builder.LockingOptions = (Find.Types.RowLockOptions)findParams.LockingOption;
       if (findParams.Projection != null && findParams.Projection.Length > 0)
-        builder.Projection.Add(new ExprParser(ExprUtil.JoinString(findParams.Projection)).ParseTableSelectProjection());
+      {
+        var parser = new ExprParser(ExprUtil.JoinString(findParams.Projection));
+        builder.Projection.Add(builder.DataModel == DataModel.Document ?
+          parser.ParseDocumentProjection() :
+          parser.ParseTableSelectProjection());
+
+        if (parser.tokenPos < parser.tokens.Count)
+          throw new ArgumentException(string.Format("Expression has unexpected token '{0}' at position {1}.", parser.tokens[parser.tokenPos].value, parser.tokenPos));
+      }
       ApplyFilter(v => builder.Limit = v, v => builder.Criteria = v, builder.Order.Add, filter, builder.Args.Add);
       return builder;
     }
@@ -564,6 +632,24 @@ namespace MySqlX.Protocol
     {
       var builder = CreateFindMessage(schema, collection, isRelational, filter, findParams);
       _writer.Write(ClientMessageId.CRUD_FIND, builder);
+    }
+
+    public void SendExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key condition, object value = null)
+    {
+      var builder = new Mysqlx.Expect.Open();
+      var cond = new Mysqlx.Expect.Open.Types.Condition();
+      cond.ConditionKey = (uint)condition;
+      cond.ConditionValue = value != null ? ByteString.CopyFromUtf8((string)value) : null;
+      builder.Cond.Add(cond);
+      _writer.Write(ClientMessageId.EXPECT_OPEN, builder);
+    }
+
+    public void SendResetSession(bool sessionResetNoReauthentication)
+    {
+      var builder = new Mysqlx.Session.Reset();
+
+      if (sessionResetNoReauthentication) { builder.KeepOpen = sessionResetNoReauthentication; }
+      _writer.Write(ClientMessageId.SESS_RESET, builder);
     }
 
     internal void ReadOkClose()
@@ -590,7 +676,7 @@ namespace MySqlX.Protocol
       if (p.MessageType == (int)ServerMessageId.ERROR)
       {
         var error = Error.Parser.ParseFrom(p.Buffer);
-        throw new MySqlException(error.Msg);
+        throw new MySqlException(error.Code, error.SqlState, error.Msg);
       }
       if (p.MessageType == (int)ServerMessageId.OK)
       {
@@ -605,6 +691,149 @@ namespace MySqlX.Protocol
     {
       _reader = reader;
       _writer = writer;
+    }
+
+    public void SendPrepareStatement(uint stmtId,
+      PreparedStatementType type,
+      string schema,
+      string collection,
+      bool isRelational,
+      FilterParams filter,
+      FindParams findParams,
+      List<UpdateSpec> updateSpecs = null,
+      object[] rows = null,
+      string[] columns = null,
+      bool upsert = false,
+      string sql = null)
+    {
+      var builder = new Prepare();
+      builder.StmtId = stmtId;
+      builder.Stmt = new Prepare.Types.OneOfMessage();
+      switch (type)
+      {
+        case PreparedStatementType.Find:
+          builder.Stmt.Type = Prepare.Types.OneOfMessage.Types.Type.Find;
+          var message = CreateFindMessage(schema, collection, isRelational, filter, findParams);
+          message.Args.Clear();
+          if (filter.HasLimit)
+          {
+            uint positionFind = (uint)filter.Parameters.Count;
+            message.Limit = null;
+            message.LimitExpr = new LimitExpr
+            {
+              RowCount = new Expr
+              {
+                Type = Expr.Types.Type.Placeholder,
+                Position = positionFind++
+              },
+              Offset = new Expr
+              {
+                Type = Expr.Types.Type.Placeholder,
+                Position = positionFind++
+              }
+            };
+          }
+          builder.Stmt.Find = message;
+          break;
+
+        case PreparedStatementType.Update:
+          builder.Stmt.Type = Prepare.Types.OneOfMessage.Types.Type.Update;
+          var updateMessage = CreateUpdateMessage(schema, collection, isRelational, filter, updateSpecs);
+          updateMessage.Args.Clear();
+          if (filter.HasLimit)
+          {
+            uint positionUpdate = (uint)filter.Parameters.Count;
+            updateMessage.Limit = null;
+            updateMessage.LimitExpr = new LimitExpr
+            {
+              RowCount = new Expr
+              {
+                Type = Expr.Types.Type.Placeholder,
+                Position = positionUpdate++
+              }
+            };
+          }
+          builder.Stmt.Update = updateMessage;
+          break;
+
+        case PreparedStatementType.Delete:
+          builder.Stmt.Type = Prepare.Types.OneOfMessage.Types.Type.Delete;
+          var deleteMessage = CreateDeleteMessage(schema, collection, isRelational, filter);
+          deleteMessage.Args.Clear();
+          if (filter.HasLimit)
+          {
+            uint positionDelete = (uint)filter.Parameters.Count;
+            deleteMessage.Limit = null;
+            deleteMessage.LimitExpr = new LimitExpr
+            {
+              RowCount = new Expr
+              {
+                Type = Expr.Types.Type.Placeholder,
+                Position = positionDelete++
+              }
+            };
+          }
+          builder.Stmt.Delete = deleteMessage;
+          break;
+
+        case PreparedStatementType.Insert:
+          builder.Stmt.Type = Prepare.Types.OneOfMessage.Types.Type.Insert;
+          var insertMessage = CreateInsertMessage(schema, isRelational, collection, rows, columns, upsert);
+          insertMessage.Args.Clear();
+          uint position = 0;
+          foreach (var row in insertMessage.Row)
+          {
+            foreach (var field in row.Field)
+            {
+              if (field.Type == Expr.Types.Type.Literal)
+              {
+                field.Type = Expr.Types.Type.Placeholder;
+                field.Literal = null;
+                field.Position = position++;
+              }
+            }
+          }
+          builder.Stmt.Insert = insertMessage;
+          break;
+
+        case PreparedStatementType.SqlStatement:
+          builder.Stmt.Type = Prepare.Types.OneOfMessage.Types.Type.Stmt;
+          var sqlMessage = CreateExecuteSQLStatement(sql, rows);
+          sqlMessage.Args.Clear();
+          builder.Stmt.StmtExecute = sqlMessage;
+          break;
+      }
+
+      _writer.Write((int)ClientMessages.Types.Type.PreparePrepare, builder);
+      ReadOk();
+    }
+
+    public void SendExecutePreparedStatement(uint stmtId, IEnumerable args)
+    {
+      var builder = new Execute();
+      builder.StmtId = stmtId;
+      AddArgs(builder.Args.Add, args);
+
+      _writer.Write((int)ClientMessages.Types.Type.PrepareExecute, builder);
+    }
+
+    public void AddArgs(Action<Any> addFunction, IEnumerable args)
+    {
+      foreach (var arg in args)
+      {
+        if (arg.GetType().IsArray)
+          AddArgs(addFunction, (System.Array)arg);
+        else
+          addFunction(ExprUtil.BuildAny(arg));
+      }
+    }
+
+    public void SendDeallocatePreparedStatement(uint stmtId)
+    {
+      var builder = new Deallocate();
+      builder.StmtId = stmtId;
+      _writer.Write((int)ClientMessages.Types.Type.PrepareDeallocate, builder);
+      ReadOk();
     }
   }
 }

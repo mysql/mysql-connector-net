@@ -1,4 +1,4 @@
-// Copyright © 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -79,12 +79,16 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     public DbSet<Movie> Movies { get; set; }
     public DbSet<MovieFormat> MovieFormats { get; set; }
     public DbSet<MovieRelease> MovieReleases { get; set; }
+    public DbSet<MovieRelease2> MovieReleases2 { get; set; }
     public DbSet<EntitySingleColumn> EntitySingleColumns { get; set; }
     public DbSet<MovieMedia> Medias { get; set; }
 
-    public MovieDBContext()
+
+
+    public MovieDBContext() : base(CodeFirstFixture.GetEFConnectionString<MovieDBContext>())
     {
-      Database.SetInitializer<MovieDBContext>(new MigrateDatabaseToLatestVersion<MovieDBContext, System.Configuration<MovieDBContext>>());
+      //Database.SetInitializer<MovieDBContext>(new MigrateDatabaseToLatestVersion<MovieDBContext, DbMigrationsConfiguration<MovieDBContext>>());
+      Database.SetInitializer<MovieDBContext>(new DropCreateDatabaseAlways<MovieDBContext>());
     }
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -110,8 +114,27 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public virtual DateTime Timestamp { get; set; }
 
+    // Test: ConcurrencyCheck + Not Computed
     [ConcurrencyCheck, Required, MaxLength(45)]
     public virtual string Name { get; set; }
+  }
+
+  public class MovieRelease2
+  {
+    [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public virtual int Id { get; set; }
+
+    //[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+    //public virtual DateTime Timestamp { get; set; }
+
+    // Test: non computed column
+    [Required, MaxLength(45)]
+    public virtual string Name { get; set; }
+
+    // Test: ConcurrencyCheck + Computed
+    [ConcurrencyCheck, DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+    [Column(TypeName = "bigint")]
+    public virtual long RowVersion { get; set; }
   }
 
   public class MovieDBInitialize : DropCreateDatabaseReallyAlways<MovieDBContext>

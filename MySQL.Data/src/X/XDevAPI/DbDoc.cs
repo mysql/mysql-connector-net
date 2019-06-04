@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,7 +27,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data;
-using MySqlX;
 using MySqlX.Serialization;
 using System;
 using System.Collections;
@@ -50,7 +49,12 @@ namespace MySqlX.XDevAPI
     /// <param name="val">The value for this DbDoc.</param>
     public DbDoc(object val = null)
     {
-      if (val != null)
+      if (val == null)
+      {
+        return;
+      }
+
+      try
       {
         if (val is string)
           values = JsonParser.Parse(val as string);
@@ -60,6 +64,12 @@ namespace MySqlX.XDevAPI
           values = JsonParser.Parse(DictToString((val as DbDoc).values, 2));
         else
           values = ParseObject(val);
+      }
+      catch(Exception exception)
+      {
+        // Throw message indicating the format of the Json document is invalid and append the message
+        // returned by the Json parser.
+        throw(new Exception(string.Format(ResourcesX.InvalidJsonDocument, exception.Message)));
       }
     }
 
@@ -90,22 +100,22 @@ namespace MySqlX.XDevAPI
       get { return values.ContainsKey("_id"); }
     }
 
-    internal void EnsureId()
-    {
-      if (!HasId)
-      {
-        char separatorChar = '-';
-        string[] token = Guid.NewGuid().ToString().Split(separatorChar);
-        string guid = string.Empty;
-        for (int i = token.Length-1; i >= 0; i--)
-        {
-          guid += token[i];
-          if (i != 0) guid += separatorChar;
-        }
+    //internal void EnsureId()
+    //{
+    //  if (!HasId)
+    //  {
+    //    char separatorChar = '-';
+    //    string[] token = Guid.NewGuid().ToString().Split(separatorChar);
+    //    string guid = string.Empty;
+    //    for (int i = token.Length-1; i >= 0; i--)
+    //    {
+    //      guid += token[i];
+    //      if (i != 0) guid += separatorChar;
+    //    }
 
-        SetValue("_id", guid.Replace(separatorChar.ToString(), string.Empty));
-      }
-    }
+    //    SetValue("_id", guid.Replace(separatorChar.ToString(), string.Empty));
+    //  }
+    //}
 
     private object GetValue(string path)
     {
@@ -221,7 +231,13 @@ namespace MySqlX.XDevAPI
         quoteChar = "\"";
       }
 
-      return quoteChar + (val is bool ? val.ToString().ToLowerInvariant() : val.ToString()) + quoteChar;
+      return quoteChar + (
+        val is bool ?
+          val.ToString().ToLowerInvariant() :
+          val is double ?
+            ((double)val).ToString(System.Globalization.CultureInfo.InvariantCulture) :
+            val.ToString()
+      ) + quoteChar;
     }
 
     private bool CompareDictionaries<TKey, TValue>(Dictionary<TKey, TValue> dict1, Dictionary<TKey, TValue> dict2)

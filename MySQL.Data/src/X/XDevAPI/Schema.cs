@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -59,6 +59,7 @@ namespace MySqlX.XDevAPI
     /// <returns>A <see cref="Collection"/> list representing all found collections.</returns>
     public List<Collection> GetCollections()
     {
+      ValidateOpenSession();
       return Session.XSession.GetObjectList<Collection>(this, "COLLECTION");
     }
 
@@ -68,6 +69,7 @@ namespace MySqlX.XDevAPI
     /// <returns>A <see cref="Table"/> list representing all found tables.</returns>
     public List<Table> GetTables()
     {
+      ValidateOpenSession();
       return Session.XSession.GetObjectList<Table>(this, "TABLE", "VIEW");
     }
 
@@ -85,8 +87,11 @@ namespace MySqlX.XDevAPI
     {
       Collection c = new Collection<DbDoc>(this, name);
       if (ValidateExistence)
+      {
+        ValidateOpenSession();
         if (!c.ExistsInDatabase())
           throw new MySqlException(String.Format("Collection '{0}' does not exist.", name));
+      }
       return c;
     }
 
@@ -133,6 +138,7 @@ namespace MySqlX.XDevAPI
     /// <returns>Collection referente.</returns>
     public Collection CreateCollection(string collectionName, bool ReuseExistingObject = false)
     {
+      ValidateOpenSession();
       Collection coll = new Collection(this, collectionName);
       if (ReuseExistingObject && coll.ExistsInDatabase())
         return coll;
@@ -150,6 +156,7 @@ namespace MySqlX.XDevAPI
     public void DropCollection(string name)
     {
       if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
+      ValidateOpenSession();
       Collection c = GetCollection(name);
       if (!c.ExistsInDatabase()) return;
       Session.XSession.DropCollection(Name, name);
@@ -163,6 +170,7 @@ namespace MySqlX.XDevAPI
     /// <returns>True if exists, false otherwise.</returns>
     public override bool ExistsInDatabase()
     {
+      ValidateOpenSession();
       string sql = String.Format("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name like '{0}'", Name);
       long count = (long)Session.InternalSession.ExecuteQueryAsScalar(sql);
       return count > 0;

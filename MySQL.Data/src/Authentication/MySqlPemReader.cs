@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,8 +38,10 @@ using AliasText = MySql.Data.MySqlClient.Framework.NetStandard1_6;
 using AliasText = System.Text;
 #endif
 
-public class MySqlPemReader
+namespace MySql.Data.MySqlClient.Authentication
 {
+  public class MySqlPemReader
+  {
 #if NETSTANDARD1_6
     public static RSA ConvertPemToRSAProvider(byte[] rawPublicKey)
 #else
@@ -84,7 +86,7 @@ public class MySqlPemReader
             bool arraysAreEqual = true;
             if (sequence.Length == oidSequence.Length)
             {
-              for (int i=0; i<oidSequence.Length; i++)
+              for (int i = 0; i < oidSequence.Length; i++)
                 if (sequence[i] != oidSequence[i])
                 {
                   arraysAreEqual = false;
@@ -184,36 +186,6 @@ public class MySqlPemReader
       return binaryKey;
     }
 
-    static byte[] DecodeOpenSslKey2(byte[] rawPublicKey)
-    {
-      if (rawPublicKey == null) return null;
-
-      var pem = AliasText.Encoding.Default.GetString(rawPublicKey);
-      pem = pem.Replace(Environment.NewLine, "");
-      const string header = "-----BEGIN PUBLIC KEY-----";
-      const string footer = "-----END PUBLIC KEY-----";
-      pem = pem.Trim();
-      byte[] binaryKey;
-      if (!pem.StartsWith(header) || !pem.EndsWith(footer))
-        return null;
-
-      StringBuilder builder = new StringBuilder(pem);
-      builder.Replace(header, "");
-      builder.Replace(footer, "");
-      string formattedPem = builder.ToString().Trim();
-
-      try
-      {
-        binaryKey = Convert.FromBase64String(formattedPem);
-      }
-      catch (FormatException)
-      {
-        return null;
-      }
-
-      return binaryKey;
-    }
-
     private static byte[] TrimByteArray(byte[] array)
     {
       List<byte> trimmedArray = new List<byte>();
@@ -232,7 +204,7 @@ public class MySqlPemReader
       array = trimmedArray.ToArray();
       trimmedArray = new List<byte>();
 
-      for(int i=array.Length-1; i>=0; i--)
+      for (int i = array.Length - 1; i >= 0; i--)
       {
         if (!startCopying)
         {
@@ -259,7 +231,7 @@ public class MySqlPemReader
 
     private static bool EndsWith(byte[] array, byte[] containedArray)
     {
-      for (int i = array.Length-1, j=0 ; i >= 0; i--, j++)
+      for (int i = array.Length - 1, j = 0; i >= 0; i--, j++)
       {
         if (j == containedArray.Length) break;
         if (array[i] != containedArray[containedArray.Length - j - 1]) return false;
@@ -267,4 +239,5 @@ public class MySqlPemReader
 
       return true;
     }
+  }
 }

@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,6 +33,7 @@ using MySqlX.XDevAPI.Common;
 using MySqlX.Sessions;
 using MySql.Data.MySqlClient;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace MySqlX.XDevAPI.Relational
 {
@@ -46,7 +47,7 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Gets the columns of this resulset.
+    /// Gets the columns in this resultset.
     /// </summary>
 #if NET_45_OR_GREATER
     public IReadOnlyList<Column> Columns
@@ -55,6 +56,22 @@ namespace MySqlX.XDevAPI.Relational
 #endif
     {
       get { return _columns.AsReadOnly(); }
+    }
+
+    /// <summary>
+    /// Gets the number of columns in this resultset.
+    /// </summary>
+    public Int32 ColumnCount
+    {
+      get { return _columns.Count; }
+    }
+
+    /// <summary>
+    /// Gets a list containing the column names in this resultset.
+    /// </summary>
+    public List<string> ColumnNames
+    {
+      get { return _columns.Select(o => o.ColumnLabel).ToList(); }
     }
 
     /// <summary>

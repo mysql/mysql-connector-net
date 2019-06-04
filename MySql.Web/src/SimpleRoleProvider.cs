@@ -1,4 +1,4 @@
-// Copyright © 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,6 +32,7 @@ using MySql.Web.Properties;
 using System;
 using System.Collections.Generic;
 using System.Configuration.Provider;
+using System.Globalization;
 using System.Linq;
 using System.Resources;
 using System.Web.Hosting;
@@ -40,6 +41,9 @@ using WebMatrix.WebData;
 
 namespace MySql.Web.Security
 {
+  /// <summary>
+  /// Manages storage of simple role membership information for an ASP.NET application in a MySQL database.
+  /// </summary>
   public class MySqlSimpleRoleProvider : SimpleRoleProvider
   {
     #region Private
@@ -101,10 +105,10 @@ namespace MySql.Web.Security
       base.Initialize(name, config);
 
       var appName = GetConfigValue(config["applicationName"], HostingEnvironment.SiteName);
-      _maxPwdAttempts = Int32.Parse(GetConfigValue(config["maxInvalidPasswordAttempts"], "5"));
-      _pwdAttemptWindow = Int32.Parse(GetConfigValue(config["passwordAttemptWindow"], "10"));
-      _minReqNonAlphanumericalChars = Int32.Parse(GetConfigValue(config["minRequiredNonalphanumericCharacters"], "1"));
-      _minReqPwdLength = Int32.Parse(GetConfigValue(config["minRequiredPasswordLength"], "7"));
+      _maxPwdAttempts = Int32.Parse(GetConfigValue(config["maxInvalidPasswordAttempts"], "5"), CultureInfo.InvariantCulture);
+      _pwdAttemptWindow = Int32.Parse(GetConfigValue(config["passwordAttemptWindow"], "10"), CultureInfo.InvariantCulture);
+      _minReqNonAlphanumericalChars = Int32.Parse(GetConfigValue(config["minRequiredNonalphanumericCharacters"], "1"), CultureInfo.InvariantCulture);
+      _minReqPwdLength = Int32.Parse(GetConfigValue(config["minRequiredPasswordLength"], "7"), CultureInfo.InvariantCulture);
       _pwdStrenghtRegex = GetConfigValue(config["passwordStrengthRegularExpression"], "");
       _enablePwdReset = bool.Parse(GetConfigValue(config["enablePasswordReset"], "True"));
       _enablePwdRetrival = bool.Parse(GetConfigValue(config["enablePasswordRetrieval"], "False"));
@@ -383,10 +387,19 @@ namespace MySql.Web.Security
       }
     }
 
+    /// <summary>
+    /// Gets or sets the connection string.
+    /// </summary>
     public string ConnectionString { get; set;  }
 
+    /// <summary>
+    /// Gets or sets the name associated to the connection string when stored in the configuration manager.
+    /// </summary>
     public string ConnectionStringName { get; set; }
 
+    /// <summary>
+    /// Gets the name of the table storing user information.
+    /// </summary>
     public string UserTableName
     {
       get
@@ -402,6 +415,9 @@ namespace MySql.Web.Security
       }
     }
 
+    /// <summary>
+    /// Gets the name of the column storing the user ids.
+    /// </summary>
     public string UserIdColumn
     {
       get
@@ -417,6 +433,9 @@ namespace MySql.Web.Security
       }
     }
 
+    /// <summary>
+    /// Gets the name of the column storing the user names.
+    /// </summary>
     public string UserNameColumn
     {
       get

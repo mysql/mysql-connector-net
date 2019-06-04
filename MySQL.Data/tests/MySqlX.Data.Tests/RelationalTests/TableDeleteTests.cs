@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -45,7 +45,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       {
         insertStatement.Values(i, i);
       }
-      insertStatement.Execute();
+      ExecuteInsertStatement(insertStatement);
       Assert.Equal(rowsToInsert, CountRows());
     }
 
@@ -56,7 +56,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
     private void ExecuteDelete(TableDeleteStatement statement, int expectedRowsCount)
     {
-      Result result = statement.Execute();
+      Result result = ExecuteDeleteStatement(statement);
       Assert.Equal(expectedRowsCount, CountRows());
     }
 
@@ -98,14 +98,14 @@ namespace MySqlX.Data.Tests.RelationalTests
       Table table = testSchema.GetTable("test");
       Assert.Equal(10, CountRows());
 
-      Assert.Equal<ulong>(2, table.Delete().Where("id IN (1,2)").Execute().RecordsAffected);
+      Assert.Equal<ulong>(2, ExecuteDeleteStatement(table.Delete().Where("id IN (1,2)")).AffectedItemsCount);
       Assert.Equal(8, CountRows());
 
-      Assert.Throws<MySqlException>(() => table.Delete().Where("a IN [3]").Execute().RecordsAffected);
-      Assert.Throws<MySqlException>(() => table.Delete().Where("3 IN a").Execute().RecordsAffected);
-      Assert.Throws<MySqlException>(() => table.Delete().Where("age IN [3]").Execute().RecordsAffected);
+      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("a IN [3]")).AffectedItemsCount);
+      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("3 IN a")).AffectedItemsCount);
+      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("age IN [3]")).AffectedItemsCount);
 
-      Assert.Equal<ulong>(1, table.Delete().Where("age IN (3)").Execute().RecordsAffected);
+      Assert.Equal<ulong>(1, ExecuteDeleteStatement(table.Delete().Where("age IN (3)")).AffectedItemsCount);
       Assert.Equal(7, CountRows());
     }
   }

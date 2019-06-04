@@ -1,4 +1,4 @@
-// Copyright © 2013, 2015, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -86,7 +86,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.False(testDate.IsValidDateTime, "IsZero is false");
 
         Exception ex = Assert.Throws<MySqlConversionException>(() => reader.GetValue(2));
-        Assert.Equal(ex.Message, "Unable to convert MySQL date/time value to System.DateTime");
+        Assert.Equal("Unable to convert MySQL date/time value to System.DateTime", ex.Message);
         
         Assert.True(reader.Read());
 
@@ -132,7 +132,7 @@ namespace MySql.Data.MySqlClient.Tests
       {        
         reader.Read();
         Exception ex = Assert.Throws<MySqlConversionException>(() =>reader.GetDateTime(2));
-        Assert.Equal(ex.Message, "Unable to convert MySQL date/time value to System.DateTime");       
+        Assert.Equal("Unable to convert MySQL date/time value to System.DateTime", ex.Message);       
       }
     }
 
@@ -260,7 +260,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       DateTime dt = DateTime.Now;
       MySqlDateTime mdt = new MySqlDateTime(dt);
-      Assert.Equal(dt.ToString(), mdt.ToString());
+      Assert.Equal(dt.ToString(CultureInfo.InvariantCulture), mdt.ToString());
     }
 
     /// <summary>
@@ -553,7 +553,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #63812	MySqlDateTime.GetDateTime() does not specify Timezone for TIMESTAMP fields
     /// </summary>
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void TimestampValuesAreLocal()
     {
       executeSQL("CREATE TABLE TimestampValuesAreLocal (id INT NOT NULL, dt DATETIME, d DATE, " +
@@ -609,7 +609,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
           DateTime ts = reader.GetDateTime(1);
-          Assert.Equal(ts.Kind, DateTimeKind.Utc);
+          Assert.Equal(DateTimeKind.Utc, ts.Kind);
         }
         // Now set it to non-UTC
         cmd.CommandText = "set @@global.time_zone = '+5:00'";
@@ -622,7 +622,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
           DateTime ts = reader.GetDateTime(1);
-          Assert.Equal(ts.Kind, DateTimeKind.Local);
+          Assert.Equal(DateTimeKind.Local, ts.Kind);
         }
       }
       finally
@@ -769,7 +769,7 @@ namespace MySql.Data.MySqlClient.Tests
       reader.Close();
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void ReadAndWriteMicroseconds()
     {
       if (Fixture.Version < new Version(5, 6, 5)) return;
@@ -823,6 +823,35 @@ namespace MySql.Data.MySqlClient.Tests
       finally
       {
         executeSQL("SET @@global.time_zone=@@session.time_zone");
+      }
+    }
+
+    /// <summary>
+    /// Bug 28156187 NET/CONNECTOR MYSQLDATAREADER FETCHES WRONG TIMEZONE
+    /// </summary>
+    [Fact]
+    public void TimeZoneOffsetUsingReader()
+    {
+      executeSQL(@"CREATE TABLE `timeZoneOffsetTable` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `name` varchar(40) DEFAULT NULL, `mytimestampcolumn` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY(`id`)) ENGINE = InnoDB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8; ");
+
+      executeSQL("INSERT INTO `timeZoneOffsetTable` (`name`) VALUES ('Name1')");
+
+      using (var conn = Fixture.GetConnection())
+      using (var cmd = new MySqlCommand("SELECT mytimestampcolumn FROM timeZoneOffsetTable;", conn))
+      {
+        var reader = cmd.ExecuteReader();
+        reader.Read();
+        
+        var myTimestampSb = (DateTime)reader["mytimestampcolumn"];
+        var myTimestampGdt = reader.GetDateTime("mytimestampcolumn");
+
+        Assert.True(myTimestampSb.Kind == myTimestampGdt.Kind);
+        Assert.True(conn.driver.timeZoneOffset == ((DateTimeOffset)myTimestampSb).Offset.Hours);
+        Assert.True(conn.driver.timeZoneOffset == ((DateTimeOffset)myTimestampGdt).Offset.Hours);
+
+        reader.Close();
       }
     }
   }

@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,8 +38,14 @@ using MySql.Data.MySqlClient;
 
 namespace MySql.Data.EntityFramework
 {
+  /// <summary>
+  /// Defines the configuration of an application to be used with Entity Framework. 
+  /// </summary>
   public class MySqlEFConfiguration : DbConfiguration
   {
+    /// <summary>
+    /// Initializes a new instance of <see cref="MySqlEFConfiguration"/> class.
+    /// </summary>
     public MySqlEFConfiguration()
     {
       AddDependencyResolver(new MySqlDependencyResolver());
@@ -48,14 +54,12 @@ namespace MySql.Data.EntityFramework
       SetProviderServices(MySqlProviderInvariantName.ProviderName, new MySqlProviderServices());
       SetDefaultConnectionFactory(new MySqlConnectionFactory());
       SetMigrationSqlGenerator(MySqlProviderInvariantName.ProviderName, () => new MySqlMigrationSqlGenerator());
-#if NET_45_OR_GREATER
-      SetProviderFactoryResolver(new MySqlProviderFactoryResolver()); 
-#endif
+      SetProviderFactoryResolver(new MySqlProviderFactoryResolver());
       SetManifestTokenResolver(new MySqlManifestTokenResolver());
       SetHistoryContext(MySqlProviderInvariantName.ProviderName, (existingConnection, defaultSchema) => new MySqlHistoryContext(existingConnection, defaultSchema));
-//      //CURRENTLY IS NOT SUPPORTED WORK WITH TRANSACTIONS AND EXECUTION STRATEGY AT THE SAME TIME: http://msdn.microsoft.com/en-US/data/dn307226
-//      //IF WE SET THE EXECUTION STRATEGY HERE THAT WILL AFFECT THE USERS WHEN THEY TRY TO USE TRANSACTIONS, FOR THAT REASON EXECUTION STRATEGY WILL BE ENABLED ON DEMAND BY THEM
-//      //SetExecutionStrategy(MySqlProviderInvariantName.ProviderName, () => { return new MySqlExecutionStrategy(); });
+      //      //CURRENTLY IS NOT SUPPORTED WORK WITH TRANSACTIONS AND EXECUTION STRATEGY AT THE SAME TIME: http://msdn.microsoft.com/en-US/data/dn307226
+      //      //IF WE SET THE EXECUTION STRATEGY HERE THAT WILL AFFECT THE USERS WHEN THEY TRY TO USE TRANSACTIONS, FOR THAT REASON EXECUTION STRATEGY WILL BE ENABLED ON DEMAND BY THEM
+      //      //SetExecutionStrategy(MySqlProviderInvariantName.ProviderName, () => { return new MySqlExecutionStrategy(); });
     }
   }
 }

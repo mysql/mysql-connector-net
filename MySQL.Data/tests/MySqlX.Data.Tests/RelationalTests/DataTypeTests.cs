@@ -1,4 +1,4 @@
-// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -45,7 +45,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(rvalue FLOAT(14,8))");
       ExecuteSQL("INSERT INTO test VALUES(23.4), (14.8), (11.9)");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("rvalue").Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("rvalue"));
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(float), r.Columns[0].ClrType);
@@ -64,7 +64,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(rvalue DOUBLE(12,4))");
       ExecuteSQL("INSERT INTO test VALUES(23.4), (14.8), (11.9)");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("rvalue").Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("rvalue"));
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(double), r.Columns[0].ClrType);
@@ -83,7 +83,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(rvalue SET('A','B','C','D'))");
       ExecuteSQL("INSERT INTO test VALUES('A'), ('B,A'), ('B')");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("rvalue").Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("rvalue"));
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(string), r.Columns[0].ClrType);
@@ -100,7 +100,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(rvalue Enum('Alpha','Beta','C','D'))");
       ExecuteSQL("INSERT INTO test VALUES('Alpha'), ('Beta'), ('C')");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select("rvalue").Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("rvalue"));
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(string), r.Columns[0].ClrType);
@@ -118,7 +118,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("INSERT INTO test VALUES(127, 32767, 8388607, 2147483647, 9223372036854775807)");
       ExecuteSQL("INSERT INTO test VALUES(-128, -32768, -8388608, -2147483648, -9223372036854775808)");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select().Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.Equal(5, r.Columns.Count);
       Assert.Equal(typeof(sbyte), r.Columns[0].ClrType);
@@ -149,7 +149,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(tinyCol TINYINT UNSIGNED, smallCol SMALLINT UNSIGNED, mediumCol MEDIUMINT UNSIGNED, intCol INT UNSIGNED, bigCol BIGINT UNSIGNED)");
       ExecuteSQL("INSERT INTO test VALUES(255, 65535, 16777215, 4294967295, 18446744073709551615)");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select().Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.Equal(5, r.Columns.Count);
       Assert.Equal(typeof(byte), r.Columns[0].ClrType);
@@ -175,7 +175,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(bitCol BIT(8))");
       ExecuteSQL("INSERT INTO test VALUES(b'1111111')");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select().Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(UInt64), r.Columns[0].ClrType);
@@ -190,7 +190,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("INSERT INTO test VALUES(-1.23), (-12.345), (5), (43)");
       ExecuteSQL("INSERT INTO test VALUES(14523.2887238), (-8947.8923784)");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select().Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(decimal), r.Columns[0].ClrType);
@@ -210,7 +210,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("INSERT INTO test VALUES('{ \"id\": 1, \"name\": \"John\" }')");
       ExecuteSQL("INSERT INTO test VALUES('[ \"a\", 1, \"b\", 2 ]')");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select().Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(string), r.Columns[0].ClrType);
@@ -219,14 +219,14 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal("[\"a\", 1, \"b\", 2]", rows[1][0]);
     }
 
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_2
     [Fact]
     public void Strings()
     {
       ExecuteSQL("CREATE TABLE test(name VARCHAR(255) COLLATE cp932_japanese_ci)");
       ExecuteSQL("INSERT INTO test VALUES('表')");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select().Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(string), r.Columns[0].ClrType);
@@ -235,13 +235,13 @@ namespace MySqlX.Data.Tests.RelationalTests
     }
 #endif
 
-    //[Fact]
+    [Fact(Skip = "Fix for 8.0.13")]
     public void UnsingedZeroFill()
     {
       ExecuteSQL("CREATE TABLE test(id INT ZEROFILL)");
       ExecuteSQL("INSERT INTO test VALUES(100)");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select().Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(UInt32), r.Columns[0].ClrType);
@@ -257,7 +257,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(name VARCHAR(255) BINARY)");
       ExecuteSQL("INSERT INTO test VALUES('John')");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select().Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(string), r.Columns[0].ClrType);
@@ -271,7 +271,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(name VARCHAR(255) COLLATE utf8_bin)");
       ExecuteSQL("INSERT INTO test VALUES('Mark')");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select().Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(string), r.Columns[0].ClrType);
@@ -285,7 +285,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(line GEOMETRY)");
       ExecuteSQL("INSERT INTO test VALUES(ST_GeomFromText('LINESTRING(0 0, 10 10, 20 25, 50 60)'))");
 
-      RowResult r = GetSession().GetSchema("test").GetTable("test").Select().Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.Equal(1, r.Columns.Count);
       Assert.Equal(typeof(byte[]), r.Columns[0].ClrType);
@@ -300,7 +300,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(a BLOB, b TEXT)");
       ExecuteSQL("INSERT INTO test VALUES('Car', 'Plane')");
 
-      RowResult r = GetSession().GetSchema(schemaName).GetTable("test").Select().Execute();
+      RowResult r = ExecuteSelectStatement(GetSession().GetSchema(schemaName).GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.Equal(2, r.Columns.Count);
       Assert.Equal(typeof(byte[]), r.Columns[0].ClrType);

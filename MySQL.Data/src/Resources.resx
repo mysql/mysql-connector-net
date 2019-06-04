@@ -325,7 +325,7 @@
     <value>Multiple simultaneous connections or connections with different connection strings inside the same transaction are not currently supported.</value>
   </data>
   <data name="DistributedTxnNotSupported" xml:space="preserve">
-    <value>MySQL Connector/Net does not currently support distributed transactions.</value>
+    <value>MySQL Connector/NET does not currently support distributed transactions.</value>
   </data>
   <data name="FatalErrorDuringExecute" xml:space="preserve">
     <value>Fatal error encountered during command execution.</value>
@@ -385,7 +385,7 @@
     <value>'{0}' is an illegal value for a boolean option.</value>
   </data>
   <data name="ServerTooOld" xml:space="preserve">
-    <value>Connector/Net no longer supports server versions prior to 5.0</value>
+    <value>Connector/NET no longer supports server versions prior to 5.0</value>
   </data>
   <data name="InvalidConnectionStringValue" xml:space="preserve">
     <value>The requested value '{0}' is invalid for the given keyword '{1}'.</value>
@@ -558,5 +558,59 @@
   </data>
   <data name="RSAPublicKeyRetrievalNotEnabled" xml:space="preserve">
     <value>Retrieval of the RSA public key is not enabled for insecure connections.</value>
+  </data>
+  <data name="StringEmpty" xml:space="preserve">
+    <value>String can't be empty.</value>
+  </data>
+  <data name="InvalidSslMode" xml:space="preserve">
+    <value>Value '{0}' is not of the correct type.</value>
+  </data>
+  <data name="ParameterCannotBeNullOrEmpty" xml:space="preserve">
+    <value>Parameter '{0}' can't be null or empty.</value>
+  </data>
+  <data name="EncodingError" xml:space="preserve">
+    <value>Encoding error during validation.</value>
+  </data>
+  <data name="FileIsNotACertificate" xml:space="preserve">
+    <value>The specified file cannot be converted to a certificate.</value>
+  </data>
+  <data name="FileIsNotAKey" xml:space="preserve">
+    <value>The specified file cannot be converted to a key.</value>
+  </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>Failed to read file at the specified location.</value>
+  </data>
+  <data name="FilePathNotSet" xml:space="preserve">
+    <value>No file path has been provided for the connection option {0}.</value>
+  </data>
+  <data name="InvalidCertificateKey" xml:space="preserve">
+    <value>The provided key is invalid.</value>
+  </data>
+  <data name="InvalidSslCertificate" xml:space="preserve">
+    <value>The certificate is invalid.</value>
+  </data>
+  <data name="InvalidSslCertificateSignature" xml:space="preserve">
+    <value>Unable to validate the signature.</value>
+  </data>
+  <data name="InvalidSslCertificateSignatureGeneral" xml:space="preserve">
+    <value>Unable to verify the signature.</value>
+  </data>
+  <data name="SslCertificateCAMismatch" xml:space="preserve">
+    <value>The certificate authority (CA) does not match.</value>
+  </data>
+  <data name="SslCertificateHostNameMismatch" xml:space="preserve">
+    <value>The host name does not match the name on the certificate.</value>
+  </data>
+  <data name="SslCertificateIsNotCA" xml:space="preserve">
+    <value>The certificate is not a certificate authority (CA).</value>
+  </data>
+  <data name="LocalInfileDisabled" xml:space="preserve">
+    <value>Server asked for stream in response to LOAD DATA LOCAL INFILE, but the functionality is disabled by the client setting 'allowlocalinfile' to 'false'.</value>
+  </data>
+  <data name="SshAuthenticationModeNotSet" xml:space="preserve">
+    <value>The SSH Key File and/or SSH Password must be provided.</value>
+  </data>
+  <data name="SshInvalidPassphrase" xml:space="preserve">
+    <value>The provided passphrase is invalid.</value>
   </data>
 </root>

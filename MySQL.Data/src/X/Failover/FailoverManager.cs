@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,6 +29,7 @@
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.Sessions;
+using MySqlX.XDevAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,12 +64,12 @@ namespace MySqlX.Failover
     {
       switch (failoverMethod)
       {
-         case FailoverMethod.Sequential:
-           FailoverGroup = new SequentialFailoverGroup(hostList);
-           break;
-         case FailoverMethod.Priority:
-           FailoverGroup = new SequentialFailoverGroup(hostList.OrderByDescending(o => o.Priority).ToList());
-           break;
+        case FailoverMethod.Sequential:
+          FailoverGroup = new SequentialFailoverGroup(hostList);
+          break;
+        case FailoverMethod.Priority:
+          FailoverGroup = new SequentialFailoverGroup(hostList.OrderByDescending(o => o.Priority).ToList());
+          break;
       }
     }
 
@@ -88,22 +89,29 @@ namespace MySqlX.Failover
 
       XServer currentHost = FailoverGroup.ActiveHost;
       string initialHost = currentHost.Host;
-      MySqlConnectionStringBuilder Settings = null;
+      MySqlXConnectionStringBuilder Settings = null;
       InternalSession internalSession = null;
+      TimeoutException timeoutException = null;
 
       do
       {
         // Attempt to connect to each host by retrieving the next host based on the failover method being used.
-        connectionString = "server=" + currentHost.Host +";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';')+1);
-        Settings = new MySqlConnectionStringBuilder(connectionString);
-        if (currentHost != null && currentHost.Port!=-1)
-          Settings.Port = (uint) currentHost.Port;
+        connectionString = "server=" + currentHost.Host + ";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';') + 1);
+        Settings = new MySqlXConnectionStringBuilder(connectionString);
+        if (currentHost != null && currentHost.Port != -1)
+          Settings.Port = (uint)currentHost.Port;
+        if (currentHost.Host == initialHost)
+        {
+          string exTimeOutMessage = Settings.ConnectTimeout == 0 ? ResourcesX.TimeOutMultipleHost0ms : String.Format(ResourcesX.TimeOutMultipleHost, Settings.ConnectTimeout);
+          timeoutException = new TimeoutException(exTimeOutMessage);
+        }
 
         try
         {
           internalSession = InternalSession.GetSession(Settings);
+          timeoutException = null;
         }
-        catch(Exception) {}
+        catch (Exception ex) { if (!(ex is TimeoutException)) timeoutException = null; }
 
         if (internalSession != null)
           break;
@@ -113,6 +121,8 @@ namespace MySqlX.Failover
       while (currentHost.Host != initialHost);
 
       // All connection attempts failed.
+      if (timeoutException != null)
+        throw timeoutException;
       if (internalSession == null)
         throw new MySqlException(Resources.UnableToConnectToHost);
 

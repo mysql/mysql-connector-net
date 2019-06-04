@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,6 +34,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections;
+using MySql.Data.Types;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
@@ -54,6 +55,10 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         var result = DateTime.TryParse(_reader.GetValue(ordinal).ToString(), out dtValue);
         DateTime datetime = result ? dtValue : DateTime.MinValue;
         return (T)Convert.ChangeType(new DateTimeOffset(datetime), typeof(T));
+      }
+      else if(typeof(T) == typeof(MySqlGeometry))
+      {
+        return (T)(object)_reader.GetMySqlGeometry(ordinal);
       }
       else
         return base.GetFieldValue<T>(ordinal);

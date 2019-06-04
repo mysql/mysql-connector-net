@@ -132,7 +132,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       //Assert.InstanceOf(typeof(ThreadAbortException), lastException);
-      Assert.IsType(typeof(ThreadAbortException), lastException);
+      Assert.IsType<ThreadAbortException>(lastException);
     }
   }
 }

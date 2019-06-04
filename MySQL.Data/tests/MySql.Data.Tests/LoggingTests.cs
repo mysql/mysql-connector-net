@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -69,13 +69,13 @@ namespace MySql.Data.MySqlClient.Tests
       }
       //Assert.Equal(4, listener.Strings.Count);
       Assert.Equal(27, listener.Strings.Count);
-      Assert.True(listener.Strings[listener.Strings.Count - 5].Contains("Query Opened: SELECT * FROM Test"));
-      Assert.True(listener.Strings[listener.Strings.Count - 4].Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1"));
-      Assert.True(listener.Strings[listener.Strings.Count - 3].Contains("Resultset Closed. Total rows=4, skipped rows=4, size (bytes)=32"));
-      Assert.True(listener.Strings[listener.Strings.Count - 2].Contains("Query Closed"));
+      Assert.Contains("Query Opened: SELECT * FROM Test", listener.Strings[listener.Strings.Count - 5]);
+      Assert.Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1", listener.Strings[listener.Strings.Count - 4]);
+      Assert.Contains("Resultset Closed. Total rows=4, skipped rows=4, size (bytes)=32", listener.Strings[listener.Strings.Count - 3]);
+      Assert.Contains("Query Closed", listener.Strings[listener.Strings.Count - 2]);
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void Warnings()
     {
       executeSQL("CREATE TABLE Test(id INT, name VARCHAR(5))");
@@ -93,18 +93,18 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       Assert.Equal(32, listener.Strings.Count);
-      Assert.True(listener.Strings[listener.Strings.Count - 10].Contains("Query Opened: INSERT IGNORE INTO Test VALUES (1, 'abcdef')"));
-      Assert.True(listener.Strings[listener.Strings.Count - 9].Contains("Resultset Opened: field(s) = 0, affected rows = 1, inserted id = 0"));
-      Assert.True(listener.Strings[listener.Strings.Count - 8].Contains("Resultset Closed. Total rows=0, skipped rows=0, size (bytes)=0"));
-      Assert.True(listener.Strings[listener.Strings.Count - 7].Contains("Query Opened: SHOW WARNINGS"));
-      Assert.True(listener.Strings[listener.Strings.Count - 6].Contains("Resultset Opened: field(s) = 3, affected rows = -1, inserted id = -1"));
-      Assert.True(listener.Strings[listener.Strings.Count - 5].Contains("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=55"));
-      Assert.True(listener.Strings[listener.Strings.Count - 4].Contains("Query Closed"));
-      Assert.True(listener.Strings[listener.Strings.Count - 3].Contains("MySql Warning: Level=Warning, Code=1265, Message=Data truncated for column 'name' at row 1"));
-      Assert.True(listener.Strings[listener.Strings.Count - 2].Contains("Query Closed"));
+      Assert.Contains("Query Opened: INSERT IGNORE INTO Test VALUES (1, 'abcdef')", listener.Strings[listener.Strings.Count - 10]);
+      Assert.Contains("Resultset Opened: field(s) = 0, affected rows = 1, inserted id = 0", listener.Strings[listener.Strings.Count - 9]);
+      Assert.Contains("Resultset Closed. Total rows=0, skipped rows=0, size (bytes)=0", listener.Strings[listener.Strings.Count - 8]);
+      Assert.Contains("Query Opened: SHOW WARNINGS", listener.Strings[listener.Strings.Count - 7]);
+      Assert.Contains("Resultset Opened: field(s) = 3, affected rows = -1, inserted id = -1", listener.Strings[listener.Strings.Count - 6]);
+      Assert.Contains("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=55", listener.Strings[listener.Strings.Count - 5]);
+      Assert.Contains("Query Closed", listener.Strings[listener.Strings.Count - 4]);
+      Assert.Contains("MySql Warning: Level=Warning, Code=1265, Message=Data truncated for column 'name' at row 1", listener.Strings[listener.Strings.Count - 3]);
+      Assert.Contains("Query Closed", listener.Strings[listener.Strings.Count - 2]);
     }
 
-    [Fact(Skip="Fix This")]
+    [Fact]
     public void ProviderNormalizingQuery()
     {
       MySqlTrace.Listeners.Clear();
@@ -125,7 +125,7 @@ namespace MySql.Data.MySqlClient.Tests
       }      
 
       Assert.Equal(28, listener.Strings.Count);
-      Assert.True(listener.Strings[listener.Strings.Count - 5].EndsWith("SELECT ?", StringComparison.OrdinalIgnoreCase));
+      Assert.EndsWith("SELECT ?", listener.Strings[listener.Strings.Count - 5], StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

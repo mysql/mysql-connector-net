@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,8 +27,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using System.Security.Cryptography;
 #if NETSTANDARD1_6
@@ -42,8 +40,11 @@ namespace MySql.Data.MySqlClient.Authentication
   /// <summary>
   /// The implementation of the sha256_password authentication plugin.
   /// </summary>
-  public class Sha256AuthenticationPlugin : MySqlAuthenticationPlugin
+  internal class Sha256AuthenticationPlugin : MySqlAuthenticationPlugin
   {
+    /// <summary>
+    /// The byte array representation of the public key provided by the server.
+    /// </summary>
     protected byte[] rawPubkey;
 
     public override string PluginName => "sha256_password";
@@ -51,7 +52,7 @@ namespace MySql.Data.MySqlClient.Authentication
     protected override byte[] MoreData(byte[] data)
     {
       rawPubkey = data;
-      byte[] buffer = GetPassword() as byte[];
+      byte[] buffer = GetNonLengthEncodedPassword();
       return buffer;
     }
 
@@ -61,9 +62,10 @@ namespace MySql.Data.MySqlClient.Authentication
       {
         // send as clear text, since the channel is already encrypted
         byte[] passBytes = Encoding.GetBytes(Settings.Password);
-        byte[] buffer = new byte[passBytes.Length + 1];
-        Array.Copy(passBytes, 0, buffer, 0, passBytes.Length);
-        buffer[passBytes.Length] = 0;
+        byte[] buffer = new byte[passBytes.Length + 2];
+        Array.Copy(passBytes, 0, buffer, 1, passBytes.Length);
+        buffer[0] = (byte) (passBytes.Length+1);
+        buffer[buffer.Length-1] = 0x00;
         return buffer;
       }
       else
@@ -82,6 +84,21 @@ namespace MySql.Data.MySqlClient.Authentication
       }
     }
 
+    private byte[] GetNonLengthEncodedPassword()
+    {
+      // Required for AuthChange requests.
+      if (Settings.SslMode != MySqlSslMode.None)
+      {
+        // Send as clear text, since the channel is already encrypted.
+        byte[] passBytes = Encoding.GetBytes(Settings.Password);
+        byte[] buffer = new byte[passBytes.Length + 1];
+        Array.Copy(passBytes, 0, buffer, 0, passBytes.Length);
+        buffer[passBytes.Length] = 0;
+        return buffer;
+      }
+      else return GetPassword() as byte[];
+    }
+
     private byte[] GetRsaPassword(string password, byte[] seedBytes, byte[] rawPublicKey)
     {
       if (password.Length == 0) return new byte[1];
@@ -97,8 +114,12 @@ namespace MySql.Data.MySqlClient.Authentication
       if (rsa == null) throw new MySqlException(Resources.UnableToReadRSAKey);
       return rsa.Encrypt(obfuscated, true);
 #endif
-        }
+    }
 
+    /// <summary>
+    /// Applies XOR to the byte arrays provided as input.
+    /// </summary>
+    /// <returns>A byte array that contains the results of the XOR operation.</returns>
     protected byte[] GetXor( byte[] src, byte[] pattern )
     {
       byte[] src2 = new byte[src.Length + 1];

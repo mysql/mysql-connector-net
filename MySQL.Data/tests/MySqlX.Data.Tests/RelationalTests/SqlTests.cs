@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -39,7 +39,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       ExecuteSQL("CREATE TABLE test(id INT)");
       ExecuteSQL("INSERT INTO test VALUES (1)");
-      SqlResult r = GetSession(true).SQL("SELECT * FROM test").Execute();
+      SqlResult r = ExecuteSQLStatement(GetSession(true).SQL("SELECT * FROM test"));
       Assert.True(r.Next());
       Assert.Equal(1, r[0]);
       Assert.False(r.NextResult());
@@ -51,7 +51,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE PROCEDURE `my_proc` () BEGIN SELECT 5; END");
 
       Session session = GetSession(true);
-      var result = session.SQL("CALL my_proc()").Execute();
+      var result = ExecuteSQLStatement(session.SQL("CALL my_proc()"));
       Assert.True(result.HasData);
       var row = result.FetchOne();
       Assert.NotNull(row);
@@ -67,7 +67,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE PROCEDURE `my_proc` () BEGIN SELECT 5; SELECT 'A'; SELECT 5 * 2; END");
 
       Session session = GetSession(true);
-      var result = session.SQL("CALL my_proc()").Execute();
+      var result = ExecuteSQLStatement(session.SQL("CALL my_proc()"));
       Assert.True(result.HasData);
       var row = result.FetchOne();
       Assert.NotNull(row);
@@ -97,12 +97,11 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       ExecuteSQL("CREATE TABLE test(id INT, letter varchar(1))");
       for (int i = 1; i <= 10; i++)
-        GetSession(true).SQL("INSERT INTO test VALUES (?, ?), (?, ?)")
+        ExecuteSQLStatement(GetSession(true).SQL("INSERT INTO test VALUES (?, ?), (?, ?)")
           .Bind(i, ((char)('@' + i)).ToString())
-          .Bind(++i, ((char)('@' + i)).ToString())
-          .Execute();
+          .Bind(++i, ((char)('@' + i)).ToString()));
 
-      SqlResult result = GetSession(true).SQL("select * from test where id=?").Bind(5).Execute();
+      SqlResult result = ExecuteSQLStatement(GetSession(true).SQL("select * from test where id=?").Bind(5));
       Assert.True(result.Next());
       Assert.Equal(1, result.Rows.Count);
       Assert.Equal(5, result[0]);
@@ -115,10 +114,10 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(id INT, letter varchar(1))");
 
       var session = GetSession(true);
-      var result = session.SQL("INSERT INTO test VALUES(1, ?), (2, 'B');").Bind(null).Execute();
-      Assert.Equal(2ul, result.RecordsAffected);
+      var result = ExecuteSQLStatement(session.SQL("INSERT INTO test VALUES(1, ?), (2, 'B');").Bind(null));
+      Assert.Equal(2ul, result.AffectedItemsCount);
 
-      var sqlResult = session.SQL("SELECT * FROM test WHERE letter is ?").Bind(null).Execute().FetchAll();
+      var sqlResult = ExecuteSQLStatement(session.SQL("SELECT * FROM test WHERE letter is ?").Bind(null)).FetchAll();
       Assert.Equal(1, sqlResult.Count);
       Assert.Equal(1, sqlResult[0][0]);
       Assert.Null(sqlResult[0][1]);
@@ -128,7 +127,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     public void Alias()
     {
       var session = GetSession(true);
-      var stmt = session.SQL("SELECT 1 AS UNO").Execute();
+      var stmt = ExecuteSQLStatement(session.SQL("SELECT 1 AS UNO"));
       var result = stmt.FetchAll();
       Assert.Equal("UNO", stmt.Columns[0].ColumnLabel);
     }

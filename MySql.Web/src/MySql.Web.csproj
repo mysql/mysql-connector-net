@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <Description>MySql.Web</Description>
-    <Copyright>Copyright © 2016, 2018, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.10-rc</Version>
+    <Version>8.0.17</Version>
     <Authors>Oracle</Authors>
     <TargetFramework>net452</TargetFramework>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
@@ -43,10 +43,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNet.Razor" Version="3.2.3" />
-    <PackageReference Include="Microsoft.AspNet.WebPages" Version="3.2.3" />
-    <PackageReference Include="Microsoft.AspNet.WebPages.Data" Version="3.2.3" />
-    <PackageReference Include="Microsoft.AspNet.WebPages.WebData" Version="3.2.3" />
+    <PackageReference Include="Microsoft.AspNet.Razor" Version="3.2.6" />
+    <PackageReference Include="Microsoft.AspNet.WebPages" Version="3.2.6" />
+    <PackageReference Include="Microsoft.AspNet.WebPages.Data" Version="3.2.6" />
+    <PackageReference Include="Microsoft.AspNet.WebPages.WebData" Version="3.2.6" />
     <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0" />
     <PackageReference Include="WebMatrix.WebData" Version="2.0.30506" />
     <ProjectReference Include="..\..\MySQL.Data\src\MySql.Data.csproj" />

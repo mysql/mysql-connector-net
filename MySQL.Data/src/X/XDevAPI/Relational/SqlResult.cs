@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -50,22 +50,6 @@ namespace MySqlX.XDevAPI.Relational
     }
 
     /// <summary>
-    /// Gets the number of records affected by the statement that generated this result.
-    /// </summary>
-    public UInt64 RecordsAffected
-    {
-      get { return _recordsAffected; }
-    }
-
-    /// <summary>
-    /// Gets the last inserted identifier (if there is one) by the statement that generated this result.
-    /// </summary>
-    public UInt64 AutoIncrementValue
-    {
-      get { return _autoIncrementValue; }
-    }
-
-    /// <summary>
     /// Moves to next resultset.
     /// </summary>
     /// <returns>True if there is a new resultset, false otherwise.</returns>
@@ -74,7 +58,7 @@ namespace MySqlX.XDevAPI.Relational
       if (!_hasMoreResults)
         return false;
       _hasData = Protocol.HasData(this);
-      LoadCoumnData();
+      LoadColumnData();
       _isComplete = !_hasData;
       _position = -1;
       _items.Clear();
