@@ -1,4 +1,4 @@
-// Copyright © 2004, 2017 Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -86,7 +86,10 @@ namespace MySql.Data.Common
 
     private static Stream GetTcpStream(MySqlConnectionStringBuilder settings)
     {
-      TcpClient client = new TcpClient(AddressFamily.InterNetwork);
+      Task<IPAddress[]> dnsTask = Dns.GetHostAddressesAsync(settings.Server);
+      dnsTask.Wait();
+      IPAddress addr = dnsTask.Result?[0] ?? null;
+      TcpClient client = new TcpClient(addr.AddressFamily);
       Task task = client.ConnectAsync(settings.Server, (int)settings.Port);
 
       if (!task.Wait(((int)settings.ConnectionTimeout * 1000)))

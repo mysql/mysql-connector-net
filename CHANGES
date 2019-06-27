@@ -10,6 +10,7 @@
 - Contribution added: Fix to add missing invariant culture on parse methods (MySQL Bug #94045, Orale Bug #29262195). Thanks to Effy Teva for the contribution.
 - Added a fix to avoid running "SHOW VARIABLES" query (MySQL Bug #93202, Oracle Bug #28928543).
 - Fixed a bug that throws an exception 24.9 days after a server was restarted (MySQL Bug #75604, Oracle Bug #26930306).
+- Added support for IPv6.
 
 
 6.10.8
