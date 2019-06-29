@@ -92,7 +92,10 @@ namespace MySql.Data.Common
 
     private static Stream GetTcpStream(MySqlConnectionStringBuilder settings)
     {
-      TcpClient client = new TcpClient(AddressFamily.InterNetwork);
+      Task<IPAddress[]> dnsTask = Dns.GetHostAddressesAsync(settings.Server);
+      dnsTask.Wait();
+      IPAddress addr = dnsTask.Result?[0] ?? null;
+      TcpClient client = new TcpClient(addr.AddressFamily);
       Task task = null;
       if (!settings.IsSshEnabled())
         task = client.ConnectAsync(settings.Server, (int)settings.Port);
