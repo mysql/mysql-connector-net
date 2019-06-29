@@ -29,6 +29,7 @@ using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using System.IO.Pipes;
 using System.Net;
+using System.Linq;
 #if !NETSTANDARD1_3
 using MySql.Data.MySqlClient.Common;
 using System.IO.MemoryMappedFiles;
@@ -77,7 +78,7 @@ namespace MySql.Data.Common
       switch (settings.ConnectionProtocol)
       {
         case MySqlConnectionProtocol.Tcp: return GetTcpStream(settings);
-        case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings);        
+        case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings);
         case MySqlConnectionProtocol.SharedMemory: return GetSharedMemoryStream(settings);
         case MySqlConnectionProtocol.NamedPipe: return GetNamedPipeStream(settings);
       }
@@ -88,7 +89,11 @@ namespace MySql.Data.Common
     {
       Task<IPAddress[]> dnsTask = Dns.GetHostAddressesAsync(settings.Server);
       dnsTask.Wait();
-      IPAddress addr = dnsTask.Result?[0] ?? null;
+      if (dnsTask.Result == null || dnsTask.Result.Length == 0)
+        throw new ArgumentException(Resources.InvalidHostNameOrAddress);
+      IPAddress addr = dnsTask.Result.SingleOrDefault(c => c.AddressFamily == AddressFamily.InterNetwork);
+      if (addr == null)
+        addr = dnsTask.Result[0];
       TcpClient client = new TcpClient(addr.AddressFamily);
       Task task = client.ConnectAsync(settings.Server, (int)settings.Port);
 

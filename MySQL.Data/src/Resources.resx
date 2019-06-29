@@ -553,4 +553,7 @@
   <data name="LocalInfileDisabled" xml:space="preserve">
     <value>Server asked for stream in response to LOAD DATA LOCAL INFILE, but the functionality is disabled by the client setting 'allowlocalinfile' to 'false'.</value>
   </data>
+  <data name="InvalidHostNameOrAddress" xml:space="preserve">
+    <value>The host name or IP address is invalid.</value>
+  </data>
 </root>
