@@ -1,4 +1,4 @@
-﻿// Copyright © 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -332,6 +332,24 @@ namespace MySql.Data.EntityFrameworkCore.Migrations
         builder.AppendLine(_sqlGenerationHelper.StatementTerminator);
         EndStatement(builder);
       }
+    }
+
+    protected override void Generate(
+      [NotNull] DropPrimaryKeyOperation operation,
+      [CanBeNull] IModel model,
+      [NotNull] MigrationCommandListBuilder builder)
+    {
+      // It does nothing due to this operation should not be isolated for MySQL
+      EndStatement(builder);
+    }
+
+    protected override void Generate(
+      [NotNull] AddPrimaryKeyOperation operation,
+      [CanBeNull] IModel model,
+      [NotNull] MigrationCommandListBuilder builder)
+    {
+      // It does nothing due to this operation should not be isolated for MySQL
+      EndStatement(builder);
     }
   }
 }

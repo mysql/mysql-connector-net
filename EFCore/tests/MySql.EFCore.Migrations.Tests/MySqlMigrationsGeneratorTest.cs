@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -73,7 +73,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     public override void AddColumnOperationWithDefaultValueSql()
     {
       base.AddColumnOperationWithDefaultValueSql();
-      Assert.Equal("ALTER TABLE `People` ADD `Timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP;"  + EOL, Sql);
+      Assert.Equal("ALTER TABLE `People` ADD `Timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP;" + EOL, Sql);
     }
 
     [Fact]
@@ -95,7 +95,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     public override void RenameTableOperationInSchema()
     {
       base.RenameTableOperationInSchema();
-      Assert.Equal("ALTER TABLE t1 RENAME t2;" + EOL, Sql);            
+      Assert.Equal("ALTER TABLE t1 RENAME t2;" + EOL, Sql);
     }
 
     [Fact]
@@ -109,21 +109,36 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     public override void CreateNonUniqueIndexOperation()
     {
       base.CreateNonUniqueIndexOperation();
-      
+
       Assert.Equal("CREATE INDEX `IXPersonName` ON `Person` (`Name`);" + EOL, Sql);
     }
-    
+
     [Fact(Skip = "Rename index not supported yet")]
     public override void RenameIndexOperation()
     {
       base.RenameIndexOperation();
       Assert.Equal("DROP INDEX IXPersonName ON Person; CREATE INDEX IXNombre;" + EOL, Sql);
     }
-    
+
+    [Fact]
     public override void DropIndexOperation()
     {
       base.DropIndexOperation();
       Assert.Equal("DROP INDEX IXPersonName ON Person;" + EOL, Sql);
+    }
+
+    [Fact]
+    public override void DropPrimaryKeyOperation()
+    {
+      base.DropPrimaryKeyOperation();
+      Assert.Equal(string.Empty, Sql);
+    }
+
+    [Fact]
+    public override void AddPrimaryKeyOperation()
+    {
+      base.AddPrimaryKeyOperation();
+      Assert.Equal(string.Empty, Sql);
     }
   }
 }

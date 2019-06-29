@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, 2017 Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -31,22 +31,22 @@ using Xunit;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests
 {
-    public abstract class MySQLMigrationsGeneratorTestBase
+  public abstract class MySQLMigrationsGeneratorTestBase
+  {
+    protected abstract IMigrationsSqlGenerator SqlGenerator { get; }
+    protected virtual string Sql { get; set; }
+    protected static string EOL => Environment.NewLine;
+
+    [Fact]
+    public virtual void CreateTableOperation()
     {
-      protected abstract IMigrationsSqlGenerator SqlGenerator { get; }
-      protected virtual string Sql { get; set; }
-      protected static string EOL => Environment.NewLine;
-    
-      [Fact]
-      public virtual void CreateTableOperation()
-      {
-        Generate(
-            new CreateTableOperation
-            {
-              Name = "People",
-              Schema = null,
-              Columns =
-                {
+      Generate(
+          new CreateTableOperation
+          {
+            Name = "People",
+            Schema = null,
+            Columns =
+              {
                           new AddColumnOperation
                           {
                               Name = "Id",
@@ -67,44 +67,44 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
                               ColumnType = "char(11)",
                               IsNullable = true
                           }
-                },
-              PrimaryKey = new AddPrimaryKeyOperation
-              {
-                Table = "People",
-                Columns = new[] { "Id" }           
               },
-              UniqueConstraints =
-                {
+            PrimaryKey = new AddPrimaryKeyOperation
+            {
+              Table = "People",
+              Columns = new[] { "Id" }
+            },
+            UniqueConstraints =
+              {
                           new AddUniqueConstraintOperation
                           {
                               Columns = new[] { "SSN" }
                           }
-                },
-              ForeignKeys =
-                {
+              },
+            ForeignKeys =
+              {
                           new AddForeignKeyOperation
                           {
                               Columns = new[] { "EmployerId" },
                               PrincipalTable = "Companies",
                               PrincipalColumns = new[] { "Id" }
                           }
-                }
-            });
-      }
+              }
+          });
+    }
 
 
     [Fact]
     public void AddColumnOperation()
     {
       Generate(new AddColumnOperation
-        {
-          Table = "People",
-          Schema = null,
-          Name = "Name",
-          ClrType = typeof(string),
-          ColumnType = "varchar(50)",
-          IsNullable = false
-        }
+      {
+        Table = "People",
+        Schema = null,
+        Name = "Name",
+        ClrType = typeof(string),
+        ColumnType = "varchar(50)",
+        IsNullable = false
+      }
       );
     }
 
@@ -148,7 +148,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
       Generate(
                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").HasMaxLength(30),
                new AddColumnOperation
-               {                
+               {
                  Table = "Person",
                  Name = "Name",
                  ClrType = typeof(string),
@@ -191,43 +191,43 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
 
     [Fact]
     public virtual void RenameTableOperationInSchema()
-    { 
-       Generate(
-              new RenameTableOperation
-              {
-                Name = "t1",
-                Schema = "",
-                NewName = "t2",
-                NewSchema = ""
-              });
+    {
+      Generate(
+             new RenameTableOperation
+             {
+               Name = "t1",
+               Schema = "",
+               NewName = "t2",
+               NewSchema = ""
+             });
     }
 
     [Fact]
     public virtual void CreateUniqueIndexOperation()
-    { 
-        Generate(
-            new CreateIndexOperation
-            {
-              Name = "IXPersonName",
-              Table = "Person",
-              Schema = "",
-              Columns = new[] { "FirstName", "LastName" },
-              IsUnique = true
-            });
+    {
+      Generate(
+          new CreateIndexOperation
+          {
+            Name = "IXPersonName",
+            Table = "Person",
+            Schema = "",
+            Columns = new[] { "FirstName", "LastName" },
+            IsUnique = true
+          });
     }
 
 
     [Fact]
     public virtual void CreateNonUniqueIndexOperation()
-    { 
-        Generate(
-            new CreateIndexOperation
-            {
-              Name = "IXPersonName",
-              Table = "Person",
-              Columns = new[] { "Name" },
-              IsUnique = false
-            });
+    {
+      Generate(
+          new CreateIndexOperation
+          {
+            Name = "IXPersonName",
+            Table = "Person",
+            Columns = new[] { "Name" },
+            IsUnique = false
+          });
     }
 
     [Fact]
@@ -238,7 +238,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
            {
              Name = "IXPersonName",
              Table = "Person",
-             NewName = "IXNombre"             
+             NewName = "IXNombre"
            });
     }
 
@@ -249,13 +249,36 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
             new DropIndexOperation
             {
               Name = "IXPersonName",
-              Table = "Person"              
+              Table = "Person"
             });
     }
 
+    [Fact]
+    public virtual void DropPrimaryKeyOperation()
+    {
+      Generate(
+        new DropPrimaryKeyOperation
+        {
+          Name = "IXPersonName",
+          Table = "Person"
+        });
+    }
+
+    [Fact]
+    public virtual void AddPrimaryKeyOperation()
+    {
+      Generate(
+        new AddPrimaryKeyOperation
+        {
+          Name = "IXPersonName",
+          Table = "Person"
+        });
+    }
+
+
     protected virtual void Generate(MigrationOperation operation)
-    {      
-       Generate(_ => { }, new[] { operation });
+    {
+      Generate(_ => { }, new[] { operation });
     }
 
     protected virtual void Generate(Action<ModelBuilder> buildAction, params MigrationOperation[] operation)
