@@ -705,6 +705,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void IPv6Connection()
     {
+      if (Fixture.Version < new Version(5, 6, 0)) return;
+
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       sb.Server = "::1";
       using(MySqlConnection conn = new MySqlConnection(sb.ToString()))
