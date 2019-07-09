@@ -575,7 +575,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Trait("Category", "Security")]
     public void PasswordExpiration()
     {
-      if (Fixture.Version < new Version(5, 6, 6)) return;
+      if ((Fixture.Version < new Version(5, 6, 6)) || (Fixture.Version >= new Version(8, 0, 17))) return;
 
       const string expireduser = "expireduser";
       const string expiredhost = "localhost";
@@ -705,6 +705,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void IPv6Connection()
     {
+      if (Fixture.Version < new Version(5, 6, 6)) return;
+
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       sb.Server = "::1";
       using(MySqlConnection conn = new MySqlConnection(sb.ToString()))
