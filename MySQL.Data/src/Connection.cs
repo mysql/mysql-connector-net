@@ -36,10 +36,7 @@ using MySql.Data.Common;
 using System.Security;
 using IsolationLevel = System.Data.IsolationLevel;
 using MySql.Data.MySqlClient.Interceptors;
-using Renci.SshNet;
 using System.Linq;
-using Renci.SshNet.Common;
-using MySql.Data.common;
 #if !NETSTANDARD1_6
 using System.Transactions;
 using MySql.Data.MySqlClient.Replication;
@@ -62,7 +59,11 @@ namespace MySql.Data.MySqlClient
     private bool _isKillQueryConnection;
     private string _database;
     private int _commandTimeout;
-    private SshClient _sshClient;
+
+    /// <summary>
+    /// The used client to handle SSH connections.
+    /// </summary>
+    private Ssh _sshHandler;
 
     /// <include file='docs/MySqlConnection.xml' path='docs/InfoMessage/*'/>
     public event MySqlInfoMessageEventHandler InfoMessage;
@@ -395,7 +396,7 @@ namespace MySql.Data.MySqlClient
         MySqlConnectionStringBuilder currentSettings = Settings;
         if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
         {
-          _sshClient = MySqlSshClientManager.SetupSshClient(
+          _sshHandler = new Ssh(
             Settings.SshHostName,
             Settings.SshUserName,
             Settings.SshPassword,
@@ -404,11 +405,13 @@ namespace MySql.Data.MySqlClient
             Settings.SshPort,
             Settings.Server,
             Settings.Port,
-            false);
-        }          
+            false
+          );
+          _sshHandler.StartClient();
+        }
 
         //TODO: SUPPORT FOR 452 AND 46X
-        // Load balancing 
+        // Load balancing
 #if !NETSTANDARD1_6
         if (ReplicationManager.IsReplicationGroup(Settings.Server))
         {
@@ -540,10 +543,9 @@ namespace MySql.Data.MySqlClient
 #endif
       }
 
-      if (_sshClient != null && _sshClient.IsConnected)
+      if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
       {
-        _sshClient.ForwardedPorts.First().Stop();
-        _sshClient.Disconnect();
+        _sshHandler?.StopClient();
       }
 
       SetState(ConnectionState.Closed, true);
