@@ -31,6 +31,9 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class ConnectionTests : TestBase
   {
+    const string _EXPIRED_USER = "expireduser";
+    const string _EXPIRED_HOST = "localhost";
+
     public ConnectionTests(TestFixture fixture) : base(fixture)
     {
     }
@@ -577,30 +580,19 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if ((Fixture.Version < new Version(5, 6, 6)) || (Fixture.Version >= new Version(8, 0, 17))) return;
 
-      const string expireduser = "expireduser";
-      const string expiredhost = "localhost";
-      string expiredfull = string.Format("'{0}'@'{1}'", expireduser, expiredhost);
+      string expiredfull = string.Format("'{0}'@'{1}'", _EXPIRED_USER, _EXPIRED_HOST);
 
       using (MySqlConnection conn = Fixture.GetConnection(true))
       {
         MySqlCommand cmd = new MySqlCommand("", conn);
 
         // creates expired user
-        cmd.CommandText = string.Format("SELECT COUNT(*) FROM mysql.user WHERE user='{0}' AND host='{1}'", expireduser, expiredhost);
-        long count = (long)cmd.ExecuteScalar();
-        if (count > 0)
-          MySqlHelper.ExecuteNonQuery(conn, String.Format("DROP USER " + expiredfull));
-
-        MySqlHelper.ExecuteNonQuery(conn, String.Format("CREATE USER {0} IDENTIFIED BY '{1}1'", expiredfull, expireduser));
-        MySqlHelper.ExecuteNonQuery(conn, String.Format("GRANT SELECT ON `{0}`.* TO {1}", conn.Database, expiredfull));
-
-        MySqlHelper.ExecuteNonQuery(conn, String.Format("ALTER USER {0} PASSWORD EXPIRE", expiredfull));
-        conn.Close();
+        SetupExpiredPasswordUser();
 
         // validates expired user
         var cnstrBuilder = new MySqlConnectionStringBuilder(Root.ConnectionString);
-        cnstrBuilder.UserID = expireduser;
-        cnstrBuilder.Password = expireduser + "1";
+        cnstrBuilder.UserID = _EXPIRED_USER;
+        cnstrBuilder.Password = _EXPIRED_USER + "1";
         conn.ConnectionString = cnstrBuilder.ConnectionString;
         conn.Open();
 
@@ -609,9 +601,9 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(1820, ex.Number);
 
         if (Fixture.Version >= new Version(5, 7, 6))
-          cmd.CommandText = string.Format("SET PASSWORD = '{0}1'", expireduser);
+          cmd.CommandText = string.Format("SET PASSWORD = '{0}1'", _EXPIRED_USER);
         else
-          cmd.CommandText = string.Format("SET PASSWORD = PASSWORD('{0}1')", expireduser);
+          cmd.CommandText = string.Format("SET PASSWORD = PASSWORD('{0}1')", _EXPIRED_USER);
 
         cmd.ExecuteNonQuery();
         cmd.CommandText = "SELECT 1";
@@ -709,12 +701,57 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       sb.Server = "::1";
-      using(MySqlConnection conn = new MySqlConnection(sb.ToString()))
+      using (MySqlConnection conn = new MySqlConnection(sb.ToString()))
       {
         conn.Open();
         Assert.Equal(ConnectionState.Open, conn.State);
       }
     }
+
+    private void SetupExpiredPasswordUser()
+    {
+      string expiredFull = $"'{_EXPIRED_USER}'@'{_EXPIRED_HOST}'";
+
+      using (MySqlConnection conn = Fixture.GetConnection(true))
+      {
+        MySqlCommand cmd = conn.CreateCommand();
+
+        // creates expired user
+        cmd.CommandText = $"SELECT COUNT(*) FROM mysql.user WHERE user='{_EXPIRED_USER}' AND host='{_EXPIRED_HOST}'";
+        long count = (long)cmd.ExecuteScalar();
+        if (count > 0)
+          MySqlHelper.ExecuteNonQuery(conn, $"DROP USER {expiredFull}");
+
+        MySqlHelper.ExecuteNonQuery(conn, $"CREATE USER {expiredFull} IDENTIFIED BY '{_EXPIRED_USER}1'");
+        MySqlHelper.ExecuteNonQuery(conn, $"GRANT SELECT ON `{Fixture.Settings.Database}`.* TO {expiredFull}");
+        MySqlHelper.ExecuteNonQuery(conn, $"ALTER USER {expiredFull} PASSWORD EXPIRE");
+      }
+    }
+
+    [Theory]
+    [Trait("Category", "Security")]
+    [InlineData("SET NAMES 'latin1'")]
+    [InlineData("SELECT VERSION()")]
+    [InlineData("SHOW VARIABLES LIKE '%audit%'")]
+    public void ExpiredPassword(string sql)
+    {
+      if (Fixture.Version < new Version(8, 0, 18))
+        return;
+
+      MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(Fixture.Settings.ConnectionString);
+      sb.UserID = _EXPIRED_USER;
+      sb.Password = _EXPIRED_USER + "1";
+      SetupExpiredPasswordUser();
+      using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
+      {
+        conn.Open();
+        Assert.Equal(ConnectionState.Open, conn.State);
+        MySqlCommand cmd = new MySqlCommand(sql, conn);
+        var ex = Assert.ThrowsAny<MySqlException>(() => cmd.ExecuteNonQuery());
+        Assert.Equal(1820, ex.Number);
+      }
+    }
+
 
 #if NET452
     /// <summary>
