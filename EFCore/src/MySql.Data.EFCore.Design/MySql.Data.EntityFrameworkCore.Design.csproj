@@ -4,7 +4,7 @@
     <Description>Design-time Entity Framework Core Functionality for MySQL Server.</Description>
     <Copyright>Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.17</Version>
+    <Version>8.0.18</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net452;netstandard1.6</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>

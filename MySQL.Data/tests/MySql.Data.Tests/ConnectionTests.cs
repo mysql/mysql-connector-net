@@ -702,6 +702,20 @@ namespace MySql.Data.MySqlClient.Tests
 
     #endregion
 
+    [Fact]
+    public void IPv6Connection()
+    {
+      if (Fixture.Version < new Version(5, 6, 0)) return;
+
+      MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      sb.Server = "::1";
+      using(MySqlConnection conn = new MySqlConnection(sb.ToString()))
+      {
+        conn.Open();
+        Assert.Equal(ConnectionState.Open, conn.State);
+      }
+    }
+
 #if NET452
     /// <summary>
     ///  Fix for aborted connections MySQL bug 80997 OraBug 23346197

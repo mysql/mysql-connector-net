@@ -512,6 +512,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The host name or IP address is invalid..
+        /// </summary>
+        public static string InvalidHostNameOrAddress {
+            get {
+                return ResourceManager.GetString("InvalidHostNameOrAddress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Microsecond must be a value between 0 and 999999..
         /// </summary>
         public static string InvalidMicrosecondValue {
@@ -676,7 +685,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Server asked for stream in response to LOAD DATA LOCAL INFILE, but the functionality is disabled by client setting &apos;allowlocalinfile&apos; to &apos;false&apos;..
+        ///   Looks up a localized string similar to Server asked for stream in response to LOAD DATA LOCAL INFILE, but the functionality is disabled by the client setting &apos;allowlocalinfile&apos; to &apos;false&apos;..
         /// </summary>
         public static string LocalInfileDisabled {
             get {

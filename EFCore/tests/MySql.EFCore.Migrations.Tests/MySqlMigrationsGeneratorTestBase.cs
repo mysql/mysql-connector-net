@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -42,7 +42,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
       protected abstract IMigrationsSqlGenerator SqlGenerator { get; }
       protected virtual string Sql { get; set; }
       protected static string EOL => Environment.NewLine;
-    
+
       [Fact]
       public virtual void CreateTableOperation()
       {
@@ -77,7 +77,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
               PrimaryKey = new AddPrimaryKeyOperation
               {
                 Table = "People",
-                Columns = new[] { "Id" }           
+              Columns = new[] { "Id" }
               },
               UniqueConstraints =
                 {
@@ -154,7 +154,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
       Generate(
                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").HasMaxLength(30),
                new AddColumnOperation
-               {                
+               {
                  Table = "Person",
                  Name = "Name",
                  ClrType = typeof(string),
@@ -197,7 +197,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
 
     [Fact]
     public virtual void RenameTableOperationInSchema()
-    { 
+    {
        Generate(
               new RenameTableOperation
               {
@@ -210,7 +210,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
 
     [Fact]
     public virtual void CreateUniqueIndexOperation()
-    { 
+    {
         Generate(
             new CreateIndexOperation
             {
@@ -225,7 +225,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
 
     [Fact]
     public virtual void CreateNonUniqueIndexOperation()
-    { 
+    {
         Generate(
             new CreateIndexOperation
             {
@@ -244,7 +244,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
            {
              Name = "IXPersonName",
              Table = "Person",
-             NewName = "IXNombre"             
+             NewName = "IXNombre"
            });
     }
 
@@ -255,12 +255,35 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
             new DropIndexOperation
             {
               Name = "IXPersonName",
-              Table = "Person"              
+              Table = "Person"
             });
     }
 
+    [Fact]
+    public virtual void DropPrimaryKeyOperation()
+    {
+      Generate(
+        new DropPrimaryKeyOperation
+        {
+          Name = "IXPersonName",
+          Table = "Person"
+        });
+    }
+
+    [Fact]
+    public virtual void AddPrimaryKeyOperation()
+    {
+      Generate(
+        new AddPrimaryKeyOperation
+        {
+          Name = "IXPersonName",
+          Table = "Person"
+        });
+    }
+
+
     protected virtual void Generate(MigrationOperation operation)
-    {      
+    {
        Generate(_ => { }, new[] { operation });
     }
 
