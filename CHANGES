@@ -1,7 +1,7 @@
 8.0.18
 - Added support for IPv6.
 - Fixed an error involving a rename-table operation in Entity Framework Core migrations (MySQL Bug #90958, Oracle Bug #28107555).
-
+- Added support for .NET Core 3.0 (WL13114)
 
 8.0.17
 - Fixed wrong order of records for columns when using MySqlConnection.GetSchema (MySql Bug #94773, Oracle Bug #29536344).

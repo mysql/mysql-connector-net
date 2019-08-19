@@ -838,7 +838,11 @@ namespace MySql.Data.MySqlClient.Tests
     {
       var bytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x01, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
       MySqlGeometry v = new MySqlGeometry(MySqlDbType.Geometry, bytes);
+#if NETCOREAPP3_0
+      Assert.Equal("POINT(3.5E-323 0)", v.ToString());      
+#else
       Assert.Equal("POINT(3.45845952088873E-323 0)", v.ToString());
+#endif
     }
 
     /// <summary>
@@ -873,12 +877,17 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         var val = reader.GetMySqlGeometry(0);
         var valWithName = reader.GetMySqlGeometry("v");
+#if NETCOREAPP3_0
+        Assert.Equal("POINT(3.5E-323 0)", val.ToString());
+        Assert.Equal("POINT(3.5E-323 0)", valWithName.ToString());
+#else
         Assert.Equal("POINT(3.45845952088873E-323 0)", val.ToString());
         Assert.Equal("POINT(3.45845952088873E-323 0)", valWithName.ToString());
+#endif
       }
     }
 
-    #endregion
+#endregion
 
     /// <summary>
     /// Bug #33322 Incorrect Double/Single value saved to MySQL database using MySQL Connector for  

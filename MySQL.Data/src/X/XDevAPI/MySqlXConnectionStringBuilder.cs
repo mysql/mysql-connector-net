@@ -133,7 +133,7 @@ namespace MySqlX.XDevAPI
     [DisplayName("Auth")]
     [Description("Authentication mechanism")]
     [DefaultValue(MySqlAuthenticationMode.Default)]
-    public new MySqlAuthenticationMode Auth
+    public MySqlAuthenticationMode Auth
     {
       get { return (MySqlAuthenticationMode)values["auth"]; }
       set { SetValue("auth", value); }
@@ -143,7 +143,7 @@ namespace MySqlX.XDevAPI
     /// Path to a local file containing certificate revocation lists.
     /// </summary>
     [Description("Path to a local file containing certificate revocation lists")]
-    public new string SslCrl
+    public string SslCrl
     {
       get { throw new NotSupportedException(); }
       set { throw new NotSupportedException(); }

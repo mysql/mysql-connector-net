@@ -67,7 +67,7 @@ namespace MySql.Data.MySqlClient.Tests
       settings.Port = port == null ? 3306 : UInt32.Parse(port);
       settings.UserID = "root";
       settings.Password = null;
-#if !(NETCOREAPP1_1 || NETCOREAPP2_2)
+#if NET452
       var memName = Environment.GetEnvironmentVariable("MYSQL_MEM");
       settings.SharedMemoryName = memName == null ? "MySQLSocket" : memName;
       var pipeName = Environment.GetEnvironmentVariable("MYSQL_PIPE");

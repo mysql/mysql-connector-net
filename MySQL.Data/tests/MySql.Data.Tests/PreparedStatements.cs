@@ -426,7 +426,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #19261  	Supplying Input Parameters
     /// </summary>
-#if NETCOREAPP20
+#if NETCOREAPP2_2 || NETCOREAPP3_0
     [Fact]
     public void MoreParametersOutOfOrder()
     {
@@ -796,7 +796,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if NETCOREAPP20
+#if NETCOREAPP2_2 || NETCOREAPP3_0
     [Fact]
     public void SprocOutputParams()
     {

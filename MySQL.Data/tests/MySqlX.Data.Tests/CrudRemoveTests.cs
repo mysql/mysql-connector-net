@@ -57,7 +57,11 @@ namespace MySqlX.Data.Tests
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
 
       var ex = Assert.Throws<ArgumentNullException>(() => coll.Remove(""));
+#if NETCOREAPP3_0
+      Assert.Equal("Parameter can't be null or empty. (Parameter 'condition')", ex.Message);
+#else
       Assert.Equal("Parameter can't be null or empty.\r\nParameter name: condition", ex.Message);
+#endif
     }
 
     [Fact]
@@ -160,7 +164,12 @@ namespace MySqlX.Data.Tests
       Assert.Equal<ulong>(4, result.AffectedItemsCount);
 
       // Condition can't be null or empty.
-      string errorMessage = "Parameter can't be null or empty.\r\nParameter name: condition";
+      string errorMessage = string.Empty;
+#if NETCOREAPP3_0
+      errorMessage = "Parameter can't be null or empty. (Parameter 'condition')";
+#else
+      errorMessage = "Parameter can't be null or empty.\r\nParameter name: condition";
+#endif
       Exception ex = Assert.Throws<ArgumentNullException>(() => ExecuteRemoveStatement(collection.Remove(string.Empty)));
       Assert.Equal(errorMessage, ex.Message);
       ex = Assert.Throws<ArgumentNullException>(() => ExecuteRemoveStatement(collection.Remove("")));

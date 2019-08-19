@@ -51,7 +51,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Null(o);
     }
 
-#if !NETCOREAPP2_2
+#if !(NETCOREAPP2_2 || NETCOREAPP3_0)
     [Fact]
     public void CancelSingleQuery()
     {

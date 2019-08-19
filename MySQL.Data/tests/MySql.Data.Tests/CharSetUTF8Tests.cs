@@ -358,7 +358,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCOREAPP2_2
+#if !(NETCOREAPP2_2 || NETCOREAPP3_0)
     [Fact]
     public void Chinese()
     {
@@ -411,7 +411,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, o);
     }
 
-#if !NETCOREAPP2_2
+#if !(NETCOREAPP2_2 || NETCOREAPP3_0)
     [Fact]
     public void Turkish()
     {
