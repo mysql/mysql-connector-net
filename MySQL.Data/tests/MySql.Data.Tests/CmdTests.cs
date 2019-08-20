@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -609,7 +609,6 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
     #endregion
 
-#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #59616	Only INSERTs are batched
     /// </summary>
@@ -678,7 +677,6 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand newCommand = cmd.Clone() as MySqlCommand;
       IDbCommand newCommand2 = (IDbCommand)(cmd as ICloneable).Clone();
     }
-#endif
 
     #region SQL Injection
 

@@ -33,7 +33,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using MySql.Data.Common;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -63,7 +62,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
         (BaseSetterDelegate)((msb, sender, value) =>
        {
-#if NETSTANDARD1_6 || NETSTANDARD2_0
+#if !NET452
          MySqlConnectionProtocol enumValue;
          if (Enum.TryParse<MySqlConnectionProtocol>(value.ToString(), true, out enumValue))
          {
@@ -205,9 +204,7 @@ namespace MySql.Data.MySqlClient
     [Category("Security")]
     [Description("Indicates the password to be used when connecting to the data source.")]
     [RefreshProperties(RefreshProperties.All)]
-#if !NETSTANDARD1_6
     [PasswordPropertyText(true)]
-#endif
     public string Password
     {
       get { return (string)values["password"]; }
@@ -365,9 +362,7 @@ namespace MySql.Data.MySqlClient
     [DisplayName("SSH Password")]
     [Description("Indicates the password to be used when authenticating to the SSH server.")]
     [RefreshProperties(RefreshProperties.All)]
-#if !NETSTANDARD1_6
     [PasswordPropertyText(true)]
-#endif
     public string SshPassword
     {
       get { return (string)values["sshpassword"]; }
@@ -394,9 +389,7 @@ namespace MySql.Data.MySqlClient
     [DisplayName("SSH Passphrase")]
     [Description("Indicates the passphrase associated to the key file to be used when authenticating to the SSH server.")]
     [RefreshProperties(RefreshProperties.All)]
-#if !NETSTANDARD1_6
     [PasswordPropertyText(true)]
-#endif
     public string SshPassphrase
     {
       get { return (string)values["sshpassphrase"]; }
@@ -584,7 +577,7 @@ namespace MySql.Data.MySqlClient
         var keyword = keyValue[0].ToLowerInvariant().Trim();
         var value = keyValue[1].ToLowerInvariant();
         MySqlConnectionStringOption option = Options.Options.Where(o => o.Keyword == keyword || (o.Synonyms != null && o.Synonyms.Contains(keyword))).FirstOrDefault();
-        if (option == null 
+        if (option == null
           || (option.Keyword != "sslmode"
                && option.Keyword != "certificatefile"
                && option.Keyword != "certificatepassword"
@@ -779,7 +772,7 @@ namespace MySql.Data.MySqlClient
       switch (keyword)
       {
         case "connect-timeout":
-          if (typeName != valueType.Name  && !uint.TryParse(value.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out uint uintVal)) throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
+          if (typeName != valueType.Name && !uint.TryParse(value.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out uint uintVal)) throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
           break;
       }
     }

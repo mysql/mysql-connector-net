@@ -1,4 +1,4 @@
-// Copyright © 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,11 +28,7 @@
 
 using System;
 
-#if NETSTANDARD1_6
-namespace MySql.Data.MySqlClient.Interceptors
-#else
 namespace MySql.Data.MySqlClient
-#endif
 {
   /// <summary>
   /// Interceptor is the base class for the "manager" classes such as ExceptionInterceptor,

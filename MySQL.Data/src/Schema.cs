@@ -1,4 +1,4 @@
-// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,10 +27,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
 namespace MySql.Data.MySqlClient
 {
@@ -41,9 +39,7 @@ namespace MySql.Data.MySqlClient
   {
     private readonly List<SchemaColumn> _columns = new List<SchemaColumn>();
     private readonly List<MySqlSchemaRow> _rows = new List<MySqlSchemaRow>();
-#if !NETSTANDARD1_6
     private readonly DataTable _table = null;
-#endif
 
     public MySqlSchemaCollection()
     {
@@ -56,7 +52,6 @@ namespace MySql.Data.MySqlClient
       Name = name;
     }
 
-#if !NETSTANDARD1_6
     public MySqlSchemaCollection(DataTable dt) : this()
     {
       // cache the original datatable to avoid the overhead of creating again whenever possible.
@@ -79,7 +74,6 @@ namespace MySql.Data.MySqlClient
         Rows.Add(row);
       }
     }
-#endif
 
     internal Dictionary<string, int> Mapping;
     internal Dictionary<int, int> LogicalMappings;
@@ -154,7 +148,6 @@ namespace MySql.Data.MySqlClient
       return r;
     }
 
-#if !NETSTANDARD1_6
     internal DataTable AsDataTable()
     {
       if (_table != null) return _table;
@@ -170,7 +163,6 @@ namespace MySql.Data.MySqlClient
       }
       return dt;
     }
-#endif
   }
 
   /// <summary>

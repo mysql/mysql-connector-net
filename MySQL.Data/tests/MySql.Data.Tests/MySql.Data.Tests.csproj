@@ -8,7 +8,7 @@
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
-    <TargetFrameworks>netcoreapp2.2;netcoreapp1.1;net452;</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net452;</TargetFrameworks>
     <PackageId>MySql.Data.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
@@ -29,7 +29,6 @@
 
   <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.2'">
     <Compile Remove="Framework\netstandard2_0\MediumTrust\*.cs" />
-    <Compile Remove="Framework\netstandard1_3\*.cs" />
     <Compile Remove="Framework\netstandard2_0\PartialTrustSandbox.cs" />
     <Compile Remove="Framework\netstandard2_0\CmdTestsPipe.cs;Framework\netstandard2_0\CmdTestsPipeCompressed.cs;Framework\netstandard2_0\CmdTestsSharedmemCompressed.cs;Framework\netstandard2_0\CmdTestsSharedMem.cs;" />
     <Compile Remove="Framework\netstandard2_0\PSPipeCompressed.cs;Framework\netstandard2_0\PSPipe.cs;Framework\netstandard2_0\PSSharedMemory.cs;Framework\netstandard2_0\PSSharedMemoryCompressed.cs;" />
@@ -38,17 +37,7 @@
     <Compile Remove="Framework\netstandard2_0\StressTestsPipe.cs;Framework\netstandard2_0\StressTestsPipeCompressed.cs;Framework\netstandard2_0\StressTestsSharedMemoryCompressed.cs;Framework\netstandard2_0\StressTestsSharedMemory.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp1.1'">
-    <Compile Remove="Framework\netstandard2_0\**" />
-    <Compile Remove="Framework\netstandard2_0\MediumTrust\*.cs" />
-    <EmbeddedResource Remove="Framework\netstandard2_0\**" />
-    <None Remove="Framework\netstandard2_0\**" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">
-    <Compile Remove="Framework\netstandard1_3\**" />
-    <EmbeddedResource Remove="Framework\netstandard1_3\**" />
-    <None Remove="Framework\netstandard1_3\**" />
     <Compile Remove="Framework\netstandard2_0\MediumTrust\*.*" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Transactions" />

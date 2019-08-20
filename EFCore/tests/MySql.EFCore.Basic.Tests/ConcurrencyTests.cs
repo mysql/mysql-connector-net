@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -87,7 +87,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
                                     var originalValue = entry.Property(property.Name).OriginalValue;
                                     var databaseValue = databaseEntry.Property(property.Name).CurrentValue;
                                     entry.Property(property.Name).OriginalValue = databaseEntry.Property(property.Name).CurrentValue;
-                                    Assert.Equal(databaseValue, "Jane");
+                                    Assert.Equal("Jane", databaseValue);
                                 }
                             }
                         }

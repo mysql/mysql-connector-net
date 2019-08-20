@@ -337,7 +337,7 @@ namespace MySqlX.XDevAPI
         return Equals(this, obj);
       }
 
-      private bool Equals(object x, object y)
+      private new bool Equals(object x, object y)
       {
         if (x.GetType() != y.GetType())
           return false;

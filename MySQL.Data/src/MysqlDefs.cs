@@ -627,18 +627,12 @@ namespace MySql.Data.MySqlClient
       _os = string.Empty;
       try
       {
-        if (MySql.Data.Common.Platform.IsDotNetCore())
-        {
-          _os = ".Net Core";
-        }
-#if !NETSTANDARD1_6
         _os = Environment.OSVersion.Platform.ToString();
         if (_os == "Win32NT")
         {
           _os = "Win";
           _os += Is64BitOS() ? "64" : "32";
         }
-#endif
       }
       catch (Exception ex)
       {
@@ -684,7 +678,6 @@ namespace MySql.Data.MySqlClient
     {
       _osName = _os;
 
-#if !NETSTANDARD1_6
       var osInfo = Environment.OSVersion;
       var major = osInfo.Version.Major;
       var minor = osInfo.Version.Minor;
@@ -723,7 +716,6 @@ namespace MySql.Data.MySqlClient
       }
       else
         _osName = _os + "-" + major + "." + minor;
-#endif
     }
 
     private static void InitFramework()

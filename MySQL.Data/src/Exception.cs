@@ -1,4 +1,4 @@
-// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,9 +37,7 @@ namespace MySql.Data.MySqlClient
   /// The exception that is thrown when MySQL returns an error. This class cannot be inherited.
   /// </summary>
   /// <include file='docs/MySqlException.xml' path='MyDocs/MyMembers[@name="Class"]/*'/>
-#if !NETSTANDARD1_6
   [Serializable]
-#endif
   public sealed class MySqlException : DbException
   {
     internal MySqlException()
@@ -80,12 +78,10 @@ namespace MySql.Data.MySqlClient
       SqlState = sqlState;
     }
 
-#if !NETSTANDARD1_6
     private MySqlException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
     }
-#endif
 
     /// <summary>
     /// Gets a number that identifies the type of error.

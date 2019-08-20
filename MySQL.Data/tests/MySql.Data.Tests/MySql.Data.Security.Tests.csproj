@@ -8,7 +8,7 @@
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Security.Tests</Product>
-    <TargetFrameworks>netcoreapp2.2;netcoreapp1.1;net452;</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net452;</TargetFrameworks>
     <PackageId>MySql.Data.Security.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
@@ -28,25 +28,14 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.2'">
-    <Compile Remove="Framework\netstandard1_3\**" />
     <Compile Remove="Framework\netstandard2_0\**" />
     <Compile Include="Framework\netstandard2_0\TestDataTable.cs" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp1.1'">
-    <Compile Remove="Framework\netstandard2_0\**" />
-    <Compile Remove="Framework\netstandard2_0\MediumTrust\*.cs" />
-    <EmbeddedResource Remove="Framework\netstandard2_0\**" />
-    <None Remove="Framework\netstandard2_0\**" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">
     <Compile Remove="Framework\netstandard2_0\**" />
     <Compile Include="Framework\netstandard2_0\TestDataTable.cs" />
     <Compile Include="Framework\netstandard2_0\PartialTrustSandbox.cs" />
-    <Compile Remove="Framework\netstandard1_3\**" />
-    <EmbeddedResource Remove="Framework\netstandard1_3\**" />
-    <None Remove="Framework\netstandard1_3\**" />
     <Compile Remove="Framework\netstandard2_0\MediumTrust\*.*" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Transactions" />

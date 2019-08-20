@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,18 +29,14 @@
 using System;
 using System.Data.Common;
 using System.Reflection;
-#if !NETSTANDARD1_6
 using System.Security.Permissions;
-#endif
 
 namespace MySql.Data.MySqlClient
 {
   /// <summary>
   /// Represents a set of methods for creating instances of the MySQL client implementation of the data source classes.
   /// </summary>
-#if !NETSTANDARD1_6
   [ReflectionPermission(SecurityAction.Assert, MemberAccess = true)]
-#endif
   public sealed partial class MySqlClientFactory : DbProviderFactory, IServiceProvider
   {
     /// <summary>
@@ -87,7 +83,6 @@ namespace MySql.Data.MySqlClient
       return new MySqlConnectionStringBuilder();
     }
 
-#if !NETSTANDARD1_6
     /// <summary>
     /// Returns a strongly typed <see cref="DbCommandBuilder"/> instance. 
     /// </summary>
@@ -105,8 +100,6 @@ namespace MySql.Data.MySqlClient
     {
       return new MySqlDataAdapter();
     }
-#endif
-
 
     #region IServiceProvider Members
 
@@ -124,14 +117,10 @@ namespace MySql.Data.MySqlClient
       {
         if (_mySqlDbProviderServicesInstance == null)
         {
-#if NETSTANDARD1_6
-          string fullName = typeof(MySqlClientFactory).GetTypeInfo().Assembly.FullName;
-#else
           string fullName = Assembly.GetExecutingAssembly().FullName;
-#endif
-					string assemblyName = fullName.Replace("MySql.Data", "MySql.Data.EntityFramework");
-					string assemblyEf5Name = fullName.Replace("MySql.Data", "MySql.Data.Entity.EF5");
-					fullName = $"MySql.Data.MySqlClient.MySqlProviderServices, {assemblyEf5Name}";
+          string assemblyName = fullName.Replace("MySql.Data", "MySql.Data.EntityFramework");
+          string assemblyEf5Name = fullName.Replace("MySql.Data", "MySql.Data.Entity.EF5");
+          fullName = $"MySql.Data.MySqlClient.MySqlProviderServices, {assemblyEf5Name}";
 
           Type providerServicesType = Type.GetType(fullName, false);
           if (providerServicesType == null)

@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,14 +29,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using MySql.Data.MySqlClient;
 
-
-#if NETSTANDARD1_6
-namespace MySql.Data.MySqlClient.Interceptors
-#else
 namespace MySql.Data.MySqlClient
-#endif
 {
   /// <summary>
   /// BaseCommandInterceptor is the base class that should be used for all userland 
@@ -170,16 +164,12 @@ namespace MySql.Data.MySqlClient
 
     protected override string ResolveType(string nameOrType)
     {
-#if NETSTANDARD1_6
-      return base.ResolveType(nameOrType);
-#else
       if (MySqlConfiguration.Settings == null || MySqlConfiguration.Settings.CommandInterceptors == null)
         return base.ResolveType(nameOrType);
       foreach (InterceptorConfigurationElement e in MySqlConfiguration.Settings.CommandInterceptors)
         if (String.Compare(e.Name, nameOrType, true) == 0)
           return e.Type;
       return base.ResolveType(nameOrType);
-#endif
     }
   }
 }

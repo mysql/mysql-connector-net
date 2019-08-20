@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -62,7 +62,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
                   .Take(1)
                   .ToList();
 
-      Assert.Equal(1, people.Count);
+      Assert.Single(people);
     }
 
     [Fact]
@@ -130,7 +130,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             .ToList();
 
       Assert.Equal(3, list.Count);
-      Assert.True(list.First().City.EndsWith(" city"));
+      Assert.EndsWith(" city", list.First().City);
     }
 
     private string SetCity(string name)

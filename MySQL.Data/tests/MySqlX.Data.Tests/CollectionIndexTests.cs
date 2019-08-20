@@ -108,7 +108,7 @@ namespace MySqlX.Data.Tests
       // Timestamp index.
       collection.DropIndex("myIndex");
       collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TIMESTAMP\" } ] }");
-      ValidateIndex("myIndex", "test", "ds", false, false, false, 1);
+      ValidateIndex("myIndex", "test", "ds", false, true, false, 1);
 
       // Time index.
       collection.DropIndex("myIndex");
@@ -273,7 +273,7 @@ namespace MySqlX.Data.Tests
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"INT\", \"options\":2, \"srid\":4326 } ] }"));
-      Assert.Equal("Unsupported argumet specification for '$.myField'", ex.Message);
+      Assert.Equal("Unsupported argument specification for '$.myField'", ex.Message);
 
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"GEOJSON\", \"options\":2, \"srid\":4326 } ], \"type\":\"SPATIAL\" }"));
       Assert.Equal("GEOJSON index requires 'constraint.required: TRUE", ex.Message);

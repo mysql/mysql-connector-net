@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,10 +27,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.ComponentModel;
 using System.Data;
 using Xunit;
-
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -40,13 +38,13 @@ namespace MySql.Data.MySqlClient.Tests
 
     [Fact]
     public void InsertNullBinary()
-    {  
+    {
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?b1)", Connection);
       cmd.Parameters.Add(new MySqlParameter("?id", 1));
-      cmd.Parameters.Add(new MySqlParameter("?b1", null));      
+      cmd.Parameters.Add(new MySqlParameter("?b1", null));
       int rows = cmd.ExecuteNonQuery();
 
       cmd.CommandText = "SELECT * FROM Test";
@@ -60,7 +58,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]    
+    [Fact]
     public void InsertBinary()
     {
       int lenIn = 400000;
@@ -70,7 +68,7 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL("CREATE TABLE InsertBinary (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO InsertBinary VALUES (?id, ?b1)", Connection);
-      cmd.Parameters.Add(new MySqlParameter("?id", 1));   
+      cmd.Parameters.Add(new MySqlParameter("?id", 1));
       cmd.Parameters.Add(new MySqlParameter("?b1", dataIn));
       int rows = cmd.ExecuteNonQuery();
 
@@ -134,7 +132,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     private void InternalGetChars(bool prepare)
-    {    
+    {
       executeSQL("DROP TABLE IF EXISTS Test");
       executeSQL("CREATE TABLE Test (id INT NOT NULL, text1 LONGTEXT, PRIMARY KEY(id))");
 
@@ -253,8 +251,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void MediumIntBlobSize()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");      
-      
+      executeSQL("DROP TABLE IF EXISTS Test");
+
       executeSQL("CREATE TABLE test (id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, " +
          "image MEDIUMBLOB NOT NULL, imageSize MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0, " +
          "PRIMARY KEY (id))");
@@ -302,13 +300,11 @@ namespace MySql.Data.MySqlClient.Tests
 
     //    MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES(NULL, ?image)", c);
     //    cmd.Parameters.AddWithValue("?image", image);
-          
+
     //    Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
     //    Assert.Equal(ex.Message, "Packets larger than max_allowed_packet are not allowed.");
     //  }
     //}
-
-#if !NETCOREAPP1_1
 
     [Fact]
     public void UpdateDataSet()
@@ -340,11 +336,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       byte[] outBuf = (byte[])dt.Rows[0]["blob1"];
       Assert.True(inBuf.Length == outBuf.Length, "checking length of updated buffer");
-     
+
       for (int y = 0; y < inBuf.Length; y++)
         Assert.True(inBuf[y] == outBuf[y], "checking array data");
     }
-#endif
-
   }
 }

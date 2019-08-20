@@ -31,10 +31,6 @@ using MySqlX.XDevAPI.CRUD;
 using MySqlX.XDevAPI.Common;
 using MySql.Data;
 using MySql.Data.MySqlClient;
-using System.Collections.Generic;
-#if NETSTANDARD1_6
-using System.Reflection;
-#endif
 
 namespace MySqlX.XDevAPI
 {
@@ -49,7 +45,7 @@ namespace MySqlX.XDevAPI
 
     }
 
-#region Add Operations
+    #region Add Operations
 
     /// <summary>
     /// Creates an <see cref="AddStatement"/> containing the provided objects that can be used to add
@@ -70,9 +66,9 @@ namespace MySqlX.XDevAPI
       return stmt;
     }
 
-#endregion
+    #endregion
 
-#region Remove Operations
+    #region Remove Operations
 
     /// <summary>
     /// Creates a <see cref="RemoveStatement"/> with the given condition that can be used to remove
@@ -109,9 +105,9 @@ namespace MySqlX.XDevAPI
       return Remove("_id = :id").Bind("id", id).Execute();
     }
 
-#endregion
+    #endregion
 
-#region Modify Operations
+    #region Modify Operations
 
     /// <summary>
     /// Creates a <see cref="ModifyStatement"/> with the given condition that can be used to modify one or more
@@ -169,9 +165,9 @@ namespace MySqlX.XDevAPI
 
       return modify.Execute();
     }
-#endregion
+    #endregion
 
-#region Add-Modify Operations
+    #region Add-Modify Operations
 
     /// <summary>
     /// Adds the given document to the collection unless the identifier or any other field that has a unique index
@@ -187,7 +183,7 @@ namespace MySqlX.XDevAPI
     /// <remarks>This is a direct execution method.</remarks>
     public Result AddOrReplaceOne(object id, object doc)
     {
-      if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8,0,3))
+      if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3))
         throw new MySqlException(string.Format(ResourcesX.FunctionalityNotSupported, "8.0.3"));
       if (id == null)
         throw new ArgumentNullException(nameof(id));
@@ -203,7 +199,7 @@ namespace MySqlX.XDevAPI
       stmt.upsert = true;
       return stmt.Execute();
     }
-#endregion
+    #endregion
 
     /// <summary>
     /// Returns the number of documents in this collection on the server.

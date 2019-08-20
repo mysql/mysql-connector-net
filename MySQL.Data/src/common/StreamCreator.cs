@@ -31,15 +31,10 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using MySql.Data.Common;
 using MySql.Data.MySqlClient;
-using System.IO.Pipes;
 using System.Net;
 using System.Linq;
-#if !NETSTANDARD1_6
 using MySql.Data.MySqlClient.Common;
-using System.IO.MemoryMappedFiles;
-#endif
 
 namespace MySql.Data.Common
 {
@@ -159,25 +154,15 @@ namespace MySql.Data.Common
 
     private static Stream GetSharedMemoryStream(MySqlConnectionStringBuilder settings)
     {
-#if NETSTANDARD1_6
-      throw new NotSupportedException("Shared memory streams not currently supported.");
-#else
       SharedMemoryStream str = new SharedMemoryStream(settings.SharedMemoryName);
       str.Open(settings.ConnectionTimeout);
       return str;
-#endif
     }
 
     private static Stream GetNamedPipeStream(MySqlConnectionStringBuilder settings)
     {
-#if NETSTANDARD1_6
-      NamedPipeClientStream pipeStream = new NamedPipeClientStream(settings.Server, settings.PipeName, PipeDirection.InOut);
-      pipeStream.Connect((int)settings.ConnectionTimeout * 1000);
-      return pipeStream;
-#else
       Stream stream = NamedPipeStream.Create(settings.PipeName, settings.Server, settings.ConnectionTimeout);
       return stream;
-#endif
     }
 
     /// <summary>

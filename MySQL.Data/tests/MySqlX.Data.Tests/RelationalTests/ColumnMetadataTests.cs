@@ -72,8 +72,8 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(255u, r.Columns[1].Length);
       Assert.Equal(0u, r.Columns[1].FractionalDigits);
       Assert.Equal(false, r.Columns[1].IsNumberSigned);
-      Assert.Equal("latin1", r.Columns[1].CharacterSetName);
-      Assert.Equal("latin1_swedish_ci", r.Columns[1].CollationName);
+      Assert.Equal("utf8mb4", r.Columns[1].CharacterSetName);
+      Assert.Equal("utf8mb4_general_ci", r.Columns[1].CollationName);
       Assert.Equal(false, r.Columns[1].IsPadded);
 
       Assert.Equal(schemaName, r.Columns[2].SchemaName);
@@ -85,8 +85,8 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(20u, r.Columns[2].Length);
       Assert.Equal(0u, r.Columns[2].FractionalDigits);
       Assert.Equal(false, r.Columns[2].IsNumberSigned);
-      Assert.Equal("greek", r.Columns[2].CharacterSetName);
-      Assert.Equal("greek_general_ci", r.Columns[2].CollationName);
+      Assert.Equal("utf8mb4", r.Columns[2].CharacterSetName);
+      Assert.Equal("utf8mb4_general_ci", r.Columns[2].CollationName);
       Assert.Equal(false, r.Columns[2].IsPadded);
       //Assert.Equal("Δ", rows[0][2]);
     }

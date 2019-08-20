@@ -27,8 +27,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Text;
 using System.Data;
+using System.Text;
 using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -68,7 +68,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #14592 Wrong column length returned for VARCHAR UTF8 columns 
     /// </summary>
@@ -88,7 +87,6 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(20, dt.Rows[1]["ColumnSize"]);
       }
     }
-#endif
 
     /// <summary>
     /// Bug #31117  	Connector/NET exceptions do not support server charset
@@ -104,7 +102,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal("Unknown column 'Numéro' in 'field list'", exception.Message);
     }
 
-#if !NETCOREAPP1_1
     /// <summary>
     /// Tests for bug http://bugs.mysql.com/bug.php?id=62094
     /// (char field mapped to System.String of MaxLength=3*len(char) in .NET/Connector).
@@ -123,9 +120,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, ds.Tables[0].Columns["name"].MaxLength);
       Assert.Equal(20, ds.Tables[0].Columns["longname"].MaxLength);
     }
-#endif
-
-#if !NETCOREAPP1_1
 
     [Fact]
     public void BlobAsUtf8()
@@ -234,8 +228,6 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-
-#endif
 
     [Fact]
     public void Unicode()
