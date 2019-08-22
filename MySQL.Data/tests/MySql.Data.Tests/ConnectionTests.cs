@@ -752,6 +752,55 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    [Fact]
+    [Trait("Category", "Security")]
+    public void ExpiredPwdWithOldPassword()
+    {
+      var _expiredUser = _EXPIRED_USER;
+      var _expiredPwd = "expiredPwd";
+      var _newPwd = "newPwd";
+      var _host = Fixture.Settings.Server;
+      string server = Fixture.Settings.Server;
+      uint port = Fixture.Settings.Port;
+
+      string expiredFull = $"'{_expiredUser}'@'{_host}'";
+      using (MySqlConnection conn = new
+MySqlConnection(Root.ConnectionString))
+      {
+        conn.Open();
+        MySqlCommand cmd = conn.CreateCommand();
+        MySqlHelper.ExecuteNonQuery(conn, $"DROP USER IF EXISTS { expiredFull}");
+        MySqlHelper.ExecuteNonQuery(conn, $"CREATE USER { expiredFull} IDENTIFIED BY '{_expiredPwd}'");
+        MySqlHelper.ExecuteNonQuery(conn, $"GRANT ALL ON *.* TO { expiredFull} ");
+        MySqlHelper.ExecuteNonQuery(conn, $"ALTER USER { expiredFull} PASSWORD EXPIRE");
+      }
+      var sb = new MySqlConnectionStringBuilder();
+      sb.Server = server;
+      sb.Port = port;
+      sb.UserID = _expiredUser;
+      sb.Password = _expiredPwd;
+      using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
+      {
+        conn.Open();
+        MySqlCommand cmd = new MySqlCommand($"ALTER USER '{_expiredUser} '@'{_host}' IDENTIFIED  BY '{_newPwd}'", conn);
+        cmd.ExecuteNonQuery();
+      }
+
+      sb.Password = _newPwd;
+      using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
+      {
+        conn.Open();
+        MySqlCommand cmd = new MySqlCommand("SELECT 8", conn);
+        Assert.StartsWith("8", cmd.ExecuteScalar().ToString());
+      }
+
+      sb.Password = _expiredPwd;
+      using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
+      {
+        Assert.ThrowsAny<MySqlException>(() => { conn.Open(); });
+      }
+    }
+
 
 #if NET452
     /// <summary>

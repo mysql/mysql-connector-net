@@ -390,9 +390,9 @@ namespace MySql.Data.MySqlClient
       }
 
 #endif
+      MySqlConnectionStringBuilder currentSettings = Settings;
       try
       {
-        MySqlConnectionStringBuilder currentSettings = Settings;
         if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
         {
           _sshClient = MySqlSshClientManager.SetupSshClient(
@@ -444,6 +444,11 @@ namespace MySql.Data.MySqlClient
 
       SetState(ConnectionState.Open, false);
       driver.Configure(this);
+
+      if(driver.IsPasswordExpired && Settings.Pooling)
+      {
+        MySqlPoolManager.ClearPool(currentSettings);
+      }
 
       if (!(driver.SupportsPasswordExpiration && driver.IsPasswordExpired))
       {
