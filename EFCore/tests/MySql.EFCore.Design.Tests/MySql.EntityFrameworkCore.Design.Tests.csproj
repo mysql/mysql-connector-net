@@ -56,6 +56,10 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' or '$(TargetFramework)' == 'netcoreapp1.1' ">
     <Compile Remove="Frameworks/efcore21/**/*" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="1.1.6" />
