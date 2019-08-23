@@ -582,7 +582,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       string expiredfull = string.Format("'{0}'@'{1}'", _EXPIRED_USER, _EXPIRED_HOST);
 
-      using (MySqlConnection conn = Fixture.GetConnection(true))
+      using (MySqlConnection conn = new MySqlConnection(Fixture.Settings.ToString()))
       {
         MySqlCommand cmd = new MySqlCommand("", conn);
 
@@ -756,37 +756,29 @@ namespace MySql.Data.MySqlClient.Tests
     [Trait("Category", "Security")]
     public void ExpiredPwdWithOldPassword()
     {
-      var _expiredUser = _EXPIRED_USER;
-      var _expiredPwd = "expiredPwd";
-      var _newPwd = "newPwd";
-      var _host = Fixture.Settings.Server;
-      string server = Fixture.Settings.Server;
+      if ((Fixture.Version < new Version(5, 6, 6)) || (Fixture.Version >= new Version(8, 0, 17))) return;
+
+      string expiredUser = _EXPIRED_USER;
+      string expiredPwd = _EXPIRED_USER + 1;
+      string newPwd = "newPwd";
+      string host = Fixture.Settings.Server;
       uint port = Fixture.Settings.Port;
 
-      string expiredFull = $"'{_expiredUser}'@'{_host}'";
-      using (MySqlConnection conn = new
-MySqlConnection(Root.ConnectionString))
-      {
-        conn.Open();
-        MySqlCommand cmd = conn.CreateCommand();
-        MySqlHelper.ExecuteNonQuery(conn, $"DROP USER IF EXISTS { expiredFull}");
-        MySqlHelper.ExecuteNonQuery(conn, $"CREATE USER { expiredFull} IDENTIFIED BY '{_expiredPwd}'");
-        MySqlHelper.ExecuteNonQuery(conn, $"GRANT ALL ON *.* TO { expiredFull} ");
-        MySqlHelper.ExecuteNonQuery(conn, $"ALTER USER { expiredFull} PASSWORD EXPIRE");
-      }
+      SetupExpiredPasswordUser();
+
       var sb = new MySqlConnectionStringBuilder();
-      sb.Server = server;
+      sb.Server = host;
       sb.Port = port;
-      sb.UserID = _expiredUser;
-      sb.Password = _expiredPwd;
+      sb.UserID = expiredUser;
+      sb.Password = expiredPwd;
       using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
       {
         conn.Open();
-        MySqlCommand cmd = new MySqlCommand($"ALTER USER '{_expiredUser} '@'{_host}' IDENTIFIED  BY '{_newPwd}'", conn);
+        MySqlCommand cmd = new MySqlCommand($"ALTER USER '{expiredUser} '@'{host}' IDENTIFIED  BY '{newPwd}'", conn);
         cmd.ExecuteNonQuery();
       }
 
-      sb.Password = _newPwd;
+      sb.Password = newPwd;
       using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
       {
         conn.Open();
@@ -794,7 +786,7 @@ MySqlConnection(Root.ConnectionString))
         Assert.StartsWith("8", cmd.ExecuteScalar().ToString());
       }
 
-      sb.Password = _expiredPwd;
+      sb.Password = expiredPwd;
       using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
       {
         Assert.ThrowsAny<MySqlException>(() => { conn.Open(); });
