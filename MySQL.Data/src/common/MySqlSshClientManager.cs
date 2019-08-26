@@ -32,17 +32,50 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MySql.Data.common
+namespace MySql.Data.Common
 {
+  /// <summary>
+  /// Static class to manage SSH connections created with SSH .NET.
+  /// </summary>
   internal static class MySqlSshClientManager
   {
+    #region Properties
+
+    /// <summary>
+    /// Gets or sets the SSH client initialized when calling the <seealso cref="SetupSshClient"/> method.
+    /// </summary>
+    public static SshClient CurrentSshClient { get; private set; }
+
+    #endregion
+
+    #region Fields
+
+    /// <summary>
+    /// Stores a list of SSH clients having different connection settings.
+    /// </summary>
     private static List<SshClient> _sshClientList;
+
+    #endregion
 
     static MySqlSshClientManager()
     {
+      CurrentSshClient = null;
       _sshClientList = new List<SshClient>();
     }
 
+    /// <summary>
+    /// Initializes an <see cref="SshClient"/> instance if no SSH client with similar connection options has already been initialized.
+    /// </summary>
+    /// <param name="sshHostName">The SSH host name.</param>
+    /// <param name="sshUserName">The SSH user name.</param>
+    /// <param name="sshPassword">The SSH password.</param>
+    /// <param name="sshKeyFile">The SSH key file.</param>
+    /// <param name="sshPassphrase">The SSH pass phrase.</param>
+    /// <param name="sshPort">The SSH port.</param>
+    /// <param name="server">The local host name.</param>
+    /// <param name="port">The local port number.</param>
+    /// <param name="isXProtocol">Flag to indicate if the connection will be created for the classic or X Protocol.</param>
+    /// <returns></returns>
     internal static SshClient SetupSshClient(
       string sshHostName,
       string sshUserName,
@@ -116,6 +149,7 @@ namespace MySql.Data.common
       sshClient.AddForwardedPort(forwardedPort);
       forwardedPort.Start();
       _sshClientList.Add(sshClient);
+      CurrentSshClient = sshClient;
 
       return sshClient;
     }

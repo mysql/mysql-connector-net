@@ -46,8 +46,6 @@ using System.Text;
 using System.Diagnostics;
 using System.Collections;
 using System.Threading;
-using Renci.SshNet;
-using MySql.Data.common;
 
 namespace MySqlX.Sessions
 {
@@ -66,7 +64,11 @@ namespace MySqlX.Sessions
     private int _stmtId = 0;
     private List<int> _preparedStatements = new List<int>();
     internal bool? sessionResetNoReauthentication = null;
-    private SshClient _sshClient;
+
+    /// <summary>
+    /// The used client to handle SSH connections.
+    /// </summary>
+    private Ssh _sshHandler;
 
     public XInternalSession(MySqlXConnectionStringBuilder settings) : base(settings)
     {
@@ -76,16 +78,17 @@ namespace MySqlX.Sessions
     {
       if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
       {
-        _sshClient = MySqlSshClientManager.SetupSshClient(
-                    Settings.SshHostName,
-                    Settings.SshUserName,
-                    Settings.SshPassword,
-                    Settings.SshKeyFile,
-                    Settings.SshPassphrase,
-                    Settings.SshPort,
-                    Settings.Server,
-                    Settings.Port,
-                    true);
+        _sshHandler = new Ssh(
+          Settings.SshHostName,
+          Settings.SshUserName,
+          Settings.SshPassword,
+          Settings.SshKeyFile,
+          Settings.SshPassphrase,
+          Settings.SshPort,
+          Settings.Server,
+          Settings.Port,
+          true);
+        _sshHandler.StartClient();
       }
 
       bool isUnix = Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix ||
@@ -117,9 +120,9 @@ namespace MySqlX.Sessions
       }
       catch (Exception)
       {
-        if (_sshClient != null && _sshClient.IsConnected)
+        if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
         {
-          _sshClient.Disconnect();
+          _sshHandler?.StopClient();
         }
 
         throw;
@@ -383,10 +386,9 @@ namespace MySqlX.Sessions
       }
       finally
       {
-        if (_sshClient != null && _sshClient.IsConnected)
+        if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
         {
-          _sshClient.ForwardedPorts.First().Stop();
-          _sshClient.Disconnect();
+          _sshHandler?.StopClient();
         }
 
         SessionState = SessionState.Closed;
