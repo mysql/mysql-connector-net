@@ -1,6 +1,7 @@
 8.0.18
 - Added support for IPv6.
 - Fixed an error involving a rename-table operation in Entity Framework Core migrations (MySQL Bug #90958, Oracle Bug #28107555).
+- Fix to retrieve the correct value from a Year type column when using prepared commands (MySql Bug #91751, Oracle Bug #28383721).
 
 
 8.0.17
