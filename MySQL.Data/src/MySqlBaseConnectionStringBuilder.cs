@@ -63,7 +63,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
         (BaseSetterDelegate)((msb, sender, value) =>
        {
-#if NETSTANDARD1_6 || NETSTANDARD2_0
+#if !NET452
          MySqlConnectionProtocol enumValue;
          if (Enum.TryParse<MySqlConnectionProtocol>(value.ToString(), true, out enumValue))
          {

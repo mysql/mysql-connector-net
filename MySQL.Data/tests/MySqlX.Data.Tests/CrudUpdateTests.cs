@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.//
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
 // published by the Free Software Foundation.
@@ -167,7 +167,12 @@ namespace MySqlX.Data.Tests
       Assert.Equal<ulong>(2, result.AffectedItemsCount);
 
       // Condition can't be null or empty.
-      string errorMessage = "Parameter can't be null or empty.\r\nParameter name: condition";
+      string errorMessage = string.Empty;
+#if NETCOREAPP3_0
+      errorMessage = "Parameter can't be null or empty. (Parameter 'condition')";
+#else
+      errorMessage = "Parameter can't be null or empty.\r\nParameter name: condition";
+#endif
       Exception ex = Assert.Throws<ArgumentNullException>(() => ExecuteModifyStatement(collection.Modify(string.Empty)));
       Assert.Equal(ex.Message,errorMessage);
       ex = Assert.Throws<ArgumentNullException>(() => ExecuteModifyStatement(collection.Modify("")));

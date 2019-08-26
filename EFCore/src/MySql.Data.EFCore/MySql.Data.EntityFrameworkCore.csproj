@@ -50,7 +50,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="1.1.6" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net461' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'netstandard2.1'">
     <Compile Remove="Frameworks/efcore10/**/*" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.2" />
   </ItemGroup>

@@ -8,7 +8,7 @@
     <Version>8.0.18</Version>
     <Authors>Oracle</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
-    <TargetFrameworks>net452;netstandard1.6;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net452;netstandard1.6;netstandard2.0;netstandard2.1</TargetFrameworks>
     <PackageId>MySql.Data</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
@@ -106,7 +106,7 @@
     <PackageReference Include="BouncyCastle.NetCore" Version="1.8.3" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='netstandard2.1'">
     <Compile Remove="Framework/netstandard1_6/*;Framework/net452/*" />
     <PackageReference Include="System.Configuration.ConfigurationManager">
       <Version>4.4.1</Version>

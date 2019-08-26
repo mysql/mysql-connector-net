@@ -425,11 +425,11 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(3, ExecuteSelectStatement(table.Select()).FetchAll().Count);
 
       Assert.Equal(2, ExecuteSelectStatement(table.Select().Where("name IN (\"jonh doe\", \"milton green\")")).FetchAll().Count);
-      Assert.Equal(1, ExecuteSelectStatement(table.Select().Where("name NOT IN (\"jonh doe\", \"milton green\")")).FetchAll().Count);
-      Assert.Equal(0, ExecuteSelectStatement(table.Select().Where("name IN (\"\", \"\")")).FetchAll().Count);
-      Assert.Equal(0, ExecuteSelectStatement(table.Select().Where("\"\" IN (1,2,3)")).FetchAll().Count);
-      Assert.Equal(0, ExecuteSelectStatement(table.Select().Where("name IN ('', '')")).FetchAll().Count);
-      Assert.Equal(0, ExecuteSelectStatement(table.Select().Where("'' IN (1,2,3)")).FetchAll().Count);
+      Assert.Single(ExecuteSelectStatement(table.Select().Where("name NOT IN (\"jonh doe\", \"milton green\")")).FetchAll());
+      Assert.Empty(ExecuteSelectStatement(table.Select().Where("name IN (\"\", \"\")")).FetchAll());
+      Assert.Empty(ExecuteSelectStatement(table.Select().Where("\"\" IN (1,2,3)")).FetchAll());
+      Assert.Empty(ExecuteSelectStatement(table.Select().Where("name IN ('', '')")).FetchAll());
+      Assert.Empty(ExecuteSelectStatement(table.Select().Where("'' IN (1,2,3)")).FetchAll());
       Assert.Equal(3, ExecuteSelectStatement(table.Select().Where("'' IN ('')")).FetchAll().Count);
 
       Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select().Where("name NOT IN [\"jonh doe\", \"milton green\"]")).FetchAll().Count);

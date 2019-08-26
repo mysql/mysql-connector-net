@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -202,7 +202,7 @@ namespace MySql.Data.MySqlClient.Tests
           // (foo_user is mapped to current  OS user)
           command.CommandText = "select current_user()";
           string currentUser = (string)command.ExecuteScalar();
-            Assert.True(currentUser.StartsWith(UserName));
+            Assert.StartsWith(UserName, currentUser);
         }
       }
 
@@ -329,7 +329,7 @@ namespace MySql.Data.MySqlClient.Tests
             // (foo_user is mapped to current  OS user)
             command.CommandText = "select current_user()";
             string currentUser = (string)command.ExecuteScalar();
-          Assert.True(currentUser.StartsWith("foo_user@"));
+          Assert.StartsWith("foo_user@", currentUser);
           }
         }
 
@@ -618,7 +618,7 @@ namespace MySql.Data.MySqlClient.Tests
       // Authentication failure - TLS connection.
       builder.Password = "incorrectPassword";
       Exception ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
-      Assert.True(ex.InnerException.Message.StartsWith("Access denied for user"));
+      Assert.StartsWith("Access denied for user", ex.InnerException.Message);
 
       // Authentication success with empty password – Any connection.
       builder.UserID = "testCachingSha2NoPassword";
@@ -649,12 +649,12 @@ namespace MySql.Data.MySqlClient.Tests
       builder.UserID = "testCachingSha2";
       builder.SslMode = MySqlSslMode.Required;
       ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
-      Assert.True(ex.InnerException.Message.StartsWith("Access denied for user"));
+      Assert.StartsWith("Access denied for user", ex.InnerException.Message);
 
       // TLS not enabled.
       builder.SslMode = MySqlSslMode.None;
       ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
-      Assert.True(ex.InnerException.Message.StartsWith("Access denied for user"));
+      Assert.StartsWith("Access denied for user", ex.InnerException.Message);
 
       // Authentication using RSA keys. Only available in servers compiled with OpenSSL (E.g. Commercial).
       bool serverCompiledUsingOpenSsl = false;
@@ -710,7 +710,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         builder.Password = "incorrectPassword";
         ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
-        Assert.True(ex.InnerException.Message.StartsWith("Access denied for user"));
+        Assert.StartsWith("Access denied for user", ex.InnerException.Message);
       }
     }
 
