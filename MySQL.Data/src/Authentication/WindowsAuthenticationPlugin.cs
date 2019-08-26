@@ -1,4 +1,4 @@
-// Copyright © 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,17 +30,13 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
-using MySql.Data.MySqlClient;
-
 
 namespace MySql.Data.MySqlClient.Authentication
 {
   /// <summary>
   /// 
   /// </summary>
-#if !NETSTANDARD1_6
   [SuppressUnmanagedCodeSecurity()]
-#endif
   internal class MySqlWindowsAuthenticationPlugin : MySqlAuthenticationPlugin
   {
     SECURITY_HANDLE outboundCredentials = new SECURITY_HANDLE(0);
@@ -53,7 +49,6 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       string platform = String.Empty;
       
-#if !NETSTANDARD1_6
       int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128))
         platform = "Unix";
@@ -62,7 +57,7 @@ namespace MySql.Data.MySqlClient.Authentication
 
       if (!String.IsNullOrEmpty(platform))
         throw new MySqlException(String.Format(Resources.WinAuthNotSupportOnPlatform, platform));
-#endif
+
       base.CheckConstraints();
     }
 

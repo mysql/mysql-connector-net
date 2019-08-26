@@ -59,11 +59,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("logging", null, typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETSTANDARD1_6
-          throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(Logging)));
-#else
           msb.SetValue("logging", value);
-#endif
         },
         (msb, sender) => msb.Logging));
       Options.Add(new MySqlConnectionStringOption("sharedmemoryname", "shared memory name", typeof(string), "MYSQL", false,
@@ -124,12 +120,10 @@ namespace MySql.Data.MySqlClient
         (msb, sender, value) => { msb.SetValue("allowpublickeyretrieval", value); }, (msb, sender) => msb.AllowPublicKeyRetrieval));
 
       // Other properties.
-#if !NETSTANDARD1_6
       Options.Add(new MySqlConnectionStringOption("autoenlist", "auto enlist", typeof(bool), true, false,
         (msb, sender, value) => { msb.SetValue("autoenlist", value); }, (msb, sender) => msb.AutoEnlist));
       Options.Add(new MySqlConnectionStringOption("includesecurityasserts", "include security asserts", typeof(bool), false, false,
         (msb, sender, value) => { msb.SetValue("includesecurityasserts", value); }, (msb, sender) => msb.IncludeSecurityAsserts));
-#endif
       Options.Add(new MySqlConnectionStringOption("allowzerodatetime", "allow zero datetime", typeof(bool), false, false,
         (msb, sender, value) => { msb.SetValue("allowzerodatetime", value); }, (msb, sender) => msb.AllowZeroDateTime));
       Options.Add(new MySqlConnectionStringOption("convertzerodatetime", "convert zero datetime", typeof(bool), false, false,
@@ -137,11 +131,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("useusageadvisor", "use usage advisor,usage advisor", typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETSTANDARD1_6
-          throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(UseUsageAdvisor)));
-#else
           msb.SetValue("useusageadvisor", value);
-#endif
         },
         (msb, sender) => msb.UseUsageAdvisor));
       Options.Add(new MySqlConnectionStringOption("procedurecachesize", "procedure cache size,procedure cache,procedurecache", typeof(uint), (uint)25, false,
@@ -167,11 +157,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("interactivesession", "interactive session,interactive", typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETSTANDARD1_6
-          throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(InteractiveSession)));
-#else
           msb.SetValue("interactivesession", value);
-#endif
         },
         (msb, sender) => msb.InteractiveSession));
       Options.Add(new MySqlConnectionStringOption("functionsreturnstring", "functions return string", typeof(bool), false, false,
@@ -191,11 +177,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("replication", null, typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if NETSTANDARD1_6
-          throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(Replication)));
-#else
           msb.SetValue("replication", value);
-#endif
         },
         (msb, sender) => msb.Replication));
       Options.Add(new MySqlConnectionStringOption("exceptioninterceptors", "exception interceptors", typeof(string), null, false,

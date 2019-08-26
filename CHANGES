@@ -4,6 +4,8 @@
 - Fix to retrieve the correct value from a Year type column when using prepared commands (MySql Bug #91751, Oracle Bug #28383721).
 - Removed hard dependency with Renci.SshNet.dll (MySQL Bug96614, Oracle Bug #30215984).
 - Added support for .NET Core 3.0 (WL13114)
+- Implemented end-of-support for all .NET Core 1.x versions (WL13387).
+
 
 8.0.17
 - Fixed wrong order of records for columns when using MySqlConnection.GetSchema (MySql Bug #94773, Oracle Bug #29536344).

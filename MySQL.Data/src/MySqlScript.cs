@@ -1,4 +1,4 @@
-// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -208,7 +208,7 @@ namespace MySql.Data.MySqlClient
     {
       if (StatementExecuted == null) return;
 
-      MySqlScriptEventArgs args = new MySqlScriptEventArgs {Statement = statement};
+      MySqlScriptEventArgs args = new MySqlScriptEventArgs { Statement = statement };
       StatementExecuted(this, args);
     }
 
@@ -266,11 +266,7 @@ namespace MySql.Data.MySqlClient
       {
         if (!tokenizer.Quoted)
         {
-#if !NETSTANDARD1_6
           if (token.ToLower(CultureInfo.InvariantCulture) == "delimiter")
-#else
-          if (token.ToLowerInvariant() == "delimiter")
-#endif
           {
             tokenizer.NextToken();
             AdjustDelimiterEnd(tokenizer);
@@ -346,42 +342,6 @@ namespace MySql.Data.MySqlClient
     }
 
     #region Async
-#if NETSTANDARD1_6
-    /// <summary>
-    /// Initiates the asynchronous execution of SQL statements.
-    /// </summary>
-    /// <returns>The number of statements executed as part of the script inside.</returns>
-    public async Task<int> ExecuteAsync()
-    {
-      return await ExecuteAsync(CancellationToken.None);
-    }
-
-    /// <summary>
-    /// Initiates the asynchronous execution of SQL statements.
-    /// </summary>
-    /// <returns>The number of statements executed as part of the script inside.</returns>
-    public async Task<int> ExecuteAsync(CancellationToken cancellationToken)
-    {
-      var result = new TaskCompletionSource<int>();
-      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
-      {
-        try
-        {
-          var executeResult = Execute();
-          result.SetResult(executeResult);
-        }
-        catch (Exception ex)
-        {
-          result.SetException(ex);
-        }
-      }
-      else
-      {
-        result.SetCanceled();
-      }
-      return await result.Task;
-    }
-#else
     /// <summary>
     /// Initiates the asynchronous execution of SQL statements.
     /// </summary>
@@ -417,9 +377,7 @@ namespace MySql.Data.MySqlClient
       }
       return result.Task;
     }
-#endif
-
-#endregion
+    #endregion
   }
 
   /// <summary>

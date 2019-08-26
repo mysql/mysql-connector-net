@@ -235,13 +235,6 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("?Table1Id", MySqlDbType.Int32);
       cmd.Parameters["?Table1Id"].Direction = ParameterDirection.Output;
 
-#if NETCOREAPP1_1
-      using (MySqlDataReader dr = cmd.ExecuteReader())
-      {
-        dr.Read();
-        Assert.False(dr.HasRows);
-      }
-#else
       DataSet ds = new DataSet();
       if (prepare) cmd.Prepare();
       MySqlDataAdapter da = new MySqlDataAdapter(cmd);
@@ -253,7 +246,6 @@ namespace MySql.Data.MySqlClient.Tests
       {
         // on 5.1 this throws an exception that no rows were returned.
       }
-#endif
     }
 
     [Fact]
@@ -290,7 +282,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(ex.Message, "Attempt to call stored function '`" + (Connection.Database) + "`.`fnTest`' without specifying a return parameter");
     }
 
-#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #27668 FillSchema and Stored Proc with an out parameter
     /// </summary>
@@ -313,7 +304,6 @@ namespace MySql.Data.MySqlClient.Tests
       da.Fill(dt);
       da.FillSchema(dt, SchemaType.Mapped);
     }
-#endif
 
     [Fact]
     public void BinaryAndVarBinaryParameters()
@@ -481,7 +471,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         Assert.Equal(6, cmd.Parameters[1].Value);
         Assert.Equal(6, cmd.Parameters[2].Value);
-  }
+      }
       catch (InvalidOperationException iex)
       {
         Assert.StartsWith("Unable to retrieve", iex.Message, StringComparison.Ordinal);

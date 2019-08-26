@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,7 +29,6 @@
 using System;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using MySql.Data.Common;
 using System.Net;
 
@@ -81,20 +80,10 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-#if NETSTANDARD1_6
-    public void Close()
-    {
-      base.Dispose();
-#else
     public override void Close()
     {
       base.Close();
-#endif
-#if NETSTANDARD1_6
-      baseStream.Dispose();
-#else
       baseStream.Close();
-#endif
       cache.Dispose();
     }
 
@@ -158,7 +147,7 @@ namespace MySql.Data.MySqlClient
       int countRead;
 
       if (compInStream != null)
-        countRead  = compInStream.Read(buffer, offset, countToRead);
+        countRead = compInStream.Read(buffer, offset, countToRead);
       else
         countRead = baseStream.Read(buffer, offset, countToRead);
 
@@ -195,7 +184,7 @@ namespace MySql.Data.MySqlClient
       else
       {
         ReadNextPacket(compressedLength);
-        MemoryStream ms = new MemoryStream(inBuffer, 2, compressedLength-2);
+        MemoryStream ms = new MemoryStream(inBuffer, 2, compressedLength - 2);
         compInStream = new DeflateStream(ms, CompressionMode.Decompress);
       }
 
@@ -218,18 +207,7 @@ namespace MySql.Data.MySqlClient
       if (cache.Length < 50)
         return null;
 
-#if NETSTANDARD1_6
-      byte[] cacheBytes;
-      ArraySegment<byte> cacheBuffer;
-      var cacheResult = cache.TryGetBuffer(out cacheBuffer);
-
-      if (cacheResult)
-        cacheBytes = cacheBuffer.ToArray();
-      else       // if the conversion fail, then just return null
-        return null;
-#else
       byte[] cacheBytes = cache.GetBuffer();
-#endif
 
       MemoryStream compressedBuffer = new MemoryStream();
 
@@ -265,18 +243,7 @@ namespace MySql.Data.MySqlClient
       long compressedLength, uncompressedLength;
 
       // we need to save the sequence byte that is written
-#if NETSTANDARD1_6
-      byte[] cacheBuffer;
-      ArraySegment<byte> cacheContentArraySegment;
-      var cacheResult = cache.TryGetBuffer(out cacheContentArraySegment);
-
-      if (cacheResult)
-        cacheBuffer = cacheContentArraySegment.ToArray();
-      else
-        throw new InvalidDataException();
-#else
       byte[] cacheBuffer = cache.GetBuffer();
-#endif
 
       byte seq = cacheBuffer[3];
       cacheBuffer[3] = 0;
@@ -305,20 +272,7 @@ namespace MySql.Data.MySqlClient
       long dataLength = memStream.Length;
       int bytesToWrite = (int)dataLength + 7;
       memStream.SetLength(bytesToWrite);
-
-#if NETSTANDARD1_6
-      byte[] buffer;
-      ArraySegment<byte> contentArraySegment;
-      var result = memStream.TryGetBuffer(out contentArraySegment);
-
-      if (result)
-        buffer = contentArraySegment.ToArray();
-      else
-        throw new InvalidDataException();
-
-#else
       byte[] buffer = memStream.GetBuffer();
-#endif
       Array.Copy(buffer, 0, buffer, 7, (int)dataLength);
 
       // Write length prefix
@@ -349,18 +303,7 @@ namespace MySql.Data.MySqlClient
       // if we have not done so yet, see if we can calculate how many bytes we are expecting
       if (baseStream is TimedStream && ((TimedStream)baseStream).IsClosed) return false;
       if (cache.Length < 4) return false;
-#if NETSTANDARD1_6
-      byte[] buf;
-      ArraySegment<byte> contentArraySegment;
-      var result = cache.TryGetBuffer(out contentArraySegment);
-
-      if (result)
-        buf = contentArraySegment.ToArray();
-      else
-        throw new InvalidDataException();
-#else
       byte[] buf = cache.GetBuffer();
-#endif
       int expectedLen = buf[0] + (buf[1] << 8) + (buf[2] << 16);
       if (cache.Length < (expectedLen + 4)) return false;
       return true;

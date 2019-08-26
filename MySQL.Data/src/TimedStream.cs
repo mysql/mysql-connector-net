@@ -1,4 +1,4 @@
-// Copyright © 2009, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,9 +26,9 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using System;
 using System.IO;
-using MySql.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
@@ -244,18 +244,12 @@ namespace MySql.Data.MySqlClient
       set { _baseStream.WriteTimeout = value; }
     }
 
-#if NETSTANDARD1_6
-    public void Close()
-#else
     public override void Close()
-#endif
     {
       if (IsClosed)
         return;
       IsClosed = true;
-#if !NETSTANDARD1_6
       _baseStream.Close();
-#endif
       _baseStream.Dispose();
     }
 

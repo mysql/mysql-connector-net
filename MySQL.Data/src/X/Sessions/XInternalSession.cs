@@ -378,7 +378,7 @@ namespace MySqlX.Sessions
             _preparedStatements.Remove(stmtId);
           }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
           //TODO log exception
         }
@@ -522,17 +522,9 @@ namespace MySqlX.Sessions
             parameters.Add(true);
             break;
         }
-#if NETSTANDARD1_6
-        T t = (T)Activator.CreateInstance(typeof(T), true);
-        ((DatabaseObject)t).Schema = s;
-        ((DatabaseObject)t).Name = parameters[1].ToString();
-        if (parameters.Count == 3)
-          t.GetType().GetProperty("IsView").SetValue(t, parameters[2]);
-#else
         T t = (T)Activator.CreateInstance(typeof(T),
           BindingFlags.NonPublic | BindingFlags.Instance,
           null, parameters.ToArray(), null);
-#endif
         docs.Add(t);
       }
       return docs;

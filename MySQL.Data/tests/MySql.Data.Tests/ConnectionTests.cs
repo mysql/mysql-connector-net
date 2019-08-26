@@ -20,12 +20,10 @@
 // with this program; if not, write to the Free Software Foundation, Inc., 
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.MySqlClient.Authentication;
 using System;
 using System.Data;
 using System.Threading.Tasks;
 using Xunit;
-
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -463,7 +461,6 @@ namespace MySql.Data.MySqlClient.Tests
       c.Close();
     }
 
-#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #10281 Clone issue with MySqlConnection
     /// Bug #27269 MySqlConnection.Clone does not mimic SqlConnection.Clone behaviour
@@ -482,7 +479,6 @@ namespace MySql.Data.MySqlClient.Tests
       clone.Open();
       clone.Close();
     }
-#endif
 
     /// <summary>
     /// Bug #13321 Persist security info does not woek

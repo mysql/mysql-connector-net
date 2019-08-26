@@ -1,4 +1,4 @@
-// Copyright © 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -139,7 +139,6 @@ namespace MySql.Data.MySqlClient.Replication
       {
         bool isRunning = false;
         ReplicationServer server1 = e.Argument as ReplicationServer;
-#if !NETSTANDARD1_6
         System.Timers.Timer timer = new System.Timers.Timer(RetryTime * 1000.0);
 
         System.Timers.ElapsedEventHandler elapsedEvent = delegate(object sender1, System.Timers.ElapsedEventArgs e1)
@@ -168,36 +167,6 @@ namespace MySql.Data.MySqlClient.Replication
         timer.Elapsed += elapsedEvent;
         timer.Start();
         elapsedEvent(sender, null);
-#else
-              Windows.UI.Xaml.DispatcherTimer timer = new Windows.UI.Xaml.DispatcherTimer();
-              TimeSpan ts = new TimeSpan(RetryTime * 1000);
-              System.EventHandler<object> elapsedEvent = (TickSender, TickEventArgs) =>
-              {
-                  if (isRunning) return;
-                  try
-                  {
-                      isRunning = true;
-                      using (MySqlConnection connectionFailed = new MySqlConnection(server.ConnectionString))
-                      {
-                          connectionFailed.Open();
-                          server1.IsAvailable = true;
-                          timer.Stop();
-                      }
-                  }
-                  catch
-                  {
-                      MySqlTrace.LogWarning(0,
-                        string.Format(Properties.Resources.Replication_ConnectionAttemptFailed, server1.Name));
-                  }
-                  finally
-                  {
-                      isRunning = false;
-                  }
-              };
-              timer.Tick += elapsedEvent;
-              elapsedEvent(sender, null);
-              timer.Start();
-#endif
       };
 
       worker.RunWorkerAsync(server);

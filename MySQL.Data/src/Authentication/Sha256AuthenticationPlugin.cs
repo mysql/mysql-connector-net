@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,11 +29,6 @@
 using System;
 using System.Text;
 using System.Security.Cryptography;
-#if NETSTANDARD1_6
-using AliasText = MySql.Data.MySqlClient.Framework.NetStandard1_6;
-#else
-using AliasText = System.Text;
-#endif
 
 namespace MySql.Data.MySqlClient.Authentication
 {
@@ -103,17 +98,11 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       if (password.Length == 0) return new byte[1];
       // Obfuscate the plain text password with the session scramble
-      byte[] obfuscated = GetXor(AliasText.Encoding.Default.GetBytes(password), seedBytes);
+      byte[] obfuscated = GetXor(Encoding.Default.GetBytes(password), seedBytes);
       // Encrypt the password and send it to the server
-#if NETSTANDARD1_6
-      RSA rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
-      if (rsa == null) throw new MySqlException(Resources.UnableToReadRSAKey);
-      return rsa.Encrypt(obfuscated, RSAEncryptionPadding.OaepSHA1);
-#else
       RSACryptoServiceProvider rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
       if (rsa == null) throw new MySqlException(Resources.UnableToReadRSAKey);
       return rsa.Encrypt(obfuscated, true);
-#endif
     }
 
     /// <summary>

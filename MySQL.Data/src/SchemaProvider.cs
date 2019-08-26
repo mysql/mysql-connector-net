@@ -306,7 +306,7 @@ namespace MySql.Data.MySqlClient
           row["TABLE_NAME"] = index["TABLE"];
           row["UNIQUE"] = connection.driver.Version.isAtLeast(8, 0, 1) ?
             Convert.ToInt64(index["NON_UNIQUE"]) == 0 :
-            (long) index["NON_UNIQUE"] == 0;
+            (long)index["NON_UNIQUE"] == 0;
           row["PRIMARY"] = index["KEY_NAME"].Equals("PRIMARY");
           row["TYPE"] = index["INDEX_TYPE"];
           row["COMMENT"] = index["COMMENT"];
@@ -610,7 +610,7 @@ namespace MySql.Data.MySqlClient
 
       StringBuilder sql = null;
 
-      if (connection.driver.Version.isAtLeast(8,0,1))
+      if (connection.driver.Version.isAtLeast(8, 0, 1))
       {
         sql = new StringBuilder("SELECT * FROM information_schema.routines WHERE 1=1");
         if (restrictions != null)
@@ -737,7 +737,6 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
-#if !NETSTANDARD1_6
     private MySqlSchemaCollection GetDataSourceInformation()
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("DataSourceInformation");
@@ -786,7 +785,6 @@ namespace MySql.Data.MySqlClient
 
       return dt;
     }
-#endif
 
     private static MySqlSchemaCollection GetDataTypes()
     {
@@ -883,14 +881,9 @@ namespace MySql.Data.MySqlClient
     private static MySqlSchemaCollection GetReservedWords()
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("ReservedWords");
-#if !NETSTANDARD1_6
       dt.AddColumn(DbMetaDataColumnNames.ReservedWord, typeof(string));
       Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream(
         "MySql.Data.Properties.ReservedWords.txt");
-#else
-      dt.AddColumn("ReservedWord", typeof(string));
-      Stream str = typeof(SchemaProvider).GetTypeInfo().Assembly.GetManifestResourceStream("MySql.Data.Properties.ReservedWords.txt");
-#endif
 
       StreamReader sr = new StreamReader(str);
       string line = sr.ReadLine();
@@ -1012,10 +1005,8 @@ namespace MySql.Data.MySqlClient
         // common collections
         case "METADATACOLLECTIONS":
           return GetCollections();
-#if !NETSTANDARD1_6
         case "DATASOURCEINFORMATION":
           return GetDataSourceInformation();
-#endif
         case "DATATYPES":
           return GetDataTypes();
         case "RESTRICTIONS":

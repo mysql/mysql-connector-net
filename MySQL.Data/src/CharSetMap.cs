@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -56,7 +56,7 @@ namespace MySql.Data.MySqlClient
       if (charSetName == null)
         throw new ArgumentNullException("CharSetName is null");
       CharacterSet cs = null;
-      if(_mapping.ContainsKey(charSetName))
+      if (_mapping.ContainsKey(charSetName))
         cs = _mapping[charSetName];
 
       if (cs == null)
@@ -75,10 +75,6 @@ namespace MySql.Data.MySqlClient
       try
       {
         CharacterSet cs = GetCharacterSet(version, charSetName);
-
-#if NETSTANDARD1_6
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-#endif
 
         return Encoding.GetEncoding(cs.name);
       }
@@ -163,7 +159,7 @@ namespace MySql.Data.MySqlClient
       _mapping.Add("utf16", new CharacterSet("utf-16BE", 2));
       _mapping.Add("utf16le", new CharacterSet("utf-16", 2));
       _mapping.Add("utf32", new CharacterSet("utf-32BE", 4));
-      _mapping.Add("gb18030", new CharacterSet("gb18030", 4));             
+      _mapping.Add("gb18030", new CharacterSet("gb18030", 4));
     }
 
     internal static void InitCollections(MySqlConnection connection)

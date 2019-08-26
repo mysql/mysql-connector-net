@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,12 +28,7 @@
 
 using System;
 using System.Security.Cryptography;
-
-#if NETSTANDARD1_6
-using MySql.Data.MySqlClient.Framework.NetStandard1_6;
-#else
 using System.Text;
-#endif
 
 namespace MySql.Data.MySqlClient
 {

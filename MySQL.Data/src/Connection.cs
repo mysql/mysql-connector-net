@@ -33,14 +33,11 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using MySql.Data.Common;
-using System.Security;
 using IsolationLevel = System.Data.IsolationLevel;
 using MySql.Data.MySqlClient.Interceptors;
 using System.Linq;
-#if !NETSTANDARD1_6
 using System.Transactions;
 using MySql.Data.MySqlClient.Replication;
-#endif
 #if NET452
 using System.Drawing.Design;
 #endif
@@ -77,11 +74,6 @@ namespace MySql.Data.MySqlClient
       //TODO: add event data to StateChange docs
       Settings = new MySqlConnectionStringBuilder();
       _database = String.Empty;
-
-      //#if NETSTANDARD1_6
-      //TODO:  what is thi sabout
-      //ConnectionString = Startup.ConnectionString;
-      //#endif
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/Ctor1/*'/>
@@ -128,13 +120,8 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-#if !NETSTANDARD1_6
         return (State == ConnectionState.Closed) &&
                driver != null && driver.currentTransaction != null;
-#else
-        return (State == ConnectionState.Closed) &&
-               driver != null;
-#endif
       }
     }
 
@@ -174,7 +161,7 @@ namespace MySql.Data.MySqlClient
     [Browsable(false)]
     public override ConnectionState State => connectionState;
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/ServerVersion/*'/>#if !NETSTANDARD1_6
+    /// <include file='docs/MySqlConnection.xml' path='docs/ServerVersion/*'/>
     [Browsable(false)]
     public override string ServerVersion => driver.Version.ToString();
 
@@ -225,9 +212,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if !NETSTANDARD1_6
     protected override DbProviderFactory DbProviderFactory => MySqlClientFactory.Instance;
-#endif
     /// <summary>
     /// Gets a boolean value that indicates whether the password associated to the connection is expired.
     /// </summary>
@@ -375,7 +360,6 @@ namespace MySql.Data.MySqlClient
 
       SetState(ConnectionState.Connecting, true);
 
-#if !NETSTANDARD1_6
       AssertPermissions();
 
       //TODO: SUPPORT FOR 452 AND 46X
@@ -390,7 +374,6 @@ namespace MySql.Data.MySqlClient
           Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
       }
 
-#endif
       MySqlConnectionStringBuilder currentSettings = Settings;
       try
       {
@@ -412,7 +395,6 @@ namespace MySql.Data.MySqlClient
 
         //TODO: SUPPORT FOR 452 AND 46X
         // Load balancing
-#if !NETSTANDARD1_6
         if (ReplicationManager.IsReplicationGroup(Settings.Server))
         {
           if (driver == null)
@@ -422,7 +404,6 @@ namespace MySql.Data.MySqlClient
           else
             currentSettings = driver.Settings;
         }
-#endif
 
         if (Settings.Pooling)
         {
@@ -465,10 +446,8 @@ namespace MySql.Data.MySqlClient
 
       // if we are opening up inside a current transaction, then autoenlist
       // TODO: control this with a connection string option
-#if !NETSTANDARD1_6
       if (Transaction.Current != null && Settings.AutoEnlist)
         EnlistTransaction(Transaction.Current);
-#endif
 
       hasBeenOpen = true;
       SetState(ConnectionState.Open, true);
@@ -504,7 +483,6 @@ namespace MySql.Data.MySqlClient
     {
       if (Settings.Pooling && driver.IsOpen)
       {
-#if !NETSTANDARD1_6
         //TODO: SUPPORT FOR 452 AND 46X
         //// if we are in a transaction, roll it back
         if (driver.HasStatus(ServerStatusFlags.InTransaction))
@@ -512,7 +490,6 @@ namespace MySql.Data.MySqlClient
           MySql.Data.MySqlClient.MySqlTransaction t = new MySql.Data.MySqlClient.MySqlTransaction(this, IsolationLevel.Unspecified);
           t.Rollback();
         }
-#endif
 
         MySqlPoolManager.ReleaseConnection(driver);
       }
@@ -536,16 +513,12 @@ namespace MySql.Data.MySqlClient
       // will be null on the second time through
       if (driver != null)
       {
-#if !NETSTANDARD1_6
         //TODO: Add support for 452 and 46X
         if (driver.currentTransaction == null)
-#endif
-        CloseFully();
-#if !NETSTANDARD1_6
+          CloseFully();
         //TODO: Add support for 452 and 46X
         else
           driver.IsInActiveUse = false;
-#endif
       }
 
       if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
@@ -613,7 +586,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-	/// <summary>
+    /// <summary>
     /// Cancels the query after the specified time interval.
     /// </summary>
     /// <param name="timeout">The length of time (in seconds) to wait for the cancelation of the command execution.</param>
@@ -622,9 +595,7 @@ namespace MySql.Data.MySqlClient
       MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(
         Settings.ConnectionString);
       cb.Pooling = false;
-#if !NETSTANDARD1_6
       cb.AutoEnlist = false;
-#endif
       cb.ConnectionTimeout = (uint)timeout;
 
       using (MySqlConnection c = new MySqlConnection(cb.ConnectionString))
@@ -637,7 +608,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#region Routines for timeout support.
+    #region Routines for timeout support.
 
     // Problem description:
     // Sometimes, ExecuteReader is called recursively. This is the case if
@@ -698,12 +669,12 @@ namespace MySql.Data.MySqlClient
     }
     #endregion
 
-	  /// <summary>
+    /// <summary>
     /// Gets a schema collection based on the provided restriction values.
     /// </summary>
     /// <param name="collectionName">The name of the collection.</param>
     /// <param name="restrictionValues">The values to restrict.</param>
-	  /// <returns>A schema collection object.</returns>
+    /// <returns>A schema collection object.</returns>
     public MySqlSchemaCollection GetSchemaCollection(string collectionName, string[] restrictionValues)
     {
       if (collectionName == null)
@@ -732,13 +703,9 @@ namespace MySql.Data.MySqlClient
 
     internal void Throw(Exception ex)
     {
-#if !NETSTANDARD1_6
       if (_exceptionInterceptor == null)
         throw ex;
       _exceptionInterceptor.Throw(ex);
-#else
-      throw ex;
-#endif
     }
 
     public new void Dispose()
@@ -806,7 +773,7 @@ namespace MySql.Data.MySqlClient
       return result.Task;
     }
 
-	/// <summary>
+    /// <summary>
     /// Asynchronous version of the ChangeDataBase method.
     /// </summary>
     /// <param name="databaseName">The name of the database to use.</param>
@@ -860,10 +827,10 @@ namespace MySql.Data.MySqlClient
       return CloseAsync(CancellationToken.None);
     }
 
-	  /// <summary>
+    /// <summary>
     /// Asynchronous version of the Close method.
     /// </summary>
-	  /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public Task CloseAsync(CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<bool>();
@@ -895,11 +862,11 @@ namespace MySql.Data.MySqlClient
       return ClearPoolAsync(connection, CancellationToken.None);
     }
 
-	/// <summary>
+    /// <summary>
     /// Asynchronous version of the ClearPool method.
     /// </summary>
     /// <param name="connection">The connection associated with the pool to be cleared.</param>
-	/// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public Task ClearPoolAsync(MySqlConnection connection, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<bool>();
@@ -930,10 +897,10 @@ namespace MySql.Data.MySqlClient
       return ClearAllPoolsAsync(CancellationToken.None);
     }
 
-	  /// <summary>
+    /// <summary>
     /// Asynchronous version of the ClearAllPools method.
     /// </summary>
-	  /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public Task ClearAllPoolsAsync(CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<bool>();
@@ -967,12 +934,12 @@ namespace MySql.Data.MySqlClient
       return GetSchemaCollectionAsync(collectionName, restrictionValues, CancellationToken.None);
     }
 
-	  /// <summary>
+    /// <summary>
     /// Asynchronous version of the GetSchemaCollection method.
     /// </summary>
     /// <param name="collectionName">The name of the collection.</param>
     /// <param name="restrictionValues">The values to restrict.</param>
-	  /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of schema objects.</returns>
     public Task<MySqlSchemaCollection> GetSchemaCollectionAsync(string collectionName, string[] restrictionValues, CancellationToken cancellationToken)
     {

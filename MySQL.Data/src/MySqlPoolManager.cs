@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -47,26 +47,22 @@ namespace MySql.Data.MySqlClient
     // should be closed.
     internal static int maxConnectionIdleTime = 180;
 
-
-#if !NETSTANDARD1_6
     static MySqlPoolManager()
     {
       AppDomain.CurrentDomain.ProcessExit += EnsureClearingPools;
       AppDomain.CurrentDomain.DomainUnload += EnsureClearingPools;
     }
 
-    private static void EnsureClearingPools( object sender, EventArgs e )
+    private static void EnsureClearingPools(object sender, EventArgs e)
     {
       ClearAllPools();
     }
-#endif
-
 
     // we add a small amount to the due time to let the cleanup detect
     //expired connections in the first cleanup.
     private static Timer timer = new Timer(CleanIdleConnections,
       null, (maxConnectionIdleTime * 1000) + 8000, maxConnectionIdleTime * 1000);
- 
+
     private static string GetKey(MySqlConnectionStringBuilder settings)
     {
       string key = "";
