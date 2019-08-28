@@ -47,7 +47,6 @@ namespace MySql.Data.Common
 
     static QueryNormalizer()
     {
-#if !NETSTANDARD1_6
       var assembly = Assembly.GetExecutingAssembly();
       String resourceName = @"MySql.Data.keywords.txt";
       using (var stream = assembly.GetManifestResourceStream(resourceName))
@@ -64,15 +63,6 @@ namespace MySql.Data.Common
           }
         }
       }
-#else
-      StringReader sr = new StringReader(Resources.keywords);
-      string keyword = sr.ReadLine();
-      while (keyword != null)
-      {
-        Keywords.Add(keyword);
-        keyword = sr.ReadLine();
-      }
-#endif
     }
 
     public string QueryType => _queryType;
