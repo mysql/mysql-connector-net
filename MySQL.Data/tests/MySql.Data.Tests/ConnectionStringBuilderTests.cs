@@ -172,12 +172,6 @@ namespace MySql.Data.MySqlClient.Tests
         "sharedmemoryname",
         "pipe",
         "useperformancemonitor",
-#if NETCOREAPP1_1
-        "logging",
-        "useusageadvisor",
-        "interactivesession",
-        "replication"
-#endif
       });
       if (Platform.IsWindows())
         options.Add("integratedsecurity");
@@ -196,17 +190,13 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.IntegratedSecurity = true);
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.PipeName = "dummy");
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.UsePerformanceMonitor = true);
-#if NETCOREAPP1_1
-      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.Logging = true);
-      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.UseUsageAdvisor = true);
-      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.Replication = true);
-#endif
       csb.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory);
       Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe);
     }
 #endif
 
+#if !NET452
     [Fact]
     public void IncorrectAuthOptionThrowsArgumentException()
     {
@@ -217,6 +207,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(String.Format("Value '{0}' is not of the correct type.", value), ex.Message);
       }
     }
+#endif
 
     [Fact]
     public void CaseInsensitiveAuthOption()

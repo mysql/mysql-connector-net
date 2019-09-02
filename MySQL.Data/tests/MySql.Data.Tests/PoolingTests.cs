@@ -579,7 +579,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-
+#if !NET452
     /// <summary>
     /// Bug #66578
     /// CacheServerProperties can cause 'Packet too large' error
@@ -605,7 +605,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       executeSQL("DROP TABLE test ");
     }
-
+#endif
 
     /// <summary>
     /// Util method for CacheServerPropertiesCausePacketTooLarge Test Method

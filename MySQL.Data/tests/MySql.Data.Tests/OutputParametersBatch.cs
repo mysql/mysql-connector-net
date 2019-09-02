@@ -267,6 +267,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(1, Convert.ToInt32(o));
     }
 
+#if !NET452
     [Fact]
     public void CallingFunctionWithoutReturnParameter()
     {
@@ -281,6 +282,7 @@ namespace MySql.Data.MySqlClient.Tests
       Exception ex = Assert.Throws<InvalidOperationException>(() => { if (prepare) cmd.Prepare(); cmd.ExecuteNonQuery(); });
       Assert.Equal(ex.Message, "Attempt to call stored function '`" + (Connection.Database) + "`.`fnTest`' without specifying a return parameter");
     }
+#endif
 
     /// <summary>
     /// Bug #27668 FillSchema and Stored Proc with an out parameter

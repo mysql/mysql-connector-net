@@ -40,12 +40,12 @@ namespace MySql.Data.MySqlClient.Tests
 
     public SslTests(TestFixture fixture) : base(fixture)
     {
-      _sslCa =   "ca.pem";
+      _sslCa = "ca.pem";
       _sslCert = "client-cert.pem";
       _sslKey = "client-key.pem";
     }
 
-#region General
+    #region General
 
     [Fact]
     [Trait("Category", "Security")]
@@ -79,6 +79,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#if !NET452
     [Fact]
     [Trait("Category", "Security")]
     public void RepeatedSslConnectionOptionsNotAllowed()
@@ -124,6 +125,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(string.Format(Resources.DuplicatedSslConnectionOption, "sslkey"), exception.Message);
     }
 
+
     [Fact]
     [Trait("Category", "Security")]
     public void InvalidOptionsWhenSslDisabled()
@@ -158,10 +160,10 @@ namespace MySql.Data.MySqlClient.Tests
       exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(builder.ConnectionString));
       Assert.Equal(Resources.InvalidOptionWhenSslDisabled, exception.Message);
     }
-
+#endif
     #endregion
 
-#region PFX
+    #region PFX
 
     /// <summary>
     /// A client can connect to MySQL server using SSL and a pfx file.
@@ -203,9 +205,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#endregion
+    #endregion
 
-#region PEM
+    #region PEM
 
     [Fact]
     [Trait("Category", "Security")]
@@ -256,6 +258,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#if !NET452
     [Fact]
     [Trait("Category", "Security")]
     public void MissingSslCaConnectionOption()
@@ -342,6 +345,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+
     [Fact]
     [Trait("Category", "Security")]
     public void InvalidFileNameForSslKeyConnectionOption()
@@ -358,6 +362,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(Resources.FileNotFound, exception.InnerException.Message);
       }
     }
+#endif
 
     [Fact]
     [Trait("Category", "Security")]
@@ -429,6 +434,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+#if !NET452
     [Fact]
     [Trait("Category", "Security")]
     public void AttemptConnectionWithDummyPemCertificates()
@@ -508,7 +514,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(Resources.FileIsNotAKey, exception.InnerException.Message);
       }
     }
-
+#endif
     #endregion
   }
 }

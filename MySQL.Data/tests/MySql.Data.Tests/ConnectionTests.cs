@@ -369,7 +369,7 @@ namespace MySql.Data.MySqlClient.Tests
     #endregion
 
     #region Connection Attributes/Options
-
+#if !NET452
     [Fact]
     [Trait("Category", "Security")]
     public void TestConnectingSocketBadUserName()
@@ -382,6 +382,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.IsType<MySqlException>(exception);
     }
 
+
     [Fact]
     [Trait("Category", "Security")]
     public void TestConnectingSocketBadDbName()
@@ -393,6 +394,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.NotNull(exception);
       Assert.IsType<MySqlException>(exception);
     }
+#endif
 
     [Fact]
     [Trait("Category", "Security")]
@@ -498,6 +500,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(String.IsNullOrEmpty(connStr.Password));
     }
 
+#if !NET452
     /// <summary>
     /// Bug #31433 Username incorrectly cached for logon where case sensitive
     /// </summary>
@@ -518,6 +521,7 @@ namespace MySql.Data.MySqlClient.Tests
       c.Open();
       c.Close();
     }
+#endif
 
     [Fact]
     [Trait("Category", "Security")]
@@ -625,9 +629,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #endregion
+#endregion
 
-    #region SSL
+#region SSL
 
     [Fact]
     [Trait("Category", "Security")]
@@ -688,7 +692,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #endregion
+#endregion
 
     [Fact]
     public void IPv6Connection()

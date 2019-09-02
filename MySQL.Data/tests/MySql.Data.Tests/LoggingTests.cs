@@ -40,8 +40,6 @@ namespace MySql.Data.MySqlClient.Tests
     {
     }
 
-#if !NETCOREAPP1_1
-
     [Fact]
     public void SimpleLogging()
     {
@@ -104,6 +102,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Contains("Query Closed", listener.Strings[listener.Strings.Count - 2]);
     }
 
+#if !NET452
     [Fact]
     public void ProviderNormalizingQuery()
     {
@@ -127,6 +126,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(28, listener.Strings.Count);
       Assert.EndsWith("SELECT ?", listener.Strings[listener.Strings.Count - 5], StringComparison.OrdinalIgnoreCase);
     }
+
 
     /// <summary>
     /// Bug #57641	Substring out of range exception in ConsumeQuotedToken

@@ -37,8 +37,9 @@ namespace MySql.Data.MySqlClient.Tests
   {
     public ReplicationTests(TestFixture fixture) : base(fixture)
     {
-    }   
-    
+    }
+
+#if !NET452
     [Fact]
     public void Simple()
     {
@@ -56,5 +57,6 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
+#endif
   }
 }

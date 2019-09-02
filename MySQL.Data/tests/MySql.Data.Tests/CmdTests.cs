@@ -609,6 +609,7 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
     #endregion
 
+#if !NET452
     /// <summary>
     /// Bug #59616	Only INSERTs are batched
     /// </summary>
@@ -648,6 +649,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       Assert.Equal(1, listener.Find("Query Opened: UPDATE"));
     }
+#endif
 
     [Fact]
     public void ExecuteReaderReturnsReaderAfterCancel()
