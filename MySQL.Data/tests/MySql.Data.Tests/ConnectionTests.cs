@@ -730,7 +730,6 @@ namespace MySql.Data.MySqlClient.Tests
 
     [Theory]
     [Trait("Category", "Security")]
-    [InlineData("SET NAMES 'latin1'")]
     [InlineData("SELECT VERSION()")]
     [InlineData("SHOW VARIABLES LIKE '%audit%'")]
     public void ExpiredPassword(string sql)
@@ -756,7 +755,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Trait("Category", "Security")]
     public void ExpiredPwdWithOldPassword()
     {
-      if ((Fixture.Version < new Version(5, 6, 6)) || (Fixture.Version >= new Version(8, 0, 17))) return;
+      if ((Fixture.Version < new Version(5, 6, 60)) || (Fixture.Version >= new Version(8, 0, 17))) return;
 
       string expiredUser = _EXPIRED_USER;
       string expiredPwd = _EXPIRED_USER + 1;
@@ -774,7 +773,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
       {
         conn.Open();
-        MySqlCommand cmd = new MySqlCommand($"ALTER USER '{expiredUser} '@'{host}' IDENTIFIED  BY '{newPwd}'", conn);
+        MySqlCommand cmd = new MySqlCommand($"ALTER USER '{expiredUser}'@'{host}' IDENTIFIED  BY '{newPwd}'", conn);
         cmd.ExecuteNonQuery();
       }
 
