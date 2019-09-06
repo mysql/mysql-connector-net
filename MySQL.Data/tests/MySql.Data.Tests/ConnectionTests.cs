@@ -770,7 +770,11 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
       {
         conn.Open();
-        MySqlCommand cmd = new MySqlCommand($"ALTER USER '{expiredUser} '@'{host}' IDENTIFIED  BY '{newPwd}'", conn);
+        string password = $"'{newPwd}'";
+        if (Fixture.Version < new Version(5, 7, 6))
+          password = $"PASSWORD({password})";
+
+        MySqlCommand cmd = new MySqlCommand($"SET PASSWORD FOR '{expiredUser}'@'{host}' = {password}", conn);
         cmd.ExecuteNonQuery();
       }
 
