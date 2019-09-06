@@ -103,7 +103,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       TimeSpan time = new TimeSpan(0, 1, 2, 3);
       DateTime dt = new DateTime(2003, 11, 11, 1, 2, 3);
-      cmd.CommandText = "INSERT INTO Test VALUES (1, 'test', ?dt, ?time, NULL)";
+      cmd.CommandText = "INSERT INTO Test VALUES (1, 'test', ?dt, ?time, CURRENT_TIMESTAMP)";
       cmd.Parameters.Add(new MySqlParameter("?time", time));
       cmd.Parameters.Add(new MySqlParameter("?dt", dt));
       int cnt = cmd.ExecuteNonQuery();

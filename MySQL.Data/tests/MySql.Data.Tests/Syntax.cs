@@ -479,7 +479,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NET452
     /// <summary>
     /// Bug #53865 : crash in QueryNormalizer, "IN" clause incomplete
     /// </summary>
@@ -509,9 +508,7 @@ namespace MySql.Data.MySqlClient.Tests
         Console.WriteLine(cmd.ExecuteScalar());
       }
     }
-#endif
 
-#if !NET452
     /// <summary>
     /// Bug #54152 : Crash in QueryNormalizer, VALUES incomplete
     /// </summary>
@@ -545,8 +542,8 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
       }
     }
-#endif
 
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #54386 : expression with parentheses in INSERT leads to invalid
     /// query when using batching
@@ -584,5 +581,8 @@ namespace MySql.Data.MySqlClient.Tests
       da.Update(dt);
 
     }
+
+#endif
+
   }
 }
