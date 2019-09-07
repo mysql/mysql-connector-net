@@ -369,7 +369,7 @@ namespace MySql.Data.MySqlClient.Tests
     #endregion
 
     #region Connection Attributes/Options
-#if !NET452
+
     [Fact]
     [Trait("Category", "Security")]
     public void TestConnectingSocketBadUserName()
@@ -382,7 +382,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.IsType<MySqlException>(exception);
     }
 
-
     [Fact]
     [Trait("Category", "Security")]
     public void TestConnectingSocketBadDbName()
@@ -394,7 +393,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.NotNull(exception);
       Assert.IsType<MySqlException>(exception);
     }
-#endif
 
     [Fact]
     [Trait("Category", "Security")]
@@ -500,7 +498,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(String.IsNullOrEmpty(connStr.Password));
     }
 
-#if !NET452
     /// <summary>
     /// Bug #31433 Username incorrectly cached for logon where case sensitive
     /// </summary>
@@ -521,7 +518,6 @@ namespace MySql.Data.MySqlClient.Tests
       c.Open();
       c.Close();
     }
-#endif
 
     [Fact]
     [Trait("Category", "Security")]
@@ -629,9 +625,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#endregion
+    #endregion
 
-#region SSL
+    #region SSL
 
     [Fact]
     [Trait("Category", "Security")]
@@ -692,7 +688,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#endregion
+    #endregion
 
     [Fact]
     public void IPv6Connection()
@@ -730,6 +726,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     [Theory]
     [Trait("Category", "Security")]
+    [InlineData("SET NAMES 'latin1'")]
     [InlineData("SELECT VERSION()")]
     [InlineData("SHOW VARIABLES LIKE '%audit%'")]
     public void ExpiredPassword(string sql)
@@ -755,7 +752,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Trait("Category", "Security")]
     public void ExpiredPwdWithOldPassword()
     {
-      if ((Fixture.Version < new Version(5, 6, 60)) || (Fixture.Version >= new Version(8, 0, 17))) return;
+      if ((Fixture.Version < new Version(5, 6, 6)) || (Fixture.Version >= new Version(8, 0, 17))) return;
 
       string expiredUser = _EXPIRED_USER;
       string expiredPwd = _EXPIRED_USER + 1;
@@ -773,7 +770,11 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
       {
         conn.Open();
-        MySqlCommand cmd = new MySqlCommand($"ALTER USER '{expiredUser}'@'{host}' IDENTIFIED  BY '{newPwd}'", conn);
+        string password = $"'{newPwd}'";
+        if (Fixture.Version < new Version(5, 7, 6))
+          password = $"PASSWORD({password})";
+
+        MySqlCommand cmd = new MySqlCommand($"SET PASSWORD FOR '{expiredUser}'@'{host}' = {password}", conn);
         cmd.ExecuteNonQuery();
       }
 

@@ -46,7 +46,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
     }        
 
-#if !NETCOREAPP1_1 
+#if !NETCOREAPP1_1
     void TransactionScopeInternal(bool commit)
     {
       executeSQL("DROP TABLE IF EXISTS Test");
@@ -744,7 +744,6 @@ namespace MySql.Data.MySqlClient.Tests
       t.Join();
     }
 
-#if !NET452
     [Fact]
     public void SnapshotIsolationLevelThrowsNotSupportedException()
     {        
@@ -755,7 +754,6 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.Equal("Snapshot isolation level is not supported.", ex.Message);            
         }
     }
-#endif
 
     private void DoThreadWork()
     {

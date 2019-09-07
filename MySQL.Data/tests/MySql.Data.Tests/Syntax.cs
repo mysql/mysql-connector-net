@@ -110,7 +110,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
-      for (int i = 0; i < 2000000; i++)
+      for (int i = 0; i < 200000; i++)
         sw.WriteLine(i + ",'Test'");
       sw.Flush();
       sw.Dispose();
@@ -134,11 +134,11 @@ namespace MySql.Data.MySqlClient.Tests
 
         object cnt = 0;
         cnt = cmd.ExecuteNonQuery();
-        Assert.Equal(2000000, Convert.ToInt32(cnt));
+        Assert.Equal(200000, Convert.ToInt32(cnt));
 
         cmd.CommandText = "SELECT COUNT(*) FROM Test";
         cnt = cmd.ExecuteScalar();
-        Assert.Equal(2000000, Convert.ToInt32(cnt));
+        Assert.Equal(200000, Convert.ToInt32(cnt));
       }
     }
 
@@ -479,7 +479,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NET452
     /// <summary>
     /// Bug #53865 : crash in QueryNormalizer, "IN" clause incomplete
     /// </summary>
@@ -509,9 +508,7 @@ namespace MySql.Data.MySqlClient.Tests
         Console.WriteLine(cmd.ExecuteScalar());
       }
     }
-#endif
 
-#if !NET452
     /// <summary>
     /// Bug #54152 : Crash in QueryNormalizer, VALUES incomplete
     /// </summary>
@@ -545,8 +542,8 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
       }
     }
-#endif
 
+#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #54386 : expression with parentheses in INSERT leads to invalid
     /// query when using batching
@@ -584,5 +581,8 @@ namespace MySql.Data.MySqlClient.Tests
       da.Update(dt);
 
     }
+
+#endif
+
   }
 }

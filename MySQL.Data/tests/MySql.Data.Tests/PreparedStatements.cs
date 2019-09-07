@@ -796,7 +796,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if NETCOREAPP2_2 || NETCOREAPP3_0
+
     [Fact]
     public void SprocOutputParams()
     {
@@ -813,15 +813,15 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Equal(20, cmd.Parameters[1].Value);
 
       executeSQL("DROP PROCEDURE IF EXISTS spOutTest");
-      executeSQL("CREATE PROCEDURE spOutTest(id INT, OUT age INT) BEGIN SET age=id*20; END");
+      executeSQL("CREATE PROCEDURE spOutTest(id INT, OUT age INT) BEGIN SET age=age*2; END");
 
       cmd.Parameters[0].Value = 1;
+      cmd.Parameters[1].Value = 20;
       Assert.Equal(0, cmd.ExecuteNonQuery());
 
-      if (!Connection.driver.Version.isAtLeast(8,0,1))
-      Assert.Equal(20, cmd.Parameters[1].Value);
+      Assert.IsType<DBNull>(cmd.Parameters[1].Value);
     }
-#endif
+
 
     [Fact]
     public void SprocInputOutputParams()

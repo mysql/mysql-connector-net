@@ -391,7 +391,6 @@ namespace MySql.Data.MySqlClient.Tests
 
     #region Sha256 Password Authentication Plugin
 
-#if !NET452
     [Fact]
     [Trait("Category", "Security")]
     public void ConnectUsingSha256PasswordPlugin()
@@ -544,7 +543,6 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-#endif
 
     [Fact]
     [Trait("Category", "Security")]
@@ -572,7 +570,6 @@ namespace MySql.Data.MySqlClient.Tests
 
     #region Caching Sha2 Password Authentication Plugin
 
-#if !NET452
     [Fact]
     [Trait("Category", "Security")]
     public void ConnectUsingCachingSha2Plugin()
@@ -846,7 +843,6 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-#endif
 
     [Fact]
     [Trait("Category", "Security")]

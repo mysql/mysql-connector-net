@@ -564,7 +564,7 @@ namespace MySql.Data.MySqlClient.Tests
         "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
 
       DateTime dt = DateTime.Now;
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO TimestampValuesAreLocal VALUES(1, ?dt, NULL, NULL, NULL)", Connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO TimestampValuesAreLocal VALUES(1, ?dt, NULL, NULL, CURRENT_TIMESTAMP)", Connection);
       cmd.Parameters.AddWithValue("@dt", dt);
       cmd.ExecuteNonQuery();
 

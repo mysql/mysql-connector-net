@@ -84,6 +84,7 @@ namespace MySql.Data.MySqlClient.Tests
       RootSettings = new MySqlConnectionStringBuilder(settings.GetConnectionString(true));
       Settings = new MySqlConnectionStringBuilder(settings.GetConnectionString(true));
       Version = GetVersion();
+      Debug.Assert(!string.IsNullOrEmpty(BaseDBName));
       InitializeDatabase();
     }
 
