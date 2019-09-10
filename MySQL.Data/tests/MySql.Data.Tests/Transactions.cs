@@ -27,16 +27,11 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
-#if !NETCOREAPP1_1
 using System.Transactions;
 using System.Data.Common;
-#endif
 using System.Data;
 using System.Threading;
-using System.Diagnostics;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -46,7 +41,6 @@ namespace MySql.Data.MySqlClient.Tests
     {
     }        
 
-#if !NETCOREAPP1_1
     void TransactionScopeInternal(bool commit)
     {
       executeSQL("DROP TABLE IF EXISTS Test");
@@ -129,7 +123,6 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-#endif
 
     [Fact]
     public void TransactionReadOnlyIsAvailable()

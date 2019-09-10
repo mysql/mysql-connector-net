@@ -82,7 +82,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       foreach (Task<RowResult> task in tasksList)
       {
         Assert.Equal(2, task.Result.Columns.Count);
-        Assert.Equal(1, task.Result.Rows.Count);
+        Assert.Single(task.Result.Rows);
         int value = (int)task.Result.Rows[0][1];
         Assert.False(validator.Contains(value), value + " value exists");
         validator.Add(value);

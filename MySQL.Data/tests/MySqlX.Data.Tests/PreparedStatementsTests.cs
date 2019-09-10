@@ -483,7 +483,7 @@ namespace MySqlX.Data.Tests
       // first execution (normal)
       var findStmt = coll.Find("pages >= :lower AND pages <= :upper").Bind("lower", 20).Bind("upper", 20);
       var result = ExecuteFindStatement(findStmt).FetchAll();
-      Assert.Equal(1, result.Count);
+      Assert.Single(result);
       Assert.Equal("Book 1", result[0]["title"].ToString());
       Assert.False(findStmt._isPrepared);
 
@@ -491,7 +491,7 @@ namespace MySqlX.Data.Tests
 
       // second execution adding limit (prepared statement)
       result = ExecuteFindStatement(findStmt.Bind("lower", 0).Bind("upper", 100).Limit(1)).FetchAll();
-      Assert.Equal(1, result.Count);
+      Assert.Single(result);
       Assert.Equal($"Book 1", result[0]["title"].ToString());
       Assert.True(findStmt._isPrepared);
 

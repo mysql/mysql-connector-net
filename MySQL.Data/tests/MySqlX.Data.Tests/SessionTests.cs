@@ -153,7 +153,7 @@ namespace MySqlX.Data.Tests
       using (Session mySession = MySQLX.GetSession(ConnectionString))
       {
         Assert.Equal(SessionState.Open, mySession.InternalSession.SessionState);
-        Assert.Equal(null, mySession.DefaultSchema);
+        Assert.Null(mySession.DefaultSchema);
       }
     }
 

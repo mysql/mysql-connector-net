@@ -129,8 +129,8 @@ namespace MySqlX.Data.Tests.RelationalTests
       var table = testSchema.GetTable("test");
       var select = ExecuteSelectStatement(table.Select("count(*) + 10"));
       var rows = select.FetchAll();
-      Assert.Equal(1, select.Columns.Count);
-      Assert.Equal(1, rows.Count);
+      Assert.Single(select.Columns);
+      Assert.Single(rows);
       Assert.Equal<long>(allRows.Length + 10, (long)rows[0][0]);
     }
 
@@ -141,7 +141,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       var table = testSchema.GetTable("test");
       var select = ExecuteSelectStatement(table.Select().Where("Name = :nAme && Age = :aGe").Bind("agE", validationRow[2]).Bind("naMe", validationRow[1]));
       var rows = select.FetchAll();
-      Assert.Equal(1, rows.Count);
+      Assert.Single(rows);
       Assert.Equal(validationRow[1], rows[0]["namE"]);
       Assert.Equal(validationRow[2], rows[0]["AGe"]);
     }
@@ -198,15 +198,15 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id = 1").LockShared());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since row isn't locked.
         rowResult = ExecuteSelectStatement(table2.Select().Where("id = 2").LockShared());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
         // Should return immediately due to LockShared() allows reading by other sessions.
         rowResult = ExecuteSelectStatement(table2.Select().Where("id = 1").LockShared());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
 
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         ExecuteSQLStatement(session2.SQL("ROLLBACK"));
@@ -228,12 +228,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id = 1").LockExclusive());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since row isn't locked.
         rowResult = ExecuteSelectStatement(table2.Select().Where("id = 2").LockExclusive());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
         // Session2 blocks due to to LockExclusive() not allowing to read locked rows.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive()));
@@ -258,12 +258,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id = 1").LockShared());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Reading the same row is allowed with LockShared().
         rowResult = ExecuteSelectStatement(table2.Select().Where("id = 1"));
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
 
         // Modify() is allowed for non-locked rows.
         Result result = ExecuteUpdateStatement(table2.Update().Where("id = 2").Set("age", 2));
@@ -294,7 +294,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id = 1").LockExclusive());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
 
@@ -328,12 +328,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id = 1").LockExclusive());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since row isn't locked.
         rowResult = ExecuteSelectStatement(table2.Select().Where("id = 2").LockShared());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
         // Session2 blocks due to LockExclusive() not allowing to read locked rows.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockShared()));
@@ -343,7 +343,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         // Row can now be recovered.
         rowResult = ExecuteSelectStatement(table2.Select().Where("id = 1").LockShared());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
         ExecuteSQLStatement(session2.SQL("ROLLBACK"));
       }
     }
@@ -370,7 +370,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         rowResult = ExecuteSelectStatement(table2.Select().Where("id = 2").LockExclusive());
         // Should return immediately due to LockShared() allows reading by other sessions.
         rowResult = ExecuteSelectStatement(table2.Select().Where("id = 2").LockShared());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
         // Session2 blocks due to to LockExclusive() not allowing to read locked rows.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive()));
@@ -379,7 +379,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session unlocks rows.
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         rowResult = ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
         ExecuteSQLStatement(session2.SQL("ROLLBACK"));
       }
     }
@@ -399,12 +399,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id = 1").LockExclusive());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since row isn't locked.
         rowResult = ExecuteSelectStatement(table2.Select().Where("id = 2").LockExclusive());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
         // Session2 blocks due to to LockExclusive() not allowing to read locked rows.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive()));
@@ -413,7 +413,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session unlocks rows.
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         rowResult = ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive());
-        Assert.Equal(1, rowResult.FetchAll().Count);
+        Assert.Single(rowResult.FetchAll());
         ExecuteSQLStatement(session2.SQL("ROLLBACK"));
       }
     }

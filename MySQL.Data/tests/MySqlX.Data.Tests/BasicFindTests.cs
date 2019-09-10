@@ -239,15 +239,15 @@ namespace MySqlX.Data.Tests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         DocResult docResult = ExecuteFindStatement(coll.Find("_id = 1").LockShared());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since document isn't locked.
         docResult = ExecuteFindStatement(coll2.Find("_id = 2").LockShared());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
         // Should return immediately due to LockShared() allows reading by other sessions.
         docResult = ExecuteFindStatement(coll2.Find("_id = 1").LockShared());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
 
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         ExecuteSQLStatement(session2.SQL("ROLLBACK"));
@@ -276,12 +276,12 @@ namespace MySqlX.Data.Tests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         DocResult docResult = ExecuteFindStatement(coll.Find("_id = 1").LockExclusive());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since document isn't locked.
         docResult = ExecuteFindStatement(coll2.Find("_id = 2").LockExclusive());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll2.Find("_id = 1").LockExclusive()));
@@ -313,12 +313,12 @@ namespace MySqlX.Data.Tests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         DocResult docResult = ExecuteFindStatement(coll.Find("_id = 1").LockShared());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Reading the same document is allowed with LockShared().
         docResult = ExecuteFindStatement(coll2.Find("_id = 1"));
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
 
         // Modify() is allowed for non-locked documents.
         Result result = ExecuteModifyStatement(coll2.Modify("_id = 2").Set("a", 2));
@@ -356,7 +356,7 @@ namespace MySqlX.Data.Tests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         DocResult docResult = ExecuteFindStatement(coll.Find("_id = 1").LockExclusive());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
 
@@ -397,12 +397,12 @@ namespace MySqlX.Data.Tests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         DocResult docResult = ExecuteFindStatement(coll.Find("_id = 1").LockExclusive());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since document isn't locked.
         docResult = ExecuteFindStatement(coll2.Find("_id = 2").LockShared());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
         // Session2 blocks due to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll2.Find("_id = 1").LockShared()));
@@ -412,7 +412,7 @@ namespace MySqlX.Data.Tests
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         // Document can now be recovered.
         docResult = ExecuteFindStatement(coll2.Find("_id = 1").LockShared());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
         ExecuteSQLStatement(session2.SQL("ROLLBACK"));
       }
     }
@@ -446,7 +446,7 @@ namespace MySqlX.Data.Tests
         docResult = ExecuteFindStatement(coll2.Find("_id = 2").LockExclusive());
         // Should return immediately due to LockShared() allows reading by other sessions.
         docResult = ExecuteFindStatement(coll2.Find("_id = 2").LockShared());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll2.Find("_id = 1").LockExclusive()));
@@ -455,7 +455,7 @@ namespace MySqlX.Data.Tests
         // Session unlocks documents.
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         docResult = ExecuteFindStatement(coll2.Find("_id = 1").LockExclusive());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
         ExecuteSQLStatement(session2.SQL("ROLLBACK"));
       }
     }
@@ -482,12 +482,12 @@ namespace MySqlX.Data.Tests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         DocResult docResult = ExecuteFindStatement(coll.Find("_id = 1").LockExclusive());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since document isn't locked.
         docResult = ExecuteFindStatement(coll2.Find("_id = 2").LockExclusive());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll2.Find("_id = 1").LockExclusive()));
@@ -496,7 +496,7 @@ namespace MySqlX.Data.Tests
         // Session unlocks documents.
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         docResult = ExecuteFindStatement(coll2.Find("_id = 1").LockExclusive());
-        Assert.Equal(1, docResult.FetchAll().Count);
+        Assert.Single(docResult.FetchAll());
         ExecuteSQLStatement(session2.SQL("ROLLBACK"));
       }
     }
@@ -511,50 +511,50 @@ namespace MySqlX.Data.Tests
       Collection coll = CreateCollection("test");
       ExecuteAddStatement(coll.Add(new DbDoc("{ \"a\": 1, \"b\": [ 1, \"value\" ], \"d\":\"\" }")));
 
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("a IN (1,2,3)")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("a not in (0,2,3)")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("b[0] in (1,2,3)")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("b[1] in (\"a\", \"b\", \"value\")")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("b[0] NOT IN (0,2,3)")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("b[1] not in (\"a\", \"b\", \"c\")")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("a in [1,2,3]")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(coll.Find("a in [2,3,4]")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("a NOT in [0,2,3]")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("b not IN [1,2,3]")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(coll.Find("b[0] not IN [1,2,3]")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(coll.Find("c NOT IN [1,2,3]")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(coll.Find("a IN ('', ' ')")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(coll.Find("'' IN (1,2,3)")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("d IN ('')")).FetchAll().Count);
+      Assert.Single(ExecuteFindStatement(coll.Find("a IN (1,2,3)")).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("a not in (0,2,3)")).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("b[0] in (1,2,3)")).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("b[1] in (\"a\", \"b\", \"value\")")).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("b[0] NOT IN (0,2,3)")).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("b[1] not in (\"a\", \"b\", \"c\")")).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("a in [1,2,3]")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(coll.Find("a in [2,3,4]")).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("a NOT in [0,2,3]")).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("b not IN [1,2,3]")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(coll.Find("b[0] not IN [1,2,3]")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(coll.Find("c NOT IN [1,2,3]")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(coll.Find("a IN ('', ' ')")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(coll.Find("'' IN (1,2,3)")).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("d IN ('')")).FetchAll());
 
       Collection movies = CreateCollection("movies");
       var docString = "{ \"_id\" : \"a6f4b93e1a264a108393524f29546a8c\", \"title\" : \"AFRICAN EGG\", \"description\" : \"A Fast-Paced Documentary of a Pastry Chef And a Dentist who must Pursue a Forensic Psychologist in The Gulf of Mexico\", \"releaseyear\" : 2006, \"language\" : \"English\", \"duration\" : 130, \"rating\" : \"G\", \"genre\" : \"Science fiction\", \"actors\" : [{ \"name\" : \"MILLA PECK\", \"country\" : \"Mexico\", \"birthdate\": \"12 Jan 1984\"}, { \"name\" : \"VAL BOLGER\", \"country\" : \"Botswana\", \"birthdate\": \"26 Jul 1975\" }, { \"name\" : \"SCARLETT BENING\", \"country\" : \"Syria\", \"birthdate\": \"16 Mar 1978\" }], \"additionalinfo\" : { \"director\" : \"Sharice Legaspi\", \"writers\" : [\"Rusty Couturier\", \"Angelic Orduno\", \"Carin Postell\"], \"productioncompanies\" : [\"Qvodrill\", \"Indigoholdings\"] } }";
       ExecuteAddStatement(movies.Add(new DbDoc(docString)));
 
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("(1>5) in (true, false)")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(movies.Find("(1+5) in (1, 2, 3, 4, 5)")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("('a'>'b') in (true, false)")).FetchAll().Count);
+      Assert.Single(ExecuteFindStatement(movies.Find("(1>5) in (true, false)")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(movies.Find("(1+5) in (1, 2, 3, 4, 5)")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find("('a'>'b') in (true, false)")).FetchAll());
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(movies.Find("(1>5) in [true, false]")).FetchAll().Count);
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(movies.Find("(1+5) in [1, 2, 3, 4, 5]")).FetchAll().Count);
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(movies.Find("('a'>'b') in [true, false]")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("true IN [(1>5), !(false), (true || false), (false && true)]")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("true IN ((1>5), !(false), (true || false), (false && true))")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(movies.Find("{\"field\":true} IN (\"mystring\", 124, myvar, othervar.jsonobj)")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(movies.Find("actor.name IN ['a name', null, (1<5-4), myvar.jsonobj.name]")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("!false && true IN [true]")).FetchAll().Count);
+      Assert.Single(ExecuteFindStatement(movies.Find("true IN [(1>5), !(false), (true || false), (false && true)]")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find("true IN ((1>5), !(false), (true || false), (false && true))")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(movies.Find("{\"field\":true} IN (\"mystring\", 124, myvar, othervar.jsonobj)")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(movies.Find("actor.name IN ['a name', null, (1<5-4), myvar.jsonobj.name]")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find("!false && true IN [true]")).FetchAll());
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(movies.Find("1-5/2*2 > 3-2/1*2 IN [true, false]")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(movies.Find("true IN [1-5/2*2 > 3-2/1*2]")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find(" 'African Egg' IN ('African Egg', 1, true, NULL, [0,1,2], { 'title' : 'Atomic Firefighter' }) ")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find(" 1 IN ('African Egg', 1, true, NULL, [0,1,2], { 'title' : 'Atomic Firefighter' }) ")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find(" [0,1,2] IN ('African Egg', 1, true, NULL, [0,1,2], { 'title' : 'Atomic Firefighter' }) ")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find(" { 'title' : 'Atomic Firefighter' } IN ('African Egg', 1, true, NULL, [0,1,2], { 'title' : 'Atomic Firefighter' }) ")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(movies.Find("title IN ('African Egg', 'The Witcher', 'Jurassic Perk')")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("releaseyear IN (2006, 2010, 2017)")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("1 IN [1,2,3]")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(movies.Find("0 IN [1,2,3]")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("0 NOT IN [1,2,3]")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(movies.Find("1 NOT IN [1,2,3]")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("releaseyear IN [2006, 2007, 2008]")).FetchAll().Count);
+      Assert.Empty(ExecuteFindStatement(movies.Find("true IN [1-5/2*2 > 3-2/1*2]")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find(" 'African Egg' IN ('African Egg', 1, true, NULL, [0,1,2], { 'title' : 'Atomic Firefighter' }) ")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find(" 1 IN ('African Egg', 1, true, NULL, [0,1,2], { 'title' : 'Atomic Firefighter' }) ")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find(" [0,1,2] IN ('African Egg', 1, true, NULL, [0,1,2], { 'title' : 'Atomic Firefighter' }) ")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find(" { 'title' : 'Atomic Firefighter' } IN ('African Egg', 1, true, NULL, [0,1,2], { 'title' : 'Atomic Firefighter' }) ")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(movies.Find("title IN ('African Egg', 'The Witcher', 'Jurassic Perk')")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find("releaseyear IN (2006, 2010, 2017)")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find("1 IN [1,2,3]")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(movies.Find("0 IN [1,2,3]")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find("0 NOT IN [1,2,3]")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(movies.Find("1 NOT IN [1,2,3]")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find("releaseyear IN [2006, 2007, 2008]")).FetchAll());
     }
 
     [Fact]
@@ -567,32 +567,32 @@ namespace MySqlX.Data.Tests
       var docString = "{ \"a\": 1, \"b\": \"foo\", \"c\": { \"d\": true, \"e\": [1,2,3] }, \"f\": [ {\"x\":5}, {\"x\":7 } ] }";
       ExecuteAddStatement(coll.Add(new DbDoc(docString)));
 
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("a in [1,2,3]")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("c.e[0] in [1,2,3]")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("5 in f[*].x")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("3 in c.e")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(coll.Find("5 in c.e")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(coll.Find("\"foo\" in " + docString)).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(coll.Find("\"a\" in " + docString)).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(coll.Find("a in " + docString)).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("{\"a\":1} in " + docString)).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("\"foo\" in b")).FetchAll().Count);
+      Assert.Single(ExecuteFindStatement(coll.Find("a in [1,2,3]")).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("c.e[0] in [1,2,3]")).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("5 in f[*].x")).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("3 in c.e")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(coll.Find("5 in c.e")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(coll.Find("\"foo\" in " + docString)).FetchAll());
+      Assert.Empty(ExecuteFindStatement(coll.Find("\"a\" in " + docString)).FetchAll());
+      Assert.Empty(ExecuteFindStatement(coll.Find("a in " + docString)).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("{\"a\":1} in " + docString)).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("\"foo\" in b")).FetchAll());
 
       Collection movies = CreateCollection("movies");
       docString = "{ \"_id\" : \"a6f4b93e1a264a108393524f29546a8c\", \"title\" : \"AFRICAN EGG\", \"description\" : \"A Fast-Paced Documentary of a Pastry Chef And a Dentist who must Pursue a Forensic Psychologist in The Gulf of Mexico\", \"releaseyear\" : 2006, \"language\" : \"English\", \"duration\" : 130, \"rating\" : \"G\", \"genre\" : \"Science fiction\", \"actors\" : [{ \"name\" : \"MILLA PECK\", \"country\" : \"Mexico\", \"birthdate\": \"12 Jan 1984\"}, { \"name\" : \"VAL BOLGER\", \"country\" : \"Botswana\", \"birthdate\": \"26 Jul 1975\" }, { \"name\" : \"SCARLETT BENING\", \"country\" : \"Syria\", \"birthdate\": \"16 Mar 1978\" }], \"additionalinfo\" : { \"director\" : \"Sharice Legaspi\", \"writers\" : [\"Rusty Couturier\", \"Angelic Orduno\", \"Carin Postell\"], \"productioncompanies\" : [\"Qvodrill\", \"Indigoholdings\"] } }";
       ExecuteAddStatement(movies.Add(new DbDoc(docString)));
 
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("{ \"name\" : \"MILLA PECK\" } IN actors")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(movies.Find("'African Egg' in movietitle")).FetchAll().Count);
+      Assert.Single(ExecuteFindStatement(movies.Find("{ \"name\" : \"MILLA PECK\" } IN actors")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(movies.Find("'African Egg' in movietitle")).FetchAll());
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(movies.Find("(1 = NULL) IN title")).FetchAll().Count);
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(movies.Find("NOT NULL IN title")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("[\"Rusty Couturier\", \"Angelic Orduno\", \"Carin Postell\"] IN additionalinfo.writers")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("{ \"name\" : \"MILLA PECK\", \"country\" : \"Mexico\", \"birthdate\": \"12 Jan 1984\"} IN actors")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(movies.Find("true IN title")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(movies.Find("false IN genre")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("'Sharice Legaspi' IN additionalinfo.director")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("'Mexico' IN actors[*].country")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(movies.Find("'Angelic Orduno' IN additionalinfo.writers")).FetchAll().Count);
+      Assert.Single(ExecuteFindStatement(movies.Find("[\"Rusty Couturier\", \"Angelic Orduno\", \"Carin Postell\"] IN additionalinfo.writers")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find("{ \"name\" : \"MILLA PECK\", \"country\" : \"Mexico\", \"birthdate\": \"12 Jan 1984\"} IN actors")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(movies.Find("true IN title")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(movies.Find("false IN genre")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find("'Sharice Legaspi' IN additionalinfo.director")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find("'Mexico' IN actors[*].country")).FetchAll());
+      Assert.Single(ExecuteFindStatement(movies.Find("'Angelic Orduno' IN additionalinfo.writers")).FetchAll());
     }
 
     [Fact]
@@ -604,9 +604,9 @@ namespace MySqlX.Data.Tests
       var docString = "{ \"_id\": \"1001\", \"ARR\":[1,2,3], \"ARR1\":[\"name\", \"name2\", \"name3\"]}";
       ExecuteAddStatement(coll.Add(new DbDoc(docString)));
 
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("\"1001\" in $._id")).FetchAll().Count);
-      Assert.Equal(0, ExecuteFindStatement(coll.Find("\"1002\" in $._id")).FetchAll().Count);
-      Assert.Equal(1, ExecuteFindStatement(coll.Find("(1+2) in (1, 2, 3)")).FetchAll().Count);
+      Assert.Single(ExecuteFindStatement(coll.Find("\"1001\" in $._id")).FetchAll());
+      Assert.Empty(ExecuteFindStatement(coll.Find("\"1002\" in $._id")).FetchAll());
+      Assert.Single(ExecuteFindStatement(coll.Find("(1+2) in (1, 2, 3)")).FetchAll());
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll.Find("(1+2) in [1, 2, 3]")).FetchAll().Count);
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll.Find("(1+2) in $.ARR")).FetchAll().Count);
     }
@@ -644,7 +644,7 @@ namespace MySqlX.Data.Tests
 
       // Get a non-existing document.
       document = coll.GetOne(5);
-      Assert.Equal(null, document);
+      Assert.Null(document);
     }
 
     public enum LockMode { Exclusive, Shared }
@@ -670,7 +670,7 @@ namespace MySqlX.Data.Tests
         var coll1 = s1.GetSchema(schemaName).GetCollection(collectionName);
         s1.StartTransaction();
         DocResult r1 = ExecuteFindStatement(coll1.Find("_id = :id").Bind("id", 1).LockExclusive());
-        Assert.Equal(1, r1.FetchAll().Count);
+        Assert.Single(r1.FetchAll());
 
         // second session tries to read the locked row
         using (Session s2 = MySQLX.GetSession(ConnectionString))
@@ -705,7 +705,7 @@ namespace MySqlX.Data.Tests
                 Assert.Equal(1205u, Assert.ThrowsAny<MySqlException>(() => ExecuteFindStatement(stmt2).FetchAll()).Code);
                 break;
               }
-              Assert.Equal(0, ExecuteFindStatement(stmt2).FetchAll().Count);
+              Assert.Empty(ExecuteFindStatement(stmt2).FetchAll());
               break;
             default:
               throw new NotImplementedException(lockOption.ToString());
@@ -801,7 +801,7 @@ namespace MySqlX.Data.Tests
       // Single field.
       var result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields("title"));
       var document = result.FetchOne();
-      Assert.Equal(1, document.values.Count);
+      Assert.Single(document.values);
       Assert.Equal("Book 3", document["title"]);
 
       // Null values are ignored.
@@ -812,32 +812,32 @@ namespace MySqlX.Data.Tests
       // Null values are ignored.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields("title", null));
       document = result.FetchOne();
-      Assert.Equal(1, document.values.Count);
+      Assert.Single(document.values);
 
       // Single field in array.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields(new string[] { "title" }));
       document = result.FetchOne();
-      Assert.Equal(1, document.values.Count);
+      Assert.Single(document.values);
       Assert.Equal("Book 3", document["title"]);
 
       // Single field with alias.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pages", 20).Fields("title as title2"));
       document = result.FetchOne();
-      Assert.Equal(1, document.values.Count);
+      Assert.Single(document.values);
       Assert.Equal("Book 1", document["title2"]);
       Assert.False(document.values.ContainsKey("title"));
 
       // Unexistent field returns null.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pages", 20).Fields("book"));
       document = result.FetchOne();
-      Assert.Equal(1, document.values.Count);
-      Assert.Equal(null, document["book"]);
+      Assert.Single(document.values);
+      Assert.Null(document["book"]);
 
       // Unexistent field with alias returns null.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pages", 20).Fields("book as book1"));
       document = result.FetchOne();
-      Assert.Equal(1, document.values.Count);
-      Assert.Equal(null, document["book1"]);
+      Assert.Single(document.values);
+      Assert.Null(document["book1"]);
 
       // Multiple fields.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields("title", "pages", "other"));
@@ -845,7 +845,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal(3, document.values.Count);
       Assert.Equal("Book 3", document["title"]);
       Assert.Equal(40, document["pages"]);
-      Assert.Equal(null, document["other"]);
+      Assert.Null(document["other"]);
 
       // Multiple fields in array.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields(new string[] { "title", "pages" }));
@@ -893,19 +893,19 @@ namespace MySqlX.Data.Tests
       var findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", $"{prefix}3{suffix}").Bind("pages", 40);
       DocResult doc = ExecuteFindStatement(findStmt);
       var books = doc.FetchAll();
-      Assert.Equal(1, books.Count);
+      Assert.Single(books);
       Assert.Equal($"{prefix}3{suffix}", books[0]["_id"]);
 
       findStmt = coll.Find("_id = :id and pages = :pages").Bind("Id", $"{prefix}2{suffix}").Bind("Pages", 30);
       doc = ExecuteFindStatement(findStmt);
       books = doc.FetchAll();
-      Assert.Equal(1, books.Count);
+      Assert.Single(books);
       Assert.Equal($"{prefix}2{suffix}", books[0]["_id"]);
 
       findStmt = coll.Find("title = :title").Bind("Title", $"{prefix}Book 4{suffix}");
       doc = ExecuteFindStatement(findStmt);
       books = doc.FetchAll();
-      Assert.Equal(1, books.Count);
+      Assert.Single(books);
       Assert.Equal($"{prefix}4{suffix}", books[0]["_id"]);
       Assert.Equal(50, books[0]["pages"]);
     }
@@ -976,10 +976,10 @@ namespace MySqlX.Data.Tests
       Assert.Equal(2, result.Count);
       Assert.Equal("Book 1", result[0]["Title"]);
       result = ExecuteFindStatement(coll.Find("[''] OVERLAPS $.list")).FetchAll();
-      Assert.Equal(1, result.Count);
+      Assert.Single(result);
       Assert.Equal(5, result[0].Id);
       result = ExecuteFindStatement(coll.Find("[' '] OVERLAPS $.list")).FetchAll();
-      Assert.Equal(1, result.Count);
+      Assert.Single(result);
       Assert.Equal(6, result[0].Id);
 
       Assert.Throws<ArgumentException>(() => ExecuteFindStatement(coll.Find("$.list OVERLAPS -")).FetchAll());

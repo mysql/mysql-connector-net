@@ -208,7 +208,7 @@ namespace MySqlX.Data.Tests
         Collection c = test.CreateCollection("coll");
 
         List<Collection> collections = test.GetCollections();
-        Assert.Equal(1, collections.Count);
+        Assert.Single(collections);
         Assert.Equal("coll", collections[0].Name);
 
         Collection collection = test.GetCollection("coll");

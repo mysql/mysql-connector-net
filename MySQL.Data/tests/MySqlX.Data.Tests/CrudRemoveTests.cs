@@ -206,7 +206,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal(2, ExecuteFindStatement(collection.Find()).FetchAll().Count);
 
       Assert.Equal<ulong>(2, ExecuteRemoveStatement(collection.Remove("1 IN c.e")).AffectedItemsCount);
-      Assert.Equal(0, ExecuteFindStatement(collection.Find()).FetchAll().Count);
+      Assert.Empty(ExecuteFindStatement(collection.Find()).FetchAll());
     }
 
     [Fact]

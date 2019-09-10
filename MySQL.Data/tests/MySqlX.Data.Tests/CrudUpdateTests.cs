@@ -54,7 +54,7 @@ namespace MySqlX.Data.Tests
       // Set null value.
       result = ExecuteModifyStatement(coll.Modify("_id = 1").Set("pages", null));
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
-      Assert.Equal(null, coll.GetOne(1)["pages"]);
+      Assert.Null(coll.GetOne(1)["pages"]);
 
       // Set existing field.
       result = ExecuteModifyStatement(coll.Modify("_id = 1").Set("name", "Book 2"));
@@ -104,7 +104,7 @@ namespace MySqlX.Data.Tests
       result = ExecuteModifyStatement(coll.Modify("_id = 2").Unset("name", "pages"));
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
       document = ExecuteFindStatement(coll.Find("_id = 2")).FetchOne();
-      Assert.Equal(1, document.values.Count);
+      Assert.Single(document.values);
       result = ExecuteModifyStatement(coll.Modify("_id = 3").Unset(null, "author", "author2"));
       document = ExecuteFindStatement(coll.Find("_id = 3")).FetchOne();
       Assert.Equal(3, document.values.Count);
@@ -202,7 +202,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal<ulong>(2, result.AffectedItemsCount);
 
       ExecuteModifyStatement(collection.Modify("true").Set("title", "Book X").Limit(1));
-      Assert.Equal(1, ExecuteFindStatement(collection.Find("title = \"Book X\"")).FetchAll().Count);
+      Assert.Single(ExecuteFindStatement(collection.Find("title = \"Book X\"")).FetchAll());
 
       // Limit out of range.
       Assert.Throws<ArgumentOutOfRangeException>(() => ExecuteModifyStatement(collection.Modify("true").Set("pages", 10).Limit(0)));
@@ -343,7 +343,7 @@ namespace MySqlX.Data.Tests
       result = ExecuteFindStatement(collection.Find());
       document = result.FetchOne();
       x = (object[])document.values["x"];
-      Assert.Equal(null, x[0]);
+      Assert.Null(x[0]);
       Assert.Equal(" ", x[1]);
 
       // Insert an empty string fails.
@@ -424,7 +424,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal(43, (int) x[2]);
       Assert.Equal("string", x[3]);
       Assert.Equal(true, x[4]);
-      Assert.Equal(null, x[5]);
+      Assert.Null(x[5]);
       Assert.Equal(" ", x[6]);
 
       // No value is appended if the array doesn't exist.

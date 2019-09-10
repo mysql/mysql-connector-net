@@ -61,7 +61,7 @@ namespace MySqlX.Data.Tests
       Result r = ExecuteAddStatement(stmt);
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
       Assert.Equal(1, coll.Count());
-      Assert.Equal(1, r.GeneratedIds.Count);
+      Assert.Single(r.GeneratedIds);
       Assert.False(string.IsNullOrWhiteSpace(r.GeneratedIds[0]));
     }
 
@@ -113,7 +113,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal<ulong>(1, r.AffectedItemsCount);
       //TODO:  pull object and verify data
       Assert.Equal(1, coll.Count());
-      Assert.Equal(1, r.GeneratedIds.Count);
+      Assert.Single(r.GeneratedIds);
       Assert.False(string.IsNullOrWhiteSpace(r.GeneratedIds[0]));
     }
 
@@ -149,7 +149,7 @@ namespace MySqlX.Data.Tests
 
       result = ExecuteModifyStatement(coll.Modify($"_id = '{result.GeneratedIds[0]}'").Set("pages", "20"));
       Assert.Equal<ulong>(1, result.AffectedItemsCount);
-      Assert.Equal(0, result.GeneratedIds.Count);
+      Assert.Empty(result.GeneratedIds);
     }
 
     [Fact]
@@ -182,7 +182,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal(0ul, insertResult.AffectedItemsCount);
 
       var result = ExecuteFindStatement(coll.Find()).FetchAll();
-      Assert.Equal(0, result.Count);
+      Assert.Empty(result);
     }
 
     [Fact]
@@ -209,7 +209,7 @@ namespace MySqlX.Data.Tests
       Collection coll = CreateCollection("test");
       ExecuteAddStatement(coll.Add(d2));
       var result = ExecuteFindStatement(coll.Find()).FetchAll();
-      Assert.Equal(1, result.Count);
+      Assert.Single(result);
       Assert.Equal(d2.ToString(), result[0].ToString());
     }
 
