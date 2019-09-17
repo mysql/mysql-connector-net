@@ -68,7 +68,7 @@
     <PlugInConfigurations>
     </PlugInConfigurations>
     <VendorName>Oracle</VendorName>
-    <HelpFileVersion>8.0.18.0</HelpFileVersion>
+    <HelpFileVersion>8.0.19.0</HelpFileVersion>
     <MaximumGroupParts>3</MaximumGroupParts>
     <NamespaceGrouping>False</NamespaceGrouping>
     <SyntaxFilters>C#, Visual Basic</SyntaxFilters>
