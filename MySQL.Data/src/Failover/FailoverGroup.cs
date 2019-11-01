@@ -1,4 +1,4 @@
-// Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,10 +26,9 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySqlX.Failover;
 using System.Collections.Generic;
 
-namespace MySqlX.Failover
+namespace MySql.Data.Failover
 {
     internal abstract class FailoverGroup
     {
@@ -38,12 +37,12 @@ namespace MySqlX.Failover
       /// <summary>
       /// Gets and sets the host list.
       /// </summary>
-      protected internal List<XServer> Hosts { get; set; }
+      protected internal List<FailoverServer> Hosts { get; set; }
 
       /// <summary>
       /// Gets the active host.
       /// </summary>
-      protected internal XServer ActiveHost
+      protected internal FailoverServer ActiveHost
       {
         get
         {
@@ -70,11 +69,11 @@ namespace MySqlX.Failover
       /// <summary>
       /// Active host.
       /// </summary>
-      protected internal XServer _activeHost;
+      protected internal FailoverServer _activeHost;
 
       #endregion
 
-      internal FailoverGroup(List<XServer> hosts)
+      internal FailoverGroup(List<FailoverServer> hosts)
       {
         Hosts = hosts;
         SetInitialActiveServer();
@@ -88,7 +87,7 @@ namespace MySqlX.Failover
       /// <summary>
       /// Determines the next host.
       /// </summary>
-      /// <returns><see cref="XServer"/> object that represents the next available host.</returns>
-      protected internal abstract XServer GetNextHost();
+      /// <returns><see cref="FailoverServer"/> object that represents the next available host.</returns>
+      protected internal abstract FailoverServer GetNextHost();
     }
 }

@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,11 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 
-namespace MySqlX.Failover
+namespace MySql.Data.Failover
 {
   /// <summary>
   /// Manages the hosts available for client side failover using the Sequential Failover method.
@@ -43,7 +42,7 @@ namespace MySqlX.Failover
     /// </summary>
     private int _hostIndex;
 
-    public SequentialFailoverGroup(List<XServer> hosts) : base(hosts)
+    public SequentialFailoverGroup(List<FailoverServer> hosts) : base(hosts)
     {
       _hostIndex = 0;
     }
@@ -63,8 +62,8 @@ namespace MySqlX.Failover
     /// <summary>
     /// Determines the next host.
     /// </summary>
-    /// <returns>A <see cref="XServer"/> object that represents the next available host.</returns>
-    protected internal override XServer GetNextHost()
+    /// <returns>A <see cref="FailoverServer"/> object that represents the next available host.</returns>
+    protected internal override FailoverServer GetNextHost()
     {
       if (Hosts == null)
         throw new MySqlException(Resources.Replication_NoAvailableServer);
