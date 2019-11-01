@@ -1,4 +1,4 @@
-// Copyright © 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,19 +26,17 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.MySqlClient;
-using MySqlX.Failover;
 using MySqlX.XDevAPI;
 using System;
-using System.IO;
 using Xunit;
+using MySql.Data.Failover;
 
 namespace MySqlX.Data.Tests
 {
   public class ClientSideFailoverTests : BaseTest
   {
     [Fact]
-    public void SequentialMethodWithBasicFormatConnectionString()
+    public void RandomMethodWithBasicFormatConnectionString()
     {
       int connectionTimeout = 1000;
 
@@ -48,13 +46,13 @@ namespace MySqlX.Data.Tests
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
 
-      // Multiple hosts. First attempt fails, second is succesful.
+      // Multiple hosts.
       using (var session = MySQLX.GetSession("server=10.10.10.10, localhost;port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
 
-      // Multiple hosts using synonyms for "server" connection option. First attempt fails, second is succesful.
+      // Multiple hosts using synonyms for "server" connection option.
       using (var session = MySQLX.GetSession("address=10.10.10.10, localhost;port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
@@ -65,7 +63,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal("All server connection attempts were aborted. Timeout of 1000 milliseconds was exceeded for each selected server.", ex.Message);
 
       // Providing port number as part of the host name.
-      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("server= 10.10.10.10:33060, 20.20.20.20:33060 ;port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout));
+      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("server= 10.10.10.10:33050, 20.20.20.20:33060, localhost:33060 ;port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout));
       Assert.Equal("Providing a port number as part of the host address isn't supported when using connection strings in basic format or anonymous objects. Use URI format instead.", ex.Message);
 
       // Use default port.
@@ -77,7 +75,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
-    public void SequentialMethodWithUriFormatConnectionString()
+    public void RandomMethodWithUriFormatConnectionString()
     {
       int connectionTimeout = 1000;
 
@@ -102,19 +100,19 @@ namespace MySqlX.Data.Tests
       // Single host as an array. Failed connection.
       Exception ex = Assert.Throws<TimeoutException>(() => MySQLX.GetSession("mysqlx://test:test@[192.1.10.10:" + XPort + "]?connecttimeout=" + connectionTimeout));
 
-      // Multiple hosts. First attempt fails, second is succesful.
+      // Multiple hosts.
       using (var session = MySQLX.GetSession("mysqlx://test:test@[192.1.10.10,127.0.0.1:" + XPort + "]?connecttimeout=" + connectionTimeout))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
 
-      // Multiple hosts and a schema. First attempt fails, second is succesful.
+      // Multiple hosts and a schema.
       using (var session = MySQLX.GetSession("mysqlx://test:test@[192.1.10.10,127.0.0.1:" + XPort + "]/test?connecttimeout=" + connectionTimeout))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
 
-      // Multiple hosts which may or may not contain a port number. First and second attempts fail, third attempt is succesful.
+      // Multiple hosts which may or may not contain a port number.
       using (var session = MySQLX.GetSession("mysqlx://test:test@[192.1.10.10,120.0.0.2:22000,[::1]:" + XPort + "]/test?connecttimeout=" + connectionTimeout))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
@@ -122,7 +120,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
-    public void SequentialMethodWithAnonymousTypes()
+    public void RandomMethodWithAnonymousTypes()
     {
       int connectionTimeout = 1000;
       string uid = "test";
@@ -182,9 +180,9 @@ namespace MySqlX.Data.Tests
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         Assert.Equal("127.0.0.1", session.Settings.Server);
-        Assert.Equal("server.example", Failover.FailoverManager.FailoverGroup.Hosts[0].Host);
-        Assert.Equal("192.0.10.56", Failover.FailoverManager.FailoverGroup.Hosts[1].Host);
-        Assert.Equal("127.0.0.1", Failover.FailoverManager.FailoverGroup.Hosts[2].Host);
+        Assert.Equal("server.example", FailoverManager.FailoverGroup.Hosts[0].Host);
+        Assert.Equal("192.0.10.56", FailoverManager.FailoverGroup.Hosts[1].Host);
+        Assert.Equal("127.0.0.1", FailoverManager.FailoverGroup.Hosts[2].Host);
       }
 
       // Use default port.
@@ -222,7 +220,7 @@ namespace MySqlX.Data.Tests
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         priority = 100;
-        foreach (var host in Failover.FailoverManager.FailoverGroup.Hosts)
+        foreach (var host in FailoverManager.FailoverGroup.Hosts)
         {
           Assert.Equal(priority != 0 ? priority-- : 0, host.Priority);
         }
@@ -250,9 +248,9 @@ namespace MySqlX.Data.Tests
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         Assert.Equal("127.0.0.1", session.Settings.Server);
-        Assert.Equal("server.example", Failover.FailoverManager.FailoverGroup.Hosts[0].Host);
-        Assert.Equal("192.0.10.56", Failover.FailoverManager.FailoverGroup.Hosts[1].Host);
-        Assert.Equal("127.0.0.1", Failover.FailoverManager.FailoverGroup.Hosts[2].Host);
+        Assert.Equal("server.example", FailoverManager.FailoverGroup.Hosts[0].Host);
+        Assert.Equal("192.0.10.56", FailoverManager.FailoverGroup.Hosts[1].Host);
+        Assert.Equal("127.0.0.1", FailoverManager.FailoverGroup.Hosts[2].Host);
       }
 
       // Priority outside the 0-100 allowed range.
@@ -283,7 +281,7 @@ namespace MySqlX.Data.Tests
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         priority = 100;
-        foreach (var host in Failover.FailoverManager.FailoverGroup.Hosts)
+        foreach (var host in FailoverManager.FailoverGroup.Hosts)
         {
           Assert.Equal(priority != 0 ? priority-- : 0, host.Priority);
         }
@@ -320,9 +318,9 @@ namespace MySqlX.Data.Tests
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         Assert.Equal("127.0.0.1", session.Settings.Server);
-        Assert.Equal("server.example", Failover.FailoverManager.FailoverGroup.Hosts[0].Host);
-        Assert.Equal("192.0.10.56", Failover.FailoverManager.FailoverGroup.Hosts[1].Host);
-        Assert.Equal("127.0.0.1", Failover.FailoverManager.FailoverGroup.Hosts[2].Host);
+        Assert.Equal("server.example", FailoverManager.FailoverGroup.Hosts[0].Host);
+        Assert.Equal("192.0.10.56", FailoverManager.FailoverGroup.Hosts[1].Host);
+        Assert.Equal("127.0.0.1", FailoverManager.FailoverGroup.Hosts[2].Host);
       }
 
       using (var session = MySQLX.GetSession(new { host = "(address=127.0.0.1,priority=2),(address=localhost,priority=3)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
@@ -358,7 +356,7 @@ namespace MySqlX.Data.Tests
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
         priority = 100;
-        foreach (var host in Failover.FailoverManager.FailoverGroup.Hosts)
+        foreach (var host in FailoverManager.FailoverGroup.Hosts)
         {
           Assert.Equal(priority != 0 ? priority-- : 0, host.Priority);
         }

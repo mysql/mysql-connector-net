@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,7 +26,6 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.Sessions;
 using MySqlX.XDevAPI;
@@ -34,7 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MySqlX.Failover
+namespace MySql.Data.Failover
 {
   /// <summary>
   /// Implements common elements that allow to manage the hosts available for client side failover.
@@ -60,7 +59,7 @@ namespace MySqlX.Failover
     /// </summary>
     /// <param name="hostList">The host list.</param>
     /// <param name="failoverMethod">The failover method.</param>
-    internal static void SetHostList(List<XServer> hostList, FailoverMethod failoverMethod)
+    internal static void SetHostList(List<FailoverServer> hostList, FailoverMethod failoverMethod)
     {
       switch (failoverMethod)
       {
@@ -69,6 +68,9 @@ namespace MySqlX.Failover
           break;
         case FailoverMethod.Priority:
           FailoverGroup = new SequentialFailoverGroup(hostList.OrderByDescending(o => o.Priority).ToList());
+          break;
+        case FailoverMethod.Random:
+          FailoverGroup = new RandomFailoverGroup(hostList);
           break;
       }
     }
@@ -79,7 +81,7 @@ namespace MySqlX.Failover
     /// <param name="originalConnectionString">The original connection string set by the user.</param>
     /// <param name="connectionString">An out parameter that stores the updated connection string.</param>
     /// <returns>An <see cref="InternalSession"/> instance if the connection was succesfully established, a <see cref="MySqlException"/> exception is thrown otherwise.</returns>
-    internal static InternalSession AttemptConnection(string originalConnectionString, out string connectionString)
+    internal static InternalSession AttemptConnectionXProtocol(string originalConnectionString, out string connectionString)
     {
       if (FailoverGroup == null || originalConnectionString == null)
       {
@@ -87,7 +89,7 @@ namespace MySqlX.Failover
         return null;
       }
 
-      XServer currentHost = FailoverGroup.ActiveHost;
+      FailoverServer currentHost = FailoverGroup.ActiveHost;
       string initialHost = currentHost.Host;
       MySqlXConnectionStringBuilder Settings = null;
       InternalSession internalSession = null;
@@ -128,6 +130,41 @@ namespace MySqlX.Failover
 
       return internalSession;
     }
+
+    /// <summary>
+    /// Attempts to establish a connection to a host specified from the list.
+    /// </summary>
+    /// <param name="connection">MySqlConnection object where the new driver will be assigned</param>
+    /// <param name="originalConnectionString">The original connection string set by the user.</param>
+    /// <param name="connectionString">An out parameter that stores the updated connection string.</param>
+    internal static void AttemptConnection(MySqlConnection connection, string originalConnectionString, out string connectionString)
+    {
+      FailoverServer currentHost = FailoverGroup.ActiveHost;
+      string initialHost = currentHost.Host;
+      Driver driver = null;
+
+      do
+      {
+        // Attempt to connect to each host by retrieving the next host based on the failover method being used
+        connectionString = "server=" + currentHost.Host + ";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';') + 1);
+        MySqlConnectionStringBuilder msb = new MySqlConnectionStringBuilder(connectionString);
+        if (currentHost != null && currentHost.Port != -1)
+          msb.Port = (uint)currentHost.Port;
+
+        try
+        {
+          driver = Driver.Create(msb);
+          connection.driver = driver;
+          break;
+        }
+        catch (Exception) { }
+
+        currentHost = FailoverGroup.GetNextHost();
+      } while (currentHost.Host != initialHost);
+
+      if (driver == null)
+        throw new MySqlException(Resources.UnableToConnectToHost);
+    }
   }
 
   internal enum FailoverMethod
@@ -139,6 +176,10 @@ namespace MySqlX.Failover
     /// <summary>
     /// Determines the next host on which to attempt a connection by checking the value of the Priority property in descending order.
     /// </summary>
-    Priority
+    Priority,
+    /// <summary>
+    /// Determines the next host on which to attempt a connection randomly.
+    /// </summary>
+    Random
   }
 }

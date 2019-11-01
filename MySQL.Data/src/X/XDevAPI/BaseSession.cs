@@ -30,7 +30,7 @@ using MySql.Data;
 using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.Common;
-using MySqlX.Failover;
+using MySql.Data.Failover;
 using MySqlX.Sessions;
 using MySqlX.XDevAPI.Relational;
 using System;
@@ -222,7 +222,7 @@ namespace MySqlX.XDevAPI
       // Multiple hosts were specified.
       if (FailoverManager.FailoverGroup != null)
       {
-        _internalSession = FailoverManager.AttemptConnection(this._connectionString, out this._connectionString);
+        _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString);
         Settings.ConnectionString = this._connectionString;
         Settings.AnalyzeConnectionString(this._connectionString, true);
       }
@@ -291,7 +291,7 @@ namespace MySqlX.XDevAPI
       if (FailoverManager.FailoverGroup != null)
       {
         // Multiple hosts were specified.
-        _internalSession = FailoverManager.AttemptConnection(this._connectionString, out this._connectionString);
+        _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString);
         Settings.ConnectionString = _connectionString;
       }
       else
@@ -697,7 +697,7 @@ namespace MySqlX.XDevAPI
       int hostCount = -1;
       FailoverMethod failoverMethod = FailoverMethod.Sequential;
       string[] hostArray = null;
-      List<XServer> hostList = new List<XServer>();
+      List<FailoverServer> hostList = new List<FailoverServer>();
       hierPart = hierPart.Replace(" ", "");
 
       if (!hierPart.StartsWith("(") && !hierPart.EndsWith(")"))
@@ -706,9 +706,9 @@ namespace MySqlX.XDevAPI
         foreach (var host in hostArray)
         {
           if (IsUnixSocket(host))
-            hostList.Add(new XServer(NormalizeUnixSocket(host), -1, -1));
+            hostList.Add(new FailoverServer(NormalizeUnixSocket(host), -1, -1));
           else
-            hostList.Add(this.ConvertToXServer(host, connectionDataIsUri));
+            hostList.Add(this.ConvertToFailoverServer(host, connectionDataIsUri));
         }
 
         if (hostArray.Length == 1)
@@ -754,11 +754,10 @@ namespace MySqlX.XDevAPI
               throw new ArgumentNullException("priority");
 
             int priority = -1;
-            Int32.TryParse(keyValuePairs[1], out priority);
-            if (priority < 0 || priority > 100)
+            if (!Int32.TryParse(keyValuePairs[1], out priority) || priority < 0 || priority > 100)
               throw new ArgumentException(ResourcesX.PriorityOutOfLimits);
 
-            hostList.Add(ConvertToXServer(IsUnixSocket(host) ? NormalizeUnixSocket(host) : host, connectionDataIsUri, priority));
+            hostList.Add(ConvertToFailoverServer(IsUnixSocket(host) ? NormalizeUnixSocket(host) : host, connectionDataIsUri, priority));
           }
           else
           {
@@ -767,7 +766,7 @@ namespace MySqlX.XDevAPI
 
             allHavePriority = allHavePriority ?? false;
 
-            hostList.Add(ConvertToXServer(host, connectionDataIsUri, defaultPriority > 0 ? defaultPriority-- : 0));
+            hostList.Add(ConvertToFailoverServer(host, connectionDataIsUri, defaultPriority > 0 ? defaultPriority-- : 0));
           }
         }
 
@@ -780,14 +779,14 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Creates a <see cref="XServer"/> object based on the provided parameters.
+    /// Creates a <see cref="FailoverServer"/> object based on the provided parameters.
     /// </summary>
     /// <param name="host">The host string which can be a simple host name or a host name and port.</param>
     /// <param name="connectionDataIsUri"><c>true</c> if the connection data is a URI; otherwise <c>false</c>.</param>
     /// <param name="priority">The priority of the host.</param>
     /// <param name="port">The port number of the host.</param>
     /// <returns></returns>
-    private XServer ConvertToXServer(string host, bool connectionDataIsUri, int priority = -1, int port = -1)
+    private FailoverServer ConvertToFailoverServer(string host, bool connectionDataIsUri, int priority = -1, int port = -1)
     {
       host = host.Trim();
       IPAddress address;
@@ -818,7 +817,7 @@ namespace MySqlX.XDevAPI
         host = host.Substring(0, colonIndex);
       }
 
-      return new XServer(host, port, priority);
+      return new FailoverServer(host, port, priority);
     }
 
     /// <summary>
