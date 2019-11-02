@@ -695,7 +695,7 @@ namespace MySqlX.XDevAPI
       if (string.IsNullOrWhiteSpace(hierPart)) return -1;
 
       int hostCount = -1;
-      FailoverMethod failoverMethod = FailoverMethod.Sequential;
+      FailoverMethod failoverMethod = FailoverMethod.Random;
       string[] hostArray = null;
       List<FailoverServer> hostList = new List<FailoverServer>();
       hierPart = hierPart.Replace(" ", "");
