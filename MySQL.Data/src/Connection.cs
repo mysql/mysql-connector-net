@@ -201,7 +201,7 @@ namespace MySql.Data.MySqlClient
             {
               newSettings = new MySqlConnectionStringBuilder(value);
               ConnectionStringCache.Add(value, newSettings);
-              MySqlPoolManager._hosts = null;
+              MySqlPoolManager.Hosts = null;
             }
           }
         }
@@ -397,7 +397,7 @@ namespace MySql.Data.MySqlClient
           _sshHandler.StartClient();
         }
 
-        if (!Settings.Pooling || MySqlPoolManager._hosts == null)
+        if (!Settings.Pooling || MySqlPoolManager.Hosts == null)
         {
           FailoverManager.Reset();
           FailoverManager.ParseHostList(Settings.Server, false);

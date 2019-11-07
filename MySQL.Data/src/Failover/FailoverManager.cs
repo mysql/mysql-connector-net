@@ -64,7 +64,10 @@ namespace MySql.Data.Failover
     /// <param name="failoverMethod">The failover method.</param>
     internal static void SetHostList(List<FailoverServer> hostList, FailoverMethod failoverMethod)
     {
-      if (FailoverGroup == null)
+      if (FailoverGroup != null)
+        return;
+
+      switch (failoverMethod)
       {
         switch (failoverMethod)
         {
@@ -97,13 +100,17 @@ namespace MySql.Data.Failover
       }
 
       if (client != null)
-        if (client._hosts == null)
+      {
+        if (client.Hosts == null)
         {
-          client._hosts = FailoverGroup.Hosts;
-          client._demotedHosts = new ConcurrentQueue<FailoverServer>();
+          client.Hosts = FailoverGroup.Hosts;
+          client.DemotedHosts = new ConcurrentQueue<FailoverServer>();
         }
         else
-          FailoverGroup.Hosts = client._hosts;
+        {
+          FailoverGroup.Hosts = client.Hosts;
+        }
+      }
 
       FailoverServer currentHost = FailoverGroup.ActiveHost;
       FailoverServer initialHost = currentHost;
@@ -130,12 +137,12 @@ namespace MySql.Data.Failover
         if (client != null)
         {
           tmpHost.DemotedTime = DateTime.Now;
-          client._hosts.Remove(tmpHost);
-          client._demotedHosts.Enqueue(tmpHost);
+          client.Hosts.Remove(tmpHost);
+          client.DemotedHosts.Enqueue(tmpHost);
 
-          if (client._demotedServersTimer == null)
-            client._demotedServersTimer = new Timer(new TimerCallback(client.ReleaseDemotedHosts),
-              null, client._demotedTimeout, Timeout.Infinite);
+          if (client.DemotedServersTimer == null)
+            client.DemotedServersTimer = new Timer(new TimerCallback(client.ReleaseDemotedHosts),
+              null, Client.DEMOTED_TIMEOUT, Timeout.Infinite);
         }
       }
       while (!currentHost.Equals(initialHost));
@@ -157,13 +164,13 @@ namespace MySql.Data.Failover
     internal static void AttemptConnection(MySqlConnection connection, string originalConnectionString, out string connectionString, bool mySqlPoolManager = false)
     {
       if (mySqlPoolManager)
-        if (MySqlPoolManager._hosts == null)
+        if (MySqlPoolManager.Hosts == null)
         {
-          MySqlPoolManager._hosts = FailoverGroup.Hosts;
-          MySqlPoolManager._demotedHosts = new ConcurrentQueue<FailoverServer>();
+          MySqlPoolManager.Hosts = FailoverGroup.Hosts;
+          MySqlPoolManager.DemotedHosts = new ConcurrentQueue<FailoverServer>();
         }
         else
-          FailoverGroup.Hosts = MySqlPoolManager._hosts;
+          FailoverGroup.Hosts = MySqlPoolManager.Hosts;
 
       FailoverServer currentHost = FailoverGroup.ActiveHost;
       string initialHost = currentHost.Host;
@@ -192,12 +199,12 @@ namespace MySql.Data.Failover
         if (mySqlPoolManager)
         {
           tmpHost.DemotedTime = DateTime.Now;
-          MySqlPoolManager._hosts.Remove(tmpHost);
-          MySqlPoolManager._demotedHosts.Enqueue(tmpHost);
+          MySqlPoolManager.Hosts.Remove(tmpHost);
+          MySqlPoolManager.DemotedHosts.Enqueue(tmpHost);
 
-          if (MySqlPoolManager._demotedServersTimer == null)
-            MySqlPoolManager._demotedServersTimer = new Timer(new TimerCallback(MySqlPoolManager.ReleaseDemotedHosts),
-              null, MySqlPoolManager._demotedTimeout, Timeout.Infinite);
+          if (MySqlPoolManager.DemotedServersTimer == null)
+            MySqlPoolManager.DemotedServersTimer = new Timer(new TimerCallback(MySqlPoolManager.ReleaseDemotedHosts),
+              null, MySqlPoolManager.DEMOTED_TIMEOUT, Timeout.Infinite);
         }
       } while (currentHost.Host != initialHost);
 

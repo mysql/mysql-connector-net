@@ -30,9 +30,7 @@ using MySqlX.XDevAPI;
 using System;
 using Xunit;
 using MySql.Data.Failover;
-using System.Collections.Generic;
 using MySql.Data.MySqlClient;
-using System.Threading;
 
 namespace MySqlX.Data.Tests
 {
@@ -51,6 +49,12 @@ namespace MySqlX.Data.Tests
 
       // Multiple hosts.
       using (var session = MySQLX.GetSession("server=10.10.10.10, localhost, 20.20.20.20, 30.30.30.30;port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      }
+
+      // Multiple hosts with IPv6
+      using (var session = MySQLX.GetSession("server=10.10.10.10, ::1, 20.20.20.20, 30.30.30.30;port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }
@@ -124,6 +128,12 @@ namespace MySqlX.Data.Tests
 
       // Multiple hosts.
       using (var session = MySQLX.GetSession(new { server = "10.10.10.10, localhost", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
+      {
+        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+      }
+
+      // Multiple hosts with IPv6
+      using (var session = MySQLX.GetSession(new { server = "10.10.10.10, ::1", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
       }

@@ -44,10 +44,22 @@ namespace MySql.Data.MySqlClient
   {
     private static readonly Dictionary<string, MySqlPool> Pools = new Dictionary<string, MySqlPool>();
     private static readonly List<MySqlPool> ClearingPools = new List<MySqlPool>();
-    internal static ConcurrentQueue<FailoverServer> _demotedHosts;
-    internal static List<FailoverServer> _hosts;
-    internal static int _demotedTimeout = 120000;
-    internal static Timer _demotedServersTimer;
+    internal const int DEMOTED_TIMEOUT = 120000;
+
+    #region Properties
+    /// <summary>
+    /// Queue of demoted hosts.
+    /// </summary>
+    internal static ConcurrentQueue<FailoverServer> DemotedHosts { get; set; }
+    /// <summary>
+    /// List of hosts that will be attempted to connect to.
+    /// </summary>
+    internal static List<FailoverServer> Hosts { get; set; }
+    /// <summary>
+    /// Timer to be used when a host have been demoted.
+    /// </summary>
+    internal static Timer DemotedServersTimer { get; set; }
+    #endregion
 
     // Timeout in seconds, after which an unused (idle) connection 
     // should be closed.
@@ -219,17 +231,22 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     internal static void ReleaseDemotedHosts(object state)
     {
-      if (_demotedHosts.TryPeek(out FailoverServer demotedServer))
+      while (!DemotedHosts.IsEmpty)
       {
-        if (demotedServer.DemotedTime.AddMilliseconds(_demotedTimeout) < DateTime.Now)
+        if (DemotedHosts.TryPeek(out FailoverServer demotedServer) &&
+        demotedServer.DemotedTime.AddMilliseconds(DEMOTED_TIMEOUT) < DateTime.Now)
         {
           demotedServer.Attempted = false;
-          _hosts.Add(demotedServer);
-          _demotedHosts.TryDequeue(out demotedServer);
+          Hosts.Add(demotedServer);
+          DemotedHosts.TryDequeue(out demotedServer);
+        }
+        else
+        {
+          break;
         }
       }
 
-      _demotedServersTimer.Change(_demotedTimeout, Timeout.Infinite);
+      DemotedServersTimer.Change(DEMOTED_TIMEOUT, Timeout.Infinite);
     }
   }
 }

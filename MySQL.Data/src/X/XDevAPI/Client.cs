@@ -53,10 +53,22 @@ namespace MySqlX.XDevAPI
     private AutoResetEvent _autoResetEvent;
     private Timer _idleTimer;
     private bool _isClosed = false;
-    internal ConcurrentQueue<FailoverServer> _demotedHosts;
-    internal List<FailoverServer> _hosts;
-    internal int _demotedTimeout = 10000;
-    internal Timer _demotedServersTimer;
+    internal const int DEMOTED_TIMEOUT = 120000;
+
+    #region Properties
+    /// <summary>
+    /// Queue of demoted hosts.
+    /// </summary>
+    internal ConcurrentQueue<FailoverServer> DemotedHosts { get; set; }
+    /// <summary>
+    /// List of hosts that will be attempted to connect to.
+    /// </summary>
+    internal List<FailoverServer> Hosts { get; set; }
+    /// <summary>
+    /// Timer to be used when a host have been demoted.
+    /// </summary>
+    internal Timer DemotedServersTimer { get; set; }
+    #endregion
 
     internal Client(object connectionString, object connectionOptions)
     {
@@ -107,21 +119,22 @@ namespace MySqlX.XDevAPI
     /// </summary>
     internal void ReleaseDemotedHosts(object state)
     {
-      while (!_demotedHosts.IsEmpty)
+      while (!DemotedHosts.IsEmpty)
       {
-        if (_demotedHosts.TryPeek(out FailoverServer demotedServer))
+        if (DemotedHosts.TryPeek(out FailoverServer demotedServer)
+          && demotedServer.DemotedTime.AddMilliseconds(DEMOTED_TIMEOUT) < DateTime.Now)
         {
-          if (demotedServer.DemotedTime.AddMilliseconds(_demotedTimeout) < DateTime.Now)
-          {
-            demotedServer.Attempted = false;
-            _hosts.Add(demotedServer);
-            _demotedHosts.TryDequeue(out demotedServer);
-          }
-          else break;
+          demotedServer.Attempted = false;
+          Hosts.Add(demotedServer);
+          DemotedHosts.TryDequeue(out demotedServer);
+        }
+        else
+        {
+          break;
         }
       }
 
-      _demotedServersTimer?.Change(_demotedTimeout, Timeout.Infinite);
+      DemotedServersTimer?.Change(DEMOTED_TIMEOUT, Timeout.Infinite);
     }
 
     private void CleanIdleConnections(object state)
@@ -302,12 +315,12 @@ namespace MySqlX.XDevAPI
           catch { }
         }
       }
-      if (_demotedServersTimer != null)
+      if (DemotedServersTimer != null)
       {
-        _demotedServersTimer.Change(0, Timeout.Infinite);
-        while (!_demotedHosts.IsEmpty)
-          _demotedHosts.TryDequeue(out _);
-        _hosts.Clear();
+        DemotedServersTimer.Change(0, Timeout.Infinite);
+        while (!DemotedHosts.IsEmpty)
+          DemotedHosts.TryDequeue(out _);
+        Hosts.Clear();
       }
 
       Interlocked.Exchange(ref _available, -1);
@@ -484,8 +497,8 @@ namespace MySqlX.XDevAPI
           Close();
           _idleTimer.Dispose();
           _inUse.Clear();
-          if (_demotedServersTimer != null)
-            _demotedServersTimer.Dispose();
+          if (DemotedServersTimer != null)
+            DemotedServersTimer.Dispose();
         }
 
         disposedValue = true;
