@@ -69,18 +69,15 @@ namespace MySql.Data.Failover
 
       switch (failoverMethod)
       {
-        switch (failoverMethod)
-        {
-          case FailoverMethod.Sequential:
-            FailoverGroup = new SequentialFailoverGroup(hostList);
-            break;
-          case FailoverMethod.Priority:
-            FailoverGroup = new SequentialFailoverGroup(hostList.OrderByDescending(o => o.Priority).ToList());
-            break;
-          case FailoverMethod.Random:
-            FailoverGroup = new RandomFailoverGroup(hostList);
-            break;
-        }
+        case FailoverMethod.Sequential:
+          FailoverGroup = new SequentialFailoverGroup(hostList);
+          break;
+        case FailoverMethod.Priority:
+          FailoverGroup = new SequentialFailoverGroup(hostList.OrderByDescending(o => o.Priority).ToList());
+          break;
+        case FailoverMethod.Random:
+          FailoverGroup = new RandomFailoverGroup(hostList);
+          break;
       }
     }
 
