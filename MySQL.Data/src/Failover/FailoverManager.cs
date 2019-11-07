@@ -30,8 +30,11 @@ using MySql.Data.MySqlClient;
 using MySqlX.Sessions;
 using MySqlX.XDevAPI;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Threading;
 
 namespace MySql.Data.Failover
 {
@@ -61,17 +64,20 @@ namespace MySql.Data.Failover
     /// <param name="failoverMethod">The failover method.</param>
     internal static void SetHostList(List<FailoverServer> hostList, FailoverMethod failoverMethod)
     {
-      switch (failoverMethod)
+      if (FailoverGroup == null)
       {
-        case FailoverMethod.Sequential:
-          FailoverGroup = new SequentialFailoverGroup(hostList);
-          break;
-        case FailoverMethod.Priority:
-          FailoverGroup = new SequentialFailoverGroup(hostList.OrderByDescending(o => o.Priority).ToList());
-          break;
-        case FailoverMethod.Random:
-          FailoverGroup = new RandomFailoverGroup(hostList);
-          break;
+        switch (failoverMethod)
+        {
+          case FailoverMethod.Sequential:
+            FailoverGroup = new SequentialFailoverGroup(hostList);
+            break;
+          case FailoverMethod.Priority:
+            FailoverGroup = new SequentialFailoverGroup(hostList.OrderByDescending(o => o.Priority).ToList());
+            break;
+          case FailoverMethod.Random:
+            FailoverGroup = new RandomFailoverGroup(hostList);
+            break;
+        }
       }
     }
 
@@ -80,8 +86,9 @@ namespace MySql.Data.Failover
     /// </summary>
     /// <param name="originalConnectionString">The original connection string set by the user.</param>
     /// <param name="connectionString">An out parameter that stores the updated connection string.</param>
+    /// <param name="client">A <see cref="Client"/> object in case this is pooling scenario.</param>
     /// <returns>An <see cref="InternalSession"/> instance if the connection was succesfully established, a <see cref="MySqlException"/> exception is thrown otherwise.</returns>
-    internal static InternalSession AttemptConnectionXProtocol(string originalConnectionString, out string connectionString)
+    internal static InternalSession AttemptConnectionXProtocol(string originalConnectionString, out string connectionString, Client client = null)
     {
       if (FailoverGroup == null || originalConnectionString == null)
       {
@@ -89,11 +96,19 @@ namespace MySql.Data.Failover
         return null;
       }
 
+      if (client != null)
+        if (client._hosts == null)
+        {
+          client._hosts = FailoverGroup.Hosts;
+          client._demotedHosts = new ConcurrentQueue<FailoverServer>();
+        }
+        else
+          FailoverGroup.Hosts = client._hosts;
+
       FailoverServer currentHost = FailoverGroup.ActiveHost;
-      string initialHost = currentHost.Host;
+      FailoverServer initialHost = currentHost;
       MySqlXConnectionStringBuilder Settings = null;
       InternalSession internalSession = null;
-      TimeoutException timeoutException = null;
 
       do
       {
@@ -102,29 +117,30 @@ namespace MySql.Data.Failover
         Settings = new MySqlXConnectionStringBuilder(connectionString);
         if (currentHost != null && currentHost.Port != -1)
           Settings.Port = (uint)currentHost.Port;
-        if (currentHost.Host == initialHost)
-        {
-          string exTimeOutMessage = Settings.ConnectTimeout == 0 ? ResourcesX.TimeOutMultipleHost0ms : String.Format(ResourcesX.TimeOutMultipleHost, Settings.ConnectTimeout);
-          timeoutException = new TimeoutException(exTimeOutMessage);
-        }
 
-        try
-        {
-          internalSession = InternalSession.GetSession(Settings);
-          timeoutException = null;
-        }
-        catch (Exception ex) { if (!(ex is TimeoutException)) timeoutException = null; }
+        try { internalSession = InternalSession.GetSession(Settings); }
+        catch (Exception) { }
 
         if (internalSession != null)
           break;
 
+        var tmpHost = currentHost;
         currentHost = FailoverGroup.GetNextHost();
+
+        if (client != null)
+        {
+          tmpHost.DemotedTime = DateTime.Now;
+          client._hosts.Remove(tmpHost);
+          client._demotedHosts.Enqueue(tmpHost);
+
+          if (client._demotedServersTimer == null)
+            client._demotedServersTimer = new Timer(new TimerCallback(client.ReleaseDemotedHosts),
+              null, client._demotedTimeout, Timeout.Infinite);
+        }
       }
-      while (currentHost.Host != initialHost);
+      while (!currentHost.Equals(initialHost));
 
       // All connection attempts failed.
-      if (timeoutException != null)
-        throw timeoutException;
       if (internalSession == null)
         throw new MySqlException(Resources.UnableToConnectToHost);
 
@@ -137,8 +153,18 @@ namespace MySql.Data.Failover
     /// <param name="connection">MySqlConnection object where the new driver will be assigned</param>
     /// <param name="originalConnectionString">The original connection string set by the user.</param>
     /// <param name="connectionString">An out parameter that stores the updated connection string.</param>
-    internal static void AttemptConnection(MySqlConnection connection, string originalConnectionString, out string connectionString)
+    /// <param name="mySqlPoolManager">A <see cref="MySqlPoolManager"> in case this is a pooling scenario."/></param>
+    internal static void AttemptConnection(MySqlConnection connection, string originalConnectionString, out string connectionString, bool mySqlPoolManager = false)
     {
+      if (mySqlPoolManager)
+        if (MySqlPoolManager._hosts == null)
+        {
+          MySqlPoolManager._hosts = FailoverGroup.Hosts;
+          MySqlPoolManager._demotedHosts = new ConcurrentQueue<FailoverServer>();
+        }
+        else
+          FailoverGroup.Hosts = MySqlPoolManager._hosts;
+
       FailoverServer currentHost = FailoverGroup.ActiveHost;
       string initialHost = currentHost.Host;
       Driver driver = null;
@@ -154,16 +180,163 @@ namespace MySql.Data.Failover
         try
         {
           driver = Driver.Create(msb);
-          connection.driver = driver;
+          if (!mySqlPoolManager)
+            connection.driver = driver;
           break;
         }
         catch (Exception) { }
 
+        var tmpHost = currentHost;
         currentHost = FailoverGroup.GetNextHost();
+
+        if (mySqlPoolManager)
+        {
+          tmpHost.DemotedTime = DateTime.Now;
+          MySqlPoolManager._hosts.Remove(tmpHost);
+          MySqlPoolManager._demotedHosts.Enqueue(tmpHost);
+
+          if (MySqlPoolManager._demotedServersTimer == null)
+            MySqlPoolManager._demotedServersTimer = new Timer(new TimerCallback(MySqlPoolManager.ReleaseDemotedHosts),
+              null, MySqlPoolManager._demotedTimeout, Timeout.Infinite);
+        }
       } while (currentHost.Host != initialHost);
 
       if (driver == null)
         throw new MySqlException(Resources.UnableToConnectToHost);
+    }
+
+    /// <summary>
+    /// Creates a <see cref="FailoverGroup"/> if more than one host is found.
+    /// </summary>
+    /// <param name="hierPart">A string containing an unparsed list of hosts.</param>
+    /// <param name="isXProtocol"><c>true</c> if the connection is X Protocol; otherwise <c>false</c>.</param>
+    /// <param name="connectionDataIsUri"><c>true</c> if the connection data is a URI; otherwise <c>false</c>.</param>
+    /// <returns>The number of hosts found, -1 if an error was raised during parsing.</returns>
+    internal static int ParseHostList(string hierPart, bool isXProtocol, bool connectionDataIsUri = true)
+    {
+      if (string.IsNullOrWhiteSpace(hierPart)) return -1;
+
+      int hostCount = -1;
+      FailoverMethod failoverMethod = FailoverMethod.Random;
+      string[] hostArray = null;
+      List<FailoverServer> hostList = new List<FailoverServer>();
+      hierPart = hierPart.Replace(" ", "");
+
+      if (!hierPart.StartsWith("(") && !hierPart.EndsWith(")"))
+      {
+        hostArray = hierPart.Split(',');
+        if (hostArray.Length == 1)
+          return 1;
+
+        foreach (var host in hostArray)
+          hostList.Add(ConvertToFailoverServer(host, connectionDataIsUri: connectionDataIsUri));
+
+        hostCount = hostArray.Length;
+      }
+      else
+      {
+        string[] groups = hierPart.Split(new string[] { "),(" }, StringSplitOptions.RemoveEmptyEntries);
+        bool? allHavePriority = null;
+        int defaultPriority = 100;
+        foreach (var group in groups)
+        {
+          // Remove leading parenthesis.
+          var normalizedGroup = group;
+          if (normalizedGroup.StartsWith("("))
+            normalizedGroup = group.Substring(1);
+
+          if (normalizedGroup.EndsWith(")"))
+            normalizedGroup = normalizedGroup.Substring(0, normalizedGroup.Length - 1);
+
+          string[] items = normalizedGroup.Split(',');
+          string[] keyValuePairs = items[0].Split('=');
+          if (keyValuePairs[0].ToLowerInvariant() != "address")
+            throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound, "address"));
+
+          string host = keyValuePairs[1];
+          if (string.IsNullOrWhiteSpace(host))
+            throw new ArgumentNullException("server");
+
+          if (items.Length == 2)
+          {
+            if (allHavePriority != null && allHavePriority == false)
+              throw new ArgumentException(ResourcesX.PriorityForAllOrNoHosts);
+
+            allHavePriority = allHavePriority ?? true;
+            keyValuePairs = items[1].Split('=');
+            if (keyValuePairs[0].ToLowerInvariant() != "priority")
+              throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound, "priority"));
+
+            if (string.IsNullOrWhiteSpace(keyValuePairs[1]))
+              throw new ArgumentNullException("priority");
+
+            int priority = -1;
+            if (!Int32.TryParse(keyValuePairs[1], out priority) || priority < 0 || priority > 100)
+              throw new ArgumentException(ResourcesX.PriorityOutOfLimits);
+
+            if (isXProtocol)
+              hostList.Add(ConvertToFailoverServer(BaseSession.IsUnixSocket(host) ? BaseSession.NormalizeUnixSocket(host) : host, priority, connectionDataIsUri: connectionDataIsUri));
+            else
+              hostList.Add(ConvertToFailoverServer(host, priority));
+          }
+          else
+          {
+            if (allHavePriority != null && allHavePriority == true)
+              throw new ArgumentException(ResourcesX.PriorityForAllOrNoHosts);
+
+            allHavePriority = allHavePriority ?? false;
+
+            hostList.Add(ConvertToFailoverServer(host, defaultPriority > 0 ? defaultPriority-- : 0, connectionDataIsUri: connectionDataIsUri));
+          }
+        }
+
+        hostCount = groups.Length;
+        failoverMethod = FailoverMethod.Priority;
+      }
+
+      SetHostList(hostList, failoverMethod);
+      return hostCount;
+    }
+
+    /// <summary>
+    /// Creates a <see cref="FailoverServer"/> object based on the provided parameters.
+    /// </summary>
+    /// <param name="host">The host string which can be a simple host name or a host name and port.</param>
+    /// <param name="priority">The priority of the host.</param>
+    /// <param name="port">The port number of the host.</param>
+    /// <param name="connectionDataIsUri"><c>true</c> if the connection data is a URI; otherwise <c>false</c>.</param>
+    /// <returns></returns>
+    private static FailoverServer ConvertToFailoverServer(string host, int priority = -1, int port = -1, bool connectionDataIsUri = true)
+    {
+      host = host.Trim();
+      int colonIndex = -1;
+      if (IPAddress.TryParse(host, out IPAddress address))
+      {
+        switch (address.AddressFamily)
+        {
+          case System.Net.Sockets.AddressFamily.InterNetworkV6:
+            if (host.StartsWith("[") && host.Contains("]") && !host.EndsWith("]"))
+              colonIndex = host.LastIndexOf(":");
+
+            break;
+          default:
+            colonIndex = host.IndexOf(":");
+            break;
+        }
+      }
+      else
+        colonIndex = host.IndexOf(":");
+
+      if (colonIndex != -1)
+      {
+        if (!connectionDataIsUri)
+          throw new ArgumentException(ResourcesX.PortNotSupported);
+
+        int.TryParse(host.Substring(colonIndex + 1), out port);
+        host = host.Substring(0, colonIndex);
+      }
+
+      return new FailoverServer(host, port, priority);
     }
   }
 

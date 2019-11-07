@@ -133,9 +133,12 @@ namespace MySql.Data.MySqlClient
           driver = null;
         }
         else if (Settings.ConnectionReset)
+        {
           // if the user asks us to ping/reset pooled connections
           // do so now
-          driver.Reset();
+          try { driver.Reset(); }            
+          catch (Exception) { Clear(); }
+        }
       }
       if (driver == null)
         driver = CreateNewPooledConnection();
@@ -314,6 +317,6 @@ namespace MySql.Data.MySqlClient
         }
       }
       return oldDrivers;
-    }
+    }    
   }
 }

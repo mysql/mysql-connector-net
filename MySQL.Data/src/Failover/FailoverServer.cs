@@ -26,12 +26,14 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System;
+
 namespace MySql.Data.Failover
 {
   /// <summary>
   /// Depicts a host which can be failed over to.
   /// </summary>
-  internal class FailoverServer
+  internal class FailoverServer : IEquatable<FailoverServer>
   {
     #region Properties
 
@@ -55,6 +57,10 @@ namespace MySql.Data.Failover
     /// Flag to indicate if this host has been attempted to connection.
     /// </summary>
     internal bool Attempted { get; set; }
+    /// <summary>
+    /// Time since the host has been demoted.
+    /// </summary>
+    internal DateTime DemotedTime { get; set; }
 
     #endregion
 
@@ -63,6 +69,17 @@ namespace MySql.Data.Failover
       this.Host = host;
       this.Port = port;
       this.Priority = priority;
+    }
+
+    /// <summary>
+    /// Compares 2 objects of type <see cref="FailoverServer"/>.
+    /// </summary>
+    /// <param name="other">FailoverServer to compare.</param>
+    /// <returns><c>True</c> if host properties are the same. Otherwise, <c>false</c>.</returns>
+    public bool Equals(FailoverServer other)
+    {
+      if (other == null) return false;
+      return (this.Host == other.Host);
     }
   }
 }

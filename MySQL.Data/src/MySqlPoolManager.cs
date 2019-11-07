@@ -26,7 +26,9 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Failover;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -42,6 +44,10 @@ namespace MySql.Data.MySqlClient
   {
     private static readonly Dictionary<string, MySqlPool> Pools = new Dictionary<string, MySqlPool>();
     private static readonly List<MySqlPool> ClearingPools = new List<MySqlPool>();
+    internal static ConcurrentQueue<FailoverServer> _demotedHosts;
+    internal static List<FailoverServer> _hosts;
+    internal static int _demotedTimeout = 120000;
+    internal static Timer _demotedServersTimer;
 
     // Timeout in seconds, after which an unused (idle) connection 
     // should be closed.
@@ -205,6 +211,25 @@ namespace MySql.Data.MySqlClient
       {
         driver.Close();
       }
+    }
+
+    /// <summary>
+    /// Remove hosts from the demoted list that have already been there for more
+    /// than 120,000 milliseconds and add them to the available hosts list.
+    /// </summary>
+    internal static void ReleaseDemotedHosts(object state)
+    {
+      if (_demotedHosts.TryPeek(out FailoverServer demotedServer))
+      {
+        if (demotedServer.DemotedTime.AddMilliseconds(_demotedTimeout) < DateTime.Now)
+        {
+          demotedServer.Attempted = false;
+          _hosts.Add(demotedServer);
+          _demotedHosts.TryDequeue(out demotedServer);
+        }
+      }
+
+      _demotedServersTimer.Change(_demotedTimeout, Timeout.Infinite);
     }
   }
 }

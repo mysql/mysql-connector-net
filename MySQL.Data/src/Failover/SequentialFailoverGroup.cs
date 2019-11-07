@@ -41,6 +41,10 @@ namespace MySql.Data.Failover
     /// The index of the current host.
     /// </summary>
     private int _hostIndex;
+    /// <summary>
+    /// Current host to be attempted to connect to.
+    /// </summary>
+    private string _currentHost;
 
     public SequentialFailoverGroup(List<FailoverServer> hosts) : base(hosts)
     {
@@ -57,6 +61,7 @@ namespace MySql.Data.Failover
 
       Hosts[0].IsActive = true;
       _activeHost = Hosts[0];
+      _currentHost = _activeHost.Host;
     }
 
     /// <summary>
@@ -68,9 +73,12 @@ namespace MySql.Data.Failover
       if (Hosts == null)
         throw new MySqlException(Resources.Replication_NoAvailableServer);
 
-      Hosts[_hostIndex].IsActive = false;
-      _activeHost = _hostIndex==Hosts.Count-1 ? Hosts[0] : Hosts[_hostIndex+1];
+      var currentServer = Hosts.Find(h => h.Host == _currentHost);
+      currentServer.IsActive = false;
+      _hostIndex = Hosts.IndexOf(currentServer);
+      _activeHost = _hostIndex == Hosts.Count - 1 ? Hosts[0] : Hosts[_hostIndex + 1];
       _activeHost.IsActive = true;
+      _currentHost = _activeHost.Host;
       _hostIndex++;
 
       return _activeHost;

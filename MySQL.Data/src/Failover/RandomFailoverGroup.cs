@@ -39,13 +39,13 @@ namespace MySql.Data.Failover
   internal class RandomFailoverGroup : FailoverGroup
   {
     /// <summary>
-    /// The initial index of the host list.
+    /// The initial host taken from the list.
     /// </summary>
-    private int _initialIndex;
+    private FailoverServer _initialHost;
     /// <summary>
-    /// The index of the current host.
+    /// Current host to be attempted to connect to.
     /// </summary>
-    private int _hostIndex;
+    private string _currentHost;
     /// <summary>
     /// Random object to get the next host.
     /// </summary>
@@ -62,11 +62,13 @@ namespace MySql.Data.Failover
       if (Hosts == null || Hosts.Count == 0)
         throw new MySqlException(Resources.Replication_NoAvailableServer);
 
-      _initialIndex = _hostIndex = rnd.Next(Hosts.Count);
+      var initialIndex = rnd.Next(Hosts.Count);
+      _initialHost = Hosts[initialIndex];
 
-      Hosts[_hostIndex].IsActive = true;
-      Hosts[_hostIndex].Attempted = true;
-      _activeHost = Hosts[_hostIndex];
+      _initialHost.IsActive = true;
+      _initialHost.Attempted = true;
+      _activeHost = _initialHost;
+      _currentHost = _activeHost.Host;
     }
 
     /// <summary>
@@ -78,7 +80,7 @@ namespace MySql.Data.Failover
       if (Hosts == null)
         throw new MySqlException(Resources.Replication_NoAvailableServer);
 
-      Hosts[_hostIndex].IsActive = false;
+      Hosts.Find(h => h.Host == _currentHost).IsActive = false;
       var notAttemptedHosts = Hosts.FindAll(h => h.Attempted == false);
 
       if (notAttemptedHosts.Count > 0)
@@ -86,10 +88,10 @@ namespace MySql.Data.Failover
         _activeHost = notAttemptedHosts[rnd.Next(notAttemptedHosts.Count)];
         _activeHost.IsActive = true;
         _activeHost.Attempted = true;
-        _hostIndex = Hosts.FindIndex(i => i == _activeHost);
+        _currentHost = _activeHost.Host;
       }
       else
-        _activeHost = Hosts[_initialIndex];
+        _activeHost = _initialHost;
 
       return _activeHost;
     }
