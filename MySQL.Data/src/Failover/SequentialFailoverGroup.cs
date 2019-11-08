@@ -42,7 +42,7 @@ namespace MySql.Data.Failover
     /// </summary>
     private int _hostIndex;
     /// <summary>
-    /// Current host to be attempted to connect to.
+    /// The host for the current connection attempt.
     /// </summary>
     private string _currentHost;
 

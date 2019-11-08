@@ -72,9 +72,9 @@ namespace MySql.Data.Failover
     }
 
     /// <summary>
-    /// Compares 2 objects of type <see cref="FailoverServer"/>.
+    /// Compares two objects of type <see cref="FailoverServer"/>.
     /// </summary>
-    /// <param name="other">FailoverServer to compare.</param>
+    /// <param name="other">FailoverServer object to compare.</param>
     /// <returns><c>True</c> if host properties are the same. Otherwise, <c>false</c>.</returns>
     public bool Equals(FailoverServer other)
     {

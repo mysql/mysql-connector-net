@@ -234,7 +234,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Remove hosts from the demoted list that have already been there for more
+    /// Remove hosts that have been on the demoted list for more
     /// than 120,000 milliseconds and add them to the available hosts list.
     /// </summary>
     internal static void ReleaseDemotedHosts(object state)

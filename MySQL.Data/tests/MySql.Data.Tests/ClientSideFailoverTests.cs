@@ -50,6 +50,7 @@ namespace MySql.Data.MySqlClient.Tests
       _sb.Pooling = false;
 
       // Single host.
+      _sb.Server = "localhost";
       using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
       {
         conn.Open();
