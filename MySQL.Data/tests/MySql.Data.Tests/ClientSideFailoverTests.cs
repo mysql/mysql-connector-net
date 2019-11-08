@@ -40,7 +40,7 @@ namespace MySql.Data.MySqlClient.Tests
     public ClientSideFailoverTests(TestFixture fixture) : base(fixture)
     {
       _sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
-      _sb.ConnectionTimeout = 7;
+      _sb.ConnectionTimeout = 7;      
     }
 
     [Fact]

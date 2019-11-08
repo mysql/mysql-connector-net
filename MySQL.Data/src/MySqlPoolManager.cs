@@ -202,7 +202,7 @@ namespace MySql.Data.MySqlClient
       if (DemotedServersTimer != null)
       {
         DemotedServersTimer.Dispose();
-        Hosts.Clear();
+        Hosts?.Clear(); 
         while (!DemotedHosts.IsEmpty)
           DemotedHosts.TryDequeue(out _);
       }
