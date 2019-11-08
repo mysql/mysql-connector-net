@@ -43,54 +43,36 @@ namespace MySql.Data.MySqlClient.Tests
       _sb.ConnectionTimeout = 7;      
     }
 
-    [Fact]
+    [Theory]
     [Trait("Category", "Security")]
-    public void RandomMethod()
+    [InlineData("localhost")] // Single host
+    [InlineData("10.10.10.10, localhost, 20.20.20.20, 30.30.30.30")] // Multiple hosts
+    [InlineData("10.10.10.10:3306, localhost:3306, 20.20.20.20:3305, 30.30.30.30:3305")] // Multiple hosts with port number
+    [InlineData("10.10.10.10, ::1, 20.20.20.20, 30.30.30.30")] // Multiple hosts, one with IPv6
+    [InlineData("10.10.10.10, 10.11.12.13, 20.20.20.20, 30.30.30.30", false)] // Multiple hosts, should fail
+    public void RandomMethod(string server, bool shouldPass = true)
     {
       _sb.Pooling = false;
+      _sb.Server = server;
 
-      // Single host.
-      _sb.Server = "localhost";
-      using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
+      if (!shouldPass)
       {
-        conn.Open();
-        Assert.Equal(ConnectionState.Open, conn.State);
-      }
-
-      // Multiple hosts.
-      _sb.Server = "10.10.10.10, localhost, 20.20.20.20, 30.30.30.30";
-      using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
-      {
-        conn.Open();
-        Assert.Equal(ConnectionState.Open, conn.State);
-      }
-
-      // Multiple hosts.
-      _sb.Server = "10.10.10.10:3306, localhost:3306, 20.20.20.20:3305, 30.30.30.30:3305";
-      using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
-      {
-        conn.Open();
-        Assert.Equal(ConnectionState.Open, conn.State);
-      }
-
-      // Multiple hosts with IPv6
-      if (Fixture.Version > new Version(5, 6, 0))
-      {
-        _sb.Server = "10.10.10.10, ::1, 20.20.20.20, 30.30.30.30";
-        using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
-        {
-          conn.Open();
-          Assert.Equal(ConnectionState.Open, conn.State);
-        }
-      }
-
-      // Multiple hosts. All attempts fail.
-      _sb.Server = "10.10.10.10, 10.11.12.13, 20.20.20.20, 30.30.30.30";
-      using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
-      {
-        Exception ex = Assert.Throws<MySqlException>(() => conn.Open());
+        Exception ex = Assert.Throws<MySqlException>(() => TryConnection(_sb.ConnectionString));
         Assert.Equal("Unable to connect to any of the specified MySQL hosts.", ex.Message);
+      }      
+      else
+        Assert.Equal(ConnectionState.Open, TryConnection(_sb.ConnectionString));
+    }
+
+    private ConnectionState TryConnection(string connString)
+    {
+      ConnectionState state;
+      using (MySqlConnection conn = new MySqlConnection(connString))
+      {
+        conn.Open();
+        state = conn.State;
       }
+      return state;
     }
 
     [Fact]
