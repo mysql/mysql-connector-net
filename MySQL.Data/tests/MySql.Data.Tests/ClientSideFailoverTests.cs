@@ -40,12 +40,15 @@ namespace MySql.Data.MySqlClient.Tests
     public ClientSideFailoverTests(TestFixture fixture) : base(fixture)
     {
       _sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      _sb.ConnectionTimeout = 7;
     }
 
     [Fact]
     [Trait("Category", "Security")]
     public void RandomMethod()
     {
+      _sb.Pooling = false;
+
       // Single host.
       using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
       {
@@ -93,6 +96,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Trait("Category", "Security")]
     public void PriorityMethod()
     {
+      _sb.Pooling = false;
+
       // Multiple hosts and validate proper order assigned to hosts.
       _sb.Server = "(address=server.example,priority=100),(address=127.0.0.1,priority=25),(address=192.0.10.56,priority=75)";
       using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
@@ -192,7 +197,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (connArray[i])
         {
           connArray[i].Open();
-          Assert.Equal(ConnectionState.Open, connArray[i].State);
+          Assert.Equal(ConnectionState.Open, connArray[i].State);          
         }
       }
 
