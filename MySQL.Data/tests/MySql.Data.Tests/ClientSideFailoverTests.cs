@@ -40,14 +40,14 @@ namespace MySql.Data.MySqlClient.Tests
     public ClientSideFailoverTests(TestFixture fixture) : base(fixture)
     {
       _sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
-      _sb.ConnectionTimeout = 7;      
+      _sb.ConnectionTimeout = 7;
     }
 
     [Theory]
     [Trait("Category", "Security")]
     [InlineData("localhost")] // Single host
     [InlineData("10.10.10.10, localhost, 20.20.20.20, 30.30.30.30")] // Multiple hosts
-    [InlineData("10.10.10.10:3306, localhost:3306, 20.20.20.20:3305, 30.30.30.30:3305")] // Multiple hosts with port number
+    [InlineData("10.10.10.10:3306, localhost, 20.20.20.20:3305, 30.30.30.30:3305")] // Multiple hosts with port number
     [InlineData("10.10.10.10, ::1, 20.20.20.20, 30.30.30.30")] // Multiple hosts, one with IPv6
     [InlineData("10.10.10.10, 10.11.12.13, 20.20.20.20, 30.30.30.30", false)] // Multiple hosts, should fail
     public void RandomMethod(string server, bool shouldPass = true)
@@ -59,7 +59,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Exception ex = Assert.Throws<MySqlException>(() => TryConnection(_sb.ConnectionString));
         Assert.Equal("Unable to connect to any of the specified MySQL hosts.", ex.Message);
-      }      
+      }
       else
         Assert.Equal(ConnectionState.Open, TryConnection(_sb.ConnectionString));
     }
@@ -180,7 +180,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (connArray[i])
         {
           connArray[i].Open();
-          Assert.Equal(ConnectionState.Open, connArray[i].State);          
+          Assert.Equal(ConnectionState.Open, connArray[i].State);
         }
       }
 
