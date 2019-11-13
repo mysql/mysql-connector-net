@@ -26,7 +26,9 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Failover;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -42,6 +44,22 @@ namespace MySql.Data.MySqlClient
   {
     private static readonly Dictionary<string, MySqlPool> Pools = new Dictionary<string, MySqlPool>();
     private static readonly List<MySqlPool> ClearingPools = new List<MySqlPool>();
+    internal const int DEMOTED_TIMEOUT = 120000;
+
+    #region Properties
+    /// <summary>
+    /// Queue of demoted hosts.
+    /// </summary>
+    internal static ConcurrentQueue<FailoverServer> DemotedHosts { get; set; }
+    /// <summary>
+    /// List of hosts that will be attempted to connect to.
+    /// </summary>
+    internal static List<FailoverServer> Hosts { get; set; }
+    /// <summary>
+    /// Timer to be used when a host have been demoted.
+    /// </summary>
+    internal static Timer DemotedServersTimer { get; set; }
+    #endregion
 
     // Timeout in seconds, after which an unused (idle) connection 
     // should be closed.
@@ -205,6 +223,30 @@ namespace MySql.Data.MySqlClient
       {
         driver.Close();
       }
+    }
+
+    /// <summary>
+    /// Remove hosts from the demoted list that have already been there for more
+    /// than 120,000 milliseconds and add them to the available hosts list.
+    /// </summary>
+    internal static void ReleaseDemotedHosts(object state)
+    {
+      while (!DemotedHosts.IsEmpty)
+      {
+        if (DemotedHosts.TryPeek(out FailoverServer demotedServer) &&
+        demotedServer.DemotedTime.AddMilliseconds(DEMOTED_TIMEOUT) < DateTime.Now)
+        {
+          demotedServer.Attempted = false;
+          Hosts.Add(demotedServer);
+          DemotedHosts.TryDequeue(out demotedServer);
+        }
+        else
+        {
+          break;
+        }
+      }
+
+      DemotedServersTimer.Change(DEMOTED_TIMEOUT, Timeout.Infinite);
     }
   }
 }

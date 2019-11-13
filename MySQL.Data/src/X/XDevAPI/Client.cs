@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
+using MySql.Data.Failover;
 
 namespace MySqlX.XDevAPI
 {
@@ -52,7 +53,22 @@ namespace MySqlX.XDevAPI
     private AutoResetEvent _autoResetEvent;
     private Timer _idleTimer;
     private bool _isClosed = false;
+    internal const int DEMOTED_TIMEOUT = 120000;
 
+    #region Properties
+    /// <summary>
+    /// Queue of demoted hosts.
+    /// </summary>
+    internal ConcurrentQueue<FailoverServer> DemotedHosts { get; set; }
+    /// <summary>
+    /// List of hosts that will be attempted to connect to.
+    /// </summary>
+    internal List<FailoverServer> Hosts { get; set; }
+    /// <summary>
+    /// Timer to be used when a host have been demoted.
+    /// </summary>
+    internal Timer DemotedServersTimer { get; set; }
+    #endregion
 
     internal Client(object connectionString, object connectionOptions)
     {
@@ -95,6 +111,30 @@ namespace MySqlX.XDevAPI
         null,
         _connectionOptions.Pooling.MaxIdleTime,
         _connectionOptions.Pooling.MaxIdleTime == 0 ? Timeout.Infinite : _connectionOptions.Pooling.MaxIdleTime);
+    }
+
+    /// <summary>
+    /// Remove hosts from the demoted list that have already been there for more
+    /// than 120,000 milliseconds and add them to the available hosts list.
+    /// </summary>
+    internal void ReleaseDemotedHosts(object state)
+    {
+      while (!DemotedHosts.IsEmpty)
+      {
+        if (DemotedHosts.TryPeek(out FailoverServer demotedServer)
+          && demotedServer.DemotedTime.AddMilliseconds(DEMOTED_TIMEOUT) < DateTime.Now)
+        {
+          demotedServer.Attempted = false;
+          Hosts.Add(demotedServer);
+          DemotedHosts.TryDequeue(out demotedServer);
+        }
+        else
+        {
+          break;
+        }
+      }
+
+      DemotedServersTimer?.Change(DEMOTED_TIMEOUT, Timeout.Infinite);
     }
 
     private void CleanIdleConnections(object state)
@@ -196,6 +236,7 @@ namespace MySqlX.XDevAPI
         {
           try
           {
+            session.Reset();
             if (session.XSession.sessionResetNoReauthentication == false)
               session.XSession.Authenticate();
             session.XSession.SetState(SessionState.Open, false);
@@ -203,6 +244,7 @@ namespace MySqlX.XDevAPI
           catch
           {
             session = null;
+            CleanIdleConnections(null);
           }
         }
       }
@@ -273,6 +315,14 @@ namespace MySqlX.XDevAPI
           catch { }
         }
       }
+      if (DemotedServersTimer != null)
+      {
+        DemotedServersTimer.Change(0, Timeout.Infinite);
+        while (!DemotedHosts.IsEmpty)
+          DemotedHosts.TryDequeue(out _);
+        Hosts.Clear();
+      }
+
       Interlocked.Exchange(ref _available, -1);
     }
 
@@ -447,6 +497,8 @@ namespace MySqlX.XDevAPI
           Close();
           _idleTimer.Dispose();
           _inUse.Clear();
+          if (DemotedServersTimer != null)
+            DemotedServersTimer.Dispose();
         }
 
         disposedValue = true;
