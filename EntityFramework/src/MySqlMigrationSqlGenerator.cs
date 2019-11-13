@@ -766,7 +766,7 @@ namespace MySql.Data.EntityFramework
       sb.Append("using " + indexType);
 
       // As of MySQL 8.0, ASC and DESC are not permitted for HASH indexes.
-      if (Convert.ToDouble(_providerManifestToken) >= 8.0 && indexType == "HASH")
+      if (Convert.ToDouble(_providerManifestToken, System.Globalization.CultureInfo.InvariantCulture) >= 8.0 && indexType == "HASH")
         sb.Replace(sortOrder, string.Empty);
 
       return new MigrationStatement() { Sql = sb.ToString() };
