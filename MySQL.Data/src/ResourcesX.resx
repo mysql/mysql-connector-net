@@ -282,4 +282,13 @@
   <data name="EmptyKeyConnectionAttribute" xml:space="preserve">
     <value>Key name in connection attribute cannot be an empty string.</value>
   </data>
+  <data name="SchemaCreateCollectionMsg" xml:space="preserve">
+    <value>The server doesn't support the requested operation. Please update the MySQL Server, client library, or both.</value>
+  </data>
+  <data name="EmptyOptions" xml:space="preserve">
+    <value>At least one option must be specified.</value>
+  </data>
+  <data name="MissingSchemaOption" xml:space="preserve">
+    <value>Missed required schema option.</value>
+  </data>
 </root>

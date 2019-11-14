@@ -51,6 +51,7 @@ using static Mysqlx.Datatypes.Object.Types;
 using Mysqlx.Prepare;
 using MySqlX.DataAccess;
 using System.Collections;
+using MySql.Data.X.XDevAPI.Common;
 
 namespace MySqlX.Protocol
 {
@@ -335,6 +336,7 @@ namespace MySqlX.Protocol
       if (args != null)
       {
         var any = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+
         foreach (var arg in args)
         {
           switch (stmt)
@@ -347,7 +349,52 @@ namespace MySqlX.Protocol
               break;
           }
         }
+        stmtExecute.Args.Add(any);
+      }
 
+      _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
+    }
+
+    /// <summary>
+    /// Build the message to be sent to MySQL Server to execute statement "Create" or "Modify" collection with schema options
+    /// </summary>
+    /// <param name="ns">The namespace</param>
+    /// <param name="stmt">The name of the command to be executed on MySql Server</param>
+    /// <param name="args">Array of KeyValuePairs with the parameters required to build the message</param>
+    /// <returns>void.</returns>
+    public void SendExecuteStatementOptions(string ns, string stmt, params KeyValuePair<string, object>[] args)
+    {
+      StmtExecute stmtExecute = new StmtExecute();
+      stmtExecute.Namespace = ns;
+      stmtExecute.Stmt = ByteString.CopyFromUtf8(stmt);
+      stmtExecute.CompactMetadata = false;
+      if (args != null)
+      {
+        var options = new ObjectField();
+        var validation = new ObjectField();
+        var optionsAny = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+        var any = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+        var innerAny = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+        foreach (var arg in args)
+        {
+          if (arg.Value is Dictionary<string, object> && arg.Key == "options")
+          {
+            foreach (var field in arg.Value as Dictionary<string, object>)
+             {
+              innerAny.Obj.Fld.Add(CreateObject(field.Key, field.Value));
+             }
+          }
+          else
+          {
+            any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value));
+          }
+        }
+        options.Key = "options";
+        validation.Key = "validation";
+        validation.Value = innerAny;
+        optionsAny.Obj.Fld.Add(validation);
+        options.Value = optionsAny;
+        any.Obj.Fld.Add(options);
         stmtExecute.Args.Add(any);
       }
 

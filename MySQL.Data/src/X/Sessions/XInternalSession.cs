@@ -46,6 +46,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Collections;
 using System.Threading;
+using MySql.Data.X.XDevAPI.Common;
 
 namespace MySqlX.Sessions
 {
@@ -404,6 +405,54 @@ namespace MySqlX.Sessions
         new KeyValuePair<string, object>("name", collectionName));
     }
 
+    /// <summary>
+    /// Prepare the dictionary of arguments required to create a MySQL message.
+    /// </summary>
+    /// <param name="schemaName">The name of the MySQL schema.</param>
+    /// <param name="collectionName">The name of the collection.</param>
+    /// <param name="options">This object hold the parameters required to create the collection.</param>
+    /// <see cref="CreateCollectionOptions"/>
+    /// <returns>Collection referente.</returns>
+    public void CreateCollection(string schemaName, string collectionName, CreateCollectionOptions options)
+    {
+      var dictionary = new Dictionary<string, object>();
+      if (!options.Equals(null))
+      {
+        dictionary.Add("level", (string)options.Validation.Level.ToString().ToLowerInvariant());
+        dictionary.Add("schema", new DbDoc(options.Validation.Schema));
+      }
+
+      ExecuteCmdNonQueryOptions(XpluginStatementCommand.XPLUGIN_STMT_CREATE_COLLECTION,
+        true,
+        new KeyValuePair<string, object>("schema", schemaName),
+        new KeyValuePair<string, object>("name", collectionName),
+        new KeyValuePair<string, object>("options", dictionary)
+        ) ;
+    }
+
+    /// <summary>
+    /// Prepare the dictionary of arguments required to Modify a MySQL message.
+    /// </summary>
+    /// <param name="schemaName">The name of the MySQL schema.</param>
+    /// <param name="collectionName">The name of the collection.</param>
+    /// <param name="options">This object hold the parameters required to Modify the collection.</param>
+    /// <see cref="ModifyCollectionOptions"/>
+    /// <returns>Collection referente.</returns>
+    public void ModifyCollection(string schemaName, string collectionName, ModifyCollectionOptions? options)
+    {
+      var dictionary = new Dictionary<string, object>();
+      if (!options.Equals(null))
+      {
+        dictionary.Add("level", (string)options?.Validation.Level.ToString().ToLowerInvariant());
+        dictionary.Add("schema", new DbDoc(options?.Validation.Schema));
+      }
+      ExecuteCmdNonQueryOptions(XpluginStatementCommand.XPLUGIN_STMT_MODIFY_COLLECTION,
+        true,
+        new KeyValuePair<string, object>("schema", schemaName),
+        new KeyValuePair<string, object>("name", collectionName),
+        new KeyValuePair<string, object>("options", dictionary));
+    }
+
     public void DropCollection(string schemaName, string collectionName)
     {
       ExecuteCmdNonQuery(XpluginStatementCommand.XPLUGIN_STMT_DROP_COLLECTION,
@@ -485,6 +534,12 @@ namespace MySqlX.Sessions
     private Result ExecuteCmdNonQuery(string cmd, bool throwOnFail, params KeyValuePair<string, object>[] args)
     {
       protocol.SendExecuteStatement(mysqlxNamespace, cmd, args);
+      return new Result(this);
+    }
+
+    private Result ExecuteCmdNonQueryOptions(string cmd, bool throwOnFail, params KeyValuePair<string, object>[] args)
+    {
+      protocol.SendExecuteStatementOptions(mysqlxNamespace, cmd, args);
       return new Result(this);
     }
 
