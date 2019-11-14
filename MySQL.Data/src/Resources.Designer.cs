@@ -10,7 +10,7 @@
 
 namespace MySql.Data {
     using System;
-    using System.Reflection;
+    
     
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
@@ -39,7 +39,7 @@ namespace MySql.Data {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -309,6 +309,42 @@ namespace MySql.Data {
         public static string DistributedTxnNotSupported {
             get {
                 return ResourceManager.GetString("DistributedTxnNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specifying multiple host names with DNS SRV lookup is not permitted..
+        /// </summary>
+        public static string DnsSrvInvalidConnOptionMultihost {
+            get {
+                return ResourceManager.GetString("DnsSrvInvalidConnOptionMultihost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specifying a port number with DNS SRV lookup is not permitted..
+        /// </summary>
+        public static string DnsSrvInvalidConnOptionPort {
+            get {
+                return ResourceManager.GetString("DnsSrvInvalidConnOptionPort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Using Unix domain sockets with DNS SRV lookup is not permitted..
+        /// </summary>
+        public static string DnsSrvInvalidConnOptionUnixSocket {
+            get {
+                return ResourceManager.GetString("DnsSrvInvalidConnOptionUnixSocket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to locate any hosts for {0}..
+        /// </summary>
+        public static string DnsSrvNoHostsAvailable {
+            get {
+                return ResourceManager.GetString("DnsSrvNoHostsAvailable", resourceCulture);
             }
         }
         

@@ -1,5 +1,6 @@
 8.0.19
 - Added support for multi-host and failover (WL13304).
+- Added support for DNS SRV records (WL13368).
 
 
 8.0.18

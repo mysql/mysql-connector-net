@@ -70,7 +70,7 @@ namespace MySql.Data.Failover
     /// <returns>A <see cref="FailoverServer"/> object that represents the next available host.</returns>
     protected internal override FailoverServer GetNextHost()
     {
-      if (Hosts == null)
+      if (Hosts == null || Hosts?.Count == 0)
         throw new MySqlException(Resources.Replication_NoAvailableServer);
 
       var currentServer = Hosts.Find(h => h.Host == _currentHost);

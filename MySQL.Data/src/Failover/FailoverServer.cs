@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using System;
 
 namespace MySql.Data.Failover
@@ -64,11 +65,17 @@ namespace MySql.Data.Failover
 
     #endregion
 
-    internal FailoverServer(string host, int port, int priority)
+    /// <summary>
+    /// Initializes a <see cref="FailoverServer"/> object.
+    /// </summary>
+    /// <param name="host">The host.</param>
+    /// <param name="port">The port.</param>
+    /// <param name="priority">The priority.</param>
+    internal FailoverServer(string host, int port, int? priority)
     {
       this.Host = host;
       this.Port = port;
-      this.Priority = priority;
+      this.Priority = priority ?? -1;
     }
 
     /// <summary>

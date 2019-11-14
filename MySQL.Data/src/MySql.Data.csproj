@@ -46,6 +46,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Ubiety.Dns.Core">
+      <HintPath>..\..\Dependencies\Ubiety.Dns.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="..\..\Release Notes.txt">
       <Pack>true</Pack>
     </None>
