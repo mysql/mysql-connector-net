@@ -55,7 +55,7 @@ namespace MySql.Data.Common
         Recursion = true,
         UseCache = true,
         Retries = 3,
-        TransportType = TransportType.Tcp
+        TransportType = TransportType.Udp
       };
 
       ServiceName = serviceName;
