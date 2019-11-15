@@ -50,13 +50,13 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Theory]
-    [InlineData("server=localhost;port=33060;dns-srv=true;", "Specifying a port number with DNS SRV lookup is not allowed.")]
-    [InlineData("server=localhost,10.10.10.10;dns-srv=true;", "Specifying multiple hostnames with DNS SRV look up is not allowed.")]
-    [InlineData("address=localhost,10.10.10.10;dns-srv=TRUE;", "Specifying multiple hostnames with DNS SRV look up is not allowed.")]
-    [InlineData("server=(address=localhost,priority=100), (address=10.10.10.10,priority=90);dns-srv=true;", "Specifying multiple hostnames with DNS SRV look up is not allowed.")]
-    [InlineData("server=localhost;protocol=unix;Dns-Srv=true;", "Using Unix domain sockets with DNS SRV lookup is not allowed.")]
-    [InlineData("server=localhost;protocol=unixSocket;dns-srv=true;", "Using Unix domain sockets with DNS SRV lookup is not allowed.")]
-    [InlineData("server=localhost;connectionprotocol=unix;DnsSrv=true;", "Using Unix domain sockets with DNS SRV lookup is not allowed.")]
+    [InlineData("server=localhost;port=33060;dns-srv=true;", "Specifying a port number with DNS SRV lookup is not permitted.")]
+    [InlineData("server=localhost,10.10.10.10;dns-srv=true;", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
+    [InlineData("address=localhost,10.10.10.10;dns-srv=TRUE;", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
+    [InlineData("server=(address=localhost,priority=100), (address=10.10.10.10,priority=90);dns-srv=true;", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
+    [InlineData("server=localhost;protocol=unix;Dns-Srv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted.")]
+    [InlineData("server=localhost;protocol=unixSocket;dns-srv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted.")]
+    [InlineData("server=localhost;connectionprotocol=unix;DnsSrv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted.")]
     public void DnsSrvConnectionStringInvalidConfiguration(string connString, string exceptionMessage)
     {
       var exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(connString));

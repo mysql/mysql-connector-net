@@ -608,7 +608,7 @@ namespace MySql.Data.MySqlClient
             throw new ArgumentException(Resources.DnsSrvInvalidConnOptionPort);
           if (option.Keyword == "server" && ((value.Contains("address") && value.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Length > 2) || value.Contains(",")))
             throw new ArgumentException(Resources.DnsSrvInvalidConnOptionMultihost);
-          if (option.Keyword == "protocol" && value.Contains("unix"))
+          if (option.Keyword == "protocol" && (value.ToLowerInvariant().Contains("unix") || value.ToLowerInvariant().Contains("unixsocket")))
             throw new ArgumentException(Resources.DnsSrvInvalidConnOptionUnixSocket);
         }
 

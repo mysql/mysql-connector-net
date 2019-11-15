@@ -40,13 +40,13 @@ namespace MySqlX.Data.Tests
   public class DnsSrvTests : BaseTest
   {
     [Theory]
-    [InlineData("server=localhost;port=33060;dns-srv=true;", "Specifying a port number with DNS SRV lookup is not allowed.")]
-    [InlineData("server=localhost,10.10.10.10;dns-srv=true;", "Specifying multiple hostnames with DNS SRV look up is not allowed.")]
-    [InlineData("address=localhost,10.10.10.10;dns-srv=TRUE;", "Specifying multiple hostnames with DNS SRV look up is not allowed.")]
-    [InlineData("server=(address=localhost,priority=100), (address=10.10.10.10,priority=90);dns-srv=true;", "Specifying multiple hostnames with DNS SRV look up is not allowed.")]
-    [InlineData("server=localhost;protocol=unix;Dns-Srv=true;", "Using Unix domain sockets with DNS SRV lookup is not allowed.")]
-    [InlineData("server=localhost;protocol=unixSocket;dns-srv=true;", "Using Unix domain sockets with DNS SRV lookup is not allowed.")]
-    [InlineData("server=localhost;connectionprotocol=unix;DnsSrv=true;", "Using Unix domain sockets with DNS SRV lookup is not allowed.")]
+    [InlineData("server=localhost;port=33060;dns-srv=true;", "Specifying a port number with DNS SRV lookup is not permitted.")]
+    [InlineData("server=localhost,10.10.10.10;dns-srv=true;", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
+    [InlineData("address=localhost,10.10.10.10;dns-srv=TRUE;", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
+    [InlineData("server=(address=localhost,priority=100), (address=10.10.10.10,priority=90);dns-srv=true;", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
+    [InlineData("server=localhost;protocol=unix;Dns-Srv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted.")]
+    [InlineData("server=localhost;protocol=unixSocket;dns-srv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted.")]
+    [InlineData("server=localhost;connectionprotocol=unix;DnsSrv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted.")]
     public void DnsSrvConnectionStringInvalidConfiguration(string connString, string exceptionMessage)
     {
       var exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connString));
@@ -105,11 +105,11 @@ namespace MySqlX.Data.Tests
     }
 
     [Theory]
-    [InlineData("mysqlx+srv://test:test@localhost:33060", "Specifying a port number with DNS SRV lookup is not allowed.")]
-    [InlineData("mysqlx+srv://test:test@[192.1.10.10,127.0.0.1]", "Specifying multiple hostnames with DNS SRV look up is not allowed.")]
-    [InlineData("mysqlx+srv://test:test@[192.1.10.10,127.0.0.1:33060]/test", "Specifying multiple hostnames with DNS SRV look up is not allowed.")]
-    [InlineData("mysqlx+srv://test:test@[(address = server.example, priority = 50),(address = 127.0.0.1:33060,priority=100)]", "Specifying multiple hostnames with DNS SRV look up is not allowed.")]
-    [InlineData("mysqlx+srv://test:test@./tmp/mysql.sock?protocol=unix", "Using Unix domain sockets with DNS SRV lookup is not allowed.")]
+    [InlineData("mysqlx+srv://test:test@localhost:33060", "Specifying a port number with DNS SRV lookup is not permitted.")]
+    [InlineData("mysqlx+srv://test:test@[192.1.10.10,127.0.0.1]", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
+    [InlineData("mysqlx+srv://test:test@[192.1.10.10,127.0.0.1:33060]/test", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
+    [InlineData("mysqlx+srv://test:test@[(address = server.example, priority = 50),(address = 127.0.0.1:33060,priority=100)]", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
+    [InlineData("mysqlx+srv://test:test@./tmp/mysql.sock?protocol=unix", "Using Unix domain sockets with DNS SRV lookup is not permitted.")]
     [InlineData("mysqlx+srv://test:test@localhost?dns-srv=false;", "'dns-srv' cannot be set to false with DNS SRV lookup enabled.")]
     public void DnsSrvConnectionStringUriInvalidConfiguration(string connStringUri, string exceptionMessage)
     {
@@ -122,25 +122,21 @@ namespace MySqlX.Data.Tests
 
     [Theory]
     [InlineData("mysqlx+srv://test:test@localhost")]
-    [InlineData("mysqlx+srv://test:test@[127.0.0.1]")]
-    [InlineData("mysqlx+srv://test:test@127.0.0.1")]
-    [InlineData("mysqlx+srv://test:test@[(address = 127.0.0.1,priority=100)]")]
-    [InlineData("mysqlx://test:test@localhost?dns-srv=true;")]
-    public void DnsSrvConnectionStringUriValidConfiguration(string connString)
+    [InlineData("mysqlx+srv://test:test@[localhost]")]
+    [InlineData("mysqlx+srv://test:test@[(address=localhost,priority=100)]")]
+    [InlineData("mysqlx+srv://test:test@localhost?dns-srv=true;")]
+    public void DnsResolverNoHosts(string connString)
     {
-      using (var session = MySQLX.GetSession(connString))
-        Assert.NotNull(session);
+      var ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(connString));
+      Assert.Equal(string.Format(MySql.Data.Resources.DnsSrvNoHostsAvailable, "127.0.0.1"), ex.Message);
     }
 
     [Fact]
-    public void DnsResolverNoHosts()
+    public void DnsResolverNoHostsPooling()
     {
-      var ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession("mysqlx+srv://test:test@127.0.0.1?dns-srv=true;"));
-      Assert.Equal(string.Format(MySql.Data.Resources.DnsSrvNoHostsAvailable, "127.0.0.1"), ex.Message);
-
       using (var client = MySQLX.GetClient("mysqlx+srv://test:test@127.0.0.1?dns-srv=true;", new { pooling = new { enabled = true } }))
       {
-        ex = Assert.Throws<MySqlException>(() => client.GetSession());
+        var ex = Assert.Throws<MySqlException>(() => client.GetSession());
         Assert.Equal(string.Format(MySql.Data.Resources.DnsSrvNoHostsAvailable, "127.0.0.1"), ex.Message);
       }
     }

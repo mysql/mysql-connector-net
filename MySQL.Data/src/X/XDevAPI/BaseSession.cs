@@ -36,7 +36,6 @@ using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -225,9 +224,9 @@ namespace MySqlX.XDevAPI
       this._connectionString = ParseConnectionData(connectionString, client);
 
       // Multiple hosts were specified.
-      if (FailoverManager.FailoverGroup != null)
+      if (FailoverManager.FailoverGroup != null && FailoverManager.FailoverGroup.Hosts?.Count > 1)
       {
-        _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, client);
+        _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, _isDefaultPort, client);
         Settings.ConnectionString = this._connectionString;
         Settings.AnalyzeConnectionString(this._connectionString, true, _isDefaultPort);
       }
@@ -244,7 +243,7 @@ namespace MySqlX.XDevAPI
           var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(Settings.Server);
           FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
             FailoverMethod.Sequential);
-          _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, client);
+          _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, _isDefaultPort, client);
           Settings.ConnectionString = this._connectionString;
         }
         else
@@ -308,7 +307,7 @@ namespace MySqlX.XDevAPI
       if (FailoverManager.FailoverGroup != null)
       {
         // Multiple hosts were specified.
-        _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, client);
+        _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, _isDefaultPort, client);
         Settings.ConnectionString = _connectionString;
       }
       else
@@ -318,7 +317,7 @@ namespace MySqlX.XDevAPI
           var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(Settings.Server);
           FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
             FailoverMethod.Sequential);
-          _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, client);
+          _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, _isDefaultPort, client);
           Settings.ConnectionString = this._connectionString;
         }
         else
@@ -628,6 +627,8 @@ namespace MySqlX.XDevAPI
         uri.Host));
       connectionParts.Add("port=" + (uri.Port == -1 ? 33060 : uri.Port));
       _isDefaultPort = uri.IsDefaultPort;
+      if (uri.Scheme == DNS_SRV_URI_SCHEME)
+        connectionParts.Add("dns-srv=true");
 
       if (!string.IsNullOrWhiteSpace(uri.UserInfo))
       {
@@ -654,9 +655,6 @@ namespace MySqlX.XDevAPI
           var connectionAttributesOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == CONNECTION_ATTRIBUTES_CONNECTION_OPTION_KEYWORD);
           var dnsSrvOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == DNS_SRV_CONNECTION_OPTION_KEYWORD);
 
-          if (isDnsSrvScheme && (dnsSrvOption.Keyword == keyValue[0] || dnsSrvOption.Synonyms.Contains(keyValue[0])) && !Convert.ToBoolean(keyValue[1]))
-            throw new ArgumentException(string.Format(ResourcesX.DnsSrvConflictingOptions, dnsSrvOption.Keyword));
-
           if (!((connectionAttributesOption.Keyword == keyValue[0]) || connectionAttributesOption.Synonyms.Contains(keyValue[0]) && keyValue.Count() > 2))
           {
             if (keyValue.Length > 2)
@@ -671,6 +669,11 @@ namespace MySqlX.XDevAPI
             throw new MySqlException(ResourcesX.InvalidUriQuery + ": " + keyValue[0]);
           else
             part = keyValue[0] + "=" + query.Replace(keyValue[0] + "=", string.Empty);
+
+          if (isDnsSrvScheme && (dnsSrvOption.Keyword == keyValue[0] || dnsSrvOption.Synonyms.Contains(keyValue[0])) && !Convert.ToBoolean(keyValue[1]))
+            throw new ArgumentException(string.Format(ResourcesX.DnsSrvConflictingOptions, dnsSrvOption.Keyword));
+          else if (isDnsSrvScheme && (dnsSrvOption.Keyword == keyValue[0] || dnsSrvOption.Synonyms.Contains(keyValue[0])))
+            continue;
 
           connectionParts.Add(part);
         }
