@@ -118,9 +118,9 @@ namespace MySql.Data.Failover
       {
         // Attempt to connect to each host by retrieving the next host based on the failover method being used.
         connectionString = "server=" + currentHost.Host + ";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';') + 1);
-        Settings = new MySqlXConnectionStringBuilder(connectionString);
         if (currentHost != null && currentHost.Port != -1)
-          Settings.Port = (uint)currentHost.Port;
+          connectionString += ";port=" + currentHost.Port;
+        Settings = new MySqlXConnectionStringBuilder(connectionString);
 
         try { internalSession = InternalSession.GetSession(Settings); }
         catch (Exception) { }
@@ -176,10 +176,11 @@ namespace MySql.Data.Failover
       do
       {
         // Attempt to connect to each host by retrieving the next host based on the failover method being used
+        MySqlConnectionStringBuilder msb;
         connectionString = "server=" + currentHost.Host + ";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';') + 1);
-        MySqlConnectionStringBuilder msb = new MySqlConnectionStringBuilder(connectionString);
         if (currentHost != null && currentHost.Port != -1)
-          msb.Port = (uint)currentHost.Port;
+          connectionString += ";port=" + currentHost.Port;
+        msb = new MySqlConnectionStringBuilder(connectionString);
 
         try
         {
@@ -275,7 +276,8 @@ namespace MySql.Data.Failover
               throw new ArgumentNullException("priority");
 
             int priority = -1;
-            if (!Int32.TryParse(keyValuePairs[1], out priority) || priority < 0 || priority > 100)
+            Int32.TryParse(keyValuePairs[1], out priority);
+            if (priority < 0 || priority > 100)
               throw new ArgumentException(ResourcesX.PriorityOutOfLimits);
 
             if (isXProtocol)
@@ -295,7 +297,10 @@ namespace MySql.Data.Failover
         }
 
         hostCount = groups.Length;
-        failoverMethod = FailoverMethod.Priority;
+        if (hostList.GroupBy(h => h.Priority).ToList().Count > 1)
+          failoverMethod = FailoverMethod.Priority;
+        else
+          failoverMethod = FailoverMethod.Random;
       }
 
       SetHostList(hostList, failoverMethod);

@@ -134,7 +134,8 @@ namespace MySqlX.XDevAPI
         }
       }
 
-      DemotedServersTimer?.Change(DEMOTED_TIMEOUT, Timeout.Infinite);
+      if (!disposedValue)
+        DemotedServersTimer?.Change(DEMOTED_TIMEOUT, Timeout.Infinite);
     }
 
     private void CleanIdleConnections(object state)
