@@ -42,9 +42,8 @@ namespace MySql.Data.MySqlClient.Tests
       _sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
     }
     
-    [Fact(Skip = "will be fixed in trunk")]
-    [Trait("Category", "Security")]
-    public void RandomMethod()
+    [Fact]
+    public void SingleHost()
     {
       // Single host.
       using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
@@ -52,7 +51,12 @@ namespace MySql.Data.MySqlClient.Tests
         conn.Open();
         Assert.Equal(ConnectionState.Open, conn.State);
       }
+    }
 
+    [Fact(Skip = "will be fixed in trunk")]
+    [Trait("Category", "Security")]
+    public void RandomMethod()
+    {
       // Multiple hosts.
       _sb.Server = "10.10.10.10, localhost, 20.20.20.20, 30.30.30.30";
       using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
