@@ -597,8 +597,8 @@ namespace MySql.Data.MySqlClient
         if (keyValue.Length % 2 != 0)
           continue;
 
-        var keyword = keyValue[0].Trim();
-        var value = query.Contains(",") ? query.Replace(keyword, "") : keyValue[1];
+        var keyword = keyValue[0].ToLowerInvariant().Trim();
+        var value = query.Contains(",") ? query.Replace(keyword, "") : keyValue[1].ToLowerInvariant();
         MySqlConnectionStringOption option = Options.Options.Where(o => o.Keyword == keyword || (o.Synonyms != null && o.Synonyms.Contains(keyword))).FirstOrDefault();
 
         // DNS SRV option can't be used if Port, Unix Socket or Multihost are specified
