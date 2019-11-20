@@ -31,6 +31,8 @@ using System;
 using Xunit;
 using MySql.Data.Failover;
 using MySql.Data.MySqlClient;
+using System.Collections.Generic;
+using MySql.Data;
 
 namespace MySqlX.Data.Tests
 {
@@ -158,6 +160,27 @@ namespace MySqlX.Data.Tests
     {
       int connectionTimeout = 1000;
 
+      // Single host with max_connections.
+      try
+      {
+        List<Session> sessions = new List<Session>();
+        ExecuteSqlAsRoot("SET @@global.mysqlx_max_connections = 2");
+        for (int i = 0; i <= 2; i++)
+        {
+          Session newSession = MySQLX.GetSession("server=(address=127.0.0.1,priority=100);port=" + XPort + ";uid=test;password=test;");
+          sessions.Add(newSession);
+        }
+        Assert.False(true, "MySqlException should be thrown");
+      }
+      catch (MySqlException exception)
+      {
+        Assert.Equal(ResourcesX.UnableToOpenSession, exception.Message);
+      }
+      finally
+      {
+        ExecuteSqlAsRoot("SET @@global.mysqlx_max_connections = 100");
+      }
+
       using (var session = MySQLX.GetSession("server=(address=127.0.0.1,priority=100);port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout))
       {
         Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
@@ -218,6 +241,27 @@ namespace MySqlX.Data.Tests
     public void PriorityMethodWithUriFormatConnectonString()
     {
       int connectionTimeout = 1000;
+
+      // Single host with max_connections.
+      try
+      {
+        List<Session> sessions = new List<Session>();
+        ExecuteSqlAsRoot("SET @@global.mysqlx_max_connections = 2");
+        for (int i = 0; i <= 2; i++)
+        {
+          Session newSession = MySQLX.GetSession("mysqlx://test:test@[(address=localhost:"+XPort+",priority=50)]?connecttimeout=" + connectionTimeout);
+          sessions.Add(newSession);
+        }
+        Assert.False(true, "MySqlException should be thrown");
+      }
+      catch (MySqlException exception)
+      {
+        Assert.Equal(ResourcesX.UnableToOpenSession, exception.Message);
+      }
+      finally
+      {
+        ExecuteSqlAsRoot("SET @@global.mysqlx_max_connections = 100");
+      }
 
       using (var session = MySQLX.GetSession($"mysqlx://test:test@[(address=server.example,priority=50),(address=127.0.0.1:{XPort},priority=100)]?connecttimeout=" + connectionTimeout))
       {
@@ -281,6 +325,27 @@ namespace MySqlX.Data.Tests
       int connectionTimeout = 1000;
       string uid = "test";
       string password = "test";
+
+      // Single host with max_connections.
+      try
+      {
+        List<Session> sessions = new List<Session>();
+        ExecuteSqlAsRoot("SET @@global.mysqlx_max_connections = 2");
+        for (int i = 0; i <= 2; i++)
+        {
+          Session newSession = MySQLX.GetSession(new { server = "(address=127.0.0.1,priority=100)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout });
+          sessions.Add(newSession);
+        }
+        Assert.False(true, "MySqlException should be thrown");
+      }
+      catch (MySqlException exception)
+      {
+        Assert.Equal(ResourcesX.UnableToOpenSession, exception.Message);
+      }
+      finally
+      {
+        ExecuteSqlAsRoot("SET @@global.mysqlx_max_connections = 100");
+      }
 
       using (var session = MySQLX.GetSession(new { server = "(address=127.0.0.1,priority=100)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
       {

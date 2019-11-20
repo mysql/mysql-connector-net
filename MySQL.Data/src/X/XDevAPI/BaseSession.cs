@@ -220,7 +220,7 @@ namespace MySqlX.XDevAPI
       this._connectionString = ParseConnectionData(connectionString, client);
 
       // Multiple hosts were specified.
-      if (FailoverManager.FailoverGroup != null)
+      if (FailoverManager.FailoverGroup != null && FailoverManager.FailoverGroup.Hosts?.Count > 1)
       {
         _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, client);
         Settings.ConnectionString = this._connectionString;
@@ -281,8 +281,10 @@ namespace MySqlX.XDevAPI
             Settings.SetValue(value.Key, server = NormalizeUnixSocket(server));
 
           FailoverManager.ParseHostList(server, true, false);
-          if (FailoverManager.FailoverGroup != null)
+          if (FailoverManager.FailoverGroup != null && FailoverManager.FailoverGroup.Hosts?.Count > 1)
             Settings[SERVER_CONNECTION_OPTION_KEYWORD] = null;
+          else if (FailoverManager.FailoverGroup != null)
+            Settings[SERVER_CONNECTION_OPTION_KEYWORD] = FailoverManager.FailoverGroup.Hosts[0].Host;
 
           hostsParsed = true;
         }
@@ -290,7 +292,7 @@ namespace MySqlX.XDevAPI
       this._connectionString = Settings.ToString();
 
       Settings.AnalyzeConnectionString(this._connectionString, true);
-      if (FailoverManager.FailoverGroup != null)
+      if (FailoverManager.FailoverGroup != null && FailoverManager.FailoverGroup.Hosts?.Count > 1)
       {
         // Multiple hosts were specified.
         _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, client);

@@ -81,6 +81,14 @@ namespace MySql.Data.MySqlClient.Tests
     {
       _sb.Pooling = false;
 
+      _sb.Server = "(address=server.example,priority=100),(address=127.0.0.1,priority=100),(address=192.0.10.56,priority=100)";
+      using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
+      {
+        conn.Open();
+        Assert.Equal(ConnectionState.Open, conn.State);
+        Assert.Equal("127.0.0.1", conn.Settings.Server);
+      }
+
       // Multiple hosts and validate proper order assigned to hosts.
       _sb.Server = "(address=server.example,priority=100),(address=127.0.0.1,priority=25),(address=192.0.10.56,priority=75)";
       using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
@@ -177,14 +185,27 @@ namespace MySql.Data.MySqlClient.Tests
       for (int i = 0; i < connArray.Length; i++)
       {
         connArray[i] = new MySqlConnection(_sb.ConnectionString);
-        using (connArray[i])
+        connArray[i].Open();
+        Assert.Equal(ConnectionState.Open, connArray[i].State);
+      }
+
+      // now make sure all the server ids are different
+      for (int i = 0; i < connArray.Length; i++)
+      {
+        for (int j = 0; j < connArray.Length; j++)
         {
-          connArray[i].Open();
-          Assert.Equal(ConnectionState.Open, connArray[i].State);
+          if (i != j)
+            Assert.True(connArray[i].ServerThread != connArray[j].ServerThread);
         }
       }
 
-      // Priority Method
+      for (int i = 0; i < connArray.Length; i++)
+      {
+        KillConnection(connArray[i]);
+        connArray[i].Close();
+      }
+
+      //Priority Method
       _sb.Server = "(address=server.example,priority=100),(address=localhost,priority=25),(address=192.0.10.56,priority=75)";
       connArray = new MySqlConnection[10];
       for (int i = 0; i < connArray.Length; i++)

@@ -43,9 +43,9 @@ namespace MySql.Data.Failover
     /// </summary>
     private FailoverServer _initialHost;
     /// <summary>
-    /// Current host to be attempted to connect to.
+    /// The host for the current connection attempt.
     /// </summary>
-    private string _currentHost;
+    private FailoverServer _currentHost;
     /// <summary>
     /// Random object to get the next host.
     /// </summary>
@@ -68,7 +68,7 @@ namespace MySql.Data.Failover
       _initialHost.IsActive = true;
       _initialHost.Attempted = true;
       _activeHost = _initialHost;
-      _currentHost = _activeHost.Host;
+      _currentHost = _activeHost;
     }
 
     /// <summary>
@@ -80,7 +80,7 @@ namespace MySql.Data.Failover
       if (Hosts == null)
         throw new MySqlException(Resources.Replication_NoAvailableServer);
 
-      Hosts.Find(h => h.Host == _currentHost).IsActive = false;
+      Hosts.Find(h => h.Host == _currentHost.Host && h.Port == _currentHost.Port).IsActive = false;
       var notAttemptedHosts = Hosts.FindAll(h => h.Attempted == false);
 
       if (notAttemptedHosts.Count > 0)
@@ -88,7 +88,7 @@ namespace MySql.Data.Failover
         _activeHost = notAttemptedHosts[rnd.Next(notAttemptedHosts.Count)];
         _activeHost.IsActive = true;
         _activeHost.Attempted = true;
-        _currentHost = _activeHost.Host;
+        _currentHost = _activeHost;
       }
       else
         _activeHost = _initialHost;

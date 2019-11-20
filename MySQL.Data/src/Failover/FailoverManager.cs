@@ -119,7 +119,11 @@ namespace MySql.Data.Failover
         // Attempt to connect to each host by retrieving the next host based on the failover method being used.
         connectionString = "server=" + currentHost.Host + ";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';') + 1);
         if (currentHost != null && currentHost.Port != -1)
+        {
+          connectionString = connectionString.Replace(connectionString.Substring(connectionString.IndexOf("port"),
+            connectionString.IndexOf(';', connectionString.IndexOf("port")) - connectionString.IndexOf("port") + 1), string.Empty);
           connectionString += ";port=" + currentHost.Port;
+        }
         Settings = new MySqlXConnectionStringBuilder(connectionString);
 
         try { internalSession = InternalSession.GetSession(Settings); }

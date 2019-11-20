@@ -79,7 +79,7 @@ namespace MySql.Data.Failover
     public bool Equals(FailoverServer other)
     {
       if (other == null) return false;
-      return (this.Host == other.Host);
+      return (this.Host == other.Host && this.Port == other.Port);
     }
   }
 }
