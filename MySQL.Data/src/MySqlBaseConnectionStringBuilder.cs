@@ -583,7 +583,7 @@ namespace MySql.Data.MySqlClient
     internal void AnalyzeConnectionString(string connectionString, bool isXProtocol, bool isDefaultPort)
     {
       string[] queries = connectionString.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-      List<string> usedSslOptions = new List<string>();
+      List<string> usedOptions = new List<string>();
       bool sslModeIsNone = false;
       bool isDnsSrv = false;
 
@@ -619,12 +619,16 @@ namespace MySql.Data.MySqlClient
                && option.Keyword != "sslcrl"
                && option.Keyword != "sslca"
                && option.Keyword != "sslcert"
-               && option.Keyword != "sslkey"))
+               && option.Keyword != "sslkey"
+               && option.Keyword != "server"
+               && option.Keyword != "tlsversion"))
           continue;
 
         // SSL connection options can't be duplicated.
-        if (usedSslOptions.Contains(option.Keyword))
+        if (usedOptions.Contains(option.Keyword) && option.Keyword != "server" && option.Keyword != "tlsversion")
           throw new ArgumentException(string.Format(Resources.DuplicatedSslConnectionOption, keyword));
+        else if (usedOptions.Contains(option.Keyword))
+          throw new ArgumentException(string.Format(Resources.DuplicatedConnectionOption, keyword));
 
         // SSL connection options can't be used if sslmode=None.
         if (option.Keyword == "sslmode" && (value == "none" || value == "disabled"))
@@ -645,11 +649,11 @@ namespace MySql.Data.MySqlClient
 
         if (option.Keyword == "sslca" || option.Keyword == "certificatefile")
         {
-          usedSslOptions.Add("sslca");
-          usedSslOptions.Add("certificatefile");
+          usedOptions.Add("sslca");
+          usedOptions.Add("certificatefile");
         }
         else
-          usedSslOptions.Add(option.Keyword);
+          usedOptions.Add(option.Keyword);
       }
     }
 

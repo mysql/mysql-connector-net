@@ -83,6 +83,7 @@ namespace MySql.Data.MySqlClient
     public MySqlConnection(string connectionString)
       : this()
     {
+      Settings.AnalyzeConnectionString(connectionString, false);
       ConnectionString = connectionString;
     }
 
@@ -197,11 +198,11 @@ namespace MySql.Data.MySqlClient
           else
           {
             newSettings = ConnectionStringCache[value];
-            if (null == newSettings)
+            if (null == newSettings || FailoverManager.FailoverGroup != null)
             {
+              MySqlPoolManager.Hosts = newSettings == null ? null : MySqlPoolManager.Hosts;
               newSettings = new MySqlConnectionStringBuilder(value);
               ConnectionStringCache.Add(value, newSettings);
-              MySqlPoolManager.Hosts = null;
             }
           }
         }

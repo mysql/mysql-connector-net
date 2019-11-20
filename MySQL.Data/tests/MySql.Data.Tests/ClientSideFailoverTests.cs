@@ -40,63 +40,55 @@ namespace MySql.Data.MySqlClient.Tests
     public ClientSideFailoverTests(TestFixture fixture) : base(fixture)
     {
       _sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      _sb.ConnectionTimeout = 7;
     }
     
-    [Fact]
-    public void SingleHost()
-    {
-      // Single host.
-      using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
-      {
-        conn.Open();
-        Assert.Equal(ConnectionState.Open, conn.State);
-      }
-    }
-
-    [Fact(Skip = "will be fixed in trunk")]
+    [Theory]
     [Trait("Category", "Security")]
-    public void RandomMethod()
+    [InlineData("localhost")] // Single host
+    [InlineData("10.10.10.10, localhost, 20.20.20.20, 30.30.30.30")] // Multiple hosts
+    [InlineData("10.10.10.10:3306, localhost, 20.20.20.20:3305, 30.30.30.30:3305")] // Multiple hosts with port number
+    [InlineData("10.10.10.10, ::1, 20.20.20.20, 30.30.30.30")] // Multiple hosts, one with IPv6
+    [InlineData("10.10.10.10, 10.11.12.13, 20.20.20.20, 30.30.30.30", false)] // Multiple hosts, should fail
+    public void RandomMethod(string server, bool shouldPass = true)
     {
-      // Multiple hosts.
-      _sb.Server = "10.10.10.10, localhost, 20.20.20.20, 30.30.30.30";
-      using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
-      {
-        conn.Open();
-        Assert.Equal(ConnectionState.Open, conn.State);
-      }
+      _sb.Pooling = false;
+      _sb.Server = server;
 
-      // Multiple hosts.
-      _sb.Server = "10.10.10.10:3306, localhost:3306, 20.20.20.20:3305, 30.30.30.30:3305";
-      using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
+      if (!shouldPass)
       {
-        conn.Open();
-        Assert.Equal(ConnectionState.Open, conn.State);
-      }
-
-      // Multiple hosts with IPv6
-      if (Fixture.Version > new Version(5, 6, 0))
-      {
-        _sb.Server = "10.10.10.10, ::1, 20.20.20.20, 30.30.30.30";
-        using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
-        {
-          conn.Open();
-          Assert.Equal(ConnectionState.Open, conn.State);
-        }
-      }
-
-      // Multiple hosts. All attempts fail.
-      _sb.Server = "10.10.10.10, 10.11.12.13, 20.20.20.20, 30.30.30.30";
-      using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
-      {
-        Exception ex = Assert.Throws<MySqlException>(() => conn.Open());
+        Exception ex = Assert.Throws<MySqlException>(() => TryConnection(_sb.ConnectionString));
         Assert.Equal("Unable to connect to any of the specified MySQL hosts.", ex.Message);
       }
+      else
+        Assert.Equal(ConnectionState.Open, TryConnection(_sb.ConnectionString));
     }
 
-    [Fact(Skip = "will be fixed in trunk")]
+    private ConnectionState TryConnection(string connString)
+    {
+      ConnectionState state;
+      using (MySqlConnection conn = new MySqlConnection(connString))
+      {
+        conn.Open();
+        state = conn.State;
+      }
+      return state;
+    }
+
+    [Fact]
     [Trait("Category", "Security")]
     public void PriorityMethod()
     {
+      _sb.Pooling = false;
+
+      _sb.Server = "(address=server.example,priority=100),(address=127.0.0.1,priority=100),(address=192.0.10.56,priority=100)";
+      using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
+      {
+        conn.Open();
+        Assert.Equal(ConnectionState.Open, conn.State);
+        Assert.Equal("127.0.0.1", conn.Settings.Server);
+      }
+
       // Multiple hosts and validate proper order assigned to hosts.
       _sb.Server = "(address=server.example,priority=100),(address=127.0.0.1,priority=25),(address=192.0.10.56,priority=75)";
       using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
@@ -193,14 +185,27 @@ namespace MySql.Data.MySqlClient.Tests
       for (int i = 0; i < connArray.Length; i++)
       {
         connArray[i] = new MySqlConnection(_sb.ConnectionString);
-        using (connArray[i])
+        connArray[i].Open();
+        Assert.Equal(ConnectionState.Open, connArray[i].State);
+      }
+
+      // now make sure all the server ids are different
+      for (int i = 0; i < connArray.Length; i++)
+      {
+        for (int j = 0; j < connArray.Length; j++)
         {
-          connArray[i].Open();
-          Assert.Equal(ConnectionState.Open, connArray[i].State);
+          if (i != j)
+            Assert.True(connArray[i].ServerThread != connArray[j].ServerThread);
         }
       }
 
-      // Priority Method
+      for (int i = 0; i < connArray.Length; i++)
+      {
+        KillConnection(connArray[i]);
+        connArray[i].Close();
+      }
+
+      //Priority Method
       _sb.Server = "(address=server.example,priority=100),(address=localhost,priority=25),(address=192.0.10.56,priority=75)";
       connArray = new MySqlConnection[10];
       for (int i = 0; i < connArray.Length; i++)

@@ -815,7 +815,7 @@ namespace MySql.Data.MySqlClient.Tests
           typeof(FullTrustSandbox).FullName);
       try
       {
-      MySqlConnection connection = sandbox.TryOpenConnection("server=localhost;userid=root;pwd=;port=3305");
+      MySqlConnection connection = sandbox.TryOpenConnection("server=localhost;userid=root;pwd=;port=3306");
         Assert.NotNull(connection);
         Assert.True(connection.State == ConnectionState.Open);
       }

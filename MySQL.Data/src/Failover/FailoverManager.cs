@@ -86,7 +86,7 @@ namespace MySql.Data.Failover
     /// </summary>
     /// <param name="originalConnectionString">The original connection string set by the user.</param>
     /// <param name="connectionString">An out parameter that stores the updated connection string.</param>
-    /// <param name="client">A <see cref="Client"/> object in case this is pooling scenario.</param>
+    /// <param name="client">A <see cref="Client"/> object in case this is a pooling scenario.</param>
     /// <returns>An <see cref="InternalSession"/> instance if the connection was succesfully established, a <see cref="MySqlException"/> exception is thrown otherwise.</returns>
     internal static InternalSession AttemptConnectionXProtocol(string originalConnectionString, out string connectionString, bool isDefaulPort, Client client = null)
     {
@@ -118,9 +118,13 @@ namespace MySql.Data.Failover
       {
         // Attempt to connect to each host by retrieving the next host based on the failover method being used.
         connectionString = "server=" + currentHost.Host + ";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';') + 1);
-        Settings = new MySqlXConnectionStringBuilder(connectionString, isDefaulPort);
         if (currentHost != null && currentHost.Port != -1)
-          Settings.Port = (uint)currentHost.Port;
+        {
+          connectionString = connectionString.Replace(connectionString.Substring(connectionString.IndexOf("port"),
+            connectionString.IndexOf(';', connectionString.IndexOf("port")) - connectionString.IndexOf("port") + 1), string.Empty);
+          connectionString += ";port=" + currentHost.Port;
+        }
+        Settings = new MySqlXConnectionStringBuilder(connectionString);
 
         try { internalSession = InternalSession.GetSession(Settings); }
         catch (Exception) { }
@@ -176,10 +180,11 @@ namespace MySql.Data.Failover
       do
       {
         // Attempt to connect to each host by retrieving the next host based on the failover method being used
+        MySqlConnectionStringBuilder msb;
         connectionString = "server=" + currentHost.Host + ";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';') + 1);
-        MySqlConnectionStringBuilder msb = new MySqlConnectionStringBuilder(connectionString);
         if (currentHost != null && currentHost.Port != -1)
-          msb.Port = (uint)currentHost.Port;
+          connectionString += ";port=" + currentHost.Port;
+        msb = new MySqlConnectionStringBuilder(connectionString);
 
         try
         {
@@ -275,7 +280,8 @@ namespace MySql.Data.Failover
               throw new ArgumentNullException("priority");
 
             int priority = -1;
-            if (!Int32.TryParse(keyValuePairs[1], out priority) || priority < 0 || priority > 100)
+            Int32.TryParse(keyValuePairs[1], out priority);
+            if (priority < 0 || priority > 100)
               throw new ArgumentException(ResourcesX.PriorityOutOfLimits);
 
             if (isXProtocol)
@@ -295,7 +301,10 @@ namespace MySql.Data.Failover
         }
 
         hostCount = groups.Length;
-        failoverMethod = FailoverMethod.Priority;
+        if (hostList.GroupBy(h => h.Priority).ToList().Count > 1)
+          failoverMethod = FailoverMethod.Priority;
+        else
+          failoverMethod = FailoverMethod.Random;
       }
 
       SetHostList(hostList, failoverMethod);
@@ -305,7 +314,7 @@ namespace MySql.Data.Failover
     /// <summary>
     /// Creates a <see cref="FailoverServer"/> object based on the provided parameters.
     /// </summary>
-    /// <param name="host">The host string which can be a simple host name or a host name and port.</param>
+    /// <param name="host">The host string that can be a simple host name or a host name and port.</param>
     /// <param name="priority">The priority of the host.</param>
     /// <param name="port">The port number of the host.</param>
     /// <param name="connectionDataIsUri"><c>true</c> if the connection data is a URI; otherwise <c>false</c>.</param>

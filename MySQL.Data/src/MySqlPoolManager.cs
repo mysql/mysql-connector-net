@@ -198,6 +198,14 @@ namespace MySql.Data.MySqlClient
         foreach (string key in keys)
           ClearPoolByText(key);
       }
+
+      if (DemotedServersTimer != null)
+      {
+        DemotedServersTimer.Dispose();
+        Hosts?.Clear(); 
+        while (!DemotedHosts.IsEmpty)
+          DemotedHosts.TryDequeue(out _);
+      }
     }
 
     public static void RemoveClearedPool(MySqlPool pool)
@@ -226,7 +234,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Remove hosts from the demoted list that have already been there for more
+    /// Remove hosts that have been on the demoted list for more
     /// than 120,000 milliseconds and add them to the available hosts list.
     /// </summary>
     internal static void ReleaseDemotedHosts(object state)
@@ -237,7 +245,7 @@ namespace MySql.Data.MySqlClient
         demotedServer.DemotedTime.AddMilliseconds(DEMOTED_TIMEOUT) < DateTime.Now)
         {
           demotedServer.Attempted = false;
-          Hosts.Add(demotedServer);
+          Hosts?.Add(demotedServer);
           DemotedHosts.TryDequeue(out demotedServer);
         }
         else

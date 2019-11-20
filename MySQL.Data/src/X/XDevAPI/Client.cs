@@ -133,7 +133,7 @@ namespace MySqlX.XDevAPI
           && demotedServer.DemotedTime.AddMilliseconds(DEMOTED_TIMEOUT) < DateTime.Now)
         {
           demotedServer.Attempted = false;
-          Hosts.Add(demotedServer);
+          Hosts?.Add(demotedServer);
           DemotedHosts.TryDequeue(out demotedServer);
         }
         else
@@ -142,7 +142,8 @@ namespace MySqlX.XDevAPI
         }
       }
 
-      DemotedServersTimer?.Change(DEMOTED_TIMEOUT, Timeout.Infinite);
+      if (!disposedValue)
+        DemotedServersTimer?.Change(DEMOTED_TIMEOUT, Timeout.Infinite);
     }
 
     private void CleanIdleConnections(object state)
@@ -348,7 +349,7 @@ namespace MySqlX.XDevAPI
         DemotedServersTimer.Change(0, Timeout.Infinite);
         while (!DemotedHosts.IsEmpty)
           DemotedHosts.TryDequeue(out _);
-        Hosts.Clear();
+        Hosts?.Clear();
       }
 
       Interlocked.Exchange(ref _available, -1);

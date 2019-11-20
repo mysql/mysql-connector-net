@@ -631,4 +631,7 @@
   <data name="DnsSrvNoHostsAvailable" xml:space="preserve">
     <value>Unable to locate any hosts for {0}.</value>
   </data>
+  <data name="DuplicatedConnectionOption" xml:space="preserve">
+    <value>Connection option '{0}' is duplicated.</value>
+  </data>
 </root>
