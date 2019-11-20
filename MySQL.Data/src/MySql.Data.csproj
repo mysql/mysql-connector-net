@@ -9,6 +9,7 @@
     <Authors>Oracle</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
     <TargetFrameworks>net452;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeThirdPartyAssemblies</TargetsForTfmSpecificBuildOutput>
     <PackageId>MySql.Data</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
@@ -50,6 +51,12 @@
       <HintPath>..\..\Dependencies\Ubiety.Dns.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
+
+  <Target Name="IncludeThirdPartyAssemblies">
+    <ItemGroup>
+      <BuildOutputInPackage Include="$(OutputPath)Ubiety.Dns.Core.dll" />
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <None Update="..\..\Release Notes.txt">

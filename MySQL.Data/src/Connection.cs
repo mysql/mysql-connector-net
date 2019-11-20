@@ -83,7 +83,7 @@ namespace MySql.Data.MySqlClient
     public MySqlConnection(string connectionString)
       : this()
     {
-      Settings.AnalyzeConnectionString(connectionString, false);
+      Settings.AnalyzeConnectionString(connectionString, false, false);
       ConnectionString = connectionString;
     }
 
