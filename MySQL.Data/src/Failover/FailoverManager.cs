@@ -186,6 +186,10 @@ namespace MySql.Data.Failover
           connectionString += ";port=" + currentHost.Port;
         msb = new MySqlConnectionStringBuilder(connectionString);
 
+        if ((FailoverGroup.Hosts.Count == 1 && !mySqlPoolManager) ||
+          (mySqlPoolManager && MySqlPoolManager.Hosts.Count == 1 && MySqlPoolManager.DemotedHosts.IsEmpty))
+          return;
+
         try
         {
           driver = Driver.Create(msb);
