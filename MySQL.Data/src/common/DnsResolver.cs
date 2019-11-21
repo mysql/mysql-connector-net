@@ -81,6 +81,11 @@ namespace MySql.Data.Common
 
       if (records.Count > 0)
         return SortSrvRecords(records);
+      else if (_resolver.TransportType == TransportType.Udp)
+      {
+        _resolver.TransportType = TransportType.Tcp;
+        return GetDnsSrvRecords(serviceName);
+      }
       else
         throw new MySqlException(string.Format(Resources.DnsSrvNoHostsAvailable, ServiceName));
     }

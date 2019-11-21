@@ -118,7 +118,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public MySqlBaseConnectionStringBuilder(string connStr, bool isXProtocol, bool isDefaultPort = false)
+    public MySqlBaseConnectionStringBuilder(string connStr, bool isXProtocol, bool isDefaultPort = true)
       : this()
     {
       AnalyzeConnectionString(connStr, isXProtocol, isDefaultPort);

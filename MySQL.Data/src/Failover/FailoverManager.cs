@@ -124,7 +124,7 @@ namespace MySql.Data.Failover
             connectionString.IndexOf(';', connectionString.IndexOf("port")) - connectionString.IndexOf("port") + 1), string.Empty);
           connectionString += ";port=" + currentHost.Port;
         }
-        Settings = new MySqlXConnectionStringBuilder(connectionString);
+        Settings = new MySqlXConnectionStringBuilder(connectionString, isDefaulPort);
 
         try { internalSession = InternalSession.GetSession(Settings); }
         catch (Exception) { }

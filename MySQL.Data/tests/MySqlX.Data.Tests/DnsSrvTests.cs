@@ -128,7 +128,7 @@ namespace MySqlX.Data.Tests
     public void DnsResolverNoHosts(string connString)
     {
       var ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(connString));
-      Assert.Equal(string.Format(MySql.Data.Resources.DnsSrvNoHostsAvailable, "127.0.0.1"), ex.Message);
+      Assert.Equal(string.Format(MySql.Data.Resources.DnsSrvNoHostsAvailable, "localhost"), ex.Message);
     }
 
     [Fact]

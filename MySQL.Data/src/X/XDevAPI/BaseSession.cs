@@ -48,7 +48,7 @@ namespace MySqlX.XDevAPI
   {
     private InternalSession _internalSession;
     private string _connectionString;
-    private bool _isDefaultPort;
+    private bool _isDefaultPort = true;
     private const uint X_PROTOCOL_DEFAULT_PORT = 33060;
     private const char CONNECTION_DATA_KEY_SEPARATOR = ';';
     private const char CONNECTION_DATA_VALUE_SEPARATOR = '=';

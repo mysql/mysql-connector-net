@@ -76,7 +76,7 @@ namespace MySqlX.XDevAPI
         SslMode = MySqlSslMode.Required;
     }
 
-    public MySqlXConnectionStringBuilder(string connStr, bool isDefaulPort = false) : base(connStr, true, isDefaulPort)
+    public MySqlXConnectionStringBuilder(string connStr, bool isDefaulPort = true) : base(connStr, true, isDefaulPort)
     {
       if (SslMode == MySqlSslMode.Preferred)
         SslMode = MySqlSslMode.Required;
