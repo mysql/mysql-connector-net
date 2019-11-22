@@ -250,7 +250,7 @@ namespace MySql.Data.Failover
       {
         string[] groups = hierPart.Split(new string[] { "),(" }, StringSplitOptions.RemoveEmptyEntries);
         bool? allHavePriority = null;
-        int defaultPriority = 100;
+        int defaultPriority = -1;
         foreach (var group in groups)
         {
           // Remove leading parenthesis.
@@ -300,7 +300,7 @@ namespace MySql.Data.Failover
 
             allHavePriority = allHavePriority ?? false;
 
-            hostList.Add(ConvertToFailoverServer(host, defaultPriority > 0 ? defaultPriority-- : 0, connectionDataIsUri: connectionDataIsUri));
+            hostList.Add(ConvertToFailoverServer(host, defaultPriority, connectionDataIsUri: connectionDataIsUri));
           }
         }
 
