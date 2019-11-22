@@ -104,6 +104,8 @@ namespace MySql.Data.Common
       if (recordSRV == null)
         return null;
 
+      recordSRV.Target = recordSRV.Target.TrimEnd('.');
+
       return new DnsSrvRecord(recordSRV);
     }
   }
