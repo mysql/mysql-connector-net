@@ -117,7 +117,9 @@ namespace MySql.Data.Failover
       do
       {
         // Attempt to connect to each host by retrieving the next host based on the failover method being used.
-        connectionString = "server=" + currentHost.Host + ";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';') + 1);
+        connectionString = originalConnectionString.Contains("server") ?
+          originalConnectionString.Replace(originalConnectionString.Split(';').First(p => p.Contains("server")).Split('=')[1], currentHost.Host) :
+          "server=" + currentHost.Host + ";" + originalConnectionString;
         if (currentHost != null && currentHost.Port != -1)
           connectionString = connectionString.Replace(connectionString.Split(';').First(p => p.Contains("port")).Split('=')[1], currentHost.Port.ToString());
         Settings = new MySqlXConnectionStringBuilder(connectionString, isDefaulPort);

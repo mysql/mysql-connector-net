@@ -621,11 +621,13 @@ namespace MySql.Data.MySqlClient
                && option.Keyword != "sslcert"
                && option.Keyword != "sslkey"
                && option.Keyword != "server"
-               && option.Keyword != "tlsversion"))
+               && option.Keyword != "tlsversion"
+               && option.Keyword != "dns-srv"))
           continue;
 
         // SSL connection options can't be duplicated.
-        if (usedOptions.Contains(option.Keyword) && option.Keyword != "server" && option.Keyword != "tlsversion")
+        if (usedOptions.Contains(option.Keyword) && option.Keyword != "server" && 
+          option.Keyword != "tlsversion" && option.Keyword != "dns-srv")
           throw new ArgumentException(string.Format(Resources.DuplicatedSslConnectionOption, keyword));
         else if (usedOptions.Contains(option.Keyword))
           throw new ArgumentException(string.Format(Resources.DuplicatedConnectionOption, keyword));

@@ -57,6 +57,7 @@ namespace MySql.Data.MySqlClient.Tests
     [InlineData("server=localhost;protocol=unix;Dns-Srv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted.")]
     [InlineData("server=localhost;protocol=unixSocket;dns-srv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted.")]
     [InlineData("server=localhost;connectionprotocol=unix;DnsSrv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted.")]
+    [InlineData("server=www.google.com;user=root;password=;dns-srv=false;dns-srv= true;", "Connection option 'dns-srv' is duplicated.")]
     public void DnsSrvConnectionStringInvalidConfiguration(string connString, string exceptionMessage)
     {
       var exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(connString));
@@ -106,7 +107,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DnsSrvResolverNoHosts()
     {
-      var connString = "server=localhost;user id=" + ConnectionSettings.UserID +
+      var connString = "server=www.google.com;user id=" + ConnectionSettings.UserID +
         ";password=" + ConnectionSettings.Password + ";database=" + ConnectionSettings.Database + ";dns-srv=true;";
 
       using (var conn = new MySqlConnection(connString))
