@@ -88,7 +88,7 @@ namespace MySql.Data.Failover
     /// <param name="connectionString">An out parameter that stores the updated connection string.</param>
     /// <param name="client">A <see cref="Client"/> object in case this is a pooling scenario.</param>
     /// <returns>An <see cref="InternalSession"/> instance if the connection was succesfully established, a <see cref="MySqlException"/> exception is thrown otherwise.</returns>
-    internal static InternalSession AttemptConnectionXProtocol(string originalConnectionString, out string connectionString, Client client = null)
+    internal static InternalSession AttemptConnectionXProtocol(string originalConnectionString, out string connectionString, bool isDefaulPort, Client client = null)
     {
       if (FailoverGroup == null || originalConnectionString == null)
       {
@@ -117,14 +117,12 @@ namespace MySql.Data.Failover
       do
       {
         // Attempt to connect to each host by retrieving the next host based on the failover method being used.
-        connectionString = "server=" + currentHost.Host + ";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';') + 1);
+        connectionString = originalConnectionString.Contains("server") ?
+          originalConnectionString.Replace(originalConnectionString.Split(';').First(p => p.Contains("server")).Split('=')[1], currentHost.Host) :
+          "server=" + currentHost.Host + ";" + originalConnectionString;
         if (currentHost != null && currentHost.Port != -1)
-        {
-          connectionString = connectionString.Replace(connectionString.Substring(connectionString.IndexOf("port"),
-            connectionString.IndexOf(';', connectionString.IndexOf("port")) - connectionString.IndexOf("port") + 1), string.Empty);
-          connectionString += ";port=" + currentHost.Port;
-        }
-        Settings = new MySqlXConnectionStringBuilder(connectionString);
+          connectionString = connectionString.Replace(connectionString.Split(';').First(p => p.Contains("port")).Split('=')[1], currentHost.Port.ToString());
+        Settings = new MySqlXConnectionStringBuilder(connectionString, isDefaulPort);
 
         try { internalSession = InternalSession.GetSession(Settings); }
         catch (Exception) { }

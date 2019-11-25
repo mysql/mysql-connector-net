@@ -503,13 +503,16 @@ namespace MySqlX.Data.Tests
 
       // Both (fake)servers offline. Connection must time out after 20000ms
       conn = "server=143.24.20.36,143.24.20.35;user=test;password=test;port=33060;";
-      TestConnectTimeoutFailureTimeout(conn, 19, 21, "Fail over failure");
+      DateTime start = DateTime.Now;
+      Assert.Throws<MySqlException>(() => MySQLX.GetSession(conn));
+      TimeSpan diff = DateTime.Now.Subtract(start);
+      Assert.True(diff.TotalSeconds > 19 && diff.TotalSeconds < 21, String.Format("Timeout exceeded ({0}). Actual time: {1}", "Fail over failure", diff));
 
       // Valid session no time out
-      DateTime start = DateTime.Now;
+      start = DateTime.Now;
       using (Session session = MySQLX.GetSession(ConnectionStringUri + "?connecttimeout=2000"))
         session.SQL("SELECT SLEEP(10)").Execute();
-      TimeSpan diff = DateTime.Now.Subtract(start);
+      diff = DateTime.Now.Subtract(start);
       Assert.True(diff.TotalSeconds > 10);
 
       //Invalid Values for Connection Timeout parameter

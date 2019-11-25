@@ -26,6 +26,8 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using MySql.Data.Failover;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -45,6 +47,8 @@ namespace MySql.Data.MySqlClient
     private readonly uint _maxSize;
     private readonly AutoResetEvent _autoEvent;
     private int _available;
+    // Object used to lock the list of host obtained from DNS SRV lookup.
+    private readonly object _dnsSrvLock = new object();
 
     private void EnqueueIdle(Driver driver)
     {
@@ -136,7 +140,7 @@ namespace MySql.Data.MySqlClient
         {
           // if the user asks us to ping/reset pooled connections
           // do so now
-          try { driver.Reset(); }            
+          try { driver.Reset(); }
           catch (Exception) { Clear(); }
         }
       }
@@ -181,6 +185,25 @@ namespace MySql.Data.MySqlClient
         lock ((_idlePool as ICollection).SyncRoot)
         {
           EnqueueIdle(driver);
+        }
+      }
+
+      lock (_dnsSrvLock)
+      {
+        if (driver.Settings.DnsSrv)
+        {
+          var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(DnsResolver.ServiceName);
+          FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
+            FailoverMethod.Sequential);
+
+          foreach(var idleConnection in _idlePool)
+          {
+            string idleServer = idleConnection.Settings.Server;
+            if (!FailoverManager.FailoverGroup.Hosts.Exists(h => h.Host == idleServer) && !idleConnection.IsInActiveUse)
+            {
+              idleConnection.Close();
+            }
+          }
         }
       }
 
@@ -317,6 +340,6 @@ namespace MySql.Data.MySqlClient
         }
       }
       return oldDrivers;
-    }    
+    }
   }
 }

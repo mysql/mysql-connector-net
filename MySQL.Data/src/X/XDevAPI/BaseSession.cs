@@ -36,7 +36,6 @@ using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -49,6 +48,7 @@ namespace MySqlX.XDevAPI
   {
     private InternalSession _internalSession;
     private string _connectionString;
+    private bool _isDefaultPort = true;
     private const uint X_PROTOCOL_DEFAULT_PORT = 33060;
     private const char CONNECTION_DATA_KEY_SEPARATOR = ';';
     private const char CONNECTION_DATA_VALUE_SEPARATOR = '=';
@@ -56,6 +56,10 @@ namespace MySqlX.XDevAPI
     private const string SERVER_CONNECTION_OPTION_KEYWORD = "server";
     private const string CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD = "connect-timeout";
     private const string CONNECTION_ATTRIBUTES_CONNECTION_OPTION_KEYWORD = "connection-attributes";
+    private const string DNS_SRV_CONNECTION_OPTION_KEYWORD = "dns-srv";
+    private const string DNS_SRV_URI_SCHEME = "mysqlx+srv";
+    private const string MYSQLX_URI_SCHEME = "mysqlx";
+    private const string SSH_URI_SCHEME = "mysqlx+ssh";
     internal QueueTaskScheduler _scheduler = new QueueTaskScheduler();
     protected readonly Client _client;
 
@@ -222,9 +226,9 @@ namespace MySqlX.XDevAPI
       // Multiple hosts were specified.
       if (FailoverManager.FailoverGroup != null && FailoverManager.FailoverGroup.Hosts?.Count > 1)
       {
-        _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, client);
+        _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, _isDefaultPort, client);
         Settings.ConnectionString = this._connectionString;
-        Settings.AnalyzeConnectionString(this._connectionString, true);
+        Settings.AnalyzeConnectionString(this._connectionString, true, _isDefaultPort);
       }
       // A single host was specified.
       else
@@ -232,8 +236,18 @@ namespace MySqlX.XDevAPI
         Settings.ConnectionString = _connectionString;
         if (!(_connectionString.Contains("sslmode") || _connectionString.Contains("ssl mode") || _connectionString.Contains("ssl-mode")))
           Settings.SslMode = MySqlSslMode.Required;
-        Settings.AnalyzeConnectionString(this._connectionString, true);
-        _internalSession = InternalSession.GetSession(Settings);
+        Settings.AnalyzeConnectionString(this._connectionString, true, _isDefaultPort);
+
+        if (Settings.DnsSrv)
+        {
+          var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(Settings.Server);
+          FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, r.Priority)),
+            FailoverMethod.Sequential);
+          _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, _isDefaultPort, client);
+          Settings.ConnectionString = this._connectionString;
+        }
+        else
+          _internalSession = InternalSession.GetSession(Settings);
       }
 
       // Set the default schema if provided by the user.
@@ -291,15 +305,26 @@ namespace MySqlX.XDevAPI
       }
       this._connectionString = Settings.ToString();
 
-      Settings.AnalyzeConnectionString(this._connectionString, true);
+      Settings.AnalyzeConnectionString(this._connectionString, true, _isDefaultPort);
       if (FailoverManager.FailoverGroup != null && FailoverManager.FailoverGroup.Hosts?.Count > 1)
       {
         // Multiple hosts were specified.
-        _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, client);
+        _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, _isDefaultPort, client);
         Settings.ConnectionString = _connectionString;
       }
       else
-        _internalSession = InternalSession.GetSession(Settings);
+      {
+        if (Settings.DnsSrv)
+        {
+          var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(Settings.Server);
+          FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
+            FailoverMethod.Sequential);
+          _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, _isDefaultPort, client);
+          Settings.ConnectionString = this._connectionString;
+        }
+        else
+          _internalSession = InternalSession.GetSession(Settings);
+      }
 
       if (!string.IsNullOrWhiteSpace(Settings.Database))
         DefaultSchema = GetSchema(Settings.Database);
@@ -476,7 +501,9 @@ namespace MySqlX.XDevAPI
         FailoverManager.Reset();
 
       if (Regex.IsMatch(connectionData, @"^mysqlx(\+\w+)?://.*", RegexOptions.IgnoreCase))
+      {
         return ParseConnectionUri(connectionData);
+      }
       else
         return ParseConnectionString(connectionData);
     }
@@ -551,7 +578,19 @@ namespace MySqlX.XDevAPI
       if (uri == null)
         uri = updatedUri == null ? new Uri(connectionUri) : new Uri(updatedUri);
 
-      return ConvertToConnectionString(uri, hierPart, parseServerAsUnixSocket);
+      if (uri.Scheme == DNS_SRV_URI_SCHEME)
+      {
+        if (FailoverManager.FailoverGroup != null && FailoverManager.FailoverGroup.Hosts?.Count > 1)
+          throw new ArgumentException(Resources.DnsSrvInvalidConnOptionMultihost);
+        if (!uri.IsDefaultPort)
+          throw new ArgumentException(Resources.DnsSrvInvalidConnOptionPort);
+        if (parseServerAsUnixSocket)
+          throw new ArgumentException(Resources.DnsSrvInvalidConnOptionUnixSocket);
+      }
+      else if (uri.Scheme != MYSQLX_URI_SCHEME && uri.Scheme != SSH_URI_SCHEME)
+        throw new ArgumentException(string.Format(ResourcesX.DnsSrvInvalidScheme, uri.Scheme));
+
+      return ConvertToConnectionString(uri, hierPart, parseServerAsUnixSocket, uri.Scheme == DNS_SRV_URI_SCHEME);
     }
 
     /// <summary>
@@ -579,7 +618,7 @@ namespace MySqlX.XDevAPI
     /// <param name="unixSocketPath">The path of the Unix socket file.</param>
     /// <param name="parseServerAsUnixSocket">If <c>true</c> the <paramref name="unixSocketPath"/> replaces the value for the server connection option; otherwise, <c>false</c></param>
     /// <returns>A connection string.</returns>
-    private string ConvertToConnectionString(Uri uri, string unixSocketPath, bool parseServerAsUnixSocket)
+    private string ConvertToConnectionString(Uri uri, string unixSocketPath, bool parseServerAsUnixSocket, bool isDnsSrvScheme)
     {
       List<string> connectionParts = new List<string>();
 
@@ -589,6 +628,9 @@ namespace MySqlX.XDevAPI
         NormalizeUnixSocket(unixSocketPath) :
         uri.Host));
       connectionParts.Add("port=" + (uri.Port == -1 ? 33060 : uri.Port));
+      _isDefaultPort = uri.IsDefaultPort;
+      if (uri.Scheme == DNS_SRV_URI_SCHEME)
+        connectionParts.Add("dns-srv=true");
 
       if (!string.IsNullOrWhiteSpace(uri.UserInfo))
       {
@@ -610,9 +652,10 @@ namespace MySqlX.XDevAPI
         string[] queries = System.Uri.UnescapeDataString(uri.Query).Substring(1).Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
         foreach (string query in queries)
         {
-          string[] keyValue = query.Split('=');
+          string[] keyValue = query.Replace(";", string.Empty).Split('=');
           string part;
           var connectionAttributesOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == CONNECTION_ATTRIBUTES_CONNECTION_OPTION_KEYWORD);
+          var dnsSrvOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == DNS_SRV_CONNECTION_OPTION_KEYWORD);
 
           if (!((connectionAttributesOption.Keyword == keyValue[0]) || connectionAttributesOption.Synonyms.Contains(keyValue[0]) && keyValue.Count() > 2))
           {
@@ -628,6 +671,11 @@ namespace MySqlX.XDevAPI
             throw new MySqlException(ResourcesX.InvalidUriQuery + ": " + keyValue[0]);
           else
             part = keyValue[0] + "=" + query.Replace(keyValue[0] + "=", string.Empty);
+
+          if (isDnsSrvScheme && (dnsSrvOption.Keyword == keyValue[0] || dnsSrvOption.Synonyms.Contains(keyValue[0])) && !Convert.ToBoolean(keyValue[1]))
+            throw new ArgumentException(string.Format(ResourcesX.DnsSrvConflictingOptions, dnsSrvOption.Keyword));
+          else if (isDnsSrvScheme && (dnsSrvOption.Keyword == keyValue[0] || dnsSrvOption.Synonyms.Contains(keyValue[0])))
+            continue;
 
           connectionParts.Add(part);
         }
@@ -645,6 +693,7 @@ namespace MySqlX.XDevAPI
     {
       var updatedConnectionString = string.Empty;
       bool portProvided = false;
+      bool isDnsSrv = false;
       var connectionOptionsDictionary = connectionString.Split(CONNECTION_DATA_KEY_SEPARATOR)
                 .Select(item => item.Split(new char[] { CONNECTION_DATA_VALUE_SEPARATOR }, 2))
                 .Where(item => item.Length == 2)
@@ -665,6 +714,8 @@ namespace MySqlX.XDevAPI
             throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
           if (keyValuePair.Key == PORT_CONNECTION_OPTION_KEYWORD)
             portProvided = true;
+          if (keyValuePair.Key == DNS_SRV_CONNECTION_OPTION_KEYWORD)
+            isDnsSrv = Convert.ToBoolean(keyValuePair.Value);
 
           updatedConnectionString += $"{keyValuePair.Key}{CONNECTION_DATA_VALUE_SEPARATOR}{keyValuePair.Value}{CONNECTION_DATA_KEY_SEPARATOR}";
           continue;
@@ -675,9 +726,18 @@ namespace MySqlX.XDevAPI
         if (IsUnixSocket(keyValuePair.Value))
           updatedValue = NormalizeUnixSocket(keyValuePair.Value);
 
-        // The value for the server connection option doesn't have a server list format. 
+        // The value for the server connection option doesn't have a server list format.
         if (FailoverManager.ParseHostList(updatedValue, true, false) == 1 && FailoverManager.FailoverGroup == null)
           updatedConnectionString = $"{SERVER_CONNECTION_OPTION_KEYWORD}{CONNECTION_DATA_VALUE_SEPARATOR}{updatedValue}{CONNECTION_DATA_KEY_SEPARATOR}{updatedConnectionString}";
+      }
+
+      // DNS SRV Validation - Port cannot be provided by the user and multihost is not allowed if dns-srv is true
+      if (isDnsSrv)
+      {
+        if (portProvided)
+          throw new ArgumentException(Resources.DnsSrvInvalidConnOptionPort);
+        if (FailoverManager.FailoverGroup != null)
+          throw new ArgumentException(Resources.DnsSrvInvalidConnOptionMultihost);
       }
 
       // Default port must be added if not provided by the user.

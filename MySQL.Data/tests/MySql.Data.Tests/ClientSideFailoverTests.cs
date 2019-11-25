@@ -42,7 +42,7 @@ namespace MySql.Data.MySqlClient.Tests
       _sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       _sb.ConnectionTimeout = 7;
     }
-
+    
     [Theory]
     [Trait("Category", "Security")]
     [InlineData("localhost")] // Single host
@@ -172,7 +172,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Fact(Skip = "will be fixed in trunk")]
     [Trait("Category", "Security")]
     public void Pooling()
     {

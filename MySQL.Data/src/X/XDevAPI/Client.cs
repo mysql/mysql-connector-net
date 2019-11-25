@@ -36,6 +36,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using MySql.Data.Failover;
+using MySql.Data.Common;
 
 namespace MySqlX.XDevAPI
 {
@@ -54,6 +55,7 @@ namespace MySqlX.XDevAPI
     private Timer _idleTimer;
     private bool _isClosed = false;
     internal const int DEMOTED_TIMEOUT = 120000;
+    private readonly object _dnsSrvLock = new object();
 
     #region Properties
     /// <summary>
@@ -82,10 +84,13 @@ namespace MySqlX.XDevAPI
         && string.IsNullOrWhiteSpace(connectionOptions as string)))
         throw new ArgumentNullException(nameof(connectionOptions));
 
+      bool isDefaultPort = true;
+
       if (connectionString is string)
       {
+        isDefaultPort = !connectionString.ToString().Contains("port");
         //Validates the connection string or Uri string
-        new MySqlXConnectionStringBuilder(new ClientSession().ParseConnectionData(connectionString as string));
+        new MySqlXConnectionStringBuilder(new ClientSession().ParseConnectionData(connectionString as string), isDefaultPort);
         _connectionString = connectionString as string;
       }
       else
@@ -96,8 +101,11 @@ namespace MySqlX.XDevAPI
           if (!settings.ContainsKey(item.Key))
             throw new KeyNotFoundException(string.Format(ResourcesX.InvalidConnectionStringAttribute, item.Key));
           settings.SetValue(item.Key, item.Value);
+          if (item.Key == "port")
+            isDefaultPort = false;
         }
         _connectionString = settings.ToString().Replace("\"", "");
+        settings.AnalyzeConnectionString(_connectionString, true, isDefaultPort);
       }
 
       _connectionOptions = ParseConnectionOptions(connectionOptions);
@@ -285,6 +293,26 @@ namespace MySqlX.XDevAPI
       {
         newSession = null;
       }
+
+      lock (_dnsSrvLock)
+      {
+        if (session.Settings.DnsSrv)
+        {
+          var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(DnsResolver.ServiceName);
+          FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
+            FailoverMethod.Sequential);
+
+          foreach (var idleSession in _inIdle)
+          {
+            string idleServer = idleSession.Settings.Server;
+            if (!FailoverManager.FailoverGroup.Hosts.Exists(h => h.Host == idleServer) && !_inUse.Contains(idleSession))
+            {
+              _inIdle.TryDequeue(out Session removedSession);
+            }
+          }
+        }
+      }
+
       _autoResetEvent.Set();
     }
 

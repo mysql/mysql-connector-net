@@ -83,7 +83,7 @@ namespace MySql.Data.MySqlClient
     public MySqlConnection(string connectionString)
       : this()
     {
-      Settings.AnalyzeConnectionString(connectionString, false);
+      Settings.AnalyzeConnectionString(connectionString, false, false);
       ConnectionString = connectionString;
     }
 
@@ -401,7 +401,15 @@ namespace MySql.Data.MySqlClient
         if (!Settings.Pooling || MySqlPoolManager.Hosts == null)
         {
           FailoverManager.Reset();
-          FailoverManager.ParseHostList(Settings.Server, false);
+
+          if (Settings.DnsSrv)
+          {
+            var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(Settings.Server);
+            FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
+              FailoverMethod.Sequential);
+          }
+          else
+            FailoverManager.ParseHostList(Settings.Server, false);
         }
 
         // Load balancing && Failover
