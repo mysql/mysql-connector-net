@@ -58,7 +58,7 @@ namespace MySql.Data.MySqlClient
     private int _commandTimeout;
 
     /// <summary>
-    /// The used client to handle SSH connections.
+    /// The client used to handle SSH connections.
     /// </summary>
     private Ssh _sshHandler;
 
@@ -127,6 +127,11 @@ namespace MySql.Data.MySqlClient
 
     internal bool IsInUse { get; set; }
 
+    /// <summary>
+    /// Determines whether the connection is a clone of other connection.
+    /// </summary>
+    internal bool IsClone { get; set; }
+    internal bool ParentHasbeenOpen { get; set; }
     #endregion
 
     #region Properties
@@ -178,7 +183,8 @@ namespace MySql.Data.MySqlClient
       {
         // Always return exactly what the user set.
         // Security-sensitive information may be removed.
-        return Settings.GetConnectionString(!hasBeenOpen || Settings.PersistSecurityInfo);
+        return Settings.GetConnectionString(!IsClone ? (!hasBeenOpen || Settings.PersistSecurityInfo) :
+        !Settings.PersistSecurityInfo ? (ParentHasbeenOpen ? false: !hasBeenOpen) : (Settings.PersistSecurityInfo));
       }
       set
       {

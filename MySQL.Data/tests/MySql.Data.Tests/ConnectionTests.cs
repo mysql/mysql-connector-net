@@ -41,7 +41,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       MySqlConnection c = new MySqlConnection();
 
-      // public properties            
+      // public properties
       Assert.True(15 == c.ConnectionTimeout, "ConnectionTimeout");
       Assert.True(String.Empty == c.Database, "Database");
       Assert.True(String.Empty == c.DataSource, "DataSource");
@@ -415,6 +415,63 @@ namespace MySql.Data.MySqlClient.Tests
       c.Close();
       afterOpenSettings = new MySqlConnectionStringBuilder(c.ConnectionString);
       Assert.True(String.IsNullOrEmpty(afterOpenSettings.Password));
+    }
+
+    /// <summary>
+    /// Bug #30502718  MYSQLCONNECTION.CLONE DISCLOSES CONNECTION PASSWORD
+    /// </summary>
+    [Fact]
+    [Trait("Bug", "30502718")]
+    public void CloneConnectionDisclosePassword()
+    {
+      // Verify original connection doesn't show password before and after open connection
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      connStr.PersistSecurityInfo = false;
+      MySqlConnection c = new MySqlConnection(connStr.ConnectionString);
+
+      // The password, is not returned as part of the connection if the connection is open or has ever been in an open state
+      Assert.Contains("password",c.ConnectionString);
+
+      // After open password should not be displayed
+      c.Open();
+      Assert.DoesNotContain("password", c.ConnectionString);
+
+       // Verify clone from open connection should not show password
+      var cloneConnection = (MySqlConnection) c.Clone();
+      Assert.DoesNotContain("password", cloneConnection.ConnectionString);
+
+      // After close connection the password should not be displayed
+      c.Close();
+      Assert.DoesNotContain("password", c.ConnectionString);
+
+      // Verify clone connection doesn't show password after open connection
+      cloneConnection.Open();
+      Assert.DoesNotContain("password", cloneConnection.ConnectionString);
+
+      // Verify clone connection doesn't show password after close connection
+      cloneConnection.Close();
+      Assert.DoesNotContain("password", cloneConnection.ConnectionString);
+
+      // Verify password for a clone of closed connection, password should appears
+      var closedConnection = new MySqlConnection(connStr.ConnectionString);
+      var cloneClosed = (MySqlConnection)closedConnection.Clone();
+      Assert.Contains("password", cloneClosed.ConnectionString);
+
+      // Open connection of a closed connection clone, password should be empty
+      Assert.False(cloneClosed.hasBeenOpen);
+      cloneClosed.Open();
+      Assert.DoesNotContain("password", cloneClosed.ConnectionString);
+      Assert.True(cloneClosed.hasBeenOpen);
+
+      // Close connection of a closed connection clone, password should be empty
+      cloneClosed.Close();
+      Assert.DoesNotContain("password", cloneClosed.ConnectionString);
+
+      // Clone Password shloud be present if PersistSecurityInfo is true
+      connStr.PersistSecurityInfo = true;
+      c = new MySqlConnection(connStr.ConnectionString);
+      cloneConnection = (MySqlConnection)c.Clone();
+      Assert.Contains("password", cloneConnection.ConnectionString);
     }
 
     [Fact]

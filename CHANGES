@@ -1,3 +1,6 @@
+8.0.19
+- Fixed unexpected behavior when connection string is retrieved, it discloses connection password in a clone connection(MySQL Bug #97473, Oracle Bug #30502718).
+
 8.0.18
 - Added support for IPv6.
 - Fixed an error involving a rename-table operation in Entity Framework Core migrations (MySQL Bug #90958, Oracle Bug #28107555).

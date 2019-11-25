@@ -163,6 +163,8 @@ namespace MySql.Data.MySqlClient
     public object Clone()
     {
       MySqlConnection clone = new MySqlConnection();
+      clone.IsClone = true;
+      clone.ParentHasbeenOpen = hasBeenOpen;
       string connectionString = Settings.ConnectionString;
       if (connectionString != null)
         clone.ConnectionString = connectionString;
