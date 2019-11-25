@@ -1,3 +1,7 @@
+8.0.19
+- Added support for multi-host and failover (WL13304).
+
+
 8.0.18
 - Added support for IPv6.
 - Fixed an error involving a rename-table operation in Entity Framework Core migrations (MySQL Bug #90958, Oracle Bug #28107555).

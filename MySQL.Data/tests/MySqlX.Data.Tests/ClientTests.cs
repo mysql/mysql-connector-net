@@ -220,7 +220,7 @@ namespace MySqlX.Data.Tests
             Session session = client.GetSession();
             string host = session.SQL("SELECT host FROM information_schema.PROCESSLIST where id=CONNECTION_ID()").Execute().FetchOne().GetString("host");
             sessions.Add(session);
-            Assert.True(hosts.Contains(host));
+            Assert.Contains(host, hosts);
           }
           closeSessions.Invoke();
         }
@@ -272,7 +272,7 @@ namespace MySqlX.Data.Tests
         new object[] { $"mysqlx://root@[(address=10.10.10.10,priority=20),(address=127.0.0.1:{XPort},priority=100)]?connecttimeout={_connectionTimeout}" },
         new object[] { new { server = "10.10.10.10,127.0.0.1", user = "root", port = XPort, connecttimeout = _connectionTimeout } },
         new object[] { new { server = "unknown,localhost", user = "root", port = XPort, connecttimeout = _connectionTimeout } },
-        new object[] { new { server = "(address=10.10.10.10,priority=20),(address=127.0.0.1,priority=100)", user = "root", port = XPort, connecttimeout = _connectionTimeout } }
+        new object[] { new { server = "(address=10.10.10.10,priority=100), (address=20.20.20.20,priority=90), (address=127.0.0.1,priority=20)", user = "root", port = XPort, connecttimeout = _connectionTimeout } }
       };
 
     [Theory]

@@ -616,4 +616,10 @@
   <data name="InvalidHostNameOrAddress" xml:space="preserve">
     <value>The host name or IP address is invalid.</value>
   </data>
+  <data name="TimeOutMultipleHost" xml:space="preserve">
+    <value>All server connection attempts were aborted. Timeout of {0} seconds was exceeded for each selected server.</value>
+  </data>
+  <data name="DuplicatedConnectionOption" xml:space="preserve">
+    <value>Connection option '{0}' is duplicated.</value>
+  </data>
 </root>
