@@ -10,8 +10,8 @@
 
 namespace MySql.Data {
     using System;
-    
-    
+  using System.Reflection;
+   
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -19,7 +19,7 @@ namespace MySql.Data {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -39,7 +39,7 @@ namespace MySql.Data {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.Resources", typeof(Resources).GetTypeInfo().Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -633,6 +633,24 @@ namespace MySql.Data {
         public static string InvalidSslMode {
             get {
                 return ResourceManager.GetString("InvalidSslMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Option &quot;tls-version&quot; can not be specified when SSL connections are disabled..
+        /// </summary>
+        public static string InvalidTlsVersionAndSslModeOption {
+            get {
+                return ResourceManager.GetString("InvalidTlsVersionAndSslModeOption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.1, TLSv1.2{1})..
+        /// </summary>
+        public static string InvalidTlsVersionOption {
+            get {
+                return ResourceManager.GetString("InvalidTlsVersionOption", resourceCulture);
             }
         }
         
@@ -1301,6 +1319,24 @@ namespace MySql.Data {
         public static string TimeOutMultipleHost {
             get {
                 return ResourceManager.GetString("TimeOutMultipleHost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TLSv1.3 is supported in .NET Framework 4.8 or .NET Core 3.0..
+        /// </summary>
+        public static string Tlsv13NotSupported {
+            get {
+                return ResourceManager.GetString("Tlsv13NotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No supported TLS protocol version found in the &apos;tls-versions&apos; list..
+        /// </summary>
+        public static string TlsVersionNotSupported {
+            get {
+                return ResourceManager.GetString("TlsVersionNotSupported", resourceCulture);
             }
         }
         

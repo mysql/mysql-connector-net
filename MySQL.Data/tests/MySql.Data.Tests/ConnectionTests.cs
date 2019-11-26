@@ -41,7 +41,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       MySqlConnection c = new MySqlConnection();
 
-      // public properties            
+      // public properties
       Assert.True(15 == c.ConnectionTimeout, "ConnectionTimeout");
       Assert.True(String.Empty == c.Database, "Database");
       Assert.True(String.Empty == c.DataSource, "DataSource");
@@ -417,6 +417,63 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(String.IsNullOrEmpty(afterOpenSettings.Password));
     }
 
+    /// <summary>
+    /// Bug #30502718  MYSQLCONNECTION.CLONE DISCLOSES CONNECTION PASSWORD
+    /// </summary>
+    [Fact]
+    [Trait("Bug", "30502718")]
+    public void CloneConnectionDisclosePassword()
+    {
+      // Verify original connection doesn't show password before and after open connection
+      MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      connStr.PersistSecurityInfo = false;
+      MySqlConnection c = new MySqlConnection(connStr.ConnectionString);
+
+      // The password, is not returned as part of the connection if the connection is open or has ever been in an open state
+      Assert.Contains("password",c.ConnectionString);
+
+      // After open password should not be displayed
+      c.Open();
+      Assert.DoesNotContain("password", c.ConnectionString);
+
+       // Verify clone from open connection should not show password
+      var cloneConnection = (MySqlConnection) c.Clone();
+      Assert.DoesNotContain("password", cloneConnection.ConnectionString);
+
+      // After close connection the password should not be displayed
+      c.Close();
+      Assert.DoesNotContain("password", c.ConnectionString);
+
+      // Verify clone connection doesn't show password after open connection
+      cloneConnection.Open();
+      Assert.DoesNotContain("password", cloneConnection.ConnectionString);
+
+      // Verify clone connection doesn't show password after close connection
+      cloneConnection.Close();
+      Assert.DoesNotContain("password", cloneConnection.ConnectionString);
+
+      // Verify password for a clone of closed connection, password should appears
+      var closedConnection = new MySqlConnection(connStr.ConnectionString);
+      var cloneClosed = (MySqlConnection)closedConnection.Clone();
+      Assert.Contains("password", cloneClosed.ConnectionString);
+
+      // Open connection of a closed connection clone, password should be empty
+      Assert.False(cloneClosed.hasBeenOpen);
+      cloneClosed.Open();
+      Assert.DoesNotContain("password", cloneClosed.ConnectionString);
+      Assert.True(cloneClosed.hasBeenOpen);
+
+      // Close connection of a closed connection clone, password should be empty
+      cloneClosed.Close();
+      Assert.DoesNotContain("password", cloneClosed.ConnectionString);
+
+      // Clone Password shloud be present if PersistSecurityInfo is true
+      connStr.PersistSecurityInfo = true;
+      c = new MySqlConnection(connStr.ConnectionString);
+      cloneConnection = (MySqlConnection)c.Clone();
+      Assert.Contains("password", cloneConnection.ConnectionString);
+    }
+
     [Fact]
     [Trait("Category", "Security")]
     public void ConnectionTimeout()
@@ -688,6 +745,51 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    [Theory]
+    [Trait("Category", "Security")]
+    [InlineData("[]", null)]
+    [InlineData("Tlsv1.0", "TLSv1")]
+    [InlineData("Tlsv1.0, Tlsv1.1", "TLSv1.1")]
+    [InlineData("Tlsv1.0, Tlsv1.1, Tlsv1.2", "TLSv1.2")]
+//#if NET48 || NETCOREAPP3_0
+//    [InlineData("Tlsv1.3", "Tlsv1.3")]
+//    [InlineData("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.3")]
+//#else
+    [InlineData("Tlsv1.3", "")]
+    [InlineData("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.2")]
+//#endif
+    public void TlsVersionTest(string tlsVersion, string result)
+    {
+      var builder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+
+      void SetTlsVersion() { builder.TlsVersion = tlsVersion; }
+      if (result == null)
+      {
+        Assert.ThrowsAny<Exception>(SetTlsVersion);
+        return;
+      }
+      SetTlsVersion();
+      var conn = new MySqlConnection(builder.ConnectionString);
+
+      if (!String.IsNullOrWhiteSpace(result))
+      {
+        using (conn)
+        {
+          conn.Open();
+          Assert.Equal(ConnectionState.Open, conn.State);
+          MySqlCommand cmd = conn.CreateCommand();
+          cmd.CommandText = "SHOW SESSION STATUS LIKE 'ssl_version'";
+          using (MySqlDataReader dr = cmd.ExecuteReader())
+          {
+            Assert.True(dr.Read());
+            Assert.Equal(result, dr[1].ToString(), true);
+          }
+        }
+      }
+      else
+        Assert.Throws<NotSupportedException>(() => conn.Open());
+    }
+
     #endregion
 
     [Fact]
@@ -726,7 +828,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     [Theory]
     [Trait("Category", "Security")]
-    [InlineData("SET NAMES 'latin1'")]
+    //[InlineData("SET NAMES 'latin1'")]
     [InlineData("SELECT VERSION()")]
     [InlineData("SHOW VARIABLES LIKE '%audit%'")]
     public void ExpiredPassword(string sql)

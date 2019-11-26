@@ -1,6 +1,9 @@
 8.0.19
+- Fixed unexpected behavior when connection string is retrieved, it discloses connection password in a clone connection(MySQL Bug #97473, Oracle Bug #30502718).
 - Added support for multi-host and failover (WL13304).
 - Added support for DNS SRV records (WL13368).
+- Added new 'TlsVersion' connection string option (WL12748).
+- Added support for TLSv1.3 only in .NET Framework 4.8 and .NET Core 3.0 (WL12748).
 
 
 8.0.18

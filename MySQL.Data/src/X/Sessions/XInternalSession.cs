@@ -142,7 +142,8 @@ namespace MySqlX.Sessions
               Settings.CertificateThumbprint,
               Settings.SslCa,
               Settings.SslCert,
-              Settings.SslKey)
+              Settings.SslKey,
+              Settings.TlsVersion)
               .StartSSL(ref _stream, encoding, Settings.ToString());
           _reader = new XPacketReaderWriter(_stream);
           _writer = new XPacketReaderWriter(_stream);

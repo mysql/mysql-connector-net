@@ -38,6 +38,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using MySqlX.XDevAPI;
 using static MySql.Data.MySqlClient.MySqlConnectionStringOption;
+using System.Security.Authentication;
 
 namespace MySql.Data.MySqlClient
 {
@@ -83,12 +84,57 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("certificatepassword", "certificate password,ssl-ca-pwd", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("certificatestorelocation", "certificate store location", typeof(MySqlCertificateStoreLocation), MySqlCertificateStoreLocation.None, false));
       Options.Add(new MySqlConnectionStringOption("certificatethumbprint", "certificate thumb print", typeof(string), null, false));
-      Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode,ssl-mode", typeof(MySqlSslMode), MySqlSslMode.Preferred, false));
+      Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode,ssl-mode", typeof(MySqlSslMode), MySqlSslMode.Preferred, false,
+        (BaseSetterDelegate)((msb, sender, value) =>
+        {
+          MySqlSslMode newValue = (MySqlSslMode)Enum.Parse(typeof(MySqlSslMode), value.ToString(), true);
+          if (newValue == MySqlSslMode.None && msb.TlsVersion != null)
+            throw new ArgumentException(Resources.InvalidTlsVersionAndSslModeOption, nameof(TlsVersion));
+          msb.SetValue("sslmode", newValue);
+        }),
+        (BaseGetterDelegate)((msb, sender) => { return msb.SslMode; })));
       Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
         (BaseSetterDelegate)((msb, sender, value) => { msb.SslCa = value as string; }),
         (BaseGetterDelegate)((msb, sender) => { return msb.SslCa; })));
       Options.Add(new MySqlConnectionStringOption("sslkey", "ssl-key", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("sslcert", "ssl-cert", typeof(string), null, false));
+      Options.Add(new MySqlConnectionStringOption("tlsversion", "tls-version,tls version", typeof(string), null, false,
+        (BaseSetterDelegate)((msb, sender, value) =>
+        {
+          if (value == null || string.IsNullOrWhiteSpace((string)value))
+          {
+            msb.SetValue("tlsversion", null);
+            return;
+          }
+          if (msb.SslMode == MySqlSslMode.None)
+            throw new ArgumentException(Resources.InvalidTlsVersionAndSslModeOption, nameof(TlsVersion));
+          string strValue = ((string)value).TrimStart('[', '(').TrimEnd(']', ')').Replace(" ", string.Empty);
+          if (string.IsNullOrWhiteSpace(strValue) || strValue == ",")
+            throw new ArgumentException(Resources.TlsVersionNotSupported);
+          SslProtocols protocols = SslProtocols.None;
+          foreach (string opt in strValue.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+          {
+            string tls = opt.ToLowerInvariant().Replace("v", "").Replace(".", "");
+            if (tls.Equals("tls1") || tls.Equals("tls10"))
+              tls = "tls";
+            SslProtocols protocol;
+            if (!tls.StartsWith("tls", StringComparison.OrdinalIgnoreCase)
+              || (!Enum.TryParse<SslProtocols>(tls, true, out protocol) && !tls.Equals("tls13", StringComparison.OrdinalIgnoreCase)))
+            {
+              string info = string.Empty;
+#if NET48 || NETSTANDARD2_1
+              info = ", TLSv1.3";
+#endif
+              throw new ArgumentException(string.Format(Resources.InvalidTlsVersionOption, opt, info), nameof(TlsVersion));
+            }
+            protocols |= protocol;
+          }
+          string strProtocols = protocols == SslProtocols.None ? string.Empty : Enum.Format(typeof(SslProtocols), protocols, "G");
+          strProtocols = (value.ToString().Equals("Tls13", StringComparison.OrdinalIgnoreCase)
+          || value.ToString().Equals("Tlsv1.3", StringComparison.OrdinalIgnoreCase)) ? "Tls13" : strProtocols;
+          msb.SetValue("tlsversion", strProtocols);
+        }),
+        (BaseGetterDelegate)((msb, sender) => { return msb.TlsVersion; })));
 
       // SSH tunneling options.
       Options.Add(new MySqlConnectionStringOption("sshhostname", "ssh host name,ssh-host-name", typeof(string), "", false));
@@ -301,6 +347,21 @@ namespace MySql.Data.MySqlClient
       {
         CertificateFile = value;
       }
+    }
+
+    /// <summary>
+    /// Sets the TLS versions to use in a <see cref="SslMode">SSL connection</see> to the server.
+    /// </summary>
+    /// <example>
+    /// Tls version=TLSv1.1,TLSv1.2;
+    /// </example>
+    [DisplayName("TLS version")]
+    [Category("Security")]
+    [Description("TLS versions to use in a SSL connection to the server.")]
+    public string TlsVersion
+    {
+      get { return (string)values["tlsversion"]; }
+      set { SetValue("tlsversion", value); }
     }
 
     /// <summary>
