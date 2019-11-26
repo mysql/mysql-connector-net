@@ -679,6 +679,9 @@ namespace MySql.Data.MySqlClient
         //TODO: Add support for 452 and 46X
         else
           driver.IsInActiveUse = false;
+
+        FailoverManager.Reset();
+        MySqlPoolManager.Hosts = null;
       }
 
       if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())

@@ -352,6 +352,7 @@ namespace MySqlX.XDevAPI
         Hosts?.Clear();
       }
 
+      FailoverManager.Reset();
       Interlocked.Exchange(ref _available, -1);
     }
 

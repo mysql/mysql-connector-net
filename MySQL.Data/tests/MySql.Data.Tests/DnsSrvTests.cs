@@ -107,7 +107,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void DnsSrvResolverNoHosts()
     {
-      var connString = "server=www.google.com;user id=" + ConnectionSettings.UserID +
+      var connString = "server=localhost;user id=" + ConnectionSettings.UserID +
         ";password=" + ConnectionSettings.Password + ";database=" + ConnectionSettings.Database + ";dns-srv=true;";
 
       using (var conn = new MySqlConnection(connString))
