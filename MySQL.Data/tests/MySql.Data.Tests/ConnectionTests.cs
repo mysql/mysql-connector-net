@@ -748,16 +748,16 @@ namespace MySql.Data.MySqlClient.Tests
     [Theory]
     [Trait("Category", "Security")]
     [InlineData("[]", null)]
-    [InlineData("Tlsv1.0", "TLSv1")]
+    [InlineData("Tlsv1", "TLSv1")]
     [InlineData("Tlsv1.0, Tlsv1.1", "TLSv1.1")]
     [InlineData("Tlsv1.0, Tlsv1.1, Tlsv1.2", "TLSv1.2")]
-//#if NET48 || NETCOREAPP3_0
-//    [InlineData("Tlsv1.3", "Tlsv1.3")]
-//    [InlineData("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.3")]
-//#else
+    //#if NET48 || NETCOREAPP3_0
+    //    [InlineData("Tlsv1.3", "Tlsv1.3")]
+    //    [InlineData("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.3")]
+#if !NET48 && !NETCOREAPP3_0
     [InlineData("Tlsv1.3", "")]
     [InlineData("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.2")]
-//#endif
+#endif
     public void TlsVersionTest(string tlsVersion, string result)
     {
       var builder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
@@ -917,7 +917,7 @@ namespace MySql.Data.MySqlClient.Tests
           typeof(FullTrustSandbox).FullName);
       try
       {
-      MySqlConnection connection = sandbox.TryOpenConnection("server=localhost;userid=root;pwd=;port=3306");
+        MySqlConnection connection = sandbox.TryOpenConnection(Connection.ConnectionString);
         Assert.NotNull(connection);
         Assert.True(connection.State == ConnectionState.Open);
       }
