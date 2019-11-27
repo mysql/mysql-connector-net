@@ -48,14 +48,14 @@ namespace MySql.Data.Common
     /// <summary>
     /// Initializes a new instance of the <see cref="Ubiety.Dns.Core.Resolver"/> class.
     /// </summary>
-    internal static void CreateResolver(string serviceName)
+    internal static void CreateResolver(string serviceName, TransportType transportType = TransportType.Udp)
     {
       _resolver = new Resolver
       {
         Recursion = true,
         UseCache = true,
         Retries = 3,
-        TransportType = TransportType.Udp
+        TransportType = transportType
       };
 
       ServiceName = serviceName;
@@ -69,6 +69,8 @@ namespace MySql.Data.Common
     {
       if (_resolver == null)
         CreateResolver(serviceName);
+      else if (_resolver.TransportType == TransportType.Tcp)
+        CreateResolver(serviceName, TransportType.Tcp);
 
       List<DnsSrvRecord> records = new List<DnsSrvRecord>();
       const QuestionType qType = QuestionType.SRV;
@@ -80,7 +82,10 @@ namespace MySql.Data.Common
         records.Add(record);
 
       if (records.Count > 0)
+      {
+        Reset();
         return SortSrvRecords(records);
+      }
       else if (_resolver.TransportType == TransportType.Udp)
       {
         _resolver.TransportType = TransportType.Tcp;
@@ -127,5 +132,13 @@ namespace MySql.Data.Common
       return srvRecordsSortedRfc2782;
     }
 
+    /// <summary>
+    /// Resets the DnsSrvResolver
+    /// </summary>
+    private static void Reset()
+    {
+      if (_resolver != null)
+        _resolver = null;
+    }
   }
 }

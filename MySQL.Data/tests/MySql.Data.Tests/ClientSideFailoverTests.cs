@@ -172,7 +172,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip = "will be fixed in trunk")]
+    [Fact]
     [Trait("Category", "Security")]
     public void Pooling()
     {

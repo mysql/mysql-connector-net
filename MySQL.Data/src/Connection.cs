@@ -188,7 +188,7 @@ namespace MySql.Data.MySqlClient
         // Always return exactly what the user set.
         // Security-sensitive information may be removed.
         return Settings.GetConnectionString(!IsClone ? (!hasBeenOpen || Settings.PersistSecurityInfo) :
-        !Settings.PersistSecurityInfo ? (ParentHasbeenOpen ? false: !hasBeenOpen) : (Settings.PersistSecurityInfo));
+        !Settings.PersistSecurityInfo ? (ParentHasbeenOpen ? false : !hasBeenOpen) : (Settings.PersistSecurityInfo));
       }
       set
       {
@@ -204,9 +204,8 @@ namespace MySql.Data.MySqlClient
           else
           {
             newSettings = ConnectionStringCache[value];
-            if (null == newSettings || FailoverManager.FailoverGroup != null)
+            if (null == newSettings || FailoverManager.FailoverGroup == null)
             {
-              MySqlPoolManager.Hosts = newSettings == null ? null : MySqlPoolManager.Hosts;
               newSettings = new MySqlConnectionStringBuilder(value);
               ConnectionStringCache.Add(value, newSettings);
             }
@@ -655,6 +654,7 @@ namespace MySql.Data.MySqlClient
       }
       else
         driver.Close();
+
       driver = null;
     }
 
@@ -679,15 +679,15 @@ namespace MySql.Data.MySqlClient
         //TODO: Add support for 452 and 46X
         else
           driver.IsInActiveUse = false;
-
-        FailoverManager.Reset();
-        MySqlPoolManager.Hosts = null;
       }
 
       if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
       {
         _sshHandler?.StopClient();
       }
+
+      FailoverManager.Reset();
+      MySqlPoolManager.Hosts = null;
 
       SetState(ConnectionState.Closed, true);
     }

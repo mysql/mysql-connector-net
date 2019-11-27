@@ -172,7 +172,7 @@ namespace MySql.Data.Failover
           FailoverGroup.Hosts = MySqlPoolManager.Hosts;
 
       FailoverServer currentHost = FailoverGroup.ActiveHost;
-      string initialHost = currentHost.Host;
+      FailoverServer initialHost = currentHost;
       Driver driver = null;
 
       do
@@ -210,7 +210,7 @@ namespace MySql.Data.Failover
             MySqlPoolManager.DemotedServersTimer = new Timer(new TimerCallback(MySqlPoolManager.ReleaseDemotedHosts),
               null, MySqlPoolManager.DEMOTED_TIMEOUT, Timeout.Infinite);
         }
-      } while (currentHost.Host != initialHost);
+      } while (!currentHost.Equals(initialHost));
 
       if (driver == null)
         throw new MySqlException(Resources.UnableToConnectToHost);
