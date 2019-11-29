@@ -372,17 +372,22 @@ namespace MySqlX.Protocol
       {
         var options = new ObjectField();
         var validation = new ObjectField();
+        var reuse_obj = new ObjectField();
         var optionsAny = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
         var any = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
         var innerAny = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+        var reuse_any = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
         foreach (var arg in args)
         {
           if (arg.Value is Dictionary<string, object> && arg.Key == "options")
           {
             foreach (var field in arg.Value as Dictionary<string, object>)
-             {
+            {
               innerAny.Obj.Fld.Add(CreateObject(field.Key, field.Value));
-             }
+            }
+          } else if (arg.Key=="reuse_existing") 
+          {
+            reuse_any=ExprUtil.BuildAny(arg.Value);
           }
           else
           {
@@ -392,7 +397,13 @@ namespace MySqlX.Protocol
         options.Key = "options";
         validation.Key = "validation";
         validation.Value = innerAny;
+        reuse_obj.Key = "reuse_existing";
+        reuse_obj.Value = reuse_any;
         optionsAny.Obj.Fld.Add(validation);
+        if (stmt == "create_collection")
+        {
+          optionsAny.Obj.Fld.Add(reuse_obj);
+        }
         options.Value = optionsAny;
         any.Obj.Fld.Add(options);
         stmtExecute.Args.Add(any);

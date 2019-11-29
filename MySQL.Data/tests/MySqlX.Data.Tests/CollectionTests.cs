@@ -155,9 +155,9 @@ namespace MySqlX.Data.Tests
       Session s = GetSession();
       Schema test = s.GetSchema("test");
 
-      //CreateCollection Test Cases
+      // CreateCollection Test Cases
 
-      //Create a Collection passing a valid schema and Level
+      // Create a Collection passing a valid schema and Level
       CreateCollectionOptions options = new CreateCollectionOptions();
       Validation val = new Validation();
       val.Level = ValidationLevel.STRICT;
@@ -180,6 +180,13 @@ namespace MySqlX.Data.Tests
       options.Validation = val;
       Collection testColl = test.CreateCollection("testWithSchemaValidation", options);
       Assert.True(CollectionExistsInDatabase(testColl));
+
+      // Create a Collection passing a reuse_existing parameter to server
+      CreateCollectionOptions options_reuse = new CreateCollectionOptions();
+      options_reuse.ReuseExisting = false;
+      options_reuse.Validation = val;
+      Collection testCol2 = test.CreateCollection("testReuseExisting_1", options_reuse);
+      Assert.True(CollectionExistsInDatabase(testCol2));
 
       //Insert Valid record with Level Strict
       var insert_statement = testColl.Add(@"{ ""latitude"": 20, ""longitude"": 30 }");
@@ -307,6 +314,62 @@ namespace MySqlX.Data.Tests
       person_col.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       var rows = session.SQL("SELECT COUNT(*) FROM test.testWithPersonSchema").Execute().FetchOne()[0];
       Assert.Equal(rows, person_col.Count());
+
+      // Create an existing collection with different schema
+      options = new CreateCollectionOptions();
+      options.ReuseExisting = true;
+      options.Validation = new Validation() { Level = ValidationLevel.STRICT, Schema = str };
+      Collection col_schema1 = test.CreateCollection("testSchema1", options);
+      Assert.True(CollectionExistsInDatabase(col_schema1));
+
+      col_schema1.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
+      Assert.Equal(1, col_schema1.Count());
+      var sqlDefinition1 = session.SQL("SHOW CREATE TABLE test.testSchema1").Execute().FetchOne()[1];
+      
+
+      var schema2 = "{\"id\": \"http://json-schema.org/geo\","
+            + "\"$schema\": \"http://json-schema.org/draft-06/schema#\","
+            + "\"description\": \"A Movies example\","
+            + "\"type\": \"object\","
+            + "\"properties\": {"
+            + "\"title\": {"
+            + "\"type\": \"string\""
+            + " },"
+            + "\"movie\": {"
+            + "\"type\": \"string\""
+            + "}"
+            + "},"
+            + "\"required\": [\"title\", \"movie\"]"
+            + "}";
+      options.Validation = new Validation() { Level = ValidationLevel.STRICT, Schema = schema2 };
+      Collection col_schema2 = test.CreateCollection("testSchema1", options);
+      var sqlDefinition2 = session.SQL("SHOW CREATE TABLE test.testSchema1").Execute().FetchOne()[1];
+      Assert.Equal(sqlDefinition1, sqlDefinition2);
+
+      // Tests for original method CreateCollection
+      //Create a collection without sending reuseExisting parameter and insert record
+      Collection original_col1 = test.CreateCollection("testOriginal1");
+      Assert.True(CollectionExistsInDatabase(original_col1));
+      original_col1.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
+      rows = session.SQL("SELECT COUNT(*) FROM test.testOriginal1").Execute().FetchOne()[0];
+      Assert.Equal(rows, original_col1.Count());
+
+      //Create a new collection sending reuseExisting as true, insert record
+      Collection original_col2 = test.CreateCollection("testOriginal2",true);
+      Assert.True(CollectionExistsInDatabase(original_col2));
+      original_col2.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
+      rows = session.SQL("SELECT COUNT(*) FROM test.testOriginal2").Execute().FetchOne()[0];
+      Assert.Equal(rows, original_col2.Count());
+
+      //Create an existing collection sending reuseExisting as true, insert record
+      Collection original_col3 = test.CreateCollection("testOriginal2",true);
+      Assert.True(CollectionExistsInDatabase(original_col3));
+      original_col3.Add(@"{ ""name"": ""John2"", ""age"": 12 }").Execute();
+      Assert.Equal(2, original_col3.Count());
+
+      //Create an existing collection sending reuseExisting as false,exception expected
+      var ex_existing = Assert.Throws<MySqlException>(() => test.CreateCollection("testOriginal2", false));
+      Assert.Equal(@"Table 'testoriginal2' already exists", ex_existing.Message);
 
       //ModifyCollection Test Cases
 

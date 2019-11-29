@@ -144,13 +144,15 @@ namespace MySqlX.XDevAPI
       Collection coll = new Collection(this, collectionName);
       try
       {
-        Session.XSession.CreateCollection(Name, collectionName);
-        return new Collection(this, collectionName);
-      }
-      catch (MySqlException Ex_1) when (Ex_1.Code == 5015)
-      {
-        var msg = Ex_1.Message + ", " + ResourcesX.SchemaCreateCollectionMsg;
-        throw new MySqlException(msg);
+        if (Session.Version.isAtLeast(8, 0, 19))
+        {
+          CreateCollectionOptions options = new CreateCollectionOptions() { ReuseExisting = ReuseExisting };
+          Session.XSession.CreateCollection(Name, collectionName, options);
+        }
+        else
+        {
+          Session.XSession.CreateCollection(Name, collectionName);
+        }
       }
       catch (MySqlException ex) when (ex.Code == 1050)
       {
@@ -158,6 +160,7 @@ namespace MySqlX.XDevAPI
           return coll;
         throw ex;
       }
+      return new Collection(this, collectionName);
     }
 
     /// <summary>

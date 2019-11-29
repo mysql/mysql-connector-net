@@ -426,6 +426,7 @@ namespace MySqlX.Sessions
         true,
         new KeyValuePair<string, object>("schema", schemaName),
         new KeyValuePair<string, object>("name", collectionName),
+        new KeyValuePair<string, object>("reuse_existing", options.ReuseExisting),
         new KeyValuePair<string, object>("options", dictionary)
         ) ;
     }
