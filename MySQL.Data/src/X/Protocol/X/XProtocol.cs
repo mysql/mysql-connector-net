@@ -149,11 +149,20 @@ namespace MySqlX.Protocol
 
         if (cap.Key == "tls")
           value = ExprUtil.BuildAny(cap.Value);
-        else if (cap.Key == "session_connect_attrs")
+        else if (cap.Key == "session_connect_attrs" || cap.Key == "compression")
         {
-          Mysqlx.Datatypes.Object obj = new Mysqlx.Datatypes.Object();
-          foreach (var pair in (Dictionary<string, string>)cap.Value)
-            obj.Fld.Add(new ObjectField { Key = pair.Key, Value = ExprUtil.BuildAny(pair.Value) });
+          var obj = new Mysqlx.Datatypes.Object();
+
+          if (cap.Key == "session_connect_attrs")
+          {
+            foreach (var pair in (Dictionary<string, string>)cap.Value)
+              obj.Fld.Add(new ObjectField { Key = pair.Key, Value = ExprUtil.BuildAny(pair.Value) });
+          }
+          else if (cap.Key == "compression")
+          {
+            foreach (var pair in (Dictionary<string, object>)cap.Value)
+              obj.Fld.Add(new ObjectField { Key = pair.Key, Value = ExprUtil.BuildAny(pair.Value) });
+          }
 
           value = new Any { Type = Any.Types.Type.Object, Obj = obj };
         }
@@ -397,7 +406,7 @@ namespace MySqlX.Protocol
     private void DecodeAndThrowError(CommunicationPacket p)
     {
       Error e = Error.Parser.ParseFrom(p.Buffer);
-      throw new MySqlException(e.Code, e.SqlState, e.Msg);
+            throw new MySqlException(e.Code, e.SqlState, e.Msg);
     }
 
     public override List<byte[]> ReadRow(BaseResult rs)
@@ -407,13 +416,15 @@ namespace MySqlX.Protocol
       {
         if (rs != null)
           CloseResult(rs);
+
         return null;
       }
 
-      Mysqlx.Resultset.Row protoRow = Mysqlx.Resultset.Row.Parser.ParseFrom(ReadPacket().Buffer);
-      List<byte[]> values = new List<byte[]>(protoRow.Field.Count);
+      var protoRow = Row.Parser.ParseFrom(ReadPacket().Buffer);
+      var values = new List<byte[]>(protoRow.Field.Count);
       for (int i = 0; i < protoRow.Field.Count; i++)
         values.Add(protoRow.Field[i].ToByteArray());
+
       return values;
     }
 

@@ -80,7 +80,6 @@ namespace MySql.Data.MySqlClient
     OutputParameters = 4096
   }
 
-
   /// <summary>
   /// DB Operations Code
   /// </summary>
@@ -116,7 +115,6 @@ namespace MySql.Data.MySqlClient
     SET_OPTION = 27,
     FETCH = 28
   }
-
 
   /// <summary>
   /// Specifies MySQL specific data type of a field, property, for use in a <see cref="MySqlParameter"/>.
@@ -308,7 +306,6 @@ namespace MySql.Data.MySqlClient
     Guid = 854
   };
 
-
   internal enum Field_Type : byte
   {
     DECIMAL = 0,
@@ -496,6 +493,26 @@ namespace MySql.Data.MySqlClient
     /// removing locked rows from the result set.
     /// </summary>
     SkipLocked = 2
+  }
+
+  /// <summary>
+  /// Defines the type of compression used when data is exchanged between client and server.
+  /// </summary>
+  public enum CompressionType
+  {
+    /// <summary>
+    /// Uses compression if client and server are able to reach a concensus. Otherwise, compression
+    /// is not used.
+    /// </summary>
+    Preferred,
+    /// <summary>
+    /// Enforces the use of compression. If no concensus is reached, an error is raised.
+    /// </summary>
+    Required,
+    /// <summary>
+    /// Disables compression.
+    /// </summary>
+    Disabled
   }
 
   internal class MySqlConnectAttrs

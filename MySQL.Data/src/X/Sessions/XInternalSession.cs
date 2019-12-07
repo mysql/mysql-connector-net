@@ -46,6 +46,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Collections;
 using System.Threading;
+using MySql.Data.X.Communication;
 
 namespace MySqlX.Sessions
 {
@@ -55,6 +56,18 @@ namespace MySqlX.Sessions
   /// </summary>
   internal class XInternalSession : InternalSession
   {
+    /// <summary>
+    /// Defines the compression controller that will be passed on the <see cref="XPacketReaderWriter"/> instance when
+    /// compression is enabled.
+    /// </summary>
+    private XCompressionController _readerCompressionController;
+
+    /// <summary>
+    /// Defines the compression controller that will be passed on the <see cref="XPacketReaderWriter"/> instance when
+    /// compression is enabled.
+    /// </summary>
+    private XCompressionController _writerCompressionController;
+
     private XProtocol protocol;
     private XPacketReaderWriter _reader;
     private XPacketReaderWriter _writer;
@@ -108,9 +121,9 @@ namespace MySqlX.Sessions
       _writer = new XPacketReaderWriter(_stream);
       protocol = new XProtocol(_reader, _writer);
 
-      Settings.CharacterSet = String.IsNullOrWhiteSpace(Settings.CharacterSet) ? "utf8mb4" : Settings.CharacterSet;
+      Settings.CharacterSet = string.IsNullOrWhiteSpace(Settings.CharacterSet) ? "utf8mb4" : Settings.CharacterSet;
 
-      var encoding = Encoding.GetEncoding(String.Compare(Settings.CharacterSet, "utf8mb4", true) == 0 ? "UTF-8" : Settings.CharacterSet);
+      var encoding = Encoding.GetEncoding(string.Compare(Settings.CharacterSet, "utf8mb4", true) == 0 ? "UTF-8" : Settings.CharacterSet);
 
       SetState(SessionState.Connecting, false);
 
@@ -144,8 +157,18 @@ namespace MySqlX.Sessions
               Settings.SslCert,
               Settings.SslKey)
               .StartSSL(ref _stream, encoding, Settings.ToString());
-          _reader = new XPacketReaderWriter(_stream);
-          _writer = new XPacketReaderWriter(_stream);
+
+          if (_readerCompressionController != null && _readerCompressionController.IsCompressionEnabled)
+          {
+            _reader = new XPacketReaderWriter(_stream, _readerCompressionController);
+            _writer = new XPacketReaderWriter(_stream, _writerCompressionController);
+          }
+          else
+          {
+            _reader = new XPacketReaderWriter(_stream);
+            _writer = new XPacketReaderWriter(_stream);
+          }
+
           protocol.SetXPackets(_reader, _writer);
         }
         else
@@ -155,6 +178,12 @@ namespace MySqlX.Sessions
               Settings.Server);
           throw new MySqlException(message);
         }
+      }
+      else if (_readerCompressionController != null && _readerCompressionController.IsCompressionEnabled)
+      {
+        _reader = new XPacketReaderWriter(_stream, _readerCompressionController);
+        _writer = new XPacketReaderWriter(_stream, _writerCompressionController);
+        protocol.SetXPackets(_reader, _writer);
       }
 
       Authenticate();
@@ -235,13 +264,13 @@ namespace MySqlX.Sessions
     private void GetAndSetCapabilities()
     {
       protocol.GetServerCapabilities();
+      var clientCapabilities = new Dictionary<string, object>();
+      Mysqlx.Connection.Capability capability = null;
 
-      Dictionary<string, object> clientCapabilities = new Dictionary<string, object>();
-
-      // validates TLS use
+      // Validates TLS use.
       if (Settings.SslMode != MySqlSslMode.None)
       {
-        var capability = protocol.Capabilities.Capabilities_.FirstOrDefault(i => i.Name.ToLowerInvariant() == "tls");
+        capability = protocol.Capabilities.Capabilities_.FirstOrDefault(i => i.Name.ToLowerInvariant() == "tls");
         if (capability != null)
         {
           serverSupportsTls = true;
@@ -249,9 +278,44 @@ namespace MySqlX.Sessions
         }
       }
 
-      // set connection-attributes
+      // Set connection-attributes.
       if (Settings.ConnectionAttributes.ToLower() != "false")
         clientCapabilities.Add("session_connect_attrs", GetConnectionAttributes(Settings.ConnectionAttributes));
+
+      // Set compression algorithm.
+      if (Settings.Compression != CompressionType.Disabled)
+      {
+        capability = protocol.Capabilities.Capabilities_.FirstOrDefault(i => i.Name.ToLowerInvariant() == XCompressionController.COMPRESSION_KEY);
+
+        // Raise error if client expects compression but server doesn't support it.
+        if (Settings.Compression == CompressionType.Required && capability == null)
+        {
+          throw new NotSupportedException(ResourcesX.CompressionNotSupportedByServer);
+        }
+
+        // Update capabilities with the compression algorithm negotiation if server supports compression.
+        if (capability != null)
+        {
+          var algorithmsDictionary = capability.Value.Obj.Fld.ToDictionary(
+            field => field.Key,
+            field => field.Value.Array.Value.ToDictionary(value => value.Scalar.VString.Value.ToStringUtf8().ToLowerInvariant()).Keys.ToList());
+
+          if (algorithmsDictionary.ContainsKey(XCompressionController.ALGORITHMS_SUBKEY))
+          {
+            var supportedCompressionAlgorithms = algorithmsDictionary[XCompressionController.ALGORITHMS_SUBKEY].ToList().ToArray();
+            var compressionCapabilities = NegotiateCompression(supportedCompressionAlgorithms);
+            if (compressionCapabilities != null)
+            {
+              clientCapabilities.Add(XCompressionController.COMPRESSION_KEY, compressionCapabilities);
+              var compressionAlgorithm = compressionCapabilities.First().Value.ToString();
+              _readerCompressionController = new XCompressionController(compressionAlgorithm, false);
+              _writerCompressionController = new XCompressionController(compressionAlgorithm, true);
+              _reader = new XPacketReaderWriter(_stream, _readerCompressionController);
+              _writer = new XPacketReaderWriter(_stream, _writerCompressionController);
+            }
+          }
+        }
+      }
 
       try
       {
@@ -263,6 +327,61 @@ namespace MySqlX.Sessions
           clientCapabilities.Remove("session_connect_attrs");
         protocol.SetCapabilities(clientCapabilities);
       }
+    }
+
+    /// <summary>
+    /// Negotiates compression capabilities with the server.
+    /// </summary>
+    /// <param name="serverSupportedAlgorithms">An array containing the compression algorithms supported by the server.</param>
+    private Dictionary<string, object> NegotiateCompression(string[] serverSupportedAlgorithms)
+    {
+      if (serverSupportedAlgorithms == null || serverSupportedAlgorithms.Length == 0)
+      {
+        return null;
+      }
+
+      // If server and client don't have matching compression algorithms either log a warning message
+      // or raise an exception based on the selected compression type.
+      XCompressionController.LoadLibzstdLibrary();
+      if (!XCompressionController.ClientSupportedCompressionAlgorithms.All(element => serverSupportedAlgorithms.Contains(element)))
+      {
+        if (Settings.Compression == CompressionType.Preferred)
+        {
+          MySqlTrace.LogWarning(-1, ResourcesX.CompressionAlgorithmNegotiationFailed);
+          return null;
+        }
+        else if (Settings.Compression == CompressionType.Required)
+        {
+          throw new NotSupportedException(ResourcesX.CompressionAlgorithmNegotiationFailed);
+        }
+      }
+
+      string negotiatedAlgorithm = null;
+      for (int index = 0; index < XCompressionController.ClientSupportedCompressionAlgorithms.Length; index++)
+      {
+        if (!serverSupportedAlgorithms.Contains(XCompressionController.ClientSupportedCompressionAlgorithms[index]))
+        {
+          continue;
+        }
+
+        negotiatedAlgorithm = XCompressionController.ClientSupportedCompressionAlgorithms[index];
+        break;
+      }
+
+      if (negotiatedAlgorithm == null)
+      {
+        return null;
+      }
+
+      // Create the compression capability object.
+      var compressionCapabilities = new Dictionary<string, object>();
+      compressionCapabilities.Add(XCompressionController.ALGORITHMS_SUBKEY, negotiatedAlgorithm);
+      compressionCapabilities.Add(XCompressionController.SERVER_COMBINE_MIXED_MESSAGES_SUBKEY, XCompressionController.DEFAULT_SERVER_COMBINE_MIXED_MESSAGES_VALUE);
+
+      // TODO: For future use.
+      //compressionCapabilities.Add(XCompressionController.SERVER_MAX_COMBINE_MESSAGES_SUBKEY, XCompressionController.DEFAULT_SERVER_MAX_COMBINE_MESSAGES_VALUE);
+
+      return compressionCapabilities;
     }
 
     private Dictionary<string, string> GetConnectionAttributes(string connectionAttrs)
@@ -782,6 +901,27 @@ namespace MySqlX.Sessions
     {
       protocol.SendDeallocatePreparedStatement((uint)stmtId);
       _preparedStatements.Remove(stmtId);
+    }
+
+    /// <summary>
+    /// Gets the compression algorithm being used to compress or decompress data.
+    /// </summary>
+    /// <param name="fromReaderController">Flag to indicate if the compression algorithm should be
+    /// retrieved from the reader or writer controller.</param>
+    /// <returns>The name of the compression algorithm being used if any.
+    /// <c>null</c> if no compression algorithm is being used.</returns>
+    public string GetCompressionAlgorithm(bool fromReaderController)
+    {
+      if (fromReaderController && _readerCompressionController != null)
+      {
+        return _readerCompressionController.CompressionAlgorithm;
+      }
+      else if (!fromReaderController && _writerCompressionController != null)
+      {
+        return _writerCompressionController.CompressionAlgorithm;
+      }
+
+      return null;
     }
   }
 }
