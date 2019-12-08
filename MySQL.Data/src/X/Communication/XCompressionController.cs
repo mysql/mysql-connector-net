@@ -128,7 +128,7 @@ namespace MySql.Data.X.Communication
     /// <summary>
     /// Indicates if the libzstd.dll has been loaded.
     /// </summary>
-    private static bool _libzstdLoaded;
+    private static bool? _libzstdLoaded;
 
     /// <summary>
     /// Stream used to store multiple X Protocol messages.
@@ -506,7 +506,7 @@ namespace MySql.Data.X.Communication
     /// </summary>
     internal static void LoadLibzstdLibrary()
     {
-      if (_libzstdLoaded)
+      if (_libzstdLoaded != null)
       {
         return;
       }
