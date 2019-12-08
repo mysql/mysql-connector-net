@@ -512,20 +512,12 @@ namespace MySql.Data.X.Communication
       }
 
       string loadPath = string.Empty;
+      ZstandardInterop.LoadLibzstdLibrary(loadPath);
       try
       {
-#if DEBUG && !NET452
-        // Load from dependencies folder (Debugging).
-        loadPath = @"..\..\..\..\..\..\Dependencies\Zstandard\NetCore\";
-        ZstandardInterop.LoadLibzstdLibrary(loadPath);
-#elif DEBUG && NET452
-        // Load from dependencies folder (Debugging).
-        loadPath = @"..\..\..\..\..\..\Dependencies\Zstandard\NetFramework\";
-        ZstandardInterop.LoadLibzstdLibrary(loadPath);
-#else
-        // Load from current directory (No-Install ZIP package)
-        ZstandardInterop.LoadLibzstdLibrary(loadPath);
-#endif
+        // Creating this temporary stream to check if the library was loaded succesfully.
+        using(var testStream = new ZstandardStream(new MemoryStream(), CompressionMode.Compress))
+        {}
 
         _libzstdLoaded = true;
       }
@@ -540,7 +532,7 @@ namespace MySql.Data.X.Communication
 #endif
         };
 
-        MySqlTrace.LogError(-1, "Failed to load libzstd.dll.");
+        MySqlTrace.LogWarning(-1, ResourcesX.CompressionFailedToLoadLibzstdAssembly);
         _libzstdLoaded = false;
       }
     }

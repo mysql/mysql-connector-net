@@ -133,6 +133,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to load libzstd.dll. Removing zstd_stream from the client supported compression algorithms..
+        /// </summary>
+        public static string CompressionFailedToLoadLibzstdAssembly {
+            get {
+                return ResourceManager.GetString("CompressionFailedToLoadLibzstdAssembly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Compression using {0} is not supported in .NET Framework..
         /// </summary>
         public static string CompressionForSpecificAlgorithmNotSupportedInNetFramework {

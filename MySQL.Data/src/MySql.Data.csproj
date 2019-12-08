@@ -74,6 +74,9 @@
     </Reference>
     <PackageReference Include="BouncyCastle" Version="1.8.3.1" />
     <EmbeddedResource Include="keywords.txt;Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+    <None Include="..\..\Dependencies\Zstandard\NetFramework\libzstd.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='netstandard2.1'">
@@ -91,6 +94,9 @@
     <Reference Include="Zstandard.Net">
       <HintPath>..\..\Dependencies\Zstandard\NetCore\Zstandard.Net.dll</HintPath>
     </Reference>
+    <None Include="..\..\Dependencies\Zstandard\NetCore\libzstd.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
