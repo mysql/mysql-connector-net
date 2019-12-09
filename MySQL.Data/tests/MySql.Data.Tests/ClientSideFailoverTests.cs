@@ -43,8 +43,7 @@ namespace MySql.Data.MySqlClient.Tests
       _sb.ConnectionTimeout = 7;
     }
     
-    [Theory]
-    [Trait("Category", "Security")]
+    [Theory]    
     [InlineData("localhost")] // Single host
     [InlineData("10.10.10.10, localhost, 20.20.20.20, 30.30.30.30")] // Multiple hosts
     [InlineData("10.10.10.10:3306, localhost, 20.20.20.20:3305, 30.30.30.30:3305")] // Multiple hosts with port number
@@ -76,9 +75,10 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Fact]
-    [Trait("Category", "Security")]
     public void PriorityMethod()
     {
+      _sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      _sb.ConnectionTimeout = 7;
       _sb.Pooling = false;
 
       // Multiple hosts and validate proper order assigned to hosts.
@@ -96,7 +96,12 @@ namespace MySql.Data.MySqlClient.Tests
       // Multiple hosts with IPv6
       if (Fixture.Version > new Version(5, 6, 0))
       {
-        _sb.Server = "(address=server.example,priority=50),(address=::1,priority=100)";
+        _sb = new MySqlConnectionStringBuilder(Connection.ConnectionString)
+        {
+          ConnectionTimeout = 7,
+          Pooling = false,
+          Server = "(address=server.example,priority=50),(address=::1,priority=100)"
+        };
         using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
         {
           conn.Open();
@@ -113,7 +118,12 @@ namespace MySql.Data.MySqlClient.Tests
         if (i == 105) hostList += "(address=localhost,priority=0)";
       }
 
-      _sb.Server = hostList;
+      _sb = new MySqlConnectionStringBuilder(Connection.ConnectionString)
+      {
+        ConnectionTimeout = 7,
+        Pooling = false,
+        Server = hostList
+      };
       using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
       {
         conn.Open();
@@ -124,48 +134,30 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.Equal(priority != 0 ? priority-- : 0, host.Priority);
         }
       }
+    }
 
-      // Priority outside the 0-100 allowed range
-      _sb.Server = "(address=server.example,priority=-20),(address=127.0.0.1,priority=100)";
+    [Theory]
+    [InlineData("(address=server.example,priority=-20),(address=127.0.0.1,priority=100)", "The priority must be between 0 and 100.", "argument")] // Priority outside the 0-100 allowed range
+    [InlineData("(address=server.example,priority=-50),(address=127.0.0.1,priority=101)", "The priority must be between 0 and 100.", "argument")] // Priority outside the 0-100 allowed range
+    [InlineData("(address=server.example),(address=127.0.0.1,priority=100)", "You must either assign no priority to any of the hosts or give a priority for every host.", "argument")] // Set priority for a subset of the hosts.
+    [InlineData("(address=server.example,priority=50),(address=127.0.0.1,priority=100),(address=server.example)", "You must either assign no priority to any of the hosts or give a priority for every host.", "argument")] // Set priority for a subset of the hosts.
+    [InlineData("(address=server.example,priority=100),(address=10.10.10.10,priority=25),(address=192.0.10.56,priority=75)", "Unable to connect to any of the specified MySQL hosts.", "mysql")] // Multiple hosts. All attempts fail.
+    public void PriorityMethodConnectionFail(string server, string exceptionMessage, string exceptionType)
+    {      
+      _sb.Server = server;
       using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
       {
-        Exception ex = Assert.Throws<ArgumentException>(() => conn.Open());
-        Assert.Equal("The priority must be between 0 and 100.", ex.Message);
-      }
+        Exception ex;
+        if (exceptionType == "argument")
+          ex = Assert.Throws<ArgumentException>(() => conn.Open());
+        else
+          ex = Assert.Throws<MySqlException>(()=> conn.Open());
 
-      _sb.Server = "(address=server.example,priority=-50),(address=127.0.0.1,priority=101)";
-      using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
-      {
-        Exception ex = Assert.Throws<ArgumentException>(() => conn.Open());
-        Assert.Equal("The priority must be between 0 and 100.", ex.Message);
-      }
-
-      // Set priority for a subset of the hosts.
-      _sb.Server = "(address=server.example),(address=127.0.0.1,priority=100)";
-      using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
-      {
-        Exception ex = Assert.Throws<ArgumentException>(() => conn.Open());
-        Assert.Equal("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
-      }
-
-      _sb.Server = "(address=server.example,priority=50),(address=127.0.0.1,priority=100),(address=server.example)";
-      using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
-      {
-        Exception ex = Assert.Throws<ArgumentException>(() => conn.Open());
-        Assert.Equal("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
-      }
-
-      // Multiple hosts. All attempts fail.
-      _sb.Server = "(address=server.example,priority=100),(address=10.10.10.10,priority=25),(address=192.0.10.56,priority=75)";
-      using (MySqlConnection conn = new MySqlConnection(_sb.ConnectionString))
-      {
-        Exception ex = Assert.Throws<MySqlException>(() => conn.Open());
-        Assert.Equal("Unable to connect to any of the specified MySQL hosts.", ex.Message);
+        Assert.Equal(exceptionMessage, ex.Message);
       }
     }
 
     [Theory]
-    [Trait("Category", "Security")]
     [InlineData("10.10.10.10,20.20.20.20,localhost")] // Random
     [InlineData("(address=server.example,priority=100),(address=localhost,priority=25),(address=192.0.10.56,priority=75)")] // Priority
     public void Pooling(string server)

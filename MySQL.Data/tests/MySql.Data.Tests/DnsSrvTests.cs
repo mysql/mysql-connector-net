@@ -103,17 +103,5 @@ namespace MySql.Data.MySqlClient.Tests
       exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(sb.ConnectionString));
       Assert.Equal(Resources.DnsSrvInvalidConnOptionMultihost, exception.Message);
     }
-
-    [Fact]
-    public void DnsSrvResolverNoHosts()
-    {
-      var connString = "server=127.0.0.1;dns-srv=true;";
-
-      using (var conn = new MySqlConnection(connString))
-      {
-        var ex = Assert.Throws<MySqlException>(() => conn.Open());
-        Assert.Equal(string.Format(Resources.DnsSrvNoHostsAvailable, conn.Settings.Server), ex.Message);
-      }
-    }
   }
 }
