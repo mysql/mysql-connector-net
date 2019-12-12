@@ -9,6 +9,7 @@
     <Authors>Oracle</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
     <TargetFrameworks>net452;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeThirdPartyAssemblies</TargetsForTfmSpecificBuildOutput>
     <PackageId>MySql.Data</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
@@ -48,6 +49,13 @@
     <PackageReference Include="SSH.NET" Version="2016.1.0" />
     <PackageReference Include="System.Buffers" Version="4.5.0" />
   </ItemGroup>
+
+  <Target Name="IncludeThirdPartyAssemblies">
+    <ItemGroup>
+      <BuildOutputInPackage Include="$(OutputPath)Zstandard.Net.dll" />
+      <BuildOutputInPackage Include="$(OutputPath)libzstd.dll" />
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <None Update="..\..\Release Notes.txt">
