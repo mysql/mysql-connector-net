@@ -150,6 +150,19 @@ namespace MySqlX.Data.Tests
     }
 
     [Fact]
+    public void ModifyCollectionNoLevelNorSchema()
+    {
+      Session s = GetSession();
+      Schema test = s.GetSchema("test");
+
+      // Modify a Collection without passing schema and Level, (Bug#30660917)
+      test.CreateCollection("coll");
+      ModifyCollectionOptions options1 = new ModifyCollectionOptions();
+      options1.Validation = new Validation() { };
+      Assert.Throws<MySqlException>(() => test.ModifyCollection("coll", options1));
+    }
+
+    [Fact]
     public void CreateCollectionWithOptions()
     {
       Session s = GetSession();

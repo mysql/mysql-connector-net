@@ -444,8 +444,14 @@ namespace MySqlX.Sessions
       var dictionary = new Dictionary<string, object>();
       if (!options.Equals(null))
       {
-        dictionary.Add("level", (string)options?.Validation.Level.ToString().ToLowerInvariant());
-        dictionary.Add("schema", new DbDoc(options?.Validation.Schema));
+        if (options.Value.Validation.Level != null)
+        {
+          dictionary.Add("level", options.Value.Validation.Level.ToString().ToLowerInvariant());
+        }
+        if (options.Value.Validation.Schema != null)
+        {
+          dictionary.Add("schema", new DbDoc(options.Value.Validation.Schema));
+        }
       }
       ExecuteCmdNonQueryOptions(XpluginStatementCommand.XPLUGIN_STMT_MODIFY_COLLECTION,
         true,

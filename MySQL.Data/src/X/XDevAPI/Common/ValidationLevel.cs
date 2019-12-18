@@ -35,9 +35,9 @@ namespace MySql.Data.X.XDevAPI.Common
   /// <param name="OFF">Schema validation disabled.</param>
   public enum ValidationLevel
   {
-    //Enable schema validation
-    STRICT,
     //Disable schema validation
-    OFF
+    OFF,
+    //Enable schema validation
+    STRICT
   }
 }
