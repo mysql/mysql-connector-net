@@ -439,7 +439,10 @@ namespace MySqlX.Protocol
         else if (p.MessageType == (int)ServerMessageId.NOTICE)
           ProcessNotice(ReadPacket(), rs);
         else if (p.MessageType == (int)ServerMessageId.ERROR)
+        {
+          rs._session.ActiveResult = null;
           DecodeAndThrowError(ReadPacket());
+        }
         else if (p.MessageType == (int)ServerMessageId.SQL_STMT_EXECUTE_OK)
         {
           ReadPacket();
