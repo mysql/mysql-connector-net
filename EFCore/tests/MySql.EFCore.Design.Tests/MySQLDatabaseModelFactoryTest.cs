@@ -41,46 +41,46 @@ using Xunit;
 
 namespace MySql.EntityFrameworkCore.Design.Tests
 {
-    public class MySQLDatabaseModelFactoryTest : IClassFixture<MySQLDatabaseModelFixture>
+  public class MySQLDatabaseModelFactoryTest : IClassFixture<MySQLDatabaseModelFixture>
+  {
+    readonly MySQLDatabaseModelFixture _fixture;
+    public MySQLDatabaseModelFactoryTest(MySQLDatabaseModelFixture fixture)
     {
-        readonly MySQLDatabaseModelFixture _fixture;
-        public MySQLDatabaseModelFactoryTest(MySQLDatabaseModelFixture fixture)
-        {
-            _fixture = fixture;            
-        }
+      _fixture = fixture;
+    }
 
 
 
-        [Fact]
-        public void CanReadTables()
-        {
-            _fixture.dbName = "blogman";
+    [Fact]
+    public void CanReadTables()
+    {
+      _fixture.dbName = "blogman";
 
-            var sql = @"
+      var sql = @"
 DROP DATABASE IF EXISTS blogman;
 CREATE DATABASE blogman; 
 USE blogman;
 CREATE TABLE blogs (id int);
 CREATE TABLE posts (id int);";
-            var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "blogs", "posts" }));
+      var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "blogs", "posts" }));
 
-            Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
-                d =>
-                {                    
-                    Assert.Equal("blogs", d.Name);
-                },
-                e =>
-                {                 
-                    Assert.Equal("posts", e.Name);
-                });
-        }
+      Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
+          d =>
+          {
+            Assert.Equal("blogs", d.Name);
+          },
+          e =>
+          {
+            Assert.Equal("posts", e.Name);
+          });
+    }
 
-        [Fact]
-        public void CanReadColumns()
-        {
-            _fixture.dbName = "blogman";
+    [Fact]
+    public void CanReadColumns()
+    {
+      _fixture.dbName = "blogman";
 
-            var sql = @"
+      var sql = @"
 DROP DATABASE IF EXISTS blogman;
 CREATE DATABASE blogman; 
 USE blogman;
@@ -92,65 +92,67 @@ CREATE TABLE blogs (
     PRIMARY KEY (description, id)
 );
 ";
-            var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "blogs"}));
+      var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "blogs" }));
 
-            var columns = dbModel.Tables.Single().Columns;
+      var columns = dbModel.Tables.Single().Columns;
 
-            Assert.All(columns, c =>
-            {
-                Assert.Equal("blogman", c.Table.GetSchema());
-                Assert.Equal("blogs", c.Table.Name);
-            });
+      Assert.All(columns, c =>
+      {
+        Assert.Equal("blogman", c.Table.GetSchema());
+        Assert.Equal("blogs", c.Table.Name);
+      });
 
-            Assert.Collection(columns,
-                           id =>
-                           {
-                               Assert.Equal("id", id.Name);
-                               Assert.Equal("int(11)", id.GetDataType());
-                               Assert.Equal(2, id.GetPrimaryKeyOrdinal(2));
-                               Assert.False(id.IsNullable);
-                               Assert.Equal(0, id.GetOrdinal(0));
-                             if (FactOnVersionsAttribute.Version >= new Version("5.7.0"))
-                               Assert.Null(id.GetDefaultValue());
-                             else
-                               Assert.Equal("0", id.GetDefaultValue());
-                           },
-                        description =>
-                        {
-                            Assert.Equal("description", description.Name);
-                            Assert.Equal("varchar(100)", description.GetDataType());
-                            Assert.Equal(1, description.GetPrimaryKeyOrdinal(1));
-                            Assert.False(description.IsNullable);
-                            Assert.Equal(1, description.GetOrdinal(1));
-                            Assert.Null(description.GetDefaultValue());
-                            Assert.Equal(100, description.GetMaxLength(100));
-                        },
-                        rate =>
-                        {
-                            Assert.Equal("rate", rate.Name);
-                            Assert.Equal("decimal(5,2)", rate.GetDataType());
-                            Assert.Null(rate.GetPrimaryKeyOrdinal(null));
-                            Assert.True(rate.IsNullable);
-                            Assert.Equal(2, rate.GetOrdinal(2));
-                            Assert.Equal("0.00", rate.GetDefaultValue());
-                            Assert.Equal(5, rate.GetPrecision(5));
-                            Assert.Equal(2, rate.GetScale(2));
-                            Assert.Null(rate.GetMaxLength(null));
-                        },
-                    created =>
-                    {
-                        Assert.Equal("created", created.Name);
-                        Assert.Equal("CURRENT_TIMESTAMP", created.GetDefaultValue());
-                    });
-        }
+      string smallintWidth = FactOnVersionsAttribute.Version >= new Version("8.0.0") ? string.Empty : "(11)";
+
+      Assert.Collection(columns,
+                     id =>
+                     {
+                       Assert.Equal("id", id.Name);
+                       Assert.Equal("int" + smallintWidth, id.GetDataType());
+                       Assert.Equal(2, id.GetPrimaryKeyOrdinal(2));
+                       Assert.False(id.IsNullable);
+                       Assert.Equal(0, id.GetOrdinal(0));
+                       if (FactOnVersionsAttribute.Version >= new Version("5.7.0"))
+                         Assert.Null(id.GetDefaultValue());
+                       else
+                         Assert.Equal("0", id.GetDefaultValue());
+                     },
+                  description =>
+                  {
+                    Assert.Equal("description", description.Name);
+                    Assert.Equal("varchar(100)", description.GetDataType());
+                    Assert.Equal(1, description.GetPrimaryKeyOrdinal(1));
+                    Assert.False(description.IsNullable);
+                    Assert.Equal(1, description.GetOrdinal(1));
+                    Assert.Null(description.GetDefaultValue());
+                    Assert.Equal(100, description.GetMaxLength(100));
+                  },
+                  rate =>
+                  {
+                    Assert.Equal("rate", rate.Name);
+                    Assert.Equal("decimal(5,2)", rate.GetDataType());
+                    Assert.Null(rate.GetPrimaryKeyOrdinal(null));
+                    Assert.True(rate.IsNullable);
+                    Assert.Equal(2, rate.GetOrdinal(2));
+                    Assert.Equal("0.00", rate.GetDefaultValue());
+                    Assert.Equal(5, rate.GetPrecision(5));
+                    Assert.Equal(2, rate.GetScale(2));
+                    Assert.Null(rate.GetMaxLength(null));
+                  },
+              created =>
+              {
+                Assert.Equal("created", created.Name);
+                Assert.Equal("CURRENT_TIMESTAMP", created.GetDefaultValue());
+              });
+    }
 
 
-        [Fact]
-        public void CanReadFKs()
-        {
-            _fixture.dbName = "sakiladb";
+    [Fact]
+    public void CanReadFKs()
+    {
+      _fixture.dbName = "sakiladb";
 
-            var sql = @" 
+      var sql = @" 
 DROP DATABASE IF EXISTS sakiladb;
 CREATE DATABASE sakiladb; 
 USE sakiladb;
@@ -169,25 +171,25 @@ CREATE TABLE city (
   KEY idx_fk_country_id (country_id),
   CONSTRAINT `fk_city_country` FOREIGN KEY (country_id) REFERENCES country (country_id) ON DELETE RESTRICT ON UPDATE CASCADE
 );";
-            var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "city", "country" }));
+      var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "city", "country" }));
 
-            var fk = Assert.Single(dbModel.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
+      var fk = Assert.Single(dbModel.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
 
-            Assert.Equal("sakiladb", fk.Table.GetSchema());
-            Assert.Equal("city", fk.Table.Name);
-            Assert.Equal("sakiladb", fk.PrincipalTable.GetSchema());
-            Assert.Equal("country", fk.PrincipalTable.Name);
-            Assert.Equal("country_id", fk.GetColumn().Name);
-            Assert.Equal("country_id", fk.GetPrincipalColumn().Name);
-            Assert.Equal(ReferentialAction.Restrict, fk.OnDelete);
-        }     
+      Assert.Equal("sakiladb", fk.Table.GetSchema());
+      Assert.Equal("city", fk.Table.Name);
+      Assert.Equal("sakiladb", fk.PrincipalTable.GetSchema());
+      Assert.Equal("country", fk.PrincipalTable.Name);
+      Assert.Equal("country_id", fk.GetColumn().Name);
+      Assert.Equal("country_id", fk.GetPrincipalColumn().Name);
+      Assert.Equal(ReferentialAction.Restrict, fk.OnDelete);
+    }
 
-        [Fact]
-        public void CanReadIndexes()
-        {
-            _fixture.dbName = "sakilaIndex";
+    [Fact]
+    public void CanReadIndexes()
+    {
+      _fixture.dbName = "sakilaIndex";
 
-            var sql = @" 
+      var sql = @" 
 DROP DATABASE IF EXISTS sakilaIndex;
 CREATE DATABASE sakilaIndex; 
             use sakilaIndex;
@@ -199,155 +201,155 @@ CREATE DATABASE sakilaIndex;
               PRIMARY KEY(actor_id),
               KEY idx_actor_first_last_name(first_name, last_name))";
 
-            var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "actor" }));
+      var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "actor" }));
 
-            var indexes = dbModel.Tables.Single().Indexes;
+      var indexes = dbModel.Tables.Single().Indexes;
 
-            Assert.All(indexes, c =>
-            {
-                Assert.Equal("sakilaIndex", c.Table.GetSchema(), ignoreCase: true);
-                Assert.Equal("actor", c.Table.Name);
-            });
+      Assert.All(indexes, c =>
+      {
+        Assert.Equal("sakilaIndex", c.Table.GetSchema(), ignoreCase: true);
+        Assert.Equal("actor", c.Table.Name);
+      });
 
-            Assert.Collection(indexes,
-                onecolumn =>
-                {
-                  Assert.Equal("last_name", onecolumn.GetColumn().Name);
-                  Assert.True(onecolumn.IsUnique);
-                },
-                composite =>
-                {
-                  Assert.Equal("idx_actor_first_last_name", composite.Name);
-                  Assert.False(composite.IsUnique);
-                  Assert.Equal(new List<string> { "first_name", "last_name" }, composite.GetColumns().Select(c => c.GetColumn().Name).ToList());
-                });
-        }
-
-
-        [Fact]
-        public void CanCreateModelForWorldDB()
-        {
-            Assembly executingAssembly = typeof(MySQLDatabaseModelFixture).GetTypeInfo().Assembly;
-            Stream stream = executingAssembly.GetManifestResourceStream("MySql.EntityFrameworkCore.Design.Tests.Properties.world.sql");
-            StreamReader sr = new StreamReader(stream);
-            string sql = sr.ReadToEnd();
-            sr.Dispose();
-            _fixture.dbName = "world";
+      Assert.Collection(indexes,
+          onecolumn =>
+          {
+            Assert.Equal("last_name", onecolumn.GetColumn().Name);
+            Assert.True(onecolumn.IsUnique);
+          },
+          composite =>
+          {
+            Assert.Equal("idx_actor_first_last_name", composite.Name);
+            Assert.False(composite.IsUnique);
+            Assert.Equal(new List<string> { "first_name", "last_name" }, composite.GetColumns().Select(c => c.GetColumn().Name).ToList());
+          });
+    }
 
 
-            var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> {"city", "country", "countrylanguage"}), null, true);
-            Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
-                          d =>
-                          {
-                              Assert.Equal("city", d.Name);
-                          },
-                          e =>
-                          {
-                              Assert.Equal("country", e.Name);
-                          },
-                          e =>
-                          {
-                            Assert.Equal("countrylanguage", e.Name);
-                          }
-            );
-        }
+    [Fact]
+    public void CanCreateModelForWorldDB()
+    {
+      Assembly executingAssembly = typeof(MySQLDatabaseModelFixture).GetTypeInfo().Assembly;
+      Stream stream = executingAssembly.GetManifestResourceStream("MySql.EntityFrameworkCore.Design.Tests.Properties.world.sql");
+      StreamReader sr = new StreamReader(stream);
+      string sql = sr.ReadToEnd();
+      sr.Dispose();
+      _fixture.dbName = "world";
 
 
-        [FactOnVersions("5.6.0", null)]
-        public void CanCreateModelForSakila()
-        {
-            Assembly executingAssembly = typeof(MySQLDatabaseModelFixture).GetTypeInfo().Assembly;
-            Stream stream = executingAssembly.GetManifestResourceStream("MySql.EntityFrameworkCore.Design.Tests.Properties.sakiladb-schema.sql");
-            StreamReader sr = new StreamReader(stream);
-            string sql = sr.ReadToEnd();
-            sr.Dispose();
+      var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "city", "country", "countrylanguage" }), null, true);
+      Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
+                    d =>
+                    {
+                      Assert.Equal("city", d.Name);
+                    },
+                    e =>
+                    {
+                      Assert.Equal("country", e.Name);
+                    },
+                    e =>
+                    {
+                      Assert.Equal("countrylanguage", e.Name);
+                    }
+      );
+    }
 
-            _fixture.dbName = "sakiladb";
 
-            var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "actor", "address", "category",
-            "city", "country", "customer", 
+    [FactOnVersions("5.6.0", null)]
+    public void CanCreateModelForSakila()
+    {
+      Assembly executingAssembly = typeof(MySQLDatabaseModelFixture).GetTypeInfo().Assembly;
+      Stream stream = executingAssembly.GetManifestResourceStream("MySql.EntityFrameworkCore.Design.Tests.Properties.sakiladb-schema.sql");
+      StreamReader sr = new StreamReader(stream);
+      string sql = sr.ReadToEnd();
+      sr.Dispose();
+
+      _fixture.dbName = "sakiladb";
+
+      var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "actor", "address", "category",
+            "city", "country", "customer",
             "film", "film_actor", "film_category", "film_text",
             "inventory", "language", "payment", "rental", "staff", "store"}), null, true);
-            Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
-                          d =>
-                          {
-                              Assert.Equal("actor", d.Name);
-                          },
-                          e =>
-                          {
-                              Assert.Equal("address", e.Name);
-                          },
-                          f =>
-                          {
-                              Assert.Equal("category", f.Name);
-                          },
-                         g =>
-                         {
-                             Assert.Equal("city", g.Name);
-                         },
-                         f =>
-                         {
-                             Assert.Equal("country", f.Name);
-                         },
-                         f =>
-                         {
-                             Assert.Equal("customer", f.Name);
-                         },
-                         f =>
-                         {
-                             Assert.Equal("film", f.Name);
-                         },
-                         f =>
-                         {
-                             Assert.Equal("film_actor", f.Name);
-                         },
-                         f =>
-                         {
-                             Assert.Equal("film_category", f.Name);
-                         },
-                        f =>
-                        {
-                            Assert.Equal("film_text", f.Name);
-                        },
-                        f =>
-                        {
-                            Assert.Equal("inventory", f.Name);
-                        },
-                        f =>
-                        {
-                            Assert.Equal("language", f.Name);
-                        },
-                        f =>
-                        {
-                            Assert.Equal("payment", f.Name);
-                        },
-                        f =>
-                        {
-                            Assert.Equal("rental", f.Name);
-                        },
-                        f =>
-                        {
-                            Assert.Equal("staff", f.Name);
-                        },
-                        f =>
-                        {
-                            Assert.Equal("store", f.Name);
-                        });
-        }
+      Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
+                    d =>
+                    {
+                      Assert.Equal("actor", d.Name);
+                    },
+                    e =>
+                    {
+                      Assert.Equal("address", e.Name);
+                    },
+                    f =>
+                    {
+                      Assert.Equal("category", f.Name);
+                    },
+                   g =>
+                   {
+                     Assert.Equal("city", g.Name);
+                   },
+                   f =>
+                   {
+                     Assert.Equal("country", f.Name);
+                   },
+                   f =>
+                   {
+                     Assert.Equal("customer", f.Name);
+                   },
+                   f =>
+                   {
+                     Assert.Equal("film", f.Name);
+                   },
+                   f =>
+                   {
+                     Assert.Equal("film_actor", f.Name);
+                   },
+                   f =>
+                   {
+                     Assert.Equal("film_category", f.Name);
+                   },
+                  f =>
+                  {
+                    Assert.Equal("film_text", f.Name);
+                  },
+                  f =>
+                  {
+                    Assert.Equal("inventory", f.Name);
+                  },
+                  f =>
+                  {
+                    Assert.Equal("language", f.Name);
+                  },
+                  f =>
+                  {
+                    Assert.Equal("payment", f.Name);
+                  },
+                  f =>
+                  {
+                    Assert.Equal("rental", f.Name);
+                  },
+                  f =>
+                  {
+                    Assert.Equal("staff", f.Name);
+                  },
+                  f =>
+                  {
+                    Assert.Equal("store", f.Name);
+                  });
+    }
 
 
 
-        /// <summary>
-        /// No support for views added in EF Core 
-        /// issue for follow up https://github.com/aspnet/EntityFramework/issues/827
-        /// views should be ignored
-        /// </summary>
+    /// <summary>
+    /// No support for views added in EF Core 
+    /// issue for follow up https://github.com/aspnet/EntityFramework/issues/827
+    /// views should be ignored
+    /// </summary>
 
-        [Fact]
-        public void CanCreateModelOfDBWithViews()
-        {
-            _fixture.dbName = "testview";
-            var sql = @"DROP DATABASE IF EXISTS testview;
+    [Fact]
+    public void CanCreateModelOfDBWithViews()
+    {
+      _fixture.dbName = "testview";
+      var sql = @"DROP DATABASE IF EXISTS testview;
             create database testview character set utf8mb4;
             use testview;
             create table t1(a serial, b int);
@@ -360,39 +362,39 @@ CREATE DATABASE sakilaIndex;
             join t2 using (a) ;
             create view b1 as select x1.a as a, x1.b1 as b1, y1.b1 as b2 from x1
             join y1 using (a) ;";
-            _fixture.dbName = "testview";
+      _fixture.dbName = "testview";
 
-            var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "t1", "t2" }));
-            Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
-                                  d =>
-                                  {
-                                      Assert.Equal("t1", d.Name);
-                                  },
-                                  e =>
-                                  {
-                                      Assert.Equal("t2", e.Name);
-                                  });
-                                  
-        }
-       
-        [Fact]
-        public void CanFiltersViews()
-        {
-            _fixture.dbName = "testview";
-            var sql = @"DROP DATABASE IF EXISTS testview;
+      var dbModel = _fixture.CreateModel(sql, new TableSelectionSet(new List<string> { "t1", "t2" }));
+      Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
+                            d =>
+                            {
+                              Assert.Equal("t1", d.Name);
+                            },
+                            e =>
+                            {
+                              Assert.Equal("t2", e.Name);
+                            });
+
+    }
+
+    [Fact]
+    public void CanFiltersViews()
+    {
+      _fixture.dbName = "testview";
+      var sql = @"DROP DATABASE IF EXISTS testview;
             create database testview character set utf8mb4;
             use testview;
             create table t1(a serial, b int);            
             create view x1 as select t1.a as a, t1.b as b1 from t1;
             ";
-            _fixture.dbName = "testview";
+      _fixture.dbName = "testview";
 
-            var selectionSet = new TableSelectionSet(new List<string> { "t1" , "x1"});
-            var logger = new MySQLDatabaseModelFixture.MyTestLogger();
+      var selectionSet = new TableSelectionSet(new List<string> { "t1", "x1" });
+      var logger = new MySQLDatabaseModelFixture.MyTestLogger();
 
-            var dbModel = _fixture.CreateModel(sql, selectionSet, logger);
-            Assert.Single(dbModel.Tables);
-            Assert.DoesNotContain(logger.Items, i => i.logLevel == LogLevel.Warning);
-        }
+      var dbModel = _fixture.CreateModel(sql, selectionSet, logger);
+      Assert.Single(dbModel.Tables);
+      Assert.DoesNotContain(logger.Items, i => i.logLevel == LogLevel.Warning);
     }
+  }
 }

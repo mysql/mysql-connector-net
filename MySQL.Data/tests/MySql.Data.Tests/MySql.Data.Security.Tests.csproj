@@ -3,12 +3,12 @@
   <PropertyGroup>
     <Title>MySql.Data.Security.Tests</Title>
     <Description>MySql.Data.Security.Tests Class Library</Description>
-    <Copyright>Copyright © 2016, 2018, Oracle and/or its affiliates. All rights reserved.</Copyright>
-    <Version>8.0.19</Version>
+    <Copyright>Copyright © 2016, 2020, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Version>8.0.20</Version>
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Security.Tests</Product>
-    <TargetFrameworks>netcoreapp3.0;netcoreapp2.2;net452;</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp2.2;net452;net48;</TargetFrameworks>
     <PackageId>MySql.Data.Security.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
@@ -32,7 +32,7 @@
     <Compile Include="Framework\netstandard2_0\TestDataTable.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='net452'">
+  <ItemGroup Condition="'$(TargetFramework)'=='net452' or '$(TargetFramework)'=='net48'">
     <Compile Remove="Framework\netstandard2_0\**" />
     <Compile Include="Framework\netstandard2_0\TestDataTable.cs" />
     <Compile Include="Framework\netstandard2_0\PartialTrustSandbox.cs" />
@@ -56,6 +56,7 @@
     <Compile Include="UnixSockets.cs" />
     <Compile Include="SslTests.cs" />
     <Compile Include="SshTunnelingTests.cs" />
+    <Compile Include="ClientSideFailoverTests.cs" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

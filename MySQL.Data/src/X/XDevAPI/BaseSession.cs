@@ -30,13 +30,12 @@ using MySql.Data;
 using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.Common;
-using MySqlX.Failover;
+using MySql.Data.Failover;
 using MySqlX.Sessions;
 using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -49,6 +48,7 @@ namespace MySqlX.XDevAPI
   {
     private InternalSession _internalSession;
     private string _connectionString;
+    private bool _isDefaultPort = true;
     private const uint X_PROTOCOL_DEFAULT_PORT = 33060;
     private const char CONNECTION_DATA_KEY_SEPARATOR = ';';
     private const char CONNECTION_DATA_VALUE_SEPARATOR = '=';
@@ -56,6 +56,10 @@ namespace MySqlX.XDevAPI
     private const string SERVER_CONNECTION_OPTION_KEYWORD = "server";
     private const string CONNECT_TIMEOUT_CONNECTION_OPTION_KEYWORD = "connect-timeout";
     private const string CONNECTION_ATTRIBUTES_CONNECTION_OPTION_KEYWORD = "connection-attributes";
+    private const string DNS_SRV_CONNECTION_OPTION_KEYWORD = "dns-srv";
+    private const string DNS_SRV_URI_SCHEME = "mysqlx+srv";
+    private const string MYSQLX_URI_SCHEME = "mysqlx";
+    private const string SSH_URI_SCHEME = "mysqlx+ssh";
     internal QueueTaskScheduler _scheduler = new QueueTaskScheduler();
     protected readonly Client _client;
 
@@ -217,14 +221,14 @@ namespace MySqlX.XDevAPI
         throw new ArgumentNullException("connectionString");
 
       _client = client;
-      this._connectionString = ParseConnectionData(connectionString);
+      this._connectionString = ParseConnectionData(connectionString, client);
 
       // Multiple hosts were specified.
-      if (FailoverManager.FailoverGroup != null)
+      if (FailoverManager.FailoverGroup != null && FailoverManager.FailoverGroup.Hosts?.Count > 1)
       {
-        _internalSession = FailoverManager.AttemptConnection(this._connectionString, out this._connectionString);
+        _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, _isDefaultPort, client);
         Settings.ConnectionString = this._connectionString;
-        Settings.AnalyzeConnectionString(this._connectionString, true);
+        Settings.AnalyzeConnectionString(this._connectionString, true, _isDefaultPort);
       }
       // A single host was specified.
       else
@@ -232,8 +236,18 @@ namespace MySqlX.XDevAPI
         Settings.ConnectionString = _connectionString;
         if (!(_connectionString.Contains("sslmode") || _connectionString.Contains("ssl mode") || _connectionString.Contains("ssl-mode")))
           Settings.SslMode = MySqlSslMode.Required;
-        Settings.AnalyzeConnectionString(this._connectionString, true);
-        _internalSession = InternalSession.GetSession(Settings);
+        Settings.AnalyzeConnectionString(this._connectionString, true, _isDefaultPort);
+
+        if (Settings.DnsSrv)
+        {
+          var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(Settings.Server);
+          FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, r.Priority)),
+            FailoverMethod.Sequential);
+          _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, _isDefaultPort, client);
+          Settings.ConnectionString = this._connectionString;
+        }
+        else
+          _internalSession = InternalSession.GetSession(Settings);
       }
 
       // Set the default schema if provided by the user.
@@ -260,6 +274,8 @@ namespace MySqlX.XDevAPI
         throw new ArgumentNullException("connectionData");
 
       _client = client;
+      if (client == null)
+        FailoverManager.Reset();
 
       var values = Tools.GetDictionaryFromAnonymous(connectionData);
       if (!values.Keys.Any(s => s.ToLowerInvariant() == PORT_CONNECTION_OPTION_KEYWORD))
@@ -278,24 +294,37 @@ namespace MySqlX.XDevAPI
           if (IsUnixSocket(server))
             Settings.SetValue(value.Key, server = NormalizeUnixSocket(server));
 
-          ParseHostList(server, false);
-          if (FailoverManager.FailoverGroup != null)
+          FailoverManager.ParseHostList(server, true, false);
+          if (FailoverManager.FailoverGroup != null && FailoverManager.FailoverGroup.Hosts?.Count > 1)
             Settings[SERVER_CONNECTION_OPTION_KEYWORD] = null;
+          else if (FailoverManager.FailoverGroup != null)
+            Settings[SERVER_CONNECTION_OPTION_KEYWORD] = FailoverManager.FailoverGroup.Hosts[0].Host;
 
           hostsParsed = true;
         }
       }
       this._connectionString = Settings.ToString();
 
-      Settings.AnalyzeConnectionString(this._connectionString, true);
-      if (FailoverManager.FailoverGroup != null)
+      Settings.AnalyzeConnectionString(this._connectionString, true, _isDefaultPort);
+      if (FailoverManager.FailoverGroup != null && FailoverManager.FailoverGroup.Hosts?.Count > 1)
       {
         // Multiple hosts were specified.
-        _internalSession = FailoverManager.AttemptConnection(this._connectionString, out this._connectionString);
+        _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, _isDefaultPort, client);
         Settings.ConnectionString = _connectionString;
       }
       else
-        _internalSession = InternalSession.GetSession(Settings);
+      {
+        if (Settings.DnsSrv)
+        {
+          var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(Settings.Server);
+          FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
+            FailoverMethod.Sequential);
+          _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, _isDefaultPort, client);
+          Settings.ConnectionString = this._connectionString;
+        }
+        else
+          _internalSession = InternalSession.GetSession(Settings);
+      }
 
       if (!string.IsNullOrWhiteSpace(Settings.Database))
         DefaultSchema = GetSchema(Settings.Database);
@@ -466,12 +495,15 @@ namespace MySqlX.XDevAPI
     /// </summary>
     /// <param name="connectionData">The connection string or connection URI.</param>
     /// <returns>An updated connection string representation of the provided connection string or connection URI.</returns>
-    protected internal string ParseConnectionData(string connectionData)
+    protected internal string ParseConnectionData(string connectionData, Client client = null)
     {
-      FailoverManager.Reset();
+      if (client == null)
+        FailoverManager.Reset();
 
       if (Regex.IsMatch(connectionData, @"^mysqlx(\+\w+)?://.*", RegexOptions.IgnoreCase))
+      {
         return ParseConnectionUri(connectionData);
+      }
       else
         return ParseConnectionString(connectionData);
     }
@@ -523,7 +555,7 @@ namespace MySqlX.XDevAPI
         else if (isArray)
         {
           hierPart = hierPart.Substring(1, hierPart.Length - 2);
-          int hostCount = ParseHostList(hierPart, true);
+          int hostCount = FailoverManager.ParseHostList(hierPart, true, true);
           if (FailoverManager.FailoverGroup != null)
           {
             hierPart = FailoverManager.FailoverGroup.ActiveHost.Host;
@@ -546,7 +578,19 @@ namespace MySqlX.XDevAPI
       if (uri == null)
         uri = updatedUri == null ? new Uri(connectionUri) : new Uri(updatedUri);
 
-      return ConvertToConnectionString(uri, hierPart, parseServerAsUnixSocket);
+      if (uri.Scheme == DNS_SRV_URI_SCHEME)
+      {
+        if (FailoverManager.FailoverGroup != null && FailoverManager.FailoverGroup.Hosts?.Count > 1)
+          throw new ArgumentException(Resources.DnsSrvInvalidConnOptionMultihost);
+        if (!uri.IsDefaultPort)
+          throw new ArgumentException(Resources.DnsSrvInvalidConnOptionPort);
+        if (parseServerAsUnixSocket)
+          throw new ArgumentException(Resources.DnsSrvInvalidConnOptionUnixSocket);
+      }
+      else if (uri.Scheme != MYSQLX_URI_SCHEME && uri.Scheme != SSH_URI_SCHEME)
+        throw new ArgumentException(string.Format(ResourcesX.DnsSrvInvalidScheme, uri.Scheme));
+
+      return ConvertToConnectionString(uri, hierPart, parseServerAsUnixSocket, uri.Scheme == DNS_SRV_URI_SCHEME);
     }
 
     /// <summary>
@@ -554,7 +598,7 @@ namespace MySqlX.XDevAPI
     /// </summary>
     /// <param name="unixSocket">The Unix socket to evaluate.</param>
     /// <returns><c>true</c> if <paramref name="unixSocket"/> is a valid Unix socket; otherwise, <c>false</c>.</returns>
-    private bool IsUnixSocket(string unixSocket)
+    internal static bool IsUnixSocket(string unixSocket)
     {
       if (unixSocket.StartsWith(".") ||
         unixSocket.StartsWith("/") ||
@@ -574,7 +618,7 @@ namespace MySqlX.XDevAPI
     /// <param name="unixSocketPath">The path of the Unix socket file.</param>
     /// <param name="parseServerAsUnixSocket">If <c>true</c> the <paramref name="unixSocketPath"/> replaces the value for the server connection option; otherwise, <c>false</c></param>
     /// <returns>A connection string.</returns>
-    private string ConvertToConnectionString(Uri uri, string unixSocketPath, bool parseServerAsUnixSocket)
+    private string ConvertToConnectionString(Uri uri, string unixSocketPath, bool parseServerAsUnixSocket, bool isDnsSrvScheme)
     {
       List<string> connectionParts = new List<string>();
 
@@ -584,6 +628,9 @@ namespace MySqlX.XDevAPI
         NormalizeUnixSocket(unixSocketPath) :
         uri.Host));
       connectionParts.Add("port=" + (uri.Port == -1 ? 33060 : uri.Port));
+      _isDefaultPort = uri.IsDefaultPort;
+      if (uri.Scheme == DNS_SRV_URI_SCHEME)
+        connectionParts.Add("dns-srv=true");
 
       if (!string.IsNullOrWhiteSpace(uri.UserInfo))
       {
@@ -605,9 +652,10 @@ namespace MySqlX.XDevAPI
         string[] queries = System.Uri.UnescapeDataString(uri.Query).Substring(1).Split(new char[] { '&' }, StringSplitOptions.RemoveEmptyEntries);
         foreach (string query in queries)
         {
-          string[] keyValue = query.Split('=');
+          string[] keyValue = query.Replace(";", string.Empty).Split('=');
           string part;
           var connectionAttributesOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == CONNECTION_ATTRIBUTES_CONNECTION_OPTION_KEYWORD);
+          var dnsSrvOption = MySqlXConnectionStringBuilder.Options.Options.First(item => item.Keyword == DNS_SRV_CONNECTION_OPTION_KEYWORD);
 
           if (!((connectionAttributesOption.Keyword == keyValue[0]) || connectionAttributesOption.Synonyms.Contains(keyValue[0]) && keyValue.Count() > 2))
           {
@@ -623,6 +671,11 @@ namespace MySqlX.XDevAPI
             throw new MySqlException(ResourcesX.InvalidUriQuery + ": " + keyValue[0]);
           else
             part = keyValue[0] + "=" + query.Replace(keyValue[0] + "=", string.Empty);
+
+          if (isDnsSrvScheme && (dnsSrvOption.Keyword == keyValue[0] || dnsSrvOption.Synonyms.Contains(keyValue[0])) && !Convert.ToBoolean(keyValue[1]))
+            throw new ArgumentException(string.Format(ResourcesX.DnsSrvConflictingOptions, dnsSrvOption.Keyword));
+          else if (isDnsSrvScheme && (dnsSrvOption.Keyword == keyValue[0] || dnsSrvOption.Synonyms.Contains(keyValue[0])))
+            continue;
 
           connectionParts.Add(part);
         }
@@ -640,6 +693,7 @@ namespace MySqlX.XDevAPI
     {
       var updatedConnectionString = string.Empty;
       bool portProvided = false;
+      bool isDnsSrv = false;
       var connectionOptionsDictionary = connectionString.Split(CONNECTION_DATA_KEY_SEPARATOR)
                 .Select(item => item.Split(new char[] { CONNECTION_DATA_VALUE_SEPARATOR }, 2))
                 .Where(item => item.Length == 2)
@@ -660,6 +714,8 @@ namespace MySqlX.XDevAPI
             throw new FormatException(ResourcesX.InvalidConnectionTimeoutValue);
           if (keyValuePair.Key == PORT_CONNECTION_OPTION_KEYWORD)
             portProvided = true;
+          if (keyValuePair.Key == DNS_SRV_CONNECTION_OPTION_KEYWORD)
+            isDnsSrv = Convert.ToBoolean(keyValuePair.Value);
 
           updatedConnectionString += $"{keyValuePair.Key}{CONNECTION_DATA_VALUE_SEPARATOR}{keyValuePair.Value}{CONNECTION_DATA_KEY_SEPARATOR}";
           continue;
@@ -670,9 +726,18 @@ namespace MySqlX.XDevAPI
         if (IsUnixSocket(keyValuePair.Value))
           updatedValue = NormalizeUnixSocket(keyValuePair.Value);
 
-        // The value for the server connection option doesn't have a server list format. 
-        if (ParseHostList(updatedValue, false) == 1 && FailoverManager.FailoverGroup == null)
+        // The value for the server connection option doesn't have a server list format.
+        if (FailoverManager.ParseHostList(updatedValue, true, false) == 1 && FailoverManager.FailoverGroup == null)
           updatedConnectionString = $"{SERVER_CONNECTION_OPTION_KEYWORD}{CONNECTION_DATA_VALUE_SEPARATOR}{updatedValue}{CONNECTION_DATA_KEY_SEPARATOR}{updatedConnectionString}";
+      }
+
+      // DNS SRV Validation - Port cannot be provided by the user and multihost is not allowed if dns-srv is true
+      if (isDnsSrv)
+      {
+        if (portProvided)
+          throw new ArgumentException(Resources.DnsSrvInvalidConnOptionPort);
+        if (FailoverManager.FailoverGroup != null)
+          throw new ArgumentException(Resources.DnsSrvInvalidConnOptionMultihost);
       }
 
       // Default port must be added if not provided by the user.
@@ -685,148 +750,11 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Initializes the <see cref="FailoverManager"/> if more than one host is found.
-    /// </summary>
-    /// <param name="hierPart">A string containing an unparsed list of hosts.</param>
-    /// <param name="connectionDataIsUri"><c>true</c> if the connection data is a URI; otherwise <c>false</c>.</param>
-    /// <returns>The number of hosts found, -1 if an error was raised during parsing.</returns>
-    private int ParseHostList(string hierPart, bool connectionDataIsUri)
-    {
-      if (string.IsNullOrWhiteSpace(hierPart)) return -1;
-
-      int hostCount = -1;
-      FailoverMethod failoverMethod = FailoverMethod.Sequential;
-      string[] hostArray = null;
-      List<XServer> hostList = new List<XServer>();
-      hierPart = hierPart.Replace(" ", "");
-
-      if (!hierPart.StartsWith("(") && !hierPart.EndsWith(")"))
-      {
-        hostArray = hierPart.Split(',');
-        foreach (var host in hostArray)
-        {
-          if (IsUnixSocket(host))
-            hostList.Add(new XServer(NormalizeUnixSocket(host), -1, -1));
-          else
-            hostList.Add(this.ConvertToXServer(host, connectionDataIsUri));
-        }
-
-        if (hostArray.Length == 1)
-          return 1;
-
-        hostCount = hostArray.Length;
-      }
-      else
-      {
-        string[] groups = hierPart.Split(new string[] { "),(" }, StringSplitOptions.RemoveEmptyEntries);
-        bool? allHavePriority = null;
-        int defaultPriority = 100;
-        foreach (var group in groups)
-        {
-          // Remove leading parenthesis.
-          var normalizedGroup = group;
-          if (normalizedGroup.StartsWith("("))
-            normalizedGroup = group.Substring(1);
-
-          if (normalizedGroup.EndsWith(")"))
-            normalizedGroup = normalizedGroup.Substring(0, normalizedGroup.Length - 1);
-
-          string[] items = normalizedGroup.Split(',');
-          string[] keyValuePairs = items[0].Split(CONNECTION_DATA_VALUE_SEPARATOR);
-          if (keyValuePairs[0].ToLowerInvariant() != "address")
-            throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound, "address"));
-
-          string host = keyValuePairs[1];
-          if (string.IsNullOrWhiteSpace(host))
-            throw new ArgumentNullException(SERVER_CONNECTION_OPTION_KEYWORD);
-
-          if (items.Length == 2)
-          {
-            if (allHavePriority != null && allHavePriority == false)
-              throw new ArgumentException(ResourcesX.PriorityForAllOrNoHosts);
-
-            allHavePriority = allHavePriority ?? true;
-            keyValuePairs = items[1].Split('=');
-            if (keyValuePairs[0].ToLowerInvariant() != "priority")
-              throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound, "priority"));
-
-            if (string.IsNullOrWhiteSpace(keyValuePairs[1]))
-              throw new ArgumentNullException("priority");
-
-            int priority = -1;
-            Int32.TryParse(keyValuePairs[1], out priority);
-            if (priority < 0 || priority > 100)
-              throw new ArgumentException(ResourcesX.PriorityOutOfLimits);
-
-            hostList.Add(ConvertToXServer(IsUnixSocket(host) ? NormalizeUnixSocket(host) : host, connectionDataIsUri, priority));
-          }
-          else
-          {
-            if (allHavePriority != null && allHavePriority == true)
-              throw new ArgumentException(ResourcesX.PriorityForAllOrNoHosts);
-
-            allHavePriority = allHavePriority ?? false;
-
-            hostList.Add(ConvertToXServer(host, connectionDataIsUri, defaultPriority > 0 ? defaultPriority-- : 0));
-          }
-        }
-
-        hostCount = groups.Length;
-        failoverMethod = FailoverMethod.Priority;
-      }
-
-      FailoverManager.SetHostList(hostList, failoverMethod);
-      return hostCount;
-    }
-
-    /// <summary>
-    /// Creates a <see cref="XServer"/> object based on the provided parameters.
-    /// </summary>
-    /// <param name="host">The host string which can be a simple host name or a host name and port.</param>
-    /// <param name="connectionDataIsUri"><c>true</c> if the connection data is a URI; otherwise <c>false</c>.</param>
-    /// <param name="priority">The priority of the host.</param>
-    /// <param name="port">The port number of the host.</param>
-    /// <returns></returns>
-    private XServer ConvertToXServer(string host, bool connectionDataIsUri, int priority = -1, int port = -1)
-    {
-      host = host.Trim();
-      IPAddress address;
-      int colonIndex = -1;
-      if (IPAddress.TryParse(host, out address))
-      {
-        switch (address.AddressFamily)
-        {
-          case System.Net.Sockets.AddressFamily.InterNetworkV6:
-            if (host.StartsWith("[") && host.Contains("]") && !host.EndsWith("]"))
-              colonIndex = host.LastIndexOf(":");
-
-            break;
-          default:
-            colonIndex = host.IndexOf(":");
-            break;
-        }
-      }
-      else
-        colonIndex = host.IndexOf(":");
-
-      if (colonIndex != -1)
-      {
-        if (!connectionDataIsUri)
-          throw new ArgumentException(ResourcesX.PortNotSupported);
-
-        int.TryParse(host.Substring(colonIndex + 1), out port);
-        host = host.Substring(0, colonIndex);
-      }
-
-      return new XServer(host, port, priority);
-    }
-
-    /// <summary>
     /// Normalizes the Unix socket by removing leading and ending parenthesis as well as removing special characters.
     /// </summary>
     /// <param name="unixSocket">The Unix socket to normalize.</param>
     /// <returns>A normalized Unix socket.</returns>
-    private string NormalizeUnixSocket(string unixSocket)
+    internal static string NormalizeUnixSocket(string unixSocket)
     {
       unixSocket = unixSocket.Replace("%2F", "/");
       if (unixSocket.StartsWith("(") && unixSocket.EndsWith(")"))

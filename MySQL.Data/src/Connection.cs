@@ -38,6 +38,9 @@ using MySql.Data.MySqlClient.Interceptors;
 using System.Linq;
 using System.Transactions;
 using MySql.Data.MySqlClient.Replication;
+using MySql.Data.Failover;
+using System.Collections.Generic;
+using System.Net;
 #if NET452
 using System.Drawing.Design;
 #endif
@@ -58,7 +61,7 @@ namespace MySql.Data.MySqlClient
     private int _commandTimeout;
 
     /// <summary>
-    /// The used client to handle SSH connections.
+    /// The client used to handle SSH connections.
     /// </summary>
     private Ssh _sshHandler;
 
@@ -80,6 +83,7 @@ namespace MySql.Data.MySqlClient
     public MySqlConnection(string connectionString)
       : this()
     {
+      Settings.AnalyzeConnectionString(connectionString, false, false);
       ConnectionString = connectionString;
     }
 
@@ -127,6 +131,11 @@ namespace MySql.Data.MySqlClient
 
     internal bool IsInUse { get; set; }
 
+    /// <summary>
+    /// Determines whether the connection is a clone of other connection.
+    /// </summary>
+    internal bool IsClone { get; set; }
+    internal bool ParentHasbeenOpen { get; set; }
     #endregion
 
     #region Properties
@@ -178,7 +187,8 @@ namespace MySql.Data.MySqlClient
       {
         // Always return exactly what the user set.
         // Security-sensitive information may be removed.
-        return Settings.GetConnectionString(!hasBeenOpen || Settings.PersistSecurityInfo);
+        return Settings.GetConnectionString(!IsClone ? (!hasBeenOpen || Settings.PersistSecurityInfo) :
+        !Settings.PersistSecurityInfo ? (ParentHasbeenOpen ? false : !hasBeenOpen) : (Settings.PersistSecurityInfo));
       }
       set
       {
@@ -194,7 +204,7 @@ namespace MySql.Data.MySqlClient
           else
           {
             newSettings = ConnectionStringCache[value];
-            if (null == newSettings)
+            if (null == newSettings || FailoverManager.FailoverGroup == null)
             {
               newSettings = new MySqlConnectionStringBuilder(value);
               ConnectionStringCache.Add(value, newSettings);
@@ -393,8 +403,21 @@ namespace MySql.Data.MySqlClient
           _sshHandler.StartClient();
         }
 
-        //TODO: SUPPORT FOR 452 AND 46X
-        // Load balancing
+        if (!Settings.Pooling || MySqlPoolManager.Hosts == null)
+        {
+          FailoverManager.Reset();
+
+          if (Settings.DnsSrv)
+          {
+            var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(Settings.Server);
+            FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
+              FailoverMethod.Sequential);
+          }
+          else
+            FailoverManager.ParseHostList(Settings.Server, false);
+        }
+
+        // Load balancing && Failover
         if (ReplicationManager.IsReplicationGroup(Settings.Server))
         {
           if (driver == null)
@@ -404,14 +427,24 @@ namespace MySql.Data.MySqlClient
           else
             currentSettings = driver.Settings;
         }
+        else if (FailoverManager.FailoverGroup != null && !Settings.Pooling)
+        {
+          FailoverManager.AttemptConnection(this, Settings.ConnectionString, out string connectionString);
+          currentSettings.ConnectionString = connectionString;
+        }
 
         if (Settings.Pooling)
         {
+          if (FailoverManager.FailoverGroup != null)
+          {
+            FailoverManager.AttemptConnection(this, Settings.ConnectionString, out string connectionString, true);
+            currentSettings.ConnectionString = connectionString;
+          }
+
           MySqlPool pool = MySqlPoolManager.GetPool(currentSettings);
           if (driver == null || !driver.IsOpen)
             driver = pool.GetConnection();
           ProcedureCache = pool.ProcedureCache;
-
         }
         else
         {
@@ -429,7 +462,7 @@ namespace MySql.Data.MySqlClient
       SetState(ConnectionState.Open, false);
       driver.Configure(this);
 
-      if(driver.IsPasswordExpired && Settings.Pooling)
+      if (driver.IsPasswordExpired && Settings.Pooling)
       {
         MySqlPoolManager.ClearPool(currentSettings);
       }
@@ -451,6 +484,132 @@ namespace MySql.Data.MySqlClient
 
       hasBeenOpen = true;
       SetState(ConnectionState.Open, true);
+    }
+
+    /// <summary>
+    /// Initializes the <see cref="FailoverManager"/> if more than one host is found.
+    /// </summary>
+    /// <param name="hierPart">A string containing an unparsed list of hosts.</param>
+    /// <param name="connectionDataIsUri"><c>true</c> if the connection data is a URI; otherwise <c>false</c>.</param>
+    /// <returns>The number of hosts found, -1 if an error was raised during parsing.</returns>
+    private int ParseHostList(string hierPart)
+    {
+      if (string.IsNullOrWhiteSpace(hierPart)) return -1;
+
+      int hostCount = -1;
+      FailoverMethod failoverMethod = FailoverMethod.Random;
+      string[] hostArray = null;
+      List<FailoverServer> hostList = new List<FailoverServer>();
+      hierPart = hierPart.Replace(" ", "");
+
+      if (!hierPart.StartsWith("(") && !hierPart.EndsWith(")"))
+      {
+        hostArray = hierPart.Split(',');
+        foreach (var host in hostArray)
+          hostList.Add(this.ConvertToFailoverServer(host));
+
+        if (hostArray.Length == 1)
+          return 1;
+
+        hostCount = hostArray.Length;
+      }
+      else
+      {
+        string[] groups = hierPart.Split(new string[] { "),(" }, StringSplitOptions.RemoveEmptyEntries);
+        bool? allHavePriority = null;
+        int defaultPriority = 100;
+        foreach (var group in groups)
+        {
+          // Remove leading parenthesis.
+          var normalizedGroup = group;
+          if (normalizedGroup.StartsWith("("))
+            normalizedGroup = group.Substring(1);
+
+          if (normalizedGroup.EndsWith(")"))
+            normalizedGroup = normalizedGroup.Substring(0, normalizedGroup.Length - 1);
+
+          string[] items = normalizedGroup.Split(',');
+          string[] keyValuePairs = items[0].Split('=');
+          if (keyValuePairs[0].ToLowerInvariant() != "address")
+            throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound, "address"));
+
+          string host = keyValuePairs[1];
+          if (string.IsNullOrWhiteSpace(host))
+            throw new ArgumentNullException("server");
+
+          if (items.Length == 2)
+          {
+            if (allHavePriority != null && allHavePriority == false)
+              throw new ArgumentException(ResourcesX.PriorityForAllOrNoHosts);
+
+            allHavePriority = allHavePriority ?? true;
+            keyValuePairs = items[1].Split('=');
+            if (keyValuePairs[0].ToLowerInvariant() != "priority")
+              throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound, "priority"));
+
+            if (string.IsNullOrWhiteSpace(keyValuePairs[1]))
+              throw new ArgumentNullException("priority");
+
+            int priority = -1;
+            if (!Int32.TryParse(keyValuePairs[1], out priority) || priority < 0 || priority > 100)
+              throw new ArgumentException(ResourcesX.PriorityOutOfLimits);
+
+            hostList.Add(ConvertToFailoverServer(host, priority));
+          }
+          else
+          {
+            if (allHavePriority != null && allHavePriority == true)
+              throw new ArgumentException(ResourcesX.PriorityForAllOrNoHosts);
+
+            allHavePriority = allHavePriority ?? false;
+
+            hostList.Add(ConvertToFailoverServer(host, defaultPriority > 0 ? defaultPriority-- : 0));
+          }
+        }
+
+        hostCount = groups.Length;
+        failoverMethod = FailoverMethod.Priority;
+      }
+
+      FailoverManager.SetHostList(hostList, failoverMethod);
+      return hostCount;
+    }
+
+    /// <summary>
+    /// Creates a <see cref="FailoverServer"/> object based on the provided parameters.
+    /// </summary>
+    /// <param name="host">The host string which can be a simple host name or a host name and port.</param>
+    /// <param name="priority">The priority of the host.</param>
+    /// <param name="port">The port number of the host.</param>
+    /// <returns></returns>
+    private FailoverServer ConvertToFailoverServer(string host, int priority = -1, int port = -1)
+    {
+      host = host.Trim();
+      int colonIndex = -1;
+      if (IPAddress.TryParse(host, out IPAddress address))
+      {
+        switch (address.AddressFamily)
+        {
+          case System.Net.Sockets.AddressFamily.InterNetworkV6:
+            if (host.StartsWith("[") && host.Contains("]") && !host.EndsWith("]"))
+              colonIndex = host.LastIndexOf(":");
+
+            break;
+          default:
+            colonIndex = host.IndexOf(":");
+            break;
+        }
+      }
+      else
+        colonIndex = host.IndexOf(":");
+
+      if (colonIndex != -1)
+      {
+        int.TryParse(host.Substring(colonIndex + 1), out port);
+        host = host.Substring(0, colonIndex);
+      }
+
+      return new FailoverServer(host, port, priority);
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/CreateCommand/*'/>
@@ -495,6 +654,7 @@ namespace MySql.Data.MySqlClient
       }
       else
         driver.Close();
+
       driver = null;
     }
 
@@ -525,6 +685,9 @@ namespace MySql.Data.MySqlClient
       {
         _sshHandler?.StopClient();
       }
+
+      FailoverManager.Reset();
+      MySqlPoolManager.Hosts = null;
 
       SetState(ConnectionState.Closed, true);
     }

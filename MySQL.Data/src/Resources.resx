@@ -616,4 +616,34 @@
   <data name="InvalidHostNameOrAddress" xml:space="preserve">
     <value>The host name or IP address is invalid.</value>
   </data>
+  <data name="TimeOutMultipleHost" xml:space="preserve">
+    <value>All server connection attempts were aborted. Timeout of {0} seconds was exceeded for each selected server.</value>
+  </data>
+  <data name="DnsSrvInvalidConnOptionMultihost" xml:space="preserve">
+    <value>Specifying multiple host names with DNS SRV lookup is not permitted.</value>
+  </data>
+  <data name="DnsSrvInvalidConnOptionPort" xml:space="preserve">
+    <value>Specifying a port number with DNS SRV lookup is not permitted.</value>
+  </data>
+  <data name="DnsSrvInvalidConnOptionUnixSocket" xml:space="preserve">
+    <value>Using Unix domain sockets with DNS SRV lookup is not permitted.</value>
+  </data>
+  <data name="DnsSrvNoHostsAvailable" xml:space="preserve">
+    <value>Unable to locate any hosts for {0}.</value>
+  </data>
+  <data name="InvalidTlsVersionAndSslModeOption" xml:space="preserve">
+    <value>Option "tls-version" can not be specified when SSL connections are disabled.</value>
+  </data>
+  <data name="InvalidTlsVersionOption" xml:space="preserve">
+    <value>'{0}' not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.1, TLSv1.2{1}).</value>
+  </data>
+  <data name="Tlsv13NotSupported" xml:space="preserve">
+    <value>TLSv1.3 is supported in .NET Framework 4.8 or .NET Core 3.0.</value>
+  </data>
+  <data name="TlsVersionNotSupported" xml:space="preserve">
+    <value>No supported TLS protocol version found in the 'tls-versions' list.</value>
+  </data>
+  <data name="DuplicatedConnectionOption" xml:space="preserve">
+    <value>Connection option '{0}' is duplicated.</value>
+  </data>
 </root>

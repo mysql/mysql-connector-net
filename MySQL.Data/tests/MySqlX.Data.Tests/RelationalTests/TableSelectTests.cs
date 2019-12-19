@@ -508,6 +508,53 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
     }
 
+    /// <summary>
+    /// Bug-29838254
+    /// RESULTSET ERROR WHEN SELECT IS ISSUED WITH IN OPERATOR WITH BLANKS WITH 8.0.17 SERVER-C/NET8.0.17TRUNK
+    /// </summary>
+    [Fact]
+    public void SelectWithInBlanksAndBrackets()
+    {
+      Session session = GetSession();
+      Schema schema = session.GetSchema("test");
+      object[][] allRows =
+              {
+                new object[] {1, "john doe", 38},
+                new object[] {2, "milton green", 45},
+                new object[] {3, "milton blue", 46},
+                new object[] {4, "milton red", 47},
+                new object[] {5, "milton yellow", 48},
+                new object[] {6, "milton check", 49},
+                new object[] {7, "milton pink", 14},
+                new object[] {8, "milton beize", 25},
+                new object[] {9, "milton silver", 35},
+                new object[] {10, "milton city", 65}
+            };
+      session.SQL("USE test").Execute();
+      session.SQL("DROP table if exists test").Execute();
+      var r = session.SQL("CREATE TABLE test.test(id INT,name VARCHAR(45), age INT)").Execute();
+      var rows = r.HasData ? r.FetchAll() : null;
+      testSchema = session.GetSchema("test");
+      var insertStatement = testSchema.GetTable("test").Insert();
+      var rowsToInsert = 10;
+      for (var i = 0; i < rowsToInsert; i++)
+        insertStatement.Values(allRows[i]);
+      insertStatement.Execute();
+      var table = testSchema.GetTable("test");
+      int count = 0;
+
+      //Exception expected when square brackets are used instead of parenthesis
+      Assert.Throws<MySqlException>(() => table.Select().Where("name IN ['', ' ']").Execute().FetchAll().Count);
+
+      // Test using parenthesis should return result
+      count = table.Select().Where("name IN (\"john doe\", \"milton green\")").Execute().FetchAll().Count;
+      Assert.True(count > 0);
+
+      // Using parenthesis should return empty resultset for empty parameters
+      count = table.Select().Where("name IN ('', ' ')").Execute().FetchAll().Count;
+      Assert.True(count == 0);
+    }
+
     [Theory]
     [InlineData(":hobbies IN additionalinfo->$.hobbies", "hobbies", "painting", 3)]
     [InlineData(":hobbies IN additionalinfo->$.hobbies", "hobbies", "[\"boxing\", \"running\"]", 0)]

@@ -291,4 +291,10 @@
   <data name="MissingSchemaOption" xml:space="preserve">
     <value>Missed required schema option.</value>
   </data>
+  <data name="DnsSrvInvalidScheme" xml:space="preserve">
+    <value>Scheme '{0}' is not valid.</value>
+  </data>
+  <data name="DnsSrvConflictingOptions" xml:space="preserve">
+    <value>'{0}' cannot be set to false with DNS SRV lookup enabled.</value>
+  </data>
 </root>

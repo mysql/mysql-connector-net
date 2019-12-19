@@ -288,7 +288,8 @@ namespace MySql.Data.MySqlClient
           Settings.CertificateThumbprint,
           Settings.SslCa,
           Settings.SslCert,
-          Settings.SslKey)
+          Settings.SslKey,
+          Settings.TlsVersion)
           .StartSSL(ref baseStream, Encoding, Settings.ToString());
         packet.Clear();
         packet.WriteInteger((int)connectionFlags, 4);

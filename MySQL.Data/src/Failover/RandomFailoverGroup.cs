@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,27 +26,33 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data;
 using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 
-namespace MySqlX.Failover
+namespace MySql.Data.Failover
 {
   /// <summary>
-  /// Manages the hosts available for client side failover using the Sequential Failover method.
-  /// The Sequential Failover method attempts to connect to the hosts specified in the list one after another until the initial host is reached.
+  /// Manages the hosts available for client side failover using the Random Failover method.
+  /// The Random Failover method attempts to connect to the hosts specified in the list randomly until all the hosts have been attempted.
   /// </summary>
-  internal class SequentialFailoverGroup : FailoverGroup
+  internal class RandomFailoverGroup : FailoverGroup
   {
     /// <summary>
-    /// The index of the current host.
+    /// The initial host taken from the list.
     /// </summary>
-    private int _hostIndex;
+    private FailoverServer _initialHost;
+    /// <summary>
+    /// The host for the current connection attempt.
+    /// </summary>
+    private FailoverServer _currentHost;
+    /// <summary>
+    /// Random object to get the next host.
+    /// </summary>
+    private readonly Random rnd = new Random();
 
-    public SequentialFailoverGroup(List<XServer> hosts) : base(hosts)
-    {
-      _hostIndex = 0;
-    }
+
+    public RandomFailoverGroup(List<FailoverServer> hosts) : base(hosts) { }
 
     /// <summary>
     /// Sets the initial active host.
@@ -56,23 +62,36 @@ namespace MySqlX.Failover
       if (Hosts == null || Hosts.Count == 0)
         throw new MySqlException(Resources.Replication_NoAvailableServer);
 
-      Hosts[0].IsActive = true;
-      _activeHost = Hosts[0];
+      var initialIndex = rnd.Next(Hosts.Count);
+      _initialHost = Hosts[initialIndex];
+
+      _initialHost.IsActive = true;
+      _initialHost.Attempted = true;
+      _activeHost = _initialHost;
+      _currentHost = _activeHost;
     }
 
     /// <summary>
     /// Determines the next host.
     /// </summary>
-    /// <returns>A <see cref="XServer"/> object that represents the next available host.</returns>
-    protected internal override XServer GetNextHost()
+    /// <returns>A <see cref="FailoverServer"/> object that represents the next available host.</returns>
+    protected internal override FailoverServer GetNextHost()
     {
-      if (Hosts == null)
+      if (Hosts == null || Hosts?.Count == 0)
         throw new MySqlException(Resources.Replication_NoAvailableServer);
 
-      Hosts[_hostIndex].IsActive = false;
-      _activeHost = _hostIndex==Hosts.Count-1 ? Hosts[0] : Hosts[_hostIndex+1];
-      _activeHost.IsActive = true;
-      _hostIndex++;
+      Hosts.Find(h => h.Host == _currentHost.Host && h.Port == _currentHost.Port).IsActive = false;
+      var notAttemptedHosts = Hosts.FindAll(h => h.Attempted == false);
+
+      if (notAttemptedHosts.Count > 0)
+      {
+        _activeHost = notAttemptedHosts[rnd.Next(notAttemptedHosts.Count)];
+        _activeHost.IsActive = true;
+        _activeHost.Attempted = true;
+        _currentHost = _activeHost;
+      }
+      else
+        _activeHost = _initialHost;
 
       return _activeHost;
     }

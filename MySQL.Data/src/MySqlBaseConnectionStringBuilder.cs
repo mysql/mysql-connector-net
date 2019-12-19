@@ -38,6 +38,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using MySqlX.XDevAPI;
 using static MySql.Data.MySqlClient.MySqlConnectionStringOption;
+using System.Security.Authentication;
 
 namespace MySql.Data.MySqlClient
 {
@@ -59,7 +60,7 @@ namespace MySql.Data.MySqlClient
       // Server options.
       Options.Add(new MySqlConnectionStringOption("server", "host,data source,datasource,address,addr,network address", typeof(string), "" /*"localhost"*/, false));
       Options.Add(new MySqlConnectionStringOption("database", "initial catalog", typeof(string), string.Empty, false));
-      Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol, connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
+      Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol,connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
         (BaseSetterDelegate)((msb, sender, value) =>
        {
 #if !NET452
@@ -74,6 +75,7 @@ namespace MySql.Data.MySqlClient
        }),
         (msb, sender) => msb.ConnectionProtocol));
       Options.Add(new MySqlConnectionStringOption("port", null, typeof(uint), (uint)3306, false));
+      Options.Add(new MySqlConnectionStringOption("dns-srv", "dnssrv", typeof(bool), false, false));
 
       // Authentication options.
       Options.Add(new MySqlConnectionStringOption("user id", "uid,username,user name,user,userid", typeof(string), "", false));
@@ -82,12 +84,57 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("certificatepassword", "certificate password,ssl-ca-pwd", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("certificatestorelocation", "certificate store location", typeof(MySqlCertificateStoreLocation), MySqlCertificateStoreLocation.None, false));
       Options.Add(new MySqlConnectionStringOption("certificatethumbprint", "certificate thumb print", typeof(string), null, false));
-      Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode,ssl-mode", typeof(MySqlSslMode), MySqlSslMode.Preferred, false));
+      Options.Add(new MySqlConnectionStringOption("sslmode", "ssl mode,ssl-mode", typeof(MySqlSslMode), MySqlSslMode.Preferred, false,
+        (BaseSetterDelegate)((msb, sender, value) =>
+        {
+          MySqlSslMode newValue = (MySqlSslMode)Enum.Parse(typeof(MySqlSslMode), value.ToString(), true);
+          if (newValue == MySqlSslMode.None && msb.TlsVersion != null)
+            throw new ArgumentException(Resources.InvalidTlsVersionAndSslModeOption, nameof(TlsVersion));
+          msb.SetValue("sslmode", newValue);
+        }),
+        (BaseGetterDelegate)((msb, sender) => { return msb.SslMode; })));
       Options.Add(new MySqlConnectionStringOption("sslca", "ssl-ca", typeof(string), null, false,
         (BaseSetterDelegate)((msb, sender, value) => { msb.SslCa = value as string; }),
         (BaseGetterDelegate)((msb, sender) => { return msb.SslCa; })));
       Options.Add(new MySqlConnectionStringOption("sslkey", "ssl-key", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("sslcert", "ssl-cert", typeof(string), null, false));
+      Options.Add(new MySqlConnectionStringOption("tlsversion", "tls-version,tls version", typeof(string), null, false,
+        (BaseSetterDelegate)((msb, sender, value) =>
+        {
+          if (value == null || string.IsNullOrWhiteSpace((string)value))
+          {
+            msb.SetValue("tlsversion", null);
+            return;
+          }
+          if (msb.SslMode == MySqlSslMode.None)
+            throw new ArgumentException(Resources.InvalidTlsVersionAndSslModeOption, nameof(TlsVersion));
+          string strValue = ((string)value).TrimStart('[', '(').TrimEnd(']', ')').Replace(" ", string.Empty);
+          if (string.IsNullOrWhiteSpace(strValue) || strValue == ",")
+            throw new ArgumentException(Resources.TlsVersionNotSupported);
+          SslProtocols protocols = SslProtocols.None;
+          foreach (string opt in strValue.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+          {
+            string tls = opt.ToLowerInvariant().Replace("v", "").Replace(".", "");
+            if (tls.Equals("tls1") || tls.Equals("tls10"))
+              tls = "tls";
+            SslProtocols protocol;
+            if (!tls.StartsWith("tls", StringComparison.OrdinalIgnoreCase)
+              || (!Enum.TryParse<SslProtocols>(tls, true, out protocol) && !tls.Equals("tls13", StringComparison.OrdinalIgnoreCase)))
+            {
+              string info = string.Empty;
+#if NET48 || NETSTANDARD2_1
+              info = ", TLSv1.3";
+#endif
+              throw new ArgumentException(string.Format(Resources.InvalidTlsVersionOption, opt, info), nameof(TlsVersion));
+            }
+            protocols |= protocol;
+          }
+          string strProtocols = protocols == SslProtocols.None ? string.Empty : Enum.Format(typeof(SslProtocols), protocols, "G");
+          strProtocols = (value.ToString().Equals("Tls13", StringComparison.OrdinalIgnoreCase)
+          || value.ToString().Equals("Tlsv1.3", StringComparison.OrdinalIgnoreCase)) ? "Tls13" : strProtocols;
+          msb.SetValue("tlsversion", strProtocols);
+        }),
+        (BaseGetterDelegate)((msb, sender) => { return msb.TlsVersion; })));
 
       // SSH tunneling options.
       Options.Add(new MySqlConnectionStringOption("sshhostname", "ssh host name,ssh-host-name", typeof(string), "", false));
@@ -117,10 +164,10 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public MySqlBaseConnectionStringBuilder(string connStr, bool isXProtocol)
+    public MySqlBaseConnectionStringBuilder(string connStr, bool isXProtocol, bool isDefaultPort = true)
       : this()
     {
-      AnalyzeConnectionString(connStr, isXProtocol);
+      AnalyzeConnectionString(connStr, isXProtocol, isDefaultPort);
       lock (this)
       {
         ConnectionString = connStr;
@@ -179,6 +226,20 @@ namespace MySql.Data.MySqlClient
     {
       get { return (uint)values["port"]; }
       set { SetValue("port", value); }
+    }
+
+    /// <summary>
+    /// Gets or sets a boolean value that indicates whether this connection
+    /// should resolve DNS SRV records.
+    /// </summary>
+    [Category("Connection")]
+    [DisplayName("DNS SRV")]
+    [Description("The connection should resolve DNS SRV records.")]
+    [RefreshProperties(RefreshProperties.All)]
+    public bool DnsSrv
+    {
+      get { return (bool)values["dns-srv"]; }
+      set { SetValue("dns-srv", value); }
     }
 
     #endregion
@@ -286,6 +347,21 @@ namespace MySql.Data.MySqlClient
       {
         CertificateFile = value;
       }
+    }
+
+    /// <summary>
+    /// Sets the TLS versions to use in a <see cref="SslMode">SSL connection</see> to the server.
+    /// </summary>
+    /// <example>
+    /// Tls version=TLSv1.1,TLSv1.2;
+    /// </example>
+    [DisplayName("TLS version")]
+    [Category("Security")]
+    [Description("TLS versions to use in a SSL connection to the server.")]
+    public string TlsVersion
+    {
+      get { return (string)values["tlsversion"]; }
+      set { SetValue("tlsversion", value); }
     }
 
     /// <summary>
@@ -563,11 +639,19 @@ namespace MySql.Data.MySqlClient
     /// Analyzes the connection string for potential duplicated or invalid connection options.
     /// </summary>
     /// <param name="connectionString">Connection string.</param>
-    internal void AnalyzeConnectionString(string connectionString, bool isXProtocol)
+    /// <param name="isXProtocol">Flag that indicates if the connection is using X Protocol.</param>
+    /// <param name="isDefaultPort">Flag that indicates if the default port is used.</param>
+    internal void AnalyzeConnectionString(string connectionString, bool isXProtocol, bool isDefaultPort)
     {
       string[] queries = connectionString.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-      List<string> usedSslOptions = new List<string>();
+      List<string> usedOptions = new List<string>();
       bool sslModeIsNone = false;
+      bool isDnsSrv = false;
+
+      if (queries.FirstOrDefault(q => q.ToLowerInvariant().Contains("dns-srv=true")) != null
+            || queries.FirstOrDefault(q => q.ToLowerInvariant().Contains("dnssrv=true")) != null)
+        isDnsSrv = true;
+
       foreach (string query in queries)
       {
         string[] keyValue = query.Split('=');
@@ -575,8 +659,20 @@ namespace MySql.Data.MySqlClient
           continue;
 
         var keyword = keyValue[0].ToLowerInvariant().Trim();
-        var value = keyValue[1].ToLowerInvariant();
+        var value = query.Contains(",") ? query.Replace(keyword, "") : keyValue[1].ToLowerInvariant();
         MySqlConnectionStringOption option = Options.Options.Where(o => o.Keyword == keyword || (o.Synonyms != null && o.Synonyms.Contains(keyword))).FirstOrDefault();
+
+        // DNS SRV option can't be used if Port, Unix Socket or Multihost are specified
+        if (isDnsSrv)
+        {
+          if (option.Keyword == "port" && !isDefaultPort)
+            throw new ArgumentException(Resources.DnsSrvInvalidConnOptionPort);
+          if (option.Keyword == "server" && ((value.Contains("address") && value.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Length > 2) || value.Contains(",")))
+            throw new ArgumentException(Resources.DnsSrvInvalidConnOptionMultihost);
+          if (option.Keyword == "protocol" && (value.ToLowerInvariant().Contains("unix") || value.ToLowerInvariant().Contains("unixsocket")))
+            throw new ArgumentException(Resources.DnsSrvInvalidConnOptionUnixSocket);
+        }
+
         if (option == null
           || (option.Keyword != "sslmode"
                && option.Keyword != "certificatefile"
@@ -584,12 +680,18 @@ namespace MySql.Data.MySqlClient
                && option.Keyword != "sslcrl"
                && option.Keyword != "sslca"
                && option.Keyword != "sslcert"
-               && option.Keyword != "sslkey"))
+               && option.Keyword != "sslkey"
+               && option.Keyword != "server"
+               && option.Keyword != "tlsversion"
+               && option.Keyword != "dns-srv"))
           continue;
 
         // SSL connection options can't be duplicated.
-        if (usedSslOptions.Contains(option.Keyword))
+        if (usedOptions.Contains(option.Keyword) && option.Keyword != "server" && 
+          option.Keyword != "tlsversion" && option.Keyword != "dns-srv")
           throw new ArgumentException(string.Format(Resources.DuplicatedSslConnectionOption, keyword));
+        else if (usedOptions.Contains(option.Keyword))
+          throw new ArgumentException(string.Format(Resources.DuplicatedConnectionOption, keyword));
 
         // SSL connection options can't be used if sslmode=None.
         if (option.Keyword == "sslmode" && (value == "none" || value == "disabled"))
@@ -610,11 +712,11 @@ namespace MySql.Data.MySqlClient
 
         if (option.Keyword == "sslca" || option.Keyword == "certificatefile")
         {
-          usedSslOptions.Add("sslca");
-          usedSslOptions.Add("certificatefile");
+          usedOptions.Add("sslca");
+          usedOptions.Add("certificatefile");
         }
         else
-          usedSslOptions.Add(option.Keyword);
+          usedOptions.Add(option.Keyword);
       }
     }
 
