@@ -136,16 +136,36 @@ namespace MySqlX.Data.Tests
     {
       var builder = new MySqlXConnectionStringBuilder();
       Assert.Equal(CompressionType.Preferred, builder.Compression);
+
+      // Empty value is ignored.
+      var updatedConnectionStringUri = ConnectionStringUri + "?compression=";
+      using (var session = MySQLX.GetSession(updatedConnectionStringUri))
+      {
+        Assert.Equal(CompressionType.Preferred, session.Settings.Compression);
+        session.Close();
+      }
+
+      // Whitespace is ignored.
+      updatedConnectionStringUri = ConnectionStringUri + "?compression= ";
+      using (var session = MySQLX.GetSession(updatedConnectionStringUri))
+      {
+        Assert.Equal(CompressionType.Preferred, session.Settings.Compression);
+        session.Close();
+      }
     }
 
     [Fact]
     public void SettingAnInvalidCompressionTypeRaisesException()
     {
-      var exception = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder("server=localhost;port=33060;compression=test"));
-      Assert.Equal("The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value 'test' is not acceptable.", exception.Message);
+      string[] invalidValues = { "test", "true", "123" };
+      foreach (var invalidValue in invalidValues)
+      {
+        var exception = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder($"server=localhost;port=33060;compression={invalidValue}"));
+        Assert.Equal($"The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value '{invalidValue}' is not acceptable.", exception.Message);
 
-      exception = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder("server=localhost;port=33060;compression=true"));
-      Assert.Equal("The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value 'true' is not acceptable.", exception.Message);
+        exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server=localhost;port=33060;user=root;compression={invalidValue}"));
+        Assert.Equal($"The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value '{invalidValue}' is not acceptable.", exception.Message);
+      }
     }
 
     [Fact]
@@ -154,6 +174,13 @@ namespace MySqlX.Data.Tests
       using (var session = MySQLX.GetSession(ConnectionStringUri))
       {
         Assert.Equal(CompressionType.Preferred, session.Settings.Compression);
+        session.Close();
+      }
+
+      var updatedConnectionStringUri = ConnectionStringUri + "?compression=Disabled";
+      using (var session = MySQLX.GetSession(updatedConnectionStringUri))
+      {
+        Assert.Equal(CompressionType.Disabled, session.Settings.Compression);
         session.Close();
       }
     }

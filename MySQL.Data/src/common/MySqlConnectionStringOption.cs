@@ -178,7 +178,8 @@ namespace MySql.Data.common
       Type baseType = BaseType.GetTypeInfo().BaseType;
       if (baseType != null && baseType.Name == "Enum" && ParseEnum(value.ToString(), out objValue))
       {
-        value = objValue; return;
+        value = objValue;
+        return;
       }
 
       if (!string.IsNullOrEmpty(keyword) && isXProtocol)
@@ -212,7 +213,15 @@ namespace MySql.Data.common
       try
       {
         value = Enum.Parse(BaseType, requestedValue, true);
-        return true;
+        if (value != null && Enum.IsDefined(BaseType, value.ToString()))
+        {
+          return true;
+        }
+        else
+        {
+          value = null;
+          return false;
+        }
       }
       catch (ArgumentException)
       {
