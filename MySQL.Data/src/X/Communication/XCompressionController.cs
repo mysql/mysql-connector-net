@@ -27,8 +27,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using K4os.Compression.LZ4.Streams;
-using Microsoft.Win32;
 using MySql.Data.MySqlClient;
+using MySql.Data.X.common;
 using MySqlX.Communication;
 using System;
 using System.Collections.Generic;
@@ -511,17 +511,8 @@ namespace MySql.Data.X.Communication
         return;
       }
 
-      string loadPath = string.Empty;
-      ZstandardInterop.LoadLibzstdLibrary(loadPath);
-      try
-      {
-        // Creating this temporary stream to check if the library was loaded succesfully.
-        using(var testStream = new ZstandardStream(new MemoryStream(), CompressionMode.Compress))
-        {}
-
-        _libzstdLoaded = true;
-      }
-      catch
+      _libzstdLoaded = UnmanagedLibraryLoader.LoadUnmanagedLibraryFromEmbeddedResources("MySql.Data", "libzstd.dll");
+      if (_libzstdLoaded == false)
       {
         ClientSupportedCompressionAlgorithms = new string[]
         {
