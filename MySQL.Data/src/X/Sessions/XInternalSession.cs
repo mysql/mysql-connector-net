@@ -343,7 +343,7 @@ namespace MySqlX.Sessions
       // If server and client don't have matching compression algorithms either log a warning message
       // or raise an exception based on the selected compression type.
       XCompressionController.LoadLibzstdLibrary();
-      if (!XCompressionController.ClientSupportedCompressionAlgorithms.All(element => serverSupportedAlgorithms.Contains(element)))
+      if (!XCompressionController.ClientSupportedCompressionAlgorithms.Any(element => serverSupportedAlgorithms.Contains(element)))
       {
         if (Settings.Compression == CompressionType.Preferred)
         {
