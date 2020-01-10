@@ -755,8 +755,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="timeout">The length of time (in seconds) to wait for the cancelation of the command execution.</param>
     public void CancelQuery(int timeout)
     {
-      MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(
-        Settings.ConnectionString);
+      var cb = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       cb.Pooling = false;
       cb.AutoEnlist = false;
       cb.ConnectionTimeout = (uint)timeout;

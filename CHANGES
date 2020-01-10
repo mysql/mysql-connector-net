@@ -1,6 +1,8 @@
 8.0.20
 - Fixed an error that occurred unexpectedly when an IN operator with blank spaces was part of a SELECT statement (Oracle Bug #29838254).
 - Added support to handle Schema validation in the commands CreateCollection and ModifyCollection (WL13007)
+- Added support for compressing data exchanged between the server and client when using the X Protocol. A new connection option,
+  compression, provides the following values: Preferred (Default), Required, Disabled (WL12980).
 
 
 8.0.19

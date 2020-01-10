@@ -131,6 +131,79 @@ namespace MySql.Data {
                 return ResourceManager.GetString("DnsSrvInvalidScheme", resourceCulture);
             }
         }
+
+        /// <summary>
+
+        ///   Looks up a localized string similar to Compression requested but the compression algorithm negotiation failed..
+        /// </summary>
+        public static string CompressionAlgorithmNegotiationFailed {
+            get {
+                return ResourceManager.GetString("CompressionAlgorithmNegotiationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compression using {0} is not supported..
+        /// </summary>
+        public static string CompressionAlgorithmNotSupported {
+            get {
+                return ResourceManager.GetString("CompressionAlgorithmNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to load libzstd.dll. Removing zstd_stream from the client supported compression algorithms..
+        /// </summary>
+        public static string CompressionFailedToLoadLibzstdAssembly {
+            get {
+                return ResourceManager.GetString("CompressionFailedToLoadLibzstdAssembly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compression using {0} is not supported in .NET Framework..
+        /// </summary>
+        public static string CompressionForSpecificAlgorithmNotSupportedInNetFramework {
+            get {
+                return ResourceManager.GetString("CompressionForSpecificAlgorithmNotSupportedInNetFramework", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The connection property &apos;compression&apos; acceptable values are: &apos;preferred&apos;, &apos;required&apos; or &apos;disabled&apos;. The value &apos;{0}&apos; is not acceptable..
+        /// </summary>
+        public static string CompressionInvalidValue {
+            get {
+                return ResourceManager.GetString("CompressionInvalidValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compression is not enabled..
+        /// </summary>
+        public static string CompressionNotEnabled {
+            get {
+                return ResourceManager.GetString("CompressionNotEnabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compression requested but the server does not support it..
+        /// </summary>
+        public static string CompressionNotSupportedByServer {
+            get {
+                return ResourceManager.GetString("CompressionNotSupportedByServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are still decompressed messages pending to be processed..
+        /// </summary>
+        public static string CompressionPendingMessagesToProcess {
+            get {
+                return ResourceManager.GetString("CompressionPendingMessagesToProcess", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Duplicate key &apos;{0}&apos; used in &quot;connection-attributes&quot;..

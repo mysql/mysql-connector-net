@@ -26,8 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.common;
 using MySql.Data.Common;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 
@@ -41,6 +43,9 @@ namespace MySql.Data.MySqlClient
   {
     static MySqlConnectionStringBuilder()
     {
+      // Add options shared between classic and X protocols from base class.
+      Options = MySqlBaseConnectionStringBuilder.Options.Clone();
+
       // Server options
       Options.Add(new MySqlConnectionStringOption("pipe", "pipe name,pipename", typeof(string), "MYSQL", false,
         (msb, sender, value) =>
@@ -208,11 +213,42 @@ namespace MySql.Data.MySqlClient
         (msb, sender, value) => { msb.SetValue("blobasutf8excludepattern", value); }, (msb, sender) => msb.BlobAsUTF8ExcludePattern));
     }
 
-    public MySqlConnectionStringBuilder() : base()
-    { }
+    /// <summary>
+    /// Main constructor.
+    /// </summary>
+    public MySqlConnectionStringBuilder()
+    {
+      values = new Dictionary<string, object>();
+      HasProcAccess = true;
 
-    public MySqlConnectionStringBuilder(string connStr) : base(connStr, false)
-    { }
+      // Populate initial values.
+      lock (this)
+      {
+        foreach (MySqlConnectionStringOption option in Options.Options)
+        {
+          values[option.Keyword] = option.DefaultValue;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Constructor accepting a connection string.
+    /// </summary>
+    /// <param name="connectionString">The connection string.</param>
+    public MySqlConnectionStringBuilder(string connectionString)
+    {
+      values = new Dictionary<string, object>();
+      AnalyzeConnectionString(connectionString, false);
+      lock (this)
+      {
+        ConnectionString = connectionString;
+      }
+    }
+
+    /// <summary>
+    /// Readonly field containing a collection of classic protocol and protocol shared connection options.
+    /// </summary>
+    internal new static readonly MySqlConnectionStringOptionCollection Options;
 
     #region Server Properties
 
@@ -873,6 +909,81 @@ namespace MySql.Data.MySqlClient
       set { SetValue("usedefaultcommandtimeoutforef", value); }
     }
     #endregion
+
+    /// <summary>
+    /// Gets or sets a connection option.
+    /// </summary>
+    /// <param name="keyword">The keyword that identifies the connection option to modify.</param>
+    public override object this[string keyword]
+    {
+      get
+      {
+        MySqlConnectionStringOption opt = GetOption(keyword);
+        if (opt.ClassicGetter != null)
+          return opt.ClassicGetter(this, opt);
+        else if (opt.Getter != null)
+          return opt.Getter(this, opt);
+        else
+          throw new ArgumentException(Resources.KeywordNotSupported, keyword);
+      }
+      set
+      {
+        MySqlConnectionStringOption opt = GetOption(keyword);
+        if (opt.ClassicSetter != null)
+          opt.ClassicSetter(this, opt, value);
+        else if (opt.Setter != null)
+          opt.Setter(this, opt, value);
+        else
+          throw new ArgumentException(Resources.KeywordNotSupported, keyword);
+      }
+    }
+
+    public override void Clear()
+    {
+      base.Clear();
+      lock (this)
+      {
+        foreach (var option in Options.Options)
+          if (option.DefaultValue != null)
+            values[option.Keyword] = option.DefaultValue;
+          else
+            values[option.Keyword] = null;
+      }
+    }
+
+    public override bool ContainsKey(string keyword)
+    {
+      MySqlConnectionStringOption option = Options.Get(keyword);
+      return option != null;
+    }
+
+    public override bool Equals(object obj)
+    {
+      var other = obj as MySqlConnectionStringBuilder;
+      if (obj == null)
+        return false;
+
+      if (this.values.Count != other.values.Count) return false;
+
+      foreach (KeyValuePair<string, object> kvp in this.values)
+      {
+        if (other.values.ContainsKey(kvp.Key))
+        {
+          object v = other.values[kvp.Key];
+          if (v == null && kvp.Value != null) return false;
+          if (kvp.Value == null && v != null) return false;
+          if (kvp.Value == null && v == null) return true;
+          if (!v.Equals(kvp.Value)) return false;
+        }
+        else
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
     internal Regex GetBlobAsUTF8IncludeRegex()
     {
       if (String.IsNullOrEmpty(BlobAsUTF8IncludePattern)) return null;
@@ -885,27 +996,44 @@ namespace MySql.Data.MySqlClient
       return new Regex(BlobAsUTF8ExcludePattern);
     }
 
-    public override object this[string keyword]
+    internal override MySqlConnectionStringOption GetOption(string key)
     {
-      get
+      MySqlConnectionStringOption option = Options.Get(key);
+      if (option == null)
+        throw new ArgumentException(Resources.KeywordNotSupported, key);
+      else
+        return option;
+    }
+
+    public override bool Remove(string keyword)
+    {
+      bool removed = false;
+      lock (this) { removed = base.Remove(keyword); }
+      if (!removed) return false;
+      MySqlConnectionStringOption option = GetOption(keyword);
+      lock (this)
       {
-        MySqlConnectionStringOption opt = GetOption(keyword);
-        if (opt.BaseGetter != null)
-          return opt.BaseGetter(this, opt);
-        else if (opt.Getter != null)
-          return opt.Getter(this, opt);
-        else
-          throw new ArgumentException(Resources.KeywordNotSupported, keyword);
+        values[option.Keyword] = option.DefaultValue;
       }
-      set
+      return true;
+    }
+
+    internal override void SetInternalValue(string keyword, object value)
+    {
+      MySqlConnectionStringOption option = GetOption(keyword);
+      option.ValidateValue(ref value);
+
+      // remove all related keywords
+      option.Clean(this);
+
+      if (value != null)
       {
-        MySqlConnectionStringOption opt = GetOption(keyword);
-        if (opt.BaseSetter != null)
-          opt.BaseSetter(this, opt, value);
-        else if (opt.Setter != null)
-          opt.Setter(this, opt, value);
-        else
-          throw new ArgumentException(Resources.KeywordNotSupported, keyword);
+        lock (this)
+        {
+          // set value for the given keyword
+          values[option.Keyword] = value;
+          base[keyword] = value;
+        }
       }
     }
   }

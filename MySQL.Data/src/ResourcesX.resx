@@ -297,4 +297,28 @@
   <data name="DnsSrvConflictingOptions" xml:space="preserve">
     <value>'{0}' cannot be set to false with DNS SRV lookup enabled.</value>
   </data>
+  <data name="CompressionAlgorithmNegotiationFailed" xml:space="preserve">
+    <value>Compression requested but the compression algorithm negotiation failed.</value>
+  </data>
+  <data name="CompressionInvalidValue" xml:space="preserve">
+    <value>The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value '{0}' is not acceptable.</value>
+  </data>
+  <data name="CompressionNotSupportedByServer" xml:space="preserve">
+    <value>Compression requested but the server does not support it.</value>
+  </data>
+  <data name="CompressionAlgorithmNotSupported" xml:space="preserve">
+    <value>Compression using {0} is not supported.</value>
+  </data>
+  <data name="CompressionForSpecificAlgorithmNotSupportedInNetFramework" xml:space="preserve">
+    <value>Compression using {0} is not supported in .NET Framework.</value>
+  </data>
+  <data name="CompressionNotEnabled" xml:space="preserve">
+    <value>Compression is not enabled.</value>
+  </data>
+  <data name="CompressionPendingMessagesToProcess" xml:space="preserve">
+    <value>There are still decompressed messages pending to be processed.</value>
+  </data>
+  <data name="CompressionFailedToLoadLibzstdAssembly" xml:space="preserve">
+    <value>Failed to load libzstd.dll. Removing zstd_stream from the client supported compression algorithms.</value>
+  </data>
 </root>

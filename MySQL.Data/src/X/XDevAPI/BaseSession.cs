@@ -140,7 +140,7 @@ namespace MySqlX.XDevAPI
           {
             var value = Settings[item.Key];
             // Get the default value of the connection option.
-            var option = MySqlConnectionStringBuilder.Options.Values.First(
+            var option = MySqlXConnectionStringBuilder.Options.Values.First(
                 o => o.Keyword == item.Key ||
                 (o.Synonyms != null && o.Synonyms.Contains(item.Key)));
             var defaultValue = option.DefaultValue;

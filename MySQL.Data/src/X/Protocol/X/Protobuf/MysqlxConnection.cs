@@ -23,21 +23,26 @@ namespace Mysqlx.Connection {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChdteXNxbHhfY29ubmVjdGlvbi5wcm90bxIRTXlzcWx4LkNvbm5lY3Rpb24a",
-            "Fm15c3FseF9kYXRhdHlwZXMucHJvdG8iQAoKQ2FwYWJpbGl0eRIMCgRuYW1l",
-            "GAEgASgJEiQKBXZhbHVlGAIgASgLMhUuTXlzcWx4LkRhdGF0eXBlcy5Bbnki",
-            "QwoMQ2FwYWJpbGl0aWVzEjMKDGNhcGFiaWxpdGllcxgBIAMoCzIdLk15c3Fs",
-            "eC5Db25uZWN0aW9uLkNhcGFiaWxpdHkiEQoPQ2FwYWJpbGl0aWVzR2V0IkgK",
-            "D0NhcGFiaWxpdGllc1NldBI1CgxjYXBhYmlsaXRpZXMYASABKAsyHy5NeXNx",
-            "bHguQ29ubmVjdGlvbi5DYXBhYmlsaXRpZXMiBwoFQ2xvc2VCGQoXY29tLm15",
-            "c3FsLmNqLngucHJvdG9idWZiBnByb3RvMw=="));
+            "Fm15c3FseF9kYXRhdHlwZXMucHJvdG8aDG15c3FseC5wcm90byJACgpDYXBh",
+            "YmlsaXR5EgwKBG5hbWUYASABKAkSJAoFdmFsdWUYAiABKAsyFS5NeXNxbHgu",
+            "RGF0YXR5cGVzLkFueSJDCgxDYXBhYmlsaXRpZXMSMwoMY2FwYWJpbGl0aWVz",
+            "GAEgAygLMh0uTXlzcWx4LkNvbm5lY3Rpb24uQ2FwYWJpbGl0eSIRCg9DYXBh",
+            "YmlsaXRpZXNHZXQiSAoPQ2FwYWJpbGl0aWVzU2V0EjUKDGNhcGFiaWxpdGll",
+            "cxgBIAEoCzIfLk15c3FseC5Db25uZWN0aW9uLkNhcGFiaWxpdGllcyIHCgVD",
+            "bG9zZSKlAQoLQ29tcHJlc3Npb24SGQoRdW5jb21wcmVzc2VkX3NpemUYASAB",
+            "KAQSNAoPc2VydmVyX21lc3NhZ2VzGAIgASgOMhsuTXlzcWx4LlNlcnZlck1l",
+            "c3NhZ2VzLlR5cGUSNAoPY2xpZW50X21lc3NhZ2VzGAMgASgOMhsuTXlzcWx4",
+            "LkNsaWVudE1lc3NhZ2VzLlR5cGUSDwoHcGF5bG9hZBgEIAEoDEIZChdjb20u",
+            "bXlzcWwuY2oueC5wcm90b2J1ZmIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor, },
+          new pbr::FileDescriptor[] { global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor, global::Mysqlx.MysqlxReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Connection.Capability), global::Mysqlx.Connection.Capability.Parser, new[]{ "Name", "Value" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Connection.Capabilities), global::Mysqlx.Connection.Capabilities.Parser, new[]{ "Capabilities_" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Connection.CapabilitiesGet), global::Mysqlx.Connection.CapabilitiesGet.Parser, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Connection.CapabilitiesSet), global::Mysqlx.Connection.CapabilitiesSet.Parser, new[]{ "Capabilities" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Connection.Close), global::Mysqlx.Connection.Close.Parser, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Connection.Close), global::Mysqlx.Connection.Close.Parser, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Mysqlx.Connection.Compression), global::Mysqlx.Connection.Compression.Parser, new[]{ "UncompressedSize", "ServerMessages", "ClientMessages", "Payload" }, null, null, null)
           }));
     }
     #endregion
@@ -85,9 +90,6 @@ namespace Mysqlx.Connection {
     /// <summary>Field number for the "name" field.</summary>
     public const int NameFieldNumber = 1;
     private string name_ = "";
-    /// <summary>
-    /// required
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Name {
       get { return name_; }
@@ -99,9 +101,6 @@ namespace Mysqlx.Connection {
     /// <summary>Field number for the "value" field.</summary>
     public const int ValueFieldNumber = 2;
     private global::Mysqlx.Datatypes.Any value_;
-    /// <summary>
-    /// required
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Datatypes.Any Value {
       get { return value_; }
@@ -456,9 +455,6 @@ namespace Mysqlx.Connection {
     /// <summary>Field number for the "capabilities" field.</summary>
     public const int CapabilitiesFieldNumber = 1;
     private global::Mysqlx.Connection.Capabilities capabilities_;
-    /// <summary>
-    /// required
-    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::Mysqlx.Connection.Capabilities Capabilities {
       get { return capabilities_; }
@@ -637,6 +633,207 @@ namespace Mysqlx.Connection {
           default:
             input.SkipLastField();
             break;
+        }
+      }
+    }
+
+  }
+
+  internal sealed partial class Compression : pb::IMessage<Compression> {
+    private static readonly pb::MessageParser<Compression> _parser = new pb::MessageParser<Compression>(() => new Compression());
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<Compression> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Mysqlx.Connection.MysqlxConnectionReflection.Descriptor.MessageTypes[5]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public Compression() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public Compression(Compression other) : this() {
+      uncompressedSize_ = other.uncompressedSize_;
+      serverMessages_ = other.serverMessages_;
+      clientMessages_ = other.clientMessages_;
+      payload_ = other.payload_;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public Compression Clone() {
+      return new Compression(this);
+    }
+
+    /// <summary>Field number for the "uncompressed_size" field.</summary>
+    public const int UncompressedSizeFieldNumber = 1;
+    private ulong uncompressedSize_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ulong UncompressedSize {
+      get { return uncompressedSize_; }
+      set {
+        uncompressedSize_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "server_messages" field.</summary>
+    public const int ServerMessagesFieldNumber = 2;
+    private global::Mysqlx.ServerMessages.Types.Type serverMessages_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Mysqlx.ServerMessages.Types.Type ServerMessages {
+      get { return serverMessages_; }
+      set {
+        serverMessages_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "client_messages" field.</summary>
+    public const int ClientMessagesFieldNumber = 3;
+    private global::Mysqlx.ClientMessages.Types.Type clientMessages_ = 0;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Mysqlx.ClientMessages.Types.Type ClientMessages {
+      get { return clientMessages_; }
+      set {
+        clientMessages_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "payload" field.</summary>
+    public const int PayloadFieldNumber = 4;
+    private pb::ByteString payload_ = pb::ByteString.Empty;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pb::ByteString Payload {
+      get { return payload_; }
+      set {
+        payload_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as Compression);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(Compression other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (UncompressedSize != other.UncompressedSize) return false;
+      if (ServerMessages != other.ServerMessages) return false;
+      if (ClientMessages != other.ClientMessages) return false;
+      if (Payload != other.Payload) return false;
+      return true;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (UncompressedSize != 0UL) hash ^= UncompressedSize.GetHashCode();
+      if (ServerMessages != 0) hash ^= ServerMessages.GetHashCode();
+      if (ClientMessages != 0) hash ^= ClientMessages.GetHashCode();
+      if (Payload.Length != 0) hash ^= Payload.GetHashCode();
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (UncompressedSize != 0UL) {
+        output.WriteRawTag(8);
+        output.WriteUInt64(UncompressedSize);
+      }
+      if (ServerMessages != 0) {
+        output.WriteRawTag(16);
+        output.WriteEnum((int) ServerMessages);
+      }
+      if (ClientMessages != 0) {
+        output.WriteRawTag(24);
+        output.WriteEnum((int) ClientMessages);
+      }
+      if (Payload.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteBytes(Payload);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (UncompressedSize != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(UncompressedSize);
+      }
+      if (ServerMessages != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) ServerMessages);
+      }
+      if (ClientMessages != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) ClientMessages);
+      }
+      if (Payload.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Payload);
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(Compression other) {
+      if (other == null) {
+        return;
+      }
+      if (other.UncompressedSize != 0UL) {
+        UncompressedSize = other.UncompressedSize;
+      }
+      if (other.ServerMessages != 0) {
+        ServerMessages = other.ServerMessages;
+      }
+      if (other.ClientMessages != 0) {
+        ClientMessages = other.ClientMessages;
+      }
+      if (other.Payload.Length != 0) {
+        Payload = other.Payload;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            input.SkipLastField();
+            break;
+          case 8: {
+            UncompressedSize = input.ReadUInt64();
+            break;
+          }
+          case 16: {
+            serverMessages_ = (global::Mysqlx.ServerMessages.Types.Type) input.ReadEnum();
+            break;
+          }
+          case 24: {
+            clientMessages_ = (global::Mysqlx.ClientMessages.Types.Type) input.ReadEnum();
+            break;
+          }
+          case 34: {
+            Payload = input.ReadBytes();
+            break;
+          }
         }
       }
     }
