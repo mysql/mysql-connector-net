@@ -1,5 +1,6 @@
 8.0.20
 - Fixed an error that occurred unexpectedly when an IN operator with blank spaces was part of a SELECT statement (Oracle Bug #29838254).
+- Added support to handle Schema validation in the commands CreateCollection and ModifyCollection (WL13007)
 
 
 8.0.19

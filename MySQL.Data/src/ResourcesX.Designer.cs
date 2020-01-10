@@ -151,6 +151,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to At least one option must be specified..
+        /// </summary>
+        public static string EmptyOptions {
+            get {
+                return ResourceManager.GetString("EmptyOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This feature is currently not supported..
         /// </summary>
         public static string FeatureNotSupported {
@@ -349,6 +358,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Missed required &apos;schema&apos; option..
+        /// </summary>
+        public static string MissingSchemaOption {
+            get {
+                return ResourceManager.GetString("MissingSchemaOption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to More than one document id was generated.  Please use the DocumentIds property instead..
         /// </summary>
         public static string MoreThanOneDocumentId {
@@ -462,6 +480,15 @@ namespace MySql.Data {
         public static string ProgramDataNotDefined {
             get {
                 return ResourceManager.GetString("ProgramDataNotDefined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The server doesn&apos;t support the requested operation. Please update the MySQL Server and/or Client library.
+        /// </summary>
+        public static string SchemaCreateCollectionMsg {
+            get {
+                return ResourceManager.GetString("SchemaCreateCollectionMsg", resourceCulture);
             }
         }
         
