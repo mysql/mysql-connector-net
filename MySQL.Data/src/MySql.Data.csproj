@@ -87,7 +87,7 @@
     <PackageReference Include="BouncyCastle" Version="1.8.3.1" />
     <EmbeddedResource Include="keywords.txt;Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
     <EmbeddedResource Include="..\..\Dependencies\Zstandard\NetFramework\libzstd.dll">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
 
@@ -107,7 +107,7 @@
       <HintPath>..\..\Dependencies\Zstandard\NetCore\Zstandard.Net.dll</HintPath>
     </Reference>
     <EmbeddedResource Include="..\..\Dependencies\Zstandard\NetCore\libzstd.dll">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
 

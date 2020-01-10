@@ -506,12 +506,31 @@ namespace MySql.Data.X.Communication
     /// </summary>
     internal static void LoadLibzstdLibrary()
     {
+      // If the library has already been loaded, there is no need to load it again.
       if (_libzstdLoaded != null)
       {
         return;
       }
 
+      // Attempt to load the library from an embedded resource.
       _libzstdLoaded = UnmanagedLibraryLoader.LoadUnmanagedLibraryFromEmbeddedResources("MySql.Data", "libzstd.dll");
+
+      // If loading from an embedded resource fails, attempt to load it from a file in the output folder.
+      if (_libzstdLoaded == false)
+      {
+        ZstandardInterop.LoadLibzstdLibrary(string.Empty);
+        try
+        {
+          // Creating this temporary stream to check if the library was loaded succesfully.
+          using (var testStream = new ZstandardStream(new MemoryStream(), CompressionMode.Compress))
+          { }
+
+          _libzstdLoaded = true;
+        }
+        catch {}
+      }
+
+      // If all attempts fail, log a warning and update the client supported compression algorithms.
       if (_libzstdLoaded == false)
       {
         ClientSupportedCompressionAlgorithms = new string[]
@@ -524,7 +543,6 @@ namespace MySql.Data.X.Communication
         };
 
         MySqlTrace.LogWarning(-1, ResourcesX.CompressionFailedToLoadLibzstdAssembly);
-        _libzstdLoaded = false;
       }
     }
   }
