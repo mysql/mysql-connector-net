@@ -34,7 +34,6 @@
 
   <ItemGroup>
     <None Remove="Content\ReleaseNotes.txt" />
-    <None Remove="libzstd.dll" />
   </ItemGroup>
 
   <ItemGroup>
@@ -62,7 +61,6 @@
     <ItemGroup>
       <BuildOutputInPackage Include="$(OutputPath)Ubiety.Dns.Core.dll" />
       <BuildOutputInPackage Include="$(OutputPath)Zstandard.Net.dll" />
-      <BuildOutputInPackage Include="$(OutputPath)libzstd.dll" />
     </ItemGroup>
   </Target>
 
