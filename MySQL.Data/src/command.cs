@@ -941,8 +941,6 @@ namespace MySql.Data.MySqlClient
       if (statement != null && statement.IsPrepared)
         statement.CloseStatement();
 
-      ResetReader();
-
       base.Dispose(disposing);
 
       disposed = true;

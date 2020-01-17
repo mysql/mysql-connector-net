@@ -678,6 +678,29 @@ namespace MySql.Data.MySqlClient.Tests
       IDbCommand newCommand2 = (IDbCommand)(cmd as ICloneable).Clone();
     }
 
+    /// <summary>
+    /// Bug 27441433 - RESETREADER: MYSQLDATAREADER CANNOT OUTLIVE PARENT MYSQLCOMMAND SINCE 6.10
+    /// </summary>
+    [Fact]
+    public void ExecuteReaderAfterClosingCommand()
+    {
+      MySqlDataReader reader;
+
+      using (MySqlConnection conn = new MySqlConnection(Connection.ConnectionString))
+      {
+        using (MySqlCommand cmd = new MySqlCommand("SELECT 'TEST'", conn))
+        {
+          conn.Open();
+          cmd.CommandType = CommandType.Text;
+          reader = cmd.ExecuteReader();
+        }
+
+        Assert.True(reader.Read());
+        Assert.Equal("TEST", reader.GetString(0));
+        Assert.False(reader.Read());
+      }
+    }
+
     #region SQL Injection
 
     /// <summary>

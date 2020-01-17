@@ -3,6 +3,7 @@
 - Added support to handle Schema validation in the commands CreateCollection and ModifyCollection (WL13007)
 - Added support for compressing data exchanged between the server and client when using the X Protocol. A new connection option,
   compression, provides the following values: Preferred (Default), Required, Disabled (WL12980).
+- Removed the ResetReader method when a MySqlCommand object is disposed of, because it restricted access to the MySqlDataReader object after the MySqlCommand object closed (MySQL Bug #89159, Oracle Bug #27441433).
 
 
 8.0.19
