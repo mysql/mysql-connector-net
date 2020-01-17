@@ -459,6 +459,17 @@ namespace MySql.Data.X.Communication
     }
 
     /// <summary>
+    /// Closes and disposes of any open streams.
+    /// </summary>
+    internal void Close()
+    {
+      _deflateCompressStream?.Dispose();
+      _deflateDecompressStream?.Dispose();
+      _multipleMessagesStream?.Dispose();
+      _zstdDecompressStream?.Dispose();
+    }
+
+    /// <summary>
     /// Gets the byte array representing the next X Protocol frame that is stored in cache.
     /// </summary>
     /// <returns>A byte array representing an X Protocol frame.</returns>
