@@ -311,5 +311,26 @@ namespace MySqlX.Data.Tests
         ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM.ToUpperInvariant()},{XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM.ToUpperInvariant()},{XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM.ToUpperInvariant()}\"");
       }
     }
+
+    [Fact]
+    public void ValidateZstdAllocation()
+    {
+      using (var session = MySQLX.GetSession(ConnectionStringUri))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        if (!(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM == compressionAlgorithm))
+        {
+          return;
+        }
+      }
+
+      // Ensure resources are being released on each session.
+      // If a memory allocation error is raised then a resource has not been released.
+      for (int i = 0; i < 4000; i++)
+      {
+        var session = MySQLX.GetSession(ConnectionStringUri);
+        session.Close();
+      }
+    }
   }
 }

@@ -492,6 +492,10 @@ namespace MySqlX.Sessions
       {
         try
         {
+          // Deallocate compression objects.
+          _readerCompressionController?.Close();
+          _writerCompressionController?.Close();
+
           // Deallocate all the remaining prepared statements for current session.
           foreach (int stmtId in _preparedStatements)
           {
