@@ -5,7 +5,7 @@
     <Copyright>Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <Version>8.0.20</Version>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>netcoreapp3.0;netcoreapp2.2;net452;net461;</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp2.2;net461;</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Migrations.Tests</AssemblyName>
     <PackageId>MySql.EntityFrameworkCore.Migrations.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -41,11 +41,6 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <Compile Remove="Frameworks/efcore21/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="1.1.6" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.2' or '$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'netcoreapp3.0'">

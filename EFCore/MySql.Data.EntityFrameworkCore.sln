@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2024
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data.EntityFrameworkCore", "src\MySql.Data.EFCore\MySql.Data.EntityFrameworkCore.csproj", "{65A8A175-B8C8-4B81-BD96-60921534615E}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data.EntityFrameworkCore.Design", "src\MySql.Data.EFCore.Design\MySql.Data.EntityFrameworkCore.Design.csproj", "{F8BCE6A1-4257-49A4-BDD7-37CE30CD76CA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data", "..\MySQL.Data\src\MySql.Data.csproj", "{211964C5-1F3B-4D2B-8E25-BC40141D697E}"
 EndProject
@@ -25,10 +23,6 @@ Global
 		{65A8A175-B8C8-4B81-BD96-60921534615E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65A8A175-B8C8-4B81-BD96-60921534615E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65A8A175-B8C8-4B81-BD96-60921534615E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F8BCE6A1-4257-49A4-BDD7-37CE30CD76CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F8BCE6A1-4257-49A4-BDD7-37CE30CD76CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F8BCE6A1-4257-49A4-BDD7-37CE30CD76CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F8BCE6A1-4257-49A4-BDD7-37CE30CD76CA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{211964C5-1F3B-4D2B-8E25-BC40141D697E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{211964C5-1F3B-4D2B-8E25-BC40141D697E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{211964C5-1F3B-4D2B-8E25-BC40141D697E}.Release|Any CPU.ActiveCfg = Release|Any CPU
