@@ -24,9 +24,9 @@ else
 fi
 #write output to INFO_BIN file
 (
-    echo build-date: ${BUILD_DATE} $'\r' 
-    echo os-info: ${PLATFORM}'-'${VERSION} $'\r' 
-    echo build-type: ${BUILD_TYPE}
+    echo build-date: ${BUILD_DATE}
+    echo os-info: ${PLATFORM}'-'${VERSION}
+    printf "build-type: ${BUILD_TYPE}"
 ) > ${INFO_BIN}
 
 mv INFO_BIN ../../../../..
@@ -52,7 +52,7 @@ then
 else
  #write output to INFO_SRC file
  (
-     echo version: ${SRC_VERSION}
+     printf "version: ${SRC_VERSION}"
  ) > ${INFO_SRC}
 fi
 
