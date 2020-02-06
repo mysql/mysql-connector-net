@@ -1,13 +1,13 @@
 Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
 
-This is a release of MySQL Connector/NET, Oracle's fully managed ADO .NET Driver for MySQL. 
+This is a release of MySQL Connector/NET, Oracle's fully managed ADO .NET Driver for MySQL.
 
 License information can be found in the LICENSE file.
 
-This distribution may include materials developed by third parties. 
-For license and attribution notices for these materials, please refer to the LICENSE file. 
+This distribution may include materials developed by third parties.
+For license and attribution notices for these materials, please refer to the LICENSE file.
 
-For more information on MySQL Connector/NET, visit 
+For more information on MySQL Connector/NET, visit
   http://dev.mysql.com/doc/connector-net/en/
 
 For additional downloads and the source of MySQL Connector/NET, visit
