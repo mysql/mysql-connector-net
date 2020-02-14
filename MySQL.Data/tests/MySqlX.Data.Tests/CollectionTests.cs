@@ -194,6 +194,24 @@ namespace MySqlX.Data.Tests
       Collection testColl = test.CreateCollection("testWithSchemaValidation", options);
       Assert.True(CollectionExistsInDatabase(testColl));
 
+      //Bug #30830962
+      options = new CreateCollectionOptions();
+      val = new Validation() { };
+      options.Validation = val;
+      var testbug1 = test.CreateCollection("bug_0962", options);  //create collection with empty options
+      testbug1.Add(@"{ ""latitude"": 20, ""longitude"": 30 }").Execute();
+      testbug1.Add(@"{ ""sexo"": 1, ""edad"": 20 }").Execute();
+      int.TryParse(session.SQL("SELECT COUNT(*) FROM test.bug_0962").Execute().FetchOne()[0].ToString(), out int expected_count);
+      Assert.Equal(2, expected_count);  //Collection is created as STRICT with empty json schema,both records were inserted
+
+      options = new CreateCollectionOptions();
+      val = new Validation() { Schema = str };
+      options.Validation = val;
+      testbug1 = test.CreateCollection("bug_0962b", options);// adding an schema from
+      testbug1.Add(@"{ ""latitude"": 20, ""longitude"": 30 }").Execute();
+      var invalidEx = Assert.Throws<MySqlException>(() => testbug1.Add(@"{ ""sexo"": 1, ""edad"": 20 }").Execute());
+      Assert.Contains("Document is not valid according to the schema assigned to collection", invalidEx.Message);
+
       // Create a Collection passing a reuse_existing parameter to server
       CreateCollectionOptions options_reuse = new CreateCollectionOptions();
       options_reuse.ReuseExisting = false;
@@ -402,7 +420,7 @@ namespace MySqlX.Data.Tests
       Test_Options.Validation = new Validation() { Schema = "{ }" };
       test.ModifyCollection("testWithSchemaValidation", Test_Options);
       var sqlCreate = session.SQL("SHOW CREATE TABLE test.testWithSchemaValidation").Execute().FetchOne()[1];
-      Assert.Contains(@"'{\r\n}'", sqlCreate.ToString());
+      Assert.True(sqlCreate.ToString().Contains(@"'{\r\n}'") || sqlCreate.ToString().Contains("{}"));
 
       //Passing null as parameter to ModifyCollection
       var emptyOptions = new ModifyCollectionOptions();

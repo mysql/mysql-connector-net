@@ -174,10 +174,6 @@ namespace MySqlX.XDevAPI
     {
       ValidateOpenSession();
       Collection coll = new Collection(this, collectionName);
-      if (options.Validation.Level==null)
-      {
-        options.Validation = new Validation() { Level = ValidationLevel.STRICT, Schema = options.Validation.Schema };
-      }
 
       try
       {

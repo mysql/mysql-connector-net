@@ -4,7 +4,7 @@
 - Added support for compressing data exchanged between the server and client when using the X Protocol. A new connection option,
   compression, provides the following values: Preferred (Default), Required, Disabled (WL12980).
 - Removed the ResetReader method when a MySqlCommand object is disposed of, because it restricted access to the MySqlDataReader object after the MySqlCommand object closed (MySQL Bug #89159, Oracle Bug #27441433).
-
+- Removed strict default value for attribute Level from Validation object, this is not required as xplugin handle the default values based on parameters (MySQL Bug #98584, Oracle Bug #30896115).
 
 8.0.19
 - Fixed unexpected behavior when connection string is retrieved, it discloses connection password in a clone connection(MySQL Bug #97473, Oracle Bug #30502718).
