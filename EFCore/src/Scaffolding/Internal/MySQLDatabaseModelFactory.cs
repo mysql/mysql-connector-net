@@ -170,7 +170,7 @@ AND
       `COLUMN_NAME`,
       `ORDINAL_POSITION`,
       `COLUMN_DEFAULT`,
-      IF(`IS_NULLABLE` = 'YES', TRUE, FALSE) AS `IS_NULLABLE`,
+      `IS_NULLABLE`,
       `DATA_TYPE`,
       `CHARACTER_SET_NAME`,
       `COLLATION_NAME`,
@@ -336,7 +336,7 @@ AND
             {
               var name = reader.GetValueOrDefault<string>("COLUMN_NAME");
               var defaultValue = reader.GetValueOrDefault<string>("COLUMN_DEFAULT");
-              var nullable = Convert.ToBoolean(Convert.ToInt32(reader.GetValueOrDefault<int>("IS_NULLABLE")));
+              var nullable = reader.GetValueOrDefault<string>("IS_NULLABLE").Contains("YES") ? true : false;
               var dataType = reader.GetValueOrDefault<string>("DATA_TYPE");
               var charset = reader.GetValueOrDefault<string>("CHARACTER_SET_NAME");
               var collation = reader.GetValueOrDefault<string>("COLLATION_NAME");

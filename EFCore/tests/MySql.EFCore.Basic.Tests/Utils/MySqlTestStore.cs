@@ -59,13 +59,6 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
   public class MySQLTestStore : RelationalTestStore
   {
-    //private MySQLTestStore(string name)
-    //: base(name, true)
-    //{
-    //  ConnectionString = CreateConnectionString(name);
-    //  Connection = new MySqlConnection(ConnectionString);
-    //}
-
     public static string baseConnectionString
     {
       get { return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;pooling=false;defaultcommandtimeout=50;"; }
