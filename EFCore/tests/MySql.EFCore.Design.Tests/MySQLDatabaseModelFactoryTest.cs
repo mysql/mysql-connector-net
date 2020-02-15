@@ -103,10 +103,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
                     Assert.Equal(2, id.GetPrimaryKeyOrdinal(2));
                     Assert.False(id.IsNullable);
                     Assert.Equal(0, id.GetOrdinal(0));
-                    if (FactOnVersionsAttribute.Version >= new Version("5.7.0"))
-                      Assert.Null(id.GetDefaultValue());
-                    else
-                      Assert.Equal("0", id.GetDefaultValue());
+                    Assert.Null(id.GetDefaultValue());
                   },
                   description =>
                   {

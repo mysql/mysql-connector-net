@@ -503,7 +503,7 @@ namespace MySqlX.Data.Tests
 
       // Offline (fake)host using 15000ms.
       conn = "server=143.24.20.36;user=test;password=test;port=33060;connecttimeout=15000";
-      TestConnectTimeoutFailureTimeout(conn, 14, 16, "Offline host 15000ms");
+      TestConnectTimeoutFailureTimeout(conn, 14, 17, "Offline host 15000ms");
 
       // Offline (fake)host timeout disabled.
       conn = "server=143.24.20.36;user=test;password=test;port=33060;connecttimeout=0";
@@ -1167,7 +1167,7 @@ namespace MySqlX.Data.Tests
         }
       }
       else
-        Assert.Throws<NotSupportedException>(() => MySQLX.GetSession(builder.ConnectionString));
+        Assert.Throws<System.ComponentModel.Win32Exception>(() => MySQLX.GetSession(builder.ConnectionString));
     }
     #endregion
   }
