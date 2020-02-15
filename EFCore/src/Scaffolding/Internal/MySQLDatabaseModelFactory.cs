@@ -336,7 +336,7 @@ AND
             {
               var name = reader.GetValueOrDefault<string>("COLUMN_NAME");
               var defaultValue = reader.GetValueOrDefault<string>("COLUMN_DEFAULT");
-              var nullable = Convert.ToBoolean(reader.GetValueOrDefault<int>("IS_NULLABLE"));
+              var nullable = Convert.ToBoolean(Convert.ToInt32(reader.GetValueOrDefault<int>("IS_NULLABLE")));
               var dataType = reader.GetValueOrDefault<string>("DATA_TYPE");
               var charset = reader.GetValueOrDefault<string>("CHARACTER_SET_NAME");
               var collation = reader.GetValueOrDefault<string>("COLLATION_NAME");
