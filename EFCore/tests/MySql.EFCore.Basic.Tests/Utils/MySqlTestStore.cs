@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,17 +26,16 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Infraestructure;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.EntityFrameworkCore.Extensions;
+using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
 using MySql.Data.MySqlClient;
 using System;
-using System.IO;
-using System.Reflection;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
-
   public class MyTestContext : DbContext
   {
     public MyTestContext()
@@ -58,8 +57,15 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     }
   }
 
-  public class MySQLTestStore : IDisposable
+  public class MySQLTestStore : RelationalTestStore
   {
+    //private MySQLTestStore(string name)
+    //: base(name, true)
+    //{
+    //  ConnectionString = CreateConnectionString(name);
+    //  Connection = new MySqlConnection(ConnectionString);
+    //}
+
     public static string baseConnectionString
     {
       get { return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;pooling=false;defaultcommandtimeout=50;"; }
@@ -159,11 +165,41 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
-    public void Dispose()
+    public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
+      => builder.UseMySQL(GetContextConnectionString<MyTestContext>());
+
+    public override void Clean(DbContext context)
+      => context.Database.EnsureDeleted();
+
+    public static MySQLTestStore Create(string name)
+      => new MySQLTestStore(name);
+
+    public static MySQLTestStore GetOrCreate(string name)
+      => new MySQLTestStore(name);
+
+    private MySQLTestStore(string name)
+    : base(name, true)
     {
-      //nothing to do yet
+      Connection = new MySqlConnection(rootConnectionString);
+    }
+  }
+
+  public class MySQLTestStoreFactory : RelationalTestStoreFactory
+  {
+    public static MySQLTestStoreFactory Instance { get; } = new MySQLTestStoreFactory();
+
+    protected MySQLTestStoreFactory()
+    {
     }
 
+    public override TestStore Create(string storeName)
+        => MySQLTestStore.Create(storeName);
+
+    public override TestStore GetOrCreate(string storeName)
+        => MySQLTestStore.GetOrCreate(storeName);
+
+    public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
+        => serviceCollection.AddEntityFrameworkMySQL();
   }
 }
 

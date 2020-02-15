@@ -133,7 +133,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       Assert.EndsWith(" city", list.First().City);
     }
 
-    private string SetCity(string name)
+    private static string SetCity(string name)
     {
       return name + " city";
     }
@@ -142,7 +142,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     public void RawSqlQueries()
     {
       Assert.False(context.Database.EnsureCreated());
-      var guests = context.Set<Guest>().FromSql("SELECT * FROM Guests")
+      var guests = context.Set<Guest>().FromSqlRaw("SELECT * FROM Guests")
         .ToList();
       Assert.Equal(4, guests.Count);
     }

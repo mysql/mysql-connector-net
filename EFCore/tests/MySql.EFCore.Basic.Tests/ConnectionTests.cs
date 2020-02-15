@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,20 +27,59 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
+using MySql.Data.EntityFrameworkCore.Diagnostics.Internal;
+using MySql.Data.EntityFrameworkCore.Migrations.Operations;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
+using System.Diagnostics;
 using Xunit;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
   public partial class ConnectionTests
   {
+    private static MySQLServerConnection CreateConnection(DbContextOptions options)
+    {
+      var dependencies = CreateDependencies(options);
+
+      return new MySQLServerConnection(dependencies);
+    }
+
+    public static RelationalConnectionDependencies CreateDependencies(DbContextOptions options = null)
+    {
+      options ??= new DbContextOptionsBuilder()
+          .UseMySQL(MySQLTestStore.baseConnectionString + "database=test;")
+          .Options;
+
+      return new RelationalConnectionDependencies(
+          options,
+          new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
+              new LoggerFactory(),
+              new LoggingOptions(),
+              new DiagnosticListener("FakeDiagnosticListener"),
+              new MySQLLoggingDefinitions()),
+          new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
+              new LoggerFactory(),
+              new LoggingOptions(),
+              new DiagnosticListener("FakeDiagnosticListener"),
+              new MySQLLoggingDefinitions()),
+          new NamedConnectionStringResolver(options),
+          new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()),
+          new CurrentDbContext(new FakeDbContext()));
+    }
+
+    private class FakeDbContext : DbContext
+    {
+    }
+
     [Fact]
     public void CanCreateConnectionString()
     {
-      using (var connection = CreateConnection(CreateOptions(), new Logger<MySQLServerConnection>(new LoggerFactory())))
+      using (var connection = CreateConnection(CreateOptions()))
       {
         Assert.IsType<MySqlConnection>(connection.DbConnection);
       }
@@ -49,9 +88,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     [Fact]
     public void CanCreateMainConnection()
     {
-      using (var connection = CreateConnection(CreateOptions(), new Logger<MySQLServerConnection>(new LoggerFactory())))
+      using (var connection = CreateConnection(CreateOptions()))
       {
-        using (var master = connection.CreateSystemConnection())
+        using (var master = connection.CreateMasterConnection())
         {
           var csb = new MySqlConnectionStringBuilder(master.ConnectionString);
           var csb1 = new MySqlConnectionStringBuilder(MySQLTestStore.baseConnectionString + "database=mysql");
@@ -63,7 +102,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
-    public static IDbContextOptions CreateOptions()
+    public static DbContextOptions CreateOptions()
     {
       var optionsBuilder = new DbContextOptionsBuilder();
       optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + "database=test;");

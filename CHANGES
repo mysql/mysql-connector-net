@@ -1,5 +1,6 @@
 8.0.20
 - Fixed an error that occurred unexpectedly when an IN operator with blank spaces was part of a SELECT statement (Oracle Bug #29838254).
+- Added support for EF Core 3.1 (WL13973)
 
 
 8.0.19

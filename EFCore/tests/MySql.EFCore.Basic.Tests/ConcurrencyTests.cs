@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,14 +28,11 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
-using MySql.Data.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
 using MySql.Data.EntityFrameworkCore.Extensions;
+using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
+using System;
+using System.Linq;
+using Xunit;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {

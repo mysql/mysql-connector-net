@@ -257,8 +257,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
         entity.Property(e => e.BuildingName10)
             .IsRequired()
             .HasColumnName("building_name10")
-            .HasColumnType("longblob")
-            .HasMaxLength(-1);
+            .HasColumnType("longblob");
 
         entity.Property(e => e.BuildingName11)
             .IsRequired()
@@ -314,8 +313,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
         entity.Property(e => e.BuildingName5)
             .IsRequired()
             .HasColumnName("building_name5")
-            .HasColumnType("longtext")
-            .HasMaxLength(-1);
+            .HasColumnType("longtext");
 
         entity.Property(e => e.BuildingName6)
             .IsRequired()

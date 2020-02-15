@@ -35,6 +35,7 @@ using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.EntityFrameworkCore.Extensions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
