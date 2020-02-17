@@ -42,6 +42,6 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
         .AddSingleton<IRelationalTypeMappingSource, MySQLTypeMapper>()
         .AddSingleton<IDatabaseModelFactory, MySQLDatabaseModelFactory>()
         .AddSingleton<IProviderConfigurationCodeGenerator, MySQLCodeGenerator>()
-        .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>();
+        .AddSingleton<IAnnotationCodeGenerator, MySQLAnnotationCodeGenerator>();
   }
 }

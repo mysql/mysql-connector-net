@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2019, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,7 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -102,6 +105,32 @@ namespace MySql.Data.MySqlClient.Tests
       sb.ConnectionProtocol = MySqlConnectionProtocol.Unix;
       exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(sb.ConnectionString));
       Assert.Equal(Resources.DnsSrvInvalidConnOptionMultihost, exception.Message);
+    }
+
+    [Fact]
+    public void DnsSrvRecordsTest()
+    {
+      DnsSrvRecord[] dnsRecords =
+      {
+        new DnsSrvRecord(3306, 100, "target_1", 0),
+        new DnsSrvRecord(3306, 120, "target_2", 0),
+        new DnsSrvRecord(3306, 80, "target_3", 0),
+        new DnsSrvRecord(3306, 60, "target_4", 50),
+        new DnsSrvRecord(3306, 60, "target_5", 10)
+      };
+      
+      IEnumerable<DnsSrvRecord> expectedOrder = new[]
+      {
+        new DnsSrvRecord(3306, 60, "target_4", 50),
+        new DnsSrvRecord(3306, 60, "target_5", 10),
+        new DnsSrvRecord(3306, 80, "target_3", 0),
+        new DnsSrvRecord(3306, 100, "target_1", 0),
+        new DnsSrvRecord(3306, 120, "target_2", 0)
+      };
+
+      var sortedRecords = DnsResolver.SortSrvRecords(dnsRecords.ToList());
+
+      Assert.True(sortedRecords.Select(r => r.Target).SequenceEqual(expectedOrder.Select(r => r.Target)));
     }
   }
 }

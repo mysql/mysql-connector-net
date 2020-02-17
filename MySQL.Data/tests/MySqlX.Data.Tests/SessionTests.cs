@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -731,6 +731,13 @@ namespace MySqlX.Data.Tests
     [Trait("Category", "Security")]
     public void ConnectUsingSha256PasswordPlugin()
     {
+      using (var session = MySQLX.GetSession("server=localhost;port=33060;user=root;password=;"))
+      {
+        ExecuteSQLStatement(session.SQL("DROP USER IF EXISTS 'testSha256'@'localhost';"));
+        ExecuteSQLStatement(session.SQL("CREATE USER 'testSha256'@'localhost' identified with sha256_password by 'mysql';"));
+        ExecuteSQLStatement(session.SQL("GRANT ALL PRIVILEGES  ON *.*  TO 'testSha256'@'localhost';"));
+      }
+
       string userName = "testSha256";
       string password = "mysql";
       string pluginName = "sha256_password";
@@ -763,6 +770,9 @@ namespace MySqlX.Data.Tests
         Assert.Equal(session.Settings.UserID, result[0][0].ToString());
         Assert.Equal(pluginName, result[0][1].ToString());
       }
+
+      using (var session = MySQLX.GetSession("server=localhost;port=33060;user=root;password=;"))
+        ExecuteSQLStatement(session.SQL("DROP USER IF EXISTS 'testSha256'@'localhost';"));
     }
 
     [Fact]
@@ -1126,13 +1136,13 @@ namespace MySqlX.Data.Tests
     [InlineData("Tlsv1.0", "TLSv1")]
     [InlineData("Tlsv1.0, Tlsv1.1", "TLSv1.1")]
     [InlineData("Tlsv1.0, Tlsv1.1, Tlsv1.2", "TLSv1.2")]
-//#if NET48 || NETCOREAPP3_0
-   // [InlineData("Tlsv1.3", "Tlsv1.3", Skip = "Waiting for full support")]
+    //#if NET48 || NETCOREAPP3_0
+    // [InlineData("Tlsv1.3", "Tlsv1.3", Skip = "Waiting for full support")]
     //[InlineData("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.3", Skip = "Waiting for full support")]
-//#else
+    //#else
     [InlineData("Tlsv1.3", "")]
     [InlineData("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.2")]
-//#endif
+    //#endif
     public void TlsVersionTest(string tlsVersion, string result)
     {
       var globalSession = GetSession();

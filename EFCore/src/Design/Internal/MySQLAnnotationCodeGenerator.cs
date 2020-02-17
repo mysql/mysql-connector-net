@@ -41,6 +41,11 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
     {
     }
 
+    public override bool IsHandledByConvention(IModel model, IAnnotation annotation)
+    {
+      return true;
+    }
+
     public override MethodCallCodeFragment GenerateFluentApi(IProperty property, IAnnotation annotation)
     {
       Check.NotNull(property, nameof(property));

@@ -26,35 +26,33 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Design;
+using MySql.Data.EntityFrameworkCore;
+using MySql.Data.EntityFrameworkCore.Design.Internal;
 using System;
-using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using Xunit;
 
-namespace MySql.Data.EntityFrameworkCore.Extensions
+namespace MySql.EntityFrameworkCore.Design.Tests
 {
-  /// <summary>
-  ///     MySQL specific extension methods for <see cref="DbContext.Database" />.
-  /// </summary>
-  public static class MySQLDatabaseFacadeExtensions
+  public class MySQLDesignTimeProviderServicesTest
   {
-    /// <summary>
-    ///     <para>
-    ///         Returns true if the database provider currently in use is the MySQL provider.
-    ///     </para>
-    ///     <para>
-    ///         This method can only be used after the <see cref="DbContext" /> has been configured because
-    ///         it is only then that the provider is known. This means that this method cannot be used
-    ///         in <see cref="DbContext.OnConfiguring" /> because this is where application code sets the
-    ///         provider to use as part of configuring the context.
-    ///     </para>
-    /// </summary>
-    /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
-    /// <returns> True if MySQL is being used; false otherwise. </returns>
-    public static bool IsMySql([NotNull] this DatabaseFacade database)
-        => database.ProviderName.Equals(
-            typeof(MySQLOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
-            StringComparison.Ordinal);
+    private Assembly GetRuntimeAssembly()
+    => typeof(MySQLServerConnection).GetTypeInfo().Assembly;
+
+    private Type GetDesignTimeServicesType()
+        => typeof(MySQLDesignTimeServices);
+
+    [Fact]
+    public void EnsureAssemblyIdentityMatches()
+    {
+      var runtimeAssembly = GetRuntimeAssembly();
+      var dtAttribute = runtimeAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>();
+      var dtType = GetDesignTimeServicesType();
+      
+      Assert.NotNull(dtType);      
+      Assert.NotNull(dtAttribute);
+      Assert.Equal(dtType.FullName, dtAttribute.TypeName);
+    }
   }
 }
