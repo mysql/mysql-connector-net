@@ -73,7 +73,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(0u, r.Columns[1].FractionalDigits);
       Assert.False(r.Columns[1].IsNumberSigned);
       Assert.Equal("utf8mb4", r.Columns[1].CharacterSetName);
-      Assert.Equal("utf8mb4_general_ci", r.Columns[1].CollationName);
+      Assert.Equal("utf8mb4_0900_ai_ci", r.Columns[1].CollationName);
       Assert.False(r.Columns[1].IsPadded);
 
       Assert.Equal(schemaName, r.Columns[2].SchemaName);
@@ -86,7 +86,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(0u, r.Columns[2].FractionalDigits);
       Assert.False(r.Columns[2].IsNumberSigned);
       Assert.Equal("utf8mb4", r.Columns[2].CharacterSetName);
-      Assert.Equal("utf8mb4_general_ci", r.Columns[2].CollationName);
+      Assert.Equal("utf8mb4_0900_ai_ci", r.Columns[2].CollationName);
       Assert.False(r.Columns[2].IsPadded);
       //Assert.Equal("Δ", rows[0][2]);
     }
@@ -159,7 +159,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(0u, r.Columns[0].FractionalDigits);
       Assert.False(r.Columns[0].IsNumberSigned);
       Assert.Equal("utf8mb4", r.Columns[0].CharacterSetName);
-      Assert.Equal("utf8mb4_general_ci", r.Columns[0].CollationName);
+      Assert.Equal("utf8mb4_0900_ai_ci", r.Columns[0].CollationName);
       Assert.False(r.Columns[0].IsPadded);
       Assert.Equal("Δ", rows[0][0]);
     }

@@ -28,6 +28,7 @@
 
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -44,7 +45,7 @@ namespace MySqlX.Data.Tests
     private const string KEY_FILE_PATH = "placeholder";
     private const string KEY_FILE_PASSPHRASE = "placeholder";
 
-    private const int MYSQL_SERVER_PORT = 33070;
+    private string MYSQL_SERVER_PORT = Environment.GetEnvironmentVariable("MYSQLX_PORT") ?? "33060";
     private const string MYSQL_HOST_NAME = "localhost";
     private const string MYSQL_ROOT_USER = "root";
 
@@ -70,7 +71,7 @@ namespace MySqlX.Data.Tests
       var builder = new MySqlXConnectionStringBuilder();
       builder.UserID = MYSQL_ROOT_USER;
       builder.Server = MYSQL_HOST_NAME;
-      builder.Port = MYSQL_SERVER_PORT;
+      builder.Port = Convert.ToUInt32(MYSQL_SERVER_PORT);
       builder.SshHostName = SSH_HOST_NAME;
       builder.SshUserName = SSH_USER_NAME;
       builder.SshPassword = SSH_PASSWORD;
