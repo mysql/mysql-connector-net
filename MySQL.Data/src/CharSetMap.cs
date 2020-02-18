@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -200,7 +200,7 @@ namespace MySql.Data.MySqlClient
     }
   }
 
-  internal class CharacterSet
+  public class CharacterSet
   {
     public string name;
     public int byteCount;
@@ -209,6 +209,14 @@ namespace MySql.Data.MySqlClient
     {
       this.name = name;
       this.byteCount = byteCount;
+    }
+
+    public override int GetHashCode()
+    {
+      unchecked
+      {
+        return ((name != null ? name.GetHashCode() : 0) * 397) ^ byteCount;
+      }
     }
   }
 }

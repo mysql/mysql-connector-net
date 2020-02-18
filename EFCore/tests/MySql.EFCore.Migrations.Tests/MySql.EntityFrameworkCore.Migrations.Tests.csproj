@@ -5,7 +5,7 @@
     <Copyright>Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <Version>8.0.20</Version>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>netcoreapp3.0;netcoreapp2.2;net461;</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Migrations.Tests</AssemblyName>
     <PackageId>MySql.EntityFrameworkCore.Migrations.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -32,25 +32,16 @@
     <PackageReference Include="xunit" Version="2.4.1" />
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.1" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.2' or '$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'netcoreapp3.0'">
-    <Compile Remove="Frameworks/efcore10/**/*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.2" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\..\MySQL.Data\src\MySql.Data.csproj" />
-    <ProjectReference Include="..\..\src\MySql.Data.EFCore\MySql.Data.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\MySql.Data.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\MySql.EFCore.Basic.Tests\MySql.EntityFrameworkCore.Basic.Tests.csproj" />
   </ItemGroup>
 

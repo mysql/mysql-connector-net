@@ -1,0 +1,72 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>MySql.Data.EntityFrameworkCore for Entity Framework.</Description>
+    <Copyright>Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Version>8.0.20</Version>
+    <Authors>Oracle</Authors>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <DelaySign>true</DelaySign>
+    <AssemblyName>MySql.Data.EntityFrameworkCore</AssemblyName>
+    <PackageId>MySql.Data.EntityFrameworkCore</PackageId>
+    <PackageTags>MySql;.NET Connector;MySql Entity Framework Core;netcore;.Net Core;MySql Conector/Net Entity Framework Core;coreclr;C/NET;C/Net Core</PackageTags>
+    <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
+    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
+    <PackageProjectUrl>https://dev.mysql.com/downloads/</PackageProjectUrl>
+    <PackageLicenseUrl>https://downloads.mysql.com/docs/licenses/connector-net-8.0-gpl-en.pdf</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>True</DelaySign>
+    <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+  <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Content\ReleaseNotes.txt">
+      <Pack>true</Pack>
+    </None>
+    <None Update="..\..\README">
+      <Pack>true</Pack>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\MySQL.Data\src\MySql.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\MySQLStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MySQLStrings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\MySQLStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MySQLStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>

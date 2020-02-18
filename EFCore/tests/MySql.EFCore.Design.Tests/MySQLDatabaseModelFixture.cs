@@ -1,4 +1,4 @@
-﻿// Copyright © 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2017, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,60 +31,45 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using MySql.Data.EntityFrameworkCore.Design.Internal;
-using Microsoft.Extensions.Logging.Abstractions.Internal;
 using MySql.Data.EntityFrameworkCore.Tests;
-using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using MySql.Data.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using System.Diagnostics;
+using MySql.Data.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Scaffolding;
 
 namespace MySql.EntityFrameworkCore.Design.Tests
 {
-  public partial class MySQLDatabaseModelFixture : IDisposable
+  public class MySQLDatabaseModelFixture : SharedStoreFixtureBase<PoolableDbContext>
+  {
+    protected override string StoreName { get; } = nameof(MySQLDatabaseModelFactoryTest);
+    protected override ITestStoreFactory TestStoreFactory => MySQLTestStoreFactory.Instance;
+    public new MySQLTestStore TestStore => (MySQLTestStore)base.TestStore;
+
+    protected override bool ShouldLogCategory(string logCategory)
+        => logCategory == DbLoggerCategory.Scaffolding.Name;
+
+    internal static DiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
+
+    public DatabaseModel CreateModel(string dbName, string sql, IEnumerable<string> tables, IEnumerable<string> schemas, bool executeScript = false)
     {
-        public MySQLTestStore teststore { get; set; }
-        public string dbName { get; set; }
+      if (executeScript)
+        MySQLTestStore.ExecuteScript(sql);
+      else
+        MySQLTestStore.Execute(sql);
 
-        public MySQLDatabaseModelFixture()
-        {
-        }
+      _logger = new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
+                        ListLoggerFactory,
+                        new LoggingOptions(),
+                        new DiagnosticListener("Fake"),
+                        new MySQLLoggingDefinitions());
 
-        public void Dispose()
-        {
-            MySQLTestStore.Execute("drop database " + dbName + ";");
-        }
-
-        class MyTestLoggerFactory : ILoggerFactory
-        {
-            readonly ILogger _logger;
-
-            public MyTestLoggerFactory(ILogger logger)
-            {
-                _logger = logger ?? new MyTestLogger();
-            }
-
-            public void AddProvider(ILoggerProvider provider)
-            {
-            }
-
-            public ILogger CreateLogger(string categoryName) => _logger;
-
-            public void Dispose()
-            {
-            }
-        }
-        public class MyTestLogger : ILogger
-        {
-            public IDisposable BeginScope<TState>(TState state) => NullScope.Instance;
-
-            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-                => Items.Add(new { logLevel, eventId, state, exception });
-
-            public bool IsEnabled(LogLevel logLevel) => true;
-
-            public ICollection<dynamic> Items = new List<dynamic>();
-        }
+      return new MySQLDatabaseModelFactory(_logger).
+             Create(MySQLTestStore.rootConnectionString + ";database=" + dbName + ";",
+             new DatabaseModelFactoryOptions(tables, schemas));
     }
+  }
 }
