@@ -6,6 +6,7 @@
 - Removed the ResetReader method when a MySqlCommand object is disposed of, because it restricted access to the MySqlDataReader object after the MySqlCommand object closed (MySQL Bug #89159, Oracle Bug #27441433).
 - Added support for EF Core 3.1 (WL13973).
 - Fix an error that occurred when using EF Core 3.1 due to unsupported version (MySql Bug #96990, Oracle Bug #30347893).
+- Fixed bug on prepared statements with parameters of type MySqlDbType.JSON(MySQL Bug: 95984, Oracle Bug #29959124).
 
 
 8.0.19
