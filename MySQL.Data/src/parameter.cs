@@ -339,7 +339,10 @@ namespace MySql.Data.MySqlClient
 
     private void SetMySqlDbType(MySqlDbType mysqlDbtype)
     {
-      _mySqlDbType = mysqlDbtype;
+      // JSON type is treated as VarChar because in MySQL Server since 8.0.13
+      /// MYSQL_TYPE_JSON is not allowed as Item_param lacks a proper
+      /// implementation for val_json.
+      _mySqlDbType = mysqlDbtype == MySqlDbType.JSON ? MySqlDbType.VarChar : mysqlDbtype;
       ValueObject = MySqlField.GetIMySqlValue(_mySqlDbType);
       SetDbTypeFromMySqlDbType();
     }

@@ -574,6 +574,41 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    [Fact]
+    /// <summary>
+    /// Bug #29959124 PREPARED COMMANDS EXECUTE WITH ERROR ON MYSQL SERVER
+    /// Above bug, was introduced in ConnectorNet as result of change on MySQL Server
+    /// Released in version 8.0.13, fixing Bug#27591525 - commit 69e990f35449bbc493ae9df2b2ed83ac62ed1720
+    /// </summary>
+    public void PreparedStmtJsonParamBug()
+    {
+      executeSQL(@"CREATE TABLE `example` (
+      `one` varchar(26) NOT NULL,
+      `two` int(1) NOT NULL,
+      `three` int(1) NOT NULL,
+      `four` tinyint(1) NOT NULL,
+      `five` json NOT NULL,
+      `six` datetime DEFAULT NULL,
+      PRIMARY KEY(`one`)
+      ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci");
+
+      executeSQL(@"INSERT INTO `example` (`one`, `two`, `three`, `four`, `five`, `six`)
+      VALUES ('test', '9', '8', '0', '{""name"":""test""}', '2018-07-09 22:30:13')");
+
+      using (var cmd = new MySqlCommand("UPDATE example SET two = @Two, three = @Three, four = @Four, five = @Five, six = @Six WHERE one = @One", Connection))
+      {
+        cmd.Parameters.AddWithValue("@Two", 0).MySqlDbType = MySqlDbType.Int32;
+        cmd.Parameters.AddWithValue("@Three", 0).MySqlDbType = MySqlDbType.Int32;
+        cmd.Parameters.AddWithValue("@Four", false).MySqlDbType = MySqlDbType.Byte;
+        cmd.Parameters.AddWithValue("@Five", "[]").MySqlDbType = MySqlDbType.JSON;
+        cmd.Parameters.AddWithValue("@Six", DateTime.Now).MySqlDbType = MySqlDbType.DateTime;
+        cmd.Parameters.AddWithValue("@One", "test").MySqlDbType = MySqlDbType.VarChar;
+        cmd.Prepare();
+        var result = cmd.ExecuteNonQuery();
+        Assert.Equal(1, result);
+      }
+    }
+
     /// <summary>
     /// Bug #18391 Better error handling for the .NET class "MySqlCommand" needed. 
     /// </summary>
