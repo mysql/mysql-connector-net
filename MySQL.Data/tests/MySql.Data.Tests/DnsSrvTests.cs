@@ -115,14 +115,14 @@ namespace MySql.Data.MySqlClient.Tests
         new DnsSrvRecord(3306, 100, "target_1", 0),
         new DnsSrvRecord(3306, 120, "target_2", 0),
         new DnsSrvRecord(3306, 80, "target_3", 0),
-        new DnsSrvRecord(3306, 60, "target_4", 50),
-        new DnsSrvRecord(3306, 60, "target_5", 10)
+        new DnsSrvRecord(3306, 70, "target_4", 10),
+        new DnsSrvRecord(3306, 60, "target_5", 50)
       };
       
       IEnumerable<DnsSrvRecord> expectedOrder = new[]
       {
-        new DnsSrvRecord(3306, 60, "target_4", 50),
-        new DnsSrvRecord(3306, 60, "target_5", 10),
+        new DnsSrvRecord(3306, 60, "target_5", 50),
+        new DnsSrvRecord(3306, 70, "target_4", 10),
         new DnsSrvRecord(3306, 80, "target_3", 0),
         new DnsSrvRecord(3306, 100, "target_1", 0),
         new DnsSrvRecord(3306, 120, "target_2", 0)
@@ -131,6 +131,7 @@ namespace MySql.Data.MySqlClient.Tests
       var sortedRecords = DnsResolver.SortSrvRecords(dnsRecords.ToList());
 
       Assert.True(sortedRecords.Select(r => r.Target).SequenceEqual(expectedOrder.Select(r => r.Target)));
+      
     }
   }
 }

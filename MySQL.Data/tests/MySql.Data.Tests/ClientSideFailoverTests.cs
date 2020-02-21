@@ -30,6 +30,7 @@ using System;
 using Xunit;
 using MySql.Data.Failover;
 using System.Data;
+using System.Runtime.InteropServices;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -77,6 +78,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void PriorityMethod()
     {
+#if !NET452
+      if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+#endif
       _sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       _sb.ConnectionTimeout = 7;
       _sb.Pooling = false;

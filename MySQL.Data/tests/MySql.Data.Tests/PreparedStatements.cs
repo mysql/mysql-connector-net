@@ -582,6 +582,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// </summary>
     public void PreparedStmtJsonParamBug()
     {
+      if (Fixture.Version < new Version(8, 0)) return;
       executeSQL(@"CREATE TABLE `example` (
       `one` varchar(26) NOT NULL,
       `two` int(1) NOT NULL,
