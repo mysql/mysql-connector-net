@@ -398,7 +398,7 @@ namespace MySql.Data.X.Communication
     /// <returns>A decompressed byte array.</returns>
     private byte[] DecompressUsingDeflateStream(byte[] input, int length)
     {
-      if (input[0] == 0x78 && input[1] == 0x9c)
+      if (input[0] == 0x78 && (input[1] == 0x9c || input[1] == 0x5E))
       {
         _buffer.Write(input, 2, input.Length - 2);
       }
