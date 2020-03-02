@@ -32,6 +32,8 @@ using MySql.Data.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using MySql.Data.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using MySql.Data.EntityFrameworkCore.Diagnostics.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Internal
 {
@@ -39,6 +41,7 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
   {
     public void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
       => serviceCollection
+        .AddSingleton<LoggingDefinitions, MySQLLoggingDefinitions>()
         .AddSingleton<IRelationalTypeMappingSource, MySQLTypeMapper>()
         .AddSingleton<IDatabaseModelFactory, MySQLDatabaseModelFactory>()
         .AddSingleton<IProviderConfigurationCodeGenerator, MySQLCodeGenerator>()

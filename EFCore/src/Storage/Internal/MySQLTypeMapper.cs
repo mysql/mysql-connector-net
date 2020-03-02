@@ -43,10 +43,14 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     private static int _keyMaxLength = 767;
 
     private readonly RelationalTypeMapping _int = new MySQLNumberTypeMapping("int", typeof(Int32), DbType.Int32);
+    private readonly RelationalTypeMapping _uint = new MySQLNumberTypeMapping("int unsigned", typeof(Int32), DbType.UInt32);
     private readonly RelationalTypeMapping _bigint = new MySQLNumberTypeMapping("bigint", typeof(Int64), DbType.Int64);
+    private readonly RelationalTypeMapping _ubigint = new MySQLNumberTypeMapping("bigint unsigned", typeof(Int64), DbType.UInt64);
     private readonly RelationalTypeMapping _bit = new MySQLNumberTypeMapping("bit", typeof(short), DbType.Int16);
     private readonly RelationalTypeMapping _smallint = new MySQLNumberTypeMapping("smallint", typeof(Int16), DbType.Int16);
-    private readonly RelationalTypeMapping _tinyint = new MySQLNumberTypeMapping("tinyint", typeof(Byte), DbType.Byte);
+    private readonly RelationalTypeMapping _usmallint = new MySQLNumberTypeMapping("smallint unsigned", typeof(Int16), DbType.UInt16);
+    private readonly RelationalTypeMapping _tinyint = new MySQLNumberTypeMapping("tinyint", typeof(Byte), DbType.SByte);
+    private readonly RelationalTypeMapping _utinyint = new MySQLNumberTypeMapping("tinyint unsigned", typeof(Byte), DbType.Byte);
 
     private readonly RelationalTypeMapping _char = new MySQLStringTypeMapping("char", DbType.StringFixedLength, unicode: true, fixedLength: true);
     private readonly RelationalTypeMapping _varchar = new MySQLStringTypeMapping($"varchar({_textMaxLength})", DbType.String, unicode: false);
@@ -76,6 +80,8 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     private readonly RelationalTypeMapping _enum = new MySQLStringTypeMapping("enum", DbType.String, unicode: true);
     private readonly RelationalTypeMapping _geometry = new MySQLGeometryTypeMapping("geometry");
 
+    private readonly RelationalTypeMapping _bool = new MySQLBoolTypeMapping("bit");
+
     Dictionary<string, RelationalTypeMapping> extraMapping = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
     {
       { "timestamp", new MySQLDateTimeTypeMapping("timestamp", typeof(DateTime)) }
@@ -103,14 +109,19 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
       _storeTypeMappings = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
       {
         { "bigint", _bigint },
+        { "bigint unsigned", _ubigint },
         { "decimal", _decimal },
         { "double", _double },
         { "float", _float },
         { "int", _int},
+        { "int unsigned", _uint},
         { "mediumint", _int },
+        { "mediumint unsigned", _uint },
         { "real", _real },
         { "smallint", _smallint },
+        { "smallint unsigned", _usmallint },
         { "tinyint", _tinyint },
+        { "tinyint unsigned", _utinyint },
         { "char", _char },
         { "varchar", _varchar},
         { "tinytext", _tinyText},
@@ -141,7 +152,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         { typeof(long), _bigint },
         { typeof(DateTime), _datetime },
         { typeof(DateTimeOffset), _datetimeoffset },
-        { typeof(bool), _bit },
+        { typeof(bool), _bool },
         { typeof(byte), _tinyint },
         { typeof(float), _float },
         { typeof(double), _double },
