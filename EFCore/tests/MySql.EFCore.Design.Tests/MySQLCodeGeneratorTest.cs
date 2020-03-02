@@ -26,36 +26,55 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using MySql.Data.EntityFrameworkCore.Scaffolding.Internal;
+using System.Linq;
+using Xunit;
 
-namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
+namespace MySql.EntityFrameworkCore.Design.Tests
 {
-  public class MySQLCodeGenerator : ProviderCodeGenerator
+  public class MySQLCodeGeneratorTest
   {
-    public MySQLCodeGenerator(
-        [NotNull] ProviderCodeGeneratorDependencies dependencies)
-        : base(dependencies)
+    [Fact]
+    public virtual void UseProviderMethodIsGeneratedCorrectly()
     {
+      var codeGenerator = new MySQLCodeGenerator(
+          new ProviderCodeGeneratorDependencies(
+              Enumerable.Empty<IProviderCodeGeneratorPlugin>()));
+
+      var result = codeGenerator.GenerateUseProvider("Data Source=Test", providerOptions: null);
+
+      Assert.Equal("UseMySQL", result.Method);
+      Assert.Collection(
+          result.Arguments,
+          a => Assert.Equal("Data Source=Test", a));
+      Assert.Null(result.ChainedCall);
     }
 
-    /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
-    /// </summary>
-    public override MethodCallCodeFragment GenerateUseProvider(
-        string connectionString,
-        MethodCallCodeFragment providerOptions)
+    [Fact]
+    public virtual void UseProviderMethodIsGeneratedCorrectlyWithOptions()
     {
-      // Strip scaffolding specific connection string options first.
-      //connectionString = new MySqlScaffoldingConnectionSettings(connectionString).GetProviderCompatibleConnectionString();
+      var codeGenerator = new MySQLCodeGenerator(
+          new ProviderCodeGeneratorDependencies(
+              Enumerable.Empty<IProviderCodeGeneratorPlugin>()));
 
-      return new MethodCallCodeFragment(
-          nameof(MySQLDbContextOptionsExtensions.UseMySQL),
-          providerOptions == null
-              ? new object[] { connectionString }
-              : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });
+      var providerOptions = new MethodCallCodeFragment("SetProviderOption");
+
+      var result = codeGenerator.GenerateUseProvider("Data Source=Test", providerOptions);
+
+      Assert.Equal("UseMySQL", result.Method);
+      Assert.Collection(
+          result.Arguments,
+          a => Assert.Equal("Data Source=Test", a),
+          a =>
+          {
+            var nestedClosure = Assert.IsType<NestedClosureCodeFragment>(a);
+
+            Assert.Equal("x", nestedClosure.Parameter);
+            Assert.Same(providerOptions, nestedClosure.MethodCall);
+          });
+      Assert.Null(result.ChainedCall);
     }
   }
 }
