@@ -92,7 +92,7 @@ namespace MySql.Data.Common
       dnsTask.Wait();
       if (dnsTask.Result == null || dnsTask.Result.Length == 0)
         throw new ArgumentException(Resources.InvalidHostNameOrAddress);
-      IPAddress addr = dnsTask.Result.SingleOrDefault(c => c.AddressFamily == AddressFamily.InterNetwork);
+      IPAddress addr = dnsTask.Result.FirstOrDefault(c => c.AddressFamily == AddressFamily.InterNetwork);
       if (addr == null)
         addr = dnsTask.Result[0];
       TcpClient client = new TcpClient(addr.AddressFamily);
