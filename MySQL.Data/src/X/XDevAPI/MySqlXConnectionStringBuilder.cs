@@ -104,17 +104,13 @@ namespace MySqlX.XDevAPI
     /// Constructor accepting a connection string.
     /// </summary>
     /// <param name="connectionString">The connection string.</param>
-    public MySqlXConnectionStringBuilder(string connectionString, bool isDefaultPort = true)
+    public MySqlXConnectionStringBuilder(string connectionString, bool isDefaultPort = true) : this()
     {
-      values = new Dictionary<string, object>();
       AnalyzeConnectionString(connectionString, true, isDefaultPort);
       lock (this)
       {
         ConnectionString = connectionString;
       }
-
-      if (SslMode == MySqlSslMode.Preferred)
-        SslMode = MySqlSslMode.Required;
     }
 
     /// <summary>

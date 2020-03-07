@@ -27,6 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -41,6 +42,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
+using MySql.Data.EntityFrameworkCore.Properties;
 
 namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -81,18 +84,17 @@ namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
 
       var connectionStartedOpen = connection.State == ConnectionState.Open;
       if (!connectionStartedOpen)
-      {
         connection.Open();
-      }
 
       try
       {
         databaseModel.DatabaseName = connection.Database;
         databaseModel.DefaultSchema = GetDefaultSchema(connection);
 
-        var schemaList = Enumerable.Empty<string>().ToList();
+        var schemaList = options.Schemas.ToList();
+        var schemaFilter = GenerateSchemaFilter(schemaList, databaseModel.DefaultSchema);
         var tableList = options.Tables.ToList();
-        var tableFilter = GenerateTableFilter(tableList, schemaList);
+        var tableFilter = GenerateTableFilter(tableList.Select(Parse).ToList(), schemaFilter);
 
         var tables = GetTables(connection, tableFilter);
         foreach (var table in tables)
@@ -114,12 +116,124 @@ namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
 
     private string GetDefaultSchema(DbConnection connection)
     {
-      return null;
+      using (var command = connection.CreateCommand())
+      {
+        command.CommandText = "SELECT SCHEMA()";
+        if (command.ExecuteScalar() is string schema)
+          return schema;
+        return null;
+      }
     }
 
-    private static Func<string, string, bool> GenerateTableFilter(IReadOnlyList<string> tables, IReadOnlyList<string> schemas)
+    private static (string Schema, string Table) Parse(string table)
     {
-      return tables.Count > 0 ? (s, t) => tables.Contains(t) : (Func<string, string, bool>)null;
+      var match = _partExtractor.Match(table.Trim());
+
+      if (!match.Success)
+      {
+        throw new InvalidOperationException(string.Format(MySQLStrings.InvalidTableToIncludeInScaffolding, table));
+      }
+
+      var part1 = match.Groups["part1"].Value.Replace("]]", string.Empty);
+      var part2 = match.Groups["part2"].Value.Replace("]]", string.Empty);
+
+      return string.IsNullOrEmpty(part2) ? (null, part1) : (part1, part2);
+    }
+
+    private const string NamePartRegex
+    = @"(?:(?:\[(?<part{0}>(?:(?:\]\])|[^\]])+)\])|(?<part{0}>[^\.\[\]]+))";
+
+    private static readonly Regex _partExtractor
+        = new Regex(
+            string.Format(
+                CultureInfo.InvariantCulture,
+                @"^{0}(?:\.{1})?$",
+                string.Format(CultureInfo.InvariantCulture, NamePartRegex, 1),
+                string.Format(CultureInfo.InvariantCulture, NamePartRegex, 2)),
+            RegexOptions.Compiled,
+            TimeSpan.FromMilliseconds(1000));
+
+    private static Func<string, string> GenerateSchemaFilter(IReadOnlyList<string> schemas, string defaultSchema)
+    {
+      return schemas.Count > 0 || defaultSchema != null
+          ? (s =>
+          {
+            var schemaFilterBuilder = new StringBuilder();
+            schemaFilterBuilder.Append(s);
+            schemaFilterBuilder.Append(" IN (");
+            if (schemas.Count > 0)
+              schemaFilterBuilder.Append(string.Join(", ", schemas.Select(EscapeLiteral)));
+            else
+              schemaFilterBuilder.Append(EscapeLiteral(defaultSchema));
+            schemaFilterBuilder.Append(")");
+            return schemaFilterBuilder.ToString();
+          })
+          : (Func<string, string>)null;
+    }
+
+    private static Func<string, string, string> GenerateTableFilter(IReadOnlyList<(string Schema, string Table)> tables, Func<string, string> schemaFilter)
+    {
+      return schemaFilter != null || tables.Count > 0
+                    ? ((s, t) =>
+                    {
+                      var tableFilterBuilder = new StringBuilder();
+
+                      var openBracket = false;
+                      if (schemaFilter != null)
+                      {
+                        tableFilterBuilder
+                            .Append("(")
+                            .Append(schemaFilter(s));
+                        openBracket = true;
+                      }
+
+                      if (tables.Count > 0)
+                      {
+                        if (openBracket)
+                        {
+                          tableFilterBuilder
+                              .AppendLine()
+                              .Append("AND ");
+                        }
+                        else
+                        {
+                          tableFilterBuilder.Append("(");
+                          openBracket = true;
+                        }
+
+                        var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
+                        if (tablesWithoutSchema.Count > 0)
+                        {
+                          tableFilterBuilder.Append(t);
+                          tableFilterBuilder.Append(" IN (");
+                          tableFilterBuilder.Append(string.Join(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table))));
+                          tableFilterBuilder.Append(")");
+                        }
+
+                        var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
+                        if (tablesWithSchema.Count > 0)
+                        {
+                          if (tablesWithoutSchema.Count > 0)
+                          {
+                            tableFilterBuilder.Append(" OR ");
+                          }
+
+                          tableFilterBuilder.Append("CONCAT_WS(N'.',");
+                          tableFilterBuilder.Append(string.Join(",", s, t));
+                          tableFilterBuilder.Append(") IN (");
+                          tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}"))));
+                          tableFilterBuilder.Append(")");
+                        }
+                      }
+
+                      if (openBracket)
+                      {
+                        tableFilterBuilder.Append(")");
+                      }
+
+                      return tableFilterBuilder.ToString();
+                    })
+                    : (Func<string, string, string>)null;
     }
 
     private static ReferentialAction? ConvertToReferentialAction(string deleteAction)
@@ -146,27 +260,25 @@ namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
       }
     }
 
-    private const string GetTablesQuery = @"SELECT
-    `TABLE_NAME`,
-    `TABLE_TYPE`,
-    IF(`TABLE_COMMENT` = 'VIEW' AND `TABLE_TYPE` = 'VIEW', '', `TABLE_COMMENT`) AS `TABLE_COMMENT` 
-FROM
-    `INFORMATION_SCHEMA`.`TABLES`
-WHERE
-    `TABLE_SCHEMA` = SCHEMA()
-AND
-    `TABLE_TYPE` IN ('BASE TABLE', 'VIEW');";
+    private const string GetTablesQuery = @"SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE,
+    IF(TABLE_COMMENT = 'VIEW' AND TABLE_TYPE = 'VIEW', '', TABLE_COMMENT) AS TABLE_COMMENT 
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_TYPE IN ('BASE TABLE', 'VIEW')
+    AND {0};";
 
-    private const string GetPrimaryQuery = @"SELECT `INDEX_NAME`,
-     `NON_UNIQUE`,
+    private const string GetPrimaryQuery = @"SELECT
+     `TABLE_SCHEMA`,
+     `TABLE_NAME`,
+     `INDEX_NAME`,
      GROUP_CONCAT(`COLUMN_NAME` ORDER BY `SEQ_IN_INDEX` SEPARATOR ',') AS COLUMNS
      FROM `INFORMATION_SCHEMA`.`STATISTICS`
-     WHERE `TABLE_SCHEMA` = '{0}'
-     AND `TABLE_NAME` = '{1}'
+     WHERE {0}
      AND `INDEX_NAME` = 'PRIMARY'
-     GROUP BY `INDEX_NAME`, `NON_UNIQUE`;";
+     GROUP BY `TABLE_SCHEMA`, `TABLE_NAME`, `INDEX_NAME`, `NON_UNIQUE`;";
 
     private const string GetColumnsQuery = @"SELECT
+      `TABLE_SCHEMA`,
+      `TABLE_NAME`,
       `COLUMN_NAME`,
       `ORDINAL_POSITION`,
       `COLUMN_DEFAULT`,
@@ -179,48 +291,50 @@ AND
       `EXTRA`
       FROM
       `INFORMATION_SCHEMA`.`COLUMNS`
-      WHERE
-      `TABLE_SCHEMA` = SCHEMA()
-      AND
-      `TABLE_NAME` = '{0}'
+      WHERE {0}
       ORDER BY
       `ORDINAL_POSITION`;";
 
-    private const string GetIndexesQuery = @"SELECT `INDEX_NAME`,
-      `NON_UNIQUE`,
+    private const string GetIndexesQuery = @"SELECT 
+      `TABLE_SCHEMA`,
+      `TABLE_NAME`,
+      `INDEX_NAME`,
+      IF(`NON_UNIQUE`, 'TRUE', 'FALSE') AS NON_UNIQUE,
       GROUP_CONCAT(`COLUMN_NAME` ORDER BY `SEQ_IN_INDEX` SEPARATOR ',') AS COLUMNS
       FROM `INFORMATION_SCHEMA`.`STATISTICS`
-      WHERE `TABLE_SCHEMA` = '{0}'
-      AND `TABLE_NAME` = '{1}'
+      WHERE {0}
       AND `INDEX_NAME` <> 'PRIMARY'
-      GROUP BY `INDEX_NAME`, `NON_UNIQUE`;";
+      GROUP BY `TABLE_SCHEMA`, `TABLE_NAME`, `INDEX_NAME`, `NON_UNIQUE`;";
 
     private const string GetConstraintsQuery = @"SELECT
-      `CONSTRAINT_NAME`,
+      `TABLE_SCHEMA`,
       `TABLE_NAME`,
+      `CONSTRAINT_NAME`,
       `REFERENCED_TABLE_NAME`,
       GROUP_CONCAT(CONCAT_WS('|', `COLUMN_NAME`, `REFERENCED_COLUMN_NAME`) ORDER BY `ORDINAL_POSITION` SEPARATOR ',') AS PAIRED_COLUMNS,
-      (SELECT `DELETE_RULE` FROM `INFORMATION_SCHEMA`.`REFERENTIAL_CONSTRAINTS` WHERE `REFERENTIAL_CONSTRAINTS`.`CONSTRAINT_NAME` = `KEY_COLUMN_USAGE`.`CONSTRAINT_NAME` AND `REFERENTIAL_CONSTRAINTS`.`CONSTRAINT_SCHEMA` = `KEY_COLUMN_USAGE`.`CONSTRAINT_SCHEMA`) AS `DELETE_RULE`
+      (SELECT `DELETE_RULE` FROM `INFORMATION_SCHEMA`.`REFERENTIAL_CONSTRAINTS` 
+        WHERE `REFERENTIAL_CONSTRAINTS`.`CONSTRAINT_NAME` = `KEY_COLUMN_USAGE`.`CONSTRAINT_NAME` 
+        AND `REFERENTIAL_CONSTRAINTS`.`CONSTRAINT_SCHEMA` = `KEY_COLUMN_USAGE`.`CONSTRAINT_SCHEMA`) AS `DELETE_RULE`
       FROM `INFORMATION_SCHEMA`.`KEY_COLUMN_USAGE`
-      WHERE `TABLE_SCHEMA` = '{0}'
-      AND `TABLE_NAME` = '{1}'
+      WHERE {0}
       AND `CONSTRAINT_NAME` <> 'PRIMARY'
       AND `REFERENCED_TABLE_NAME` IS NOT NULL
-      GROUP BY `CONSTRAINT_SCHEMA`,
-      `CONSTRAINT_NAME`,
-      `TABLE_NAME`,
-      `REFERENCED_TABLE_NAME`;";
+      GROUP BY `TABLE_SCHEMA`, `TABLE_NAME`, 
+      `CONSTRAINT_SCHEMA`, `CONSTRAINT_NAME`,
+      `TABLE_NAME`, `REFERENCED_TABLE_NAME`;";
 
-    private IEnumerable<DatabaseTable> GetTables(DbConnection connection, Func<string, string, bool> filter)
+    private IEnumerable<DatabaseTable> GetTables(DbConnection connection, Func<string, string, string> tableFilter)
     {
       using (var command = connection.CreateCommand())
       {
         var tables = new List<DatabaseTable>();
-        command.CommandText = GetTablesQuery;
+        string filter = tableFilter("TABLE_SCHEMA", "TABLE_NAME");
+        command.CommandText = string.Format(GetTablesQuery, filter);
         using (var reader = command.ExecuteReader())
         {
           while (reader.Read())
           {
+            var schema = reader.GetValueOrDefault<string>("TABLE_SCHEMA");
             var name = reader.GetValueOrDefault<string>("TABLE_NAME");
             var type = reader.GetValueOrDefault<string>("TABLE_TYPE");
             var comment = reader.GetValueOrDefault<string>("TABLE_COMMENT");
@@ -229,120 +343,54 @@ AND
                 ? new DatabaseTable()
                 : new DatabaseView();
 
-            table.Schema = null;
+            table.Schema = schema;
             table.Name = name;
             table.Comment = string.IsNullOrEmpty(comment) ? null : comment;
 
-            if (filter?.Invoke(table.Schema, table.Name) ?? true)
-            {
-              tables.Add(table);
-            }
+            tables.Add(table);
           }
         }
 
         // This is done separately due to MARS property may be turned off
         GetColumns(connection, tables, filter);
-        GetPrimaryKeys(connection, tables);
+        GetPrimaryKeys(connection, tables, filter);
         GetIndexes(connection, tables, filter);
-        GetConstraints(connection, tables);
-
+        GetConstraints(connection, tables, filter);
+        
         return tables;
       }
     }
 
-    private void GetPrimaryKeys(DbConnection connection, IReadOnlyList<DatabaseTable> tables)
+    private void GetColumns(DbConnection connection, IReadOnlyList<DatabaseTable> tables, string tableFilter)
     {
-      foreach (var table in tables)
+      using (var command = connection.CreateCommand())
       {
-        using (var command = connection.CreateCommand())
+        command.CommandText = string.Format(GetColumnsQuery, tableFilter);
+        using (var reader = command.ExecuteReader())
         {
-          command.CommandText = string.Format(GetPrimaryQuery, connection.Database, table.Name);
-          using (var reader = command.ExecuteReader())
+          var tableColumnGroups = reader.Cast<DbDataRecord>()
+            .GroupBy(
+              ddr => (tableSchema: ddr.GetValueOrDefault<string>("TABLE_SCHEMA"),
+              tableName: ddr.GetValueOrDefault<string>("TABLE_NAME")));
+
+          foreach (var tableColumnGroup in tableColumnGroups)
           {
-            while (reader.Read())
+            var tableSchema = tableColumnGroup.Key.tableSchema;
+            var tableName = tableColumnGroup.Key.tableName;
+
+            var table = tables.Single(t => t.Schema == tableSchema && t.Name == tableName);
+
+            foreach (var dataRecord in tableColumnGroup)
             {
-              try
-              {
-                var index = new DatabasePrimaryKey
-                {
-                  Table = table,
-                  Name = reader.GetString(0)
-                };
-
-                foreach (var column in reader.GetString(2).Split(','))
-                {
-                  index.Columns.Add(table.Columns.Single(y => y.Name == column));
-                }
-
-                table.PrimaryKey = index;
-              }
-              catch (Exception ex)
-              {
-                _logger.Logger.LogError(ex, "Error assigning PK for {table}.", table.Name);
-              }
-            }
-          }
-        }
-      }
-    }
-
-    private void GetIndexes(DbConnection connection, IReadOnlyList<DatabaseTable> tables, Func<string, string, bool> tableFilter)
-    {
-      foreach (var table in tables)
-      {
-        using (var command = connection.CreateCommand())
-        {
-          command.CommandText = string.Format(GetIndexesQuery, connection.Database, table.Name);
-          using (var reader = command.ExecuteReader())
-          {
-            while (reader.Read())
-            {
-              try
-              {
-                var index = new DatabaseIndex
-                {
-                  Table = table,
-                  Name = reader.GetString(0),
-                  IsUnique = !reader.GetBoolean(1)
-                };
-
-                foreach (var column in reader.GetString(2).Split(','))
-                {
-                  index.Columns.Add(table.Columns.Single(y => y.Name == column));
-                }
-
-                table.Indexes.Add(index);
-              }
-              catch (Exception ex)
-              {
-                _logger.Logger.LogError(ex, "Error assigning index for {table}.", table.Name);
-              }
-            }
-          }
-        }
-      }
-    }
-
-    private void GetColumns(DbConnection connection, IReadOnlyList<DatabaseTable> tables, Func<string, string, bool> tableFilter)
-    {
-      foreach (var table in tables)
-      {
-        using (var command = connection.CreateCommand())
-        {
-          command.CommandText = string.Format(GetColumnsQuery, table.Name);
-          using (var reader = command.ExecuteReader())
-          {
-            while (reader.Read())
-            {
-              var name = reader.GetValueOrDefault<string>("COLUMN_NAME");
-              var defaultValue = reader.GetValueOrDefault<string>("COLUMN_DEFAULT");
-              var nullable = reader.GetValueOrDefault<string>("IS_NULLABLE").Contains("YES") ? true : false;
-              var dataType = reader.GetValueOrDefault<string>("DATA_TYPE");
-              var charset = reader.GetValueOrDefault<string>("CHARACTER_SET_NAME");
-              var collation = reader.GetValueOrDefault<string>("COLLATION_NAME");
-              var columType = reader.GetValueOrDefault<string>("COLUMN_TYPE");
-              var extra = reader.GetValueOrDefault<string>("EXTRA");
-              var comment = reader.GetValueOrDefault<string>("COLUMN_COMMENT");
+              var name = dataRecord.GetValueOrDefault<string>("COLUMN_NAME");
+              var defaultValue = dataRecord.GetValueOrDefault<string>("COLUMN_DEFAULT");
+              var nullable = dataRecord.GetValueOrDefault<string>("IS_NULLABLE").Contains("YES") ? true : false;
+              var dataType = dataRecord.GetValueOrDefault<string>("DATA_TYPE");
+              var charset = dataRecord.GetValueOrDefault<string>("CHARACTER_SET_NAME");
+              var collation = dataRecord.GetValueOrDefault<string>("COLLATION_NAME");
+              var columType = dataRecord.GetValueOrDefault<string>("COLUMN_TYPE");
+              var extra = dataRecord.GetValueOrDefault<string>("EXTRA");
+              var comment = dataRecord.GetValueOrDefault<string>("COLUMN_COMMENT");
 
               ValueGenerated valueGenerated;
 
@@ -396,29 +444,133 @@ AND
       }
     }
 
-    private void GetConstraints(DbConnection connection, IReadOnlyList<DatabaseTable> tables)
+    private void GetPrimaryKeys(DbConnection connection, IReadOnlyList<DatabaseTable> tables, string tableFilter)
     {
-      foreach (var table in tables)
+      using (var command = connection.CreateCommand())
       {
-        using (var command = connection.CreateCommand())
+        command.CommandText = string.Format(GetPrimaryQuery, tableFilter);
+        using (var reader = command.ExecuteReader())
         {
-          command.CommandText = string.Format(GetConstraintsQuery, connection.Database, table.Name);
-          using (var reader = command.ExecuteReader())
+          var tablePrimaryKeyGroups = reader.Cast<DbDataRecord>()
+              .GroupBy(
+                  ddr => (tableSchema: ddr.GetValueOrDefault<string>("TABLE_SCHEMA"),
+                      tableName: ddr.GetValueOrDefault<string>("TABLE_NAME")));
+
+          foreach (var tablePrimaryKeyGroup in tablePrimaryKeyGroups)
           {
-            while (reader.Read())
+            var tableSchema = tablePrimaryKeyGroup.Key.tableSchema;
+            var tableName = tablePrimaryKeyGroup.Key.tableName;
+
+            var table = tables.Single(t => t.Schema == tableSchema && t.Name == tableName);
+
+            foreach (var dataRecord in tablePrimaryKeyGroup)
             {
-              var referencedTableName = reader.GetString(2);
+              try
+              {
+                var index = new DatabasePrimaryKey
+                {
+                  Table = table,
+                  Name = dataRecord.GetValueOrDefault<string>("INDEX_NAME")
+                };
+
+                foreach (var column in dataRecord.GetValueOrDefault<string>("COLUMNS").Split(','))
+                {
+                  index.Columns.Add(table.Columns.Single(y => y.Name == column));
+                }
+
+                table.PrimaryKey = index;
+              }
+              catch (Exception ex)
+              {
+                _logger.Logger.LogError(ex, "Error assigning PK for {table}.", table.Name);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    private void GetIndexes(DbConnection connection, IReadOnlyList<DatabaseTable> tables, string tableFilter)
+    {
+      using (var command = connection.CreateCommand())
+      {
+        command.CommandText = string.Format(GetIndexesQuery, tableFilter);
+        using (var reader = command.ExecuteReader())
+        {
+          var tableIndexGroups = reader.Cast<DbDataRecord>()
+            .GroupBy(
+              ddr => (tableSchema: ddr.GetValueOrDefault<string>("TABLE_SCHEMA"),
+                tableName: ddr.GetValueOrDefault<string>("TABLE_NAME")));
+
+          foreach (var tableIndexGroup in tableIndexGroups)
+          {
+            var tableSchema = tableIndexGroup.Key.tableSchema;
+            var tableName = tableIndexGroup.Key.tableName;
+
+            var table = tables.Single(t => t.Schema == tableSchema && t.Name == tableName);
+
+            foreach (var dataRecord in tableIndexGroup)
+            {
+              try
+              {
+                var index = new DatabaseIndex
+                {
+                  Table = table,
+                  Name = dataRecord.GetValueOrDefault<string>("INDEX_NAME"),
+                  IsUnique = !bool.Parse(dataRecord.GetValueOrDefault<string>("NON_UNIQUE"))
+                };
+
+                foreach (var column in dataRecord.GetValueOrDefault<string>("COLUMNS").Split(','))
+                {
+                  index.Columns.Add(table.Columns.Single(y => y.Name == column));
+                }
+
+                table.Indexes.Add(index);
+              }
+              catch (Exception ex)
+              {
+                _logger.Logger.LogError(ex, "Error assigning index for {table}.", table.Name);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    private void GetConstraints(DbConnection connection, IReadOnlyList<DatabaseTable> tables, string tableFilter)
+    {
+      using (var command = connection.CreateCommand())
+      {
+        command.CommandText = string.Format(GetConstraintsQuery, tableFilter);
+
+        using (var reader = command.ExecuteReader())
+        {
+          var tableConstraintGroups = reader.Cast<DbDataRecord>()
+            .GroupBy(
+              ddr => (tableSchema: ddr.GetValueOrDefault<string>("TABLE_SCHEMA"),
+                tableName: ddr.GetValueOrDefault<string>("TABLE_NAME")));
+
+          foreach (var tableConstraintGroup in tableConstraintGroups)
+          {
+            var tableSchema = tableConstraintGroup.Key.tableSchema;
+            var tableName = tableConstraintGroup.Key.tableName;
+
+            var table = tables.Single(t => t.Schema == tableSchema && t.Name == tableName);
+
+            foreach (var dataRecord in tableConstraintGroup)
+            {
+              var referencedTableName = dataRecord.GetValueOrDefault<string>("REFERENCED_TABLE_NAME");
               var referencedTable = tables.FirstOrDefault(t => t.Name == referencedTableName);
               if (referencedTable != null)
               {
                 var fkInfo = new DatabaseForeignKey
                 {
-                  Name = reader.GetString(0),
-                  OnDelete = ConvertToReferentialAction(reader.GetString(4)),
+                  Name = dataRecord.GetValueOrDefault<string>("CONSTRAINT_NAME"),
+                  OnDelete = ConvertToReferentialAction(dataRecord.GetValueOrDefault<string>("DELETE_RULE")),
                   Table = table,
                   PrincipalTable = referencedTable
                 };
-                foreach (var pair in reader.GetString(3).Split(','))
+                foreach (var pair in dataRecord.GetValueOrDefault<string>("PAIRED_COLUMNS").Split(','))
                 {
                   fkInfo.Columns.Add(table.Columns.Single(y =>
                       string.Equals(y.Name, pair.Split('|')[0], StringComparison.OrdinalIgnoreCase)));
@@ -499,6 +651,11 @@ AND
       }
 
       return "'" + defaultValue.Replace(@"\", @"\\").Replace("'", "''") + "'";
+    }
+
+    private static string EscapeLiteral(string s)
+    {
+      return $"N'{s}'";
     }
   }
 }

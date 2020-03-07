@@ -48,9 +48,6 @@ namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
         string connectionString,
         MethodCallCodeFragment providerOptions)
     {
-      // Strip scaffolding specific connection string options first.
-      //connectionString = new MySqlScaffoldingConnectionSettings(connectionString).GetProviderCompatibleConnectionString();
-
       return new MethodCallCodeFragment(
           nameof(MySQLDbContextOptionsExtensions.UseMySQL),
           providerOptions == null
