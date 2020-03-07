@@ -70,6 +70,15 @@ namespace MySql.Data.EntityFrameworkCore.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The specified table &apos;{0}&apos; is not valid..
+        /// </summary>
+        internal static string InvalidTableToIncludeInScaffolding {
+            get {
+                return ResourceManager.GetString("InvalidTableToIncludeInScaffolding", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The database name could not be determined. To use EnsureDeleted, the connection string must specify Initial Catalog..
         /// </summary>
         internal static string NoInitialCatalog {

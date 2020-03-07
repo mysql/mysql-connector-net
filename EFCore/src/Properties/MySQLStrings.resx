@@ -120,6 +120,9 @@
   <data name="ExpressionTypeMismatch" xml:space="preserve">
     <value>The specified expression does not have the correct Type.</value>
   </data>
+  <data name="InvalidTableToIncludeInScaffolding" xml:space="preserve">
+    <value>The specified table '{0}' is not valid.</value>
+  </data>
   <data name="NoInitialCatalog" xml:space="preserve">
     <value>The database name could not be determined. To use EnsureDeleted, the connection string must specify Initial Catalog.</value>
   </data>

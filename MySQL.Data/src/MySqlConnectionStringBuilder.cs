@@ -235,9 +235,8 @@ namespace MySql.Data.MySqlClient
     /// Constructor accepting a connection string.
     /// </summary>
     /// <param name="connectionString">The connection string.</param>
-    public MySqlConnectionStringBuilder(string connectionString)
+    public MySqlConnectionStringBuilder(string connectionString) : this()
     {
-      values = new Dictionary<string, object>();
       AnalyzeConnectionString(connectionString, false);
       lock (this)
       {

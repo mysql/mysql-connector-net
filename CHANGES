@@ -7,9 +7,9 @@
 - Added support for EF Core 3.1 (WL13973).
 - Fix an error that occurred when using EF Core 3.1 due to unsupported version (MySql Bug #96990, Oracle Bug #30347893).
 - Fixed a bug on prepared statements with parameters of type MySqlDbType.JSON(MySQL Bug #95984, Oracle Bug #29959124).
-- Fixed the Method Not Implemented exception when trying to use Entity Framework Core 3.0 Scaffolding (MySQL Bug #98011, Oracle Bug #30677382).
+- Fixed the Method Not Implemented exception when trying to use Entity Framework Core 3.1.1 Scaffolding (MySQL Bug #98011, Oracle Bug #30677382).
 - Fixed bad handling of nullable boolean properties in Entity Framework Core (MySQL Bug #93028, Oracle Bug #29833103).
-- Fixed an error that ocurred when more than one IP address is found in DNS for a named host (MySQL Bug #97448, Oracle Bug #30970949).
+- Fixed an error that occurred when more than one IP address is found in DNS for a named host (MySQL Bug #97448, Oracle Bug #30970949).
 
 
 8.0.19
