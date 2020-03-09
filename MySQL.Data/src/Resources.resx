@@ -646,4 +646,7 @@
   <data name="DuplicatedConnectionOption" xml:space="preserve">
     <value>Connection option '{0}' is duplicated.</value>
   </data>
+  <data name="ExecuteProcedureUnauthorized" xml:space="preserve">
+    <value>Verify that user '{0}'@'{1}' has enough privileges to execute.</value>
+  </data>
 </root>

@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -415,5 +415,119 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add(p1);
       cmd.ExecuteNonQuery();
     }
+
+    /// <summary>
+    /// Bug #30029732	ERROR EXECUTING STORED ROUTINES
+    /// </summary>
+    [Theory]
+    [InlineData("server=localhost;port=3306;uid=root;pwd=;database=db-procedurep-0;",true)]
+    [InlineData("server=localhost;port=3306;uid=atest;pwd=pwd;database=db-procedurep-0;",false)]
+    public void StoredProcedureWithDifferentUser(string cs, bool IsRoot)
+    {
+      //Create Required Objects for all the tests
+      using (MySqlConnection con1 = new MySqlConnection("server=localhost;port=3306;uid=root;pwd=;database=db-procedurep-0;"))
+      {
+        con1.Open();
+        MySqlCommand cmd1 = new MySqlCommand();
+        cmd1.Connection = con1;
+
+        cmd1.CommandText = @"CREATE TABLE IF NOT EXISTS hello (
+                id int(11) NOT NULL AUTO_INCREMENT,
+                string varchar(255) DEFAULT NULL,
+                PRIMARY KEY (id)
+                ) ENGINE = INNODB;
+
+                CREATE PROCEDURE get_hello(IN p_id int)
+                SQL SECURITY INVOKER
+                BEGIN
+                  SELECT * FROM hello
+                  WHERE id = p_id;
+                END;
+
+                INSERT INTO hello (string) VALUES ('Hello World!');
+
+                CREATE USER IF NOT EXISTS 'atest'@'localhost' PASSWORD EXPIRE NEVER;
+
+                ALTER USER 'atest'@'localhost' IDENTIFIED BY 'pwd';
+
+                GRANT SELECT ON table hello TO 'atest'@'localhost';
+                GRANT EXECUTE ON procedure get_hello TO 'atest'@'localhost';
+
+                CREATE PROCEDURE get_hello2(IN p_id int)
+                SQL SECURITY INVOKER
+                BEGIN
+                  SELECT * FROM hello
+                  WHERE id = p_id;
+                END;
+                ";
+        cmd1.ExecuteNonQuery();
+      }
+
+      //Test with a user different than root and Granted to execute
+      //Test with root and Granted to execute
+      using (MySqlConnection c = new MySqlConnection(cs))
+      {
+        c.Open();
+        MySqlCommand cmd1 = new MySqlCommand();
+        cmd1.Connection = c;
+        cmd1.CommandText = "get_hello";
+        cmd1.CommandType = CommandType.StoredProcedure;
+        cmd1.Parameters.AddWithValue("p_id", 1);
+        MySqlDataAdapter da1 = new MySqlDataAdapter();
+        da1.SelectCommand = cmd1;
+        DataSet ds1 = new DataSet();
+        da1.Fill(ds1);
+        Assert.True(ds1.Tables.Count > 0);
+      }
+
+      //Test with a user different than root and Not Granted to execute
+      using (MySqlConnection c = new MySqlConnection(cs))
+      {
+        c.Open();
+        MySqlCommand cmd3 = new MySqlCommand();
+        cmd3.Connection = c;
+        cmd3.CommandText = "get_hello2";
+        cmd3.CommandType = CommandType.StoredProcedure;
+        cmd3.Parameters.AddWithValue("p_id", 1);
+        MySqlDataAdapter da3 = new MySqlDataAdapter();
+        da3.SelectCommand = cmd3;
+        DataSet ds3 = new DataSet();
+        if (IsRoot)
+        {
+          da3.Fill(ds3);
+          Assert.True(ds3.Tables.Count > 0);
+        }
+        else
+        {
+          Assert.Throws<MySqlException>(() => da3.Fill(ds3));
+        }
+      }
+
+      //Test with not existing procedure
+      using (MySqlConnection c = new MySqlConnection(cs))
+      {
+        c.Open();
+        MySqlCommand cmd4 = new MySqlCommand();
+        cmd4.Connection = c;
+        cmd4.CommandText = "get_hello3";
+        cmd4.CommandType = CommandType.StoredProcedure;
+        cmd4.Parameters.AddWithValue("p_id", 1);
+        MySqlDataAdapter da4 = new MySqlDataAdapter();
+        da4.SelectCommand = cmd4;
+        DataSet ds4 = new DataSet();
+        Assert.Throws<MySqlException>(() => da4.Fill(ds4));
+      }
+
+      using (MySqlConnection con1 = new MySqlConnection("server=localhost;port=3306;uid=root;pwd=;database=db-procedurep-0;"))
+      {
+        con1.Open();
+        MySqlCommand cmd1 = new MySqlCommand();
+        cmd1.Connection = con1;
+        cmd1.CommandText = @"drop procedure get_hello;
+        drop procedure get_hello2;";
+        cmd1.ExecuteNonQuery();
+      }
+    }
+
   }
 }

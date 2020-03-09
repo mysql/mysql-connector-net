@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -550,6 +550,11 @@ namespace MySql.Data.MySqlClient
       if (v is MySqlSingle)
         return ((MySqlSingle)v).Value;
       return Convert.ToSingle(v.Value);
+    }
+
+    public string GetBodyDefinition(string column)
+    {
+      return GetValue(GetOrdinal(column)).ToString();
     }
 
     /// <summary>

@@ -10,8 +10,8 @@
 
 namespace MySql.Data {
     using System;
-  using System.Reflection;
-   
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -39,7 +39,7 @@ namespace MySql.Data {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -381,6 +381,15 @@ namespace MySql.Data {
         public static string ErrorCreatingSocket {
             get {
                 return ResourceManager.GetString("ErrorCreatingSocket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verify that user &apos;{0}&apos;@&apos;{1}&apos; has enough privileges to execute..
+        /// </summary>
+        public static string ExecuteProcedureUnauthorized {
+            get {
+                return ResourceManager.GetString("ExecuteProcedureUnauthorized", resourceCulture);
             }
         }
         
@@ -738,7 +747,17 @@ namespace MySql.Data {
         ///DETERMINISTIC
         ///DISTINCT
         ///DISTINCTROW
-        ///D [rest of string was truncated]&quot;;.
+        ///DIV
+        ///DO
+        ///DOUBLE
+        ///DROP
+        ///DUAL
+        ///EACH
+        ///ELSE
+        ///ELSEIF
+        ///ENCLOSED
+        ///END
+        ///ESC [rest of string was truncated]&quot;;.
         /// </summary>
         public static string keywords {
             get {

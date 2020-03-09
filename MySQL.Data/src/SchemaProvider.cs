@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -641,7 +641,7 @@ namespace MySql.Data.MySqlClient
             row["DTD_IDENTIFIER"] = StringUtility.ToLowerInvariant(routineType) == "function" ?
               (object)reader.GetString("DTD_IDENTIFIER") : DBNull.Value;
             row["ROUTINE_BODY"] = "SQL";
-            row["ROUTINE_DEFINITION"] = reader.GetString("routine_definition");
+            row["ROUTINE_DEFINITION"] = reader.GetBodyDefinition("routine_definition");
             row["EXTERNAL_NAME"] = DBNull.Value;
             row["EXTERNAL_LANGUAGE"] = DBNull.Value;
             row["PARAMETER_STYLE"] = "SQL";
@@ -688,7 +688,7 @@ namespace MySql.Data.MySqlClient
             row["DTD_IDENTIFIER"] = StringUtility.ToLowerInvariant(routineType) == "function" ?
               (object)reader.GetString("returns") : DBNull.Value;
             row["ROUTINE_BODY"] = "SQL";
-            row["ROUTINE_DEFINITION"] = reader.GetString("body");
+            row["ROUTINE_DEFINITION"] = reader.GetBodyDefinition("routine_definition");
             row["EXTERNAL_NAME"] = DBNull.Value;
             row["EXTERNAL_LANGUAGE"] = DBNull.Value;
             row["PARAMETER_STYLE"] = "SQL";
