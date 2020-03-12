@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -887,10 +887,31 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#endregion
+    /// <summary>
+    /// Bug #30169716 MYSQLEXCEPTION WHEN INSERTING A MYSQLGEOMETRY VALUE
+    /// Bug #30169715	WHERE CLAUSE USING MYSQLGEOMETRY AS PARAMETER FINDS NO ROWS
+    /// </summary>
+    [Fact]
+    public void Bug30169716()
+    {
+      executeSQL("DROP TABLE IF EXISTS geometries");
+      executeSQL("CREATE TABLE geometries(id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, data GEOMETRY)");
+
+      var geometry = new MySqlGeometry(1, 1);
+
+      using (var command = Connection.CreateCommand())
+      {
+        command.CommandText = "INSERT INTO geometries(data) VALUES(@data); ";
+        command.Parameters.AddWithValue("@data", geometry);
+        int result=command.ExecuteNonQuery();
+        Assert.Equal(1, result);
+      }
+    }
+
+    #endregion
 
     /// <summary>
-    /// Bug #33322 Incorrect Double/Single value saved to MySQL database using MySQL Connector for  
+    /// Bug #33322 Incorrect Double/Single value saved to MySQL database using MySQL Connector for
     /// </summary>
     [Fact]
     public void StoringAndRetrievingDouble()

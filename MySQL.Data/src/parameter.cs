@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -374,7 +374,7 @@ namespace MySql.Data.MySqlClient
           case "String": MySqlDbType = MySqlDbType.VarChar; break;
           case "Single": MySqlDbType = MySqlDbType.Float; break;
           case "Double": MySqlDbType = MySqlDbType.Double; break;
-
+          case "MySqlGeometry": MySqlDbType = MySqlDbType.Geometry; break;
           case "Decimal": MySqlDbType = MySqlDbType.Decimal; break;
           case "Object":
           default:

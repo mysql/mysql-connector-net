@@ -420,14 +420,13 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #30029732	ERROR EXECUTING STORED ROUTINES
     /// </summary>
     [Theory]
-    [InlineData("server=localhost;port=3306;uid=root;pwd=;",true)]
-    [InlineData("server=localhost;port=3306;uid=atest;pwd=pwd;",false)]
-    public void StoredProcedureWithDifferentUser(string cs, bool IsRoot)
+    [InlineData(true)]
+    [InlineData(false)]
+    public void StoredProcedureWithDifferentUser(bool hasPrivileges)
     {
       //Create Required Objects for all the tests
-      string conn_str = string.Format("{0}{1}{2};",cs,"database=",Connection.Settings.Database);
 
-        string sql = $"use `{Connection.Settings.Database}`; "+@"CREATE TABLE IF NOT EXISTS hello (
+      string sql = $"use `{Connection.Settings.Database}`; " + @"CREATE TABLE IF NOT EXISTS hello (
              id int(11) NOT NULL AUTO_INCREMENT,
              string varchar(255) DEFAULT NULL,
              PRIMARY KEY (id)
@@ -460,62 +459,44 @@ namespace MySql.Data.MySqlClient.Tests
 
       executeSQL(sql, true);
 
-      //Test with a user different than root and Granted to execute
-      //Test with root and Granted to execute
-      using (MySqlConnection c = new MySqlConnection(conn_str))
-      {
-        c.Open();
-        MySqlCommand cmd1 = new MySqlCommand();
-        cmd1.Connection = c;
-        cmd1.CommandText = "get_hello";
-        cmd1.CommandType = CommandType.StoredProcedure;
-        cmd1.Parameters.AddWithValue("p_id", 1);
-        MySqlDataAdapter da1 = new MySqlDataAdapter();
-        da1.SelectCommand = cmd1;
-        DataSet ds1 = new DataSet();
-        da1.Fill(ds1);
-        Assert.True(ds1.Tables.Count > 0);
-      }
+      Connection.Settings.UserID = hasPrivileges ? Connection.Settings.UserID : "atest";
 
-      //Test with a user different than root and Not Granted to execute
-      using (MySqlConnection c = new MySqlConnection(conn_str))
+      using (MySqlConnection c1 = new MySqlConnection(Connection.ConnectionString))
       {
-        c.Open();
-        MySqlCommand cmd3 = new MySqlCommand();
-        cmd3.Connection = c;
-        cmd3.CommandText = "get_hello2";
-        cmd3.CommandType = CommandType.StoredProcedure;
-        cmd3.Parameters.AddWithValue("p_id", 1);
-        MySqlDataAdapter da3 = new MySqlDataAdapter();
-        da3.SelectCommand = cmd3;
-        DataSet ds3 = new DataSet();
-        if (IsRoot)
+        c1.Open();
+        //Test with a user different than root and Granted to execute
+        //Test with root and Granted to execute
+        MySqlCommand cmd = new MySqlCommand();
+        cmd.Connection = c1;
+        cmd.CommandText = "get_hello";
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("p_id", 1);
+        MySqlDataAdapter da = new MySqlDataAdapter();
+        da.SelectCommand = cmd;
+        DataSet ds = new DataSet();
+        da.Fill(ds);
+        Assert.True(ds.Tables.Count > 0);
+
+        //Test with not existing procedure
+        cmd.CommandText = "get_hello3";
+        da.SelectCommand = cmd;
+        Assert.Throws<MySqlException>(() => da.Fill(ds));
+
+        //Test with a user different than root and Not Granted to execute
+        cmd.CommandText = "get_hello2";
+        da.SelectCommand = cmd;
+        if (hasPrivileges)
         {
-          da3.Fill(ds3);
-          Assert.True(ds3.Tables.Count > 0);
+          da.Fill(ds);
+          Assert.True(ds.Tables.Count > 0);
         }
         else
         {
-          Assert.Throws<MySqlException>(() => da3.Fill(ds3));
+          Assert.Throws<MySqlException>(() => da.Fill(ds));
         }
       }
 
-      //Test with not existing procedure
-      using (MySqlConnection c = new MySqlConnection(conn_str))
-      {
-        c.Open();
-        MySqlCommand cmd4 = new MySqlCommand();
-        cmd4.Connection = c;
-        cmd4.CommandText = "get_hello3";
-        cmd4.CommandType = CommandType.StoredProcedure;
-        cmd4.Parameters.AddWithValue("p_id", 1);
-        MySqlDataAdapter da4 = new MySqlDataAdapter();
-        da4.SelectCommand = cmd4;
-        DataSet ds4 = new DataSet();
-        Assert.Throws<MySqlException>(() => da4.Fill(ds4));
-      }
-
-      sql= $"use `{Connection.Settings.Database}`; " + @"drop procedure get_hello;
+      sql = $"use `{Connection.Settings.Database}`; " + @"drop procedure get_hello;
         drop procedure get_hello2;";
       executeSQL(sql, true);
     }
