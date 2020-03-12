@@ -688,7 +688,7 @@ namespace MySql.Data.MySqlClient
             row["DTD_IDENTIFIER"] = StringUtility.ToLowerInvariant(routineType) == "function" ?
               (object)reader.GetString("returns") : DBNull.Value;
             row["ROUTINE_BODY"] = "SQL";
-            row["ROUTINE_DEFINITION"] = reader.GetBodyDefinition("routine_definition");
+            row["ROUTINE_DEFINITION"] = reader.GetBodyDefinition("body");
             row["EXTERNAL_NAME"] = DBNull.Value;
             row["EXTERNAL_LANGUAGE"] = DBNull.Value;
             row["PARAMETER_STYLE"] = "SQL";
