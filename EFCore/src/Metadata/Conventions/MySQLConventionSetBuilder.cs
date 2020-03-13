@@ -34,6 +34,18 @@ using MySql.Data.EntityFrameworkCore.Extensions;
 
 namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
 {
+  /// <summary>
+  ///     <para>
+  ///         A builder for building conventions for MySQL.
+  ///     </para>
+  ///     <para>
+  ///         The service lifetime is <see cref="ServiceLifetime.Scoped" /> and multiple registrations
+  ///         are allowed. This means that each <see cref="DbContext" /> instance will use its own
+  ///         set of instances of this service.
+  ///         The implementations may depend on other services registered with any lifetime.
+  ///         The implementations do not need to be thread-safe.
+  ///     </para>
+  /// </summary>
   internal class MySQLConventionSetBuilder : RelationalConventionSetBuilder
   {
     public MySQLConventionSetBuilder(
