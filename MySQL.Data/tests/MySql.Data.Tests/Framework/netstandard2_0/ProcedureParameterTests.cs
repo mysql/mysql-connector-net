@@ -440,13 +440,10 @@ namespace MySql.Data.MySqlClient.Tests
              END;
 
              INSERT INTO hello (string) VALUES ('Hello World!');
-
-             CREATE USER IF NOT EXISTS 'atest'@'localhost' PASSWORD EXPIRE NEVER;
-
-             ALTER USER 'atest'@'localhost' IDENTIFIED BY 'pwd';
+             CREATE USER 'atest'@'localhost' IDENTIFIED BY 'pwd';
 
              GRANT SELECT ON table hello TO 'atest'@'localhost';
-           
+
              GRANT EXECUTE ON procedure get_hello TO 'atest'@'localhost';
 
              CREATE PROCEDURE get_hello2(IN p_id int)
@@ -497,7 +494,8 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       sql = $"use `{Connection.Settings.Database}`; " + @"drop procedure get_hello;
-        drop procedure get_hello2;";
+        drop procedure get_hello2;
+        drop user 'atest'@'localhost';";
       executeSQL(sql, true);
     }
 
