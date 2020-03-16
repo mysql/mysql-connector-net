@@ -52,10 +52,8 @@
       <DocumentationSource sourceFile="..\MySql.Web\src\bin\release\net452\MySql.Web.xml" />
       <DocumentationSource sourceFile="..\EntityFramework\src\bin\Release\net452\MySql.Data.EntityFramework.dll" />
       <DocumentationSource sourceFile="..\EntityFramework\src\bin\Release\net452\MySql.Data.EntityFramework.xml" />
-      <DocumentationSource sourceFile="..\EFCore\src\MySql.Data.EFCore\bin\Release\net452\MySql.Data.EntityFrameworkCore.dll" />
-      <DocumentationSource sourceFile="..\EFCore\src\MySql.Data.EFCore\bin\Release\net452\MySql.Data.EntityFrameworkCore.xml" />
-      <DocumentationSource sourceFile="..\EFCore\src\MySql.Data.EFCore.Design\bin\Release\net452\MySql.Data.EntityFrameworkCore.Design.dll" />
-      <DocumentationSource sourceFile="..\EFCore\src\MySql.Data.EFCore.Design\bin\Release\net452\MySql.Data.EntityFrameworkCore.Design.xml" />
+      <DocumentationSource sourceFile="..\EFCore\src\bin\Release\netstandard2.0\MySql.Data.EntityFrameworkCore.dll" />
+      <DocumentationSource sourceFile="..\EFCore\src\bin\Release\netstandard2.0\MySql.Data.EntityFrameworkCore.xml" />
     </DocumentationSources>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False" xmlns="" />
@@ -66,6 +64,20 @@
       <NamespaceSummaryItem name="MySql.Security" isDocumented="True">Set of classes used for secure access user accounts in connections.</NamespaceSummaryItem>
     </NamespaceSummaries>
     <PlugInConfigurations>
+      <PlugInConfig id="Assembly Binding Redirection" enabled="True">
+        <configuration useGAC="true">
+          <assemblyBinding>
+          </assemblyBinding>
+          <ignoreIfUnresolved>
+            <assemblyIdentity name="BusinessObjects.Licensing.KeycodeDecoder" />
+            <assemblyIdentity name="Microsoft.Bcl.AsyncInterfaces" />
+            <assemblyIdentity name="Microsoft.EntityFrameworkCore" />
+            <assemblyIdentity name="Microsoft.EntityFrameworkCore.Relational" />
+            <assemblyIdentity name="Microsoft.Extensions.DependencyInjection.Abstractions" />
+            <assemblyIdentity name="Microsoft.VisualStudio.TestTools.UITest.Playback" />
+          </ignoreIfUnresolved>
+        </configuration>
+      </PlugInConfig>
     </PlugInConfigurations>
     <VendorName>Oracle</VendorName>
     <HelpFileVersion>8.0.20.0</HelpFileVersion>
