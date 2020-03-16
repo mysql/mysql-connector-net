@@ -37,7 +37,7 @@
     <BuildLogFile>
     </BuildLogFile>
     <HelpFileFormat>Website</HelpFileFormat>
-    <FrameworkVersion>.NET Framework 4.5</FrameworkVersion>
+    <FrameworkVersion>.NET Framework 4.5.2</FrameworkVersion>
     <RootNamespaceContainer>True</RootNamespaceContainer>
     <RootNamespaceTitle>Reference</RootNamespaceTitle>
     <HelpTitle>MySQL Connector/NET 8.0 API Reference</HelpTitle>
