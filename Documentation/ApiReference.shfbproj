@@ -74,6 +74,7 @@
             <assemblyIdentity name="Microsoft.EntityFrameworkCore" />
             <assemblyIdentity name="Microsoft.EntityFrameworkCore.Relational" />
             <assemblyIdentity name="Microsoft.Extensions.DependencyInjection.Abstractions" />
+            <assemblyIdentity name="Microsoft.Extensions.Logging.Abstractions" />
             <assemblyIdentity name="Microsoft.VisualStudio.TestTools.UITest.Playback" />
           </ignoreIfUnresolved>
         </configuration>
