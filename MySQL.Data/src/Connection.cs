@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -263,7 +263,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/BeginTransaction1/*'/>
-    public new MySqlTransaction BeginTransaction(IsolationLevel iso)
+    public new MySqlTransaction BeginTransaction(IsolationLevel iso, string scope="")
     {
       //TODO: check note in help
       if (State != ConnectionState.Open)
@@ -277,7 +277,7 @@ namespace MySql.Data.MySqlClient
 
       MySqlCommand cmd = new MySqlCommand("", this);
 
-      cmd.CommandText = "SET SESSION TRANSACTION ISOLATION LEVEL ";
+      cmd.CommandText = $"SET {scope} TRANSACTION ISOLATION LEVEL ";
       switch (iso)
       {
         case IsolationLevel.ReadCommitted:

@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2010, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -140,7 +140,7 @@ namespace MySql.Data.MySqlClient
       typeof(System.Transactions.IsolationLevel), baseTransaction.IsolationLevel);
       System.Data.IsolationLevel dataLevel = (System.Data.IsolationLevel)Enum.Parse(
            typeof(System.Data.IsolationLevel), valueName);
-      MySqlTransaction simpleTransaction = connection.BeginTransaction(dataLevel);
+      MySqlTransaction simpleTransaction = connection.BeginTransaction(dataLevel,"SESSION");
 
       // We need to save the per-thread scope stack locally.
       // We cannot always use thread static variable in rollback: when scope
