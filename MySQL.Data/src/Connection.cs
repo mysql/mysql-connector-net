@@ -83,7 +83,7 @@ namespace MySql.Data.MySqlClient
     public MySqlConnection(string connectionString)
       : this()
     {
-      Settings.AnalyzeConnectionString(connectionString, false, false);
+      Settings.AnalyzeConnectionString(connectionString ?? string.Empty, false, false);
       ConnectionString = connectionString;
     }
 
@@ -263,7 +263,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/BeginTransaction1/*'/>
-    public new MySqlTransaction BeginTransaction(IsolationLevel iso, string scope="")
+    public new MySqlTransaction BeginTransaction(IsolationLevel iso, string scope = "")
     {
       //TODO: check note in help
       if (State != ConnectionState.Open)
