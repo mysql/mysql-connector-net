@@ -2,6 +2,8 @@
 - Revised SqlNullValueException, raised when a stored procedure is executed by a user with sufficient privileges(MySQL Bug #96143, Oracle Bug #30029732).
 - Fixed an error that returned a BLOB object, instead of the expected MySqlGeometry object, when the wrong type assignment was used with the AddWithValue method to define a command parameter and the type was inferred (MySQL Bug #96499, MySQL Bug #96498, Oracle Bug #30169716, Oracle Bug #30169715).
 - Fixed an issue in which the wrong isolation level was obtained after a transaction finished (MySQL Bug #86263, Oracle Bug #26035791).
+- Fixed an error caused by a missing unsigned flag when a bigint field is used.(MySQL Bug #95382, Oracle Bug #29802379).
+- Fixed an error that returned NullReferenceException when initializing a MySqlConnection with null (MySQL Bug #98322, Oracle Bug #30791289).
 
 
 8.0.20

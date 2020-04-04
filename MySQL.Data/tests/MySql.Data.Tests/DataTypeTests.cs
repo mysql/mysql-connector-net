@@ -1181,6 +1181,32 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
+    /// Bug #29802379	LOAD A DATATABLE FROM A DATAREADER DOESN'T WORK FOR LARGE BIGINT UNSIGNED
+    /// </summary>
+    [Fact]
+    public void Bug29802379()
+    {
+      executeSQL(@"
+        CREATE TABLE `test_29802379` (
+          `ID` bigint signed NOT NULL AUTO_INCREMENT,
+          PRIMARY KEY (`ID`),
+          UNIQUE KEY `ID_UNIQUE` (`ID`)
+        ) ENGINE=InnoDB AUTO_INCREMENT=2147483648 ;
+      ");
+      executeSQL(@"
+        INSERT INTO test_29802379 (`ID`) VALUES ('2147483648');
+        INSERT INTO test_29802379 (`ID`) VALUES ('2147483649');
+      ");
+
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test_29802379;", Connection);
+      MySqlDataReader dr = cmd.ExecuteReader();
+      DataTable dataTable = new DataTable();
+      dataTable.Load(dr);
+      int records = dataTable.Rows.Count;
+      Assert.Equal<int>((int)2,records);
+    }
+
+    /// <summary>
     /// Bug # 13708884 timediff function
     /// Executing a simple query that generates a time difference that has a 
     /// fractional second value throws an exception
