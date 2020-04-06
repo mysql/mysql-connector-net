@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -35,8 +35,16 @@ using System.Text;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
+  /// <summary>
+  /// Provides functionality to read, decode and convert PEM files to objects supported in .NET.
+  /// </summary>
   public class MySqlPemReader
   {
+    /// <summary>
+    /// Converts the binary data of a PEM file to an <see cref="RSACryptoServiceProvider"/> object. 
+    /// </summary>
+    /// <param name="rawPublicKey">A binary representation of the public key provided by the server.</param>
+    /// <returns>An <see cref="RSACryptoServiceProvider"/> object containing the data found in the public key.</returns>
     public static RSACryptoServiceProvider ConvertPemToRSAProvider(byte[] rawPublicKey)
     {
       byte[] decodedKey = DecodeOpenSslKey(rawPublicKey);
