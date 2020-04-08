@@ -649,4 +649,7 @@
   <data name="ExecuteProcedureUnauthorized" xml:space="preserve">
     <value>Verify that user '{0}'@'{1}' has enough privileges to execute.</value>
   </data>
+  <data name="DeprecatedSshAlgorithm" xml:space="preserve">
+    <value>The {0} algorithm being used by the server({1}) has been deprecated and will be removed in a future version. It is recommended that you configure the server to use a non-deprecated {0} algorithm.</value>
+  </data>
 </root>
