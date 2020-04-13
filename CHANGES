@@ -4,6 +4,7 @@
 - Fixed an issue in which the wrong isolation level was obtained after a transaction finished (MySQL Bug #86263, Oracle Bug #26035791).
 - Fixed an error caused by a missing unsigned flag when a bigint field is used.(MySQL Bug #95382, Oracle Bug #29802379).
 - Fixed an error that returned NullReferenceException when initializing a MySqlConnection with null (MySQL Bug #98322, Oracle Bug #30791289).
+- Contribution added: Fixed a typo in SimpleRoleProvider.GetRoleId that caused an unexpected behavior (MySQL Bug #83657, Orale Bug #25046352). Thanks to Stein Setvik for the contribution.
 
 
 8.0.20
