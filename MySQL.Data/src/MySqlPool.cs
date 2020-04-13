@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,13 +26,13 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using MySql.Data.Failover;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using MySql.Data.MySqlClient;
-
 
 namespace MySql.Data.MySqlClient
 {
@@ -47,6 +47,8 @@ namespace MySql.Data.MySqlClient
     private readonly uint _maxSize;
     private readonly AutoResetEvent _autoEvent;
     private int _available;
+    // Object used to lock the list of host obtained from DNS SRV lookup.
+    private readonly object _dnsSrvLock = new object();
 
     private void EnqueueIdle(Driver driver)
     {
@@ -93,7 +95,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     public bool BeingCleared { get; private set; }
 
-    internal Dictionary<string,string> ServerProperties { get; set; }
+    internal Dictionary<string, string> ServerProperties { get; set; }
 
     #endregion
 
@@ -135,9 +137,12 @@ namespace MySql.Data.MySqlClient
           driver = null;
         }
         else if (Settings.ConnectionReset)
+        {
           // if the user asks us to ping/reset pooled connections
           // do so now
-          driver.Reset();
+          try { driver.Reset(); }
+          catch (Exception) { Clear(); }
+        }
       }
       if (driver == null)
         driver = CreateNewPooledConnection();
@@ -180,6 +185,25 @@ namespace MySql.Data.MySqlClient
         lock ((_idlePool as ICollection).SyncRoot)
         {
           EnqueueIdle(driver);
+        }
+      }
+
+      lock (_dnsSrvLock)
+      {
+        if (driver.Settings.DnsSrv)
+        {
+          var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(DnsResolver.ServiceName);
+          FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
+            FailoverMethod.Sequential);
+
+          foreach(var idleConnection in _idlePool)
+          {
+            string idleServer = idleConnection.Settings.Server;
+            if (!FailoverManager.FailoverGroup.Hosts.Exists(h => h.Host == idleServer) && !idleConnection.IsInActiveUse)
+            {
+              idleConnection.Close();
+            }
+          }
         }
       }
 
@@ -246,11 +270,7 @@ namespace MySql.Data.MySqlClient
         if (driver != null) return driver;
 
         // We have no tickets right now, lets wait for one.
-#if NETSTANDARD1_6
-        if (!_autoEvent.WaitOne(timeOut)) break;
-#else
         if (!_autoEvent.WaitOne(timeOut, false)) break;
-#endif
 
         timeOut = fullTimeOut - (int)DateTime.Now.Subtract(start).TotalMilliseconds;
       }

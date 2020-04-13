@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -415,5 +415,89 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add(p1);
       cmd.ExecuteNonQuery();
     }
+
+    /// <summary>
+    /// Bug #30029732	ERROR EXECUTING STORED ROUTINES
+    /// </summary>
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void StoredProcedureWithDifferentUser(bool hasPrivileges)
+    {
+      //Create Required Objects for all the tests
+
+      string sql = $"use `{Connection.Settings.Database}`; " + @"CREATE TABLE IF NOT EXISTS hello (
+             id int(11) NOT NULL AUTO_INCREMENT,
+             string varchar(255) DEFAULT NULL,
+             PRIMARY KEY (id)
+             ) ENGINE = INNODB;
+
+             CREATE PROCEDURE get_hello(IN p_id int)
+             SQL SECURITY INVOKER
+             BEGIN
+               SELECT * FROM hello
+               WHERE id = p_id;
+             END;
+
+             INSERT INTO hello (string) VALUES ('Hello World!');
+             CREATE USER 'atest'@'localhost' IDENTIFIED BY 'pwd';
+
+             GRANT SELECT ON table hello TO 'atest'@'localhost';
+
+             GRANT EXECUTE ON procedure get_hello TO 'atest'@'localhost';
+
+             CREATE PROCEDURE get_hello2(IN p_id int)
+             SQL SECURITY INVOKER
+             BEGIN
+               SELECT * FROM hello
+               WHERE id = p_id;
+             END;
+             ";
+
+      executeSQL(sql, true);
+
+      Connection.Settings.UserID = hasPrivileges ? Connection.Settings.UserID : "atest";
+
+      using (MySqlConnection c1 = new MySqlConnection(Connection.ConnectionString))
+      {
+        c1.Open();
+        //Test with a user different than root and Granted to execute
+        //Test with root and Granted to execute
+        MySqlCommand cmd = new MySqlCommand();
+        cmd.Connection = c1;
+        cmd.CommandText = "get_hello";
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("p_id", 1);
+        MySqlDataAdapter da = new MySqlDataAdapter();
+        da.SelectCommand = cmd;
+        DataSet ds = new DataSet();
+        da.Fill(ds);
+        Assert.True(ds.Tables.Count > 0);
+
+        //Test with not existing procedure
+        cmd.CommandText = "get_hello3";
+        da.SelectCommand = cmd;
+        Assert.Throws<MySqlException>(() => da.Fill(ds));
+
+        //Test with a user different than root and Not Granted to execute
+        cmd.CommandText = "get_hello2";
+        da.SelectCommand = cmd;
+        if (hasPrivileges)
+        {
+          da.Fill(ds);
+          Assert.True(ds.Tables.Count > 0);
+        }
+        else
+        {
+          Assert.Throws<MySqlException>(() => da.Fill(ds));
+        }
+      }
+
+      sql = $"use `{Connection.Settings.Database}`; " + @"drop procedure get_hello;
+        drop procedure get_hello2;
+        drop user 'atest'@'localhost';";
+      executeSQL(sql, true);
+    }
+
   }
 }

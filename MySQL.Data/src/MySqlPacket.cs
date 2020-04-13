@@ -1,4 +1,4 @@
-// Copyright © 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -91,16 +91,9 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-#if !NETSTANDARD1_6
         byte[] bits = _buffer.GetBuffer();
 
         return bits[0] == 0xfe && Length <= 5;
-#else
-        ArraySegment<byte> bits;
-        _buffer.TryGetBuffer(out bits);
-
-        return bits.Array[0] == 0xfe && Length <= 5;
-#endif
       }
     }
 
@@ -108,17 +101,9 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-#if !NETSTANDARD1_6
         byte[] bits = _buffer.GetBuffer();
 
         return bits;
-#else
-        ArraySegment<byte> bits;
-
-        _buffer.TryGetBuffer(out bits);
-
-        return bits.Array;
-#endif
       }
     }
 
@@ -132,7 +117,7 @@ namespace MySql.Data.MySqlClient
     }
 
 
-#region Byte methods
+    #region Byte methods
 
     public byte ReadByte()
     {
@@ -175,9 +160,9 @@ namespace MySql.Data.MySqlClient
       _buffer.Position = currentPosition;
     }
 
-#endregion
+    #endregion
 
-#region Integer methods
+    #region Integer methods
 
     public long ReadFieldLength()
     {
@@ -198,15 +183,7 @@ namespace MySql.Data.MySqlClient
       ulong value = 0;
 
       int pos = (int)_buffer.Position;
-
-#if !NETSTANDARD1_6
       byte[] bits = _buffer.GetBuffer();
-#else
-      ArraySegment<byte> bytes;
-      _buffer.TryGetBuffer(out bytes);
-      byte[] bits = bytes.Array;
-#endif
-
       int shift = 0;
 
       for (int i = 0; i < numbytes; i++)
@@ -223,14 +200,7 @@ namespace MySql.Data.MySqlClient
     {
       Debug.Assert((_buffer.Position + numbytes) <= _buffer.Length);
 
-#if !NETSTANDARD1_6
       byte[] bits = _buffer.GetBuffer();
-#else
-      ArraySegment<byte> bytes;
-      _buffer.TryGetBuffer(out bytes);
-      byte[] bits = bytes.Array;
-#endif
-
       int pos = (int)_buffer.Position;
       _buffer.Position += numbytes;
 
@@ -247,13 +217,7 @@ namespace MySql.Data.MySqlClient
     {
       Debug.Assert((_buffer.Position + numbytes) <= _buffer.Length);
 
-#if !NETSTANDARD1_6
       byte[] bits = _buffer.GetBuffer();
-#else
-      ArraySegment<byte> bytes;
-      _buffer.TryGetBuffer(out bytes);
-      byte[] bits = bytes.Array;
-#endif
 
       int pos = (int)_buffer.Position;
       _buffer.Position += numbytes;
@@ -272,13 +236,7 @@ namespace MySql.Data.MySqlClient
       int value = 0;
 
       int pos = (int)_buffer.Position;
-#if !NETSTANDARD1_6
       byte[] bits = _buffer.GetBuffer();
-#else
-      ArraySegment<byte> bytes;
-      _buffer.TryGetBuffer(out bytes);
-      byte[] bits = bytes.Array;
-#endif
       int shift = 0;
 
       for (int i = 0; i < 3; i++)
@@ -352,9 +310,9 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#endregion
+    #endregion
 
-#region String methods
+    #region String methods
 
     public void WriteLenString(string s)
     {
@@ -416,13 +374,7 @@ namespace MySql.Data.MySqlClient
     public byte[] ReadStringAsBytes()
     {
       byte[] readBytes;
-#if !NETSTANDARD1_6
       byte[] bits = _buffer.GetBuffer();
-#else
-      ArraySegment<byte> bytes;
-      _buffer.TryGetBuffer(out bytes);
-      byte[] bits = bytes.Array;
-#endif
       int end = (int)_buffer.Position;
       byte[] tempBuffer = bits;
 
@@ -437,6 +389,6 @@ namespace MySql.Data.MySqlClient
       return readBytes;
     }
 
-#endregion
+    #endregion
   }
 }

@@ -103,7 +103,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       SqlResult result = ExecuteSQLStatement(GetSession(true).SQL("select * from test where id=?").Bind(5));
       Assert.True(result.Next());
-      Assert.Equal(1, result.Rows.Count);
+      Assert.Single(result.Rows);
       Assert.Equal(5, result[0]);
       Assert.Equal("E", result[1]);
     }
@@ -118,7 +118,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.Equal(2ul, result.AffectedItemsCount);
 
       var sqlResult = ExecuteSQLStatement(session.SQL("SELECT * FROM test WHERE letter is ?").Bind(null)).FetchAll();
-      Assert.Equal(1, sqlResult.Count);
+      Assert.Single(sqlResult);
       Assert.Equal(1, sqlResult[0][0]);
       Assert.Null(sqlResult[0][1]);
     }

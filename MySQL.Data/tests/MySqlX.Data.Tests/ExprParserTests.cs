@@ -246,7 +246,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal(string.Empty, countId.Name);
       Assert.Equal(string.Empty, countId.TableName);
       Assert.Equal(string.Empty, countId.SchemaName);
-      Assert.Equal(1, countId.DocumentPath.Count);
+      Assert.Single(countId.DocumentPath);
       Assert.Equal(DocumentPathItem.Types.Type.Member, countId.DocumentPath[0].Type);
       Assert.Equal("count", countId.DocumentPath[0].Value);
       Expr addition = andRight.Operator.Param[1];
@@ -393,7 +393,7 @@ namespace MySqlX.Data.Tests
       List<Projection> proj;
 
       proj = new ExprParser("$.a as a").ParseDocumentProjection();
-      Assert.Equal(1, proj.Count);
+      Assert.Single(proj);
       Assert.NotEqual(string.Empty, proj[0].Alias);
       Assert.Equal("a", proj[0].Alias);
 

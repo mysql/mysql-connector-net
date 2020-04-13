@@ -1,4 +1,4 @@
-// Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -208,9 +208,6 @@ namespace MySql.Data.Common
 
           SocketException socketException = ex as SocketException;
 
-#if NETSTANDARD1_6
-          socketException = ex.InnerException as SocketException;
-#endif
           // if the exception is a ConnectionRefused then we eat it as we may have other address
           // to attempt
           if (socketException == null) throw;
@@ -244,36 +241,10 @@ namespace MySql.Data.Common
       return t.Result;
     }
 
-    //#if NETSTANDARD1_6
-    //    private static EndPoint CreateUnixEndPoint(string host)
-    //    {
-    //      // first we need to load the Mono.posix assembly			
-    //      Assembly a = Assembly.Load(@"Mono.Posix, Version=2.0.0.0, 				
-    //                Culture=neutral, PublicKeyToken=0738eb9f132ed756");
-
-
-    //      // then we need to construct a UnixEndPoint object
-    //      EndPoint ep = (EndPoint)a.CreateInstance("Mono.Posix.UnixEndPoint",
-    //          false, BindingFlags.CreateInstance, null,
-    //          new object[1] { host }, null, null);
-    //      return ep;
-    //    }
-    //#endif
-
     private static MyNetworkStream CreateSocketStream(uint port, uint keepAlive, uint connectionTimeout, IPAddress ip, bool unix)
     {
       EndPoint endPoint;
-      //#if NETSTANDARD1_6
-      //      if (!Platform.IsWindows() && unix)
-      //      {
-      //        endPoint = CreateUnixEndPoint(settings.Server);
-      //        //endPoint = new DnsEndPoint(settings.Server, (int)settings.Port);
-      //      }
-      //      else
-      //      {
-
       endPoint = new IPEndPoint(ip, (int)port);
-      //      }
       Socket socket = unix ?
           new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP) :
           new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -285,27 +256,6 @@ namespace MySql.Data.Common
         SetKeepAlive(socket, keepAlive);
       }
 
-#if NETSTANDARD1_6
-      try
-      {
-        Task ias = socket.ConnectAsync(endPoint);
-        if (connectionTimeout == 0)
-          ias.Wait();
-        else
-        {
-          if (!ias.Wait(((int)connectionTimeout)))
-          {
-            socket.Dispose();
-            throw new TimeoutException();
-          }
-        }
-      }
-      catch (Exception)
-      {
-        socket.Dispose();
-        throw;
-      }
-#else
       IAsyncResult ias = socket.BeginConnect(endPoint, null, null);
 
       if (connectionTimeout == 0)
@@ -331,7 +281,6 @@ namespace MySql.Data.Common
         socket.Close();
         throw;
       }
-#endif
 
       MyNetworkStream stream = new MyNetworkStream(socket, true);
       GC.SuppressFinalize(socket);

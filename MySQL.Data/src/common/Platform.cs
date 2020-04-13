@@ -1,4 +1,4 @@
-// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,7 +27,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.IO;
 using System.Runtime.InteropServices;
 
 namespace MySql.Data.Common
@@ -46,9 +45,6 @@ namespace MySql.Data.Common
 
     public static bool IsWindows()
     {
-#if NETSTANDARD1_6
-      return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-#else
       OperatingSystem os = Environment.OSVersion;
       switch (os.Platform)
       {
@@ -58,7 +54,7 @@ namespace MySql.Data.Common
           return true;
       }
       return false;
-#endif
+
     }
 
     public static bool IsMacOSX()
@@ -83,15 +79,6 @@ namespace MySql.Data.Common
       _inited = true;
       Type t = Type.GetType("Mono.Runtime");
       _isMono = t != null;
-    }
-
-    public static bool IsDotNetCore()
-    {
-#if NETSTANDARD1_6
-      return true;
-#else
-      return false;
-#endif
     }
   }
 }

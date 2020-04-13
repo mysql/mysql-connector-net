@@ -82,7 +82,7 @@ namespace MySql.Data.EntityFramework.Tests
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder();
       sb.Server = "localhost";
       string port = Environment.GetEnvironmentVariable("MYSQL_PORT");
-      sb.Port = string.IsNullOrEmpty(port) ? 3305 : uint.Parse(port);
+      sb.Port = string.IsNullOrEmpty(port) ? 3306 : uint.Parse(port);
       sb.UserID = "root";
       sb.Pooling = false;
       sb.AllowUserVariables = true;

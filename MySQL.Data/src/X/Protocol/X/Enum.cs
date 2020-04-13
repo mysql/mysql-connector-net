@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -53,6 +53,9 @@ namespace MySqlX.Protocol.X
     public static readonly string XPLUGIN_STMT_CREATE_COLLECTION_INDEX = "create_collection_index";
     public static readonly string XPLUGIN_STMT_DROP_COLLECTION =
                  "drop_collection";
+    //Added to support schema validation, store the name of the command used by MySQL Server to modify collections
+    public static readonly string XPLUGIN_STMT_MODIFY_COLLECTION = "modify_collection_options";
+
     public static readonly string XPLUGIN_STMT_DROP_COLLECTION_INDEX = "drop_collection_index";
     public static readonly string XPLUGIN_STMT_PING = "ping";
     public static readonly string XPLUGIN_STMT_LIST_OBJECTS =

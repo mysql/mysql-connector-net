@@ -1,4 +1,4 @@
-// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -88,7 +88,7 @@ namespace MySql.Data.MySqlClient
       connVersion = driver.Version;
       MaxLength = 1;
       binaryOk = true;
-#if !NET452
+#if !NETFRAMEWORK
       Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
     }
@@ -178,6 +178,7 @@ namespace MySql.Data.MySqlClient
             Type = MySqlDbType.UInt32;
             return;
           case MySqlDbType.Int64:
+            Flags = Flags & ColumnFlags.UNSIGNED;
             Type = MySqlDbType.UInt64;
             return;
         }
@@ -286,13 +287,13 @@ namespace MySql.Data.MySqlClient
           return new MySqlByte();
         case MySqlDbType.UByte:
           return new MySqlUByte();
+        case MySqlDbType.Year:
         case MySqlDbType.Int16:
           return new MySqlInt16();
         case MySqlDbType.UInt16:
           return new MySqlUInt16();
         case MySqlDbType.Int24:
         case MySqlDbType.Int32:
-        case MySqlDbType.Year:
           return new MySqlInt32(type, true);
         case MySqlDbType.UInt24:
         case MySqlDbType.UInt32:

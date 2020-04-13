@@ -75,7 +75,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       var selectResult = ExecuteSelectStatement(table.Select());
       while (selectResult.Next()) ;
-      Assert.Equal(1, selectResult.Rows.Count);
+      Assert.Single(selectResult.Rows);
       Assert.Equal("MARK", selectResult.Rows.ToArray()[0][0]);
       Assert.Equal(34, selectResult.Rows.ToArray()[0][1]);
     }
@@ -92,7 +92,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       // error 5014 - Wrong number of fields in row being inserted
       Assert.Equal(5014u, Assert.Throws<MySqlException>(() => result = ExecuteInsertStatement(stmt.Values("George", 34, 1))).Code);
       Assert.Equal(5014u, Assert.Throws<MySqlException>(() => ExecuteInsertStatement(stmt.Values("George", 34))).Code);
-      Assert.Equal(1, ExecuteSelectStatement(table.Select()).FetchAll().Count);
+      Assert.Single(ExecuteSelectStatement(table.Select()).FetchAll());
     }
   }
 }

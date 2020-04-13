@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,16 +26,15 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.ComponentModel;
-using System.Reflection;
-using System.Text;
-using System.Collections;
-using System.Data;
 using MySql.Data.Types;
-using MySql.Data.Common;
+using System;
+using System.Collections;
+using System.ComponentModel;
+using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.Reflection;
+using System.Text;
 
 namespace MySql.Data.MySqlClient
 {
@@ -108,24 +107,6 @@ namespace MySql.Data.MySqlClient
       Size = size;
     }
 
-#if NETSTANDARD1_6
-    /// <summary>
-    /// Initializes a new instance of the <see cref="MySqlParameter"/> class with the parameter name, the type of the parameter, the size of the parameter, a <see cref="ParameterDirection"/>, the precision of the parameter, the scale of the parameter, the source column, a <see cref="DataRowVersion"/> to use, and the value of the parameter.
-    /// </summary>
-    /// <param name="parameterName">The name of the parameter to map. </param>
-    /// <param name="dbType">One of the <see cref="MySqlParameter.MySqlDbType"/> values. </param>
-    /// <param name="size">The length of the parameter. </param>
-    /// <param name="direction">One of the <see cref="ParameterDirection"/> values. </param>
-    /// <param name="isNullable">true if the value of the field can be null, otherwise false. </param>
-    /// <param name="precision">The total number of digits to the left and right of the decimal point to which <see cref="MySqlParameter.Value"/> is resolved.</param>
-    /// <param name="scale">The total number of decimal places to which <see cref="MySqlParameter.Value"/> is resolved. </param>
-    /// <param name="sourceColumn">The name of the source column. </param>
-    /// <param name="value">An <see cref="Object"/> that is the value of the <see cref="MySqlParameter"/>. </param>
-    /// <exception cref="ArgumentException"/>
-    public MySqlParameter(string parameterName, MySqlDbType dbType, int size, ParameterDirection direction,
-                          bool isNullable, byte precision, byte scale, string sourceColumn, object value)
-      : this(parameterName, dbType, size, sourceColumn)
-#else
     /// <summary>
     /// Initializes a new instance of the <see cref="MySqlParameter"/> class with the parameter name, the type of the parameter, the size of the parameter, a <see cref="ParameterDirection"/>, the precision of the parameter, the scale of the parameter, the source column, a <see cref="DataRowVersion"/> to use, and the value of the parameter.
     /// </summary>
@@ -144,34 +125,22 @@ namespace MySql.Data.MySqlClient
                           bool isNullable, byte precision, byte scale, string sourceColumn,
                           DataRowVersion sourceVersion, object value)
       : this(parameterName, dbType, size, sourceColumn)
-#endif
     {
       Direction = direction;
       IsNullable = isNullable;
       Precision = precision;
       Scale = scale;
       Value = value;
-#if !NETSTANDARD1_6
       SourceVersion = sourceVersion;
-#endif
-
     }
 
-#if NETSTANDARD1_6
-    internal MySqlParameter(string name, MySqlDbType type, ParameterDirection dir, string col, object val)
-      : this(name, type)
-
-#else
     internal MySqlParameter(string name, MySqlDbType type, ParameterDirection dir, string col, DataRowVersion sourceVersion, object val)
       : this(name, type)
-#endif
     {
       Direction = dir;
       SourceColumn = col;
       Value = val;
-#if !NETSTANDARD1_6
       SourceVersion = sourceVersion;
-#endif
     }
 
     #endregion
@@ -218,9 +187,7 @@ namespace MySql.Data.MySqlClient
     /// Gets or sets the <see cref="MySqlParameter.MySqlDbType"/> of the parameter.
     /// </summary>
     [Category("Data")]
-#if !NETSTANDARD1_6
     [DbProviderSpecificTypeProperty(true)]
-#endif
     public MySqlDbType MySqlDbType
     {
       get { return _mySqlDbType; }
@@ -306,7 +273,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#endregion
+    #endregion
 
     private void SetParameterName(string name)
     {
@@ -372,7 +339,10 @@ namespace MySql.Data.MySqlClient
 
     private void SetMySqlDbType(MySqlDbType mysqlDbtype)
     {
-      _mySqlDbType = mysqlDbtype;
+      // JSON type is treated as VarChar because in MySQL Server since 8.0.13
+      /// MYSQL_TYPE_JSON is not allowed as Item_param lacks a proper
+      /// implementation for val_json.
+      _mySqlDbType = mysqlDbtype == MySqlDbType.JSON ? MySqlDbType.VarChar : mysqlDbtype;
       ValueObject = MySqlField.GetIMySqlValue(_mySqlDbType);
       SetDbTypeFromMySqlDbType();
     }
@@ -404,7 +374,7 @@ namespace MySql.Data.MySqlClient
           case "String": MySqlDbType = MySqlDbType.VarChar; break;
           case "Single": MySqlDbType = MySqlDbType.Float; break;
           case "Double": MySqlDbType = MySqlDbType.Double; break;
-
+          case "MySqlGeometry": MySqlDbType = MySqlDbType.Geometry; break;
           case "Decimal": MySqlDbType = MySqlDbType.Decimal; break;
           case "Object":
           default:
@@ -613,12 +583,10 @@ namespace MySql.Data.MySqlClient
 
     public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
     {
-#if !NETSTANDARD1_6
       if (destinationType == typeof(System.ComponentModel.Design.Serialization.InstanceDescriptor))
       {
         return true;
       }
-#endif
 
       // Always call the base to see if it can perform the conversion.
       return base.CanConvertTo(context, destinationType);
@@ -627,7 +595,6 @@ namespace MySql.Data.MySqlClient
     public override object ConvertTo(ITypeDescriptorContext context,
                                      CultureInfo culture, object value, Type destinationType)
     {
-#if !NETSTANDARD1_6
       if (destinationType == typeof(System.ComponentModel.Design.Serialization.InstanceDescriptor))
       {
         ConstructorInfo ci = typeof(MySqlParameter).GetConstructor(
@@ -645,13 +612,10 @@ namespace MySql.Data.MySqlClient
                                                               p.Scale, p.SourceColumn, p.Value
                                                           });
       }
-#endif
 
       // Always call base, even if you can't convert.
       return base.ConvertTo(context, culture, value, destinationType);
     }
 
   }
-
-
 }

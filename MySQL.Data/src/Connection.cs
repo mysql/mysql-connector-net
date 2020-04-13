@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,17 +33,14 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using MySql.Data.Common;
-using System.Security;
 using IsolationLevel = System.Data.IsolationLevel;
 using MySql.Data.MySqlClient.Interceptors;
-using Renci.SshNet;
 using System.Linq;
-using Renci.SshNet.Common;
-using MySql.Data.common;
-#if !NETSTANDARD1_6
 using System.Transactions;
 using MySql.Data.MySqlClient.Replication;
-#endif
+using MySql.Data.Failover;
+using System.Collections.Generic;
+using System.Net;
 #if NET452
 using System.Drawing.Design;
 #endif
@@ -62,7 +59,11 @@ namespace MySql.Data.MySqlClient
     private bool _isKillQueryConnection;
     private string _database;
     private int _commandTimeout;
-    private SshClient _sshClient;
+
+    /// <summary>
+    /// The client used to handle SSH connections.
+    /// </summary>
+    private Ssh _sshHandler;
 
     /// <include file='docs/MySqlConnection.xml' path='docs/InfoMessage/*'/>
     public event MySqlInfoMessageEventHandler InfoMessage;
@@ -76,17 +77,13 @@ namespace MySql.Data.MySqlClient
       //TODO: add event data to StateChange docs
       Settings = new MySqlConnectionStringBuilder();
       _database = String.Empty;
-
-      //#if NETSTANDARD1_6
-      //TODO:  what is thi sabout
-      //ConnectionString = Startup.ConnectionString;
-      //#endif
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/Ctor1/*'/>
     public MySqlConnection(string connectionString)
       : this()
     {
+      Settings.AnalyzeConnectionString(connectionString ?? string.Empty, false, false);
       ConnectionString = connectionString;
     }
 
@@ -127,18 +124,18 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-#if !NETSTANDARD1_6
         return (State == ConnectionState.Closed) &&
                driver != null && driver.currentTransaction != null;
-#else
-        return (State == ConnectionState.Closed) &&
-               driver != null;
-#endif
       }
     }
 
     internal bool IsInUse { get; set; }
 
+    /// <summary>
+    /// Determines whether the connection is a clone of other connection.
+    /// </summary>
+    internal bool IsClone { get; set; }
+    internal bool ParentHasbeenOpen { get; set; }
     #endregion
 
     #region Properties
@@ -173,7 +170,7 @@ namespace MySql.Data.MySqlClient
     [Browsable(false)]
     public override ConnectionState State => connectionState;
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/ServerVersion/*'/>#if !NETSTANDARD1_6
+    /// <include file='docs/MySqlConnection.xml' path='docs/ServerVersion/*'/>
     [Browsable(false)]
     public override string ServerVersion => driver.Version.ToString();
 
@@ -190,7 +187,8 @@ namespace MySql.Data.MySqlClient
       {
         // Always return exactly what the user set.
         // Security-sensitive information may be removed.
-        return Settings.GetConnectionString(!hasBeenOpen || Settings.PersistSecurityInfo);
+        return Settings.GetConnectionString(!IsClone ? (!hasBeenOpen || Settings.PersistSecurityInfo) :
+        !Settings.PersistSecurityInfo ? (ParentHasbeenOpen ? false : !hasBeenOpen) : (Settings.PersistSecurityInfo));
       }
       set
       {
@@ -206,7 +204,7 @@ namespace MySql.Data.MySqlClient
           else
           {
             newSettings = ConnectionStringCache[value];
-            if (null == newSettings)
+            if (null == newSettings || FailoverManager.FailoverGroup == null)
             {
               newSettings = new MySqlConnectionStringBuilder(value);
               ConnectionStringCache.Add(value, newSettings);
@@ -224,9 +222,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#if !NETSTANDARD1_6
     protected override DbProviderFactory DbProviderFactory => MySqlClientFactory.Instance;
-#endif
     /// <summary>
     /// Gets a boolean value that indicates whether the password associated to the connection is expired.
     /// </summary>
@@ -267,7 +263,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/BeginTransaction1/*'/>
-    public new MySqlTransaction BeginTransaction(IsolationLevel iso)
+    public new MySqlTransaction BeginTransaction(IsolationLevel iso, string scope = "")
     {
       //TODO: check note in help
       if (State != ConnectionState.Open)
@@ -281,7 +277,7 @@ namespace MySql.Data.MySqlClient
 
       MySqlCommand cmd = new MySqlCommand("", this);
 
-      cmd.CommandText = "SET SESSION TRANSACTION ISOLATION LEVEL ";
+      cmd.CommandText = $"SET {scope} TRANSACTION ISOLATION LEVEL ";
       switch (iso)
       {
         case IsolationLevel.ReadCommitted:
@@ -374,7 +370,6 @@ namespace MySql.Data.MySqlClient
 
       SetState(ConnectionState.Connecting, true);
 
-#if !NETSTANDARD1_6
       AssertPermissions();
 
       //TODO: SUPPORT FOR 452 AND 46X
@@ -389,13 +384,12 @@ namespace MySql.Data.MySqlClient
           Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
       }
 
-#endif
+      MySqlConnectionStringBuilder currentSettings = Settings;
       try
       {
-        MySqlConnectionStringBuilder currentSettings = Settings;
         if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
         {
-          _sshClient = MySqlSshClientManager.SetupSshClient(
+          _sshHandler = new Ssh(
             Settings.SshHostName,
             Settings.SshUserName,
             Settings.SshPassword,
@@ -404,12 +398,26 @@ namespace MySql.Data.MySqlClient
             Settings.SshPort,
             Settings.Server,
             Settings.Port,
-            false);
-        }          
+            false
+          );
+          _sshHandler.StartClient();
+        }
 
-        //TODO: SUPPORT FOR 452 AND 46X
-        // Load balancing 
-#if !NETSTANDARD1_6
+        if (!Settings.Pooling || MySqlPoolManager.Hosts == null)
+        {
+          FailoverManager.Reset();
+
+          if (Settings.DnsSrv)
+          {
+            var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(Settings.Server);
+            FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
+              FailoverMethod.Sequential);
+          }
+          else
+            FailoverManager.ParseHostList(Settings.Server, false);
+        }
+
+        // Load balancing && Failover
         if (ReplicationManager.IsReplicationGroup(Settings.Server))
         {
           if (driver == null)
@@ -419,15 +427,24 @@ namespace MySql.Data.MySqlClient
           else
             currentSettings = driver.Settings;
         }
-#endif
+        else if (FailoverManager.FailoverGroup != null && !Settings.Pooling)
+        {
+          FailoverManager.AttemptConnection(this, Settings.ConnectionString, out string connectionString);
+          currentSettings.ConnectionString = connectionString;
+        }
 
         if (Settings.Pooling)
         {
+          if (FailoverManager.FailoverGroup != null)
+          {
+            FailoverManager.AttemptConnection(this, Settings.ConnectionString, out string connectionString, true);
+            currentSettings.ConnectionString = connectionString;
+          }
+
           MySqlPool pool = MySqlPoolManager.GetPool(currentSettings);
           if (driver == null || !driver.IsOpen)
             driver = pool.GetConnection();
           ProcedureCache = pool.ProcedureCache;
-
         }
         else
         {
@@ -445,6 +462,11 @@ namespace MySql.Data.MySqlClient
       SetState(ConnectionState.Open, false);
       driver.Configure(this);
 
+      if (driver.IsPasswordExpired && Settings.Pooling)
+      {
+        MySqlPoolManager.ClearPool(currentSettings);
+      }
+
       if (!(driver.SupportsPasswordExpiration && driver.IsPasswordExpired))
       {
         if (!string.IsNullOrEmpty(Settings.Database))
@@ -457,13 +479,137 @@ namespace MySql.Data.MySqlClient
 
       // if we are opening up inside a current transaction, then autoenlist
       // TODO: control this with a connection string option
-#if !NETSTANDARD1_6
       if (Transaction.Current != null && Settings.AutoEnlist)
         EnlistTransaction(Transaction.Current);
-#endif
 
       hasBeenOpen = true;
       SetState(ConnectionState.Open, true);
+    }
+
+    /// <summary>
+    /// Initializes the <see cref="FailoverManager"/> if more than one host is found.
+    /// </summary>
+    /// <param name="hierPart">A string containing an unparsed list of hosts.</param>
+    /// <param name="connectionDataIsUri"><c>true</c> if the connection data is a URI; otherwise <c>false</c>.</param>
+    /// <returns>The number of hosts found, -1 if an error was raised during parsing.</returns>
+    private int ParseHostList(string hierPart)
+    {
+      if (string.IsNullOrWhiteSpace(hierPart)) return -1;
+
+      int hostCount = -1;
+      FailoverMethod failoverMethod = FailoverMethod.Random;
+      string[] hostArray = null;
+      List<FailoverServer> hostList = new List<FailoverServer>();
+      hierPart = hierPart.Replace(" ", "");
+
+      if (!hierPart.StartsWith("(") && !hierPart.EndsWith(")"))
+      {
+        hostArray = hierPart.Split(',');
+        foreach (var host in hostArray)
+          hostList.Add(this.ConvertToFailoverServer(host));
+
+        if (hostArray.Length == 1)
+          return 1;
+
+        hostCount = hostArray.Length;
+      }
+      else
+      {
+        string[] groups = hierPart.Split(new string[] { "),(" }, StringSplitOptions.RemoveEmptyEntries);
+        bool? allHavePriority = null;
+        int defaultPriority = 100;
+        foreach (var group in groups)
+        {
+          // Remove leading parenthesis.
+          var normalizedGroup = group;
+          if (normalizedGroup.StartsWith("("))
+            normalizedGroup = group.Substring(1);
+
+          if (normalizedGroup.EndsWith(")"))
+            normalizedGroup = normalizedGroup.Substring(0, normalizedGroup.Length - 1);
+
+          string[] items = normalizedGroup.Split(',');
+          string[] keyValuePairs = items[0].Split('=');
+          if (keyValuePairs[0].ToLowerInvariant() != "address")
+            throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound, "address"));
+
+          string host = keyValuePairs[1];
+          if (string.IsNullOrWhiteSpace(host))
+            throw new ArgumentNullException("server");
+
+          if (items.Length == 2)
+          {
+            if (allHavePriority != null && allHavePriority == false)
+              throw new ArgumentException(ResourcesX.PriorityForAllOrNoHosts);
+
+            allHavePriority = allHavePriority ?? true;
+            keyValuePairs = items[1].Split('=');
+            if (keyValuePairs[0].ToLowerInvariant() != "priority")
+              throw new KeyNotFoundException(string.Format(ResourcesX.KeywordNotFound, "priority"));
+
+            if (string.IsNullOrWhiteSpace(keyValuePairs[1]))
+              throw new ArgumentNullException("priority");
+
+            int priority = -1;
+            if (!Int32.TryParse(keyValuePairs[1], out priority) || priority < 0 || priority > 100)
+              throw new ArgumentException(ResourcesX.PriorityOutOfLimits);
+
+            hostList.Add(ConvertToFailoverServer(host, priority));
+          }
+          else
+          {
+            if (allHavePriority != null && allHavePriority == true)
+              throw new ArgumentException(ResourcesX.PriorityForAllOrNoHosts);
+
+            allHavePriority = allHavePriority ?? false;
+
+            hostList.Add(ConvertToFailoverServer(host, defaultPriority > 0 ? defaultPriority-- : 0));
+          }
+        }
+
+        hostCount = groups.Length;
+        failoverMethod = FailoverMethod.Priority;
+      }
+
+      FailoverManager.SetHostList(hostList, failoverMethod);
+      return hostCount;
+    }
+
+    /// <summary>
+    /// Creates a <see cref="FailoverServer"/> object based on the provided parameters.
+    /// </summary>
+    /// <param name="host">The host string which can be a simple host name or a host name and port.</param>
+    /// <param name="priority">The priority of the host.</param>
+    /// <param name="port">The port number of the host.</param>
+    /// <returns></returns>
+    private FailoverServer ConvertToFailoverServer(string host, int priority = -1, int port = -1)
+    {
+      host = host.Trim();
+      int colonIndex = -1;
+      if (IPAddress.TryParse(host, out IPAddress address))
+      {
+        switch (address.AddressFamily)
+        {
+          case System.Net.Sockets.AddressFamily.InterNetworkV6:
+            if (host.StartsWith("[") && host.Contains("]") && !host.EndsWith("]"))
+              colonIndex = host.LastIndexOf(":");
+
+            break;
+          default:
+            colonIndex = host.IndexOf(":");
+            break;
+        }
+      }
+      else
+        colonIndex = host.IndexOf(":");
+
+      if (colonIndex != -1)
+      {
+        int.TryParse(host.Substring(colonIndex + 1), out port);
+        host = host.Substring(0, colonIndex);
+      }
+
+      return new FailoverServer(host, port, priority);
     }
 
     /// <include file='docs/MySqlConnection.xml' path='docs/CreateCommand/*'/>
@@ -496,7 +642,6 @@ namespace MySql.Data.MySqlClient
     {
       if (Settings.Pooling && driver.IsOpen)
       {
-#if !NETSTANDARD1_6
         //TODO: SUPPORT FOR 452 AND 46X
         //// if we are in a transaction, roll it back
         if (driver.HasStatus(ServerStatusFlags.InTransaction))
@@ -504,12 +649,12 @@ namespace MySql.Data.MySqlClient
           MySql.Data.MySqlClient.MySqlTransaction t = new MySql.Data.MySqlClient.MySqlTransaction(this, IsolationLevel.Unspecified);
           t.Rollback();
         }
-#endif
 
         MySqlPoolManager.ReleaseConnection(driver);
       }
       else
         driver.Close();
+
       driver = null;
     }
 
@@ -528,23 +673,21 @@ namespace MySql.Data.MySqlClient
       // will be null on the second time through
       if (driver != null)
       {
-#if !NETSTANDARD1_6
         //TODO: Add support for 452 and 46X
         if (driver.currentTransaction == null)
-#endif
-        CloseFully();
-#if !NETSTANDARD1_6
+          CloseFully();
         //TODO: Add support for 452 and 46X
         else
           driver.IsInActiveUse = false;
-#endif
       }
 
-      if (_sshClient != null && _sshClient.IsConnected)
+      if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
       {
-        _sshClient.ForwardedPorts.First().Stop();
-        _sshClient.Disconnect();
+        _sshHandler?.StopClient();
       }
+
+      FailoverManager.Reset();
+      MySqlPoolManager.Hosts = null;
 
       SetState(ConnectionState.Closed, true);
     }
@@ -606,18 +749,15 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-	/// <summary>
+    /// <summary>
     /// Cancels the query after the specified time interval.
     /// </summary>
     /// <param name="timeout">The length of time (in seconds) to wait for the cancelation of the command execution.</param>
     public void CancelQuery(int timeout)
     {
-      MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(
-        Settings.ConnectionString);
+      var cb = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       cb.Pooling = false;
-#if !NETSTANDARD1_6
       cb.AutoEnlist = false;
-#endif
       cb.ConnectionTimeout = (uint)timeout;
 
       using (MySqlConnection c = new MySqlConnection(cb.ConnectionString))
@@ -630,7 +770,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#region Routines for timeout support.
+    #region Routines for timeout support.
 
     // Problem description:
     // Sometimes, ExecuteReader is called recursively. This is the case if
@@ -691,12 +831,12 @@ namespace MySql.Data.MySqlClient
     }
     #endregion
 
-	  /// <summary>
+    /// <summary>
     /// Gets a schema collection based on the provided restriction values.
     /// </summary>
     /// <param name="collectionName">The name of the collection.</param>
     /// <param name="restrictionValues">The values to restrict.</param>
-	  /// <returns>A schema collection object.</returns>
+    /// <returns>A schema collection object.</returns>
     public MySqlSchemaCollection GetSchemaCollection(string collectionName, string[] restrictionValues)
     {
       if (collectionName == null)
@@ -725,13 +865,9 @@ namespace MySql.Data.MySqlClient
 
     internal void Throw(Exception ex)
     {
-#if !NETSTANDARD1_6
       if (_exceptionInterceptor == null)
         throw ex;
       _exceptionInterceptor.Throw(ex);
-#else
-      throw ex;
-#endif
     }
 
     public new void Dispose()
@@ -799,7 +935,7 @@ namespace MySql.Data.MySqlClient
       return result.Task;
     }
 
-	/// <summary>
+    /// <summary>
     /// Asynchronous version of the ChangeDataBase method.
     /// </summary>
     /// <param name="databaseName">The name of the database to use.</param>
@@ -853,10 +989,10 @@ namespace MySql.Data.MySqlClient
       return CloseAsync(CancellationToken.None);
     }
 
-	  /// <summary>
+    /// <summary>
     /// Asynchronous version of the Close method.
     /// </summary>
-	  /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public Task CloseAsync(CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<bool>();
@@ -888,11 +1024,11 @@ namespace MySql.Data.MySqlClient
       return ClearPoolAsync(connection, CancellationToken.None);
     }
 
-	/// <summary>
+    /// <summary>
     /// Asynchronous version of the ClearPool method.
     /// </summary>
     /// <param name="connection">The connection associated with the pool to be cleared.</param>
-	/// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public Task ClearPoolAsync(MySqlConnection connection, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<bool>();
@@ -923,10 +1059,10 @@ namespace MySql.Data.MySqlClient
       return ClearAllPoolsAsync(CancellationToken.None);
     }
 
-	  /// <summary>
+    /// <summary>
     /// Asynchronous version of the ClearAllPools method.
     /// </summary>
-	  /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public Task ClearAllPoolsAsync(CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<bool>();
@@ -960,12 +1096,12 @@ namespace MySql.Data.MySqlClient
       return GetSchemaCollectionAsync(collectionName, restrictionValues, CancellationToken.None);
     }
 
-	  /// <summary>
+    /// <summary>
     /// Asynchronous version of the GetSchemaCollection method.
     /// </summary>
     /// <param name="collectionName">The name of the collection.</param>
     /// <param name="restrictionValues">The values to restrict.</param>
-	  /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of schema objects.</returns>
     public Task<MySqlSchemaCollection> GetSchemaCollectionAsync(string collectionName, string[] restrictionValues, CancellationToken cancellationToken)
     {

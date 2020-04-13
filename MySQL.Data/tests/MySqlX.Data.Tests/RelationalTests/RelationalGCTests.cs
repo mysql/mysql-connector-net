@@ -34,7 +34,7 @@ namespace MySqlX.Data.Tests.ResultTests
 {
   public class RelationalGCTests : BaseTest
   {
-#if !NETCOREAPP2_2
+#if !(NETCOREAPP2_2 || NETCOREAPP3_0)
     [Fact]
     public void FetchAllNoReference()
     {

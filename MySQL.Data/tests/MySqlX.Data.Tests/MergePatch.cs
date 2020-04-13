@@ -528,8 +528,8 @@ namespace MySqlX.Data.Tests
       DbDoc document = ExecuteFindStatement(collection.Find()).FetchOne();
       Assert.True(document.values.ContainsKey("nullfield"));
       var nullArray = (object[]) document.values["nullfield"];
-      Assert.Equal(null, nullArray[0]);
-      Assert.Equal(null, nullArray[1]);
+      Assert.Null(nullArray[0]);
+      Assert.Null(nullArray[1]);
 
       ExecuteModifyStatement(collection.Modify("true").Patch("{ \"nullfield\": { \"nested\": NULL } }"));
       document = ExecuteFindStatement(collection.Find()).FetchOne();
@@ -539,8 +539,8 @@ namespace MySqlX.Data.Tests
       ExecuteModifyStatement(collection.Modify("true").Patch("{ \"nullfield\": { \"nested\": [NULL, NULL] } }"));
       document = ExecuteFindStatement(collection.Find()).FetchOne();
       var nestedNullArray = (object[])((Dictionary<string, object>) document.values["nullfield"])["nested"];
-      Assert.Equal(null, nestedNullArray[0]);
-      Assert.Equal(null, nestedNullArray[1]);
+      Assert.Null(nestedNullArray[0]);
+      Assert.Null(nestedNullArray[1]);
     }
 
     [Fact]
@@ -558,8 +558,8 @@ namespace MySqlX.Data.Tests
       ExecuteModifyStatement(collection.Modify("true").Patch("{ \"additionalinfo\": { \"nullfield\": [NULL, NULL] } }"));
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       var nestedNullArray = (object[]) ((Dictionary<string, object>) document.values["additionalinfo"])["nullfield"];
-      Assert.Equal(null, nestedNullArray[0]);
-      Assert.Equal(null, nestedNullArray[1]);
+      Assert.Null(nestedNullArray[0]);
+      Assert.Null(nestedNullArray[1]);
 
       ExecuteModifyStatement(collection.Modify("true").Patch("{ \"additionalinfo\": { \"nullfield\": { \"nested\": NULL } } }"));
       document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
@@ -568,13 +568,13 @@ namespace MySqlX.Data.Tests
       ExecuteModifyStatement(collection.Modify("true").Patch("{ \"additionalinfo\": { \"nullfield\": { \"nested\": [NULL, NULL] } } }"));
       document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       nestedNullArray = (object[]) ((Dictionary<string, object>)((Dictionary<string, object>) document.values["additionalinfo"])["nullfield"])["nested"];
-      Assert.Equal(null, nestedNullArray[0]);
-      Assert.Equal(null, nestedNullArray[1]);
+      Assert.Null(nestedNullArray[0]);
+      Assert.Null(nestedNullArray[1]);
 
       ExecuteModifyStatement(collection.Modify("true").Patch("{ \"additionalinfo\": { \"nullfield\": { \"nested\": JSON_OBJECT('field', null) } } }"));
       document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       var nestedObject = (Dictionary<string, object>)((Dictionary<string, object>)((Dictionary<string, object>)document.values["additionalinfo"])["nullfield"])["nested"];
-      Assert.Equal(0, nestedObject.Count);
+      Assert.Empty(nestedObject);
     }
 
     #endregion

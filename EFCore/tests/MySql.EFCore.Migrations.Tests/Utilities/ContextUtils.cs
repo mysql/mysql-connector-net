@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,13 +29,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.EntityFrameworkCore.Tests;
-using MySql.Data.EntityFrameworkCore;
 using System;
 using MySql.Data.EntityFrameworkCore.Extensions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests.Utilities
 {
@@ -81,13 +79,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests.Utilities
     private ModelBuilder CreateConventionBuilder()
     {
       var contextServices = CreateContextServices();
-
-      var conventionSetBuilder = contextServices.GetRequiredService<IConventionSetBuilder>();
-       var conventionSet = contextServices.GetRequiredService<ICoreConventionSetBuilder>().CreateConventionSet();
-      conventionSet = conventionSetBuilder == null
-          ? conventionSet
-          : conventionSetBuilder.AddConventions(conventionSet);
-      return new ModelBuilder(conventionSet);
+      return new ModelBuilder(contextServices.GetRequiredService<IProviderConventionSetBuilder>().CreateConventionSet());
     }
 
     public ModelBuilder CreateModelBuilder() => CreateConventionBuilder();

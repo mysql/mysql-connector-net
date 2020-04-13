@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,8 +27,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Xunit;
 using System.Data;
+using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -128,11 +128,10 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCOREAPP1_1
     [Fact]
     public void RespectBinaryFlags()
     {
-      if (Connection.driver.Version.isAtLeast(5,5,0)) return;
+      if (Connection.driver.Version.isAtLeast(5, 5, 0)) return;
 
       string connStr = Connection.ConnectionString + ";respect binary flags=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -158,7 +157,6 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal("Trädgårdsvägen1", dt.Rows[0][0]);
       }
     }
-#endif
 
     [Fact]
     public void RussianErrorMessagesShowCorrectly()
@@ -447,7 +445,7 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlDataReader reader = cmd.ExecuteReader();
         reader.Read();
 
-        if (Connection.driver.Version.isAtLeast(8,0,1))
+        if (Connection.driver.Version.isAtLeast(8, 0, 1))
           Assert.Equal("utf8mb4", reader.GetString("Value"));
         else
           Assert.Equal("latin1", reader.GetString("Value"));

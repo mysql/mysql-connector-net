@@ -55,8 +55,8 @@ namespace MySql.Data.common
         VerifyDates(sslCA);
         VerifyCAStatus(sslCA, true);
 #if NET452
-          VerifySignature(sslCA, DotNetUtilities.FromX509Certificate(certificate));
-#elif !NETSTANDARD1_6
+        VerifySignature(sslCA, DotNetUtilities.FromX509Certificate(certificate));
+#else
         VerifySignature(sslCA, new X509CertificateParser().ReadCertificate(certificate.GetRawCertData()));
 #endif
       }
@@ -110,11 +110,7 @@ namespace MySql.Data.common
         {
           if (offset >= stream.Length)
           {
-#if NETSTANDARD1_6
-            stream.Dispose();
-#else
             stream.Close();
-#endif
             break;
           }
           offset += stream.Read(buffer, offset, buffer.Length - offset);

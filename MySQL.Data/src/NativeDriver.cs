@@ -1,4 +1,4 @@
-// Copyright © 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,7 +33,6 @@ using System;
 using System.Collections;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -191,10 +190,8 @@ namespace MySql.Data.MySqlClient
       try
       {
         baseStream = StreamCreator.GetStream(Settings);
-#if !NETSTANDARD1_6
         if (Settings.IncludeSecurityAsserts)
           MySqlSecurityPermission.CreatePermissionSet(false).Assert();
-#endif
       }
       catch (System.Security.SecurityException)
       {
@@ -291,7 +288,8 @@ namespace MySql.Data.MySqlClient
           Settings.CertificateThumbprint,
           Settings.SslCa,
           Settings.SslCert,
-          Settings.SslKey)
+          Settings.SslKey,
+          Settings.TlsVersion)
           .StartSSL(ref baseStream, Encoding, Settings.ToString());
         packet.Clear();
         packet.WriteInteger((int)connectionFlags, 4);
@@ -836,11 +834,8 @@ namespace MySql.Data.MySqlClient
         foreach (PropertyInfo property in attrs.GetType().GetProperties())
         {
           string name = property.Name;
-#if NETSTANDARD1_6
-          object[] customAttrs = property.GetCustomAttributes(typeof(DisplayNameAttribute), false).ToArray<object>();
-#else
           object[] customAttrs = property.GetCustomAttributes(typeof(DisplayNameAttribute), false);
-#endif
+
           if (customAttrs.Length > 0)
             name = (customAttrs[0] as DisplayNameAttribute).DisplayName;
 

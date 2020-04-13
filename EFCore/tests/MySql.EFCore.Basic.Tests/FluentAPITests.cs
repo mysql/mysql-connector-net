@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -248,7 +248,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.Employees.Add(e);
         context.SaveChanges();
         var result = context.Employees.Where(t => t.FirstName.Contains("jo")).ToList();
-        Assert.Equal(1, result.Count);
+        Assert.Single(result);
         context.Database.EnsureDeleted();
       }
     }
@@ -270,7 +270,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.SaveChanges();
         var test = "jo";
         var result = context.Employees.Where(t => t.FirstName.Contains(test)).ToList();
-        Assert.Equal(1, result.Count);
+        Assert.Single(result);
         context.Database.EnsureDeleted();
       }
     }
@@ -292,9 +292,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.Employees.Add(e);
         context.SaveChanges();
         var result = context.Employees.Where(t => t.FirstName.Contains("XXXXXXXX$%^&*()!")).ToList();
-        Assert.Equal(0, result.Count);
+        Assert.Empty(result);
         result = context.Employees.Where(t => t.FirstName.Contains(null)).ToList();
-        Assert.Equal(0, result.Count);
+        Assert.Empty(result);
         context.Database.EnsureDeleted();
       }
     }
@@ -317,7 +317,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.SaveChanges();
         var avalue = "jo";
         var result = context.Employees.Where(t => t.FirstName.Contains(avalue)).ToList();
-        Assert.Equal(1, result.Count);
+        Assert.Single(result);
         context.Database.EnsureDeleted();
       }
     }

@@ -30,7 +30,6 @@ using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
-using MySqlX.XDevAPI.Relational;
 using System;
 using Xunit;
 
@@ -123,7 +122,7 @@ namespace MySqlX.Data.Tests
         ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         Assert.Equal(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
         session.RollbackTo(sp);
-        Assert.Equal(1, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.Single(ExecuteFindStatement(coll.Find()).FetchAll());
 
         session.Rollback();
       }
@@ -179,7 +178,7 @@ namespace MySqlX.Data.Tests
         ExecuteAddStatement(coll.Add("{ \"test2\": \"test2\" }"));
         Assert.Equal(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
         session.RollbackTo(sp);
-        Assert.Equal(1, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.Single(ExecuteFindStatement(coll.Find()).FetchAll());
 
         session.Rollback();
       }

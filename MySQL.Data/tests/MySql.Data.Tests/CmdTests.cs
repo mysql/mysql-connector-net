@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -609,7 +609,6 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
     #endregion
 
-#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #59616	Only INSERTs are batched
     /// </summary>
@@ -678,7 +677,29 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand newCommand = cmd.Clone() as MySqlCommand;
       IDbCommand newCommand2 = (IDbCommand)(cmd as ICloneable).Clone();
     }
-#endif
+
+    /// <summary>
+    /// Bug 27441433 - RESETREADER: MYSQLDATAREADER CANNOT OUTLIVE PARENT MYSQLCOMMAND SINCE 6.10
+    /// </summary>
+    [Fact]
+    public void ExecuteReaderAfterClosingCommand()
+    {
+      MySqlDataReader reader;
+
+      using (MySqlConnection conn = new MySqlConnection(Connection.ConnectionString))
+      {
+        using (MySqlCommand cmd = new MySqlCommand("SELECT 'TEST'", conn))
+        {
+          conn.Open();
+          cmd.CommandType = CommandType.Text;
+          reader = cmd.ExecuteReader();
+        }
+
+        Assert.True(reader.Read());
+        Assert.Equal("TEST", reader.GetString(0));
+        Assert.False(reader.Read());
+      }
+    }
 
     #region SQL Injection
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -44,7 +44,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal(@"{
   ""_id"": 1, 
   ""pages"": 20
-}".Replace("\r\n", Environment.NewLine), d.ToString());
+}", d.ToString(), ignoreLineEndingDifferences: true);
     }
 
     [Fact]
@@ -105,8 +105,8 @@ namespace MySqlX.Data.Tests
       d2.SetValue("id", 1);
       d2.SetValue("pages", 20);
       d2.SetValue("books", docs);
-      Assert.Equal(d.ToString(), d2.ToString());
-      Assert.Equal(json.Replace("\r\n", Environment.NewLine), d2.ToString());
+      Assert.Equal(d.ToString(), d2.ToString(), ignoreLineEndingDifferences: true);
+      Assert.Equal(json, d2.ToString(), ignoreLineEndingDifferences: true);
     }
 
     [Fact]

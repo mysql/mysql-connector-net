@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,20 +26,35 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-using MySql.Data.EntityFrameworkCore.Storage.Internal;
-using MySql.EntityFrameworkCore.Migrations.Tests.Utilities;
-using MySql.Data.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Metadata;
-using MySql.Data.EntityFrameworkCore.Migrations;
-using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.EntityFrameworkCore.Extensions;
+using MySql.Data.EntityFrameworkCore.Tests;
 using Xunit;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests
 {
   public partial class MySQLMigrationsGeneratorTest : MySQLMigrationsGeneratorTestBase
   {
+    protected override IMigrationsSqlGenerator SqlGenerator
+    {
+      get
+      {
+        var optionsBuilder = new DbContextOptionsBuilder();
+        optionsBuilder.UseMySQL(MySQLTestStore.rootConnectionString + "database=test;");
+
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddEntityFrameworkMySQL()
+          .AddDbContext<MyTestContext>();
+
+        optionsBuilder.UseInternalServiceProvider(serviceCollection.BuildServiceProvider());
+
+        return new DbContext(optionsBuilder.Options).GetService<IMigrationsSqlGenerator>();
+      }
+    }
+
     [Fact]
     public override void CreateTableOperation()
     {
@@ -72,7 +87,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     public override void AddColumnOperationWithComputedValueSql()
     {
       base.AddColumnOperationWithComputedValueSql();
-      Assert.Equal("ALTER TABLE `People` ADD `DisplayName` varchar(50) AS  (CONCAT_WS(' ', LastName , FirstName));" + EOL, Sql);
+      Assert.Equal("ALTER TABLE `People` ADD `DisplayName` varchar(50) AS (CONCAT_WS(' ', LastName , FirstName));" + EOL, Sql);
     }
 
     [Fact]
@@ -101,7 +116,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     public override void RenameTableOperationInSchema()
     {
       base.RenameTableOperationInSchema();
-      Assert.Equal("ALTER TABLE t1 RENAME t2;" + EOL, Sql);            
+      Assert.Equal("ALTER TABLE t1 RENAME t2;" + EOL, Sql);
     }
 
     [Fact]
@@ -115,21 +130,36 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     public override void CreateNonUniqueIndexOperation()
     {
       base.CreateNonUniqueIndexOperation();
-      
+
       Assert.Equal("CREATE INDEX `IXPersonName` ON `Person` (`Name`);" + EOL, Sql);
     }
-    
+
     [Fact(Skip = "Rename index not supported yet")]
     public override void RenameIndexOperation()
     {
       base.RenameIndexOperation();
       Assert.Equal("DROP INDEX IXPersonName ON Person; CREATE INDEX IXNombre;" + EOL, Sql);
     }
-    
+
+    [Fact]
     public override void DropIndexOperation()
     {
       base.DropIndexOperation();
       Assert.Equal("DROP INDEX IXPersonName ON Person;" + EOL, Sql);
+    }
+
+    [Fact]
+    public override void DropPrimaryKeyOperation()
+    {
+      base.DropPrimaryKeyOperation();
+      Assert.Equal(string.Empty, Sql);
+  }
+
+    [Fact]
+    public override void AddPrimaryKeyOperation()
+    {
+      base.AddPrimaryKeyOperation();
+      Assert.Equal(string.Empty, Sql);
     }
   }
 }

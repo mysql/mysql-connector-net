@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,16 +27,11 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
-#if !NETCOREAPP1_1
 using System.Transactions;
 using System.Data.Common;
-#endif
 using System.Data;
 using System.Threading;
-using System.Diagnostics;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -46,7 +41,6 @@ namespace MySql.Data.MySqlClient.Tests
     {
     }        
 
-#if !NETCOREAPP1_1
     void TransactionScopeInternal(bool commit)
     {
       executeSQL("DROP TABLE IF EXISTS Test");
@@ -129,7 +123,6 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-#endif
 
     [Fact]
     public void TransactionReadOnlyIsAvailable()
@@ -252,7 +245,6 @@ namespace MySql.Data.MySqlClient.Tests
     //    }
 
 
-#if !NETCOREAPP1_1
     /// <summary>
     /// Bug #22042 mysql-connector-net-5.0.0-alpha BeginTransaction 
     /// </summary>
@@ -767,6 +759,49 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    [Fact]
+    /// <summary>
+    ///  Bug #26035791	WRONG ISOLATION LEVEL FOR BEGIN TRANSACTION
+    /// </summary>
+    public void Bug26035791()
+    {
+      using (MySqlConnection db = new MySqlConnection(Connection.ConnectionString))
+      {
+
+        executeSQL("Create Table TransTest(id int, name varchar(50))");
+        executeSQL("INSERT INTO TransTest VALUES(1, 'Test1')");
+        db.Open();
+        string initialLevel = string.Empty;
+        string finalLevel = string.Empty;
+
+        MySqlCommand cmd = new MySqlCommand(@"SHOW VARIABLES WHERE variable_name like '%isolation%'", db);
+        using (MySqlDataReader reader = cmd.ExecuteReader())
+        {
+          reader.Read();
+          initialLevel = reader.GetString(1);
+        }
+
+        using (MySqlTransaction transaction = db.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted))
+        {
+          MySqlCommand cmd2 = new MySqlCommand(@"INSERT INTO TransTest VALUES(2, 'second')", db, transaction);
+          cmd2.ExecuteNonQuery();
+
+          cmd2 = new MySqlCommand(@"select count(*) from TransTest", db, transaction);
+          int.TryParse(cmd2.ExecuteScalar().ToString(), out int n1); // If ReadUncommitted is applied we should be able to read inserted record before commit
+          Assert.True(n1 == 2);
+          transaction.Commit();
+        }
+        executeSQL("drop table TransTest");
+        cmd = new MySqlCommand(@"SHOW VARIABLES WHERE variable_name like '%isolation%'", db);
+        using (MySqlDataReader reader = cmd.ExecuteReader())
+        {
+          reader.Read();
+          finalLevel = reader.GetString(1);
+        }
+        Assert.Equal(initialLevel, finalLevel); // Isolation level should be the same after the transaction
+      }
+    }
+
     /// <summary>
     /// Related to bug http://bugs.mysql.com/bug.php?id=71502
     /// </summary>
@@ -794,6 +829,5 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#endif
   }
 }

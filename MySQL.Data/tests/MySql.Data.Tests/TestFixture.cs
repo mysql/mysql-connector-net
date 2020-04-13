@@ -1,4 +1,4 @@
-// Copyright © 2016, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -67,7 +67,7 @@ namespace MySql.Data.MySqlClient.Tests
       settings.Port = port == null ? 3306 : UInt32.Parse(port);
       settings.UserID = "root";
       settings.Password = null;
-#if !(NETCOREAPP1_1 || NETCOREAPP2_2)
+#if NET452
       var memName = Environment.GetEnvironmentVariable("MYSQL_MEM");
       settings.SharedMemoryName = memName == null ? "MySQLSocket" : memName;
       var pipeName = Environment.GetEnvironmentVariable("MYSQL_PIPE");
@@ -84,6 +84,7 @@ namespace MySql.Data.MySqlClient.Tests
       RootSettings = new MySqlConnectionStringBuilder(settings.GetConnectionString(true));
       Settings = new MySqlConnectionStringBuilder(settings.GetConnectionString(true));
       Version = GetVersion();
+      Debug.Assert(!string.IsNullOrEmpty(BaseDBName));
       InitializeDatabase();
     }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,9 +27,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using MySql.Data.EntityFrameworkCore.Extensions;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;
@@ -62,7 +59,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
                   .Take(1)
                   .ToList();
 
-      Assert.Equal(1, people.Count);
+      Assert.Single(people);
     }
 
     [Fact]
@@ -130,10 +127,10 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             .ToList();
 
       Assert.Equal(3, list.Count);
-      Assert.True(list.First().City.EndsWith(" city"));
+      Assert.EndsWith(" city", list.First().City);
     }
 
-    private string SetCity(string name)
+    private static string SetCity(string name)
     {
       return name + " city";
     }
@@ -142,7 +139,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     public void RawSqlQueries()
     {
       Assert.False(context.Database.EnsureCreated());
-      var guests = context.Set<Guest>().FromSql("SELECT * FROM Guests")
+      var guests = context.Set<Guest>().FromSqlRaw("SELECT * FROM Guests")
         .ToList();
       Assert.Equal(4, guests.Count);
     }
@@ -190,12 +187,16 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             jsonTableDesc = reader.GetString(1);
           }
           string charset = "latin1";
+          string smallintWidth = "(6)";
           if (conn.driver.Version.isAtLeast(8, 0, 1))
+          {
             charset = "utf8mb4";
+            smallintWidth = string.Empty;
+          }
           //Adding "COLLATION" to the string validation at table creation (this happens since MySql 8.0.5 Server)
-          if (jsonTableDesc.Contains("COLLATE=utf8mb4_0900_ai_ci")) Assert.Equal($"CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT," +
+          if (jsonTableDesc.Contains("COLLATE=utf8mb4_0900_ai_ci")) Assert.Equal($"CREATE TABLE `jsonentity` (\n  `Id` smallint{smallintWidth} NOT NULL AUTO_INCREMENT," +
             $"\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET={charset} COLLATE=utf8mb4_0900_ai_ci", jsonTableDesc, true, true, true);
-          else Assert.Equal($"CREATE TABLE `jsonentity` (\n  `Id` smallint(6) NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) " +
+          else Assert.Equal($"CREATE TABLE `jsonentity` (\n  `Id` smallint{smallintWidth} NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) " +
             $"ENGINE=InnoDB DEFAULT CHARSET={charset}", jsonTableDesc, true, true, true);
         }
 

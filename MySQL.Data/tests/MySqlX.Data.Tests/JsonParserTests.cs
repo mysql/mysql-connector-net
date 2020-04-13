@@ -71,7 +71,7 @@ namespace MySqlX.Data.Tests
 
       document = ExecuteFindStatement(collection.Find()).FetchOne();
       Assert.True(document.values.ContainsKey("isDocument"));
-      Assert.Equal(null, document.values["isDocument"]);
+      Assert.Null(document.values["isDocument"]);
     }
 
     [Fact]

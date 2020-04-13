@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -257,8 +257,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
         entity.Property(e => e.BuildingName10)
             .IsRequired()
             .HasColumnName("building_name10")
-            .HasColumnType("longblob")
-            .HasMaxLength(-1);
+            .HasColumnType("longblob");
 
         entity.Property(e => e.BuildingName11)
             .IsRequired()
@@ -314,8 +313,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
         entity.Property(e => e.BuildingName5)
             .IsRequired()
             .HasColumnName("building_name5")
-            .HasColumnType("longtext")
-            .HasMaxLength(-1);
+            .HasColumnType("longtext");
 
         entity.Property(e => e.BuildingName6)
             .IsRequired()

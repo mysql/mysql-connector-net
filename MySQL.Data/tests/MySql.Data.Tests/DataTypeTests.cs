@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -838,7 +838,11 @@ namespace MySql.Data.MySqlClient.Tests
     {
       var bytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x01, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
       MySqlGeometry v = new MySqlGeometry(MySqlDbType.Geometry, bytes);
+#if NETCOREAPP3_0
+      Assert.Equal("POINT(3.5E-323 0)", v.ToString());      
+#else
       Assert.Equal("POINT(3.45845952088873E-323 0)", v.ToString());
+#endif
     }
 
     /// <summary>
@@ -873,15 +877,41 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         var val = reader.GetMySqlGeometry(0);
         var valWithName = reader.GetMySqlGeometry("v");
+#if NETCOREAPP3_0
+        Assert.Equal("POINT(3.5E-323 0)", val.ToString());
+        Assert.Equal("POINT(3.5E-323 0)", valWithName.ToString());
+#else
         Assert.Equal("POINT(3.45845952088873E-323 0)", val.ToString());
         Assert.Equal("POINT(3.45845952088873E-323 0)", valWithName.ToString());
+#endif
+      }
+    }
+
+    /// <summary>
+    /// Bug #30169716 MYSQLEXCEPTION WHEN INSERTING A MYSQLGEOMETRY VALUE
+    /// Bug #30169715	WHERE CLAUSE USING MYSQLGEOMETRY AS PARAMETER FINDS NO ROWS
+    /// </summary>
+    [Fact]
+    public void Bug30169716()
+    {
+      executeSQL("DROP TABLE IF EXISTS geometries");
+      executeSQL("CREATE TABLE geometries(id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, data GEOMETRY)");
+
+      var geometry = new MySqlGeometry(1, 1);
+
+      using (var command = Connection.CreateCommand())
+      {
+        command.CommandText = "INSERT INTO geometries(data) VALUES(@data); ";
+        command.Parameters.AddWithValue("@data", geometry);
+        int result=command.ExecuteNonQuery();
+        Assert.Equal(1, result);
       }
     }
 
     #endregion
 
     /// <summary>
-    /// Bug #33322 Incorrect Double/Single value saved to MySQL database using MySQL Connector for  
+    /// Bug #33322 Incorrect Double/Single value saved to MySQL database using MySQL Connector for
     /// </summary>
     [Fact]
     public void StoringAndRetrievingDouble()
@@ -1148,6 +1178,32 @@ namespace MySql.Data.MySqlClient.Tests
 
       cmd.CommandText = "INSERT INTO test (name) VALUES ('boo2')";
       cmd.ExecuteNonQuery();
+    }
+
+    /// <summary>
+    /// Bug #29802379	LOAD A DATATABLE FROM A DATAREADER DOESN'T WORK FOR LARGE BIGINT UNSIGNED
+    /// </summary>
+    [Fact]
+    public void Bug29802379()
+    {
+      executeSQL(@"
+        CREATE TABLE `test_29802379` (
+          `ID` bigint signed NOT NULL AUTO_INCREMENT,
+          PRIMARY KEY (`ID`),
+          UNIQUE KEY `ID_UNIQUE` (`ID`)
+        ) ENGINE=InnoDB AUTO_INCREMENT=2147483648 ;
+      ");
+      executeSQL(@"
+        INSERT INTO test_29802379 (`ID`) VALUES ('2147483648');
+        INSERT INTO test_29802379 (`ID`) VALUES ('2147483649');
+      ");
+
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test_29802379;", Connection);
+      MySqlDataReader dr = cmd.ExecuteReader();
+      DataTable dataTable = new DataTable();
+      dataTable.Load(dr);
+      int records = dataTable.Rows.Count;
+      Assert.Equal<int>((int)2,records);
     }
 
     /// <summary>

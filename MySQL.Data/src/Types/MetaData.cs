@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -36,11 +36,8 @@ namespace MySql.Data.Types
   {
     public static bool IsNumericType(string typename)
     {
-#if NETSTANDARD1_6
-      string lowerType = typename.ToLowerInvariant();
-#else
       string lowerType = typename.ToLower(CultureInfo.InvariantCulture);
-#endif
+
       switch (lowerType)
       {
         case "int":
@@ -63,11 +60,8 @@ namespace MySql.Data.Types
 
     public static bool IsTextType(string typename)
     {
-#if NETSTANDARD1_6
-      string lowerType = typename.ToLowerInvariant();
-#else
       string lowerType = typename.ToLower(CultureInfo.InvariantCulture);
-#endif
+
       switch (lowerType)
       {
         case "varchar":

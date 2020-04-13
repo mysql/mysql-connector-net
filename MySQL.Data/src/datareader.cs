@@ -1,4 +1,4 @@
-// Copyright © 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -147,11 +147,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Closes the MySqlDataReader object.
     /// </summary>
-#if NETSTANDARD1_6
-    public void Close()
-#else
     public override void Close()
-#endif
     {
       if (!_isOpen) return;
 
@@ -556,6 +552,11 @@ namespace MySql.Data.MySqlClient
       return Convert.ToSingle(v.Value);
     }
 
+    public string GetBodyDefinition(string column)
+    {
+      return GetValue(GetOrdinal(column)).ToString();
+    }
+
     /// <summary>
     /// Gets the value of the specified column as a globally-unique identifier(GUID).
     /// </summary>
@@ -794,17 +795,10 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-#if !NETSTANDARD1_6
     IDataReader IDataRecord.GetData(int i)
     {
       return base.GetData(i);
     }
-#else
-    public new DbDataReader GetData(int i)
-    {
-      return base.GetData(i);
-    }
-#endif
 
     /// <summary>
     /// Gets a value indicating whether the column contains non-existent or missing values.
@@ -916,14 +910,11 @@ namespace MySql.Data.MySqlClient
         _connection.HandleTimeoutOrThreadAbort(tex);
         throw; // unreached
       }
-#if !NETSTANDARD1_6
       catch (ThreadAbortException taex)
       {
         _connection.HandleTimeoutOrThreadAbort(taex);
         throw;
       }
-
-#endif
       catch (MySqlException ex)
       {
         if (ex.IsFatal)

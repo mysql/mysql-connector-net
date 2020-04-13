@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -153,7 +153,7 @@ namespace MySqlX.Data.Tests
       using (Session mySession = MySQLX.GetSession(ConnectionString))
       {
         Assert.Equal(SessionState.Open, mySession.InternalSession.SessionState);
-        Assert.Equal(null, mySession.DefaultSchema);
+        Assert.Null(mySession.DefaultSchema);
       }
     }
 
@@ -253,6 +253,18 @@ namespace MySqlX.Data.Tests
       CheckConnectionData("mysqlx://user:password@server.example.com/", "user", "password", "server.example.com", 33060, "ssl mode", "Required");
       CheckConnectionData("mysqlx://user:password@server.example.com/?ssl-ca=(c:%5Cclient.pfx)", "user", "password", "server.example.com", 33060, "ssl mode", "Required", "ssl-ca", "c:\\client.pfx");
       Assert.Throws<NotSupportedException>(() => CheckConnectionData("mysqlx://user:password@server.example.com/?ssl-crl=(c:%5Ccrl.pfx)", "user", "password", "server.example.com", 33060, "ssl mode", "Required", "ssl-crl", "(c:\\crl.pfx)"));
+      // tls-version
+      CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=TlSv1.2", "myuser", "password", "localhost", 33060, "tls-version", "Tls12");
+      CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=TlS1.2", "myuser", "password", "localhost", 33060, "tls-version", "Tls12");
+      CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=TlSv12", "myuser", "password", "localhost", 33060, "tls-version", "Tls12");
+      CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=TlS12", "myuser", "password", "localhost", 33060, "tls-version", "Tls12");
+      CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=[ TlSv1.2 ,tLsV11, TLSv1.0 , tls13 ]", "myuser", "password", "localhost", 33060, "tls-version", "Tls, Tls11, Tls12, Tls13");
+      CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=( TlSv1.2 ,tLsV11, TLSv1 , tls13 )", "myuser", "password", "localhost", 33060, "tls-version", "Tls, Tls11, Tls12, Tls13");
+      CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version= TlSv1.2 ,tLsV11, TLSv10 , tls13", "myuser", "password", "localhost", 33060, "tls-version", "Tls, Tls11, Tls12, Tls13");
+      Assert.Throws<ArgumentException>(() => CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=TlSv1.2,tLsV2.1", "myuser", "password", "localhost", 33060, "tls-version", ""));
+      Assert.Throws<ArgumentException>(() => CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=SSL3", "myuser", "password", "localhost", 33060, "tls-version", ""));
+      Assert.Throws<ArgumentException>(() => CheckConnectionData("mysqlx://myuser:password@localhost:33060?ssl-mode=none&tls-version=TlsV1.2", "myuser", "password", "localhost", 33060, "tls-version", ""));
+      Assert.Throws<ArgumentException>(() => CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=TlsV1.2&ssl-mode=none", "myuser", "password", "localhost", 33060, "tls-version", ""));
     }
 
     [Fact]
@@ -487,11 +499,11 @@ namespace MySqlX.Data.Tests
 
       // Offline (fake)host using default value, 10000ms.
       var conn = "server=143.24.20.36;user=test;password=test;port=33060;";
-      TestConnectTimeoutFailureTimeout(conn, 9, 11, "Offline host default value");
+      TestConnectTimeoutFailureTimeout(conn, 9, 20, "Offline host default value");
 
       // Offline (fake)host using 15000ms.
       conn = "server=143.24.20.36;user=test;password=test;port=33060;connecttimeout=15000";
-      TestConnectTimeoutFailureTimeout(conn, 14, 16, "Offline host 15000ms");
+      TestConnectTimeoutFailureTimeout(conn, 14, 17, "Offline host 15000ms");
 
       // Offline (fake)host timeout disabled.
       conn = "server=143.24.20.36;user=test;password=test;port=33060;connecttimeout=0";
@@ -503,13 +515,16 @@ namespace MySqlX.Data.Tests
 
       // Both (fake)servers offline. Connection must time out after 20000ms
       conn = "server=143.24.20.36,143.24.20.35;user=test;password=test;port=33060;";
-      TestConnectTimeoutFailureTimeout(conn, 19, 21, "Fail over failure");
+      DateTime start = DateTime.Now;
+      Assert.Throws<MySqlException>(() => MySQLX.GetSession(conn));
+      TimeSpan diff = DateTime.Now.Subtract(start);
+      Assert.True(diff.TotalSeconds > 19 && diff.TotalSeconds < 21, String.Format("Timeout exceeded ({0}). Actual time: {1}", "Fail over failure", diff));
 
       // Valid session no time out
-      DateTime start = DateTime.Now;
+      start = DateTime.Now;
       using (Session session = MySQLX.GetSession(ConnectionStringUri + "?connecttimeout=2000"))
         session.SQL("SELECT SLEEP(10)").Execute();
-      TimeSpan diff = DateTime.Now.Subtract(start);
+      diff = DateTime.Now.Subtract(start);
       Assert.True(diff.TotalSeconds > 10);
 
       //Invalid Values for Connection Timeout parameter
@@ -687,7 +702,7 @@ namespace MySqlX.Data.Tests
             {
               Assert.True(userAttrs.ContainsKey(result.ElementAt(i)[1].ToString()));
               Assert.True(userAttrs.ContainsValue(result.ElementAt(i)[2]));
-            }          
+            }
           }
         }
       }
@@ -716,6 +731,13 @@ namespace MySqlX.Data.Tests
     [Trait("Category", "Security")]
     public void ConnectUsingSha256PasswordPlugin()
     {
+      using (var session = MySQLX.GetSession("server=localhost;port=33060;user=root;password=;"))
+      {
+        ExecuteSQLStatement(session.SQL("DROP USER IF EXISTS 'testSha256'@'localhost';"));
+        ExecuteSQLStatement(session.SQL("CREATE USER 'testSha256'@'localhost' identified with sha256_password by 'mysql';"));
+        ExecuteSQLStatement(session.SQL("GRANT ALL PRIVILEGES  ON *.*  TO 'testSha256'@'localhost';"));
+      }
+
       string userName = "testSha256";
       string password = "mysql";
       string pluginName = "sha256_password";
@@ -748,6 +770,9 @@ namespace MySqlX.Data.Tests
         Assert.Equal(session.Settings.UserID, result[0][0].ToString());
         Assert.Equal(pluginName, result[0][1].ToString());
       }
+
+      using (var session = MySQLX.GetSession("server=localhost;port=33060;user=root;password=;"))
+        ExecuteSQLStatement(session.SQL("DROP USER IF EXISTS 'testSha256'@'localhost';"));
     }
 
     [Fact]
@@ -1106,6 +1131,54 @@ namespace MySqlX.Data.Tests
       }
     }
 
+    [Theory]
+    [InlineData("[]", null)]
+    [InlineData("Tlsv1.0", "TLSv1")]
+    [InlineData("Tlsv1.0, Tlsv1.1", "TLSv1.1")]
+    [InlineData("Tlsv1.0, Tlsv1.1, Tlsv1.2", "TLSv1.2")]
+    //#if NET48 || NETCOREAPP3_0
+    // [InlineData("Tlsv1.3", "Tlsv1.3", Skip = "Waiting for full support")]
+    //[InlineData("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.3", Skip = "Waiting for full support")]
+    //#else
+    [InlineData("Tlsv1.3", "")]
+    [InlineData("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.2")]
+    //#endif
+    public void TlsVersionTest(string tlsVersion, string result)
+    {
+      var globalSession = GetSession();
+      var builder = new MySqlXConnectionStringBuilder();
+      builder.Server = globalSession.Settings.Server;
+      builder.UserID = globalSession.Settings.UserID;
+      builder.Password = globalSession.Settings.Password;
+      builder.Port = globalSession.Settings.Port;
+      builder.Database = "test";
+      void SetTlsVersion() { builder.TlsVersion = tlsVersion; }
+      if (result == null)
+      {
+        Assert.ThrowsAny<Exception>(SetTlsVersion);
+        return;
+      }
+
+      SetTlsVersion();
+
+      string uri = null;
+      if (!String.IsNullOrWhiteSpace(result))
+      {
+        using (var internalSession = MySQLX.GetSession(builder.ConnectionString))
+        {
+          uri = internalSession.Uri;
+          Assert.Equal(SessionState.Open, internalSession.InternalSession.SessionState);
+          Assert.Equal(result, internalSession.SQL("SHOW SESSION STATUS LIKE 'mysqlx_ssl_version'").Execute().FetchAll()[0][1].ToString(), true);
+        }
+        using (var internalSession = MySQLX.GetSession(uri))
+        {
+          Assert.Equal(SessionState.Open, internalSession.InternalSession.SessionState);
+          Assert.Equal(result, internalSession.SQL("SHOW SESSION STATUS LIKE 'mysqlx_ssl_version'").Execute().FetchAll()[0][1].ToString(), true);
+        }
+      }
+      else
+        Assert.Throws<System.ComponentModel.Win32Exception>(() => MySQLX.GetSession(builder.ConnectionString));
+    }
     #endregion
   }
 }

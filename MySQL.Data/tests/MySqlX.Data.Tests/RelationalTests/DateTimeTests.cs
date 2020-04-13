@@ -45,10 +45,10 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.DateTime, r.Columns[0].Type);
-      Assert.Equal(1, rows.Count);
+      Assert.Single(rows);
       DateTime dt = (DateTime)rows[0]["dt"];
       DateTime test = new DateTime(2001, 2, 3, 4, 5, 6);
       Assert.Equal(test, dt);
@@ -62,10 +62,10 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.Date, r.Columns[0].Type);
-      Assert.Equal(1, rows.Count);
+      Assert.Single(rows);
       DateTime dt = (DateTime)rows[0]["dt"];
       DateTime test = new DateTime(2001, 2, 3);
       Assert.Equal(test, dt);
@@ -79,11 +79,11 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(DateTime), r.Columns[0].ClrType);
       //TODO:  this should support timestamp
       Assert.Equal(ColumnType.Timestamp, r.Columns[0].Type);
-      Assert.Equal(1, rows.Count);
+      Assert.Single(rows);
       DateTime dt = (DateTime)rows[0]["dt"];
       DateTime test = new DateTime(2001, 2, 3);
       Assert.Equal(test, dt);
@@ -97,10 +97,10 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(TimeSpan), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.Time, r.Columns[0].Type);
-      Assert.Equal(1, rows.Count);
+      Assert.Single(rows);
       TimeSpan t = (TimeSpan)rows[0]["dt"];
       TimeSpan test = new TimeSpan(1, 2, 3);
       Assert.Equal(test, t);
@@ -114,10 +114,10 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(TimeSpan), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.Time, r.Columns[0].Type);
-      Assert.Equal(1, rows.Count);
+      Assert.Single(rows);
       TimeSpan t = (TimeSpan)rows[0]["dt"];
       TimeSpan test = new TimeSpan(-1, 2, 3);
       Assert.Equal(test, t);

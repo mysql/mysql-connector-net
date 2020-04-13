@@ -47,7 +47,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("rvalue"));
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(float), r.Columns[0].ClrType);
       Assert.Equal(14, (int)r.Columns[0].Length);
       Assert.Equal(8, (int)r.Columns[0].FractionalDigits);
@@ -66,7 +66,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("rvalue"));
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(double), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.Double, r.Columns[0].Type);
       Assert.Equal(12, (int)r.Columns[0].Length);
@@ -85,7 +85,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("rvalue"));
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(string), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.Set, r.Columns[0].Type);
       Assert.Equal(3, rows.Count);
@@ -102,7 +102,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("rvalue"));
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(string), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.Enum, r.Columns[0].Type);
       Assert.Equal(3, rows.Count);
@@ -177,7 +177,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(UInt64), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.Bit, r.Columns[0].Type);
       Assert.Equal((ulong)127, rows[0][0]);
@@ -192,7 +192,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(decimal), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.Decimal, r.Columns[0].Type);
       Assert.Equal(-1.23m, rows[0][0]);
@@ -212,7 +212,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(string), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.Json, r.Columns[0].Type);
       Assert.Equal("{\"id\": 1, \"name\": \"John\"}", rows[0][0]);
@@ -228,7 +228,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(string), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.String, r.Columns[0].Type);
       Assert.Equal("表", rows[0][0]);
@@ -243,7 +243,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(UInt32), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.Int, r.Columns[0].Type);
       Assert.False(r.Columns[0].IsNumberSigned);
@@ -259,7 +259,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(string), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.String, r.Columns[0].Type);
       Assert.Equal("John", rows[0][0]);
@@ -273,7 +273,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(string), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.String, r.Columns[0].Type);
       Assert.Equal("Mark", rows[0][0]);
@@ -287,7 +287,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
-      Assert.Equal(1, r.Columns.Count);
+      Assert.Single(r.Columns);
       Assert.Equal(typeof(byte[]), r.Columns[0].ClrType);
       Assert.Equal(ColumnType.Geometry, r.Columns[0].Type);
       Assert.Equal("0000000001020000000400000000000000000000000000000000000000000000000000244000000000000024400000000000003440000000000000394000000000000049400000000000004E40", 

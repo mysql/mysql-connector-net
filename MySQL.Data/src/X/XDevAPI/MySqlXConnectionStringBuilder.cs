@@ -30,6 +30,8 @@ using System;
 using System.ComponentModel;
 using MySql.Data.MySqlClient;
 using MySql.Data;
+using MySql.Data.common;
+using System.Collections.Generic;
 
 namespace MySqlX.XDevAPI
 {
@@ -41,6 +43,9 @@ namespace MySqlX.XDevAPI
   {
     static MySqlXConnectionStringBuilder()
     {
+      // Add options shared between classic and X protocols from base class.
+      Options = MySqlBaseConnectionStringBuilder.Options.Clone();
+
       // Server options.
       Options.Add(new MySqlConnectionStringOption("connect-timeout", "connecttimeout", typeof(uint), (uint)10000, false,
         delegate (MySqlXConnectionStringBuilder msb, MySqlConnectionStringOption sender, object Value)
@@ -62,25 +67,56 @@ namespace MySqlX.XDevAPI
         },
         (msb, sender) => (uint)msb.values["connect-timeout"]
         ));
-      Options.Add(new MySqlConnectionStringOption("connection-attributes", "connectionattributes", typeof(string), "true", false));
+      Options.Add(new MySqlConnectionStringOption("connection-attributes", "connectionattributes", typeof(string), "true", false,
+        (msb, sender, value) => { msb.SetValue("connection-attributes", value); }, (msb, sender) => msb.ConnectionAttributes));
+      Options.Add(new MySqlConnectionStringOption("compression", "use-compression", typeof(CompressionType), CompressionType.Preferred, false,
+        (msb, sender, value) => { msb.SetValue("compression", value); }, (msb, sender) => msb.Compression));
 
       // Authentication options.
-      Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false));
+      Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false,
+        (msb, sender, value) => { msb.SetValue("auth", value); }, (msb, sender) => msb.Auth));
       Options.Add(new MySqlConnectionStringOption("sslcrl", "ssl-crl", typeof(string), null, false,
         (msb, sender, value) => { msb.SslCrl = value as string; }, ((msb, sender) => { return msb.SslCrl; })));
     }
 
-    public MySqlXConnectionStringBuilder() : base()
+    /// <summary>
+    /// Main constructor.
+    /// </summary>
+    public MySqlXConnectionStringBuilder()
     {
+      values = new Dictionary<string, object>();
+      HasProcAccess = true;
+
+      // Populate initial values.
+      lock (this)
+      {
+        foreach (MySqlConnectionStringOption option in Options.Options)
+        {
+          values[option.Keyword] = option.DefaultValue;
+        }
+      }
+
       if (SslMode == MySqlSslMode.Preferred)
         SslMode = MySqlSslMode.Required;
     }
 
-    public MySqlXConnectionStringBuilder(string connStr) : base(connStr, true)
+    /// <summary>
+    /// Constructor accepting a connection string.
+    /// </summary>
+    /// <param name="connectionString">The connection string.</param>
+    public MySqlXConnectionStringBuilder(string connectionString, bool isDefaultPort = true) : this()
     {
-      if (SslMode == MySqlSslMode.Preferred)
-        SslMode = MySqlSslMode.Required;
+      AnalyzeConnectionString(connectionString, true, isDefaultPort);
+      lock (this)
+      {
+        ConnectionString = connectionString;
+      }
     }
+
+    /// <summary>
+    /// Readonly field containing a collection of classic protocol and protocol shared connection options.
+    /// </summary>
+    internal new static readonly MySqlConnectionStringOptionCollection Options;
 
     #region Server Properties
 
@@ -133,7 +169,7 @@ namespace MySqlX.XDevAPI
     [DisplayName("Auth")]
     [Description("Authentication mechanism")]
     [DefaultValue(MySqlAuthenticationMode.Default)]
-    public new MySqlAuthenticationMode Auth
+    public MySqlAuthenticationMode Auth
     {
       get { return (MySqlAuthenticationMode)values["auth"]; }
       set { SetValue("auth", value); }
@@ -143,36 +179,140 @@ namespace MySqlX.XDevAPI
     /// Path to a local file containing certificate revocation lists.
     /// </summary>
     [Description("Path to a local file containing certificate revocation lists")]
-    public new string SslCrl
+    public string SslCrl
     {
       get { throw new NotSupportedException(); }
       set { throw new NotSupportedException(); }
     }
 
+    /// <summary>
+    /// Gets or sets the compression type between client and server.
+    /// </summary>
+    [Category("Server")]
+    [DisplayName("Compression Type")]
+    [Description("Compression type")]
+    [DefaultValue(CompressionType.Preferred)]
+    public CompressionType Compression
+    {
+      get { return (CompressionType)values["compression"]; }
+      set { SetValue("compression", value); }
+    }
+
     #endregion
 
+    /// <summary>
+    /// Gets or sets a connection option.
+    /// </summary>
+    /// <param name="keyword">The keyword that identifies the connection option to modify.</param>
     public override object this[string keyword]
     {
       get
       {
         MySqlConnectionStringOption opt = GetOption(keyword);
-        if (opt.BaseSetter != null)
-          return opt.BaseGetter(this, opt);
-        else if (opt.XGetter != null)
+        if (opt.XGetter != null)
           return opt.XGetter(this, opt);
+        else if (opt.Getter != null)
+          return opt.Getter(this, opt);
         else
           throw new ArgumentException(Resources.KeywordNotSupported, keyword);
       }
       set
       {
         MySqlConnectionStringOption opt = GetOption(keyword);
-        if (opt.BaseSetter != null)
-          opt.BaseSetter(this, opt, value);
-        else if (opt.XSetter != null)
+        if (opt.XSetter != null)
           opt.XSetter(this, opt, value);
+        else if (opt.Setter != null)
+          opt.Setter(this, opt, value);
         else
           throw new ArgumentException(Resources.KeywordNotSupported, keyword);
       }
+    }
+
+    public override void Clear()
+    {
+      base.Clear();
+      lock (this)
+      {
+        foreach (var option in Options.Options)
+          if (option.DefaultValue != null)
+            values[option.Keyword] = option.DefaultValue;
+          else
+            values[option.Keyword] = null;
+      }
+    }
+
+    public override bool ContainsKey(string keyword)
+    {
+      MySqlConnectionStringOption option = Options.Get(keyword);
+      return option != null;
+    }
+
+    public override bool Equals(object obj)
+    {
+      var other = obj as MySqlXConnectionStringBuilder;
+      if (obj == null)
+        return false;
+
+      if (this.values.Count != other.values.Count) return false;
+
+      foreach (KeyValuePair<string, object> kvp in this.values)
+      {
+        if (other.values.ContainsKey(kvp.Key))
+        {
+          object v = other.values[kvp.Key];
+          if (v == null && kvp.Value != null) return false;
+          if (kvp.Value == null && v != null) return false;
+          if (kvp.Value == null && v == null) return true;
+          if (!v.Equals(kvp.Value)) return false;
+        }
+        else
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    internal override MySqlConnectionStringOption GetOption(string key)
+    {
+      MySqlConnectionStringOption option = Options.Get(key);
+      if (option == null)
+        throw new ArgumentException(Resources.KeywordNotSupported, key);
+      else
+        return option;
+    }
+
+    internal override void SetInternalValue(string keyword, object value)
+    {
+      MySqlConnectionStringOption option = GetOption(keyword);
+      option.ValidateValue(ref value, keyword, true);
+
+      // remove all related keywords
+      option.Clean(this);
+
+      if (value != null)
+      {
+        lock (this)
+        {
+          // set value for the given keyword
+          values[option.Keyword] = value;
+          base[keyword] = value;
+        }
+      }
+    }
+
+    public override bool Remove(string keyword)
+    {
+      bool removed = false;
+      lock (this) { removed = base.Remove(keyword); }
+      if (!removed) return false;
+      MySqlConnectionStringOption option = GetOption(keyword);
+      lock (this)
+      {
+        values[option.Keyword] = option.DefaultValue;
+      }
+      return true;
     }
   }
 }

@@ -80,7 +80,7 @@ namespace MySqlX.Data.Tests
       Assert.Equal(2, tables.Count(i => i.IsView));
 
       List<Collection> colls = testSchema.GetCollections();
-      Assert.Equal(1, colls.Count);
+      Assert.Single(colls);
     }
 
     [Fact (Skip = "Fix for 8.0.13")]

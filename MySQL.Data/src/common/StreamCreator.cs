@@ -31,14 +31,10 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using MySql.Data.Common;
 using MySql.Data.MySqlClient;
-using System.IO.Pipes;
 using System.Net;
-#if !NETSTANDARD1_6
+using System.Linq;
 using MySql.Data.MySqlClient.Common;
-using System.IO.MemoryMappedFiles;
-#endif
 
 namespace MySql.Data.Common
 {
@@ -83,7 +79,7 @@ namespace MySql.Data.Common
       switch (settings.ConnectionProtocol)
       {
         case MySqlConnectionProtocol.Tcp: return GetTcpStream(settings);
-        case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings);        
+        case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings);
         case MySqlConnectionProtocol.SharedMemory: return GetSharedMemoryStream(settings);
         case MySqlConnectionProtocol.NamedPipe: return GetNamedPipeStream(settings);
       }
@@ -92,7 +88,14 @@ namespace MySql.Data.Common
 
     private static Stream GetTcpStream(MySqlConnectionStringBuilder settings)
     {
-      TcpClient client = new TcpClient(AddressFamily.InterNetwork);
+      Task<IPAddress[]> dnsTask = Dns.GetHostAddressesAsync(settings.Server);
+      dnsTask.Wait();
+      if (dnsTask.Result == null || dnsTask.Result.Length == 0)
+        throw new ArgumentException(Resources.InvalidHostNameOrAddress);
+      IPAddress addr = dnsTask.Result.FirstOrDefault(c => c.AddressFamily == AddressFamily.InterNetwork);
+      if (addr == null)
+        addr = dnsTask.Result[0];
+      TcpClient client = new TcpClient(addr.AddressFamily);
       Task task = null;
       if (!settings.IsSshEnabled())
         task = client.ConnectAsync(settings.Server, (int)settings.Port);
@@ -151,25 +154,15 @@ namespace MySql.Data.Common
 
     private static Stream GetSharedMemoryStream(MySqlConnectionStringBuilder settings)
     {
-#if NETSTANDARD1_6
-      throw new NotSupportedException("Shared memory streams not currently supported.");
-#else
       SharedMemoryStream str = new SharedMemoryStream(settings.SharedMemoryName);
       str.Open(settings.ConnectionTimeout);
       return str;
-#endif
     }
 
     private static Stream GetNamedPipeStream(MySqlConnectionStringBuilder settings)
     {
-#if NETSTANDARD1_6
-      NamedPipeClientStream pipeStream = new NamedPipeClientStream(settings.Server, settings.PipeName, PipeDirection.InOut);
-      pipeStream.Connect((int)settings.ConnectionTimeout * 1000);
-      return pipeStream;
-#else
       Stream stream = NamedPipeStream.Create(settings.PipeName, settings.Server, settings.ConnectionTimeout);
       return stream;
-#endif
     }
 
     /// <summary>

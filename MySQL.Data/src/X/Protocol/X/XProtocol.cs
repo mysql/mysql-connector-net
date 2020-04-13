@@ -51,6 +51,7 @@ using static Mysqlx.Datatypes.Object.Types;
 using Mysqlx.Prepare;
 using MySqlX.DataAccess;
 using System.Collections;
+using MySql.Data.X.XDevAPI.Common;
 
 namespace MySqlX.Protocol
 {
@@ -149,11 +150,20 @@ namespace MySqlX.Protocol
 
         if (cap.Key == "tls")
           value = ExprUtil.BuildAny(cap.Value);
-        else if (cap.Key == "session_connect_attrs")
+        else if (cap.Key == "session_connect_attrs" || cap.Key == "compression")
         {
-          Mysqlx.Datatypes.Object obj = new Mysqlx.Datatypes.Object();
-          foreach (var pair in (Dictionary<string, string>)cap.Value)
-            obj.Fld.Add(new ObjectField { Key = pair.Key, Value = ExprUtil.BuildAny(pair.Value) });
+          var obj = new Mysqlx.Datatypes.Object();
+
+          if (cap.Key == "session_connect_attrs")
+          {
+            foreach (var pair in (Dictionary<string, string>)cap.Value)
+              obj.Fld.Add(new ObjectField { Key = pair.Key, Value = ExprUtil.BuildAny(pair.Value) });
+          }
+          else if (cap.Key == "compression")
+          {
+            foreach (var pair in (Dictionary<string, object>)cap.Value)
+              obj.Fld.Add(new ObjectField { Key = pair.Key, Value = ExprUtil.BuildAny(pair.Value) });
+          }
 
           value = new Any { Type = Any.Types.Type.Object, Obj = obj };
         }
@@ -335,6 +345,7 @@ namespace MySqlX.Protocol
       if (args != null)
       {
         var any = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+
         foreach (var arg in args)
         {
           switch (stmt)
@@ -347,7 +358,63 @@ namespace MySqlX.Protocol
               break;
           }
         }
+        stmtExecute.Args.Add(any);
+      }
 
+      _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
+    }
+
+    /// <summary>
+    /// Build the message to be sent to MySQL Server to execute statement "Create" or "Modify" collection with schema options
+    /// </summary>
+    /// <param name="ns">The namespace</param>
+    /// <param name="stmt">The name of the command to be executed on MySql Server</param>
+    /// <param name="args">Array of KeyValuePairs with the parameters required to build the message</param>
+    /// <returns>void.</returns>
+    public void SendExecuteStatementOptions(string ns, string stmt, params KeyValuePair<string, object>[] args)
+    {
+      StmtExecute stmtExecute = new StmtExecute();
+      stmtExecute.Namespace = ns;
+      stmtExecute.Stmt = ByteString.CopyFromUtf8(stmt);
+      stmtExecute.CompactMetadata = false;
+      if (args != null)
+      {
+        var options = new ObjectField();
+        var validation = new ObjectField();
+        var reuse_obj = new ObjectField();
+        var optionsAny = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+        var any = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+        var innerAny = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+        var reuse_any = ExprUtil.BuildEmptyAny(Any.Types.Type.Object);
+        foreach (var arg in args)
+        {
+          if (arg.Value is Dictionary<string, object> && arg.Key == "options")
+          {
+            foreach (var field in arg.Value as Dictionary<string, object>)
+            {
+              innerAny.Obj.Fld.Add(CreateObject(field.Key, field.Value));
+            }
+          } else if (arg.Key=="reuse_existing") 
+          {
+            reuse_any=ExprUtil.BuildAny(arg.Value);
+          }
+          else
+          {
+            any.Obj.Fld.Add(CreateObject(arg.Key, arg.Value));
+          }
+        }
+        options.Key = "options";
+        validation.Key = "validation";
+        validation.Value = innerAny;
+        reuse_obj.Key = "reuse_existing";
+        reuse_obj.Value = reuse_any;
+        optionsAny.Obj.Fld.Add(validation);
+        if (stmt == "create_collection")
+        {
+          optionsAny.Obj.Fld.Add(reuse_obj);
+        }
+        options.Value = optionsAny;
+        any.Obj.Fld.Add(options);
         stmtExecute.Args.Add(any);
       }
 
@@ -397,7 +464,7 @@ namespace MySqlX.Protocol
     private void DecodeAndThrowError(CommunicationPacket p)
     {
       Error e = Error.Parser.ParseFrom(p.Buffer);
-      throw new MySqlException(e.Code, e.SqlState, e.Msg);
+            throw new MySqlException(e.Code, e.SqlState, e.Msg);
     }
 
     public override List<byte[]> ReadRow(BaseResult rs)
@@ -407,13 +474,15 @@ namespace MySqlX.Protocol
       {
         if (rs != null)
           CloseResult(rs);
+
         return null;
       }
 
-      Mysqlx.Resultset.Row protoRow = Mysqlx.Resultset.Row.Parser.ParseFrom(ReadPacket().Buffer);
-      List<byte[]> values = new List<byte[]>(protoRow.Field.Count);
+      var protoRow = Row.Parser.ParseFrom(ReadPacket().Buffer);
+      var values = new List<byte[]>(protoRow.Field.Count);
       for (int i = 0; i < protoRow.Field.Count; i++)
         values.Add(protoRow.Field[i].ToByteArray());
+
       return values;
     }
 
@@ -439,7 +508,10 @@ namespace MySqlX.Protocol
         else if (p.MessageType == (int)ServerMessageId.NOTICE)
           ProcessNotice(ReadPacket(), rs);
         else if (p.MessageType == (int)ServerMessageId.ERROR)
+        {
+          rs._session.ActiveResult = null;
           DecodeAndThrowError(ReadPacket());
+        }
         else if (p.MessageType == (int)ServerMessageId.SQL_STMT_EXECUTE_OK)
         {
           ReadPacket();

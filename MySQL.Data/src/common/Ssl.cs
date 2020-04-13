@@ -59,7 +59,7 @@ namespace MySql.Data.Common
     /// <summary>
     /// Defines the supported TLS protocols.
     /// </summary>
-    private static SslProtocols[] tlsProtocols = new SslProtocols[] { SslProtocols.Tls12, SslProtocols.Tls11 };
+    private static SslProtocols[] tlsProtocols = new SslProtocols[] { SslProtocols.Tls12, SslProtocols.Tls11, SslProtocols.Tls };
     private static Dictionary<string, SslProtocols> tlsConnectionRef = new Dictionary<string, SslProtocols>();
     private static Dictionary<string, int> tlsRetry = new Dictionary<string, int>();
     private static Object thisLock = new Object();
@@ -74,7 +74,7 @@ namespace MySql.Data.Common
     }
 
     public Ssl(string server, MySqlSslMode sslMode, string certificateFile, MySqlCertificateStoreLocation certificateStoreLocation,
-        string certificatePassword, string certificateThumbprint, string sslCa, string sslCert, string sslKey)
+        string certificatePassword, string certificateThumbprint, string sslCa, string sslCert, string sslKey, string tlsVersion)
     {
       this._settings = new MySqlConnectionStringBuilder()
       {
@@ -86,7 +86,8 @@ namespace MySql.Data.Common
         CertificateThumbprint = certificateThumbprint,
         SslCa = sslCa,
         SslCert = sslCert,
-        SslKey = sslKey
+        SslKey = sslKey,
+        TlsVersion = tlsVersion
       };
       // Set default value to true since PEM files is the standard for MySQL SSL certificates.
       _treatCertificatesAsPemFormat = true;
@@ -167,7 +168,30 @@ namespace MySql.Data.Common
         : GetPFXClientCertificates();
 
       string connectionId = connectionString.GetHashCode().ToString();
-      SslProtocols tlsProtocol = SslProtocols.Tls;
+      SslProtocols tlsProtocol = SslProtocols.None;
+      if (_settings.TlsVersion != null)
+      {
+#if NET452 || NETSTANDARD2_0
+        if (_settings.TlsVersion.Equals("Tls13", StringComparison.OrdinalIgnoreCase))
+          throw new NotSupportedException(Resources.Tlsv13NotSupported);
+#endif
+
+        SslProtocols sslProtocolsToUse = (SslProtocols)Enum.Parse(typeof(SslProtocols), _settings.TlsVersion);
+        List<SslProtocols> listProtocols = new List<SslProtocols>();
+
+#if NET48 || NETSTANDARD2_1
+        if (sslProtocolsToUse.HasFlag((SslProtocols)12288))
+          listProtocols.Add((SslProtocols)12288);
+#endif
+
+        if (sslProtocolsToUse.HasFlag(SslProtocols.Tls12))
+          listProtocols.Add(SslProtocols.Tls12);
+        if (sslProtocolsToUse.HasFlag(SslProtocols.Tls11))
+          listProtocols.Add(SslProtocols.Tls11);
+        if (sslProtocolsToUse.HasFlag(SslProtocols.Tls))
+          listProtocols.Add(SslProtocols.Tls);
+        tlsProtocols = listProtocols.ToArray();
+      }
 
       lock (thisLock)
       {
@@ -183,11 +207,12 @@ namespace MySql.Data.Common
           }
           for (int i = tlsRetry[connectionId]; i < tlsProtocols.Length; i++)
           {
-            tlsProtocol |= tlsProtocols[i];
+            tlsProtocol  |= tlsProtocols[i];
           }
         }
         try
         {
+          tlsProtocol = (tlsProtocol == SslProtocols.None) ? SslProtocols.Tls : tlsProtocol;
           ss.AuthenticateAsClientAsync(_settings.Server, certs, tlsProtocol, false).Wait();
           tlsConnectionRef[connectionId] = tlsProtocol;
           tlsRetry.Remove(connectionId);

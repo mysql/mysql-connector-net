@@ -80,7 +80,6 @@ namespace MySql.Data.MySqlClient
     OutputParameters = 4096
   }
 
-
   /// <summary>
   /// DB Operations Code
   /// </summary>
@@ -116,7 +115,6 @@ namespace MySql.Data.MySqlClient
     SET_OPTION = 27,
     FETCH = 28
   }
-
 
   /// <summary>
   /// Specifies MySQL specific data type of a field, property, for use in a <see cref="MySqlParameter"/>.
@@ -308,7 +306,6 @@ namespace MySql.Data.MySqlClient
     Guid = 854
   };
 
-
   internal enum Field_Type : byte
   {
     DECIMAL = 0,
@@ -498,6 +495,26 @@ namespace MySql.Data.MySqlClient
     SkipLocked = 2
   }
 
+  /// <summary>
+  /// Defines the type of compression used when data is exchanged between client and server.
+  /// </summary>
+  public enum CompressionType
+  {
+    /// <summary>
+    /// Uses compression if client and server are able to reach a concensus. Otherwise, compression
+    /// is not used.
+    /// </summary>
+    Preferred,
+    /// <summary>
+    /// Enforces the use of compression. If no concensus is reached, an error is raised.
+    /// </summary>
+    Required,
+    /// <summary>
+    /// Disables compression.
+    /// </summary>
+    Disabled
+  }
+
   internal class MySqlConnectAttrs
   {
     static string _version;
@@ -627,18 +644,12 @@ namespace MySql.Data.MySqlClient
       _os = string.Empty;
       try
       {
-        if (MySql.Data.Common.Platform.IsDotNetCore())
-        {
-          _os = ".Net Core";
-        }
-#if !NETSTANDARD1_6
         _os = Environment.OSVersion.Platform.ToString();
         if (_os == "Win32NT")
         {
           _os = "Win";
           _os += Is64BitOS() ? "64" : "32";
         }
-#endif
       }
       catch (Exception ex)
       {
@@ -684,7 +695,6 @@ namespace MySql.Data.MySqlClient
     {
       _osName = _os;
 
-#if !NETSTANDARD1_6
       var osInfo = Environment.OSVersion;
       var major = osInfo.Version.Major;
       var minor = osInfo.Version.Minor;
@@ -723,7 +733,6 @@ namespace MySql.Data.MySqlClient
       }
       else
         _osName = _os + "-" + major + "." + minor;
-#endif
     }
 
     private static void InitFramework()

@@ -31,6 +31,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 
@@ -46,12 +47,21 @@ namespace MySql.Data.Common
 
     static QueryNormalizer()
     {
-      StringReader sr = new StringReader(Resources.keywords);
-      string keyword = sr.ReadLine();
-      while (keyword != null)
+      var assembly = Assembly.GetExecutingAssembly();
+      String resourceName = @"MySql.Data.keywords.txt";
+      using (var stream = assembly.GetManifestResourceStream(resourceName))
       {
-        Keywords.Add(keyword);
-        keyword = sr.ReadLine();
+        if (stream == null)
+          throw new Exception($"Resource {resourceName} not found in {assembly.FullName}.");
+        using (var reader = new StreamReader(stream))
+        {
+          string keyword = reader.ReadLine();
+          while (keyword != null)
+          {
+            Keywords.Add(keyword);
+            keyword = reader.ReadLine();
+          }
+        }
       }
     }
 

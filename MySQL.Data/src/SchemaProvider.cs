@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -306,7 +306,7 @@ namespace MySql.Data.MySqlClient
           row["TABLE_NAME"] = index["TABLE"];
           row["UNIQUE"] = connection.driver.Version.isAtLeast(8, 0, 1) ?
             Convert.ToInt64(index["NON_UNIQUE"]) == 0 :
-            (long) index["NON_UNIQUE"] == 0;
+            (long)index["NON_UNIQUE"] == 0;
           row["PRIMARY"] = index["KEY_NAME"].Equals("PRIMARY");
           row["TYPE"] = index["INDEX_TYPE"];
           row["COMMENT"] = index["COMMENT"];
@@ -610,7 +610,7 @@ namespace MySql.Data.MySqlClient
 
       StringBuilder sql = null;
 
-      if (connection.driver.Version.isAtLeast(8,0,1))
+      if (connection.driver.Version.isAtLeast(8, 0, 1))
       {
         sql = new StringBuilder("SELECT * FROM information_schema.routines WHERE 1=1");
         if (restrictions != null)
@@ -641,7 +641,7 @@ namespace MySql.Data.MySqlClient
             row["DTD_IDENTIFIER"] = StringUtility.ToLowerInvariant(routineType) == "function" ?
               (object)reader.GetString("DTD_IDENTIFIER") : DBNull.Value;
             row["ROUTINE_BODY"] = "SQL";
-            row["ROUTINE_DEFINITION"] = reader.GetString("routine_definition");
+            row["ROUTINE_DEFINITION"] = reader.GetBodyDefinition("routine_definition");
             row["EXTERNAL_NAME"] = DBNull.Value;
             row["EXTERNAL_LANGUAGE"] = DBNull.Value;
             row["PARAMETER_STYLE"] = "SQL";
@@ -688,7 +688,7 @@ namespace MySql.Data.MySqlClient
             row["DTD_IDENTIFIER"] = StringUtility.ToLowerInvariant(routineType) == "function" ?
               (object)reader.GetString("returns") : DBNull.Value;
             row["ROUTINE_BODY"] = "SQL";
-            row["ROUTINE_DEFINITION"] = reader.GetString("body");
+            row["ROUTINE_DEFINITION"] = reader.GetBodyDefinition("body");
             row["EXTERNAL_NAME"] = DBNull.Value;
             row["EXTERNAL_LANGUAGE"] = DBNull.Value;
             row["PARAMETER_STYLE"] = "SQL";
@@ -737,7 +737,6 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
-#if !NETSTANDARD1_6
     private MySqlSchemaCollection GetDataSourceInformation()
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("DataSourceInformation");
@@ -786,7 +785,6 @@ namespace MySql.Data.MySqlClient
 
       return dt;
     }
-#endif
 
     private static MySqlSchemaCollection GetDataTypes()
     {
@@ -883,14 +881,9 @@ namespace MySql.Data.MySqlClient
     private static MySqlSchemaCollection GetReservedWords()
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("ReservedWords");
-#if !NETSTANDARD1_6
       dt.AddColumn(DbMetaDataColumnNames.ReservedWord, typeof(string));
       Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream(
         "MySql.Data.Properties.ReservedWords.txt");
-#else
-      dt.AddColumn("ReservedWord", typeof(string));
-      Stream str = typeof(SchemaProvider).GetTypeInfo().Assembly.GetManifestResourceStream("MySql.Data.Properties.ReservedWords.txt");
-#endif
 
       StreamReader sr = new StreamReader(str);
       string line = sr.ReadLine();
@@ -1012,10 +1005,8 @@ namespace MySql.Data.MySqlClient
         // common collections
         case "METADATACOLLECTIONS":
           return GetCollections();
-#if !NETSTANDARD1_6
         case "DATASOURCEINFORMATION":
           return GetDataSourceInformation();
-#endif
         case "DATATYPES":
           return GetDataTypes();
         case "RESTRICTIONS":

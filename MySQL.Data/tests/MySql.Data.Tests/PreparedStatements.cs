@@ -41,10 +41,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Fact]
     public void Simple()
     {
-      executeSQL("CREATE TABLE Test (id INT, dec1 DECIMAL(5,2), name VARCHAR(100))");
-      executeSQL("INSERT INTO Test VALUES (1, 345.12, 'abcd')");
+      executeSQL("CREATE TABLE Test (id INT, dec1 DECIMAL(5,2), name VARCHAR(100), year YEAR)");
+      executeSQL("INSERT INTO Test VALUES (1, 345.12, 'abcd', 2019)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1,345.12,'abcd')", Connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1,345.12,'abcd',2019)", Connection);
       cmd.Prepare();
       cmd.ExecuteNonQuery();
 
@@ -56,9 +56,9 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(1, reader.GetInt32(0));
         Assert.Equal((decimal)345.12, reader.GetDecimal(1));
         Assert.Equal("abcd", reader.GetString(2));
+        Assert.Equal(2019, reader.GetInt16(3));
       }
     }
-
 
     [Fact]
     public void SimplePrepareBeforeParms()
@@ -426,7 +426,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #19261  	Supplying Input Parameters
     /// </summary>
-#if NETCOREAPP20
+#if NETCOREAPP2_2 || NETCOREAPP3_0
     [Fact]
     public void MoreParametersOutOfOrder()
     {
@@ -571,6 +571,42 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Equal(UInt32.MaxValue, reader.GetUInt32(1));
         Assert.Equal(16777215, Convert.ToInt32(reader.GetUInt32(2)));
         Assert.Equal(UInt16.MaxValue, reader.GetUInt16(3));
+      }
+    }
+
+    [Fact]
+    /// <summary>
+    /// Bug #29959124 PREPARED COMMANDS EXECUTE WITH ERROR ON MYSQL SERVER
+    /// Above bug, was introduced in ConnectorNet as result of change on MySQL Server
+    /// Released in version 8.0.13, fixing Bug#27591525 - commit 69e990f35449bbc493ae9df2b2ed83ac62ed1720
+    /// </summary>
+    public void PreparedStmtJsonParamBug()
+    {
+      if (Fixture.Version < new Version(8, 0)) return;
+      executeSQL(@"CREATE TABLE `example` (
+      `one` varchar(26) NOT NULL,
+      `two` int(1) NOT NULL,
+      `three` int(1) NOT NULL,
+      `four` tinyint(1) NOT NULL,
+      `five` json NOT NULL,
+      `six` datetime DEFAULT NULL,
+      PRIMARY KEY(`one`)
+      ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci");
+
+      executeSQL(@"INSERT INTO `example` (`one`, `two`, `three`, `four`, `five`, `six`)
+      VALUES ('test', '9', '8', '0', '{""name"":""test""}', '2018-07-09 22:30:13')");
+
+      using (var cmd = new MySqlCommand("UPDATE example SET two = @Two, three = @Three, four = @Four, five = @Five, six = @Six WHERE one = @One", Connection))
+      {
+        cmd.Parameters.AddWithValue("@Two", 0).MySqlDbType = MySqlDbType.Int32;
+        cmd.Parameters.AddWithValue("@Three", 0).MySqlDbType = MySqlDbType.Int32;
+        cmd.Parameters.AddWithValue("@Four", false).MySqlDbType = MySqlDbType.Byte;
+        cmd.Parameters.AddWithValue("@Five", "[]").MySqlDbType = MySqlDbType.JSON;
+        cmd.Parameters.AddWithValue("@Six", DateTime.Now).MySqlDbType = MySqlDbType.DateTime;
+        cmd.Parameters.AddWithValue("@One", "test").MySqlDbType = MySqlDbType.VarChar;
+        cmd.Prepare();
+        var result = cmd.ExecuteNonQuery();
+        Assert.Equal(1, result);
       }
     }
 
@@ -796,7 +832,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if NETCOREAPP20
+
     [Fact]
     public void SprocOutputParams()
     {
@@ -819,10 +855,9 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[1].Value = 20;
       Assert.Equal(0, cmd.ExecuteNonQuery());
 
-      if (!Connection.driver.Version.isAtLeast(8,0,1))
-      Assert.Equal(20, cmd.Parameters[1].Value);
+      Assert.IsType<DBNull>(cmd.Parameters[1].Value);
     }
-#endif
+
 
     [Fact]
     public void SprocInputOutputParams()

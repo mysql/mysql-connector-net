@@ -1,6 +1,45 @@
+8.0.21
+- Revised SqlNullValueException, raised when a stored procedure is executed by a user with sufficient privileges(MySQL Bug #96143, Oracle Bug #30029732).
+- Fixed an error that returned a BLOB object, instead of the expected MySqlGeometry object, when the wrong type assignment was used with the AddWithValue method to define a command parameter and the type was inferred (MySQL Bug #96499, MySQL Bug #96498, Oracle Bug #30169716, Oracle Bug #30169715).
+- Fixed an issue in which the wrong isolation level was obtained after a transaction finished (MySQL Bug #86263, Oracle Bug #26035791).
+- Fixed an error caused by a missing unsigned flag when a bigint field is used.(MySQL Bug #95382, Oracle Bug #29802379).
+- Fixed an error that returned NullReferenceException when initializing a MySqlConnection with null (MySQL Bug #98322, Oracle Bug #30791289).
+
+
+8.0.20
+- Fixed an error that occurred unexpectedly when an IN operator with blank spaces was part of a SELECT statement (Oracle Bug #29838254).
+- Added support to handle Schema validation in the commands CreateCollection and ModifyCollection (WL13007)
+- Added support for compressing data exchanged between the server and client when using the X Protocol. A new connection option,
+  compression, provides the following values: Preferred (Default), Required, Disabled (WL12980).
+- Removed the ResetReader method when a MySqlCommand object is disposed of, because it restricted access to the MySqlDataReader object after the MySqlCommand object closed (MySQL Bug #89159, Oracle Bug #27441433).
+- Added support for EF Core 3.1 (WL13793).
+- Fix an error that occurred when using EF Core 3.1 due to unsupported version (MySql Bug #96990, Oracle Bug #30347893).
+- Fixed a bug on prepared statements with parameters of type MySqlDbType.JSON(MySQL Bug #95984, Oracle Bug #29959124).
+- Fixed the Method Not Implemented exception when trying to use Entity Framework Core 3.1.1 Scaffolding (MySQL Bug #98011, Oracle Bug #30677382).
+- Fixed bad handling of nullable boolean properties in Entity Framework Core (MySQL Bug #93028, Oracle Bug #29833103).
+- Fixed an error that occurred when more than one IP address is found in DNS for a named host (MySQL Bug #97448, Oracle Bug #30970949).
+
+
+8.0.19
+- Fixed unexpected behavior when connection string is retrieved, it discloses connection password in a clone connection(MySQL Bug #97473, Oracle Bug #30502718).
+- Added support for multi-host and failover (WL13304).
+- Added support for DNS SRV records (WL13368).
+- Added new 'TlsVersion' connection string option (WL12748).
+- Added support for TLSv1.3 only in .NET Framework 4.8 and .NET Core 3.0. Known issue: Be sure to confirm that the platform operating system running your application also supports TLSv1.3 before using it exclusively for connections (Bug #30225427) (WL12748).
+
+
+8.0.18
+- Added support for IPv6.
+- Fixed an error involving a rename-table operation in Entity Framework Core migrations (MySQL Bug #90958, Oracle Bug #28107555).
+- Fix to retrieve the correct value from a Year type column when using prepared commands (MySql Bug #91751, Oracle Bug #28383721).
+- Removed hard dependency with Renci.SshNet.dll (MySQL Bug96614, Oracle Bug #30215984).
+- Added support for .NET Core 3.0 (WL13114)
+- Implemented end-of-support for all .NET Core 1.x versions (WL13387).
+
+
 8.0.17
 - Fixed wrong order of records for columns when using MySqlConnection.GetSchema (MySql Bug #94773, Oracle Bug #29536344).
-- Added SSH tunnelling to X Protocol and MySQL classic protocol connections for use with the SshAuthenticationMode, SshHostName, SshUserName, SshPassword, SshKeyFile, SshPassphrase, and SshPort connection options (WL12747).
+- Added SSH tunnelling to X Protocol and MySQL classic protocol connections for use with the SshHostName, SshUserName, SshPassword, SshKeyFile, SshPassphrase, and SshPort connection options (WL12747).
 - Added support for .NET Core 2.2 (WL12337).
 - MySqlX: Deprecated Where condition usage in the Find, Modify and Remove methods (WL12983).
 - Added the README.md and CONTRIBUTING.md files (WL12970).

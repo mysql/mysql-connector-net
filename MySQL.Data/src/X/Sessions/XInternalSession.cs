@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -46,8 +46,8 @@ using System.Text;
 using System.Diagnostics;
 using System.Collections;
 using System.Threading;
-using Renci.SshNet;
-using MySql.Data.common;
+using MySql.Data.X.XDevAPI.Common;
+using MySql.Data.X.Communication;
 
 namespace MySqlX.Sessions
 {
@@ -57,6 +57,18 @@ namespace MySqlX.Sessions
   /// </summary>
   internal class XInternalSession : InternalSession
   {
+    /// <summary>
+    /// Defines the compression controller that will be passed on the <see cref="XPacketReaderWriter"/> instance when
+    /// compression is enabled.
+    /// </summary>
+    private XCompressionController _readerCompressionController;
+
+    /// <summary>
+    /// Defines the compression controller that will be passed on the <see cref="XPacketReaderWriter"/> instance when
+    /// compression is enabled.
+    /// </summary>
+    private XCompressionController _writerCompressionController;
+
     private XProtocol protocol;
     private XPacketReaderWriter _reader;
     private XPacketReaderWriter _writer;
@@ -66,7 +78,11 @@ namespace MySqlX.Sessions
     private int _stmtId = 0;
     private List<int> _preparedStatements = new List<int>();
     internal bool? sessionResetNoReauthentication = null;
-    private SshClient _sshClient;
+
+    /// <summary>
+    /// The used client to handle SSH connections.
+    /// </summary>
+    private Ssh _sshHandler;
 
     public XInternalSession(MySqlXConnectionStringBuilder settings) : base(settings)
     {
@@ -76,16 +92,17 @@ namespace MySqlX.Sessions
     {
       if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
       {
-        _sshClient = MySqlSshClientManager.SetupSshClient(
-                    Settings.SshHostName,
-                    Settings.SshUserName,
-                    Settings.SshPassword,
-                    Settings.SshKeyFile,
-                    Settings.SshPassphrase,
-                    Settings.SshPort,
-                    Settings.Server,
-                    Settings.Port,
-                    true);
+        _sshHandler = new Ssh(
+          Settings.SshHostName,
+          Settings.SshUserName,
+          Settings.SshPassword,
+          Settings.SshKeyFile,
+          Settings.SshPassphrase,
+          Settings.SshPort,
+          Settings.Server,
+          Settings.Port,
+          true);
+        _sshHandler.StartClient();
       }
 
       bool isUnix = Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix ||
@@ -105,9 +122,9 @@ namespace MySqlX.Sessions
       _writer = new XPacketReaderWriter(_stream);
       protocol = new XProtocol(_reader, _writer);
 
-      Settings.CharacterSet = String.IsNullOrWhiteSpace(Settings.CharacterSet) ? "utf8mb4" : Settings.CharacterSet;
+      Settings.CharacterSet = string.IsNullOrWhiteSpace(Settings.CharacterSet) ? "utf8mb4" : Settings.CharacterSet;
 
-      var encoding = Encoding.GetEncoding(String.Compare(Settings.CharacterSet, "utf8mb4", true) == 0 ? "UTF-8" : Settings.CharacterSet);
+      var encoding = Encoding.GetEncoding(string.Compare(Settings.CharacterSet, "utf8mb4", true) == 0 ? "UTF-8" : Settings.CharacterSet);
 
       SetState(SessionState.Connecting, false);
 
@@ -117,9 +134,9 @@ namespace MySqlX.Sessions
       }
       catch (Exception)
       {
-        if (_sshClient != null && _sshClient.IsConnected)
+        if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
         {
-          _sshClient.Disconnect();
+          _sshHandler?.StopClient();
         }
 
         throw;
@@ -139,10 +156,21 @@ namespace MySqlX.Sessions
               Settings.CertificateThumbprint,
               Settings.SslCa,
               Settings.SslCert,
-              Settings.SslKey)
+              Settings.SslKey,
+              Settings.TlsVersion)
               .StartSSL(ref _stream, encoding, Settings.ToString());
-          _reader = new XPacketReaderWriter(_stream);
-          _writer = new XPacketReaderWriter(_stream);
+
+          if (_readerCompressionController != null && _readerCompressionController.IsCompressionEnabled)
+          {
+            _reader = new XPacketReaderWriter(_stream, _readerCompressionController);
+            _writer = new XPacketReaderWriter(_stream, _writerCompressionController);
+          }
+          else
+          {
+            _reader = new XPacketReaderWriter(_stream);
+            _writer = new XPacketReaderWriter(_stream);
+          }
+
           protocol.SetXPackets(_reader, _writer);
         }
         else
@@ -152,6 +180,12 @@ namespace MySqlX.Sessions
               Settings.Server);
           throw new MySqlException(message);
         }
+      }
+      else if (_readerCompressionController != null && _readerCompressionController.IsCompressionEnabled)
+      {
+        _reader = new XPacketReaderWriter(_stream, _readerCompressionController);
+        _writer = new XPacketReaderWriter(_stream, _writerCompressionController);
+        protocol.SetXPackets(_reader, _writer);
       }
 
       Authenticate();
@@ -232,13 +266,13 @@ namespace MySqlX.Sessions
     private void GetAndSetCapabilities()
     {
       protocol.GetServerCapabilities();
+      var clientCapabilities = new Dictionary<string, object>();
+      Mysqlx.Connection.Capability capability = null;
 
-      Dictionary<string, object> clientCapabilities = new Dictionary<string, object>();
-
-      // validates TLS use
+      // Validates TLS use.
       if (Settings.SslMode != MySqlSslMode.None)
       {
-        var capability = protocol.Capabilities.Capabilities_.FirstOrDefault(i => i.Name.ToLowerInvariant() == "tls");
+        capability = protocol.Capabilities.Capabilities_.FirstOrDefault(i => i.Name.ToLowerInvariant() == "tls");
         if (capability != null)
         {
           serverSupportsTls = true;
@@ -246,9 +280,44 @@ namespace MySqlX.Sessions
         }
       }
 
-      // set connection-attributes
+      // Set connection-attributes.
       if (Settings.ConnectionAttributes.ToLower() != "false")
         clientCapabilities.Add("session_connect_attrs", GetConnectionAttributes(Settings.ConnectionAttributes));
+
+      // Set compression algorithm.
+      if (Settings.Compression != CompressionType.Disabled)
+      {
+        capability = protocol.Capabilities.Capabilities_.FirstOrDefault(i => i.Name.ToLowerInvariant() == XCompressionController.COMPRESSION_KEY);
+
+        // Raise error if client expects compression but server doesn't support it.
+        if (Settings.Compression == CompressionType.Required && capability == null)
+        {
+          throw new NotSupportedException(ResourcesX.CompressionNotSupportedByServer);
+        }
+
+        // Update capabilities with the compression algorithm negotiation if server supports compression.
+        if (capability != null)
+        {
+          var algorithmsDictionary = capability.Value.Obj.Fld.ToDictionary(
+            field => field.Key,
+            field => field.Value.Array.Value.ToDictionary(value => value.Scalar.VString.Value.ToStringUtf8().ToLowerInvariant()).Keys.ToList());
+
+          if (algorithmsDictionary.ContainsKey(XCompressionController.ALGORITHMS_SUBKEY))
+          {
+            var supportedCompressionAlgorithms = algorithmsDictionary[XCompressionController.ALGORITHMS_SUBKEY].ToList().ToArray();
+            var compressionCapabilities = NegotiateCompression(supportedCompressionAlgorithms);
+            if (compressionCapabilities != null)
+            {
+              clientCapabilities.Add(XCompressionController.COMPRESSION_KEY, compressionCapabilities);
+              var compressionAlgorithm = compressionCapabilities.First().Value.ToString();
+              _readerCompressionController = new XCompressionController(compressionAlgorithm, false);
+              _writerCompressionController = new XCompressionController(compressionAlgorithm, true);
+              _reader = new XPacketReaderWriter(_stream, _readerCompressionController);
+              _writer = new XPacketReaderWriter(_stream, _writerCompressionController);
+            }
+          }
+        }
+      }
 
       try
       {
@@ -260,6 +329,61 @@ namespace MySqlX.Sessions
           clientCapabilities.Remove("session_connect_attrs");
         protocol.SetCapabilities(clientCapabilities);
       }
+    }
+
+    /// <summary>
+    /// Negotiates compression capabilities with the server.
+    /// </summary>
+    /// <param name="serverSupportedAlgorithms">An array containing the compression algorithms supported by the server.</param>
+    private Dictionary<string, object> NegotiateCompression(string[] serverSupportedAlgorithms)
+    {
+      if (serverSupportedAlgorithms == null || serverSupportedAlgorithms.Length == 0)
+      {
+        return null;
+      }
+
+      // If server and client don't have matching compression algorithms either log a warning message
+      // or raise an exception based on the selected compression type.
+      XCompressionController.LoadLibzstdLibrary();
+      if (!XCompressionController.ClientSupportedCompressionAlgorithms.Any(element => serverSupportedAlgorithms.Contains(element)))
+      {
+        if (Settings.Compression == CompressionType.Preferred)
+        {
+          MySqlTrace.LogWarning(-1, ResourcesX.CompressionAlgorithmNegotiationFailed);
+          return null;
+        }
+        else if (Settings.Compression == CompressionType.Required)
+        {
+          throw new NotSupportedException(ResourcesX.CompressionAlgorithmNegotiationFailed);
+        }
+      }
+
+      string negotiatedAlgorithm = null;
+      for (int index = 0; index < XCompressionController.ClientSupportedCompressionAlgorithms.Length; index++)
+      {
+        if (!serverSupportedAlgorithms.Contains(XCompressionController.ClientSupportedCompressionAlgorithms[index]))
+        {
+          continue;
+        }
+
+        negotiatedAlgorithm = XCompressionController.ClientSupportedCompressionAlgorithms[index];
+        break;
+      }
+
+      if (negotiatedAlgorithm == null)
+      {
+        return null;
+      }
+
+      // Create the compression capability object.
+      var compressionCapabilities = new Dictionary<string, object>();
+      compressionCapabilities.Add(XCompressionController.ALGORITHMS_SUBKEY, negotiatedAlgorithm);
+      compressionCapabilities.Add(XCompressionController.SERVER_COMBINE_MIXED_MESSAGES_SUBKEY, XCompressionController.DEFAULT_SERVER_COMBINE_MIXED_MESSAGES_VALUE);
+
+      // TODO: For future use.
+      //compressionCapabilities.Add(XCompressionController.SERVER_MAX_COMBINE_MESSAGES_SUBKEY, XCompressionController.DEFAULT_SERVER_MAX_COMBINE_MESSAGES_VALUE);
+
+      return compressionCapabilities;
     }
 
     private Dictionary<string, string> GetConnectionAttributes(string connectionAttrs)
@@ -368,6 +492,10 @@ namespace MySqlX.Sessions
       {
         try
         {
+          // Deallocate compression objects.
+          _readerCompressionController?.Close();
+          _writerCompressionController?.Close();
+
           // Deallocate all the remaining prepared statements for current session.
           foreach (int stmtId in _preparedStatements)
           {
@@ -375,7 +503,7 @@ namespace MySqlX.Sessions
             _preparedStatements.Remove(stmtId);
           }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
           //TODO log exception
         }
@@ -383,10 +511,9 @@ namespace MySqlX.Sessions
       }
       finally
       {
-        if (_sshClient != null && _sshClient.IsConnected)
+        if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
         {
-          _sshClient.ForwardedPorts.First().Stop();
-          _sshClient.Disconnect();
+          _sshHandler?.StopClient();
         }
 
         SessionState = SessionState.Closed;
@@ -400,6 +527,68 @@ namespace MySqlX.Sessions
         true,
         new KeyValuePair<string, object>("schema", schemaName),
         new KeyValuePair<string, object>("name", collectionName));
+    }
+
+    /// <summary>
+    /// Prepare the dictionary of arguments required to create a MySQL message.
+    /// </summary>
+    /// <param name="schemaName">The name of the MySQL schema.</param>
+    /// <param name="collectionName">The name of the collection.</param>
+    /// <param name="options">This object hold the parameters required to create the collection.</param>
+    /// <see cref="CreateCollectionOptions"/>
+    /// <returns>Collection referente.</returns>
+    public void CreateCollection(string schemaName, string collectionName, CreateCollectionOptions options)
+    {
+      var dictionary = new Dictionary<string, object>();
+      if (!options.Equals(null))
+      {
+        if (!string.IsNullOrEmpty(options.Validation.Level.ToString()))
+        {
+          dictionary.Add("level", (string)options.Validation.Level.ToString().ToLowerInvariant());
+        }
+
+        if (!string.IsNullOrEmpty(options.Validation.Schema))
+        {
+          dictionary.Add("schema", new DbDoc(options.Validation.Schema));
+        }
+      }
+
+      ExecuteCmdNonQueryOptions(XpluginStatementCommand.XPLUGIN_STMT_CREATE_COLLECTION,
+        true,
+        new KeyValuePair<string, object>("schema", schemaName),
+        new KeyValuePair<string, object>("name", collectionName),
+        new KeyValuePair<string, object>("reuse_existing", options.ReuseExisting),
+        new KeyValuePair<string, object>("options", dictionary)
+        ) ;
+    }
+
+    /// <summary>
+    /// Prepare the dictionary of arguments required to Modify a MySQL message.
+    /// </summary>
+    /// <param name="schemaName">The name of the MySQL schema.</param>
+    /// <param name="collectionName">The name of the collection.</param>
+    /// <param name="options">This object hold the parameters required to Modify the collection.</param>
+    /// <see cref="ModifyCollectionOptions"/>
+    /// <returns>Collection referente.</returns>
+    public void ModifyCollection(string schemaName, string collectionName, ModifyCollectionOptions? options)
+    {
+      var dictionary = new Dictionary<string, object>();
+      if (!options.Equals(null))
+      {
+        if (options.Value.Validation.Level != null)
+        {
+          dictionary.Add("level", options.Value.Validation.Level.ToString().ToLowerInvariant());
+        }
+        if (options.Value.Validation.Schema != null)
+        {
+          dictionary.Add("schema", new DbDoc(options.Value.Validation.Schema));
+        }
+      }
+      ExecuteCmdNonQueryOptions(XpluginStatementCommand.XPLUGIN_STMT_MODIFY_COLLECTION,
+        true,
+        new KeyValuePair<string, object>("schema", schemaName),
+        new KeyValuePair<string, object>("name", collectionName),
+        new KeyValuePair<string, object>("options", dictionary));
     }
 
     public void DropCollection(string schemaName, string collectionName)
@@ -486,6 +675,12 @@ namespace MySqlX.Sessions
       return new Result(this);
     }
 
+    private Result ExecuteCmdNonQueryOptions(string cmd, bool throwOnFail, params KeyValuePair<string, object>[] args)
+    {
+      protocol.SendExecuteStatementOptions(mysqlxNamespace, cmd, args);
+      return new Result(this);
+    }
+
     private Result ExecuteCreateCollectionIndex(string cmd, bool throwOnFail, params KeyValuePair<string, object>[] args)
     {
       protocol.SendCreateCollectionIndexStatement(mysqlxNamespace, cmd, args);
@@ -520,17 +715,9 @@ namespace MySqlX.Sessions
             parameters.Add(true);
             break;
         }
-#if NETSTANDARD1_6
-        T t = (T)Activator.CreateInstance(typeof(T), true);
-        ((DatabaseObject)t).Schema = s;
-        ((DatabaseObject)t).Name = parameters[1].ToString();
-        if (parameters.Count == 3)
-          t.GetType().GetProperty("IsView").SetValue(t, parameters[2]);
-#else
         T t = (T)Activator.CreateInstance(typeof(T),
           BindingFlags.NonPublic | BindingFlags.Instance,
           null, parameters.ToArray(), null);
-#endif
         docs.Add(t);
       }
       return docs;
@@ -788,6 +975,27 @@ namespace MySqlX.Sessions
     {
       protocol.SendDeallocatePreparedStatement((uint)stmtId);
       _preparedStatements.Remove(stmtId);
+    }
+
+    /// <summary>
+    /// Gets the compression algorithm being used to compress or decompress data.
+    /// </summary>
+    /// <param name="fromReaderController">Flag to indicate if the compression algorithm should be
+    /// retrieved from the reader or writer controller.</param>
+    /// <returns>The name of the compression algorithm being used if any.
+    /// <c>null</c> if no compression algorithm is being used.</returns>
+    public string GetCompressionAlgorithm(bool fromReaderController)
+    {
+      if (fromReaderController && _readerCompressionController != null)
+      {
+        return _readerCompressionController.CompressionAlgorithm;
+      }
+      else if (!fromReaderController && _writerCompressionController != null)
+      {
+        return _writerCompressionController.CompressionAlgorithm;
+      }
+
+      return null;
     }
   }
 }

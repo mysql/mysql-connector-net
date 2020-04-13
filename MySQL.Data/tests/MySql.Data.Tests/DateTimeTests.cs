@@ -42,7 +42,7 @@ namespace MySql.Data.MySqlClient.Tests
     public DateTimeTests(TestFixture fixture) : base(fixture)
     {
     }
-    
+
     [Fact]
     public void ConvertZeroDateTime()
     {
@@ -87,7 +87,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         Exception ex = Assert.Throws<MySqlConversionException>(() => reader.GetValue(2));
         Assert.Equal("Unable to convert MySQL date/time value to System.DateTime", ex.Message);
-        
+
         Assert.True(reader.Read());
 
         DateTime dt2 = (DateTime)reader.GetValue(2);
@@ -129,10 +129,10 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
-      {        
+      {
         reader.Read();
-        Exception ex = Assert.Throws<MySqlConversionException>(() =>reader.GetDateTime(2));
-        Assert.Equal("Unable to convert MySQL date/time value to System.DateTime", ex.Message);       
+        Exception ex = Assert.Throws<MySqlConversionException>(() => reader.GetDateTime(2));
+        Assert.Equal("Unable to convert MySQL date/time value to System.DateTime", ex.Message);
       }
     }
 
@@ -173,7 +173,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
         "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
-              
+
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, dt) VALUES (1, ?dt)", Connection);
       cmd.Parameters.Add("?dt", MySqlDbType.Date);
       cmd.Parameters[0].Value = "2005-03-04";
@@ -410,13 +410,17 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Clear();
       cmd.Connection = Connection;
 
-      MySqlDataReader rdr = cmd.ExecuteReader();
-
-      while (rdr.Read())
+      using (MySqlDataReader rdr = cmd.ExecuteReader())
       {
-        Assert.Equal(346, rdr.GetTimeSpan(0).Milliseconds);
+        while (rdr.Read())
+        {
+#if NETCOREAPP3_0
+          Assert.Equal(345, rdr.GetTimeSpan(0).Milliseconds);
+#else
+          Assert.Equal(346, rdr.GetTimeSpan(0).Milliseconds);
+#endif
+        }
       }
-      rdr.Close();
     }
 
     [Fact(Skip = "Fix This")]
@@ -464,9 +468,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #endregion
+#endregion
 
-    #region TimeStampTests
+#region TimeStampTests
     [Fact]
     public void CanUpdateMillisecondsUsingTimeStampType()
     {
@@ -548,7 +552,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-    #endregion
+#endregion
 
     /// <summary>
     /// Bug #63812	MySqlDateTime.GetDateTime() does not specify Timezone for TIMESTAMP fields
@@ -560,7 +564,7 @@ namespace MySql.Data.MySqlClient.Tests
         "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
 
       DateTime dt = DateTime.Now;
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO TimestampValuesAreLocal VALUES(1, ?dt, NULL, NULL, NULL)", Connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO TimestampValuesAreLocal VALUES(1, ?dt, NULL, NULL, CURRENT_TIMESTAMP)", Connection);
       cmd.Parameters.AddWithValue("@dt", dt);
       cmd.ExecuteNonQuery();
 
@@ -843,7 +847,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         var reader = cmd.ExecuteReader();
         reader.Read();
-        
+
         var myTimestampSb = (DateTime)reader["mytimestampcolumn"];
         var myTimestampGdt = reader.GetDateTime("mytimestampcolumn");
 

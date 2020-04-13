@@ -130,12 +130,12 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
         using (var conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
           if (conn.State == System.Data.ConnectionState.Closed) conn.Open();
-          Assert.Equal(true, GenerateAndExecuteMySQLStatements(migrationOperations));
+          Assert.True(GenerateAndExecuteMySQLStatements(migrationOperations));
           MySqlCommand query = new MySqlCommand("Select Column_name from information_schema.Columns where table_schema ='" + conn.Database + "' and table_name = 'Posts'", conn);
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.Equal(1, createTableOperation.Columns.Where(t => t.Name.Equals(reader[0].ToString())).Count());
+            Assert.Single(createTableOperation.Columns.Where(t => t.Name.Equals(reader[0].ToString())));
           }
           reader.Close();
           conn.Close();

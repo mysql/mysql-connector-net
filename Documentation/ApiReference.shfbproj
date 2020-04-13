@@ -37,12 +37,12 @@
     <BuildLogFile>
     </BuildLogFile>
     <HelpFileFormat>Website</HelpFileFormat>
-    <FrameworkVersion>.NET Framework 4.5</FrameworkVersion>
+    <FrameworkVersion>.NET Framework 4.5.2</FrameworkVersion>
     <RootNamespaceContainer>True</RootNamespaceContainer>
     <RootNamespaceTitle>Reference</RootNamespaceTitle>
     <HelpTitle>MySQL Connector/NET 8.0 API Reference</HelpTitle>
     <CopyrightHref>http://www.mysql.com</CopyrightHref>
-    <CopyrightText>Copyright &amp;#169%3b 2004, 2019, Oracle and/or its affiliates.  All rights reserved.</CopyrightText>
+    <CopyrightText>Copyright &amp;#169%3b 2004, 2020, Oracle and/or its affiliates.  All rights reserved.</CopyrightText>
     <PresentationStyle>VS2013</PresentationStyle>
     <NamingMethod>MemberName</NamingMethod>
     <DocumentationSources>
@@ -52,10 +52,8 @@
       <DocumentationSource sourceFile="..\MySql.Web\src\bin\release\net452\MySql.Web.xml" />
       <DocumentationSource sourceFile="..\EntityFramework\src\bin\Release\net452\MySql.Data.EntityFramework.dll" />
       <DocumentationSource sourceFile="..\EntityFramework\src\bin\Release\net452\MySql.Data.EntityFramework.xml" />
-      <DocumentationSource sourceFile="..\EFCore\src\MySql.Data.EFCore\bin\Release\net452\MySql.Data.EntityFrameworkCore.dll" />
-      <DocumentationSource sourceFile="..\EFCore\src\MySql.Data.EFCore\bin\Release\net452\MySql.Data.EntityFrameworkCore.xml" />
-      <DocumentationSource sourceFile="..\EFCore\src\MySql.Data.EFCore.Design\bin\Release\net452\MySql.Data.EntityFrameworkCore.Design.dll" />
-      <DocumentationSource sourceFile="..\EFCore\src\MySql.Data.EFCore.Design\bin\Release\net452\MySql.Data.EntityFrameworkCore.Design.xml" />
+      <DocumentationSource sourceFile="..\EFCore\src\bin\Release\netstandard2.0\MySql.Data.EntityFrameworkCore.dll" />
+      <DocumentationSource sourceFile="..\EFCore\src\bin\Release\netstandard2.0\MySql.Data.EntityFrameworkCore.xml" />
     </DocumentationSources>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False" xmlns="" />
@@ -66,9 +64,24 @@
       <NamespaceSummaryItem name="MySql.Security" isDocumented="True">Set of classes used for secure access user accounts in connections.</NamespaceSummaryItem>
     </NamespaceSummaries>
     <PlugInConfigurations>
+      <PlugInConfig id="Assembly Binding Redirection" enabled="True">
+        <configuration useGAC="true">
+          <assemblyBinding>
+          </assemblyBinding>
+          <ignoreIfUnresolved>
+            <assemblyIdentity name="BusinessObjects.Licensing.KeycodeDecoder" />
+            <assemblyIdentity name="Microsoft.Bcl.AsyncInterfaces" />
+            <assemblyIdentity name="Microsoft.EntityFrameworkCore" />
+            <assemblyIdentity name="Microsoft.EntityFrameworkCore.Relational" />
+            <assemblyIdentity name="Microsoft.Extensions.DependencyInjection.Abstractions" />
+            <assemblyIdentity name="Microsoft.Extensions.Logging.Abstractions" />
+            <assemblyIdentity name="Microsoft.VisualStudio.TestTools.UITest.Playback" />
+          </ignoreIfUnresolved>
+        </configuration>
+      </PlugInConfig>
     </PlugInConfigurations>
     <VendorName>Oracle</VendorName>
-    <HelpFileVersion>8.0.17.0</HelpFileVersion>
+    <HelpFileVersion>8.0.21.0</HelpFileVersion>
     <MaximumGroupParts>3</MaximumGroupParts>
     <NamespaceGrouping>False</NamespaceGrouping>
     <SyntaxFilters>C#, Visual Basic</SyntaxFilters>

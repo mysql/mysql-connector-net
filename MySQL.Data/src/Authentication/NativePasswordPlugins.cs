@@ -1,4 +1,4 @@
-// Copyright © 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,11 +28,7 @@
 
 using System;
 using System.Security.Cryptography;
-#if NETSTANDARD1_6
-using AliasText = MySql.Data.MySqlClient.Framework.NetStandard1_6;
-#else
-using AliasText = System.Text;
-#endif
+using System.Text;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
@@ -91,7 +87,7 @@ namespace MySql.Data.MySqlClient.Authentication
       }
       catch (NullReferenceException)
       {
-        firstHash = sha.ComputeHash(AliasText.Encoding.Default.GetBytes(password));
+        firstHash = sha.ComputeHash(Encoding.Default.GetBytes(password));
       }
 
       byte[] secondHash = sha.ComputeHash(firstHash);

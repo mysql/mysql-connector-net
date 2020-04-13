@@ -110,7 +110,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
-      for (int i = 0; i < 2000000; i++)
+      for (int i = 0; i < 200000; i++)
         sw.WriteLine(i + ",'Test'");
       sw.Flush();
       sw.Dispose();
@@ -134,11 +134,11 @@ namespace MySql.Data.MySqlClient.Tests
 
         object cnt = 0;
         cnt = cmd.ExecuteNonQuery();
-        Assert.Equal(2000000, Convert.ToInt32(cnt));
+        Assert.Equal(200000, Convert.ToInt32(cnt));
 
         cmd.CommandText = "SELECT COUNT(*) FROM Test";
         cnt = cmd.ExecuteScalar();
-        Assert.Equal(2000000, Convert.ToInt32(cnt));
+        Assert.Equal(200000, Convert.ToInt32(cnt));
       }
     }
 

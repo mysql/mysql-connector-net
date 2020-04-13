@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,10 +27,12 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.MySqlClient;
+using MySql.Data.X.XDevAPI.Common;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
+using MySql.Data;
 
 namespace MySqlX.XDevAPI
 {
@@ -134,16 +136,90 @@ namespace MySqlX.XDevAPI
     /// Creates a collection.
     /// </summary>
     /// <param name="collectionName">The name of the collection to create.</param>
-    /// <param name="ReuseExistingObject">If false, it will throw an exception if collection exists.</param>
+    /// <param name="ReuseExisting">If false, throws an exception if the collection exists.</param>
     /// <returns>Collection referente.</returns>
-    public Collection CreateCollection(string collectionName, bool ReuseExistingObject = false)
+    public Collection CreateCollection(string collectionName, bool ReuseExisting = false)
     {
       ValidateOpenSession();
       Collection coll = new Collection(this, collectionName);
-      if (ReuseExistingObject && coll.ExistsInDatabase())
-        return coll;
-      Session.XSession.CreateCollection(Name, collectionName);
+      try
+      {
+        if (Session.Version.isAtLeast(8, 0, 19))
+        {
+          CreateCollectionOptions options = new CreateCollectionOptions() { ReuseExisting = ReuseExisting };
+          Session.XSession.CreateCollection(Name, collectionName, options);
+        }
+        else
+        {
+          Session.XSession.CreateCollection(Name, collectionName);
+        }
+      }
+      catch (MySqlException ex) when (ex.Code == 1050)
+      {
+        if (ReuseExisting)
+          return coll;
+        throw ex;
+      }
       return new Collection(this, collectionName);
+    }
+
+    /// <summary>
+    /// Creates a collection including a schema validation.
+    /// </summary>
+    /// <param name="collectionName">The name of the collection to create.</param>
+    /// <param name="options">This object hold the parameters required to create the collection.</param>
+    /// <see cref="CreateCollectionOptions"/>
+    /// <returns>Collection referente.</returns>
+    public Collection CreateCollection(string collectionName, CreateCollectionOptions options)
+    {
+      ValidateOpenSession();
+      Collection coll = new Collection(this, collectionName);
+
+      try
+      {
+        Session.XSession.CreateCollection(Name, collectionName, options);
+        return new Collection(this, collectionName);
+      }
+      catch (MySqlException ex_1) when(ex_1.Code==5015)
+      {
+        var msg = string.Format("{0}{1}{2}", ex_1.Message, ", ", ResourcesX.SchemaCreateCollectionMsg);
+        throw new MySqlException(msg);
+      }
+      catch (MySqlException ex) when (ex.Code == 1050)
+      {
+        if (options.ReuseExisting)
+          return coll;
+        throw ex;
+      }
+      catch (MySqlException ex)
+      {
+        throw ex;
+      }
+    }
+
+    /// <summary>
+    /// Modify a collection adding or removing schema validation parameters.
+    /// </summary>
+    /// <param name="collectionName">The name of the collection to create.</param>
+    /// <param name="options">This object encapsulate the Validation parameters level and schema. </param>
+    /// <returns>Collection referente.</returns>
+    public Collection ModifyCollection(string collectionName, ModifyCollectionOptions? options)
+    {
+      ValidateOpenSession();
+      try
+      {
+        Session.XSession.ModifyCollection(Name, collectionName, options);
+        return new Collection(this, collectionName);
+      }
+      catch (MySqlException ex_1) when (ex_1.Code == 5157)
+      {
+        var msg = string.Format("{0}{1}{2}", ex_1.Message, ", ", ResourcesX.SchemaCreateCollectionMsg);
+        throw new MySqlException(msg);
+      }
+      catch (MySqlException ex)
+      {
+        throw ex;
+      }
     }
 
     #endregion

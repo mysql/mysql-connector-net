@@ -91,7 +91,7 @@ namespace MySqlX.Data.Tests
         s1.StartTransaction();
         RowResult r1 = ExecuteSelectStatement(t1.Select().Where("id = :id").Bind("id", 1).LockExclusive());
         var rows1 = r1.FetchAll();
-        Assert.Equal(1, rows1.Count);
+        Assert.Single(rows1);
         Assert.Equal(1, rows1[0]["id"]);
 
         // second session tries to read the locked row
@@ -128,7 +128,7 @@ namespace MySqlX.Data.Tests
                 break;
               }
               var rows2 = ExecuteSelectStatement(stmt2).FetchAll();
-              Assert.Equal(1, rows2.Count);
+              Assert.Single(rows2);
               Assert.Equal(2, rows2[0]["id"]);
               break;
             default:

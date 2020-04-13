@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,31 +32,26 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-#if NETSTANDARD1_6
-using AliasText = MySql.Data.MySqlClient.Framework.NetStandard1_6;
-#else
-using AliasText = System.Text;
-#endif
 
 namespace MySql.Data.MySqlClient.Authentication
 {
+  /// <summary>
+  /// Provides functionality to read, decode and convert PEM files to objects supported in .NET.
+  /// </summary>
   public class MySqlPemReader
   {
-#if NETSTANDARD1_6
-    public static RSA ConvertPemToRSAProvider(byte[] rawPublicKey)
-#else
+    /// <summary>
+    /// Converts the binary data of a PEM file to an <see cref="RSACryptoServiceProvider"/> object. 
+    /// </summary>
+    /// <param name="rawPublicKey">A binary representation of the public key provided by the server.</param>
+    /// <returns>An <see cref="RSACryptoServiceProvider"/> object containing the data found in the public key.</returns>
     public static RSACryptoServiceProvider ConvertPemToRSAProvider(byte[] rawPublicKey)
-#endif
     {
       byte[] decodedKey = DecodeOpenSslKey(rawPublicKey);
       return DecodeX509Key(decodedKey);
     }
 
-#if NETSTANDARD1_6
-    static RSA DecodeX509Key(byte[] key)
-#else
     static RSACryptoServiceProvider DecodeX509Key(byte[] key)
-#endif
     {
       if (key == null) return null;
 
@@ -134,11 +129,7 @@ namespace MySql.Data.MySqlClient.Authentication
 
             // Read exponent.
             byte[] exponent = reader.ReadBytes(reader.ReadByte());
-#if NETSTANDARD1_6
-            RSA rsa = RSA.Create();
-#else
             RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
-#endif
             RSAParameters rsaKeyInfo = new RSAParameters
             {
               Modulus = modulus,
@@ -176,7 +167,7 @@ namespace MySql.Data.MySqlClient.Authentication
 
       try
       {
-        binaryKey = Convert.FromBase64String(AliasText.Encoding.Default.GetString(formattedRawPublicKey));
+        binaryKey = Convert.FromBase64String(Encoding.Default.GetString(formattedRawPublicKey));
       }
       catch (FormatException)
       {

@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -148,7 +148,14 @@ namespace MySql.Data.MySqlClient
         _packet.Encoding = p.Encoding;
         p.Serialize(_packet, true, Connection.Settings);
       }
-      _nullMap?.CopyTo(_packet.Buffer, _nullMapPosition);
+
+      if (_nullMap != null)
+      {
+        byte[] tempByteArray = new byte[(_nullMap.Length + 7) >> 3];
+        _nullMap.CopyTo(tempByteArray, 0);
+
+        Array.Copy(tempByteArray, 0, _packet.Buffer, _nullMapPosition, tempByteArray.Length);
+      }
 
       ExecutionCount++;
 
