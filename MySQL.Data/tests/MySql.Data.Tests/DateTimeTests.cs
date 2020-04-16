@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -283,6 +283,33 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read());
+      }
+    }
+
+    /// <summary>
+    /// Bug #28393733 TIME(N) COLUMN LOSES MICROSECONDS WITH PREPARED COMMAND
+    /// </summary>
+    [Fact]
+    public void Bug28393733()
+    {
+      executeSQL(@"DROP TABLE IF EXISTS test_time;
+              CREATE TABLE test_time(data TIME(3) NOT NULL);");
+      TimeSpan time = new TimeSpan(1, 2, 3, 4, 567);
+      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";IgnorePrepare=False;"))
+      {
+        c.Open();
+        using (var cmd = new MySqlCommand(@"INSERT INTO test_time VALUES(@data);", c))
+        {
+          cmd.Parameters.AddWithValue("@data", time);
+          cmd.ExecuteNonQuery();
+        }
+
+        using (var command = new MySqlCommand(@"SELECT data FROM test_time",c))
+        {
+          command.Prepare();
+          var result = (TimeSpan)command.ExecuteScalar();
+          Assert.True(result.ToString()== "1.02:03:04.5670000");
+        }
       }
     }
 
