@@ -28,13 +28,13 @@
 
 using System;
 using MySqlX.XDevAPI;
-using Xunit;
 using MySqlX.XDevAPI.Relational;
 using System.Reflection;
 using System.IO;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.CRUD;
 using MySqlX.XDevAPI.Common;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
@@ -136,8 +136,8 @@ namespace MySqlX.Data.Tests
       using (Session s = GetSession())
       {
         Schema schema = s.GetSchema(schemaName);
-        if(SchemaExistsInDatabase(schema))
-            s.DropSchema(schemaName);
+        if (SchemaExistsInDatabase(schema))
+          s.DropSchema(schemaName);
         Assert.False(SchemaExistsInDatabase(schema));
       }
     }
