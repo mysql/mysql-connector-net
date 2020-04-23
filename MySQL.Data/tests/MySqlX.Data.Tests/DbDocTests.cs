@@ -28,26 +28,26 @@
 
 using MySqlX.XDevAPI;
 using System;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
   public class DbDocTests
   {
-    [Fact]
+    [Test]
     public void SimpleConverstionToJson()
     {
       DbDoc d = new DbDoc();
       d.SetValue("_id", 1);
       d.SetValue("pages", 20);
       string s = d.ToString();
-      Assert.Equal(@"{
+      StringAssert.AreEqualIgnoringCase(@"{
   ""_id"": 1, 
   ""pages"": 20
-}", d.ToString(), ignoreLineEndingDifferences: true);
+}", d.ToString());
     }
 
-    [Fact]
+    [Test]
     public void SimpleParse()
     {
       DbDoc d = new DbDoc(@"{ ""id"": 1, ""pages"": 20}");
@@ -57,7 +57,7 @@ namespace MySqlX.Data.Tests
       Assert.True(d.Equals(d2));
     }
 
-    [Fact]
+    [Test]
     public void NestedParse()
     {
       DbDoc d = new DbDoc(@"{ ""id"": 1, ""pages"": 20, 
@@ -70,7 +70,7 @@ namespace MySqlX.Data.Tests
       Assert.True(d.Equals(d2));
     }
 
-    [Fact]
+    [Test]
     public void ParseWithArray()
     {
       string json = @"{
@@ -105,11 +105,11 @@ namespace MySqlX.Data.Tests
       d2.SetValue("id", 1);
       d2.SetValue("pages", 20);
       d2.SetValue("books", docs);
-      Assert.Equal(d.ToString(), d2.ToString(), ignoreLineEndingDifferences: true);
-      Assert.Equal(json, d2.ToString(), ignoreLineEndingDifferences: true);
+      StringAssert.AreEqualIgnoringCase(d.ToString(), d2.ToString());
+      StringAssert.AreEqualIgnoringCase(json, d2.ToString());
     }
 
-    [Fact]
+    [Test]
     public void ParseLongValues()
     {
       DbDoc d = new DbDoc(@"{ ""id"": 1, ""pages"": " + ((long)int.MaxValue + 1) + "}");
@@ -119,7 +119,7 @@ namespace MySqlX.Data.Tests
       Assert.True(d.Equals(d2));
     }
 
-    [Fact]
+    [Test]
     public void ParseFloatValues()
     {
       DbDoc d = new DbDoc(@"{ ""id"": 1, ""pi"": 3.14159 }");

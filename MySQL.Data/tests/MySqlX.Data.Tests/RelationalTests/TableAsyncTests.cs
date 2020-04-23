@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,18 +31,19 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {
   public class TableAsyncTests : BaseTest
   {
-    public TableAsyncTests()
+    [SetUp]
+    public void SetUp()
     {
       ExecuteSQL("CREATE TABLE test.test(id INT, age INT)");
     }
 
-    [Fact]
+    [Test]
     public void MultipleTableInsertAsync()
     {
       Table table = testSchema.GetTable("test");
@@ -54,10 +55,10 @@ namespace MySqlX.Data.Tests.RelationalTests
       }
 
       Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
-      Assert.Equal(200, table.Count());
+      Assert.AreEqual(200, table.Count());
     }
 
-    [Fact]
+    [Test]
     public void MultipleTableSelectAsync()
     {
       var table = testSchema.GetTable("test");
@@ -81,13 +82,13 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
       foreach (Task<RowResult> task in tasksList)
       {
-        Assert.Equal(2, task.Result.Columns.Count);
-        Assert.Single(task.Result.Rows);
+        Assert.AreEqual(2, task.Result.Columns.Count);
+        Assert.That(task.Result.Rows, Has.One.Items);
         int value = (int)task.Result.Rows[0][1];
         Assert.False(validator.Contains(value), value + " value exists");
         validator.Add(value);
       }
-      Assert.Equal(rows, validator.Count);
+      Assert.AreEqual(rows, validator.Count);
     }
   }
 }

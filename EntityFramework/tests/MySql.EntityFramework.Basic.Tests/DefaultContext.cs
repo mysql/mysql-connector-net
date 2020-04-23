@@ -99,7 +99,6 @@ namespace MySql.Data.EntityFramework.Tests
     public Address Address { get; set; }
   }
 
-
   public class DefaultContext : DbContext
   {
     public DefaultContext(string connStr) : base(connStr)

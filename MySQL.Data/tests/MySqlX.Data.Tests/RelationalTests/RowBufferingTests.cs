@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,14 +27,13 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySqlX.XDevAPI.Relational;
-using System.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {
   public class RowBufferingTests : BaseTest
   {
-    [Fact]
+    [Test]
     public void SmartBuffering()
     {
       ExecuteSQL("CREATE TABLE test1(id INT)");
@@ -43,15 +42,15 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("INSERT INTO test2 VALUES (1,0)");
 
       var rowResult = ExecuteSelectStatement(testSchema.GetTable("test1").Select("id"));
-      Assert.Equal(0, rowResult.IndexOf("id"));
+      Assert.AreEqual(0, rowResult.IndexOf("id"));
       foreach (var row in rowResult)
       {
         var result = ExecuteUpdateStatement(testSchema.GetTable("test2").Update().Where("id=1").Set("val", row["id"]));
-        Assert.Equal<ulong>(1, result.AffectedItemsCount);
+        Assert.AreEqual(1, result.AffectedItemsCount);
       }
 
       Row valRow = ExecuteSelectStatement(testSchema.GetTable("test2").Select("val")).FetchOne();
-      Assert.Equal(4, valRow[0]);
+      Assert.AreEqual(4, valRow[0]);
     }
   }
 }

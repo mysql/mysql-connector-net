@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,13 +29,14 @@
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {
   public class TableDeleteTests : BaseTest
   {
-    public TableDeleteTests()
+    [SetUp]
+    public void SetUp()
     {
       ExecuteSQL("CREATE TABLE test.test(id INT, age INT)");
 
@@ -46,7 +47,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         insertStatement.Values(i, i);
       }
       ExecuteInsertStatement(insertStatement);
-      Assert.Equal(rowsToInsert, CountRows());
+      Assert.AreEqual(rowsToInsert, CountRows());
     }
 
     private long CountRows()
@@ -57,34 +58,34 @@ namespace MySqlX.Data.Tests.RelationalTests
     private void ExecuteDelete(TableDeleteStatement statement, int expectedRowsCount)
     {
       Result result = ExecuteDeleteStatement(statement);
-      Assert.Equal(expectedRowsCount, CountRows());
+      Assert.AreEqual(expectedRowsCount, CountRows());
     }
 
-    [Fact]
+    [Test]
     public void DeleteAllTest()
     {
       ExecuteDelete(testSchema.GetTable("test").Delete(), 0);
     }
 
-    [Fact]
+    [Test]
     public void DeleteConditionTest()
     {
       ExecuteDelete(testSchema.GetTable("test").Delete().Where("age % 2 = 0"), 5);
     }
 
-    [Fact]
+    [Test]
     public void DeleteOrderbyAndLimit()
     {
       ExecuteDelete(testSchema.GetTable("test").Delete().OrderBy("age Desc").Limit(3), 7);
     }
 
-    [Fact]
+    [Test]
     public void DeleteConditionOrderbyAndLimit()
     {
       ExecuteDelete(testSchema.GetTable("test").Delete().Where("id > 5").OrderBy("id Desc").Limit(2), 8);
     }
 
-    [Fact]
+    [Test]
     public void DeleteBindTest()
     {
       var deleteStmt = testSchema.GetTable("test").Delete().Where("age = :aGe");
@@ -92,21 +93,21 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteDelete(deleteStmt.Bind("age", 6), 8);
     }
 
-    [Fact]
+    [Test]
     public void DeleteWithInOperator()
     {
       Table table = testSchema.GetTable("test");
-      Assert.Equal(10, CountRows());
+      Assert.AreEqual(10, CountRows());
 
-      Assert.Equal<ulong>(2, ExecuteDeleteStatement(table.Delete().Where("id IN (1,2)")).AffectedItemsCount);
-      Assert.Equal(8, CountRows());
+      Assert.AreEqual(2, ExecuteDeleteStatement(table.Delete().Where("id IN (1,2)")).AffectedItemsCount);
+      Assert.AreEqual(8, CountRows());
 
-      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("a IN [3]")).AffectedItemsCount);
-      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("3 IN a")).AffectedItemsCount);
-      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("age IN [3]")).AffectedItemsCount);
+      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("a IN [3]")));
+      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("3 IN a")));
+      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("age IN [3]")));
 
-      Assert.Equal<ulong>(1, ExecuteDeleteStatement(table.Delete().Where("age IN (3)")).AffectedItemsCount);
-      Assert.Equal(7, CountRows());
+      Assert.AreEqual(1, ExecuteDeleteStatement(table.Delete().Where("age IN (3)")).AffectedItemsCount);
+      Assert.AreEqual(7, CountRows());
     }
   }
 }

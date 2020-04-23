@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,34 +28,34 @@
 
 using MySql.Data.MySqlClient;
 using System;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
   public class CollectionIndexTests : BaseTest
   {
-    [Fact]
+    [Test]
     public void IncorrectlyFormatedIndexDefinition()
     {
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"type\": \"INDEX\" }"));
-      Assert.Equal("Field 'fields' is mandatory.", ex.Message);
+      Assert.AreEqual("Field 'fields' is mandatory.", ex.Message);
 
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\" } ], \"unexpectedField\" : false }"));
-      Assert.Equal("Field name 'unexpectedField' is not allowed.", ex.Message);
+      Assert.AreEqual("Field name 'unexpectedField' is not allowed.", ex.Message);
 
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"fields\":$.myField, \"types\":\"TEXT\" } ] }"));
-      Assert.Equal("Field 'field' is mandatory.", ex.Message);
+      Assert.AreEqual("Field 'field' is mandatory.", ex.Message);
 
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"types\":\"TEXT\" } ] }"));
-      Assert.Equal("Field 'type' is mandatory.", ex.Message);
+      Assert.AreEqual("Field 'type' is mandatory.", ex.Message);
 
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\", \"unexpectedField\" : false } ] }"));
-      Assert.Equal("Field name 'unexpectedField' is not allowed.", ex.Message);
+      Assert.AreEqual("Field name 'unexpectedField' is not allowed.", ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void CreateIndexOnSingleFieldWithDefaultOptions()
     {
       var collection = CreateCollection("test");
@@ -64,7 +64,7 @@ namespace MySqlX.Data.Tests
       ValidateIndex("myIndex", "test", "t10", false, false, false, 1, 10);
     }
 
-    [Fact]
+    [Test]
     public void CreateIndexOnSingleFieldWithAllOptions()
     {
       var collection = CreateCollection("test");
@@ -73,7 +73,7 @@ namespace MySqlX.Data.Tests
       ValidateIndex("myIndex", "test", "i", false, true, false, 1);
     }
 
-    [Fact]
+    [Test]
     public void CreateIndexOnMultipleFields()
     {
       var collection = CreateCollection("test");
@@ -84,7 +84,7 @@ namespace MySqlX.Data.Tests
       ValidateIndex("myIndex", "test", "i", false, false, false, 3);
     }
 
-    [Fact]
+    [Test]
     public void CreateIndexOnMultipleFieldsWithAllOptions()
     {
       var collection = CreateCollection("test");
@@ -95,7 +95,7 @@ namespace MySqlX.Data.Tests
       ValidateIndex("myIndex", "test", "i_u", false, false, true, 3);
     }
 
-    [Fact]
+    [Test]
     public void CreateTypeSpecificIndexesCaseInsensitive()
     {
       var collection = CreateCollection("test");
@@ -176,7 +176,7 @@ namespace MySqlX.Data.Tests
       ValidateIndex("myIndex", "test", "gj", false, true, false, 1);
     }
 
-    [Fact]
+    [Test]
     public void DropIndex()
     {
       var collection = CreateCollection("test");
@@ -188,98 +188,98 @@ namespace MySqlX.Data.Tests
 
       collection.DropIndex("myIndex");
       Exception ex = Assert.Throws<Exception>(() => ValidateIndex("myIndex", "test", "t10", false, false, false, 1, 10));
-      Assert.Equal("Index not found.", ex.Message);
+      Assert.AreEqual("Index not found.", ex.Message);
       ex = Assert.Throws<Exception>(() => ValidateIndex("myIndex", "test", "t10", false, true, false, 2, 10));
-      Assert.Equal("Index not found.", ex.Message);
+      Assert.AreEqual("Index not found.", ex.Message);
       ex = Assert.Throws<Exception>(() => ValidateIndex("myIndex", "test", "i_u", false, false, true, 3));
-      Assert.Equal("Index not found.", ex.Message);
+      Assert.AreEqual("Index not found.", ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void CreateIndexWithDuplicateName()
     {
       var collection = CreateCollection("test");
 
       collection.CreateIndex("myUniqueIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ] }");
       Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myUniqueIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ] }"));
-      Assert.Equal("Duplicate key name 'myUniqueIndex'", ex.Message);
+      Assert.AreEqual("Duplicate key name 'myUniqueIndex'", ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void CreateIndexWithInvalidJsonDocumentDefinition()
     {
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<Exception>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\" = $.myField, \"type\" = \"TEXT\" } ] }"));
-      Assert.Equal("The value provided is not a valid JSON document. Expected token ':'", ex.Message);
+      Assert.AreEqual("The value provided is not a valid JSON document. Expected token ':'", ex.Message);
       ex = Assert.Throws<Exception>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\" ] }"));
-      Assert.Equal("The value provided is not a valid JSON document. Expected token ','", ex.Message);
+      Assert.AreEqual("The value provided is not a valid JSON document. Expected token ','", ex.Message);
       ex = Assert.Throws<Exception>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, type:\"TEXT\" } }"));
-      Assert.Equal("The value provided is not a valid JSON document. Expected token '\"'", ex.Message);
+      Assert.AreEqual("The value provided is not a valid JSON document. Expected token '\"'", ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void CreateIndexWithInvalidJsonDocumentStructure()
     {
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\", \"myCustomField\":\"myCustomValue\" } ] }"));
-      Assert.Equal("Field name 'myCustomField' is not allowed.", ex.Message);
+      Assert.AreEqual("Field name 'myCustomField' is not allowed.", ex.Message);
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"mytype\":\"INT\" } ] }"));
-      Assert.Equal("Field 'type' is mandatory.", ex.Message);
+      Assert.AreEqual("Field 'type' is mandatory.", ex.Message);
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"myfield\":$.myField, \"type\":\"INT\" } ] }"));
-      Assert.Equal("Field 'field' is mandatory.", ex.Message);
+      Assert.AreEqual("Field 'field' is mandatory.", ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void CreateIndexWithTypeNotIndexOrSpatial()
     {
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ], \"type\":\"indexa\" }"));
-      Assert.Equal("Argument value 'indexa' for index type is invalid", ex.Message);
+      Assert.AreEqual("Argument value 'indexa' for index type is invalid", ex.Message);
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ], \"type\":\"OTheR\" }"));
-      Assert.Equal("Argument value 'OTheR' for index type is invalid", ex.Message);
+      Assert.AreEqual("Argument value 'OTheR' for index type is invalid", ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void CreateSpatialIndexWithRequiredSetToFalse()
     {
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"GEOJSON\", \"required\":false, \"options\":2, \"srid\":4326 } ], \"type\":\"SPATIAL\" }"));
-      Assert.Equal("GEOJSON index requires 'constraint.required: TRUE", ex.Message);
+      Assert.AreEqual("GEOJSON index requires 'constraint.required: TRUE", ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void CreateIndexWithInvalidType()
     {
       var collection = CreateCollection("test");
 
       // Missing key length for text type.
       Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"Text\" } ] }"));
-      Assert.EndsWith("used in key specification without a key length", ex.Message);
+      StringAssert.EndsWith("used in key specification without a key length", ex.Message);
 
       // Invalid index types.
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"Texta\" } ] }"));
-      Assert.EndsWith("Invalid or unsupported type specification 'Texta'", ex.Message);
+      StringAssert.EndsWith("Invalid or unsupported type specification 'Texta'", ex.Message);
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"INTO\" } ] }"));
-      Assert.EndsWith("Invalid or unsupported type specification 'INTO'", ex.Message);
+      StringAssert.EndsWith("Invalid or unsupported type specification 'INTO'", ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void CreateIndexWithInvalidGeojsonOptions()
     {
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"INT\", \"options\":2, \"srid\":4326 } ] }"));
-      Assert.Equal("Unsupported argument specification for '$.myField'", ex.Message);      
+      Assert.AreEqual("Unsupported argument specification for '$.myField'", ex.Message);      
 
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"GEOJSON\", \"options\":2, \"srid\":4326 } ], \"type\":\"SPATIAL\" }"));
-      Assert.Equal("GEOJSON index requires 'constraint.required: TRUE", ex.Message);
+      Assert.AreEqual("GEOJSON index requires 'constraint.required: TRUE", ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void ValidIndexNames()
     {
       var collection = CreateCollection("test");
@@ -297,7 +297,7 @@ namespace MySqlX.Data.Tests
       collection.DropIndex("-myIndex");
     }
 
-    [Fact]
+    [Test]
     public void CreateIndexWithArrayOption()
     {
       var collection = CreateCollection("test");
@@ -376,27 +376,27 @@ namespace MySqlX.Data.Tests
               continue;
 
             indexFound = true;
-            Assert.Equal(collectionName, reader["Table"]);
-            Assert.Equal(unique ? 0 : 1, Convert.ToInt16(reader["Non_unique"]));
+            Assert.AreEqual(collectionName, reader["Table"]);
+            Assert.AreEqual(unique ? 0 : 1, Convert.ToInt16(reader["Non_unique"]));
 
             if (!array && !string.IsNullOrEmpty(reader["Column_name"].ToString()))
             {
               var columnNameTokens = reader["Column_name"].ToString().Split('_');
-              Assert.Equal(dataType, isUnsigned ? string.Format("{0}_{1}", columnNameTokens[1], columnNameTokens[2]) : columnNameTokens[1]);
+              Assert.AreEqual(dataType, isUnsigned ? string.Format("{0}_{1}", columnNameTokens[1], columnNameTokens[2]) : columnNameTokens[1]);
             }
             else if (array && !string.IsNullOrEmpty(reader["Expression"].ToString()))
             {
               string expression = reader["Expression"].ToString();
               int pos = reader["Expression"].ToString().IndexOf(" as ");
               expression = expression.Substring(pos + 4);
-              Assert.Contains("array", expression);
+              StringAssert.Contains("array", expression);
               expression = expression.Substring(0, expression.IndexOf(" array"));
-              Assert.Equal(dataType, expression.Replace(" ", string.Empty), true);
+              Assert.That(dataType, Is.EqualTo(expression.Replace(" ", string.Empty)).IgnoreCase);
             }
 
-            Assert.Equal(required ? "" : "YES", reader["Null"]);
+            Assert.AreEqual(required ? "" : "YES", reader["Null"]);
             if (length != null)
-              Assert.Equal(length, Convert.ToInt32(reader["Sub_part"]));
+              Assert.AreEqual(length, Convert.ToInt32(reader["Sub_part"]));
             break;
           }
         }

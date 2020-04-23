@@ -8,7 +8,7 @@
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
-    <TargetFrameworks>netcoreapp3.0;netcoreapp2.2;net452;net48;</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net452;net48;</TargetFrameworks>
     <PackageId>MySqlx.Data.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
@@ -24,7 +24,7 @@
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
     <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
-    <NoWarn>CS1591,CS1587,CS1574,CS1570,CS1701</NoWarn>
+    <NoWarn>CS1591,CS1587,CS1574,CS1570,CS1701,CA2100</NoWarn>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
@@ -65,9 +65,6 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
     <EmbeddedResource Include="Properties\CreateUsers.sql" />
   </ItemGroup>
 

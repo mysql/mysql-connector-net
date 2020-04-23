@@ -1,4 +1,4 @@
-// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,10 +26,8 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using Xunit;
+using NUnit.Framework;
 using System.Data;
-using System.Data.SqlTypes;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -39,20 +37,20 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #8630  	Executing a query with the SchemaOnly option reads the entire resultset
     /// </summary>
-    [Fact]
+    [Test]
     public void SchemaOnly()
     {
       CreateDefaultTable();
-      executeSQL("INSERT INTO Test (id,name) VALUES(1,'test1')");
-      executeSQL("INSERT INTO Test (id,name) VALUES(2,'test2')");
-      executeSQL("INSERT INTO Test (id,name) VALUES(3,'test3')");
+      ExecuteSQL("INSERT INTO Test (id,name) VALUES(1,'test1')");
+      ExecuteSQL("INSERT INTO Test (id,name) VALUES(2,'test2')");
+      ExecuteSQL("INSERT INTO Test (id,name) VALUES(3,'test3')");
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
       {
         DataTable table = reader.GetSchemaTable();
-        Assert.Equal(5, table.Rows.Count);
-        Assert.Equal(22, table.Columns.Count);
+        Assert.AreEqual(5, table.Rows.Count);
+        Assert.AreEqual(22, table.Columns.Count);
         Assert.False(reader.Read());
       }
     }
@@ -60,10 +58,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Tests fix for bug "ConstraintException when filling a datatable" (MySql bug #65065).
     /// </summary>
-    [Fact]
+    [Test]
     public void ConstraintExceptionOnLoad()
     {
-      using (var con = Fixture.GetConnection())
+      using (var con = GetConnection())
       {
         MySqlCommand cmd = new MySqlCommand();
 

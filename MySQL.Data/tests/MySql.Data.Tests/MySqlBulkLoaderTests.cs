@@ -1,4 +1,4 @@
-// Copyright © 2013, 2019 Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020 Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,15 +28,20 @@
 
 using System;
 using System.IO;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class MySqlBulkLoaderTests : TestBase
   {
-    public MySqlBulkLoaderTests(TestFixture fixture) : base(fixture)
+    protected override void Cleanup()
     {
-      if (fixture.Version >= new Version(8,0,2)) executeSQL("SET GLOBAL local_infile = 1");
+      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
+    }
+
+    public MySqlBulkLoaderTests()
+    {
+      if (Version >= new Version(8,0,2)) ExecuteSQL("SET GLOBAL local_infile = 1");
     }
 
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
@@ -44,10 +49,10 @@ namespace MySql.Data.MySqlClient.Tests
       settings.AllowLoadLocalInfile = true;
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadSimple()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
@@ -63,17 +68,17 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Timeout = 0;
       loader.Local = true;
       int count = loader.Load();
-      Assert.Equal(200, count);
+      Assert.AreEqual(200, count);
 
       TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-      Assert.Equal(200, dt.Rows.Count);
-      Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
+      Assert.AreEqual(200, dt.Rows.Count);
+      Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadReadOnlyFile()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
@@ -94,11 +99,11 @@ namespace MySql.Data.MySqlClient.Tests
         loader.Timeout = 0;
         loader.Local = true;
         int count = loader.Load();
-        Assert.Equal(200, count);
+        Assert.AreEqual(200, count);
 
         TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-        Assert.Equal(200, dt.Rows.Count);
-        Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
+        Assert.AreEqual(200, dt.Rows.Count);
+        Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
       }
       finally
       {
@@ -107,10 +112,10 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadSimple2()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
@@ -128,16 +133,16 @@ namespace MySql.Data.MySqlClient.Tests
       loader.LineTerminator = "xxx";
       loader.Local = true;
       int count = loader.Load();
-      Assert.Equal(200, count);
+      Assert.AreEqual(200, count);
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Assert.Equal(200, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.AreEqual(200, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadSimple3()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
@@ -156,16 +161,16 @@ namespace MySql.Data.MySqlClient.Tests
       loader.NumberOfLinesToSkip = 50;
       loader.Local = true;
       int count = loader.Load();
-      Assert.Equal(150, count);
+      Assert.AreEqual(150, count);
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Assert.Equal(150, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.AreEqual(150, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadSimple4()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
@@ -190,16 +195,16 @@ namespace MySql.Data.MySqlClient.Tests
       loader.LinePrefix = "bbb";
       loader.Local = true;
       int count = loader.Load();
-      Assert.Equal(200, count);
+      Assert.AreEqual(200, count);
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Assert.Equal(200, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.AreEqual(200, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadFieldQuoting()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
@@ -217,18 +222,18 @@ namespace MySql.Data.MySqlClient.Tests
       loader.FieldQuotationOptional = true;
       loader.Local = true;
       int count = loader.Load();
-      Assert.Equal(200, count);
+      Assert.AreEqual(200, count);
 
       TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-      Assert.Equal(200, dt.Rows.Count);
-      Assert.Equal("col1", dt.Rows[0][1]);
-      Assert.Equal("col2", dt.Rows[0][2].ToString().Trim());
+      Assert.AreEqual(200, dt.Rows.Count);
+      Assert.AreEqual("col1", dt.Rows[0][1]);
+      Assert.AreEqual("col2", dt.Rows[0][2].ToString().Trim());
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadEscaping()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
@@ -246,18 +251,18 @@ namespace MySql.Data.MySqlClient.Tests
       loader.FieldTerminator = ",";
       loader.Local = true;
       int count = loader.Load();
-      Assert.Equal(200, count);
+      Assert.AreEqual(200, count);
 
       TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-      Assert.Equal(200, dt.Rows.Count);
-      Assert.Equal("col1still col1", dt.Rows[0][1]);
-      Assert.Equal("col2", dt.Rows[0][2].ToString().Trim());
+      Assert.AreEqual(200, dt.Rows.Count);
+      Assert.AreEqual("col1still col1", dt.Rows[0][1]);
+      Assert.AreEqual("col2", dt.Rows[0][2].ToString().Trim());
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadConflictOptionReplace()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
@@ -274,7 +279,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.FieldTerminator = ",";
       loader.Local = true;
       int count = loader.Load();
-      Assert.Equal(20, count);
+      Assert.AreEqual(20, count);
 
       path = Path.GetTempFileName();
       sw = new StreamWriter(new FileStream(path, FileMode.Create));
@@ -293,14 +298,14 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Load();
 
       TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-      Assert.Equal(20, dt.Rows.Count);
-      Assert.Equal("col2", dt.Rows[0][1].ToString().Trim());
+      Assert.AreEqual(20, dt.Rows.Count);
+      Assert.AreEqual("col2", dt.Rows[0][1].ToString().Trim());
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadConflictOptionIgnore()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
       string path = Path.GetTempFileName();
@@ -317,7 +322,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.FieldTerminator = ",";
       loader.Local = true;
       int count = loader.Load();
-      Assert.Equal(20, count);
+      Assert.AreEqual(20, count);
 
       path = Path.GetTempFileName();
       sw = new StreamWriter(new FileStream(path, FileMode.Create));
@@ -336,16 +341,16 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Load();
 
       TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-      Assert.Equal(20, dt.Rows.Count);
-      Assert.Equal("col1", dt.Rows[0][1].ToString().Trim());
+      Assert.AreEqual(20, dt.Rows.Count);
+      Assert.AreEqual("col1", dt.Rows[0][1].ToString().Trim());
     }
 
     #region AsyncTests
 
-    [Fact]
+    [Test]
     public void BulkLoadSimpleAsync()
     {
-      executeSQL("CREATE TABLE BulkLoadSimpleAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE BulkLoadSimpleAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
       for (int i = 0; i < 500; i++)
@@ -364,15 +369,15 @@ namespace MySql.Data.MySqlClient.Tests
         int dataLoaded = loadResult.Result;
         TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadSimpleAsyncTest", Connection);
 
-        Assert.Equal(dataLoaded, dt.Rows.Count);
-        Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
+        Assert.AreEqual(dataLoaded, dt.Rows.Count);
+        Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
       }).Wait();
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadReadOnlyFileAsync()
     {
-      executeSQL("CREATE TABLE BulkLoadReadOnlyFileAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE BulkLoadReadOnlyFileAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
@@ -397,8 +402,8 @@ namespace MySql.Data.MySqlClient.Tests
           int dataLoaded = loadResult.Result;
 
           TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadReadOnlyFileAsyncTest", Connection);
-          Assert.Equal(dataLoaded, dt.Rows.Count);
-          Assert.Equal("'Test'", dt.Rows[0][1].ToString().Trim());
+          Assert.AreEqual(dataLoaded, dt.Rows.Count);
+          Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
         }).Wait();
       }
       finally
@@ -408,10 +413,10 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadFieldQuotingAsync()
     {
-      executeSQL("CREATE TABLE BulkLoadFieldQuotingAsyncTest (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE BulkLoadFieldQuotingAsyncTest (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
@@ -433,16 +438,16 @@ namespace MySql.Data.MySqlClient.Tests
         int dataLoaded = loadResult.Result;
         TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadFieldQuotingAsyncTest", Connection);
 
-        Assert.Equal(dataLoaded, dt.Rows.Count);
-        Assert.Equal("col1", dt.Rows[0][1]);
-        Assert.Equal("col2", dt.Rows[0][2].ToString().Trim());
+        Assert.AreEqual(dataLoaded, dt.Rows.Count);
+        Assert.AreEqual("col1", dt.Rows[0][1]);
+        Assert.AreEqual("col2", dt.Rows[0][2].ToString().Trim());
       }).Wait();
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadEscapingAsync()
     {
-      executeSQL("CREATE TABLE BulkLoadEscapingAsyncTest (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE BulkLoadEscapingAsyncTest (id INT NOT NULL, name VARCHAR(250), name2 VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
@@ -464,16 +469,16 @@ namespace MySql.Data.MySqlClient.Tests
         int dataLoaded = loadResult.Result;
         TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadEscapingAsyncTest", Connection);
 
-        Assert.Equal(dataLoaded, dt.Rows.Count);
-        Assert.Equal("col1still col1", dt.Rows[0][1]);
-        Assert.Equal("col2", dt.Rows[0][2].ToString().Trim());
+        Assert.AreEqual(dataLoaded, dt.Rows.Count);
+        Assert.AreEqual("col1still col1", dt.Rows[0][1]);
+        Assert.AreEqual("col2", dt.Rows[0][2].ToString().Trim());
       }).Wait();
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadConflictOptionReplaceAsync()
     {
-      executeSQL("CREATE TABLE BulkLoadConflictOptionReplaceAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE BulkLoadConflictOptionReplaceAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
@@ -508,14 +513,14 @@ namespace MySql.Data.MySqlClient.Tests
 
       loader.LoadAsync().Wait();
       TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadConflictOptionReplaceAsyncTest", Connection);
-      Assert.Equal(20, dt.Rows.Count);
-      Assert.Equal("col2", dt.Rows[0][1].ToString().Trim());
+      Assert.AreEqual(20, dt.Rows.Count);
+      Assert.AreEqual("col2", dt.Rows[0][1].ToString().Trim());
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadConflictOptionIgnoreAsync()
     {
-      executeSQL("CREATE TABLE BulkLoadConflictOptionIgnoreAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE BulkLoadConflictOptionIgnoreAsyncTest (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
@@ -554,15 +559,15 @@ namespace MySql.Data.MySqlClient.Tests
       {
         int dataLoaded = loadResult.Result;
         TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadConflictOptionIgnoreAsyncTest", Connection);
-        Assert.Equal(20, dt.Rows.Count);
-        Assert.Equal("col1", dt.Rows[0][1].ToString().Trim());
+        Assert.AreEqual(20, dt.Rows.Count);
+        Assert.AreEqual("col1", dt.Rows[0][1].ToString().Trim());
       }).Wait();
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadColumnOrderAsync()
     {
-      executeSQL(@"CREATE TABLE BulkLoadColumnOrderAsyncTest (id INT NOT NULL, n1 VARCHAR(250), n2 VARCHAR(250), n3 VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL(@"CREATE TABLE BulkLoadColumnOrderAsyncTest (id INT NOT NULL, n1 VARCHAR(250), n2 VARCHAR(250), n3 VARCHAR(250), PRIMARY KEY(id))");
 
       string path = Path.GetTempFileName();
       StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
@@ -587,10 +592,10 @@ namespace MySql.Data.MySqlClient.Tests
       {
         int dataLoaded = loadResult.Result;
         TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadColumnOrderAsyncTest", Connection);
-        Assert.Equal(20, dt.Rows.Count);
-        Assert.Equal("col1", dt.Rows[0][1]);
-        Assert.Equal("col2", dt.Rows[0][2]);
-        Assert.Equal("col3", dt.Rows[0][3].ToString().Trim());
+        Assert.AreEqual(20, dt.Rows.Count);
+        Assert.AreEqual("col1", dt.Rows[0][1]);
+        Assert.AreEqual("col2", dt.Rows[0][2]);
+        Assert.AreEqual("col3", dt.Rows[0][3].ToString().Trim());
       }).Wait();
     }
     #endregion
@@ -601,10 +606,10 @@ namespace MySql.Data.MySqlClient.Tests
       return string.Format("{0}:{1}:{2}.{3} (HH:MM:SS.MS)", timeElapsed.Hours, timeElapsed.Minutes, timeElapsed.Seconds, timeElapsed.Milliseconds);
     }
 
-    [Fact]
+    [Test]
     public void BulkLoadColumnOrder()
     {
-      executeSQL(@"CREATE TABLE Test (id INT NOT NULL, n1 VARCHAR(250), n2 VARCHAR(250), 
+      ExecuteSQL(@"CREATE TABLE Test (id INT NOT NULL, n1 VARCHAR(250), n2 VARCHAR(250), 
             n3 VARCHAR(250), PRIMARY KEY(id))");
 
       // first create the external file
@@ -627,13 +632,13 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Columns.Add("n1");
       loader.Local = true;
       int count = loader.Load();
-      Assert.Equal(20, count);
+      Assert.AreEqual(20, count);
 
       TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-      Assert.Equal(20, dt.Rows.Count);
-      Assert.Equal("col1", dt.Rows[0][1]);
-      Assert.Equal("col2", dt.Rows[0][2]);
-      Assert.Equal("col3", dt.Rows[0][3].ToString().Trim());
+      Assert.AreEqual(20, dt.Rows.Count);
+      Assert.AreEqual("col1", dt.Rows[0][1]);
+      Assert.AreEqual("col2", dt.Rows[0][2]);
+      Assert.AreEqual("col3", dt.Rows[0][3].ToString().Trim());
     }
   }
 }

@@ -57,7 +57,7 @@ namespace MySqlX.Data.Tests
       RowResult result = ExecuteSelectStatement(books.Select("name", "pages").Where("pages > 250"));
       var rows = result.FetchAll();
       Assert.True(result.Columns.Count == 2);
-      Assert.True(rows.Count == 1);
+      Assert.That(rows, Has.One.Items);
     }
 
     private void CreateBooksTable()
@@ -91,7 +91,7 @@ namespace MySqlX.Data.Tests
         s1.StartTransaction();
         RowResult r1 = ExecuteSelectStatement(t1.Select().Where("id = :id").Bind("id", 1).LockExclusive());
         var rows1 = r1.FetchAll();
-        Assert.That(rows1.Count == 1);
+        Assert.That(rows1, Has.One.Items);
         Assert.AreEqual(1, rows1[0]["id"]);
 
         // second session tries to read the locked row
@@ -128,7 +128,7 @@ namespace MySqlX.Data.Tests
                 break;
               }
               var rows2 = ExecuteSelectStatement(stmt2).FetchAll();
-              Assert.That(rows2.Count == 1);
+              Assert.That(rows2, Has.One.Items);
               Assert.AreEqual(2, rows2[0]["id"]);
               break;
             default:

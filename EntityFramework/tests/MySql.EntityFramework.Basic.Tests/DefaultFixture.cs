@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,18 +29,18 @@
 using System.Data.Entity.Core.Objects;
 using System.Text.RegularExpressions;
 using System.Data.Entity.Infrastructure;
-using Xunit;
+using NUnit.Framework;
 using System;
 using MySql.Data.MySqlClient;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class DefaultFixture : IDisposable
+  public class DefaultFixture
   {
     public string host { get; set; }
     public string user { get; set; }
     public string password { get; set; }
-    public int port { get; set; }
+    public uint Port { get; set; }
     public string database { get; set; }
     public Version version { get; set; }
     public MySqlConnection Connection { get; set; }
@@ -51,6 +51,71 @@ namespace MySql.Data.EntityFramework.Tests
     {
       NeedSetup = true;
     }
+
+    [OneTimeSetUp]
+    public void OneTimeSetup()
+    {
+      if (NeedSetup)
+      {
+        NeedSetup = false;
+
+        database = "db-" + this.GetType().Name.ToLower();
+        if (database.Length > 32)
+          database = database.Substring(0, 32);
+
+        MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder();
+        sb.Server = "localhost";
+        string port = Environment.GetEnvironmentVariable("MYSQL_PORT");
+        sb.Port = Port = string.IsNullOrEmpty(port) ? 3306 : uint.Parse(port);
+        sb.UserID = "root";
+        sb.Pooling = false;
+        sb.AllowUserVariables = true;
+        sb.Database = database;
+        ConnectionString = sb.ToString();
+
+        using (DefaultContext ctx = new DefaultContext(ConnectionString))
+        {
+          if (ctx.Database.Exists())
+            ctx.Database.Delete();
+          ctx.Database.Create();
+        }
+
+        Connection = new MySqlConnection(ConnectionString);
+        Connection.Open();
+        LoadData();
+      }
+    }
+
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+      MySqlConnection.ClearAllPools();
+      ExecSQL($"DROP DATABASE IF EXISTS `{Connection.Database}`");
+      Connection.Close();
+    }
+
+    [SetUp]
+    public virtual void SetUp()
+    {
+      if (NeedSetup)
+      {
+        NeedSetup = false;
+
+        using (DefaultContext ctx = new DefaultContext(ConnectionString))
+        {
+          if (ctx.Database.Exists())
+            ctx.Database.Delete();
+          ctx.Database.Create();
+        }
+
+        LoadData();
+      }
+    }
+
+    [TearDown]
+    public virtual void TearDown() { }
+
+    public virtual void LoadData() { }
 
     public Version Version
     {
@@ -70,66 +135,20 @@ namespace MySql.Data.EntityFramework.Tests
       }
     }
 
-    public virtual bool Setup(Type t)
-    {
-      if (!NeedSetup) return false;
-      NeedSetup = false;
-
-      database = "db-" + t.Name.ToLower();
-      if (database.Length > 32)
-        database = database.Substring(0, 32);
-
-      MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder();
-      sb.Server = "localhost";
-      string port = Environment.GetEnvironmentVariable("MYSQL_PORT");
-      sb.Port = string.IsNullOrEmpty(port) ? 3306 : uint.Parse(port);
-      sb.UserID = "root";
-      sb.Pooling = false;
-      sb.AllowUserVariables = true;
-      sb.Database = database;
-      ConnectionString = sb.ToString();
-
-      using (DefaultContext ctx = new DefaultContext(ConnectionString))
-      {
-        if (ctx.Database.Exists())
-          ctx.Database.Delete();
-        ctx.Database.Create();
-      }
-
-      Connection = new MySqlConnection(ConnectionString);
-      Connection.Open();
-      return true;
-    }
-
-    public void execSQL(string sql)
+    public void ExecSQL(string sql)
     {
       MySqlCommand cmd = new MySqlCommand(sql, Connection);
       cmd.ExecuteNonQuery();
     }
 
-    public virtual void Dispose(bool disposing)
-    {
-      if (disposing)
-      {
-        MySqlConnection.ClearAllPools();
-        execSQL($"DROP DATABASE IF EXISTS `{Connection.Database}`");
-        Connection.Close();
-      }
-    }
-
-    public virtual void Dispose()
-    {
-      Dispose(true);
-    }
-
-    public void CheckSql(string actual, string expected)
+    public static void CheckSql(string actual, string expected)
     {
       var exp = Regex.Replace(expected, @"\s", string.Empty);
       var act = Regex.Replace(actual, @"\s", string.Empty);
-      Assert.Equal(act, exp);
+      Assert.AreEqual(act, exp);
     }
 
-    public void CheckSqlContains(string actual, string expected)
+    public static void CheckSqlContains(string actual, string expected)
     {
       var exp = Regex.Replace(expected, @"\s", string.Empty);
       var act = Regex.Replace(actual, @"\s", string.Empty);
@@ -153,6 +172,6 @@ namespace MySql.Data.EntityFramework.Tests
         string sql = q.ToTraceString();
         CheckSql(sql, expected);
       }
-  }
+    }
   }
 }

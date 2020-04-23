@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,24 +30,23 @@ using MySql.Data.MySqlClient;
 using MySqlX.Common;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
-using MySqlX.XDevAPI.CRUD;
 using System;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
   public class CrudInsertTests : BaseTest
   {
-    [Fact]
+    [Test]
     public void InsertSingleDbDocWithId()
     {
       Collection coll = CreateCollection("test");
       Result r = ExecuteAddStatement(coll.Add(@"{ ""_id"": 1, ""foo"": 1 }"));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
-      Assert.Equal(1, coll.Count());
+      Assert.AreEqual(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, coll.Count());
     }
 
-    [Fact]
+    [Test]
     public void InsertSingleDbDocWithoutId()
     {
       Collection coll = CreateCollection("test");
@@ -55,17 +54,17 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 5))
       {
         // Code 5115 Document is missing a required field
-        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
+        Assert.AreEqual(5115u, Assert.Throws<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
         return;
       }
       Result r = ExecuteAddStatement(stmt);
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
-      Assert.Equal(1, coll.Count());
-      Assert.Single(r.GeneratedIds);
+      Assert.AreEqual(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, coll.Count());
+      Assert.That(r.GeneratedIds, Has.One.Items);
       Assert.False(string.IsNullOrWhiteSpace(r.GeneratedIds[0]));
     }
 
-    [Fact]
+    [Test]
     public void InsertMultipleDbDocWithoutId()
     {
       Collection coll = CreateCollection("test");
@@ -75,28 +74,28 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 5))
       {
         // Code 5115 Document is missing a required field
-        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
+        Assert.AreEqual(5115u, Assert.Throws<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
         return;
       }
       Result r = ExecuteAddStatement(stmt);
-      Assert.Equal<ulong>(3, r.AffectedItemsCount);
-      Assert.Equal(3, coll.Count());
-      Assert.Equal(3, r.GeneratedIds.Count);
+      Assert.AreEqual(3, r.AffectedItemsCount);
+      Assert.AreEqual(3, coll.Count());
+      Assert.AreEqual(3, r.GeneratedIds.Count);
     }
 
-    [Fact]
+    [Test]
     public void InsertAnonymousObjectWithId()
     {
       var obj = new { _id = "5", name = "Sakila", age = 15 };
 
       Collection coll = CreateCollection("test");
       Result r = ExecuteAddStatement(coll.Add(obj));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
       //TODO:  pull object and verify data
-      Assert.Equal(1, coll.Count());
+      Assert.AreEqual(1, coll.Count());
     }
 
-    [Fact]
+    [Test]
     public void InsertAnonymousObjectWithNoId()
     {
       var obj = new { name = "Sakila", age = 15 };
@@ -106,18 +105,18 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 5))
       {
         // Code 5115 Document is missing a required field
-        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
+        Assert.AreEqual(5115u, Assert.Throws<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
         return;
       }
       Result r = ExecuteAddStatement(stmt);
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
       //TODO:  pull object and verify data
-      Assert.Equal(1, coll.Count());
-      Assert.Single(r.GeneratedIds);
+      Assert.AreEqual(1, coll.Count());
+      Assert.That(r.GeneratedIds, Has.One.Items);
       Assert.False(string.IsNullOrWhiteSpace(r.GeneratedIds[0]));
     }
 
-    [Fact]
+    [Test]
     public void InsertMultipleAnonymousObjectsWithId()
     {
       Collection coll = CreateCollection("test");
@@ -129,11 +128,11 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.Equal<ulong>(4, r.AffectedItemsCount);
-      Assert.Equal(4, coll.Count());
+      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.AreEqual(4, coll.Count());
     }
 
-    [Fact]
+    [Test]
     public void ValidatesDocumentIds()
     {
       Collection coll = CreateCollection("test");
@@ -141,18 +140,18 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 5))
       {
         // Code 5115 Document is missing a required field
-        Assert.Equal(5115u, Assert.ThrowsAny<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
+        Assert.AreEqual(5115u, Assert.Throws<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
         return;
       }
       Result result = ExecuteAddStatement(stmt);
-      Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      Assert.AreEqual(1, result.AffectedItemsCount);
 
       result = ExecuteModifyStatement(coll.Modify($"_id = '{result.GeneratedIds[0]}'").Set("pages", "20"));
-      Assert.Equal<ulong>(1, result.AffectedItemsCount);
-      Assert.Empty(result.GeneratedIds);
+      Assert.AreEqual(1, result.AffectedItemsCount);
+      CollectionAssert.IsEmpty(result.GeneratedIds);
     }
 
-    [Fact]
+    [Test]
     public void ReuseStatement()
     {
       Collection coll = CreateCollection("test");
@@ -169,23 +168,23 @@ namespace MySqlX.Data.Tests
         stmt.Add(doc);
       }
       Result r = ExecuteAddStatement(stmt);
-      Assert.Equal<ulong>((ulong)docs.Length + 1, r.AffectedItemsCount);
-      Assert.Equal(5, coll.Count());
+      Assert.AreEqual((ulong)docs.Length + 1, r.AffectedItemsCount);
+      Assert.AreEqual(5, coll.Count());
     }
 
-    [Fact]
+    [Test]
     public void EmptyDocArray()
     {
       Collection coll = CreateCollection("test");
 
       var insertResult = ExecuteAddStatement(coll.Add(new DbDoc[] { }));
-      Assert.Equal(0ul, insertResult.AffectedItemsCount);
+      Assert.AreEqual(0ul, insertResult.AffectedItemsCount);
 
       var result = ExecuteFindStatement(coll.Find()).FetchAll();
-      Assert.Empty(result);
+      CollectionAssert.IsEmpty(result);
     }
 
-    [Fact]
+    [Test]
     public void NullParameter()
     {
       Collection coll = CreateCollection("test");
@@ -193,7 +192,7 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentNullException>(() => ExecuteAddStatement(coll.Add(null)));
     }
 
-    [Fact]
+    [Test]
     public void InsertingArray()
     {
       var docs = new[]
@@ -209,17 +208,17 @@ namespace MySqlX.Data.Tests
       Collection coll = CreateCollection("test");
       ExecuteAddStatement(coll.Add(d2));
       var result = ExecuteFindStatement(coll.Find()).FetchAll();
-      Assert.Single(result);
-      Assert.Equal(d2.ToString(), result[0].ToString());
+      Assert.That(result, Has.One.Items);
+      Assert.AreEqual(d2.ToString(), result[0].ToString());
     }
 
-    [Fact]
+    [Test]
     public void CompareGuids()
     {
       Guid guid1 = new Guid();
       Guid guid2 = new Guid();
-      Assert.Equal(0, Tools.CompareGuids(guid1, guid2));
-      Assert.Equal(0, Tools.CompareGuids(guid1.ToString(), guid2.ToString()));
+      Assert.AreEqual(0, Tools.CompareGuids(guid1, guid2));
+      Assert.AreEqual(0, Tools.CompareGuids(guid1.ToString(), guid2.ToString()));
 
       guid1 = Guid.NewGuid();
       guid2 = Guid.NewGuid();
@@ -227,7 +226,7 @@ namespace MySqlX.Data.Tests
       Assert.True(Tools.CompareGuids(guid1.ToString(), guid2.ToString()) != 0);
     }
 
-    [Fact]
+    [Test]
     public void InsertNullValuesAsDbDoc()
     {
       Collection collection = CreateCollection("test");
@@ -238,18 +237,18 @@ namespace MySqlX.Data.Tests
       {
         docs[i] = new DbDoc();
         docs[i].SetValue("a", nullValues[i]);
-        docs[i].SetValue("_id", (i+1));
+        docs[i].SetValue("_id", (i + 1));
       }
 
       ExecuteAddStatement(collection.Add(docs));
       var result = ExecuteFindStatement(collection.Find()).FetchAll();
-      Assert.Equal(docs.Length, result.Count);
+      Assert.AreEqual(docs.Length, result.Count);
 
       for (int i = 0; i < docs.Length; i++)
-        Assert.Equal(docs[i].ToString(), result[i].ToString());
+        Assert.AreEqual(docs[i].ToString(), result[i].ToString());
     }
 
-    [Fact]
+    [Test]
     public void InsertNullValuesAsJson()
     {
       var docs = new[]
@@ -263,17 +262,17 @@ namespace MySqlX.Data.Tests
       Collection collection = CreateCollection("test");
       ExecuteAddStatement(collection.Add(docs));
       var result = ExecuteFindStatement(collection.Find()).FetchAll();
-      Assert.Equal(docs.Length, result.Count);
-      for (int i=0; i < docs.Length; i++)
+      Assert.AreEqual(docs.Length, result.Count);
+      for (int i = 0; i < docs.Length; i++)
       {
         var currentDoc = new DbDoc(docs[i]);
         var resultingDoc = new DbDoc(result[i]);
-        Assert.Equal(currentDoc.Id, resultingDoc.Id);
-        Assert.Equal(currentDoc["foo"], resultingDoc["foo"]);
+        Assert.AreEqual(currentDoc.Id, resultingDoc.Id);
+        Assert.AreEqual(currentDoc["foo"], resultingDoc["foo"]);
       }
     }
 
-    [Fact]
+    [Test]
     public void AddOrReplaceOne()
     {
       if (!session.Version.isAtLeast(8, 0, 3)) return;
@@ -287,29 +286,29 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result result = ExecuteAddStatement(collection.Add(docs));
-      Assert.Equal<ulong>(4, result.AffectedItemsCount);
+      Assert.AreEqual(4, result.AffectedItemsCount);
 
       // Add a document.
-      Assert.Equal<ulong>(1, collection.AddOrReplaceOne(5, new { _id = 5, title = "Book 5", pages = 60 }).AffectedItemsCount);
+      Assert.AreEqual(1, collection.AddOrReplaceOne(5, new { _id = 5, title = "Book 5", pages = 60 }).AffectedItemsCount);
       Assert.True(collection.GetOne(5) != null);
 
-      Assert.Equal<ulong>(1, collection.AddOrReplaceOne("6", new { title = "Book 6", pages = 70 }).AffectedItemsCount);
+      Assert.AreEqual(1, collection.AddOrReplaceOne("6", new { title = "Book 6", pages = 70 }).AffectedItemsCount);
       Assert.True(collection.GetOne(6) == null);
       Assert.True(collection.GetOne("6") != null);
 
       // Replace a document.
-      Assert.Equal<ulong>(2, collection.AddOrReplaceOne(1, new { _id = 1, title = "Book X", pages = 10 }).AffectedItemsCount);
+      Assert.AreEqual(2, collection.AddOrReplaceOne(1, new { _id = 1, title = "Book X", pages = 10 }).AffectedItemsCount);
       DbDoc document = collection.GetOne(1);
-      Assert.Equal(1, Convert.ToInt32(document.Id));
-      Assert.Equal("Book X", document["title"]);
-      Assert.Equal(10, Convert.ToInt32(document["pages"]));
+      Assert.AreEqual(1, Convert.ToInt32(document.Id));
+      Assert.AreEqual("Book X", document["title"]);
+      Assert.AreEqual(10, Convert.ToInt32(document["pages"]));
 
-      Assert.Equal<ulong>(2, collection.AddOrReplaceOne(1, new { title = "Book Y", pages = 9, other = "value" }).AffectedItemsCount);
+      Assert.AreEqual(2, collection.AddOrReplaceOne(1, new { title = "Book Y", pages = 9, other = "value" }).AffectedItemsCount);
       document = collection.GetOne(1);
-      Assert.Equal(1, Convert.ToInt32(document.Id));
-      Assert.Equal("Book Y", document["title"]);
-      Assert.Equal(9, Convert.ToInt32(document["pages"]));
-      Assert.Equal("value", document["other"]);
+      Assert.AreEqual(1, Convert.ToInt32(document.Id));
+      Assert.AreEqual("Book Y", document["title"]);
+      Assert.AreEqual(9, Convert.ToInt32(document["pages"]));
+      Assert.AreEqual("value", document["other"]);
 
       // Expected exceptions.
       Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne(null, docs[1]));

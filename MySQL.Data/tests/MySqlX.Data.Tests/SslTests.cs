@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,9 +29,7 @@
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
@@ -44,9 +42,13 @@ namespace MySqlX.Data.Tests
 
     public SslTests()
     {
-      _sslCa = "ca.pem";
-      _sslCert = "client-cert.pem";
-      _sslKey = "client-key.pem";
+      string cPath = string.Empty;
+#if !NETCOREAPP3_1
+      cPath = @"..\MySql.Data\tests\MySql.Data.Tests\certificates\";
+#endif
+      _sslCa = cPath + "ca.pem";
+      _sslCert = cPath + "client-cert.pem";
+      _sslKey = cPath + "client-key.pem";
 
       // Update the port to the default xport.
       var builder = new MySqlXConnectionStringBuilder(ConnectionString);
@@ -56,43 +58,43 @@ namespace MySqlX.Data.Tests
 
     #region General
 
-    [Fact]
+    [Test]
     public void SslSession()
     {
       using (var s3 = MySQLX.GetSession(ConnectionStringUri))
       {
-        Assert.Equal(SessionState.Open, s3.InternalSession.SessionState);
+        Assert.AreEqual(SessionState.Open, s3.InternalSession.SessionState);
         var result = ExecuteSQLStatement(s3.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';")).FetchAll();
-        Assert.StartsWith("TLSv1", result[0][1].ToString());
+        StringAssert.StartsWith("TLSv1", result[0][1].ToString());
       }
     }
 
-    [Fact]
+    [Test]
     public void SslEmptyCertificate()
     {
       string connstring = ConnectionStringUri + $"/?ssl-ca=";
       // if certificate is empty, it connects without a certificate
       using (var s1 = MySQLX.GetSession(connstring))
       {
-        Assert.Equal(SessionState.Open, s1.InternalSession.SessionState);
+        Assert.AreEqual(SessionState.Open, s1.InternalSession.SessionState);
         var result = ExecuteSQLStatement(s1.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';")).FetchAll();
-        Assert.StartsWith("TLSv1", result[0][1].ToString());
+        StringAssert.StartsWith("TLSv1", result[0][1].ToString());
       }
     }
 
-    [Fact]
+    [Test]
     public void SslOptions()
     {
       string connectionUri = ConnectionStringUri;
       // sslmode is valid.
       using (var connection = MySQLX.GetSession(connectionUri + "?sslmode=required"))
       {
-        Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
+        Assert.AreEqual(SessionState.Open, connection.InternalSession.SessionState);
       }
 
       using (var connection = MySQLX.GetSession(connectionUri + "?ssl-mode=required"))
       {
-        Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
+        Assert.AreEqual(SessionState.Open, connection.InternalSession.SessionState);
       }
 
       // sslenable is invalid.
@@ -102,57 +104,58 @@ namespace MySqlX.Data.Tests
       // sslmode=Required is default value.
       using (var connection = MySQLX.GetSession(connectionUri))
       {
-        Assert.Equal(connection.Settings.SslMode, MySqlSslMode.Required);
+        Assert.AreEqual(connection.Settings.SslMode, MySqlSslMode.Required);
       }
 
       // sslmode case insensitive.
       using (var connection = MySQLX.GetSession(connectionUri + "?SsL-mOdE=required"))
       {
-        Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
+        Assert.AreEqual(SessionState.Open, connection.InternalSession.SessionState);
       }
       using (var connection = MySQLX.GetSession(connectionUri + "?SsL-mOdE=VeRiFyca&ssl-ca=../../../../MySql.Data.Tests/client.pfx&ssl-ca-pwd=pass"))
       {
-        Assert.Equal(SessionState.Open, connection.InternalSession.SessionState);
+        Assert.AreEqual(SessionState.Open, connection.InternalSession.SessionState);
         var uri = connection.Uri;
       }
 
       // Duplicate SSL connection options send error message.
       ArgumentException ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "?sslmode=Required&ssl mode=None"));
-      Assert.EndsWith("is duplicated.", ex.Message);
+      StringAssert.EndsWith("is duplicated.", ex.Message);
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "?ssl-ca-pwd=pass&ssl-ca-pwd=pass"));
-      Assert.EndsWith("is duplicated.", ex.Message);
+      StringAssert.EndsWith("is duplicated.", ex.Message);
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "?certificatepassword=pass&certificatepassword=pass"));
-      Assert.EndsWith("is duplicated.", ex.Message);
+      StringAssert.EndsWith("is duplicated.", ex.Message);
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "?certificatepassword=pass&ssl-ca-pwd=pass"));
-      Assert.EndsWith("is duplicated.", ex.Message);
+      StringAssert.EndsWith("is duplicated.", ex.Message);
 
       // Send error if sslmode=None and another ssl parameter exists.
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "?sslmode=None&ssl-ca=../../../../MySql.Data.Tests/certificates/client.pfx").InternalSession.SessionState);
+      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "?sslmode=None&ssl-ca=../../../../MySql.Data.Tests/certificates/client.pfx"));
     }
 
-    [Fact]
+    [Test]
     public void SslRequiredByDefault()
     {
       using (var connection = MySQLX.GetSession(ConnectionStringUri))
       {
-        Assert.Equal(MySqlSslMode.Required, connection.Settings.SslMode);
+        Assert.AreEqual(MySqlSslMode.Required, connection.Settings.SslMode);
       }
     }
 
-    [Fact]
+    [Test]
     public void SslPreferredIsInvalid()
     {
       var expectedErrorMessage = "Value '{0}' is not of the correct type.";
 
       // In connection string.
       var exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionStringUri + "?ssl-mode=Preferred"));
-      Assert.Equal(string.Format(expectedErrorMessage, "Preferred"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, "Preferred"), exception.Message);
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionStringUri + "?ssl-mode=Prefered"));
-      Assert.Equal(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
 
       // In anonymous object.
       var builder = new MySqlXConnectionStringBuilder(ConnectionString);
-      var connectionObject = new{
+      var connectionObject = new
+      {
         server = builder.Server,
         port = builder.Port,
         user = builder.UserID,
@@ -160,80 +163,80 @@ namespace MySqlX.Data.Tests
         sslmode = MySqlSslMode.Prefered
       };
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionObject));
-      Assert.Equal(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
 
       // In MySqlXConnectionStringBuilder.
       builder = new MySqlXConnectionStringBuilder(ConnectionString);
       builder.SslMode = MySqlSslMode.Prefered;
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionObject));
-      Assert.Equal(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
 
       builder = new MySqlXConnectionStringBuilder(ConnectionString);
       builder.SslMode = MySqlSslMode.Preferred;
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionObject));
-      Assert.Equal(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void RepeatedSslConnectionOptionsNotAllowed()
     {
       var expectedErrorMessage = "SSL connection option '{0}' is duplicated.";
       var exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"{ConnectionStringUri}?sslca={_sslCa}&sslca={_sslCa}"));
-      Assert.Equal(string.Format(expectedErrorMessage, "sslca"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, "sslca"), exception.Message);
 
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"{ConnectionStringUri}?certificatefile={_sslCa}&certificatefile={_sslCa}"));
-      Assert.Equal(string.Format(expectedErrorMessage, "certificatefile"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, "certificatefile"), exception.Message);
 
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"{ConnectionStringUri}?sslca={_sslCa}&certificatefile={_sslCa}"));
-      Assert.Equal(string.Format(expectedErrorMessage, "certificatefile"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, "certificatefile"), exception.Message);
 
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"{ConnectionStringUri}?certificatefile={_sslCa}&sslca={_sslCa}"));
-      Assert.Equal(string.Format(expectedErrorMessage, "sslca"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, "sslca"), exception.Message);
 
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"{ConnectionStringUri}?certificatepassword=pass&certificatepassword=pass"));
-      Assert.Equal(string.Format(expectedErrorMessage, "certificatepassword"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, "certificatepassword"), exception.Message);
 
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"{ConnectionStringUri}?sslcert={_sslCert}&sslcert={_sslCert}"));
-      Assert.Equal(string.Format(expectedErrorMessage, "sslcert"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, "sslcert"), exception.Message);
 
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"{ConnectionStringUri}?sslkey={_sslKey}&sslkey={_sslKey}"));
-      Assert.Equal(string.Format(expectedErrorMessage, "sslkey"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, "sslkey"), exception.Message);
     }
 
     #endregion
 
     #region PFX Certificates
 
-    [Fact]
+    [Test]
     public void SslCertificate()
     {
       string path = "../../../../MySql.Data.Tests/";
       string connstring = ConnectionStringUri + $"/?ssl-ca={path}client.pfx&ssl-ca-pwd=pass";
       using (var s3 = MySQLX.GetSession(connstring))
       {
-        Assert.Equal(SessionState.Open, s3.InternalSession.SessionState);
+        Assert.AreEqual(SessionState.Open, s3.InternalSession.SessionState);
         var result = ExecuteSQLStatement(s3.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';")).FetchAll();
-        Assert.StartsWith("TLSv1", result[0][1].ToString());
+        StringAssert.StartsWith("TLSv1", result[0][1].ToString());
       }
     }
 
-    [Fact]
+    [Test]
     public void SslCrl()
     {
       string connstring = ConnectionStringUri + "/?ssl-crl=crlcert.pfx";
       Assert.Throws<NotSupportedException>(() => MySQLX.GetSession(connstring));
     }
 
-    [Fact]
+    [Test]
     public void SslCertificatePathKeepsCase()
     {
       var certificatePath = "../../../../MySql.Data.Tests/client.pfx";
       // Connection string in basic format.
       string connString = ConnectionString + ";ssl-ca=" + certificatePath + ";ssl-ca-pwd=pass;";
       var stringBuilder = new MySqlXConnectionStringBuilder(connString);
-      Assert.Equal(certificatePath, stringBuilder.CertificateFile);
-      Assert.Equal(certificatePath, stringBuilder.SslCa);
+      Assert.AreEqual(certificatePath, stringBuilder.CertificateFile);
+      Assert.AreEqual(certificatePath, stringBuilder.SslCa);
       Assert.True(stringBuilder.ConnectionString.Contains(certificatePath));
       connString = stringBuilder.ToString();
       Assert.True(connString.Contains(certificatePath));
@@ -242,8 +245,8 @@ namespace MySqlX.Data.Tests
       string connStringUri = ConnectionStringUri + "/?ssl-ca=" + certificatePath + "& ssl-ca-pwd=pass;";
       using (var session = MySQLX.GetSession(connStringUri))
       {
-        Assert.Equal(certificatePath, session.Settings.CertificateFile);
-        Assert.Equal(certificatePath, session.Settings.SslCa);
+        Assert.AreEqual(certificatePath, session.Settings.CertificateFile);
+        Assert.AreEqual(certificatePath, session.Settings.SslCa);
         Assert.True(session.Settings.ConnectionString.Contains(certificatePath));
         connString = session.Settings.ToString();
         Assert.True(connString.Contains(certificatePath));
@@ -251,18 +254,17 @@ namespace MySqlX.Data.Tests
     }
 
     // Fix Bug 24510329 - UNABLE TO CONNECT USING TLS/SSL OPTIONS FOR THE MYSQLX URI SCHEME.
-    [Theory]
-    [InlineData("../../../../MySql.Data.Tests/client.pfx")]
-    [InlineData("(../../../../MySql.Data.Tests/client.pfx)")]
-    [InlineData(@"(..\..\..\..\MySql.Data.Tests\client.pfx")]
-    [InlineData("..\\..\\..\\..\\MySql.Data.Tests\\client.pfx")]
+    [TestCase("../../../../MySql.Data.Tests/client.pfx")]
+    [TestCase("(../../../../MySql.Data.Tests/client.pfx)")]
+    [TestCase(@"(..\..\..\..\MySql.Data.Tests\client.pfx")]
+    [TestCase("..\\..\\..\\..\\MySql.Data.Tests\\client.pfx")]
     public void SslCertificatePathVariations(string certificatePath)
     {
       string connStringUri = ConnectionStringUri + "/?ssl-ca=" + certificatePath + "& ssl-ca-pwd=pass;";
 
       using (var session = MySQLX.GetSession(connStringUri))
       {
-        Assert.Equal(SessionState.Open, session.InternalSession.SessionState);
+        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
       }
     }
 
@@ -270,8 +272,8 @@ namespace MySqlX.Data.Tests
 
     #region PEM Certificates
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void SslCertificateConnectionOptionsExistAndDefaultToNull()
     {
       var builder = new MySqlXConnectionStringBuilder();
@@ -301,7 +303,7 @@ namespace MySqlX.Data.Tests
       {
         Assert.Null(session.Settings.SslCa);
         Assert.Null(session.Settings.SslCert);
-        Assert.Equal("  ", session.Settings.SslKey);
+        Assert.AreEqual("  ", session.Settings.SslKey);
         session.Close();
       }
 
@@ -315,24 +317,24 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void MissingSslCaConnectionOption()
     {
       var builder = new MySqlXConnectionStringBuilder(_connectionString);
       builder.SslMode = MySqlSslMode.VerifyCA;
       var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
-      Assert.Equal(MySql.Data.Resources.SslConnectionError, exception.Message);
-      Assert.Equal(string.Format(MySql.Data.Resources.FilePathNotSet, nameof(builder.SslCa)), exception.InnerException.Message);
-      
+      Assert.AreEqual(MySql.Data.Resources.SslConnectionError, exception.Message);
+      Assert.AreEqual(string.Format(MySql.Data.Resources.FilePathNotSet, nameof(builder.SslCa)), exception.InnerException.Message);
+
       builder.SslMode = MySqlSslMode.VerifyFull;
       exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
-      Assert.Equal(MySql.Data.Resources.SslConnectionError, exception.Message);
-      Assert.Equal(string.Format(MySql.Data.Resources.FilePathNotSet, nameof(builder.SslCa)), exception.InnerException.Message);
+      Assert.AreEqual(MySql.Data.Resources.SslConnectionError, exception.Message);
+      Assert.AreEqual(string.Format(MySql.Data.Resources.FilePathNotSet, nameof(builder.SslCa)), exception.InnerException.Message);
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void MissingSslCertConnectionOption()
     {
       var builder = new MySqlXConnectionStringBuilder(_connectionString);
@@ -340,12 +342,12 @@ namespace MySqlX.Data.Tests
       builder.SslCert = string.Empty;
       builder.SslMode = MySqlSslMode.VerifyFull;
       var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
-      Assert.Equal(MySql.Data.Resources.SslConnectionError, exception.Message);
-      Assert.Equal(string.Format(MySql.Data.Resources.FilePathNotSet, nameof(builder.SslCert)), exception.InnerException.Message);
+      Assert.AreEqual(MySql.Data.Resources.SslConnectionError, exception.Message);
+      Assert.AreEqual(string.Format(MySql.Data.Resources.FilePathNotSet, nameof(builder.SslCert)), exception.InnerException.Message);
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void MissingSslKeyConnectionOption()
     {
       var builder = new MySqlXConnectionStringBuilder(_connectionString);
@@ -354,24 +356,24 @@ namespace MySqlX.Data.Tests
       builder.SslKey = " ";
       builder.SslMode = MySqlSslMode.VerifyFull;
       var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
-      Assert.Equal(MySql.Data.Resources.SslConnectionError, exception.Message);
-      Assert.Equal(string.Format(MySql.Data.Resources.FilePathNotSet, nameof(builder.SslKey)), exception.InnerException.Message);
+      Assert.AreEqual(MySql.Data.Resources.SslConnectionError, exception.Message);
+      Assert.AreEqual(string.Format(MySql.Data.Resources.FilePathNotSet, nameof(builder.SslKey)), exception.InnerException.Message);
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void InvalidFileNameForSslCaConnectionOption()
     {
       var builder = new MySqlXConnectionStringBuilder(_connectionString);
       builder.SslCa = "C:\\certs\\ca.pema";
       builder.SslMode = MySqlSslMode.VerifyCA;
       var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
-      Assert.Equal(MySql.Data.Resources.SslConnectionError, exception.Message);
-      Assert.Equal(MySql.Data.Resources.FileNotFound, exception.InnerException.Message);
+      Assert.AreEqual(MySql.Data.Resources.SslConnectionError, exception.Message);
+      Assert.AreEqual(MySql.Data.Resources.FileNotFound, exception.InnerException.Message);
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void InvalidFileNameForSslCertConnectionOption()
     {
       var builder = new MySqlXConnectionStringBuilder(_connectionString);
@@ -379,12 +381,12 @@ namespace MySqlX.Data.Tests
       builder.SslCert = "C:\\certs\\client-cert";
       builder.SslMode = MySqlSslMode.VerifyFull;
       var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
-      Assert.Equal(MySql.Data.Resources.SslConnectionError, exception.Message);
-      Assert.Equal(MySql.Data.Resources.FileNotFound, exception.InnerException.Message);
+      Assert.AreEqual(MySql.Data.Resources.SslConnectionError, exception.Message);
+      Assert.AreEqual(MySql.Data.Resources.FileNotFound, exception.InnerException.Message);
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void InvalidFileNameForSslKeyConnectionOption()
     {
       var builder = new MySqlXConnectionStringBuilder(_connectionString);
@@ -393,12 +395,12 @@ namespace MySqlX.Data.Tests
       builder.SslKey = "file";
       builder.SslMode = MySqlSslMode.VerifyFull;
       var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
-      Assert.Equal(MySql.Data.Resources.SslConnectionError, exception.Message);
-      Assert.Equal(MySql.Data.Resources.FileNotFound, exception.InnerException.Message);
+      Assert.AreEqual(MySql.Data.Resources.SslConnectionError, exception.Message);
+      Assert.AreEqual(MySql.Data.Resources.FileNotFound, exception.InnerException.Message);
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void ConnectUsingCaPemCertificate()
     {
       var builder = new MySqlXConnectionStringBuilder(_connectionString);
@@ -410,8 +412,8 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void ConnectUsingAllCertificates()
     {
       var builder = new MySqlXConnectionStringBuilder(_connectionString);
@@ -428,8 +430,8 @@ namespace MySqlX.Data.Tests
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void SslCaConnectionOptionsAreIgnoredOnDifferentSslModes()
     {
       var builder = new MySqlXConnectionStringBuilder(_connectionString);
@@ -443,8 +445,8 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void SslCertandKeyConnectionOptionsAreIgnoredOnDifferentSslModes()
     {
       var builder = new MySqlConnectionStringBuilder(_connectionString);
@@ -454,69 +456,69 @@ namespace MySqlX.Data.Tests
       builder.SslMode = MySqlSslMode.Required;
 
       // Connection attempt is successful since SslMode=Required causing SslCa, SslCert and SslKey to be ignored.
-      using (var session =  MySQLX.GetSession(builder.ConnectionString))
+      using (var session = MySQLX.GetSession(builder.ConnectionString))
       {
         session.Close();
       }
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void AttemptConnectionWithDummyPemCertificates()
     {
       var builder = new MySqlXConnectionStringBuilder(_connectionString);
       builder.SslCa = _sslCa.Replace("ca.pem", "ca_dummy.pem");
       builder.SslMode = MySqlSslMode.VerifyCA;
       var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
-      Assert.Equal(MySql.Data.Resources.SslConnectionError, exception.Message);
-      Assert.Equal(MySql.Data.Resources.FileIsNotACertificate, exception.InnerException.Message);
+      Assert.AreEqual(MySql.Data.Resources.SslConnectionError, exception.Message);
+      Assert.AreEqual(MySql.Data.Resources.FileIsNotACertificate, exception.InnerException.Message);
 
       builder.SslCa = _sslCa;
       builder.SslCert = _sslCert.Replace("client-cert.pem", "client-cert_dummy.pem");
       builder.SslMode = MySqlSslMode.VerifyFull;
       exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
-      Assert.Equal(MySql.Data.Resources.SslConnectionError, exception.Message);
-      Assert.Equal(MySql.Data.Resources.FileIsNotACertificate, exception.InnerException.Message);
+      Assert.AreEqual(MySql.Data.Resources.SslConnectionError, exception.Message);
+      Assert.AreEqual(MySql.Data.Resources.FileIsNotACertificate, exception.InnerException.Message);
 
       builder.SslCa = _sslCa;
       builder.SslCert = _sslCert;
       builder.SslKey = _sslKey.Replace("client-key.pem", "client-key_dummy.pem");
       builder.SslMode = MySqlSslMode.VerifyFull;
       exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
-      Assert.Equal(MySql.Data.Resources.SslConnectionError, exception.Message);
-      Assert.Equal(MySql.Data.Resources.FileIsNotAKey, exception.InnerException.Message);
+      Assert.AreEqual(MySql.Data.Resources.SslConnectionError, exception.Message);
+      Assert.AreEqual(MySql.Data.Resources.FileIsNotAKey, exception.InnerException.Message);
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void AttemptConnectionWitSwitchedPemCertificates()
     {
       var builder = new MySqlXConnectionStringBuilder(_connectionString);
       builder.SslCa = _sslCert;
       builder.SslMode = MySqlSslMode.VerifyCA;
       var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
-      Assert.Equal(MySql.Data.Resources.SslConnectionError, exception.Message);
-      Assert.Equal(MySql.Data.Resources.SslCertificateIsNotCA, exception.InnerException.Message);
-      
+      Assert.AreEqual(MySql.Data.Resources.SslConnectionError, exception.Message);
+      Assert.AreEqual(MySql.Data.Resources.SslCertificateIsNotCA, exception.InnerException.Message);
+
       builder.SslCa = _sslKey;
       builder.SslMode = MySqlSslMode.VerifyCA;
       exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
-      Assert.Equal(MySql.Data.Resources.SslConnectionError, exception.Message);
-      Assert.Equal(MySql.Data.Resources.FileIsNotACertificate, exception.InnerException.Message);
+      Assert.AreEqual(MySql.Data.Resources.SslConnectionError, exception.Message);
+      Assert.AreEqual(MySql.Data.Resources.FileIsNotACertificate, exception.InnerException.Message);
 
       builder.SslCa = _sslCa;
       builder.SslCert = _sslCa;
       builder.SslMode = MySqlSslMode.VerifyFull;
       exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
-      Assert.Equal(MySql.Data.Resources.SslConnectionError, exception.Message);
-      Assert.Equal(MySql.Data.Resources.InvalidSslCertificate, exception.InnerException.Message);
-      
+      Assert.AreEqual(MySql.Data.Resources.SslConnectionError, exception.Message);
+      Assert.AreEqual(MySql.Data.Resources.InvalidSslCertificate, exception.InnerException.Message);
+
       builder.SslCert = _sslCert;
       builder.SslKey = _sslCa;
       builder.SslMode = MySqlSslMode.VerifyFull;
       exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
-      Assert.Equal(MySql.Data.Resources.SslConnectionError, exception.Message);
-      Assert.Equal(MySql.Data.Resources.FileIsNotAKey, exception.InnerException.Message);
+      Assert.AreEqual(MySql.Data.Resources.SslConnectionError, exception.Message);
+      Assert.AreEqual(MySql.Data.Resources.FileIsNotAKey, exception.InnerException.Message);
     }
 
     #endregion

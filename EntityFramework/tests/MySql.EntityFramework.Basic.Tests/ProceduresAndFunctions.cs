@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,75 +29,69 @@
 using System.Data;
 using MySql.Data.MySqlClient;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
+using System;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class ProceduresAndFunctions : IClassFixture<DefaultFixture>
+  public class ProceduresAndFunctions : DefaultFixture
   {
-    private DefaultFixture st;
-
-    public ProceduresAndFunctions(DefaultFixture data)
+    public override void TearDown()
     {
-      st = data;
-      st.Setup(this.GetType());
+        ExecSQL($"DROP FUNCTION IF EXISTS `spFunc`");
     }
 
     /// <summary>
     /// Validates a stored procedure call using Code First
     /// Bug #14008699
-    [Fact]
+    [Test]
     public void CallStoredProcedure()
     {
-      MySqlCommand cmd = new MySqlCommand("CREATE PROCEDURE CallStoredProcedure() BEGIN SELECT 5; END", st.Connection);
+      MySqlCommand cmd = new MySqlCommand("CREATE PROCEDURE CallStoredProcedure() BEGIN SELECT 5; END", Connection);
       cmd.ExecuteNonQuery();
 
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         long count = ctx.Database.SqlQuery<long>("CallStoredProcedure").First();
-        Assert.Equal(5, count);
+        Assert.AreEqual(5, count);
       }
     }
 
     /// <summary>
     /// Bug #45277	Calling User Defined Function using eSql causes NullReferenceException
     /// </summary>
-    [Fact]
+    [Test]
     public void UserDefinedFunction()
     {
-      MySqlCommand cmd = new MySqlCommand("CREATE FUNCTION spFunc() RETURNS INT BEGIN RETURN 3; END", st.Connection);
+      MySqlCommand cmd = new MySqlCommand("CREATE FUNCTION spFunc() RETURNS INT BEGIN RETURN 3; END", Connection);
       cmd.ExecuteNonQuery();
 
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         int val = ctx.Database.SqlQuery<int>(@"SELECT spFunc()").Single();
-        Assert.Equal(3, val);
+        Assert.AreEqual(3, val);
       }
-      st.NeedSetup = true;
     }
 
     /// <summary>
     /// Bug #56806	Default Command Timeout has no effect in connection string
     /// </summary>
-    [Fact]
+    [Test]
     public void CommandTimeout()
     {
-      MySqlCommand cmd = new MySqlCommand("CREATE FUNCTION spFunc() RETURNS INT BEGIN DO SLEEP(5); RETURN 4; END", st.Connection);
+      MySqlCommand cmd = new MySqlCommand("CREATE FUNCTION spFunc() RETURNS INT BEGIN DO SLEEP(5); RETURN 4; END", Connection);
       cmd.ExecuteNonQuery();
 
-      var sb = new MySqlConnectionStringBuilder(st.ConnectionString);
+      var sb = new MySqlConnectionStringBuilder(ConnectionString);
       sb.DefaultCommandTimeout = 3;
       sb.UseDefaultCommandTimeoutForEF = true;
       using (DefaultContext ctx = new DefaultContext(sb.ToString()))
       {
-        var exception = Record.Exception(() =>
+        var exception = Assert.Throws<MySqlException>(() =>
         {
           int val = ctx.Database.SqlQuery<int>(@"SELECT spFunc()").Single();
         });
-
-        Assert.NotNull(exception);
       }
-      st.NeedSetup = true;
     }
   }
 }

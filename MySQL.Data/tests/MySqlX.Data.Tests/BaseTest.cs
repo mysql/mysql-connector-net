@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,7 +38,7 @@ using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
-  public class BaseTest : IDisposable
+  public class BaseTest
   {
     protected Session session;
     protected Schema testSchema;
@@ -72,7 +72,8 @@ namespace MySqlX.Data.Tests
       get; private set;
     }
 
-    public BaseTest()
+    [SetUp]
+    public void BaseSetUp()
     {
       Assembly executingAssembly = typeof(BaseTest).GetTypeInfo().Assembly;
       Stream stream = executingAssembly.GetManifestResourceStream("MySqlX.Data.Tests.Properties.CreateUsers.sql");
@@ -131,7 +132,8 @@ namespace MySqlX.Data.Tests
       rootConn.Close();
     }
 
-    public virtual void Dispose()
+    [TearDown]
+    public virtual void BaseTearDown()
     {
       using (Session s = GetSession())
       {
@@ -140,6 +142,8 @@ namespace MySqlX.Data.Tests
           s.DropSchema(schemaName);
         Assert.False(SchemaExistsInDatabase(schema));
       }
+
+      session = null;
     }
 
     protected Result ExecuteAddStatement(AddStatement stmt)
