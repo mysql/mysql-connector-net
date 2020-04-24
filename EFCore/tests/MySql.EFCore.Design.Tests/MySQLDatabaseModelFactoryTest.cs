@@ -1,4 +1,4 @@
-// Copyright © 2017, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,20 +34,24 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Xunit;
+using NUnit.Framework;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
+
 
 namespace MySql.EntityFrameworkCore.Design.Tests
 {
-  public class MySQLDatabaseModelFactoryTest : IClassFixture<MySQLDatabaseModelFixture>
+  public class MySQLDatabaseModelFactoryTest : MySQLDatabaseModelFixture
   {
-    readonly MySQLDatabaseModelFixture _fixture;
-    public MySQLDatabaseModelFactoryTest(MySQLDatabaseModelFixture fixture)
+    private MySQLDatabaseModelFixture _fixture;
+    [SetUp]
+    public void Init()
     {
-      _fixture = fixture;
+      this._fixture = new MySQLDatabaseModelFixture();
       _fixture.ListLoggerFactory.Clear();
     }
+    
 
-    [Fact]
+    [Test]
     public void CanReadTables()
     {
       var sql = @"
@@ -58,18 +62,11 @@ namespace MySql.EntityFrameworkCore.Design.Tests
         CREATE TABLE posts (id int);";
       var dbModel = _fixture.CreateModel("blogman", sql, new List<string> { "blogs", "posts" }, null);
 
-      Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
-          d =>
-          {
-            Assert.Equal("blogs", d.Name);
-          },
-          e =>
-          {
-            Assert.Equal("posts", e.Name);
-          });
+      Assert.That(dbModel.Tables.Select(c => c.Name), Has.Exactly(1).Matches<string>(table => table.Contains("blogs")));
+      Assert.That(dbModel.Tables.Select(c => c.Name), Has.Exactly(1).Matches<string>(table => table.Contains("posts")));
     }
 
-    [Fact]
+    [Test]
     public void CanReadColumns()
     {
       var sql = @"
@@ -87,95 +84,85 @@ namespace MySql.EntityFrameworkCore.Design.Tests
 
       var columns = dbModel.Tables.Single().Columns;
 
-      Assert.All(columns, c =>
+      Assert.Multiple(() =>
       {
-        Assert.Equal("blogman", c.Table.Database.DatabaseName);
-        Assert.Equal("blogs", c.Table.Name);
+        Assert.AreEqual("blogman", dbModel.DatabaseName );
+        Assert.That(dbModel.Tables.Select(c => c.Name), Has.Exactly(1).Matches<string>(table => table.Contains("blogs")));
       });
 
-      string smallintWidth = FactOnVersionsAttribute.Version >= new Version("8.0.0") ? string.Empty : "(11)";
+      string smallintWidth = TestUtils.Version >= new Version("8.0.0") ? string.Empty : "(11)";
 
-      Assert.Collection(columns,
-                  id =>
-                  {
-                    Assert.Equal("id", id.Name);
-                    Assert.Equal("int" + smallintWidth, id.GetDataType());
-                    Assert.Equal(2, id.GetPrimaryKeyOrdinal(2));
-                    Assert.False(id.IsNullable);
-                    Assert.Equal(0, id.GetOrdinal(0));
-                    Assert.Null(id.GetDefaultValue());
-                  },
-                  description =>
-                  {
-                    Assert.Equal("description", description.Name);
-                    Assert.Equal("varchar(100)", description.GetDataType());
-                    Assert.Equal(1, description.GetPrimaryKeyOrdinal(1));
-                    Assert.False(description.IsNullable);
-                    Assert.Equal(1, description.GetOrdinal(1));
-                    Assert.Null(description.GetDefaultValue());
-                    Assert.Equal(100, description.GetMaxLength(100));
-                  },
-                  rate =>
-                  {
-                    Assert.Equal("rate", rate.Name);
-                    Assert.Equal("decimal(5,2)", rate.GetDataType());
-                    Assert.Null(rate.GetPrimaryKeyOrdinal(null));
-                    Assert.True(rate.IsNullable);
-                    Assert.Equal(2, rate.GetOrdinal(2));
-                    Assert.Equal("'0.00'", rate.GetDefaultValue());
-                    Assert.Equal(5, rate.GetPrecision(5));
-                    Assert.Equal(2, rate.GetScale(2));
-                    Assert.Null(rate.GetMaxLength(null));
-                  },
-              created =>
-              {
-                Assert.Equal("created", created.Name);
-                Assert.Equal("CURRENT_TIMESTAMP", created.GetDefaultValue());
-              });
+      Assert.That(columns.Where(n => n.Name == "id").Select(a => a.Name), Has.Exactly(1).Matches<string>(name => name.Contains("id")));
+      Assert.That(columns.Where(n => n.Name == "id").Select(a => a.GetDataType()), Has.One.Items.EqualTo("int"));
+      Assert.That(columns.Where(n => n.Name == "id").Select(a => a.GetPrimaryKeyOrdinal(2)), Has.One.Items.EqualTo(2));
+      Assert.False(columns.Where(n => n.Name == "id").Select(a => a.IsNullable).FirstOrDefault());
+      Assert.That(columns.Where(n => n.Name == "id").Select(a => a.GetOrdinal(0)), Has.One.Items.EqualTo(0));
+      Assert.IsNull(columns.Where(n => n.Name == "id").Select(a => a.GetDefaultValue()).FirstOrDefault());
+
+      Assert.That(columns.Where(n => n.Name == "description").Select(a => a.Name), Has.Exactly(1).Matches<string>(name => name.Contains("description")));
+      Assert.That(columns.Where(n => n.Name == "description").Select(a => a.GetDataType()), Has.One.Items.EqualTo("varchar(100)"));
+      Assert.That(columns.Where(n => n.Name == "description").Select(a => a.GetPrimaryKeyOrdinal(1)), Has.One.Items.EqualTo(1));
+      Assert.False(columns.Where(n => n.Name == "description").Select(a => a.IsNullable).FirstOrDefault());
+      Assert.That(columns.Where(n => n.Name == "description").Select(a => a.GetOrdinal(1)), Has.One.Items.EqualTo(1));
+      Assert.IsNull(columns.Where(n => n.Name == "description").Select(a => a.GetDefaultValue()).FirstOrDefault());
+      Assert.That(columns.Where(n => n.Name == "description").Select(a => a.GetMaxLength(100)), Has.One.Items.EqualTo(100));
+
+      Assert.That(columns.Where(n => n.Name == "rate").Select(a => a.Name), Has.Exactly(1).Matches<string>(name => name.Contains("rate")));
+      Assert.That(columns.Where(n => n.Name == "rate").Select(a => a.GetDataType()), Has.One.Items.EqualTo("decimal(5,2)"));
+      Assert.IsNull(columns.Where(n => n.Name == "rate").Select(a => a.GetPrimaryKeyOrdinal(null)).FirstOrDefault());
+      Assert.True(columns.Where(n => n.Name == "rate").Select(a => a.IsNullable).FirstOrDefault());
+      Assert.That(columns.Where(n => n.Name == "rate").Select(a => a.GetOrdinal(2)), Has.One.Items.EqualTo(2));
+      StringAssert.AreEqualIgnoringCase(columns.Where(n => n.Name == "rate").Select(a => a.GetDefaultValue()).FirstOrDefault(), "'0.00'");
+      Assert.That(columns.Where(n => n.Name == "rate").Select(a => a.GetPrecision(5)), Has.One.Items.EqualTo(5));
+      Assert.That(columns.Where(n => n.Name == "rate").Select(a => a.GetScale(2)), Has.One.Items.EqualTo(2));
+      Assert.IsNull(columns.Where(n => n.Name == "rate").Select(a => a.GetMaxLength(null)).FirstOrDefault());
+
+      Assert.That(columns.Where(n => n.Name == "created").Select(a => a.Name), Has.Exactly(1).Matches<string>(name => name.Contains("created")));
+      Assert.That(columns.Where(n => n.Name == "created").Select(a => a.GetDefaultValue()), Has.One.Items.EqualTo("CURRENT_TIMESTAMP"));
     }
 
 
-    [Fact]
+    [Test]
     public void CanReadFKs()
     {
       var sql = @" 
-    DROP DATABASE IF EXISTS sakiladb;
-    CREATE DATABASE sakiladb; 
-    USE sakiladb;
-    CREATE TABLE country (
-      country_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
-      country VARCHAR(50) NOT NULL,
-      last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      PRIMARY KEY  (country_id)
-    );
-    CREATE TABLE city (
-      city_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
-      city VARCHAR(50) NOT NULL,
-      country_id SMALLINT UNSIGNED NOT NULL,
-      last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      PRIMARY KEY  (city_id),
-      KEY idx_fk_country_id (country_id),
-      CONSTRAINT `fk_city_country` FOREIGN KEY (country_id) REFERENCES country (country_id) ON DELETE RESTRICT ON UPDATE CASCADE
-    );";
+      DROP DATABASE IF EXISTS sakiladb;
+      CREATE DATABASE sakiladb; 
+      USE sakiladb;
+      CREATE TABLE country (
+        country_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        country VARCHAR(50) NOT NULL,
+        last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY  (country_id)
+      );
+      CREATE TABLE city (
+        city_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        city VARCHAR(50) NOT NULL,
+        country_id SMALLINT UNSIGNED NOT NULL,
+        last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY  (city_id),
+        KEY idx_fk_country_id (country_id),
+        CONSTRAINT `fk_city_country` FOREIGN KEY (country_id) REFERENCES country (country_id) ON DELETE RESTRICT ON UPDATE CASCADE
+      );";
       var dbModel = _fixture.CreateModel("sakiladb", sql, new List<string> { "city", "country" }, null);
 
-      var fk = Assert.Single(dbModel.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
-
-      Assert.Equal("sakiladb", fk.Table.Database.DatabaseName);
-      Assert.Equal("city", fk.Table.Name);
-      Assert.Equal("sakiladb", fk.PrincipalTable.Database.DatabaseName);
-      Assert.Equal("country", fk.PrincipalTable.Name);
-      Assert.Equal("country_id", fk.GetColumn().Name);
-      Assert.Equal("country_id", fk.GetPrincipalColumn().Name);
-      Assert.Equal(ReferentialAction.Restrict, fk.OnDelete);
+      var fk = (dbModel.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
+      Assert.IsNotNull(fk);
+      Assert.AreEqual("sakiladb", fk[0].Table.Database.DatabaseName);
+      Assert.AreEqual("city", fk[0].Table.Name);
+      Assert.AreEqual("sakiladb", fk[0].PrincipalTable.Database.DatabaseName);
+      Assert.AreEqual("country", fk[0].PrincipalTable.Name);
+      Assert.AreEqual("country_id", fk[0].GetColumn().Name);
+      Assert.AreEqual("country_id", fk[0].GetPrincipalColumn().Name);
+      Assert.AreEqual(ReferentialAction.Restrict, fk[0].OnDelete);
     }
-
-    [Fact]
+    
+    [Test]
     public void CanReadIndexes()
     {
       var sql = @" 
-    DROP DATABASE IF EXISTS sakilaIndex;
-    CREATE DATABASE sakilaIndex; 
+      DROP DATABASE IF EXISTS sakilaIndex;
+      CREATE DATABASE sakilaIndex; 
                 use sakilaIndex;
                 CREATE TABLE actor(
                   actor_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -189,29 +176,32 @@ namespace MySql.EntityFrameworkCore.Design.Tests
 
       var indexes = dbModel.Tables.Single().Indexes;
 
-      Assert.All(indexes, c =>
+      Assert.Multiple(() =>
       {
-        Assert.Equal("sakilaIndex", c.Table.Database.DatabaseName, ignoreCase: true);
-        Assert.Equal("actor", c.Table.Name);
+        var c = indexes[0];
+        Assert.AreEqual("sakilaIndex", c.Table.Database.DatabaseName);
+        Assert.AreEqual("actor", c.Table.Name);
       });
 
-      Assert.Collection(indexes,
-        composite =>
+      Assert.Multiple(() =>
         {
-          Assert.Equal("idx_actor_first_last_name", composite.Name);
+          var composite = indexes[0];
+          Assert.AreEqual("idx_actor_first_last_name", composite.Name);
           Assert.False(composite.IsUnique);
-          Assert.Equal(new List<string> { "first_name", "last_name" }, composite.GetColumns().Select(c => c.GetColumn().Name).ToList());
-        },
-        onecolumn =>
+          Assert.AreEqual(new List<string> { "first_name", "last_name" }, composite.GetColumns().Select(c => c.GetColumn().Name).ToList());
+        });
+
+      Assert.Multiple(() =>
         {
-          Assert.Equal("last_name", onecolumn.GetColumn().Name);
+          var onecolumn = indexes[1];
+          Assert.AreEqual("last_name", onecolumn.GetColumn().Name);
           Assert.True(onecolumn.IsUnique);
         }
         );
     }
 
 
-    [Fact]
+    [Test]
     public void CanCreateModelForWorldDB()
     {
       Assembly executingAssembly = typeof(MySQLDatabaseModelFixture).GetTypeInfo().Assembly;
@@ -221,26 +211,22 @@ namespace MySql.EntityFrameworkCore.Design.Tests
       sr.Dispose();
 
       var dbModel = _fixture.CreateModel("world", sql, new List<string> { "city", "country", "countrylanguage" }, null, true);
-      Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
-                    d =>
-                    {
-                      Assert.Equal("city", d.Name);
-                    },
-                    e =>
-                    {
-                      Assert.Equal("country", e.Name);
-                    },
-                    e =>
-                    {
-                      Assert.Equal("countrylanguage", e.Name);
-                    }
-      );
+      var tables = dbModel.Tables.OrderBy(t => t.Name);
+      
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("city"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("country"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("countrylanguage"));
     }
 
 
-    [FactOnVersions("5.6.0", null)]
+    [Test]
     public void CanCreateModelForSakila()
     {
+      if (!TestUtils.IsAtLeast(5, 6, 0))
+      {
+        Assert.Ignore();
+      }
+
       Assembly executingAssembly = typeof(MySQLDatabaseModelFixture).GetTypeInfo().Assembly;
       Stream stream = executingAssembly.GetManifestResourceStream("MySql.EntityFrameworkCore.Design.Tests.Properties.sakiladb-schema.sql");
       StreamReader sr = new StreamReader(stream);
@@ -251,71 +237,24 @@ namespace MySql.EntityFrameworkCore.Design.Tests
                 "city", "country", "customer",
                 "film", "film_actor", "film_category", "film_text",
                 "inventory", "language", "payment", "rental", "staff", "store"}, null, true);
-      Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
-                    d =>
-                    {
-                      Assert.Equal("actor", d.Name);
-                    },
-                    e =>
-                    {
-                      Assert.Equal("address", e.Name);
-                    },
-                    f =>
-                    {
-                      Assert.Equal("category", f.Name);
-                    },
-                   g =>
-                   {
-                     Assert.Equal("city", g.Name);
-                   },
-                   f =>
-                   {
-                     Assert.Equal("country", f.Name);
-                   },
-                   f =>
-                   {
-                     Assert.Equal("customer", f.Name);
-                   },
-                   f =>
-                   {
-                     Assert.Equal("film", f.Name);
-                   },
-                   f =>
-                   {
-                     Assert.Equal("film_actor", f.Name);
-                   },
-                   f =>
-                   {
-                     Assert.Equal("film_category", f.Name);
-                   },
-                  f =>
-                  {
-                    Assert.Equal("film_text", f.Name);
-                  },
-                  f =>
-                  {
-                    Assert.Equal("inventory", f.Name);
-                  },
-                  f =>
-                  {
-                    Assert.Equal("language", f.Name);
-                  },
-                  f =>
-                  {
-                    Assert.Equal("payment", f.Name);
-                  },
-                  f =>
-                  {
-                    Assert.Equal("rental", f.Name);
-                  },
-                  f =>
-                  {
-                    Assert.Equal("staff", f.Name);
-                  },
-                  f =>
-                  {
-                    Assert.Equal("store", f.Name);
-                  });
+      var tables = dbModel.Tables.OrderBy(t => t.Name);
+
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("actor"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("address"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("category"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("city"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("country"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("customer"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("film"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("film_actor"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("film_category"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("film_text"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("inventory"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("language"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("payment"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("rental"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("staff"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("store"));
     }
 
 
@@ -326,7 +265,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
     /// views should be ignored
     /// </summary>
 
-    [Fact]
+    [Test]
     public void CanCreateModelOfDBWithViews()
     {
       var sql = @"DROP DATABASE IF EXISTS testview;
@@ -344,19 +283,13 @@ namespace MySql.EntityFrameworkCore.Design.Tests
                 join y1 using (a) ;";
 
       var dbModel = _fixture.CreateModel("testview", sql, new List<string> { "t1", "t2" }, null);
-      Assert.Collection(dbModel.Tables.OrderBy(t => t.Name),
-                            d =>
-                            {
-                              Assert.Equal("t1", d.Name);
-                            },
-                            e =>
-                            {
-                              Assert.Equal("t2", e.Name);
-                            });
+      var tables = dbModel.Tables.OrderBy(t => t.Name);
 
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("t1"));
+      Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("t2"));
     }
 
-    [Fact]
+    [Test]
     public void CanFiltersViews()
     {
       var sql = @"DROP DATABASE IF EXISTS testview;

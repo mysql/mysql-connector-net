@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,57 +29,41 @@
 using MySql.Data.EntityFrameworkCore.Tests;
 using MySql.Data.MySqlClient;
 using System;
-using System.Text.RegularExpressions;
-using Xunit;
+using System.Collections.Generic;
+using System.Text;
+using MySql.Data.Common;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
 {
-  public class FactOnVersionsAttribute : FactAttribute
+  public class TestUtils
   {
     private static Version _version = null;
+
     public static Version Version
     {
       get
       {
         if (_version == null)
         {
+          MySQLTestStore.SslMode = false;
           using (MySqlConnection conn = new MySqlConnection(MySQLTestStore.baseConnectionString))
           {
             conn.Open();
             _version = new Version(conn.driver.Version.Major
-              ,conn.driver.Version.Minor
-              ,conn.driver.Version.Build);
+              , conn.driver.Version.Minor
+              , conn.driver.Version.Build);
           }
         }
         return _version;
       }
     }
-
-    public FactOnVersionsAttribute(string initial, string final) : base()
+    public static bool IsAtLeast(int major,int minor,int build)
     {
-      try
+      if (DBVersion.Parse(Version.ToString()).isAtLeast(major, minor, build))
       {
-        Version initialVersion = new Version(initial ?? "0.0.0");
-        Version finalVersion = new Version(final ?? "99.99.99");
-        if (initialVersion <= Version && Version <= finalVersion)
-          base.Skip = null;
-        else
-        {
-          string message = string.Empty;
-          if (initial == null)
-            message = $"{final} or lower";
-          else if (final == null)
-            message = $"{initial} or above";
-          else
-            message = $"between {initial} and {final}";
-
-          base.Skip = "Skipping test because MySql Server is not " + message;
-        }
+        return true;
       }
-      catch(Exception ex)
-      {
-        base.Skip = "FactOnVersionsAttribute error: " + ex.Message;
-      }
+      return false;
     }
   }
 }

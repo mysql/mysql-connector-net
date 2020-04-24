@@ -29,7 +29,7 @@
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using System;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -42,7 +42,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
   public class FunctionalTests : IDisposable
   {
 
-    [Fact]
+    [Test]
     public void CanConnectWithConnectionOnConfiguring()
     {
       var serviceCollection = new ServiceCollection();
@@ -60,7 +60,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     }
 
 
-    [Fact]
+    [Test]
     public void CanThrowExceptionWhenNoConfiguration()
     {
       var serviceCollection = new ServiceCollection();
@@ -71,12 +71,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
       using (var context = serviceProvider.GetRequiredService<NoConfigurationContext>())
       {
-        Assert.Equal(CoreStrings.NoProviderConfigured, Assert.Throws<InvalidOperationException>(() => context.Blogs.Any()).Message);        
+        Assert.AreEqual(CoreStrings.NoProviderConfigured, Assert.Throws<InvalidOperationException>(() => context.Blogs.Any()).Message);        
       }
     }
 
 
-    [Fact]
+    [Test]
     public void CreatedDb()
     {
       var serviceCollection = new ServiceCollection();
@@ -104,7 +104,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     }
 
 
-    [Fact]
+    [Test]
     public void EnsureRelationalPatterns()
     {
       var serviceCollection = new ServiceCollection();
@@ -132,7 +132,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     }
 
 
-    [Fact]
+    [Test]
     public void CanUseIgnoreEntity()
     {
       var serviceCollection = new ServiceCollection();
@@ -152,7 +152,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
 
 
-    [Fact]
+    [Test]
     public void CanUseOptionsInDbContextCtor()
     {                      
       using (var context = new OptionsContext(new DbContextOptions<OptionsContext>(),
@@ -165,7 +165,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
     }
 
-    [Fact]
+    [Test]
     public void TestEnsureSchemaOperation()
     {
       using(var context = new WorldContext())
@@ -210,11 +210,11 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
       protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
       {
-        Assert.Same(_options, optionsBuilder.Options);
+        Assert.AreSame(_options, optionsBuilder.Options);
 
         optionsBuilder.UseMySQL(_connection);
 
-        Assert.NotSame(_options, optionsBuilder.Options);
+        Assert.AreNotSame(_options, optionsBuilder.Options);
       }
 
       public override void Dispose()

@@ -36,7 +36,7 @@ using MySql.Data.EntityFrameworkCore.Migrations.Operations;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System.Diagnostics;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
@@ -76,16 +76,16 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     {
     }
 
-    [Fact]
+    [Test]
     public void CanCreateConnectionString()
     {
       using (var connection = CreateConnection(CreateOptions()))
       {
-        Assert.IsType<MySqlConnection>(connection.DbConnection);
+        Assert.IsInstanceOf<MySqlConnection>(connection.DbConnection);
       }
     }
 
-    [Fact]
+    [Test]
     public void CanCreateMainConnection()
     {
       using (var connection = CreateConnection(CreateOptions()))
@@ -109,7 +109,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       return optionsBuilder.Options;
     }
 
-    [Fact]
+    [Test]
     public void TransactionTest()
     {
       using (var context = new SakilaLiteUpdateContext())

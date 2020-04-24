@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,14 +34,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
   public class DataTests
   {
 
-    [Fact]
+    [Test]
     public async Task AsyncData()
     {
       using (var context = new WorldContext())
@@ -59,21 +59,21 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
         var result = context.SaveChangesAsync();
         result.Wait(30_000);
-        Assert.Null(result.Exception);
-        Assert.Equal(4, result.Result);
+        Assert.IsNull(result.Exception);
+        Assert.AreEqual(4, result.Result);
       }
 
       using (var context = new WorldContext())
       {
         var continent = await context.FindAsync<Continent>("AS");
-        Assert.Equal("Asia", continent.Name);
+        Assert.AreEqual("Asia", continent.Name);
 
         var continents = await context.Continents.ToListAsync();
-        Assert.Equal(4, continents.Count);
+        Assert.AreEqual(4, continents.Count);
       }
     }
 
-    [Fact]
+    [Test]
     public void ZeroDatetime()
     {
       using (MyContext context = new MyContext())
@@ -85,14 +85,14 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
-        Assert.Equal(1, context.Database.ExecuteSqlCommand("INSERT IGNORE INTO MyTest (`Date`) VALUES('0000-00-00')"));
+        Assert.AreEqual(1, context.Database.ExecuteSqlCommand("INSERT IGNORE INTO MyTest (`Date`) VALUES('0000-00-00')"));
 
         var item = context.MyTest.First();
-        Assert.Equal(DateTime.MinValue, item.Date);
+        Assert.AreEqual(DateTime.MinValue, item.Date);
       }
     }
 
-    [Fact]
+    [Test]
     public void SakilaLiteTest()
     {
       using (SakilaLiteContext context = new SakilaLiteContext())

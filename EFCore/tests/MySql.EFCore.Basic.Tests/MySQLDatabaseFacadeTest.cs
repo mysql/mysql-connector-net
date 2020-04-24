@@ -34,13 +34,13 @@ using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.EntityFrameworkCore.Extensions;
 using MySql.Data.EntityFrameworkCore.Tests;
 using System;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.EntityFrameworkCore.Basic.Tests
 {
   public class MySQLDatabaseFacadeTest
   {
-    [Fact]
+    [Test]
     public void IsMySQLWhenUsingOnConfiguring()
     {
       using (var context = new MySQLOnConfiguringContext())
@@ -49,7 +49,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void IsMySQLInOnModelCreatingWhenUsingOnConfiguring()
     {
       using (var context = new MySQLOnModelContext())
@@ -59,7 +59,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void IsMySQLInConstructorWhenUsingOnConfiguring()
     {
       using (var context = new MySQLConstructorContext())
@@ -69,12 +69,12 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void CannotUseIsMySQLInOnConfiguring()
     {
       using (var context = new MySQLUseInOnConfiguringContext())
       {
-        Assert.Equal(
+        Assert.AreEqual(
             CoreStrings.RecursiveOnConfiguring,
             Assert.Throws<InvalidOperationException>(
                 () =>
@@ -84,7 +84,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void IsMySQLWhenUsingConstructor()
     {
       using (var context = new ProviderContext(
@@ -96,7 +96,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void IsMySQLInOnModelCreatingWhenUsingConstructor()
     {
       using (var context = new ProviderOnModelContext(
@@ -109,7 +109,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void IsMySQLInConstructorWhenUsingConstructor()
     {
       using (var context = new ProviderConstructorContext(
@@ -122,7 +122,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void CannotUseIsMySQLInOnConfiguringWithConstructor()
     {
       using (var context = new ProviderUseInOnConfiguringContext(
@@ -130,7 +130,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
               .UseInternalServiceProvider(MySQLFixture.DefaultServiceProvider)
               .UseMySQL("Database=Maltesers").Options))
       {
-        Assert.Equal(
+        Assert.AreEqual(
             CoreStrings.RecursiveOnConfiguring,
             Assert.Throws<InvalidOperationException>(
                 () =>

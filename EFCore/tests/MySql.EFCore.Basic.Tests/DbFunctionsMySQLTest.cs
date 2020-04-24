@@ -31,7 +31,7 @@ using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.EntityFrameworkCore.Extensions;
 using System;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.EntityFrameworkCore.Basic.Tests
 {
@@ -47,7 +47,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void DateDiffYear()
     {
       using (var context = new SakilaLiteContext())
@@ -55,11 +55,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var count = context.Actor
             .Count(a => EF.Functions.DateDiffYear(a.LastUpdate, DateTime.Now) == 14);
 
-        Assert.Equal(200, count);
+        Assert.AreEqual(200, count);
       }
     }
 
-    [Fact]
+    [Test]
     public void DateDiffMonth()
     {
       using (var context = new SakilaLiteContext())
@@ -67,11 +67,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var count = context.Actor
             .Count(a => EF.Functions.DateDiffMonth(a.LastUpdate, DateTime.Now) == 0);
 
-        Assert.Equal(0, count);
+        Assert.AreEqual(0, count);
       }
     }
 
-    [Fact]
+    [Test]
     public void DateDiffDay()
     {
       using (var context = new SakilaLiteContext())
@@ -79,11 +79,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var count = context.Actor
             .Count(a => EF.Functions.DateDiffDay(a.LastUpdate, DateTime.Now) == 0);
 
-        Assert.Equal(0, count);
+        Assert.AreEqual(0, count);
       }
     }
 
-    [Fact]
+    [Test]
     public void DateDiffHour()
     {
       using (var context = new SakilaLiteContext())
@@ -91,11 +91,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var count = context.Actor
             .Count(a => EF.Functions.DateDiffHour(a.LastUpdate, DateTime.Now) == 0);
 
-        Assert.Equal(0, count);
+        Assert.AreEqual(0, count);
       }
     }
 
-    [Fact]
+    [Test]
     public void DateDiffMinute ()
     {
       using (var context = new SakilaLiteContext())
@@ -103,11 +103,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var count = context.Actor
             .Count(a => EF.Functions.DateDiffMinute(a.LastUpdate, DateTime.Now) == 0);
 
-        Assert.Equal(0, count);
+        Assert.AreEqual(0, count);
       }
     }
 
-    [Fact]
+    [Test]
     public void DateDiffSecond()
     {
       using (var context = new SakilaLiteContext())
@@ -115,11 +115,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var count = context.Actor
             .Count(a => EF.Functions.DateDiffSecond(a.LastUpdate, DateTime.Now) == 0);
 
-        Assert.Equal(0, count);
+        Assert.AreEqual(0, count);
       }
     }
 
-    [Fact]
+    [Test]
     public void DateDiffMicrosecond()
     {
       using (var context = new SakilaLiteContext())
@@ -127,40 +127,40 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var count = context.Actor
             .Count(a => EF.Functions.DateDiffMicrosecond(a.LastUpdate, DateTime.Now) == 0);
 
-        Assert.Equal(0, count);
+        Assert.AreEqual(0, count);
       }
     }
 
-    [Fact]
+    [Test]
     public void LikeIntLiteral()
     {
       using (var context = new SakilaLiteContext())
       {
         var count = context.Actor.Count(o => EF.Functions.Like(o.ActorId, "%A%"));
 
-        Assert.Equal(0, count);
+        Assert.AreEqual(0, count);
       }
     }
 
-    [Fact]
+    [Test]
     public void LikeDateTimeLiteral()
     {
       using (var context = new SakilaLiteContext())
       {
         var count = context.Actor.Count(o => EF.Functions.Like(o.LastUpdate, "%A%"));
 
-        Assert.Equal(0, count);
+        Assert.AreEqual(0, count);
       }
     }
 
-    [Fact]
+    [Test]
     public void LikeIntLiteralWithEscape()
     {
       using (var context = new SakilaLiteContext())
       {
         var count = context.Actor.Count(o => EF.Functions.Like(o.ActorId, "!%", "!"));
 
-        Assert.Equal(0, count);
+        Assert.AreEqual(0, count);
       }
     }
   }

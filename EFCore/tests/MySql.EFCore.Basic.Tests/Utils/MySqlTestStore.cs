@@ -59,14 +59,19 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
   public class MySQLTestStore : RelationalTestStore
   {
+    public static bool SslMode { get ; set; }
+    private static string SslString
+    {
+      get { return SslMode ? "sslmode=Required;" : string.Empty; } 
+    }
     public static string baseConnectionString
     {
-      get { return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;pooling=false;defaultcommandtimeout=50;"; }
+      get { return $"server=localhost;user id=root;password=;port={Port()};{SslString}pooling=false;defaultcommandtimeout=50;"; }
     }
 
     public static string rootConnectionString
     {
-      get { return $"server=localhost;user id=root;password=;port={Port()};sslmode=Required;pooling=false;defaultcommandtimeout=50;"; }
+      get { return $"server=localhost;user id=root;password=;port={Port()};{SslString}pooling=false;defaultcommandtimeout=50;"; }
     }
 
     internal static string GetContextConnectionString<T>()
@@ -86,6 +91,8 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       var port = Environment.GetEnvironmentVariable("MYSQL_PORT");
       return port == null ? "3306" : port;
     }
+
+   
 
     public static void CreateDatabase(string databaseName, bool deleteifExists = false, string script = null)
     {
@@ -173,6 +180,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     private MySQLTestStore(string name)
     : base(name, true)
     {
+      SslMode = true;
       Connection = new MySqlConnection(rootConnectionString);
     }
   }

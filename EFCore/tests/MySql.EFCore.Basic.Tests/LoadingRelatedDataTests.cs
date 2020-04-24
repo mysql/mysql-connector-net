@@ -31,7 +31,9 @@ using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
+using MySql.Data.Common;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
@@ -49,7 +51,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
     }
 
-    [Fact]
+    [Test]
     public void CanUseSkipAndTake()
     {
       Assert.False(context.Database.EnsureCreated());
@@ -59,10 +61,10 @@ namespace MySql.Data.EntityFrameworkCore.Tests
                   .Take(1)
                   .ToList();
 
-      Assert.Single(people);
+      Assert.That(people,Has.One.Items);
     }
 
-    [Fact]
+    [Test]
     public void CanIncludeAddressData()
     {
       Assert.False(context.Database.EnsureCreated());
@@ -71,14 +73,14 @@ namespace MySql.Data.EntityFrameworkCore.Tests
                   .Include(p => p.Address)
                   .ToList();
 
-      Assert.Equal(4, people.Count);
-      Assert.Equal(3, people.Count(p => p.Address != null));
-      //                Assert.Equal(@"SELECT `p`.`IdGuest`, `p`.`Name`, `p`.`RelativeId`, `a`.`IdAddress`, `a`.`City`, `a`.`Street`
+      Assert.AreEqual(4, people.Count);
+      Assert.AreEqual(3, people.Count(p => p.Address != null));
+      //                Assert.AreEqual(@"SELECT `p`.`IdGuest`, `p`.`Name`, `p`.`RelativeId`, `a`.`IdAddress`, `a`.`City`, `a`.`Street`
       //FROM `Guests` AS `p`
       //LEFT JOIN `Address` AS `a` ON `a`.`IdAddress` = `p`.`IdGuest`", Sql);
     }
 
-    [Fact]
+    [Test]
     public void CanIncludeGuestData()
     {
       Assert.False(context.Database.EnsureCreated());
@@ -87,18 +89,18 @@ namespace MySql.Data.EntityFrameworkCore.Tests
                   .Include(p => p.Guest)
                   .ToList();
 
-      Assert.Equal(3, ad.Count);
+      Assert.AreEqual(3, ad.Count);
       var rows = ad.Select(g => g.Guest).Where(a => a != null).ToList();
-      Assert.Equal(3, rows.Count());
+      Assert.AreEqual(3, rows.Count());
 
       // TODO check the logger implementation
-      //            Assert.Equal(@"SELECT `p`.`IdAddress`, `p`.`City`, `p`.`Street`, `g`.`IdGuest`, `g`.`Name`, `g`.`RelativeId`
+      //            Assert.AreEqual(@"SELECT `p`.`IdAddress`, `p`.`City`, `p`.`Street`, `g`.`IdGuest`, `g`.`Name`, `g`.`RelativeId`
       //FROM `Address` AS `p`
       //INNER JOIN `Guests` AS `g` ON `p`.`IdAddress` = `g`.`IdGuest`", Sql);
     }
 
 
-    [Fact]
+    [Test]
     public void CanIncludeGuestShadowProperty()
     {
       Assert.False(context.Database.EnsureCreated());
@@ -107,16 +109,16 @@ namespace MySql.Data.EntityFrameworkCore.Tests
                 .Include(a => a.Relative)
                 .ToList();
 
-      Assert.Equal(3, addressRelative.Count);
+      Assert.AreEqual(3, addressRelative.Count);
       Assert.True(addressRelative.All(p => p.Relative != null));
       // TODO: review what should be the result here (acc. EF tests should be 6)
-      //            Assert.Equal(13, context.ChangeTracker.Entries().Count());
-      //            Assert.Equal(@"SELECT `a`.`IdAddressRelative`, `a`.`City`, `a`.`Street`, `p`.`IdRelative`, `p`.`Name`
+      //            Assert.AreEqual(13, context.ChangeTracker.Entries().Count());
+      //            Assert.AreEqual(@"SELECT `a`.`IdAddressRelative`, `a`.`City`, `a`.`Street`, `p`.`IdRelative`, `p`.`Name`
       //FROM `AddressRelative` AS `a`
       //INNER JOIN `Persons2` AS `p` ON `a`.`IdAddressRelative` = `p`.`IdRelative`", Sql);
     }
 
-    [Fact]
+    [Test]
     public void MixClientServerEvaluation()
     {
       Assert.False(context.Database.EnsureCreated());
@@ -126,8 +128,8 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             .Select(a => new { Id = a.IdAddress, City = SetCity(a.City) })
             .ToList();
 
-      Assert.Equal(3, list.Count);
-      Assert.EndsWith(" city", list.First().City);
+      Assert.AreEqual(3, list.Count);
+      StringAssert.EndsWith(" city", list.First().City);
     }
 
     private static string SetCity(string name)
@@ -135,16 +137,16 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       return name + " city";
     }
 
-    [Fact]
+    [Test]
     public void RawSqlQueries()
     {
       Assert.False(context.Database.EnsureCreated());
       var guests = context.Set<Guest>().FromSqlRaw("SELECT * FROM Guests")
         .ToList();
-      Assert.Equal(4, guests.Count);
+      Assert.AreEqual(4, guests.Count);
     }
 
-    [Fact]
+    [Test]
     public void UsingTransactions()
     {
       Assert.False(context.Database.EnsureCreated());
@@ -156,20 +158,26 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         });
         context.SaveChanges();
       }
-      Assert.Equal(4, context.Set<Guest>().Count());
+      Assert.AreEqual(4, context.Set<Guest>().Count());
     }
 
-    [Fact]
+    [Test]
     public void DbSetFind()
     {
       var address = context.Set<Address>().Find(1);
       Assert.NotNull(address);
-      Assert.Equal("Michigan", address.City);
+      Assert.AreEqual("Michigan", address.City);
     }
 
-    [FactOnVersions("5.7.0", null)]
+
+    [Test]
     public void JsonDataTest()
     {
+      if (!TestUtils.IsAtLeast(5, 7, 0))
+      {
+        Assert.Ignore();
+      }
+
       using (JsonContext context = new JsonContext())
       {
         var model = context.Model;
@@ -194,10 +202,10 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             smallintWidth = string.Empty;
           }
           //Adding "COLLATION" to the string validation at table creation (this happens since MySql 8.0.5 Server)
-          if (jsonTableDesc.Contains("COLLATE=utf8mb4_0900_ai_ci")) Assert.Equal($"CREATE TABLE `jsonentity` (\n  `Id` smallint{smallintWidth} NOT NULL AUTO_INCREMENT," +
-            $"\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET={charset} COLLATE=utf8mb4_0900_ai_ci", jsonTableDesc, true, true, true);
-          else Assert.Equal($"CREATE TABLE `jsonentity` (\n  `Id` smallint{smallintWidth} NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) " +
-            $"ENGINE=InnoDB DEFAULT CHARSET={charset}", jsonTableDesc, true, true, true);
+          if (jsonTableDesc.Contains("COLLATE=utf8mb4_0900_ai_ci")) StringAssert.AreEqualIgnoringCase($"CREATE TABLE `jsonentity` (\n  `Id` smallint{smallintWidth} NOT NULL AUTO_INCREMENT," +
+            $"\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET={charset} COLLATE=utf8mb4_0900_ai_ci", jsonTableDesc);
+          else StringAssert.AreEqualIgnoringCase($"CREATE TABLE `jsonentity` (\n  `Id` smallint{smallintWidth} NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) " +
+            $"ENGINE=InnoDB DEFAULT CHARSET={charset}", jsonTableDesc);
         }
 
         context.JsonEntity.Add(new JsonData()
@@ -206,13 +214,19 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         });
         context.SaveChanges();
         JsonData json = context.JsonEntity.First();
-        Assert.Equal("{ \"name\": \"Ronald\", \"city\": \"Austin\" }", json.jsoncol);
+        Assert.AreEqual("{ \"name\": \"Ronald\", \"city\": \"Austin\" }", json.jsoncol);
       }
     }
 
-    [FactOnVersions("5.7.0", null)]
+
+    [Test]
     public void JsonInvalidData()
     {
+      if (!TestUtils.IsAtLeast(5, 7, 0))
+      {
+        Assert.Ignore();
+      }
+
       using (JsonContext context = new JsonContext())
       {
         context.Database.EnsureDeleted();
@@ -221,15 +235,21 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         {
           jsoncol = "{ name: Ronald, city: Austin }"
         });
-        MySqlException ex = (MySqlException)Assert.ThrowsAny<DbUpdateException>(() => context.SaveChanges()).GetBaseException();
+        MySqlException ex = (MySqlException)Assert.Throws<DbUpdateException>(() => context.SaveChanges()).GetBaseException();
         // Error Code: 3140. Invalid JSON text
-        Assert.Equal(3140, ex.Number);
+        Assert.AreEqual(3140, ex.Number);
       }
     }
 
-    [FactOnVersions("5.7.0", null)]
+
+    [Test]
     public void ComputedColumns()
     {
+      if (!TestUtils.IsAtLeast(5, 7, 0))
+      {
+        Assert.Ignore();
+      }
+
       using (FiguresContext context = new FiguresContext())
       {
         context.Database.EnsureDeleted();
@@ -249,12 +269,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.Triangle.AddRange(data);
         context.Triangle.Add(data[1]);
         context.SaveChanges();
-        Assert.Equal(75, data[0].Area);
-        Assert.Equal(50, data[1].Area);
+        Assert.AreEqual(75, data[0].Area);
+        Assert.AreEqual(50, data[1].Area);
       }
     }
 
-    [Fact]
+    [Test]
     public void ExplicitLoading()
     {
       using (var context = new WorldContext())
@@ -265,12 +285,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.Entry(america)
           .Collection(c => c.Countries)
           .Load();
-        Assert.Equal(5, america.Countries.Count);
-        Assert.Equal("United States", america.Countries.Single(c => c.Code == "US").Name);
+        Assert.AreEqual(5, america.Countries.Count);
+        Assert.AreEqual("United States", america.Countries.Single(c => c.Code == "US").Name);
       }
     }
 
-    [Fact]
+    [Test]
     public void ExplicitLoadingQueryingRelatedEntitites()
     {
       using (var context = new WorldContext())
@@ -283,10 +303,10 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           .Query()
           .Where(c => c.Name.Contains("i"))
           .ToList();
-        Assert.Equal(2, asia.Countries.Count);
-        Assert.Equal(2, list.Count);
-        Assert.Equal("China", list.Single(c => c.Code == "CN").Name);
-        Assert.Equal("India", list.Single(c => c.Code == "IN").Name);
+        Assert.AreEqual(2, asia.Countries.Count);
+        Assert.AreEqual(2, list.Count);
+        Assert.AreEqual("China", list.Single(c => c.Code == "CN").Name);
+        Assert.AreEqual("India", list.Single(c => c.Code == "IN").Name);
       }
     }
 

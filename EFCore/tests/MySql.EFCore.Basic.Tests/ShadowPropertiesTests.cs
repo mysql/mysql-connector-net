@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -35,7 +35,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
@@ -57,7 +57,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             context.Database.EnsureCreated();                        
         }
 
-        [Fact]
+        [Test]
         public void CanUseShadowPropertyWhenUpdatingEntry()
         {
             Assert.False(context.Database.EnsureCreated());
@@ -86,7 +86,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             }
         }
 
-        [Fact]
+        [Test]
         public void CanUseShadowPropertyWhenAddingEntry()
         {    
           Assert.False(context.Database.EnsureCreated());

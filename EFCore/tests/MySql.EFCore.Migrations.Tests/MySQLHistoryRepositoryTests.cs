@@ -1,4 +1,4 @@
-// Copyright © 2016, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,7 +30,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.EntityFrameworkCore.Tests;
-using Xunit;
+using NUnit.Framework;
 using MySql.Data.EntityFrameworkCore.Extensions;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore;
@@ -53,21 +53,21 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
       return new DbContext(optionsBuilder.Options).GetService<IHistoryRepository>();
     }
 
-    [Fact]
+    [Test]
     public void GetBeginIfNotExistsScript_works()
     {
       var repository = CreateHistoryRepository();
       var script = repository.GetBeginIfNotExistsScript("Migration1");
     }
 
-    [Fact]
+    [Test]
     public void GetBeginIfExistsScript_works()
     {
       var repository = CreateHistoryRepository();
       var script = repository.GetBeginIfExistsScript("Migration1");
     }
 
-    [Fact]
+    [Test]
     public void CanCreateDatabase()
     {
       var repository = CreateHistoryRepository();
@@ -81,9 +81,8 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
 
       var cmdBuilder = context.GetService<IRawSqlCommandBuilder>();
       Assert.False(creator.Exists());
-      Assert.Equal("IF EXISTS(SELECT * FROM `__EFMigrationsHistory` WHERE `MigrationId` = 'MigrationId')\r\nBEGIN",
-          cmdBuilder.Build(repository.GetBeginIfExistsScript("MigrationId")).CommandText
-          , ignoreLineEndingDifferences: true);
+      Assert.AreEqual("IF EXISTS(SELECT * FROM `__EFMigrationsHistory` WHERE `MigrationId` = 'MigrationId')\r\nBEGIN",
+          cmdBuilder.Build(repository.GetBeginIfExistsScript("MigrationId")).CommandText);
     }
   }
 }

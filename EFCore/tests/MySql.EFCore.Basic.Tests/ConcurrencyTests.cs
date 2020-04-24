@@ -32,14 +32,14 @@ using MySql.Data.EntityFrameworkCore.Extensions;
 using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using System;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
     public class ConcurrencyTests
     {
 
-        [Fact]
+        [Test]
         public void CanHandleConcurrencyConflicts()
         {           
             var serviceCollection = new ServiceCollection();
@@ -84,7 +84,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
                                     var originalValue = entry.Property(property.Name).OriginalValue;
                                     var databaseValue = databaseEntry.Property(property.Name).CurrentValue;
                                     entry.Property(property.Name).OriginalValue = databaseEntry.Property(property.Name).CurrentValue;
-                                    Assert.Equal("Jane", databaseValue);
+                                    Assert.AreEqual("Jane", databaseValue);
                                 }
                             }
                         }

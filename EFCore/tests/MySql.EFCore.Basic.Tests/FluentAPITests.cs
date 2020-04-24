@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -35,16 +35,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
+using System.Text.RegularExpressions;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
   public class FluentAPITests : IDisposable
   {
 
-    [FactOnVersions("5.7.0", null)]
+    [Test]
     public void EnsureRelationalPatterns()
     {
+      if (!TestUtils.IsAtLeast(5,7,0))
+      {
+        Assert.Ignore();
+      }
+    
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<ComputedColumnContext>();
@@ -65,8 +72,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     }
 
 
-
-    [Fact]
+    [Test]
     public void CanUseModelWithDateTimeOffset()
     {
       var serviceCollection = new ServiceCollection();
@@ -80,12 +86,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         try
         {
           context.Database.EnsureCreated();
-          var dt = DateTime.Now;
+          DateTimeOffset dt = DateTime.Now;
           var e = new QuickEntity { Name = "Jos", Created = dt };
           context.QuickEntity.Add(e);
           context.SaveChanges();
           var row = context.QuickEntity.FirstOrDefault();
-          Assert.Equal(dt, row.Created);
+          Assert.AreEqual(dt, row.Created);
         }
         finally
         {
@@ -95,7 +101,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     }
 
 
-    [Fact]
+    [Test]
     public async Task CanUseModelWithDateTimeOffsetAsync()
     {
       var serviceCollection = new ServiceCollection();
@@ -109,12 +115,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         try
         {
           context.Database.EnsureCreated();
-          var dt = DateTime.Now;
+          DateTimeOffset dt = DateTime.Now;
           var e = new QuickEntity { Name = "Jos", Created = dt };
           context.QuickEntity.Add(e);
           context.SaveChanges();
           var result = await context.QuickEntity.FirstOrDefaultAsync();
-          Assert.Equal(dt, result.Created);
+          Assert.AreEqual(dt, result.Created);
         }
         catch (Exception)
         {
@@ -128,7 +134,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     }
 
 
-    [Fact]
+    [Test]
     public void CanNameAlternateKey()
     {
       var serviceCollection = new ServiceCollection();
@@ -156,7 +162,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
 
 
 
-    [Fact]
+    [Test]
     public void CanUseToTable()
     {
       var serviceCollection = new ServiceCollection();
@@ -183,7 +189,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     }
 
 
-    [Fact]
+    [Test]
     public void CanUseConcurrency()
     {
       var serviceCollection = new ServiceCollection();
@@ -210,9 +216,14 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     }
 
 
-    [FactOnVersions("5.7.0", null)]
+    [Test]
     public void CanUseConcurrencyToken()
     {
+      if (!TestUtils.IsAtLeast(5, 7, 0))
+      {
+        Assert.Ignore();
+      }
+
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<ComputedColumnContext>();
@@ -232,9 +243,15 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
-    [FactOnVersions("5.7.0", null)]
+
+    [Test]
     public void CanUseContainsInQuery()
     {
+      if (!TestUtils.IsAtLeast(5, 7, 0))
+      {
+        Assert.Ignore();
+      }
+
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<ComputedColumnContext>();
@@ -248,14 +265,20 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.Employees.Add(e);
         context.SaveChanges();
         var result = context.Employees.Where(t => t.FirstName.Contains("jo")).ToList();
-        Assert.Single(result);
+        Assert.That(result,Has.One.Items);
         context.Database.EnsureDeleted();
       }
     }
 
-    [FactOnVersions("5.7.0", null)]
+
+    [Test]
     public void CanUseContainsVarInQuery()
     {
+      if (!TestUtils.IsAtLeast(5, 7, 0))
+      {
+        Assert.Ignore();
+      }
+
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<ComputedColumnContext>();
@@ -270,15 +293,20 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.SaveChanges();
         var test = "jo";
         var result = context.Employees.Where(t => t.FirstName.Contains(test)).ToList();
-        Assert.Single(result);
+        Assert.That(result, Has.One.Items);
         context.Database.EnsureDeleted();
       }
     }
 
 
-    [FactOnVersions("5.7.0", null)]
+    [Test]
     public void CanUseContainsWithInvalidValue()
     {
+      if (!TestUtils.IsAtLeast(5, 7, 0))
+      {
+        Assert.Ignore();
+      }
+
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<ComputedColumnContext>();
@@ -292,16 +320,22 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.Employees.Add(e);
         context.SaveChanges();
         var result = context.Employees.Where(t => t.FirstName.Contains("XXXXXXXX$%^&*()!")).ToList();
-        Assert.Empty(result);
+        Assert.IsEmpty(result);
         result = context.Employees.Where(t => t.FirstName.Contains(null)).ToList();
-        Assert.Empty(result);
+        Assert.IsEmpty(result);
         context.Database.EnsureDeleted();
       }
     }
 
-    [FactOnVersions("5.7.0", null)]
+
+    [Test]
     public void CanUseContainsWithVariableInQuery()
     {
+      if (!TestUtils.IsAtLeast(5, 7, 0))
+      {
+        Assert.Ignore();
+      }
+
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<ComputedColumnContext>();
@@ -317,12 +351,12 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.SaveChanges();
         var avalue = "jo";
         var result = context.Employees.Where(t => t.FirstName.Contains(avalue)).ToList();
-        Assert.Single(result);
+        Assert.That(result, Has.One.Items);
         context.Database.EnsureDeleted();
       }
     }
 
-    [Fact]
+    [Test]
     public void TableAttributeTest()
     {
       using (WorldContext context = new WorldContext())
@@ -336,18 +370,16 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           using (MySqlDataReader reader = cmd.ExecuteReader())
           {
             Assert.True(reader.Read());
-            Assert.Equal("continentlist", reader.GetString(0)
-              , ignoreCase: true, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+            StringAssert.AreEqualIgnoringCase("continentlist", reader.GetString(0));
             Assert.True(reader.Read());
-            Assert.Equal("countrylist", reader.GetString(0)
-              , ignoreCase: true, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+            StringAssert.AreEqualIgnoringCase("countrylist", reader.GetString(0));
           }
 
         }
       }
     }
 
-    [Fact]
+    [Test]
     public void CharsetTest()
     {
       using (CharsetTestContext context = new CharsetTestContext())
@@ -364,30 +396,30 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           {
             reader.Read();
             string createTable = reader.GetString(1);
-            Assert.Equal(@"CREATE TABLE `testcharsetda` (
-  `TestCharsetDAId` varbinary(255) NOT NULL,
-  PRIMARY KEY (`TestCharsetDAId`)
-) ENGINE=InnoDB DEFAULT CHARSET=ascii",
-              createTable, true, true, true);
+            createTable = Regex.Replace(createTable, @"\t|\n|\r", string.Empty);
+            string txt = "CREATE TABLE `testcharsetda` (  `TestCharsetDAId` varbinary(255) NOT NULL,  PRIMARY KEY (`TestCharsetDAId`)) ENGINE=InnoDB DEFAULT CHARSET=ascii";
+            StringAssert.AreEqualIgnoringCase(txt,createTable);
           }
 
           cmd.CommandText = "SHOW CREATE TABLE `TestCharsetFA`";
           using (MySqlDataReader reader = cmd.ExecuteReader())
           {
             reader.Read();
-            string createTable = reader.GetString(1);
+            string createTable = reader.GetString(1); 
+            string txt = string.Empty;
+            createTable = Regex.Replace(createTable, @"\t|\n|\r", string.Empty);
 
             //Adding "COLLATION" to the string validation at table creation (this happens since MySql 8.0.5 Server)
-            if (createTable.Contains("COLLATE latin7_general_ci")) Assert.Equal(@"CREATE TABLE `testcharsetfa` (
-  `TestCharsetFAId` varchar(255) CHARACTER SET latin7 COLLATE latin7_general_ci NOT NULL,
-  PRIMARY KEY (`TestCharsetFAId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf16",
-              createTable, true, true, true);
-            else Assert.Equal(@"CREATE TABLE `testcharsetfa` (
-  `TestCharsetFAId` varchar(255) CHARACTER SET latin7 NOT NULL,
-  PRIMARY KEY (`TestCharsetFAId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf16",
-              createTable, true, true, true);
+            if (createTable.Contains("COLLATE latin7_general_ci"))
+            {
+               txt = "CREATE TABLE `testcharsetfa` (  `TestCharsetFAId` varchar(255) CHARACTER SET latin7 COLLATE latin7_general_ci NOT NULL,  PRIMARY KEY (`TestCharsetFAId`)) ENGINE=InnoDB DEFAULT CHARSET=utf16";
+               StringAssert.AreEqualIgnoringCase(txt, createTable);
+            }
+            else
+            {
+               txt = "CREATE TABLE `testcharsetfa` (  `TestCharsetFAId` varchar(255) CHARACTER SET latin7 NOT NULL,  PRIMARY KEY (`TestCharsetFAId`)) ENGINE=InnoDB DEFAULT CHARSET=utf16";
+              StringAssert.AreEqualIgnoringCase(txt, createTable);
+            } 
           }
 
           cmd.CommandText = "SHOW CREATE TABLE `TestCollationDA`";
@@ -395,11 +427,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           {
             reader.Read();
             string createTable = reader.GetString(1);
-            Assert.Equal(@"CREATE TABLE `testcollationda` (
-  `TestCollationDAId` varchar(255) CHARACTER SET greek COLLATE greek_bin NOT NULL,
-  PRIMARY KEY (`TestCollationDAId`)
-) ENGINE=InnoDB DEFAULT CHARSET=cp932 COLLATE=cp932_bin",
-              createTable, true, true, true);
+            createTable = Regex.Replace(createTable, @"\t|\n|\r", string.Empty);
+            string txt = "CREATE TABLE `testcollationda` (  `TestCollationDAId` varchar(255) CHARACTER SET greek COLLATE greek_bin NOT NULL,  PRIMARY KEY (`TestCollationDAId`)) ENGINE=InnoDB DEFAULT CHARSET=cp932 COLLATE=cp932_bin";
+            StringAssert.AreEqualIgnoringCase(txt, createTable);
           }
 
           cmd.CommandText = "SHOW CREATE TABLE `TestCollationFA`";
@@ -407,11 +437,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           {
             reader.Read();
             string createTable = reader.GetString(1);
-            Assert.Equal(@"CREATE TABLE `testcollationfa` (
-  `TestCollationFAId` varchar(255) CHARACTER SET ucs2 COLLATE ucs2_bin NOT NULL,
-  PRIMARY KEY (`TestCollationFAId`)
-) ENGINE=InnoDB DEFAULT CHARSET=koi8u COLLATE=koi8u_bin",
-              createTable, true, true, true);
+            createTable = Regex.Replace(createTable, @"\t|\n|\r", string.Empty);
+            string txt = "CREATE TABLE `testcollationfa` (  `TestCollationFAId` varchar(255) CHARACTER SET ucs2 COLLATE ucs2_bin NOT NULL,  PRIMARY KEY (`TestCollationFAId`)) ENGINE=InnoDB DEFAULT CHARSET=koi8u COLLATE=koi8u_bin";
+            Assert.AreEqual(txt, createTable);
           }
         }
       }

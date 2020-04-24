@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,13 +33,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFrameworkCore.Tests
 {
   public class MultiSchemaTests
   {
-    [Fact]
+    [Test]
     public void MultiSchemaTest()
     {
       PopulateData();
@@ -60,20 +60,20 @@ namespace MySql.Data.EntityFrameworkCore.Tests
               count++;
             }
           }
-          Assert.Equal(3, count);
+          Assert.AreEqual(3, count);
         }
       }
     }
 
-    [Fact]
+    [Test]
     public void LoadingData()
     {
       PopulateData();
       using(BodyShopContext context = new BodyShopContext())
       {
-        Assert.Equal(2, context.Car.Count());
-        Assert.Equal(2, context.BodyShop.Count());
-        Assert.Equal(2, context.Employee.Count());
+        Assert.AreEqual(2, context.Car.Count());
+        Assert.AreEqual(2, context.BodyShop.Count());
+        Assert.AreEqual(2, context.Employee.Count());
       }
     }
 
