@@ -145,6 +145,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #16659  	Can't use double quotation marks(") as password access server by Connector/NET
     /// </summary>
+    [Test]
     [Ignore("Fix for 8.0.5")]
     public void ConnectWithQuotePassword()
     {
@@ -194,6 +195,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    [Test]
     [Ignore("dotnet core seems to keep objects alive")] // reference https://github.com/dotnet/coreclr/issues/13490
     public void ConnectionCloseByGC()
     {
@@ -487,6 +489,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(diff.TotalSeconds < 10, "Timeout exceeded");
     }
 
+    [Test]
     [Ignore("Fix for 8.0.5")]
     [Property("Category", "Security")]
     public void ConnectInVariousWays()

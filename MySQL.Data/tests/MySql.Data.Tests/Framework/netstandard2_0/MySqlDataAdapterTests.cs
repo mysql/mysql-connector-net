@@ -682,6 +682,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual("foobar", dt.Rows[2]["name"]);
     }
 
+    [Test]
     [Ignore("Fix This")]
     public void TestBatchingInsertsMoreThanMaxPacket()
     {

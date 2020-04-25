@@ -231,6 +231,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.AreEqual("表", rows[0][0]);
     }
 
+    [Test]
     [Ignore("Fix for 8.0.13")]
     public void UnsingedZeroFill()
     {

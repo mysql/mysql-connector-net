@@ -83,6 +83,7 @@ namespace MySqlX.Data.Tests
       Assert.That(colls, Has.One.Items);
     }
 
+    [Test]
     [Ignore("Fix for 8.0.13")]
     public void GetCollectionAsTable()
     {

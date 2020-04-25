@@ -38,6 +38,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
     }
 
+    [Test]
     [Ignore("Fix this")]
     public void TestMultiPacket()
     {

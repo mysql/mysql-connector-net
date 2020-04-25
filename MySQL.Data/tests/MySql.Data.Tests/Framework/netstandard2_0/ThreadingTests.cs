@@ -113,6 +113,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    [Test]
     [Ignore("Fix This")]
     public void HardenedThreadAbortException()
     {

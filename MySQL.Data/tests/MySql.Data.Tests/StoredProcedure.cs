@@ -160,6 +160,7 @@ namespace MySql.Data.MySqlClient.Tests
       MultipleResultsetsImpl(false);
     }
 
+    [Test]
     [Ignore("Fix this")]
     public void MultipleResultsetsPrepared()
     {

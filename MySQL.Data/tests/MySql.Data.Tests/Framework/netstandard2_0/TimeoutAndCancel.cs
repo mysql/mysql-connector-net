@@ -136,6 +136,7 @@ namespace MySql.Data.MySqlClient.Tests
       stateChangeCount++;
     }
 
+    [Test]
     [Ignore("Fix This")]
     public void TimeoutExpiring()
     {
@@ -162,6 +163,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
     }
 
+    [Test]
     [Ignore("Fix This")]
     public void TimeoutDuringBatch()
     {
@@ -228,6 +230,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #40091	mysql driver 5.2.3.0 connection pooling issue
     /// </summary>
+    [Test]
     [Ignore("Issue")]
     public void ConnectionStringModifiedAfterCancel()
     {

@@ -276,6 +276,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    [Test]
     [Ignore("Fix this")]
     public void Bug6271()
     {

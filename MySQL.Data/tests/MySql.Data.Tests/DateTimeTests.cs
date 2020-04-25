@@ -422,6 +422,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    [Test]
     [Ignore("Fix this")]
     // reference http://msdn.microsoft.com/en-us/library/system.timespan.frommilliseconds.aspx
     public void CanUpdateMillisecondsUsingTimeTypeOnPrepareStatements()

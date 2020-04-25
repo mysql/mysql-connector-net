@@ -101,6 +101,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(stmt, e.StatementText);
     }
 
+    [Test]
     [Ignore("Fix this")]
     public void ExecuteScriptContinueOnError()
     {
@@ -128,6 +129,7 @@ namespace MySql.Data.MySqlClient.Tests
       statementCount++;
     }
 
+    [Test]
     [Ignore("Fix this")]
     public void ExecuteScriptNotContinueOnError()
     {

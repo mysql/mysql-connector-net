@@ -235,6 +235,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #12245  	using Prepare() on an insert command causes null parameters to convert to "0"
     /// </summary>
+    [Test]
     [Ignore("Fix This")]
     public virtual void InsertingPreparedNulls()
     {

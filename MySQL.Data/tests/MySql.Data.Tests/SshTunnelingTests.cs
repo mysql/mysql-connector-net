@@ -58,6 +58,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Validate that the expected errors are being raised when invalid values are provided.
     /// </summary>
+    [Test]
     [Ignore("Needs SSH setup on PB2")]
     public void ErrorsRaisedByMissingParameters()
     {
@@ -96,6 +97,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <remarks>MySQL Server and the SSH server are located in the same machine. The root user
     /// is configured to only allow local connections. Via SSH Tunneling the client can connect with
     /// root user as if it were a local connection.</remarks>
+    [Test]
     [Ignore("Needs SSH setup on PB2")]
     public void ConnectAsLocalUserUsingKeys()
     {
@@ -118,6 +120,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <remarks>MySQL Server and the SSH server are located in the same machine. The root user
     /// is configured to only allow local connections. Via SSH Tunneling the client can connect with
     /// root user as if it were a local connection.</remarks>
+    [Test]
     [Ignore("Needs SSH setup on PB2")]
     public void ConnectAsLocalUser()
     {
@@ -143,6 +146,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// </summary>
     /// <remarks>MySQL Server and the SSH server are located on different machines. Requests made to
     /// the SSH server are forwarded to the machine where the MySQL server instance is running.</remarks>
+    [Test]
     [Ignore("Needs SSH setup on PB2")]
     public void ConnectAsRemoteUser()
     {
@@ -169,6 +173,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Performs a fallback to authenticate with password whenever the Ssh connection fails with an error other than invalid passphrase.
     /// </summary>
+    [Test]
     [Ignore("Needs SSH setup on PB2")]
     public void ConnectionFallback()
     {
@@ -189,6 +194,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// Validates that Connector/NET without SSH tunneling is not able to connect to a MySQL Server
     /// instance running on a different machine using a local user.
     /// </summary>
+    [Test]
     [Ignore("Needs SSH setup on PB2")]
     public void ConnectionFailsWithLocalUserOnRemoteMachineWithoutSSHTunneling()
     {
@@ -213,6 +219,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Validates that the SSH Server can be accessed via a user and password.
     /// </summary>
+    [Test]
     [Ignore("Needs SSH setup on PB2")]
     public void ConnectToSSHServerUsingPassword()
     {
@@ -228,6 +235,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Validates that the SSH Server can be accessed via a user and passphrase.
     /// </summary>
+    [Test]
     [Ignore("Needs SSH setup on PB2")]
     public void ConnectToSSHServerUsingKeys()
     {
