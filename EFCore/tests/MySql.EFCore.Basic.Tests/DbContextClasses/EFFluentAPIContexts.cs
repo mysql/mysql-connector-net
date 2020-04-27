@@ -1,4 +1,4 @@
-// Copyright © 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,12 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.EntityFrameworkCore.Extensions;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 using System;
 
-namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
+namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
 {
   public class ComputedColumnContext : MyTestContext
   {
@@ -71,8 +71,6 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
             .HasColumnType("Timestamp");
         }
     }
-
-
 
   public class TableConventionsContext : MyTestContext
   {
@@ -146,11 +144,8 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
                .Property(b => b.Model)
                .HasColumnType("varchar(4)")
                .ForMySQLHasDefaultValue("1999");
-
-
     }   
   }
-
 
   public class ConcurrencyTestsContext : MyTestContext
   {
@@ -164,6 +159,3 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     }
   }
 }
-
-
-

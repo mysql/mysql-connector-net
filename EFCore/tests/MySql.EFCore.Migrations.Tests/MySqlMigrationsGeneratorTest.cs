@@ -31,7 +31,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.EntityFrameworkCore.Extensions;
-using MySql.Data.EntityFrameworkCore.Tests;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 using NUnit.Framework;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests
@@ -134,6 +134,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
       Assert.AreEqual("CREATE INDEX `IXPersonName` ON `Person` (`Name`);" + EOL, Sql);
     }
 
+    [Test]
     [Ignore("Rename index not supported yet")]
     public override void RenameIndexOperation()
     {

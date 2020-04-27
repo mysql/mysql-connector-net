@@ -28,7 +28,6 @@
 
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
-using MySql.Data.EntityFrameworkCore.Tests;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,6 +42,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
   public class MySQLDatabaseModelFactoryTest : MySQLDatabaseModelFixture
   {
     private MySQLDatabaseModelFixture _fixture;
+
     [SetUp]
     public void Init()
     {
@@ -50,6 +50,15 @@ namespace MySql.EntityFrameworkCore.Design.Tests
       _fixture.ListLoggerFactory.Clear();
     }
     
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+      MySQLTestStore.DeleteDatabase("blogman");
+      MySQLTestStore.DeleteDatabase("sakiladb");
+      MySQLTestStore.DeleteDatabase("sakilaindex");
+      MySQLTestStore.DeleteDatabase("testview");
+      MySQLTestStore.DeleteDatabase("world");
+    }
 
     [Test]
     public void CanReadTables()

@@ -27,19 +27,17 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;
 using System.Linq;
 using NUnit.Framework;
-using MySql.Data.Common;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests
 {
-  public class LoadingRelatedDataTests : IDisposable
+  public class LoadingRelatedDataTests
   {
-
     DbContext context;
 
     public LoadingRelatedDataTests()
@@ -48,7 +46,18 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       context.Database.EnsureDeleted();
       context.Database.EnsureCreated();
       AddData(context);
+    }
 
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+      using (FiguresContext context = new FiguresContext())
+        context.Database.EnsureDeleted();
+      using (JsonContext context = new JsonContext())
+        context.Database.EnsureDeleted();
+      using (WorldContext context = new WorldContext())
+        context.Database.EnsureDeleted();
+      context.Database.EnsureDeleted();
     }
 
     [Test]
@@ -340,11 +349,6 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       context.Set<AddressRelative>().AddRange(ad, ad1, ad2);
 
       context.SaveChanges();
-    }
-
-    public void Dispose()
-    {
-      context.Database.EnsureDeleted();
     }
   }
 }

@@ -27,18 +27,37 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests
 {
   public class MultiSchemaTests
   {
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+      using (BodyShopContext context = new BodyShopContext())
+      {
+        using (MySqlConnection conn = (MySqlConnection)context.Database.GetDbConnection())
+        {
+          MySqlCommand cmd = conn.CreateCommand();
+          cmd.CommandText = @"DROP DATABASE IF EXISTS `01cars`;
+            DROP DATABASE IF EXISTS `02bodyshops`;
+            DROP DATABASE IF EXISTS `03employees`;";
+          conn.Open();
+          context.Database.EnsureDeleted();
+          cmd.Connection = conn;
+          cmd.ExecuteNonQuery();
+        }
+      }
+    }
+
     [Test]
     public void MultiSchemaTest()
     {
@@ -69,7 +88,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     public void LoadingData()
     {
       PopulateData();
-      using(BodyShopContext context = new BodyShopContext())
+      using (BodyShopContext context = new BodyShopContext())
       {
         Assert.AreEqual(2, context.Car.Count());
         Assert.AreEqual(2, context.BodyShop.Count());
@@ -77,10 +96,9 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
-
     private void PopulateData()
     {
-      using(BodyShopContext context = new BodyShopContext())
+      using (BodyShopContext context = new BodyShopContext())
       {
         // Clean databases
         context.Database.EnsureDeleted();

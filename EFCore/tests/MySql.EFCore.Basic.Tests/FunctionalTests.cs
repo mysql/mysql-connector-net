@@ -26,7 +26,6 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using System;
 using System.Linq;
 using NUnit.Framework;
@@ -36,11 +35,19 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.EntityFrameworkCore.Extensions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests
 {
-  public class FunctionalTests : IDisposable
+  public class FunctionalTests
   {
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+      using (WorldContext context = new WorldContext())
+        context.Database.EnsureDeleted();
+    }
 
     [Test]
     public void CanConnectWithConnectionOnConfiguring()
@@ -56,6 +63,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
         Assert.True(context.Posts.Count() == 0);
+        context.Database.EnsureDeleted();
       }
     }
 
@@ -180,19 +188,6 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.SaveChanges();
       }
     }
-
-
-    public void Dispose()
-    {
-        //ensure test database is deleted
-        using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
-        {
-          cnn.Open();
-          var cmd = new MySqlCommand("DROP DATABASE IF EXISTS TEST", cnn);
-          cmd.ExecuteNonQuery();
-        }
-     }
-
 
     #region ContextClasses
 

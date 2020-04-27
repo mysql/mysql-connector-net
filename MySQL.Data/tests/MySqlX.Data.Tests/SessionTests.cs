@@ -1046,7 +1046,7 @@ namespace MySqlX.Data.Tests
       builder.UserID = session.Settings.UserID; ;
       builder.Password = session.Settings.Password;
       builder.Port = session.Settings.Port;
-      builder.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
+      builder.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe;
       builder.Database = session.Settings.Database;
       builder.CharacterSet = session.Settings.CharacterSet;
       builder.SslMode = MySqlSslMode.Required;

@@ -32,9 +32,9 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.EntityFrameworkCore.Extensions;
-using MySql.Data.EntityFrameworkCore.Tests;
 using System;
 using NUnit.Framework;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 
 namespace MySql.EntityFrameworkCore.Basic.Tests
 {

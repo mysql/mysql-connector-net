@@ -31,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <ProjectReference Include="..\..\..\MySQL.Data\src\MySql.Data.csproj" />
     <ProjectReference Include="..\..\src\MySql.Data.EntityFramework.csproj" />
     <ProjectReference Include="..\MySql.EntityFramework.Basic.Tests\MySql.EntityFramework.Basic.Tests.csproj" />

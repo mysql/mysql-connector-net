@@ -29,16 +29,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.EntityFrameworkCore.Extensions;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using System;
 using System.Linq;
 using NUnit.Framework;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests
 {
     public class ConcurrencyTests
     {
-
         [Test]
         public void CanHandleConcurrencyConflicts()
         {           

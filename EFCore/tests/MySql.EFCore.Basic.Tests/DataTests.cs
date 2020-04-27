@@ -27,19 +27,27 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests
 {
   public class DataTests
   {
+    [TearDown]
+    public void TearDown()
+    {
+      using (var context = new WorldContext())
+        context.Database.EnsureDeleted();
+      using (var context = new MyContext())
+        context.Database.EnsureDeleted();
+      using (var context = new SakilaLiteContext())
+        context.Database.EnsureDeleted();
+    }
 
     [Test]
     public async Task AsyncData()

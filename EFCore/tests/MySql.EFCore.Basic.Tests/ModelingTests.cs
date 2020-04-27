@@ -21,25 +21,17 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests
 {
   [TestFixture]
   public class ModelingTests : SakilaLiteFixture
   {
-    private SakilaLiteFixture fixture;
-    [SetUp]
-    public void Init()
-    {
-      this.fixture = new SakilaLiteFixture();
-    }
-
     [Test]
     public void TableSplitting()
     {
@@ -132,6 +124,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
+    [Test]
     [Ignore("Fix this")]
     public void OwnedEntityTypes()
     {

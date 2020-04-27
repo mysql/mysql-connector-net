@@ -27,23 +27,33 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.EntityFrameworkCore.Extensions;
 using System;
 using System.Linq;
 using NUnit.Framework;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 
 namespace MySql.EntityFrameworkCore.Basic.Tests
 {
   public class DbFunctionsMySQLTest
   {
-    public DbFunctionsMySQLTest()
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
       using (var context = new SakilaLiteContext())
       {
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
         context.PopulateData();
+      }
+    }
+
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+      using (var context = new SakilaLiteContext())
+      {
+        context.Database.EnsureDeleted();
       }
     }
 

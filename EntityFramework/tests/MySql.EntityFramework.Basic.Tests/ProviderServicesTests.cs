@@ -36,13 +36,19 @@ using System.Data;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class ProviderServicesTests : DefaultFixture, IDisposable
+  public class ProviderServicesTests : DefaultFixture
   {
     private CultureInfo originalCulture;
 
     public ProviderServicesTests()
     {
       originalCulture = Thread.CurrentThread.CurrentCulture;
+    }
+
+    [TearDown]
+    public override void TearDown()
+    {
+      Thread.CurrentThread.CurrentCulture = originalCulture;
     }
 
     [Test]
@@ -105,12 +111,6 @@ namespace MySql.Data.EntityFramework.Tests
         var token = providerServices.GetProviderManifestToken(conn);
         Assert.NotNull(token);
       }
-    }
-
-    public void Dispose()
-    {
-      Thread.CurrentThread.CurrentCulture = originalCulture;
-      ExecSQL($"DROP DATABASE IF EXISTS `{Connection.Database}`");
     }
   }
 }

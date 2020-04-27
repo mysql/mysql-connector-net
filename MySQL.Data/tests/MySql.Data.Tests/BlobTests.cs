@@ -281,28 +281,28 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual((uint)image.Length, len);
       }
     }
+    
+    [Test]
+    [Ignore("Fix this")]
+    public void BlobBiggerThanMaxPacket()
+    {
+      ExecuteSQL("SET GLOBAL max_allowed_packet=" + 500 * 1024, true);
 
-    //TODO:  Fix this
-    //[Test]
-    //public void BlobBiggerThanMaxPacket()
-    //{      
-    //  executeAsRoot("SET GLOBAL max_allowed_packet=" + 500 * 1024);
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL("CREATE TABLE test (id INT(10), image BLOB)");
 
-    //  executeSQL("DROP TABLE IF EXISTS Test");
-    //  executeSQL("CREATE TABLE test (id INT(10), image BLOB)");
+      using (var c = GetConnection())
+      {
+        c.Open();
+        byte[] image = Utils.CreateBlob(1000000);
 
-    //  using (var c = GetConnection())
-    //  {
-    //    c.Open();
-    //    byte[] image = Utils.CreateBlob(1000000);
+        MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES(NULL, ?image)", c);
+        cmd.Parameters.AddWithValue("?image", image);
 
-    //    MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES(NULL, ?image)", c);
-    //    cmd.Parameters.AddWithValue("?image", image);
-
-    //    Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
-    //    Assert.AreEqual(ex.Message, "Packets larger than max_allowed_packet are not allowed.");
-    //  }
-    //}
+        Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
+        Assert.AreEqual(ex.Message, "Packets larger than max_allowed_packet are not allowed.");
+      }
+    }
 
     [Test]
     public void UpdateDataSet()

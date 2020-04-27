@@ -21,13 +21,13 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Tests;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;
 using System.Linq;
 using System.Transactions;
 using NUnit.Framework;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 
 namespace MySql.EntityFrameworkCore.Basic.Tests
 {

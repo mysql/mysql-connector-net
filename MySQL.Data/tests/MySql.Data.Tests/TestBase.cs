@@ -137,7 +137,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       using (var root = GetConnection(true))
       {
-        ExecuteSQL("SET GLOBAL max_allowed_packet=" + MaxPacketSize, root);
+        ExecuteSQL("SET GLOBAL max_allowed_packet=" + MaxPacketSize, root);  // Need to fix for BlobTest.BlobBiggerThanMaxPacket
         ExecuteSQL("SET GLOBAL SQL_MODE = STRICT_ALL_TABLES", root);
         ExecuteSQL("SET GLOBAL connect_timeout=600", root);
         ExecuteSQL("SET GLOBAL net_read_timeout=6000", root);

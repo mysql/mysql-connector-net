@@ -31,13 +31,10 @@ using System.Text;
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using System.Linq;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
-using MySql.Data.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
-using Microsoft.EntityFrameworkCore;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
 {
   public class EntityTestsFixtureClass : IDisposable
   {

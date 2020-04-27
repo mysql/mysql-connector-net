@@ -27,25 +27,28 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.EntityFrameworkCore.Storage.Internal;
-using MySql.Data.EntityFrameworkCore.Tests;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 using NUnit.Framework;
-using MySql.Data.Common;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests
 {
   public class MySQLTypeMapperTests
   {
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+      using (var context = new AllDataTypesContext())
+        context.Database.EnsureDeleted();
+      using (var context = new StringTypesContext())
+        context.Database.EnsureDeleted();
+    }
+
     [Test]
     public void InsertAllDataTypes()
     {
@@ -112,7 +115,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         Assert.AreEqual("BuildingName3", data.BuildingName3);
         Assert.AreEqual("BuildingName4", data.BuildingName4);
         Assert.AreEqual("BuildingName5", data.BuildingName5);
-        Assert.AreEqual("BuildingName6".PadRight(120,'\0'), UTF8Encoding.UTF8.GetString(data.BuildingName6));
+        Assert.AreEqual("BuildingName6".PadRight(120, '\0'), UTF8Encoding.UTF8.GetString(data.BuildingName6));
         Assert.AreEqual("BuildingName7", UTF8Encoding.UTF8.GetString(data.BuildingName7));
         Assert.AreEqual("BuildingName8", UTF8Encoding.UTF8.GetString(data.BuildingName8));
         Assert.AreEqual("BuildingName9", UTF8Encoding.UTF8.GetString(data.BuildingName9));
@@ -130,7 +133,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     [Test]
     public void ValidateStringLength()
     {
-      using(var context = new StringTypesContext())
+      using (var context = new StringTypesContext())
       {
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
@@ -148,7 +151,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         MySqlCommand cmd = new MySqlCommand(
           $"DESC StringType",
           conn);
-        using(MySqlDataReader reader = cmd.ExecuteReader())
+        using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           int counter = 0;
           while (reader.Read())

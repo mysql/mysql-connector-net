@@ -34,7 +34,7 @@ using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
 using MySql.Data.MySqlClient;
 using System;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
 {
   public class MyTestContext : DbContext
   {

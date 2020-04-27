@@ -29,29 +29,38 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.EntityFrameworkCore.Extensions;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 using System.Text.RegularExpressions;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests
 {
-  public class FluentAPITests : IDisposable
+  public class FluentAPITests
   {
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+      using (ConnStringOnConfiguringContext context = new ConnStringOnConfiguringContext())
+        context.Database.EnsureDeleted();
+      using (KeyConventionsContext context = new KeyConventionsContext())
+        context.Database.EnsureDeleted();
+      using (WorldContext context = new WorldContext())
+        context.Database.EnsureDeleted();
+    }
 
     [Test]
     public void EnsureRelationalPatterns()
     {
-      if (!TestUtils.IsAtLeast(5,7,0))
+      if (!TestUtils.IsAtLeast(5, 7, 0))
       {
         Assert.Ignore();
       }
-    
+
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
         .AddDbContext<ComputedColumnContext>();
@@ -160,8 +169,6 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
-
-
     [Test]
     public void CanUseToTable()
     {
@@ -265,7 +272,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         context.Employees.Add(e);
         context.SaveChanges();
         var result = context.Employees.Where(t => t.FirstName.Contains("jo")).ToList();
-        Assert.That(result,Has.One.Items);
+        Assert.That(result, Has.One.Items);
         context.Database.EnsureDeleted();
       }
     }
@@ -382,7 +389,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
     [Test]
     public void CharsetTest()
     {
-      using (CharsetTestContext context = new CharsetTestContext())
+      using (ConnStringOnConfiguringContext context = new ConnStringOnConfiguringContext())
       {
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
@@ -398,28 +405,28 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             string createTable = reader.GetString(1);
             createTable = Regex.Replace(createTable, @"\t|\n|\r", string.Empty);
             string txt = "CREATE TABLE `testcharsetda` (  `TestCharsetDAId` varbinary(255) NOT NULL,  PRIMARY KEY (`TestCharsetDAId`)) ENGINE=InnoDB DEFAULT CHARSET=ascii";
-            StringAssert.AreEqualIgnoringCase(txt,createTable);
+            StringAssert.AreEqualIgnoringCase(txt, createTable);
           }
 
           cmd.CommandText = "SHOW CREATE TABLE `TestCharsetFA`";
           using (MySqlDataReader reader = cmd.ExecuteReader())
           {
             reader.Read();
-            string createTable = reader.GetString(1); 
+            string createTable = reader.GetString(1);
             string txt = string.Empty;
             createTable = Regex.Replace(createTable, @"\t|\n|\r", string.Empty);
 
             //Adding "COLLATION" to the string validation at table creation (this happens since MySql 8.0.5 Server)
             if (createTable.Contains("COLLATE latin7_general_ci"))
             {
-               txt = "CREATE TABLE `testcharsetfa` (  `TestCharsetFAId` varchar(255) CHARACTER SET latin7 COLLATE latin7_general_ci NOT NULL,  PRIMARY KEY (`TestCharsetFAId`)) ENGINE=InnoDB DEFAULT CHARSET=utf16";
-               StringAssert.AreEqualIgnoringCase(txt, createTable);
+              txt = "CREATE TABLE `testcharsetfa` (  `TestCharsetFAId` varchar(255) CHARACTER SET latin7 COLLATE latin7_general_ci NOT NULL,  PRIMARY KEY (`TestCharsetFAId`)) ENGINE=InnoDB DEFAULT CHARSET=utf16";
+              StringAssert.AreEqualIgnoringCase(txt, createTable);
             }
             else
             {
-               txt = "CREATE TABLE `testcharsetfa` (  `TestCharsetFAId` varchar(255) CHARACTER SET latin7 NOT NULL,  PRIMARY KEY (`TestCharsetFAId`)) ENGINE=InnoDB DEFAULT CHARSET=utf16";
+              txt = "CREATE TABLE `testcharsetfa` (  `TestCharsetFAId` varchar(255) CHARACTER SET latin7 NOT NULL,  PRIMARY KEY (`TestCharsetFAId`)) ENGINE=InnoDB DEFAULT CHARSET=utf16";
               StringAssert.AreEqualIgnoringCase(txt, createTable);
-            } 
+            }
           }
 
           cmd.CommandText = "SHOW CREATE TABLE `TestCollationDA`";
@@ -442,17 +449,6 @@ namespace MySql.Data.EntityFrameworkCore.Tests
             Assert.AreEqual(txt, createTable);
           }
         }
-      }
-    }
-
-    public void Dispose()
-    {
-      // ensure database deletion
-      using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
-      {
-        cnn.Open();
-        var cmd = new MySqlCommand("DROP DATABASE IF EXISTS test", cnn);
-        cmd.ExecuteNonQuery();
       }
     }
   }

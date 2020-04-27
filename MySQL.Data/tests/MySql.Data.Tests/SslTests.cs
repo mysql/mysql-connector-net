@@ -28,6 +28,7 @@
 
 using System;
 using System.Data;
+using System.Reflection;
 using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -41,9 +42,9 @@ namespace MySql.Data.MySqlClient.Tests
     public SslTests()
     {
       string cPath = string.Empty;
-#if !NETCOREAPP3_1
-      cPath = @"..\MySql.Data\tests\MySql.Data.Tests\certificates\";
-#endif
+      cPath = Assembly.GetExecutingAssembly().Location.Replace(String.Format("{0}.dll",
+        Assembly.GetExecutingAssembly().GetName().Name), string.Empty);
+
       _sslCa = cPath + "ca.pem";
       _sslCert = cPath + "client-cert.pem";
       _sslKey = cPath + "client-key.pem";

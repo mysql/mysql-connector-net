@@ -32,13 +32,14 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
 using MySql.Data.EntityFrameworkCore.Diagnostics.Internal;
-using MySql.Data.EntityFrameworkCore.Migrations.Operations;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System.Diagnostics;
 using NUnit.Framework;
+using MySql.Data.EntityFrameworkCore;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests
 {
   public partial class ConnectionTests
   {
@@ -70,6 +71,15 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           new NamedConnectionStringResolver(options),
           new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()),
           new CurrentDbContext(new FakeDbContext()));
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+      using (var context = new SakilaLiteUpdateContext())
+      {
+        context.DropContext();
+      }
     }
 
     private class FakeDbContext : DbContext

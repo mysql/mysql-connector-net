@@ -26,13 +26,8 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
-using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using MySql.Data.EntityFrameworkCore.Tests;
 using MySql.Data.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -40,6 +35,7 @@ using System.Diagnostics;
 using MySql.Data.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 
 namespace MySql.EntityFrameworkCore.Design.Tests
 {

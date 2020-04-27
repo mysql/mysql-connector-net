@@ -122,6 +122,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <TargetPath>server-key.pem</TargetPath>
     </ContentWithTargetPath>
+    <None Update="certificates\ca_dummy.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="client.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
