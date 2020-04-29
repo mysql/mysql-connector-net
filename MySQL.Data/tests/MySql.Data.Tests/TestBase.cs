@@ -169,7 +169,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = GetConnection(true))
       {
         string dbName = String.Format("{0}{1}", BaseDBName, postfix);
-        ExecuteSQL(String.Format("CREATE DATABASE `{0}`", dbName), connection);
+        ExecuteSQL(String.Format("CREATE DATABASE IF NOT EXISTS `{0}`", dbName), connection);
         return dbName;
       }
     }

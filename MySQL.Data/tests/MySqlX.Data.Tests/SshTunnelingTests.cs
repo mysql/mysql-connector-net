@@ -62,9 +62,9 @@ namespace MySqlX.Data.Tests
     /// </summary>
     /// <remarks>MySQL Server and the SSH server are located in the same machine. The root user
     /// is configured to only allow local connections. Via SSH Tunneling the client can connect with
-    /// root user as if it were a local connection.</remarks>
-    //[Fact(Skip = "Needs SSH setup on PB2")]
+    /// root user as if it were a local connection.</remarks>    
     [Test]
+    [Ignore("Needs SSH setup on PB2")]
     public void ConnectAsLocalUser()
     {
       var builder = new MySqlXConnectionStringBuilder();

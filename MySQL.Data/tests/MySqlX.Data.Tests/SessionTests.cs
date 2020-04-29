@@ -497,8 +497,12 @@ namespace MySqlX.Data.Tests
         Assert.AreEqual(SessionState.Open, testSession.InternalSession.SessionState);
       }
 
+      // Create a session using the fail over functionality passing two diferrent Server address(one of them is fake host). Must succeed after 2000ms
+      var conn = $"server=143.24.20.36,127.0.0.1;user=test;password=test;port={XPort};connecttimeout=2000;";
+      TestConnectTimeoutSuccessTimeout(conn, 0, 3, "Fail over success");
+
       // Offline (fake)host using default value, 10000ms.
-      var conn = "server=143.24.20.36;user=test;password=test;port=33060;";
+      conn = "server=143.24.20.36;user=test;password=test;port=33060;";
       TestConnectTimeoutFailureTimeout(conn, 9, 20, "Offline host default value");
 
       // Offline (fake)host using 15000ms.
@@ -508,10 +512,6 @@ namespace MySqlX.Data.Tests
       // Offline (fake)host timeout disabled.
       conn = "server=143.24.20.36;user=test;password=test;port=33060;connecttimeout=0";
       TestConnectTimeoutFailureTimeout(conn, 10, 600, "Offline host timeout disabled");
-
-      // Create a session using the fail over functionality passing two diferrent Server address(one of them is fake host). Must succeed after 2000ms
-      conn = $"server=143.24.20.36,localhost;user=test;password=test;port={XPort};connecttimeout=2000;";
-      TestConnectTimeoutSuccessTimeout(conn, 2, 4, "Fail over success");
 
       // Both (fake)servers offline. Connection must time out after 20000ms
       conn = "server=143.24.20.36,143.24.20.35;user=test;password=test;port=33060;";
@@ -1046,7 +1046,7 @@ namespace MySqlX.Data.Tests
       builder.UserID = session.Settings.UserID; ;
       builder.Password = session.Settings.Password;
       builder.Port = session.Settings.Port;
-      builder.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe;
+      builder.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
       builder.Database = session.Settings.Database;
       builder.CharacterSet = session.Settings.CharacterSet;
       builder.SslMode = MySqlSslMode.Required;
