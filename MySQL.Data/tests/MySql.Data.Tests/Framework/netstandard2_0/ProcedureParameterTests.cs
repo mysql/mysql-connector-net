@@ -499,5 +499,81 @@ namespace MySql.Data.MySqlClient.Tests
       executeSQL(sql, true);
     }
 
+    /// <summary>
+    /// Bug #30444429 GETSCHEMATABLE RETURNS UNEXPECTED TABLE WHEN SPROC HAS OUTPUT PARAMETERS
+    /// </summary>
+    [Fact]
+    public void OutputParameterAndResultset()
+    {
+      using (var connection = new MySqlConnection(Connection.ConnectionString))
+      {
+        connection.Open();
+        //Stored procedure with Output parameter + ResultSet
+        executeSQL(@"CREATE PROCEDURE out_int(
+                     OUT value INT
+                    )
+                    BEGIN
+                     SELECT 1 INTO value;
+                     select value+1;
+                    END;");
+        using (var cmd = connection.CreateCommand())
+        {
+          cmd.CommandText = "out_int";
+          cmd.CommandType = CommandType.StoredProcedure;
+          MySqlParameter _outputParam = cmd.Parameters.Add(new MySqlParameter
+          {
+            ParameterName = "@value",
+            DbType = DbType.Int32,
+            Direction = ParameterDirection.Output,
+          });
+
+          using (var reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              var stdout1 = reader.GetInt32(0);
+              Assert.Equal(2, stdout1);
+              var schema = reader.GetSchemaTable();
+              Assert.NotNull(schema);
+              Assert.True(reader.HasRows); 
+              Assert.Equal(1, reader.FieldCount); 
+            }
+          }
+          var outparam1 = _outputParam.Value;
+          Assert.Equal(1, outparam1);
+        }
+
+
+        //Stored procedure with Output parameter Only
+        executeSQL(@"CREATE PROCEDURE out_int2(
+                     OUT value INT
+                    )
+                    BEGIN
+                     SELECT 1 INTO value;
+                    END;");
+        using (var cmd = connection.CreateCommand())
+        {
+          cmd.CommandText = "out_int2";
+          cmd.CommandType = CommandType.StoredProcedure;
+          MySqlParameter _outputParam2 = cmd.Parameters.Add(new MySqlParameter
+          {
+            ParameterName = "@value",
+            DbType = DbType.Int32,
+            Direction = ParameterDirection.Output,
+          });
+
+          using (var reader = cmd.ExecuteReader())
+          {
+              reader.Read();
+              var schema = reader.GetSchemaTable();
+              Assert.Null(schema);
+              Assert.False(reader.HasRows);
+              Assert.Equal(0, reader.FieldCount);
+          }
+          var outparam1 = _outputParam2.Value;
+          Assert.Equal(1, outparam1);
+        }
+      }
+    }
   }
 }

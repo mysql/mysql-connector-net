@@ -858,6 +858,14 @@ namespace MySql.Data.MySqlClient
               StoredProcedure sp = Statement as StoredProcedure;
               sp.ProcessOutputParameters(this);
               ResultSet.Close();
+              for (int i = 0; i < ResultSet.Fields.Length; i++)
+              {
+                if (ResultSet.Fields[i].ColumnName.StartsWith("@"+StoredProcedure.ParameterPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                  ResultSet = null;
+                  break;
+                }
+              }
               if (!sp.ServerProvidingOutputParameters) return false;
               // if we are using server side output parameters then we will get our ok packet
               // *after* the output parameters resultset
