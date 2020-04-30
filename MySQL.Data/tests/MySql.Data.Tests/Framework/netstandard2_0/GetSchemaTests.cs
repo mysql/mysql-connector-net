@@ -338,7 +338,7 @@ namespace MySql.Data.MySqlClient.Tests
       restrictions[1] = Connection.Database;
       DataTable dt = Connection.GetSchema("Indexes", restrictions);
       Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("test", dt.Rows[0]["TABLE_NAME"]);
+      StringAssert.AreEqualIgnoringCase("test", dt.Rows[0]["TABLE_NAME"].ToString());
       Assert.True((bool)dt.Rows[0]["PRIMARY"]);
       Assert.True((bool)dt.Rows[0]["UNIQUE"]);
 
@@ -348,7 +348,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt = Connection.GetSchema("Indexes", restrictions);
       Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("test", dt.Rows[0]["TABLE_NAME"]);
+      StringAssert.AreEqualIgnoringCase("test", dt.Rows[0]["TABLE_NAME"].ToString());
       Assert.AreEqual("key2", dt.Rows[0]["INDEX_NAME"]);
       Assert.False((bool)dt.Rows[0]["PRIMARY"]);
       Assert.True((bool)dt.Rows[0]["UNIQUE"]);
@@ -356,7 +356,7 @@ namespace MySql.Data.MySqlClient.Tests
       restrictions[3] = "key2";
       dt = Connection.GetSchema("Indexes", restrictions);
       Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("test", dt.Rows[0]["TABLE_NAME"]);
+      StringAssert.AreEqualIgnoringCase("test", dt.Rows[0]["TABLE_NAME"].ToString());
       Assert.AreEqual("key2", dt.Rows[0]["INDEX_NAME"]);
       Assert.False((bool)dt.Rows[0]["PRIMARY"]);
       Assert.True((bool)dt.Rows[0]["UNIQUE"]);
@@ -371,7 +371,7 @@ namespace MySql.Data.MySqlClient.Tests
       restrictions[2] = "te`s`t";
       dt = Connection.GetSchema("Indexes", restrictions);
       Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("te`s`t", dt.Rows[0]["TABLE_NAME"]);
+      StringAssert.AreEqualIgnoringCase("te`s`t", dt.Rows[0]["TABLE_NAME"].ToString());
       Assert.AreEqual("key2", dt.Rows[0]["INDEX_NAME"]);
       Assert.False((bool)dt.Rows[0]["PRIMARY"]);
       Assert.False((bool)dt.Rows[0]["UNIQUE"]);
@@ -386,7 +386,7 @@ namespace MySql.Data.MySqlClient.Tests
       restrictions[1] = Connection.Database;
       DataTable dt = Connection.GetSchema("IndexColumns", restrictions);
       Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("test", dt.Rows[0]["TABLE_NAME"]);
+      StringAssert.AreEqualIgnoringCase("test", dt.Rows[0]["TABLE_NAME"].ToString());
       Assert.AreEqual("id", dt.Rows[0]["COLUMN_NAME"]);
 
       ExecuteSQL("DROP TABLE IF EXISTS Test");
@@ -397,14 +397,14 @@ namespace MySql.Data.MySqlClient.Tests
       restrictions[4] = "id2";
       dt = Connection.GetSchema("IndexColumns", restrictions);
       Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("test", dt.Rows[0]["TABLE_NAME"]);
+      StringAssert.AreEqualIgnoringCase("test", dt.Rows[0]["TABLE_NAME"].ToString());
       Assert.AreEqual("id2", dt.Rows[0]["COLUMN_NAME"]);
       Assert.AreEqual(2, dt.Rows[0]["ORDINAL_POSITION"]);
 
       restrictions[3] = "key1";
       dt = Connection.GetSchema("IndexColumns", restrictions);
       Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("test", dt.Rows[0]["TABLE_NAME"]);
+      StringAssert.AreEqualIgnoringCase("test", dt.Rows[0]["TABLE_NAME"].ToString());
       Assert.AreEqual("id2", dt.Rows[0]["COLUMN_NAME"]);
       Assert.AreEqual(2, dt.Rows[0]["ORDINAL_POSITION"]);
 
@@ -413,7 +413,7 @@ namespace MySql.Data.MySqlClient.Tests
       restrictions[2] = "test";
       dt = Connection.GetSchema("IndexColumns", restrictions);
       Assert.AreEqual(2, dt.Rows.Count);
-      Assert.AreEqual("test", dt.Rows[0]["TABLE_NAME"]);
+      StringAssert.AreEqualIgnoringCase("test", dt.Rows[0]["TABLE_NAME"].ToString());
       Assert.AreEqual("id1", dt.Rows[0]["COLUMN_NAME"]);
       Assert.AreEqual(1, dt.Rows[0]["ORDINAL_POSITION"]);
       Assert.AreEqual("test", dt.Rows[1]["TABLE_NAME"]);
