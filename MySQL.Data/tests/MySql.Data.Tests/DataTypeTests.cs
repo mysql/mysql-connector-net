@@ -442,7 +442,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void BinaryTypes()
     {
-      ExecuteSQL(@"CREATE TABLE test (c1 VARCHAR(20), c2 VARBINARY(20),
+      ExecuteSQL(@"CREATE TABLE Test (c1 VARCHAR(20), c2 VARBINARY(20),
         c3 TEXT, c4 BLOB, c5 VARCHAR(20) CHARACTER SET BINARY)");
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", Connection);
@@ -522,7 +522,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void Binary16AsGuid()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (id INT, g BINARY(16), c VARBINARY(16), c1 BINARY(255))");
 
       string connStr = Connection.ConnectionString + ";old guids=true";
@@ -675,7 +674,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void StoringAndRetrievingGeometry()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
       MySqlCommand cmd = new MySqlCommand(Connection.driver.Version.isAtLeast(8, 0, 1) ?
@@ -700,7 +698,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void CanFetchGeometryAsBinary()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
       MySqlGeometry v = new MySqlGeometry(47.37, -122.21);
@@ -729,7 +726,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void CanSaveSridValueOnGeometry()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
       MySqlGeometry v = new MySqlGeometry(47.37, -122.21, 101);
@@ -756,7 +752,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void CanFetchGeometryAsText()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
       MySqlGeometry v = new MySqlGeometry(47.37, -122.21);
@@ -782,7 +777,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void CanUseReaderGetMySqlGeometry()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
       MySqlGeometry v = new MySqlGeometry(47.37, -122.21);
@@ -851,7 +845,6 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (Version.CompareTo(new Version(5,7)) == -1) return;
 
-      ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (ST_GeometryCollectionFromText(\"GEOMETRYCOLLECTION()\"))", Connection);
@@ -914,7 +907,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void StoringAndRetrievingDouble()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (v DOUBLE(25,20) NOT NULL)");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?v)", Connection);
@@ -982,7 +974,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void ReadBinary16AsBinary()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (id INT, guid BINARY(16))");
 
       string connStr = Connection.ConnectionString + ";old guids=true";
@@ -1017,7 +1008,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void ReadingUUIDAsGuid()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (id INT, guid CHAR(36))");
       ExecuteSQL("INSERT INTO Test VALUES (1, UUID())");
 
@@ -1033,7 +1023,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void NewGuidType()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (id INT, guid CHAR(36))");
 
       Guid g = Guid.NewGuid();
@@ -1053,7 +1042,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void OldGuidsWithNull()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (id INT, guid BINARY(16))");
 
       string connStr = Connection.ConnectionString + ";old guids=true";
@@ -1089,7 +1077,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void UTF8Char12AsGuid()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (id INT, name CHAR(12) CHARSET utf8)");
       ExecuteSQL("INSERT INTO Test VALUES (1, 'Name')");
 
@@ -1114,7 +1101,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void MySqlDecimal()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (id INT, dec1 DECIMAL(36,2))");
       ExecuteSQL("INSERT INTO Test VALUES (1, 9999999999999999999999999999999999.99)");
 
@@ -1140,8 +1126,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void DoubleMinValue()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS test");
-      ExecuteSQL("CREATE TABLE test(dbl double)");
+      ExecuteSQL("CREATE TABLE Test(dbl double)");
       MySqlCommand cmd = new MySqlCommand("insert into test values(?param1)");
       cmd.Connection = Connection;
       cmd.Parameters.Add(new MySqlParameter("?param1", MySqlDbType.Double));
@@ -1168,8 +1153,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void BigIntAutoInc()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS test");
-      ExecuteSQL("CREATE TABLE test(ID bigint unsigned AUTO_INCREMENT NOT NULL PRIMARY KEY, name VARCHAR(20))");
+      ExecuteSQL("CREATE TABLE Test(ID bigint unsigned AUTO_INCREMENT NOT NULL PRIMARY KEY, name VARCHAR(20))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, 'boo')", Connection);
       ulong val = UInt64.MaxValue;
@@ -1226,8 +1210,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       if (Version < new Version(5, 7)) return;
 
-      ExecuteSQL("DROP TABLE IF EXISTS test");
-      ExecuteSQL("CREATE TABLE test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
+      ExecuteSQL("CREATE TABLE Test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, '[1]')", Connection);
       cmd.Parameters.AddWithValue("@id", 1);
@@ -1252,8 +1235,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (Version < new Version(5, 7)) return;
 
-      ExecuteSQL("DROP TABLE IF EXISTS test");
-      ExecuteSQL("CREATE TABLE test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
+      ExecuteSQL("CREATE TABLE Test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, '[1]')", Connection);
       cmd.Parameters.AddWithValue("@id", 1);
@@ -1282,7 +1264,6 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (Version < new Version(5, 7)) return;
 
-      ExecuteSQL("DROP TABLE IF EXISTS test");
       ExecuteSQL("CREATE TABLE `test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('Berlin')", Connection);

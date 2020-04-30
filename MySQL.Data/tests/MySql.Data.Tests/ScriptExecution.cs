@@ -178,6 +178,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #46429 use DELIMITER command in MySql.Data.MySqlClient.MySqlScript  
     /// </summary>
     [Test]
+    [Ignore("Fix for non-windows OS")]
     public void ScriptWithDelimiterStatements()
     {
       StringBuilder sql = new StringBuilder();

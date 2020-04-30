@@ -43,7 +43,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     protected override void Cleanup()
     {
-      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.test", Connection.Database));
+      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
       ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
       ExecuteSQL("DROP FUNCTION IF EXISTS fnTest");
     }

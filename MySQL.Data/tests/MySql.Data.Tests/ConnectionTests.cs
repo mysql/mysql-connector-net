@@ -744,16 +744,17 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [TestCase("[]", null)]
-    [TestCase("Tlsv1.0", "TLSv1")]
+    [TestCase("Tlsv1", "TLSv1")]
     [TestCase("Tlsv1.0, Tlsv1.1", "TLSv1.1")]
     [TestCase("Tlsv1.0, Tlsv1.1, Tlsv1.2", "TLSv1.2")]
     //#if NET48 || NETCOREAPP3_1
     // [TestCase("Tlsv1.3", "Tlsv1.3", Skip = "Waiting for full support")]
     //[TestCase("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.3", Skip = "Waiting for full support")]
     //#else
+#if NET452
     [TestCase("Tlsv1.3", "")]
     [TestCase("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.2")]
-    //#endif
+#endif
     [Property("Category", "Security")]
     public void TlsVersionTest(string tlsVersion, string result)
     {

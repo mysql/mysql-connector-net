@@ -446,7 +446,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
             string createTable = reader.GetString(1);
             createTable = Regex.Replace(createTable, @"\t|\n|\r", string.Empty);
             string txt = "CREATE TABLE `testcollationfa` (  `TestCollationFAId` varchar(255) CHARACTER SET ucs2 COLLATE ucs2_bin NOT NULL,  PRIMARY KEY (`TestCollationFAId`)) ENGINE=InnoDB DEFAULT CHARSET=koi8u COLLATE=koi8u_bin";
-            Assert.AreEqual(txt, createTable);
+            StringAssert.AreEqualIgnoringCase(txt, createTable);
           }
         }
       }

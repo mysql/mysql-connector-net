@@ -819,6 +819,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #38411, using closed connection with data adapter.
     /// </summary>
+#if !NETCOREAPP3_1
     [Test]
     public void BatchingConnectionClosed()
     {
@@ -886,6 +887,8 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(0, dt.Rows.Count);
 
     }
+#endif
+
     /// <summary>
     /// Bug#54895
     /// ConcurrencyException when trying to use UpdateRowSource.FirstReturnedRecord 

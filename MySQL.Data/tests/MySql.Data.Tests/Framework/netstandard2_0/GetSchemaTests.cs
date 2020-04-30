@@ -332,7 +332,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void Indexes()
     {
-      ExecuteSQL("CREATE TABLE test (id int, PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE Test (id int, PRIMARY KEY(id))");
       string[] restrictions = new string[4];
       restrictions[2] = "test";
       restrictions[1] = Connection.Database;
@@ -342,8 +342,8 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True((bool)dt.Rows[0]["PRIMARY"]);
       Assert.True((bool)dt.Rows[0]["UNIQUE"]);
 
-      ExecuteSQL("DROP TABLE IF EXISTS test");
-      ExecuteSQL("CREATE TABLE test (id int, name varchar(50), " +
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL("CREATE TABLE Test (id int, name varchar(50), " +
         "UNIQUE KEY key2 (name))");
 
       dt = Connection.GetSchema("Indexes", restrictions);
@@ -364,8 +364,8 @@ namespace MySql.Data.MySqlClient.Tests
       /// <summary> 
       /// Bug #48101	MySqlConnection.GetSchema on "Indexes" throws when there's a table named "b`a`d" 
       /// </summary> 
-      ExecuteSQL("DROP TABLE IF EXISTS test");
-      ExecuteSQL(@"CREATE TABLE `te``s``t` (id int, name varchar(50), " +
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL(@"CREATE TABLE `Te``s``t` (id int, name varchar(50), " +
         "KEY key2 (name))");
 
       restrictions[2] = "te`s`t";
@@ -380,17 +380,17 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void IndexColumns()
     {
-      ExecuteSQL("CREATE TABLE test (id int, PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE Test (id int, PRIMARY KEY(id))");
       string[] restrictions = new string[5];
-      restrictions[2] = "test";
+      restrictions[2] = "Test";
       restrictions[1] = Connection.Database;
       DataTable dt = Connection.GetSchema("IndexColumns", restrictions);
       Assert.AreEqual(1, dt.Rows.Count);
       Assert.AreEqual("test", dt.Rows[0]["TABLE_NAME"]);
       Assert.AreEqual("id", dt.Rows[0]["COLUMN_NAME"]);
 
-      ExecuteSQL("DROP TABLE IF EXISTS test");
-      ExecuteSQL("CREATE TABLE test (id int, id1 int, id2 int, " +
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL("CREATE TABLE Test (id int, id1 int, id2 int, " +
         "INDEX key1 (id1, id2))");
       restrictions[2] = "test";
       restrictions[1] = Connection.Database;
@@ -421,8 +421,8 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(2, dt.Rows[1]["ORDINAL_POSITION"]);
 
       restrictions = new string[4];
-      ExecuteSQL("DROP TABLE IF EXISTS test");
-      ExecuteSQL("CREATE TABLE test (id int primary key, id1 int, KEY key1 (id1))");
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL("CREATE TABLE Test (id int primary key, id1 int, KEY key1 (id1))");
       restrictions[2] = "test";
       restrictions[1] = Connection.Database;
       restrictions[3] = "PRIMARY";

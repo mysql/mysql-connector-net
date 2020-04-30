@@ -102,7 +102,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
       string smallintWidth = TestUtils.Version >= new Version("8.0.0") ? string.Empty : "(11)";
 
       Assert.That(columns.Where(n => n.Name == "id").Select(a => a.Name), Has.Exactly(1).Matches<string>(name => name.Contains("id")));
-      Assert.That(columns.Where(n => n.Name == "id").Select(a => a.GetDataType()), Has.One.Items.EqualTo("int"));
+      Assert.That(columns.Where(n => n.Name == "id").Select(a => a.GetDataType()), Has.One.Items.EqualTo("int" + smallintWidth));
       Assert.That(columns.Where(n => n.Name == "id").Select(a => a.GetPrimaryKeyOrdinal(2)), Has.One.Items.EqualTo(2));
       Assert.False(columns.Where(n => n.Name == "id").Select(a => a.IsNullable).FirstOrDefault());
       Assert.That(columns.Where(n => n.Name == "id").Select(a => a.GetOrdinal(0)), Has.One.Items.EqualTo(0));
