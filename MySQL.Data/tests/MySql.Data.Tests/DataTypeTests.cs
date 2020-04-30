@@ -445,7 +445,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL(@"CREATE TABLE Test (c1 VARCHAR(20), c2 VARBINARY(20),
         c3 TEXT, c4 BLOB, c5 VARCHAR(20) CHARACTER SET BINARY)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", Connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (var reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -466,7 +466,7 @@ namespace MySql.Data.MySqlClient.Tests
           IF(COLUMN_DEFAULT IS NULL, NULL, 
           IF(ASCII(COLUMN_DEFAULT) = 1 OR COLUMN_DEFAULT = '1', 1, 0))
           AS TRUE_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS
-          WHERE TABLE_SCHEMA='test' AND TABLE_NAME='test'", Connection);
+          WHERE TABLE_SCHEMA='Test' AND TABLE_NAME='Test'", Connection);
       using (var reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -1127,7 +1127,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void DoubleMinValue()
     {
       ExecuteSQL("CREATE TABLE Test(dbl double)");
-      MySqlCommand cmd = new MySqlCommand("insert into test values(?param1)");
+      MySqlCommand cmd = new MySqlCommand("insert into Test values(?param1)");
       cmd.Connection = Connection;
       cmd.Parameters.Add(new MySqlParameter("?param1", MySqlDbType.Double));
       cmd.Parameters["?param1"].Value = Double.MinValue;
@@ -1135,7 +1135,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters["?param1"].Value = Double.MaxValue;
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("SELECT * FROM test", Connection);
+      cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
@@ -1155,13 +1155,13 @@ namespace MySql.Data.MySqlClient.Tests
     {
       ExecuteSQL("CREATE TABLE Test(ID bigint unsigned AUTO_INCREMENT NOT NULL PRIMARY KEY, name VARCHAR(20))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, 'boo')", Connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (@id, 'boo')", Connection);
       ulong val = UInt64.MaxValue;
       val -= 100;
       cmd.Parameters.AddWithValue("@id", val);
       cmd.ExecuteNonQuery();
 
-      cmd.CommandText = "INSERT INTO test (name) VALUES ('boo2')";
+      cmd.CommandText = "INSERT INTO Test (name) VALUES ('boo2')";
       cmd.ExecuteNonQuery();
     }
 
@@ -1212,16 +1212,16 @@ namespace MySql.Data.MySqlClient.Tests
 
       ExecuteSQL("CREATE TABLE Test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, '[1]')", Connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (@id, '[1]')", Connection);
       cmd.Parameters.AddWithValue("@id", 1);
       cmd.ExecuteNonQuery();
 
-      string command = @"INSERT INTO test VALUES (@id, '[""a"", {""b"": [true, false]}, [10, 20]]')";
+      string command = @"INSERT INTO Test VALUES (@id, '[""a"", {""b"": [true, false]}, [10, 20]]')";
       cmd = new MySqlCommand(command, Connection);
       cmd.Parameters.AddWithValue("@id", 2);
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("SELECT jsoncolumn from test where id = 2 ", Connection);
+      cmd = new MySqlCommand("SELECT jsoncolumn from Test where id = 2 ", Connection);
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -1235,17 +1235,17 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (Version < new Version(5, 7)) return;
 
-      ExecuteSQL("CREATE TABLE Test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
+      ExecuteSQL("CREATE TABLE Test(id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, '[1]')", Connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (@id, '[1]')", Connection);
       cmd.Parameters.AddWithValue("@id", 1);
       cmd.ExecuteNonQuery();
 
-      string command = @"UPDATE test set jsoncolumn = '[""a"", {""b"": [true, false]}, [10, 20]]' where id = 1";
+      string command = @"UPDATE Test set jsoncolumn = '[""a"", {""b"": [true, false]}, [10, 20]]' where id = 1";
       cmd = new MySqlCommand(command, Connection);
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("SELECT jsoncolumn from test where id = 1 ", Connection);
+      cmd = new MySqlCommand("SELECT jsoncolumn from Test where id = 1 ", Connection);
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
@@ -1264,26 +1264,26 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (Version < new Version(5, 7)) return;
 
-      ExecuteSQL("CREATE TABLE `test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
+      ExecuteSQL("CREATE TABLE `Test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('Berlin')", Connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (Name) VALUES ('Berlin')", Connection);
       cmd.ExecuteNonQuery();
-      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('London')", Connection);
+      cmd = new MySqlCommand("INSERT INTO Test (Name) VALUES ('London')", Connection);
       cmd.ExecuteNonQuery();
-      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('France')", Connection);
+      cmd = new MySqlCommand("INSERT INTO Test (Name) VALUES ('France')", Connection);
       cmd.ExecuteNonQuery();
-      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('United Kingdom')", Connection);
+      cmd = new MySqlCommand("INSERT INTO Test (Name) VALUES ('United Kingdom')", Connection);
       cmd.ExecuteNonQuery();
-      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('Italy')", Connection);
-      cmd.ExecuteNonQuery();
-
-      cmd = new MySqlCommand("ALTER TABLE test ADD COLUMN Name_ci char(35) CHARACTER SET utf8 AS (Name) STORED;", Connection);
+      cmd = new MySqlCommand("INSERT INTO Test (Name) VALUES ('Italy')", Connection);
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("ALTER TABLE test ADD INDEX (Name_ci);", Connection);
+      cmd = new MySqlCommand("ALTER TABLE Test ADD COLUMN Name_ci char(35) CHARACTER SET utf8 AS (Name) STORED;", Connection);
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("SELECT Name FROM test WHERE Name_ci='berlin'", Connection);
+      cmd = new MySqlCommand("ALTER TABLE Test ADD INDEX (Name_ci);", Connection);
+      cmd.ExecuteNonQuery();
+
+      cmd = new MySqlCommand("SELECT Name FROM Test WHERE Name_ci='berlin'", Connection);
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {

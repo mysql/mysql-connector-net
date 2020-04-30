@@ -170,13 +170,13 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void Columns()
     {
-      ExecuteSQL(@"CREATE TABLE test (col1 int, col2 decimal(20,5), 
+      ExecuteSQL(@"CREATE TABLE Test (col1 int, col2 decimal(20,5), 
         col3 varchar(50) character set utf8, col4 tinyint unsigned, 
         col5 varchar(20) default 'boo')");
 
       string[] restrictions = new string[4];
       restrictions[1] = Connection.Database;
-      restrictions[2] = "test";
+      restrictions[2] = "Test";
       DataTable dt = Connection.GetSchema("Columns", restrictions);
       Assert.AreEqual(5, dt.Rows.Count);
       Assert.AreEqual("Columns", dt.TableName);
@@ -248,13 +248,12 @@ namespace MySql.Data.MySqlClient.Tests
       if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) Assert.Ignore();
       if (Version < new Version(5, 7, 6)) Assert.Ignore();
 
-      ExecuteSQL("DROP TABLE IF EXISTS test");
       ExecuteSQL("CREATE TABLE `Test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
 
-      var cmd = new MySqlCommand("ALTER TABLE test ADD COLUMN Name_ci char(35) CHARACTER SET utf8 AS (Name) STORED;", Connection);
+      var cmd = new MySqlCommand("ALTER TABLE Test ADD COLUMN Name_ci char(35) CHARACTER SET utf8 AS (Name) STORED;", Connection);
       cmd.ExecuteNonQuery();
 
-      DataTable dt = Connection.GetSchema("Columns", new string[] { null, null, "test", null });
+      DataTable dt = Connection.GetSchema("Columns", new string[] { null, null, "Test", null });
       Assert.AreEqual(3, dt.Rows.Count);
       Assert.AreEqual("Columns", dt.TableName);
       if (Version.Major >= 5 && Version.Minor >= 7 && Version.Build >= 6)
@@ -272,10 +271,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void EnumAndSetColumns()
     {
-      ExecuteSQL("DROP TABLE IF EXISTS test");
-      ExecuteSQL("CREATE TABLE test (col1 set('A','B','C'), col2 enum('A','B','C'))");
+      ExecuteSQL("CREATE TABLE Test (col1 set('A','B','C'), col2 enum('A','B','C'))");
 
-      DataTable dt = Connection.GetSchema("Columns", new string[] { null, null, "test", null });
+      DataTable dt = Connection.GetSchema("Columns", new string[] { null, null, "Test", null });
       Assert.AreEqual(2, dt.Rows.Count);
       Assert.AreEqual("set", dt.Rows[0]["DATA_TYPE"]);
       Assert.AreEqual("enum", dt.Rows[1]["DATA_TYPE"]);
@@ -416,7 +414,7 @@ namespace MySql.Data.MySqlClient.Tests
       StringAssert.AreEqualIgnoringCase("test", dt.Rows[0]["TABLE_NAME"].ToString());
       Assert.AreEqual("id1", dt.Rows[0]["COLUMN_NAME"]);
       Assert.AreEqual(1, dt.Rows[0]["ORDINAL_POSITION"]);
-      Assert.AreEqual("test", dt.Rows[1]["TABLE_NAME"]);
+      StringAssert.AreEqualIgnoringCase("test", dt.Rows[0]["TABLE_NAME"].ToString());
       Assert.AreEqual("id2", dt.Rows[1]["COLUMN_NAME"]);
       Assert.AreEqual(2, dt.Rows[1]["ORDINAL_POSITION"]);
 
@@ -641,15 +639,13 @@ namespace MySql.Data.MySqlClient.Tests
     {
       string connString = Connection.ConnectionString;
 
-      ExecuteSQL("DROP TABLE IF EXISTS test");
-
       using (MySqlConnection conn = new MySqlConnection(connString + ";oldguids=True;"))
       {
         conn.Open();
-        MySqlCommand cmd = new MySqlCommand("CREATE TABLE test(char36 char(36) CHARSET utf8mb4, binary16 binary(16), char37 char(37), `tinyblob` tinyblob, `blob` blob);", conn);
+        MySqlCommand cmd = new MySqlCommand("CREATE TABLE Test(char36 char(36) CHARSET utf8mb4, binary16 binary(16), char37 char(37), `tinyblob` tinyblob, `blob` blob);", conn);
         cmd.ExecuteNonQuery();
 
-        using (MySqlDataReader reader = ExecuteReader("SELECT * FROM test;"))
+        using (MySqlDataReader reader = ExecuteReader("SELECT * FROM Test;"))
         {
           DataTable schemaTable = reader.GetSchemaTable();
 
