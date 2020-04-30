@@ -332,7 +332,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       ExecuteSQL("CREATE TABLE Test (id int, PRIMARY KEY(id))");
       string[] restrictions = new string[4];
-      restrictions[2] = "test";
+      restrictions[2] = "Test";
       restrictions[1] = Connection.Database;
       DataTable dt = Connection.GetSchema("Indexes", restrictions);
       Assert.AreEqual(1, dt.Rows.Count);
@@ -366,7 +366,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL(@"CREATE TABLE `Te``s``t` (id int, name varchar(50), " +
         "KEY key2 (name))");
 
-      restrictions[2] = "te`s`t";
+      restrictions[2] = "Te`s`t";
       dt = Connection.GetSchema("Indexes", restrictions);
       Assert.AreEqual(1, dt.Rows.Count);
       StringAssert.AreEqualIgnoringCase("te`s`t", dt.Rows[0]["TABLE_NAME"].ToString());
@@ -390,7 +390,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (id int, id1 int, id2 int, " +
         "INDEX key1 (id1, id2))");
-      restrictions[2] = "test";
+      restrictions[2] = "Test";
       restrictions[1] = Connection.Database;
       restrictions[4] = "id2";
       dt = Connection.GetSchema("IndexColumns", restrictions);
@@ -408,7 +408,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       restrictions = new string[3];
       restrictions[1] = Connection.Database;
-      restrictions[2] = "test";
+      restrictions[2] = "Test";
       dt = Connection.GetSchema("IndexColumns", restrictions);
       Assert.AreEqual(2, dt.Rows.Count);
       StringAssert.AreEqualIgnoringCase("test", dt.Rows[0]["TABLE_NAME"].ToString());
@@ -421,7 +421,7 @@ namespace MySql.Data.MySqlClient.Tests
       restrictions = new string[4];
       ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE Test (id int primary key, id1 int, KEY key1 (id1))");
-      restrictions[2] = "test";
+      restrictions[2] = "Test";
       restrictions[1] = Connection.Database;
       restrictions[3] = "PRIMARY";
       dt = Connection.GetSchema("IndexColumns", restrictions);
