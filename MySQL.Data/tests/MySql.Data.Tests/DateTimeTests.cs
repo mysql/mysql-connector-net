@@ -288,10 +288,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #28393733 TIME(N) COLUMN LOSES MICROSECONDS WITH PREPARED COMMAND
     /// </summary>
-    [Fact]
-    public void Bug28393733()
+    [Test]
+    public void TimeColumnWithMicrosecondsOnPrepare()
     {
-      executeSQL(@"DROP TABLE IF EXISTS test_time;
+      ExecuteSQL(@"DROP TABLE IF EXISTS test_time;
               CREATE TABLE test_time(data TIME(3) NOT NULL);");
       TimeSpan time = new TimeSpan(1, 2, 3, 4, 567);
       using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";IgnorePrepare=False;"))

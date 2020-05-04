@@ -497,14 +497,14 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #30444429 GETSCHEMATABLE RETURNS UNEXPECTED TABLE WHEN SPROC HAS OUTPUT PARAMETERS
     /// </summary>
-    [Fact]
+    [Test]
     public void OutputParameterAndResultset()
     {
       using (var connection = new MySqlConnection(Connection.ConnectionString))
       {
         connection.Open();
         //Stored procedure with Output parameter + ResultSet
-        executeSQL(@"CREATE PROCEDURE out_int(
+        ExecuteSQL(@"CREATE PROCEDURE out_int(
                      OUT value INT
                     )
                     BEGIN
@@ -527,20 +527,20 @@ namespace MySql.Data.MySqlClient.Tests
             while (reader.Read())
             {
               var stdout1 = reader.GetInt32(0);
-              Assert.Equal(2, stdout1);
+              Assert.AreEqual(2, stdout1);
               var schema = reader.GetSchemaTable();
               Assert.NotNull(schema);
-              Assert.True(reader.HasRows); 
-              Assert.Equal(1, reader.FieldCount); 
+              Assert.True(reader.HasRows);
+              Assert.AreEqual(1, reader.FieldCount);
             }
           }
           var outparam1 = _outputParam.Value;
-          Assert.Equal(1, outparam1);
+          Assert.AreEqual(1, outparam1);
         }
 
 
         //Stored procedure with Output parameter Only
-        executeSQL(@"CREATE PROCEDURE out_int2(
+        ExecuteSQL(@"CREATE PROCEDURE out_int2(
                      OUT value INT
                     )
                     BEGIN
@@ -559,14 +559,14 @@ namespace MySql.Data.MySqlClient.Tests
 
           using (var reader = cmd.ExecuteReader())
           {
-              reader.Read();
-              var schema = reader.GetSchemaTable();
-              Assert.Null(schema);
-              Assert.False(reader.HasRows);
-              Assert.Equal(0, reader.FieldCount);
+            reader.Read();
+            var schema = reader.GetSchemaTable();
+            Assert.Null(schema);
+            Assert.False(reader.HasRows);
+            Assert.AreEqual(0, reader.FieldCount);
           }
           var outparam1 = _outputParam2.Value;
-          Assert.Equal(1, outparam1);
+          Assert.AreEqual(1, outparam1);
         }
       }
     }
