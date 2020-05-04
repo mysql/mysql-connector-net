@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,10 +31,7 @@ using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {
@@ -42,7 +39,8 @@ namespace MySqlX.Data.Tests.RelationalTests
   {
     Table table;
 
-    public TableUpdateTests()
+    [SetUp]
+    public void SetUp ()
     {
       ExecuteSQL("CREATE TABLE test.test(id INT, name VARCHAR(40), age INT)");
 
@@ -54,7 +52,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         insertStatement.Values(i, i, i);
       }
       ExecuteInsertStatement(insertStatement);
-      Assert.Equal(rowsToInsert, CountRows());
+      Assert.AreEqual(rowsToInsert, CountRows());
     }
 
     private int CountRows()
@@ -87,24 +85,24 @@ namespace MySqlX.Data.Tests.RelationalTests
       {
         foreach (var set in statement.updates)
         {
-          Assert.Equal(set.Value.ToString(), row.GetString(set.Path));
+          Assert.AreEqual(set.Value.ToString(), row.GetString(set.Path));
         }
       }
     }
 
-    [Fact]
+    [Test]
     public void EmptyUpdateTest()
     {
       Assert.Throws<MySqlException>(() => ExecuteUpdateStatement(table.Update()));
     }
 
-    [Fact]
+    [Test]
     public void UpdateConditionTest()
     {
       ValidateUpdate(table.Update().Where("id = 5").Set("name", "other"));
     }
 
-    [Fact]
+    [Test]
     public void UpdateMultiSet()
     {
       ValidateUpdate(table.Update().Set("name", "other")
@@ -113,25 +111,25 @@ namespace MySqlX.Data.Tests.RelationalTests
         .Where("id = 3"));
     }
 
-    [Fact]
+    [Test]
     public void UpdateMultiRows()
     {
       ValidateUpdate(table.Update().Set("age", 85).Where("id % 2 = 0"));
     }
 
-    [Fact]
+    [Test]
     public void UpdateAllRows()
     {
       ValidateUpdate(table.Update().Set("age", 32).Set("name", "jonh"));
     }
 
-    [Fact]
+    [Test]
     public void UpdateOrderbyAndLimit()
     {
       ValidateUpdate(table.Update().Set("age", 15).OrderBy("id DES").Limit(5));
     }
 
-    [Fact]
+    [Test]
     public void UpdateBind()
     {
       var stmt = table.Update().Set("age", 55).Where("id = :id or id = :id or id = :id2");
@@ -139,21 +137,21 @@ namespace MySqlX.Data.Tests.RelationalTests
       ValidateUpdate(stmt.Bind("id", 5).Bind("id2", 8));
     }
 
-    [Fact]
+    [Test]
     public void UpdateWithInOperator()
     {
       Table table = testSchema.GetTable("test");
-      Assert.Equal(10, CountRows());
+      Assert.AreEqual(10, CountRows());
 
-      Assert.Equal<ulong>(2, ExecuteUpdateStatement(table.Update().Where("id IN (1,2)").Set("id", 0)).AffectedItemsCount);
-      Assert.Equal(2, ExecuteSelectStatement(table.Select().Where("id = 0")).FetchAll().Count);
+      Assert.AreEqual(2, ExecuteUpdateStatement(table.Update().Where("id IN (1,2)").Set("id", 0)).AffectedItemsCount);
+      Assert.AreEqual(2, ExecuteSelectStatement(table.Select().Where("id = 0")).FetchAll().Count);
 
-      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("a IN [3]")).AffectedItemsCount);
-      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("3 IN a")).AffectedItemsCount);
-      Assert.Throws<MySqlException>(() => ExecuteUpdateStatement(table.Update().Where("age IN [3]").Set("id", 0)).AffectedItemsCount);
+      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("a IN [3]")));
+      Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("3 IN a")));
+      Assert.Throws<MySqlException>(() => ExecuteUpdateStatement(table.Update().Where("age IN [3]").Set("id", 0)));
 
-      Assert.Equal<ulong>(1, ExecuteUpdateStatement(table.Update().Where("age IN (3)").Set("id", 0)).AffectedItemsCount);
-      Assert.Equal(3, ExecuteSelectStatement(table.Select().Where("id = 0")).FetchAll().Count);
+      Assert.AreEqual(1, ExecuteUpdateStatement(table.Update().Where("age IN (3)").Set("id", 0)).AffectedItemsCount);
+      Assert.AreEqual(3, ExecuteSelectStatement(table.Select().Where("id = 0")).FetchAll().Count);
     }
   }
 }

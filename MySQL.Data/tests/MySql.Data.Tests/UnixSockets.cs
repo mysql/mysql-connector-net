@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,38 +27,30 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.Common;
-using MySql.Data.MySqlClient;
+using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
-using Xunit;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class UnixSockets : TestBase
   {
-    readonly string unixConnectionString;
-
-    public UnixSockets(TestFixture fixture) : base(fixture)
-    {
-      unixConnectionString = $"server={Fixture.UnixSocket};user={Fixture.Settings.UserID};password={Fixture.Settings.Password};protocol=unix;";
-    }
-
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void ConnectionTest()
     {
+      string unixConnectionString = $"server={UnixSocket};user={Settings.UserID};password={Settings.Password};protocol=unix;";
+
       if (Platform.IsWindows())
       {
         Console.Error.WriteLine($"{nameof(ConnectionTest)} ignored because it's a Windows system.");
-        return;
+        Assert.Ignore();
       }
 
       using (MySqlConnection conn = new MySqlConnection(unixConnectionString))
       {
         conn.Open();
-        Assert.Equal(ConnectionState.Open, conn.State);
+        Assert.AreEqual(ConnectionState.Open, conn.State);
       }
     }
   }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,34 +30,35 @@ using System;
 using System.Data;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class CmdTests : TestBase
   {
-    public CmdTests(TestFixture fixture) : base(fixture)
+    protected override void Cleanup()
     {
+      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
     }
 
     /// <summary>
     /// Tests for MySql bug #64633 - System.InvalidCastException when executing a stored function.
     /// </summary>
-    [Fact]
+    [Test]
     public void InvalidCast()
     {
-      executeSQL(String.Format("CREATE FUNCTION `{0}`.`MyTwice`( val int ) RETURNS INT BEGIN return val * 2; END;", Connection.Database), true);
-      executeSQL(String.Format("CREATE PROCEDURE `{0}`.`spMyTwice`( out result int, val int ) BEGIN set result = val * 2; END;", Connection.Database), true);
-      string user = Fixture.CreateUser("1", "123");
-      executeSQL(String.Format("GRANT EXECUTE ON FUNCTION `{0}`.`MyTwice` TO '{1}'@'localhost';", Connection.Database, user), true);
-      executeSQL(String.Format("GRANT EXECUTE ON PROCEDURE `{0}`.`spMyTwice` TO '{1}'@'localhost'", Connection.Database, user), true);
+      ExecuteSQL(String.Format("CREATE FUNCTION `{0}`.`MyTwice`( val int ) RETURNS INT BEGIN return val * 2; END;", Connection.Database), true);
+      ExecuteSQL(String.Format("CREATE PROCEDURE `{0}`.`spMyTwice`( out result int, val int ) BEGIN set result = val * 2; END;", Connection.Database), true);
+      string user = CreateUser("1", "123");
+      ExecuteSQL(String.Format("GRANT EXECUTE ON FUNCTION `{0}`.`MyTwice` TO '{1}'@'localhost';", Connection.Database, user), true);
+      ExecuteSQL(String.Format("GRANT EXECUTE ON PROCEDURE `{0}`.`spMyTwice` TO '{1}'@'localhost'", Connection.Database, user), true);
 
       if (Connection.driver.Version.isAtLeast(8, 0, 1))
-        executeSQL(string.Format("GRANT SELECT ON TABLE mysql.db TO '{0}'@'localhost'", user), true);
+        ExecuteSQL(string.Format("GRANT SELECT ON TABLE mysql.db TO '{0}'@'localhost'", user), true);
       else
-        executeSQL(string.Format("GRANT SELECT ON TABLE mysql.proc TO '{0}'@'localhost'", user), true);
+        ExecuteSQL(string.Format("GRANT SELECT ON TABLE mysql.proc TO '{0}'@'localhost'", user), true);
 
-      executeSQL("FLUSH PRIVILEGES", true);
+      ExecuteSQL("FLUSH PRIVILEGES", true);
 
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.UserID = user;
@@ -76,7 +77,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters[1].Direction = ParameterDirection.ReturnValue;
         cmd.Parameters[0].Value = 20;
         cmd.ExecuteNonQuery();
-        Assert.Equal(40, cmd.Parameters[1].Value);
+        Assert.AreEqual(40, cmd.Parameters[1].Value);
 
         cmd.CommandText = "spMyTwice";
         cmd.CommandType = CommandType.StoredProcedure;
@@ -86,14 +87,14 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters[0].Direction = ParameterDirection.Output;
         cmd.Parameters[1].Value = 20;
         cmd.ExecuteNonQuery();
-        Assert.Equal(40, cmd.Parameters[0].Value);
+        Assert.AreEqual(40, cmd.Parameters[0].Value);
       }
     }
 
-    [Fact]
+    [Test]
     public void InsertTest()
     {
-      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
+      ExecuteSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
       // do the insert
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES(10,'Test')", Connection);
       int cnt = cmd.ExecuteNonQuery();
@@ -118,26 +119,26 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(name == "Test2", "Insert with parameters result");
     }
 
-    [Fact]
+    [Test]
     public void UpdateTest()
     {
-      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
-      executeSQL("INSERT INTO Test (id,name) VALUES(10, 'Test')");
-      executeSQL("INSERT INTO Test (id,name) VALUES(11, 'Test2')");
+      ExecuteSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
+      ExecuteSQL("INSERT INTO Test (id,name) VALUES(10, 'Test')");
+      ExecuteSQL("INSERT INTO Test (id,name) VALUES(11, 'Test2')");
 
       // do the update
       MySqlCommand cmd = new MySqlCommand("UPDATE Test SET name='Test3' WHERE id=10 OR id=11", Connection);
       int cnt = cmd.ExecuteNonQuery();
-      Assert.Equal(2, cnt);
+      Assert.AreEqual(2, cnt);
 
       // make sure we get the right value back out
       cmd.CommandText = "SELECT name FROM Test WHERE id=10";
       string name = (string)cmd.ExecuteScalar();
-      Assert.Equal("Test3", name);
+      Assert.AreEqual("Test3", name);
 
       cmd.CommandText = "SELECT name FROM Test WHERE id=11";
       name = (string)cmd.ExecuteScalar();
-      Assert.Equal("Test3", name);
+      Assert.AreEqual("Test3", name);
 
       // now do the update with parameters
       cmd.CommandText = "UPDATE Test SET name=?name WHERE id=?id";
@@ -150,31 +151,31 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Clear();
       cmd.CommandText = "SELECT name FROM Test WHERE id=11";
       name = (string)cmd.ExecuteScalar();
-      Assert.Equal("Test5", name);
+      Assert.AreEqual("Test5", name);
     }
 
-    [Fact]
+    [Test]
     public void DeleteTest()
     {
-      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
-      executeSQL("INSERT INTO Test (id, name) VALUES(1, 'Test')");
-      executeSQL("INSERT INTO Test (id, name) VALUES(2, 'Test2')");
+      ExecuteSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
+      ExecuteSQL("INSERT INTO Test (id, name) VALUES(1, 'Test')");
+      ExecuteSQL("INSERT INTO Test (id, name) VALUES(2, 'Test2')");
 
       // make sure we get the right value back out
       MySqlCommand cmd = new MySqlCommand("DELETE FROM Test WHERE id=1 or id=2", Connection);
       int delcnt = cmd.ExecuteNonQuery();
-      Assert.Equal(2, delcnt);
+      Assert.AreEqual(2, delcnt);
 
       // find out how many rows we have now
       cmd.CommandText = "SELECT COUNT(*) FROM Test";
       object after_cnt = cmd.ExecuteScalar();
-      Assert.Equal(0, Convert.ToInt32(after_cnt));
+      Assert.AreEqual(0, Convert.ToInt32(after_cnt));
     }
 
-    [Fact]
+    [Test]
     public void CtorTest()
     {
-      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
+      ExecuteSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
       MySqlTransaction txn = Connection.BeginTransaction();
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
 
@@ -184,7 +185,7 @@ namespace MySql.Data.MySqlClient.Tests
       txn.Rollback();
     }
 
-    [Fact]
+    [Test]
     public void TableWithOVer100Columns()
     {
       string sql = "create table IF NOT EXISTS zvan (id int(8) primary key " +
@@ -234,7 +235,8 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #12245  	using Prepare() on an insert command causes null parameters to convert to "0"
     /// </summary>
-    [Fact(Skip = "Fix This")]
+    [Test]
+    [Ignore("Fix This")]
     public virtual void InsertingPreparedNulls()
     {
       //executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
@@ -249,17 +251,17 @@ namespace MySql.Data.MySqlClient.Tests
       //using (MySqlDataReader reader = cmd.ExecuteReader())
       //{
       //  Assert.True(reader.Read());
-      //  Assert.Equal(DBNull.Value, reader[1]);
+      //  Assert.AreEqual(DBNull.Value, reader[1]);
       //}
     }
 
     /// <summary>
     /// MySQL Bugs: #12163: Insert using prepared statement causes double insert
     /// </summary>
-    [Fact]
+    [Test]
     public void PreparedInsertUsingReader()
     {
-      executeSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
+      ExecuteSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, 'Test')", Connection);
       Assert.False(cmd.IsPrepared);
       cmd.Prepare();
@@ -280,7 +282,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #7248 There is already an open DataReader associated with this Connection which must 
     /// </summary>
-    //[Fact]
+    //[Test]
     //public void GenWarnings()
     //{
     //  executeSQL("CREATE TABLE Test (id INT, dt DATETIME)");
@@ -297,11 +299,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #11991 ExecuteScalar 
     /// </summary>
-    [Fact]
+    [Test]
     public void CloseReaderAfterFailedConvert()
     {
-      executeSQL("CREATE TABLE Test (dt DATETIME)");
-      executeSQL("INSERT INTO Test VALUES ('00-00-0000 00:00:00')");
+      ExecuteSQL("CREATE TABLE Test (dt DATETIME)");
+      ExecuteSQL("INSERT INTO Test VALUES ('00-00-0000 00:00:00')");
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       try
@@ -318,7 +320,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #25443 ExecuteScalar() hangs when more than one bad result 
     /// </summary>
-    [Fact]
+    [Test]
     public void ExecuteWithOneBadQuery()
     {
       MySqlCommand command = new MySqlCommand("SELECT 1; SELECT * FROM foo", Connection);
@@ -343,43 +345,43 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #27958 Cannot use Data Source Configuration Wizard on large databases 
     /// </summary>
-    [Fact]
+    [Test]
     public void DefaultCommandTimeout()
     {
       MySqlConnection c = new MySqlConnection("server=localhost");
       MySqlCommand cmd = new MySqlCommand("", c);
-      Assert.Equal(30, cmd.CommandTimeout);
+      Assert.AreEqual(30, cmd.CommandTimeout);
 
       c = new MySqlConnection("server=localhost;default command timeout=47");
       cmd = new MySqlCommand("", c);
-      Assert.Equal(47, cmd.CommandTimeout);
+      Assert.AreEqual(47, cmd.CommandTimeout);
 
       cmd = new MySqlCommand("");
-      Assert.Equal(30, cmd.CommandTimeout);
+      Assert.AreEqual(30, cmd.CommandTimeout);
 
       cmd.CommandTimeout = 66;
       cmd.Connection = c;
-      Assert.Equal(66, cmd.CommandTimeout);
+      Assert.AreEqual(66, cmd.CommandTimeout);
       cmd.CommandTimeout = 0;
-      Assert.Equal(0, cmd.CommandTimeout);
+      Assert.AreEqual(0, cmd.CommandTimeout);
 
       c = new MySqlConnection("server=localhost;default command timeout=0");
       cmd = new MySqlCommand("", c);
-      Assert.Equal(0, cmd.CommandTimeout);
+      Assert.AreEqual(0, cmd.CommandTimeout);
 
       // Defaults to Int32.MaxValue/1000 when provided value is larger. 
       c = new MySqlConnection(Connection.ConnectionString);
       cmd = new MySqlCommand("", c);
       c.Open();
       cmd.CommandTimeout = Int32.MaxValue;
-      Assert.Equal(Int32.MaxValue / 1000, cmd.CommandTimeout);
+      Assert.AreEqual(Int32.MaxValue / 1000, cmd.CommandTimeout);
       c.Close();
     }
 
     /// <summary>
     /// Bug #38276 Short circuit evaluation error in MySqlCommand.CheckState() 
     /// </summary>
-    [Fact]
+    [Test]
     public void SetNullConnection()
     {
       MySqlCommand command = new MySqlCommand();
@@ -397,16 +399,16 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #44194	ExecuteNonQuery for update commands does not match actual rows updated
     /// </summary>
-    [Fact]
+    [Test]
     public void UseAffectedRows()
     {
-      executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
-      executeSQL("INSERT INTO Test VALUES (1, 'A')");
-      executeSQL("INSERT INTO Test VALUES (2, 'B')");
-      executeSQL("INSERT INTO Test VALUES (3, 'C')");
+      ExecuteSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 'A')");
+      ExecuteSQL("INSERT INTO Test VALUES (2, 'B')");
+      ExecuteSQL("INSERT INTO Test VALUES (3, 'C')");
 
       MySqlCommand cmd = new MySqlCommand("UPDATE Test SET name='C' WHERE id=3", Connection);
-      Assert.Equal(1, cmd.ExecuteNonQuery());
+      Assert.AreEqual(1, cmd.ExecuteNonQuery());
 
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.UseAffectedRows = true;
@@ -414,14 +416,14 @@ namespace MySql.Data.MySqlClient.Tests
       {
         c.Open();
         cmd.Connection = c;
-        Assert.Equal(0, cmd.ExecuteNonQuery());
+        Assert.AreEqual(0, cmd.ExecuteNonQuery());
       }
     }
 
     /// <summary>
     /// Bug #45502 error if "Allow Batch=False" 
     /// </summary>
-    [Fact]
+    [Test]
     public void DontAllowBatching()
     {
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
@@ -435,30 +437,30 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void TableCommandType()
     {
-      executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
-      executeSQL("INSERT INTO Test VALUES (1, 'A')");
-      executeSQL("CREATE TABLE Test1 (id INT, name VARCHAR(20))");
-      executeSQL("INSERT INTO Test1 VALUES (2, 'B')");
+      ExecuteSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 'A')");
+      ExecuteSQL("CREATE TABLE Test1 (id INT, name VARCHAR(20))");
+      ExecuteSQL("INSERT INTO Test1 VALUES (2, 'B')");
 
       MySqlCommand cmd = new MySqlCommand("Test,Test1", Connection);
       cmd.CommandType = CommandType.TableDirect;
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.Equal(1, reader.GetInt32(0));
-        Assert.Equal("A", reader.GetString(1));
-        Assert.Equal(2, reader.GetInt32(2));
-        Assert.Equal("B", reader.GetString(3));
+        Assert.AreEqual(1, reader.GetInt32(0));
+        Assert.AreEqual("A", reader.GetString(1));
+        Assert.AreEqual(2, reader.GetInt32(2));
+        Assert.AreEqual("B", reader.GetString(3));
       }
     }
 
     /// <summary>
     /// Bug #57501	MySql Connector/NET 6.3.5.0 fails to read from DataReader
     /// </summary>
-    [Fact]
+    [Test]
     public void HelperTest()
     {
       string connStr = Connection.ConnectionString;
@@ -473,7 +475,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #58652	ExecuteReader throws NullReferenceException when using CommandBehavior.Close
     /// </summary>
-    [Fact]
+    [Test]
     public void SyntaxErrorWithCloseConnection()
     {
       MySqlConnection c = new MySqlConnection(Connection.ConnectionString);
@@ -481,11 +483,8 @@ namespace MySql.Data.MySqlClient.Tests
       {
         c.Open();
         MySqlCommand cmd = new MySqlCommand("SELE 1", c);
-        var exception = Record.Exception(() => cmd.ExecuteReader(CommandBehavior.CloseConnection));
-        Assert.NotNull(exception);
-        Assert.IsType<MySqlException>(exception);
-        MySqlException ex = exception as MySqlException;
-        Assert.Equal("You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SELE 1' at line 1", ex.Message);
+        var ex = Assert.Throws<MySqlException>(() => cmd.ExecuteReader(CommandBehavior.CloseConnection));
+        Assert.AreEqual("You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SELE 1' at line 1", ex.Message);
         Assert.True(c.State == ConnectionState.Closed);
       }
     }
@@ -493,14 +492,14 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #59537	Different behavior from console and
     /// </summary>
-    [Fact]
+    [Test]
     public void EmptyOrJustSemiCommand()
     {
       MySqlCommand cmd = new MySqlCommand("", Connection);
       cmd.CommandText = ";";
       MySqlException ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
       // Error: 1065  Message: Query was empty
-      Assert.Equal(1065, ex.Number);
+      Assert.AreEqual(1065, ex.Number);
     }
 
     /// <summary>
@@ -508,7 +507,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// If MySqlCommand.CommandText equal to null, then MySqlCommand.ExecuteReader() 
     /// throw NullReferenceException instead of InvalidOperationException.
     /// </summary>
-    [Fact]
+    [Test]
     public void CommandTextIsNull()
     {
       MySqlCommand cmd = new MySqlCommand(null, Connection);
@@ -520,7 +519,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// Tests fix for http://bugs.mysql.com/bug.php?id=65452 / http://clustra.no.oracle.com/orabugs/14171960 
     /// (MySqlCommand.LastInsertedId can only have 32 bit values but has type long).
     /// </summary>
-    [Fact]
+    [Test]
     public void LongLastInsertId()
     {
       string sql = @"CREATE TABLE longids (id BIGINT NOT NULL AUTO_INCREMENT, PRIMARY KEY (id));
@@ -532,35 +531,35 @@ namespace MySql.Data.MySqlClient.Tests
       {
         cmd.CommandText = "INSERT INTO longids VALUES ();";
         cmd.ExecuteNonQuery();
-        Assert.Equal(seed++, cmd.LastInsertedId);
+        Assert.AreEqual(seed++, cmd.LastInsertedId);
       }
     }
 
     #region Async
 
-    [Fact]
+    [Test]
     public async Task ExecuteNonQueryAsync()
     {
-      executeSQL("CREATE TABLE CMDNonQueryAsyncTest (id int)");
-      executeSQL("CREATE PROCEDURE CMDNonQueryAsyncSpTest() BEGIN SET @x=0; REPEAT INSERT INTO CMDNonQueryAsyncTest VALUES(@x); SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
+      ExecuteSQL("CREATE TABLE CMDNonQueryAsyncTest (id int)");
+      ExecuteSQL("CREATE PROCEDURE CMDNonQueryAsyncSpTest() BEGIN SET @x=0; REPEAT INSERT INTO CMDNonQueryAsyncTest VALUES(@x); SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
 
       MySqlCommand proc = new MySqlCommand("CMDNonQueryAsyncSpTest", Connection);
       proc.CommandType = CommandType.StoredProcedure;
       int result = await proc.ExecuteNonQueryAsync();
 
-      Assert.NotEqual(-1, result);
+      Assert.AreNotEqual(-1, result);
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM CMDNonQueryAsyncTest;", Connection);
       cmd.CommandType = CommandType.Text;
       object cnt = cmd.ExecuteScalar();
-      Assert.Equal(100, Convert.ToInt32(cnt));
+      Assert.AreEqual(100, Convert.ToInt32(cnt));
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteReaderAsync()
     {
-      executeSQL("CREATE TABLE CMDReaderAsyncTest (id int)");
-      executeSQL("CREATE PROCEDURE CMDReaderAsyncSpTest() BEGIN INSERT INTO CMDReaderAsyncTest VALUES(1); SELECT SLEEP(2); SELECT 'done'; END");
+      ExecuteSQL("CREATE TABLE CMDReaderAsyncTest (id int)");
+      ExecuteSQL("CREATE PROCEDURE CMDReaderAsyncSpTest() BEGIN INSERT INTO CMDReaderAsyncTest VALUES(1); SELECT SLEEP(2); SELECT 'done'; END");
 
       MySqlCommand proc = new MySqlCommand("CMDReaderAsyncSpTest", Connection);
       proc.CommandType = CommandType.StoredProcedure;
@@ -571,20 +570,20 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.True(reader.Read(), "can read");
         Assert.True(reader.NextResult());
         Assert.True(reader.Read());
-        Assert.Equal("done", reader.GetString(0));
+        Assert.AreEqual("done", reader.GetString(0));
         reader.Close();
 
         proc.CommandType = CommandType.Text;
         proc.CommandText = "SELECT COUNT(*) FROM CMDReaderAsyncTest";
         object cnt = proc.ExecuteScalar();
-        Assert.Equal(1, Convert.ToInt32(cnt));
+        Assert.AreEqual(1, Convert.ToInt32(cnt));
       }
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteScalarAsync()
     {
-      executeSQL("CREATE PROCEDURE CMDScalarAsyncSpTest( IN valin VARCHAR(50), OUT valout VARCHAR(50) ) BEGIN  SET valout=valin;  SELECT 'Test'; END");
+      ExecuteSQL("CREATE PROCEDURE CMDScalarAsyncSpTest( IN valin VARCHAR(50), OUT valout VARCHAR(50) ) BEGIN  SET valout=valin;  SELECT 'Test'; END");
 
       MySqlCommand cmd = new MySqlCommand("CMDScalarAsyncSpTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
@@ -593,18 +592,18 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[1].Direction = ParameterDirection.Output;
 
       object result = await cmd.ExecuteScalarAsync();
-      Assert.Equal("Test", result);
-      Assert.Equal("valuein", cmd.Parameters[1].Value);
+      Assert.AreEqual("Test", result);
+      Assert.AreEqual("valuein", cmd.Parameters[1].Value);
     }
 
 #if NET452
-    [Fact]
+    [Test]
     public void ThrowingExceptions()
     {
       MySqlCommand cmd = new MySqlCommand("SELECT xxx", Connection);
       IAsyncResult r = cmd.BeginExecuteReader();
       Exception ex = Assert.Throws<MySqlException>(() => cmd.EndExecuteReader(r));
-      Assert.Equal("Unknown column 'xxx' in 'field list'", ex.Message);
+      Assert.AreEqual("Unknown column 'xxx' in 'field list'", ex.Message);
     }
 #endif
     #endregion
@@ -612,11 +611,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #59616	Only INSERTs are batched
     /// </summary>
-    [Fact]
+    [Test]
     public void BatchUpdatesAndDeletes()
     {
-      executeSQL("CREATE TABLE test (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20))");
-      executeSQL("INSERT INTO test VALUES (1, 'boo'), (2, 'boo'), (3, 'boo')");
+      ExecuteSQL("CREATE TABLE Test (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20))");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 'boo'), (2, 'boo'), (3, 'boo')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
@@ -631,7 +630,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true)))
       {
         c.Open();
-        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM test", c);
+        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", c);
         MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
         da.UpdateCommand = cb.GetUpdateCommand();
         da.UpdateCommand.UpdatedRowSource = UpdateRowSource.None;
@@ -646,14 +645,14 @@ namespace MySql.Data.MySqlClient.Tests
         da.Update(dt);
       }
 
-      Assert.Equal(1, listener.Find("Query Opened: UPDATE"));
+      Assert.AreEqual(1, listener.Find("Query Opened: UPDATE"));
     }
 
-    [Fact]
+    [Test]
     public void ExecuteReaderReturnsReaderAfterCancel()
     {
-      executeSQL("CREATE TABLE TableWithDateAsPrimaryKey(PrimaryKey date NOT NULL, PRIMARY KEY  (PrimaryKey)) ENGINE=InnoDB");
-      executeSQL("CREATE TABLE TableWithStringAsPrimaryKey(PrimaryKey nvarchar(50) NOT NULL, PRIMARY KEY  (PrimaryKey)) ENGINE=InnoDB");
+      ExecuteSQL("CREATE TABLE TableWithDateAsPrimaryKey(PrimaryKey date NOT NULL, PRIMARY KEY  (PrimaryKey)) ENGINE=InnoDB");
+      ExecuteSQL("CREATE TABLE TableWithStringAsPrimaryKey(PrimaryKey nvarchar(50) NOT NULL, PRIMARY KEY  (PrimaryKey)) ENGINE=InnoDB");
 
       MySqlCommand command = new MySqlCommand("SELECT PrimaryKey FROM TableWithDateAsPrimaryKey", Connection);
       IDataReader reader = command.ExecuteReader(CommandBehavior.KeyInfo);
@@ -670,7 +669,7 @@ namespace MySql.Data.MySqlClient.Tests
       reader.Close();
     }
 
-    [Fact]
+    [Test]
     public void CloneCommand()
     {
       MySqlCommand cmd = new MySqlCommand();
@@ -681,7 +680,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug 27441433 - RESETREADER: MYSQLDATAREADER CANNOT OUTLIVE PARENT MYSQLCOMMAND SINCE 6.10
     /// </summary>
-    [Fact]
+    [Test]
     public void ExecuteReaderAfterClosingCommand()
     {
       MySqlDataReader reader;
@@ -696,7 +695,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
 
         Assert.True(reader.Read());
-        Assert.Equal("TEST", reader.GetString(0));
+        Assert.AreEqual("TEST", reader.GetString(0));
         Assert.False(reader.Read());
       }
     }
@@ -706,13 +705,13 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #45941	SQL-Injection attack
     /// </summary>
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void SqlInjection1()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test(name VARCHAR(100)) ENGINE=MyISAM DEFAULT CHARSET=utf8");
-      executeSQL("INSERT INTO Test VALUES ('name1'), ('name2'), ('name3')");
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL("CREATE TABLE Test(name VARCHAR(100)) ENGINE=MyISAM DEFAULT CHARSET=utf8");
+      ExecuteSQL("INSERT INTO Test VALUES ('name1'), ('name2'), ('name3')");
 
       MySqlCommand cnt = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
       Int64 count = (Int64)cnt.ExecuteScalar();
@@ -722,7 +721,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[0].Value = "\u2032 OR 1=1;-- --";
       cmd.ExecuteNonQuery();
 
-      Assert.Equal(count, (Int64)cnt.ExecuteScalar());
+      Assert.AreEqual(count, (Int64)cnt.ExecuteScalar());
     }
 
     #endregion

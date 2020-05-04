@@ -26,9 +26,9 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using NUnit.Framework;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Xunit;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
@@ -38,7 +38,7 @@ using Xunit;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MySQL Connector/NET")]
-[assembly: AssemblyCopyright("Copyright © 2016, 2019, Oracle and/or its affiliates. All rights reserved.")]
+[assembly: AssemblyCopyright("Copyright © 2016, 2020, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -48,7 +48,7 @@ using Xunit;
 [assembly: ComVisible(false)]
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("2f36ea96-5616-4b9e-9e53-eb380b8c4292")]
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+[assembly: NonParallelizable]
 
 #if !DEBUG
 [assembly: AssemblyKeyName("ConnectorNet")]

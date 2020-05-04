@@ -1,4 +1,4 @@
-// Copyright © 2014, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,7 +29,7 @@
 using System;
 using System.Collections.Specialized;
 using System.Web.UI.WebControls.WebParts;
-using Xunit;
+using NUnit.Framework;
 using MySql.Data.MySqlClient;
 using MySql.Web.Personalization;
 
@@ -41,6 +41,10 @@ namespace MySql.Web.Tests
 
     private void CreateDataForSharedScope()
     {
+      execSQL(@"delete from my_aspnet_applications;
+                delete from my_aspnet_paths;
+                delete from my_aspnet_personalizationallusers;");
+
       var cmd = new MySqlCommand();
       cmd.CommandText = @"insert into my_aspnet_applications(name,description) values('\\', '\\')";
       cmd.Connection = Connection;
@@ -78,8 +82,12 @@ namespace MySql.Web.Tests
     }
 
 
-        private void CreateDataForUserScope()
+    private void CreateDataForUserScope()
     {
+      execSQL(@"delete from my_aspnet_applications;
+                delete from my_aspnet_paths;
+                delete from my_aspnet_users;
+                delete from my_aspnet_personalizationallusers;");
       var cmd = new MySqlCommand();
       cmd.CommandText = @"insert into my_aspnet_applications(name,description) values('\\', '\\')";
       cmd.Connection = Connection;
@@ -119,12 +127,12 @@ namespace MySql.Web.Tests
       config.Add("connectionStringName", "LocalMySqlServer");
       config.Add("applicationName", @"\");
       config.Add("description", @"\");
-      config.Add("autogenerateschema", "true");      
+      config.Add("autogenerateschema", "true");
       p.Initialize(null, config);
       return p;
     }
 
-    [Fact]
+    [Test]
     public void CanFindState()
     {
       CreateDataForUserScope();
@@ -135,10 +143,10 @@ namespace MySql.Web.Tests
       psq.PathToMatch = "~/default.aspx";
       psq.UserInactiveSinceDate = DateTime.UtcNow.AddMinutes(1);
       var collection = p.FindState(PersonalizationScope.User, psq, 1, 1, out totalRecords);
-      Assert.Equal(1, totalRecords);
+      Assert.AreEqual(1, totalRecords);
     }
 
-    [Fact]
+    [Test]
     public void CanGetCountofStateForUser()
     {
       CreateDataForUserScope();
@@ -150,10 +158,10 @@ namespace MySql.Web.Tests
       psq.UserInactiveSinceDate = DateTime.UtcNow.AddMinutes(1);
       //System.Threading.Thread.Sleep(1000);
       totalRecords = p.GetCountOfState(PersonalizationScope.User, psq);
-      Assert.Equal(1, totalRecords);    
+      Assert.AreEqual(1, totalRecords);
     }
 
-    [Fact]
+    [Test]
     public void CanGetCountofStateForAllUsers()
     {
       CreateDataForSharedScope();
@@ -163,15 +171,15 @@ namespace MySql.Web.Tests
       psq.PathToMatch = "~/default.aspx";
       psq.UserInactiveSinceDate = DateTime.UtcNow;
       totalRecords = p.GetCountOfState(PersonalizationScope.Shared, psq);
-      Assert.Equal(1, totalRecords);    
+      Assert.AreEqual(1, totalRecords);    
     }
 
-    [Fact]
+    [Test]
     public void CanResetStateForUser()
     {
       CreateDataForUserScope();
       var p = InitPersonalizationProvider();
-      int totalRecords;      
+      int totalRecords;
       string[] paths = new string[1];
       paths[0] = "~/default.aspx";
 
@@ -179,15 +187,15 @@ namespace MySql.Web.Tests
       users[0] = @"GabPC\Gab";
 
       totalRecords = p.ResetState(PersonalizationScope.User, paths, users);
-      Assert.Equal(1, totalRecords);    
+      Assert.AreEqual(1, totalRecords);
     }
 
-    [Fact]
+    [Test]
     public void CanResetStateForAllUsers()
     {
       CreateDataForSharedScope();
       var p = InitPersonalizationProvider();
-      
+
       string[] paths = new string[1];
       paths[0] = "~/default.aspx";
 
@@ -196,22 +204,22 @@ namespace MySql.Web.Tests
 
       int totalRecords;
       totalRecords = p.ResetState(PersonalizationScope.Shared, paths, users);
-      Assert.Equal(1, totalRecords);    
+      Assert.AreEqual(1, totalRecords);
     }
 
-    [Fact]
+    [Test]
     public void CanResetAllState()
     {
       CreateDataForSharedScope();
-      var p = InitPersonalizationProvider();           
+      var p = InitPersonalizationProvider();
 
       int totalRecords;
       totalRecords = p.ResetState(PersonalizationScope.Shared, null, null);
-      Assert.Equal(1, totalRecords);
+      Assert.AreEqual(1, totalRecords);
     }
 
 
-    [Fact]
+    [Test]
     public void CanResetUsertState()
     {
       CreateDataForUserScope();
@@ -219,7 +227,7 @@ namespace MySql.Web.Tests
       int totalRecords;     
 
       totalRecords = p.ResetUserState("~/default.aspx", DateTime.MaxValue);
-      Assert.Equal(1, totalRecords);
+      Assert.AreEqual(1, totalRecords);
     }
 
   }

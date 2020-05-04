@@ -30,7 +30,7 @@ using MySql.Data.MySqlClient;
 using MySql.Data.X.Communication;
 using MySqlX.XDevAPI;
 using System;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
@@ -39,56 +39,56 @@ namespace MySqlX.Data.Tests
   /// </summary>
   public class CompressionTests : BaseTest
   {
-    [Fact]
+    [Test]
     public void ConnectionOptionIsValidUsingBuilder()
     {
       var builder = new MySqlXConnectionStringBuilder(ConnectionString);
       builder.Compression = CompressionType.Preferred;
-      Assert.Contains("compression=Preferred", builder.ToString());
+      StringAssert.Contains("compression=Preferred", builder.ToString());
 
       builder.Compression = CompressionType.Required;
-      Assert.Contains("compression=Required", builder.ToString());
+      StringAssert.Contains("compression=Required", builder.ToString());
 
       builder.Compression = CompressionType.Disabled;
-      Assert.Contains("compression=Disabled", builder.ToString());
+      StringAssert.Contains("compression=Disabled", builder.ToString());
     }
 
-    [Fact]
+    [Test]
     public void ConnectionOptionIsValidUsingConnectionUri()
     {
       using (var session = MySQLX.GetSession($"{ConnectionStringUri}?compression=PreFerRed"))
       {
-        Assert.Equal(CompressionType.Preferred, session.Settings.Compression);
+        Assert.AreEqual(CompressionType.Preferred, session.Settings.Compression);
         session.Close();
       }
 
       using (var session = MySQLX.GetSession($"{ConnectionStringUri}?compression=required"))
       {
-        Assert.Equal(CompressionType.Required, session.Settings.Compression);
+        Assert.AreEqual(CompressionType.Required, session.Settings.Compression);
         session.Close();
       }
 
       using (var session = MySQLX.GetSession($"{ConnectionStringUri}?compression=DISABLED"))
       {
-        Assert.Equal(CompressionType.Disabled, session.Settings.Compression);
+        Assert.AreEqual(CompressionType.Disabled, session.Settings.Compression);
         session.Close();
       }
 
       // Test whitespace
       using (var session = MySQLX.GetSession($"{ConnectionStringUri}?compression= DISABLED"))
       {
-        Assert.Equal(CompressionType.Disabled, session.Settings.Compression);
+        Assert.AreEqual(CompressionType.Disabled, session.Settings.Compression);
         session.Close();
       }
 
       using (var session = MySQLX.GetSession($"{ConnectionStringUri}?compression= DISABLED  "))
       {
-        Assert.Equal(CompressionType.Disabled, session.Settings.Compression);
+        Assert.AreEqual(CompressionType.Disabled, session.Settings.Compression);
         session.Close();
       }
     }
 
-    [Fact]
+    [Test]
     public void ConnectionOptionIsValidUsingAnonymousObject()
     {
       var connectionData = new
@@ -102,45 +102,45 @@ namespace MySqlX.Data.Tests
 
       using (var session = MySQLX.GetSession(connectionData))
       {
-        Assert.Equal(CompressionType.Required, session.Settings.Compression);
+        Assert.AreEqual(CompressionType.Required, session.Settings.Compression);
         session.Close();
       }
     }
 
-    [Fact]
+    [Test]
     public void ConnectionOptionIsValidUsingConnectionString()
     {
       var builder = new MySqlXConnectionStringBuilder("server=localhost;port=33060;compression=PreFerRed");
-      Assert.Equal(CompressionType.Preferred, builder.Compression);
+      Assert.AreEqual(CompressionType.Preferred, builder.Compression);
 
       builder = new MySqlXConnectionStringBuilder("server=localhost;port=33060;compression=required");
-      Assert.Equal(CompressionType.Required, builder.Compression);
+      Assert.AreEqual(CompressionType.Required, builder.Compression);
 
       builder = new MySqlXConnectionStringBuilder("server=localhost;port=33060;compression=DISABLED");
-      Assert.Equal(CompressionType.Disabled, builder.Compression);
+      Assert.AreEqual(CompressionType.Disabled, builder.Compression);
 
       // Test whitespace
       builder = new MySqlXConnectionStringBuilder("server=localhost;port=33060;compression=  required");
-      Assert.Equal(CompressionType.Required, builder.Compression);
+      Assert.AreEqual(CompressionType.Required, builder.Compression);
 
       builder = new MySqlXConnectionStringBuilder("server=localhost;port=33060;compression=    required");
-      Assert.Equal(CompressionType.Required, builder.Compression);
+      Assert.AreEqual(CompressionType.Required, builder.Compression);
 
       builder = new MySqlXConnectionStringBuilder("server=localhost;port=33060;compression=  required  ");
-      Assert.Equal(CompressionType.Required, builder.Compression);
+      Assert.AreEqual(CompressionType.Required, builder.Compression);
     }
 
-    [Fact]
+    [Test]
     public void PreferredIsTheDefaultValue()
     {
       var builder = new MySqlXConnectionStringBuilder();
-      Assert.Equal(CompressionType.Preferred, builder.Compression);
+      Assert.AreEqual(CompressionType.Preferred, builder.Compression);
 
       // Empty value is ignored.
       var updatedConnectionStringUri = ConnectionStringUri + "?compression=";
       using (var session = MySQLX.GetSession(updatedConnectionStringUri))
       {
-        Assert.Equal(CompressionType.Preferred, session.Settings.Compression);
+        Assert.AreEqual(CompressionType.Preferred, session.Settings.Compression);
         session.Close();
       }
 
@@ -148,50 +148,50 @@ namespace MySqlX.Data.Tests
       updatedConnectionStringUri = ConnectionStringUri + "?compression= ";
       using (var session = MySQLX.GetSession(updatedConnectionStringUri))
       {
-        Assert.Equal(CompressionType.Preferred, session.Settings.Compression);
+        Assert.AreEqual(CompressionType.Preferred, session.Settings.Compression);
         session.Close();
       }
     }
 
-    [Fact]
+    [Test]
     public void SettingAnInvalidCompressionTypeRaisesException()
     {
       string[] invalidValues = { "test", "true", "123" };
       foreach (var invalidValue in invalidValues)
       {
         var exception = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder($"server=localhost;port=33060;compression={invalidValue}"));
-        Assert.Equal($"The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value '{invalidValue}' is not acceptable.", exception.Message);
+        Assert.AreEqual($"The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value '{invalidValue}' is not acceptable.", exception.Message);
 
         exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server=localhost;port=33060;user=root;compression={invalidValue}"));
-        Assert.Equal($"The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value '{invalidValue}' is not acceptable.", exception.Message);
+        Assert.AreEqual($"The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value '{invalidValue}' is not acceptable.", exception.Message);
       }
     }
 
-    [Fact]
+    [Test]
     public void SessionRetainsTheSpecifiedCompressionType()
     {
       using (var session = MySQLX.GetSession(ConnectionStringUri))
       {
-        Assert.Equal(CompressionType.Preferred, session.Settings.Compression);
+        Assert.AreEqual(CompressionType.Preferred, session.Settings.Compression);
         session.Close();
       }
 
       var updatedConnectionStringUri = ConnectionStringUri + "?compression=Disabled";
       using (var session = MySQLX.GetSession(updatedConnectionStringUri))
       {
-        Assert.Equal(CompressionType.Disabled, session.Settings.Compression);
+        Assert.AreEqual(CompressionType.Disabled, session.Settings.Compression);
         session.Close();
       }
     }
 
-    [Fact]
+    [Test]
     public void ValidateRequiredCompressionType()
     {
       // Compression supported starting server 8.0.19.
       if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 19))
       {
         var exception = Assert.Throws<NotSupportedException>(() => MySQLX.GetSession($"{ConnectionStringUri}?compression=Required"));
-        Assert.Equal("Compression requested but the server does not support it.", exception.Message);
+        Assert.AreEqual("Compression requested but the server does not support it.", exception.Message);
 
         return;
       }
@@ -202,7 +202,7 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void NegotiationSucceedsWithExpectedCompressionAlgorithm()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 19))
@@ -216,9 +216,9 @@ namespace MySqlX.Data.Tests
         using (var session = MySQLX.GetSession(ConnectionStringUri))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.Equal(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
           compressionAlgorithm = session.XSession.GetCompressionAlgorithm(false);
-          Assert.Equal(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
           session.Close();
         }
 
@@ -231,9 +231,9 @@ namespace MySqlX.Data.Tests
         using (var session = MySQLX.GetSession(ConnectionStringUri))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.Equal(XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM, compressionAlgorithm);
           compressionAlgorithm = session.XSession.GetCompressionAlgorithm(false);
-          Assert.Equal(XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM, compressionAlgorithm);
           session.Close();
         }
 
@@ -247,9 +247,9 @@ namespace MySqlX.Data.Tests
         using (var session = MySQLX.GetSession(ConnectionStringUri))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.Equal(XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
           compressionAlgorithm = session.XSession.GetCompressionAlgorithm(false);
-          Assert.Equal(XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
           session.Close();
         }
 #endif
@@ -274,7 +274,7 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void NegotiationWithSpecificCompressionAlgorithm()
     {
       bool success = true;
@@ -287,25 +287,25 @@ namespace MySqlX.Data.Tests
         using (var session = MySQLX.GetSession(updatedConnectionStringUri))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.Equal(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
         }
 
         ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM.ToUpperInvariant()}\"");
         using (var session = MySQLX.GetSession(updatedConnectionStringUri))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.Equal(XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM, compressionAlgorithm);
         }
 
         ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM.ToUpperInvariant()}\"");
 #if NET452
                 var exception = Assert.Throws<NotSupportedException>(() => MySQLX.GetSession(updatedConnectionStringUri));
-                Assert.Equal("Compression requested but the compression algorithm negotiation failed.", exception.Message);
+                Assert.AreEqual("Compression requested but the compression algorithm negotiation failed.", exception.Message);
 #else
         using (var session = MySQLX.GetSession(updatedConnectionStringUri))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.Equal(XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
         }
 #endif
 
@@ -314,7 +314,7 @@ namespace MySqlX.Data.Tests
         using (var session = MySQLX.GetSession(updatedConnectionStringUri))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.Equal(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
         }
       }
       catch (Exception ex)
@@ -330,7 +330,7 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void ValidateZstdAllocation()
     {
       using (var session = MySQLX.GetSession(ConnectionStringUri))

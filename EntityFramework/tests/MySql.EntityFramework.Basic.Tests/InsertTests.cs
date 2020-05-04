@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,7 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Xunit;
+using NUnit.Framework;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Data;
@@ -35,20 +35,12 @@ using MySql.Data.MySqlClient;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class InsertTests : IClassFixture<DefaultFixture>
+  public class InsertTests : DefaultFixture
   {
-    private DefaultFixture st;
-
-    public InsertTests(DefaultFixture fixture)
-    {
-      st = fixture;
-      st.Setup(this.GetType());
-    }
-
-    [Fact]
+    [Test]
     public void InsertSingleRow()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         int beforeCnt = ctx.Companies.Count();
 
@@ -65,15 +57,15 @@ namespace MySql.Data.EntityFramework.Tests
         ctx.Companies.Add(c);
         int result = ctx.SaveChanges();
 
-        Assert.Equal(beforeCnt + 1, ctx.Companies.Count());
+        Assert.AreEqual(beforeCnt + 1, ctx.Companies.Count());
 
         Company d = ctx.Companies.Find(c.Id);
         d.Id = c.Id;
-        Assert.Equal(c, d);
+        Assert.AreEqual(c, d);
       }
     }
 
-    [Fact(Skip ="Fix Me")]
+    [Ignore("Fix Me")]
     public void CanInsertRowWithDefaultTimeStamp()
     {
       //  using (var context = GetContext())
@@ -85,34 +77,34 @@ namespace MySql.Data.EntityFramework.Tests
       //    context.AddToProducts(product);
       //    context.SaveChanges();
 
-      //    Assert.Equal(DateTime.Today.Day, product.CreatedDate.Day);
+      //    Assert.AreEqual(DateTime.Today.Day, product.CreatedDate.Day);
       //  }
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteNonQueryAndScalarAsyncAwait()
     {
-      st.execSQL("CREATE TABLE NonQueryAndScalarAsyncAwaitTest (id int)");
-      st.execSQL("CREATE PROCEDURE NonQueryAndScalarAsyncAwaitSpTest() BEGIN SET @x=0; REPEAT INSERT INTO NonQueryAndScalarAsyncAwaitTest VALUES(@x); " +
+      ExecSQL("CREATE TABLE NonQueryAndScalarAsyncAwaitTest (id int)");
+      ExecSQL("CREATE PROCEDURE NonQueryAndScalarAsyncAwaitSpTest() BEGIN SET @x=0; REPEAT INSERT INTO NonQueryAndScalarAsyncAwaitTest VALUES(@x); " +
         "SET @x=@x+1; UNTIL @x = 100 END REPEAT; END");
 
-      EFMySqlCommand proc = new EFMySqlCommand() { CommandText = "NonQueryAndScalarAsyncAwaitSpTest", Connection = st.Connection };
+      EFMySqlCommand proc = new EFMySqlCommand() { CommandText = "NonQueryAndScalarAsyncAwaitSpTest", Connection = Connection };
       proc.CommandType = CommandType.StoredProcedure;
       int result = await proc.ExecuteNonQueryAsync();
 
-      Assert.NotEqual(-1, result);
+      Assert.AreNotEqual(-1, result);
 
-      EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "SELECT COUNT(*) FROM NonQueryAndScalarAsyncAwaitTest;", Connection = st.Connection };
+      EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "SELECT COUNT(*) FROM NonQueryAndScalarAsyncAwaitTest;", Connection = Connection };
       cmd.CommandType = CommandType.Text;
       object cnt = await cmd.ExecuteScalarAsync();
-      Assert.Equal(100, Convert.ToInt32(cnt));
+      Assert.AreEqual(100, Convert.ToInt32(cnt));
     }
 
-    [Fact]
+    [Test]
     public async Task PrepareAsyncAwait()
     {
-      st.execSQL("CREATE TABLE PrepareAsyncAwaitTest (val1 varchar(20), numbercol int, numbername varchar(50));");
-      EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "INSERT INTO PrepareAsyncAwaitTest VALUES(NULL, @number, @text)", Connection = st.Connection };
+      ExecSQL("CREATE TABLE PrepareAsyncAwaitTest (val1 varchar(20), numbercol int, numbername varchar(50));");
+      EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "INSERT INTO PrepareAsyncAwaitTest VALUES(NULL, @number, @text)", Connection = Connection };
       //TODO: Fix me
 //      await cmd.PrepareAsync();
 
@@ -130,7 +122,7 @@ namespace MySql.Data.EntityFramework.Tests
     ///// <summary>
     ///// Test for fix for "NullReferenceException when try to save entity with TINYINY or BIGINT as PK" (MySql bug #70888, Oracle bug #17866076).
     ///// </summary>
-    [Fact(Skip ="Fix Me")]
+    [Ignore("Fix Me")]
     public void NullReferenceWhenInsertingPk()
     {
       //using (testEntities1 ctx = new testEntities1())
@@ -140,6 +132,5 @@ namespace MySql.Data.EntityFramework.Tests
       //  ctx.SaveChanges();
       //}
     }
-
   }
 }

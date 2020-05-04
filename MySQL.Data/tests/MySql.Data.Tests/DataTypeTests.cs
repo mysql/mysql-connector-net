@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,28 +28,26 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
+using NUnit.Framework;
 using System.Data;
 using MySql.Data.Types;
-using System.Data.Common;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public partial class DataTypeTests : TestBase
   {
-    public DataTypeTests(TestFixture fixture) : base(fixture)
+    protected override void Cleanup()
     {
+      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
     }
 
-    [Fact]
+    [Test]
     public void BytesAndBooleans()
     {
       InternalBytesAndBooleans(false);
     }
 
-    [Fact]
+    [Test]
     public void BytesAndBooleansPrepared()
     {
       InternalBytesAndBooleans(true);
@@ -57,24 +55,24 @@ namespace MySql.Data.MySqlClient.Tests
 
     private void InternalBytesAndBooleans(bool prepare)
     {
-      executeSQL("CREATE TABLE Test (id TINYINT, idu TINYINT UNSIGNED, i INT UNSIGNED)");
-      executeSQL("INSERT INTO Test VALUES (-98, 140, 20)");
-      executeSQL("INSERT INTO Test VALUES (0, 0, 0)");
+      ExecuteSQL("CREATE TABLE Test (id TINYINT, idu TINYINT UNSIGNED, i INT UNSIGNED)");
+      ExecuteSQL("INSERT INTO Test VALUES (-98, 140, 20)");
+      ExecuteSQL("INSERT INTO Test VALUES (0, 0, 0)");
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       if (prepare) cmd.Prepare();
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read());
-        Assert.Equal(-98, (sbyte)reader.GetByte(0));
-        Assert.Equal(140, reader.GetByte(1));
+        Assert.AreEqual(-98, (sbyte)reader.GetByte(0));
+        Assert.AreEqual(140, reader.GetByte(1));
         Assert.True(reader.GetBoolean(1));
-        Assert.Equal(20, Convert.ToInt32(reader.GetUInt32(2)));
-        Assert.Equal(20, reader.GetInt32(2));
+        Assert.AreEqual(20, Convert.ToInt32(reader.GetUInt32(2)));
+        Assert.AreEqual(20, reader.GetInt32(2));
 
         Assert.True(reader.Read());
-        Assert.Equal(0, reader.GetByte(0));
-        Assert.Equal(0, reader.GetByte(1));
+        Assert.AreEqual(0, reader.GetByte(0));
+        Assert.AreEqual(0, reader.GetByte(1));
         Assert.False(reader.GetBoolean(1));
 
         Assert.False(reader.Read());
@@ -90,13 +88,13 @@ namespace MySql.Data.MySqlClient.Tests
     /// Neither "set global character_set_server = utf8" , nor  "create table /database with character set "
     /// were sufficient.
     ///</remarks>
-    [Fact]
+    [Test]
     public void TreatTinyAsBool()
     {
-      executeSQL("CREATE TABLE Test2(i TINYINT(1))");
-      executeSQL("INSERT INTO Test2 VALUES(1)");
-      executeSQL("INSERT INTO Test2 VALUES(0)");
-      executeSQL("INSERT INTO Test2 VALUES(2)");
+      ExecuteSQL("CREATE TABLE Test2(i TINYINT(1))");
+      ExecuteSQL("INSERT INTO Test2 VALUES(1)");
+      ExecuteSQL("INSERT INTO Test2 VALUES(0)");
+      ExecuteSQL("INSERT INTO Test2 VALUES(2)");
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       Assert.True(builder.TreatTinyAsBoolean);
 
@@ -116,13 +114,13 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void TestFloat()
     {
       InternalTestFloats(false);
     }
 
-    [Fact]
+    [Test]
     public void TestFloatPrepared()
     {
       InternalTestFloats(true);
@@ -130,7 +128,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     private void InternalTestFloats(bool prepared)
     {
-      executeSQL("CREATE TABLE Test (fl FLOAT, db DOUBLE, dec1 DECIMAL(5,2))");
+      ExecuteSQL("CREATE TABLE Test (fl FLOAT, db DOUBLE, dec1 DECIMAL(5,2))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?fl, ?db, ?dec)", Connection);
       cmd.Parameters.Add("?fl", MySqlDbType.Float);
@@ -142,13 +140,13 @@ namespace MySql.Data.MySqlClient.Tests
       if (prepared)
         cmd.Prepare();
       int count = cmd.ExecuteNonQuery();
-      Assert.Equal(1, count);
+      Assert.AreEqual(1, count);
 
       cmd.Parameters[0].Value = 1.5;
       cmd.Parameters[1].Value = 47.85;
       cmd.Parameters[2].Value = 123.85;
       count = cmd.ExecuteNonQuery();
-      Assert.Equal(1, count);
+      Assert.AreEqual(1, count);
 
       cmd.CommandText = "SELECT * FROM Test";
       if (prepared)
@@ -157,20 +155,20 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Assert.True(reader.Read());
         Assert.True((decimal)2.3 == (decimal)reader.GetFloat(0));
-        Assert.Equal(4.6, reader.GetDouble(1));
+        Assert.AreEqual(4.6, reader.GetDouble(1));
         Assert.True((decimal)23.82 == reader.GetDecimal(2));
 
         Assert.True(reader.Read());
         Assert.True((decimal)1.5 == (decimal)reader.GetFloat(0));
-        Assert.Equal(47.85, reader.GetDouble(1));
+        Assert.AreEqual(47.85, reader.GetDouble(1));
         Assert.True((decimal)123.85 == reader.GetDecimal(2));
       }
     }
 
-    [Fact]
+    [Test]
     public void TestTime()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), d DATE, dt DATETIME, tm TIME,  PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), d DATE, dt DATETIME, tm TIME,  PRIMARY KEY(id))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, tm) VALUES (1, '00:00')", Connection);
       cmd.ExecuteNonQuery();
@@ -183,32 +181,32 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
 
         object value = reader["tm"];
-        Assert.Equal(typeof(TimeSpan), value.GetType());
+        Assert.AreEqual(typeof(TimeSpan), value.GetType());
         TimeSpan ts = (TimeSpan)reader["tm"];
-        Assert.Equal(0, ts.Hours);
-        Assert.Equal(0, ts.Minutes);
-        Assert.Equal(0, ts.Seconds);
+        Assert.AreEqual(0, ts.Hours);
+        Assert.AreEqual(0, ts.Minutes);
+        Assert.AreEqual(0, ts.Seconds);
 
         reader.Read();
         value = reader["tm"];
-        Assert.Equal(typeof(TimeSpan), value.GetType());
+        Assert.AreEqual(typeof(TimeSpan), value.GetType());
         ts = (TimeSpan)reader["tm"];
-        Assert.Equal(21, ts.Days);
-        Assert.Equal(8, ts.Hours);
-        Assert.Equal(45, ts.Minutes);
-        Assert.Equal(17, ts.Seconds);
+        Assert.AreEqual(21, ts.Days);
+        Assert.AreEqual(8, ts.Hours);
+        Assert.AreEqual(45, ts.Minutes);
+        Assert.AreEqual(17, ts.Seconds);
       }
     }
 
-    [Fact]
+    [Test]
     public void YearType()
     {
-      executeSQL("CREATE TABLE Test (yr YEAR)");
-      executeSQL("INSERT INTO Test VALUES (98)");
-      executeSQL("INSERT INTO Test VALUES (1990)");
-      executeSQL("INSERT INTO Test VALUES (2004)");
-      executeSQL("SET SQL_MODE=''");
-      executeSQL("INSERT INTO Test VALUES (111111111111111111111)");
+      ExecuteSQL("CREATE TABLE Test (yr YEAR)");
+      ExecuteSQL("INSERT INTO Test VALUES (98)");
+      ExecuteSQL("INSERT INTO Test VALUES (1990)");
+      ExecuteSQL("INSERT INTO Test VALUES (2004)");
+      ExecuteSQL("SET SQL_MODE=''");
+      ExecuteSQL("INSERT INTO Test VALUES (111111111111111111111)");
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -224,30 +222,30 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void TypeCoercion()
     {
       MySqlParameter p = new MySqlParameter("?test", 1);
-      Assert.Equal(DbType.Int32, p.DbType);
-      Assert.Equal(MySqlDbType.Int32, p.MySqlDbType);
+      Assert.AreEqual(DbType.Int32, p.DbType);
+      Assert.AreEqual(MySqlDbType.Int32, p.MySqlDbType);
 
       p.DbType = DbType.Int64;
-      Assert.Equal(DbType.Int64, p.DbType);
-      Assert.Equal(MySqlDbType.Int64, p.MySqlDbType);
+      Assert.AreEqual(DbType.Int64, p.DbType);
+      Assert.AreEqual(MySqlDbType.Int64, p.MySqlDbType);
 
       p.MySqlDbType = MySqlDbType.Int16;
-      Assert.Equal(DbType.Int16, p.DbType);
-      Assert.Equal(MySqlDbType.Int16, p.MySqlDbType);
+      Assert.AreEqual(DbType.Int16, p.DbType);
+      Assert.AreEqual(MySqlDbType.Int16, p.MySqlDbType);
     }
 
-    [Fact]
+    [Test]
     public void AggregateTypesTest()
     {
-      executeSQL("CREATE TABLE foo (abigint bigint, aint int)");
-      executeSQL("INSERT INTO foo VALUES (1, 2)");
-      executeSQL("INSERT INTO foo VALUES (2, 3)");
-      executeSQL("INSERT INTO foo VALUES (3, 4)");
-      executeSQL("INSERT INTO foo VALUES (3, 5)");
+      ExecuteSQL("CREATE TABLE foo (abigint bigint, aint int)");
+      ExecuteSQL("INSERT INTO foo VALUES (1, 2)");
+      ExecuteSQL("INSERT INTO foo VALUES (2, 3)");
+      ExecuteSQL("INSERT INTO foo VALUES (3, 4)");
+      ExecuteSQL("INSERT INTO foo VALUES (3, 5)");
 
       // Try a normal query
       string NORMAL_QRY = "SELECT abigint, aint FROM foo WHERE abigint = {0}";
@@ -273,12 +271,12 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void BitAndDecimal()
     {
-      executeSQL("CREATE TABLE Test (bt1 BIT(2), bt4 BIT(4), bt11 BIT(11), bt23 BIT(23), bt32 BIT(32)) engine=myisam");
-      executeSQL("INSERT INTO Test VALUES (2, 3, 120, 240, 1000)");
-      executeSQL("INSERT INTO Test VALUES (NULL, NULL, 100, NULL, NULL)");
+      ExecuteSQL("CREATE TABLE Test (bt1 BIT(2), bt4 BIT(4), bt11 BIT(11), bt23 BIT(23), bt32 BIT(32)) engine=myisam");
+      ExecuteSQL("INSERT INTO Test VALUES (2, 3, 120, 240, 1000)");
+      ExecuteSQL("INSERT INTO Test VALUES (NULL, NULL, 100, NULL, NULL)");
 
       string connStr = Connection.ConnectionString + ";treat tiny as boolean=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -289,81 +287,81 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           Assert.True(reader.Read());
-          Assert.Equal(2, reader.GetInt32(0));
-          Assert.Equal(3, reader.GetInt32(1));
-          Assert.Equal(120, reader.GetInt32(2));
-          Assert.Equal(240, reader.GetInt32(3));
-          Assert.Equal(1000, reader.GetInt32(4));
+          Assert.AreEqual(2, reader.GetInt32(0));
+          Assert.AreEqual(3, reader.GetInt32(1));
+          Assert.AreEqual(120, reader.GetInt32(2));
+          Assert.AreEqual(240, reader.GetInt32(3));
+          Assert.AreEqual(1000, reader.GetInt32(4));
           Assert.True(reader.Read());
           Assert.True(reader.IsDBNull(0));
           Assert.True(reader.IsDBNull(1));
-          Assert.Equal(100, reader.GetInt32(2));
+          Assert.AreEqual(100, reader.GetInt32(2));
           Assert.True(reader.IsDBNull(3));
           Assert.True(reader.IsDBNull(4));
         }
       }
     }
 
-    [Fact]
+    [Test]
     public void DecimalTests()
     {
-      executeSQL("CREATE TABLE Test (val decimal(10,1))");
+      ExecuteSQL("CREATE TABLE Test (val decimal(10,1))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(?dec)", Connection);
       cmd.Parameters.AddWithValue("?dec", (decimal)2.4);
-      Assert.Equal(1, cmd.ExecuteNonQuery());
+      Assert.AreEqual(1, cmd.ExecuteNonQuery());
 
       cmd.Prepare();
-      Assert.Equal(1, cmd.ExecuteNonQuery());
+      Assert.AreEqual(1, cmd.ExecuteNonQuery());
 
       cmd.CommandText = "SELECT * FROM Test";
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read());
         Assert.True(reader[0] is Decimal);
-        Assert.Equal((decimal)2.4, Convert.ToDecimal(reader[0]));
+        Assert.AreEqual((decimal)2.4, Convert.ToDecimal(reader[0]));
 
         Assert.True(reader.Read());
         Assert.True(reader[0] is Decimal);
-        Assert.Equal((decimal)2.4, Convert.ToDecimal(reader[0]));
+        Assert.AreEqual((decimal)2.4, Convert.ToDecimal(reader[0]));
 
         Assert.False(reader.Read());
         Assert.False(reader.NextResult());
       }
     }
 
-    [Fact]
+    [Test]
     public void DecimalTests2()
     {
-      executeSQL("CREATE TABLE Test (val decimal(10,1))");
+      ExecuteSQL("CREATE TABLE Test (val decimal(10,1))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(?dec)", Connection);
       cmd.Parameters.AddWithValue("?dec", (decimal)2.4);
-      Assert.Equal(1, cmd.ExecuteNonQuery());
+      Assert.AreEqual(1, cmd.ExecuteNonQuery());
 
       cmd.Prepare();
-      Assert.Equal(1, cmd.ExecuteNonQuery());
+      Assert.AreEqual(1, cmd.ExecuteNonQuery());
 
       cmd.CommandText = "SELECT * FROM Test";
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read());
         Assert.True(reader[0] is Decimal);
-        Assert.Equal((decimal)2.4, Convert.ToDecimal(reader[0]));
+        Assert.AreEqual((decimal)2.4, Convert.ToDecimal(reader[0]));
 
         Assert.True(reader.Read());
         Assert.True(reader[0] is Decimal);
-        Assert.Equal((decimal)2.4, Convert.ToDecimal(reader[0]));
+        Assert.AreEqual((decimal)2.4, Convert.ToDecimal(reader[0]));
 
         Assert.False(reader.Read());
         Assert.False(reader.NextResult());
       }
     }
 
-    [Fact]
+    [Test]
     public void Bit()
     {
-      executeSQL("CREATE TABLE Test (bit1 BIT, bit2 BIT(5), bit3 BIT(10))");
+      ExecuteSQL("CREATE TABLE Test (bit1 BIT, bit2 BIT(5), bit3 BIT(10))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?b1, ?b2, ?b3)", Connection);
       cmd.Parameters.Add(new MySqlParameter("?b1", MySqlDbType.Bit));
@@ -380,36 +378,36 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read());
-        Assert.Equal(1, Convert.ToInt32(reader[0]));
-        Assert.Equal(2, Convert.ToInt32(reader[1]));
-        Assert.Equal(3, Convert.ToInt32(reader[2]));
+        Assert.AreEqual(1, Convert.ToInt32(reader[0]));
+        Assert.AreEqual(2, Convert.ToInt32(reader[1]));
+        Assert.AreEqual(3, Convert.ToInt32(reader[2]));
       }
     }
 
     /// <summary>
     /// Bug #25912 selecting negative time values gets wrong results 
     /// </summary>
-    [Fact]
+    [Test]
     public void TestNegativeTime()
     {
-      executeSQL("CREATE TABLE Test (t time)");
-      executeSQL("INSERT INTO Test SET T='-07:24:00'");
+      ExecuteSQL("CREATE TABLE Test (t time)");
+      ExecuteSQL("INSERT INTO Test SET T='-07:24:00'");
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (var reader = cmd.ExecuteReader())
       {
         reader.Read();
         TimeSpan ts = reader.GetTimeSpan("t");
-        Assert.Equal(-7, ts.Hours);
-        Assert.Equal(-24, ts.Minutes);
-        Assert.Equal(0, ts.Seconds);
+        Assert.AreEqual(-7, ts.Hours);
+        Assert.AreEqual(-24, ts.Minutes);
+        Assert.AreEqual(0, ts.Seconds);
       }
     }
 
     /// <summary>
     /// Bug #25605 BINARY and VARBINARY is returned as a string 
     /// </summary>
-    [Fact]
+    [Test]
     public void BinaryAndVarBinary()
     {
       MySqlCommand cmd = new MySqlCommand("SELECT BINARY 'something' AS BinaryData", Connection);
@@ -418,48 +416,48 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         byte[] buffer = new byte[2];
         long read = reader.GetBytes(0, 0, buffer, 0, 2);
-        Assert.Equal('s', (char)buffer[0]);
-        Assert.Equal('o', (char)buffer[1]);
-        Assert.Equal(2, read);
+        Assert.AreEqual('s', (char)buffer[0]);
+        Assert.AreEqual('o', (char)buffer[1]);
+        Assert.AreEqual(2, read);
 
         string s = reader.GetString(0);
-        Assert.Equal("something", s);
+        Assert.AreEqual("something", s);
       }
     }
 
-    [Fact]
+    [Test]
     public void NumericAsBinary()
     {
       MySqlCommand cmd = new MySqlCommand("SELECT IFNULL(NULL,0) AS MyServerID", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.Equal("BIGINT", reader.GetDataTypeName(0));
-        Assert.Equal(typeof(Int64), reader.GetFieldType(0));
-        Assert.Equal("System.Int64", reader.GetValue(0).GetType().FullName);
-        Assert.Equal(0, Convert.ToInt32(reader.GetValue(0)));
+        Assert.AreEqual("BIGINT", reader.GetDataTypeName(0));
+        Assert.AreEqual(typeof(Int64), reader.GetFieldType(0));
+        Assert.AreEqual("System.Int64", reader.GetValue(0).GetType().FullName);
+        Assert.AreEqual(0, Convert.ToInt32(reader.GetValue(0)));
       }
     }
 
-    [Fact]
+    [Test]
     public void BinaryTypes()
     {
-      executeSQL(@"CREATE TABLE test (c1 VARCHAR(20), c2 VARBINARY(20),
+      ExecuteSQL(@"CREATE TABLE Test (c1 VARCHAR(20), c2 VARBINARY(20),
         c3 TEXT, c4 BLOB, c5 VARCHAR(20) CHARACTER SET BINARY)");
 
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", Connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (var reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.Equal(typeof(String), reader.GetFieldType("c1"));
-        Assert.Equal(typeof(byte[]), reader.GetFieldType("c2"));
-        Assert.Equal(typeof(String), reader.GetFieldType("c3"));
-        Assert.Equal(typeof(byte[]), reader.GetFieldType("c4"));
-        Assert.Equal(typeof(byte[]), reader.GetFieldType("c5"));
+        Assert.AreEqual(typeof(String), reader.GetFieldType("c1"));
+        Assert.AreEqual(typeof(byte[]), reader.GetFieldType("c2"));
+        Assert.AreEqual(typeof(String), reader.GetFieldType("c3"));
+        Assert.AreEqual(typeof(byte[]), reader.GetFieldType("c4"));
+        Assert.AreEqual(typeof(byte[]), reader.GetFieldType("c5"));
       }
     }
 
-    [Fact]
+    [Test]
     public void ShowColumns()
     {
       MySqlCommand cmd = new MySqlCommand(
@@ -468,19 +466,19 @@ namespace MySql.Data.MySqlClient.Tests
           IF(COLUMN_DEFAULT IS NULL, NULL, 
           IF(ASCII(COLUMN_DEFAULT) = 1 OR COLUMN_DEFAULT = '1', 1, 0))
           AS TRUE_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS
-          WHERE TABLE_SCHEMA='test' AND TABLE_NAME='test'", Connection);
+          WHERE TABLE_SCHEMA='Test' AND TABLE_NAME='Test'", Connection);
       using (var reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.Equal(typeof(string), reader.GetFieldType(0));
-        Assert.Equal(typeof(Int64), reader.GetFieldType(1));
+        Assert.AreEqual(typeof(string), reader.GetFieldType(0));
+        Assert.AreEqual(typeof(Int64), reader.GetFieldType(1));
       }
     }
 
-    [Fact]
+    [Test]
     public void RespectBinaryFlag()
     {
-      executeSQL("CREATE TABLE Test (col1 VARBINARY(20), col2 BLOB)");
+      ExecuteSQL("CREATE TABLE Test (col1 VARBINARY(20), col2 BLOB)");
 
       string connStr = Connection.ConnectionString + ";respect binary flags=false";
 
@@ -491,8 +489,8 @@ namespace MySql.Data.MySqlClient.Tests
         using (var reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.Equal(typeof(string), reader.GetFieldType(0));
-          Assert.Equal(typeof(System.Byte[]), reader.GetFieldType(1));
+          Assert.AreEqual(typeof(string), reader.GetFieldType(0));
+          Assert.AreEqual(typeof(System.Byte[]), reader.GetFieldType(1));
         }
       }
     }
@@ -500,32 +498,31 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #27959 Bool datatype is not returned as System.Boolean by MySqlDataAdapter 
     /// </summary>
-    [Fact]
+    [Test]
     public void Boolean()
     {
-      executeSQL("CREATE TABLE Test (id INT, `on` BOOLEAN, v TINYINT(2))");
-      executeSQL("INSERT INTO Test VALUES (1,1,1), (2,0,0)");
+      ExecuteSQL("CREATE TABLE Test (id INT, `on` BOOLEAN, v TINYINT(2))");
+      ExecuteSQL("INSERT INTO Test VALUES (1,1,1), (2,0,0)");
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (var reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.Equal(typeof(Boolean), reader.GetFieldType(1));
-        Assert.Equal(typeof(SByte), reader.GetFieldType(2));
+        Assert.AreEqual(typeof(Boolean), reader.GetFieldType(1));
+        Assert.AreEqual(typeof(SByte), reader.GetFieldType(2));
         Assert.True(reader.GetBoolean(1));
-        Assert.Equal(1, Convert.ToInt32(reader.GetValue(2)));
+        Assert.AreEqual(1, Convert.ToInt32(reader.GetValue(2)));
 
         reader.Read();
         Assert.False(reader.GetBoolean(1));
-        Assert.Equal(0, Convert.ToInt32(reader.GetValue(2)));
+        Assert.AreEqual(0, Convert.ToInt32(reader.GetValue(2)));
       }
     }
 
-    [Fact]
+    [Test]
     public void Binary16AsGuid()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (id INT, g BINARY(16), c VARBINARY(16), c1 BINARY(255))");
+      ExecuteSQL("CREATE TABLE Test (id INT, g BINARY(16), c VARBINARY(16), c1 BINARY(255))");
 
       string connStr = Connection.ConnectionString + ";old guids=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -544,17 +541,17 @@ namespace MySql.Data.MySqlClient.Tests
         using (var reader = cmd2.ExecuteReader())
         {
           reader.Read();
-          Assert.Equal(typeof(Guid), reader.GetFieldType(1));
-          Assert.Equal(typeof(byte[]), reader.GetFieldType(2));
-          Assert.Equal(typeof(byte[]), reader.GetFieldType(3));
-          Assert.Equal(g, reader.GetGuid(1));
+          Assert.AreEqual(typeof(Guid), reader.GetFieldType(1));
+          Assert.AreEqual(typeof(byte[]), reader.GetFieldType(2));
+          Assert.AreEqual(typeof(byte[]), reader.GetFieldType(3));
+          Assert.AreEqual(g, reader.GetGuid(1));
         }
 
         string s = BitConverter.ToString(bytes);
 
         s = s.Replace("-", "");
         string sql = String.Format("TRUNCATE TABLE Test;INSERT INTO Test VALUES(1,0x{0},NULL,NULL)", s);
-        executeSQL(sql);
+        ExecuteSQL(sql);
 
         cmd.CommandText = "SELECT * FROM Test";
         cmd.Parameters.Clear();
@@ -562,7 +559,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
           Guid g1 = reader.GetGuid(1);
-          Assert.Equal(g, g1);
+          Assert.AreEqual(g, g1);
         }
       }
     }
@@ -570,36 +567,36 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #35041 'Binary(16) as GUID' - columns lose IsGuid value after a NULL value found 
     /// </summary>
-    [Fact]
+    [Test]
     public void Binary16AsGuidWithNull()
     {
-      executeSQL(@"CREATE TABLE Test (id int(10) NOT NULL AUTO_INCREMENT,
+      ExecuteSQL(@"CREATE TABLE Test (id int(10) NOT NULL AUTO_INCREMENT,
             AGUID binary(16), PRIMARY KEY (id))");
       Guid g = new Guid();
       byte[] guid = g.ToByteArray();
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (NULL, @g)", Connection);
       cmd.Parameters.AddWithValue("@g", guid);
       cmd.ExecuteNonQuery();
-      executeSQL("insert into Test (AGUID) values (NULL)");
+      ExecuteSQL("insert into Test (AGUID) values (NULL)");
       cmd.ExecuteNonQuery();
     }
 
     /// <summary>
     /// Bug #36313 BIT result is lost in the left outer join 
     /// </summary>
-    [Fact]
+    [Test]
     public void BitInLeftOuterJoin()
     {
-      executeSQL(@"CREATE TABLE Main (Id int(10) unsigned NOT NULL AUTO_INCREMENT,
+      ExecuteSQL(@"CREATE TABLE Main (Id int(10) unsigned NOT NULL AUTO_INCREMENT,
         Descr varchar(45) NOT NULL, PRIMARY KEY (`Id`)) 
         ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1");
-      executeSQL(@"INSERT INTO Main (Id,Descr) VALUES (1,'AAA'), (2,'BBB'), (3, 'CCC')");
+      ExecuteSQL(@"INSERT INTO Main (Id,Descr) VALUES (1,'AAA'), (2,'BBB'), (3, 'CCC')");
 
-      executeSQL(@"CREATE TABLE Child (Id int(10) unsigned NOT NULL AUTO_INCREMENT,
+      ExecuteSQL(@"CREATE TABLE Child (Id int(10) unsigned NOT NULL AUTO_INCREMENT,
         MainId int(10) unsigned NOT NULL, Value int(10) unsigned NOT NULL,
         Enabled bit(1) NOT NULL, PRIMARY KEY (`Id`)) 
         ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1");
-      executeSQL(@"INSERT INTO Child (Id, MainId, Value, Enabled) VALUES (1,2,12345,0x01)");
+      ExecuteSQL(@"INSERT INTO Child (Id, MainId, Value, Enabled) VALUES (1,2,12345,0x01)");
 
       MySqlCommand cmd = new MySqlCommand(
         @"SELECT m.Descr, c.Value, c.Enabled FROM Main m 
@@ -607,17 +604,17 @@ namespace MySql.Data.MySqlClient.Tests
       using (var reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read());
-        Assert.Equal("AAA", reader.GetString(0));
+        Assert.AreEqual("AAA", reader.GetString(0));
         Assert.True(reader.IsDBNull(1));
         Assert.True(reader.IsDBNull(2));
 
         Assert.True(reader.Read());
-        Assert.Equal("BBB", reader.GetString(0));
-        Assert.Equal(12345, Convert.ToInt32(reader.GetValue(1)));
-        Assert.Equal(1, Convert.ToInt32(reader.GetValue(2)));
+        Assert.AreEqual("BBB", reader.GetString(0));
+        Assert.AreEqual(12345, Convert.ToInt32(reader.GetValue(1)));
+        Assert.AreEqual(1, Convert.ToInt32(reader.GetValue(2)));
 
         Assert.True(reader.Read());
-        Assert.Equal("CCC", reader.GetString(0));
+        Assert.AreEqual("CCC", reader.GetString(0));
         Assert.True(reader.IsDBNull(1));
         Assert.True(reader.IsDBNull(2));
 
@@ -628,17 +625,17 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #36081 Get Unknown Datatype in C# .Net 
     /// </summary>
-    [Fact]
+    [Test]
     public void GeometryType()
     {
-      executeSQL(@"CREATE TABLE Test (ID int(11) NOT NULL, ogc_geom geometry NOT NULL,
+      ExecuteSQL(@"CREATE TABLE Test (ID int(11) NOT NULL, ogc_geom geometry NOT NULL,
         PRIMARY KEY  (`ID`))");
 
       if (Connection.driver.Version.isAtLeast(8, 0, 1))
-        executeSQL(@"INSERT INTO Test VALUES (1, 
+        ExecuteSQL(@"INSERT INTO Test VALUES (1, 
           ST_GeomFromText('GeometryCollection(Point(1 1), LineString(2 2, 3 3))'))");
       else
-        executeSQL(@"INSERT INTO Test VALUES (1, 
+        ExecuteSQL(@"INSERT INTO Test VALUES (1, 
           GeomFromText('GeometryCollection(Point(1 1), LineString(2 2, 3 3))'))");
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
@@ -650,35 +647,34 @@ namespace MySql.Data.MySqlClient.Tests
 
     #region MySqlGeometry Tests
 
-    [Fact]
+    [Test]
     public void CanParseGeometryValueString()
     {
       var v = MySqlGeometry.Parse("POINT (47.37 -122.21)");
-      Assert.Equal("POINT(47.37 -122.21)", v.ToString());
+      Assert.AreEqual("POINT(47.37 -122.21)", v.ToString());
     }
 
-    [Fact]
+    [Test]
     public void CanTryParseGeometryValueString()
     {
       MySqlGeometry v = new MySqlGeometry(0, 0);
       MySqlGeometry.TryParse("POINT (47.37 -122.21)", out v);
-      Assert.Equal("POINT(47.37 -122.21)", v.ToString());
+      Assert.AreEqual("POINT(47.37 -122.21)", v.ToString());
     }
 
-    [Fact]
+    [Test]
     public void CanTryParseGeometryValueStringWithSRIDValue()
     {
       var mysqlGeometryResult = new MySqlGeometry(0, 0);
       MySqlGeometry.TryParse("SRID=101;POINT (47.37 -122.21)", out mysqlGeometryResult);
-      Assert.Equal("SRID=101;POINT(47.37 -122.21)", mysqlGeometryResult.ToString());
+      Assert.AreEqual("SRID=101;POINT(47.37 -122.21)", mysqlGeometryResult.ToString());
     }
 
 
-    [Fact]
+    [Test]
     public void StoringAndRetrievingGeometry()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
+      ExecuteSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
       MySqlCommand cmd = new MySqlCommand(Connection.driver.Version.isAtLeast(8, 0, 1) ?
         "INSERT INTO Test VALUES (ST_GeomFromText(?v))" :
@@ -699,11 +695,10 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void CanFetchGeometryAsBinary()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
+      ExecuteSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
       MySqlGeometry v = new MySqlGeometry(47.37, -122.21);
 
@@ -723,16 +718,15 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         var val = reader.GetValue(0) as Byte[];
         var MyGeometry = new MySqlGeometry(MySqlDbType.Geometry, val);
-        Assert.Equal("POINT(47.37 -122.21)", MyGeometry.ToString());
+        Assert.AreEqual("POINT(47.37 -122.21)", MyGeometry.ToString());
       }
     }
 
 
-    [Fact]
+    [Test]
     public void CanSaveSridValueOnGeometry()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
+      ExecuteSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
       MySqlGeometry v = new MySqlGeometry(47.37, -122.21, 101);
       var par = new MySqlParameter("?v", MySqlDbType.Geometry);
@@ -750,16 +744,15 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         var val = reader.GetString(0);
-        Assert.Equal("101", val);
+        Assert.AreEqual("101", val);
       }
     }
 
 
-    [Fact]
+    [Test]
     public void CanFetchGeometryAsText()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
+      ExecuteSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
       MySqlGeometry v = new MySqlGeometry(47.37, -122.21);
       var par = new MySqlParameter("?v", MySqlDbType.Geometry);
@@ -777,15 +770,14 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         var val = reader.GetString(0);
-        Assert.Equal("POINT(47.37 -122.21)", val);
+        Assert.AreEqual("POINT(47.37 -122.21)", val);
       }
     }
 
-    [Fact]
+    [Test]
     public void CanUseReaderGetMySqlGeometry()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
+      ExecuteSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
       MySqlGeometry v = new MySqlGeometry(47.37, -122.21);
       var par = new MySqlParameter("?v", MySqlDbType.Geometry);
@@ -805,8 +797,8 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         var val = reader.GetMySqlGeometry(0);
         var valWithName = reader.GetMySqlGeometry("v");
-        Assert.Equal("POINT(47.37 -122.21)", val.ToString());
-        Assert.Equal("POINT(47.37 -122.21)", valWithName.ToString());
+        Assert.AreEqual("POINT(47.37 -122.21)", val.ToString());
+        Assert.AreEqual("POINT(47.37 -122.21)", valWithName.ToString());
       }
 
       // reading as geometry
@@ -816,45 +808,44 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         var val = reader.GetMySqlGeometry(0);
         var valWithName = reader.GetMySqlGeometry("v");
-        Assert.Equal("POINT(47.37 -122.21)", val.ToString());
-        Assert.Equal("POINT(47.37 -122.21)", valWithName.ToString());
+        Assert.AreEqual("POINT(47.37 -122.21)", val.ToString());
+        Assert.AreEqual("POINT(47.37 -122.21)", valWithName.ToString());
       }
 
     }
 
-    [Fact]
+    [Test]
     public void CanGetToStringFromMySqlGeometry()
     {
       MySqlGeometry v = new MySqlGeometry(47.37, -122.21);
       var valToString = v.ToString();
-      Assert.Equal("POINT(47.37 -122.21)", valToString);
+      Assert.AreEqual("POINT(47.37 -122.21)", valToString);
     }
 
     /// <summary>
     /// Bug #86974 Cannot create instance of MySqlGeometry for empty geometry collection 
     /// </summary>
-    [Fact]
+    [Test]
     public void CanCreateMySqlGeometryFromEmptyGeometryCollection()
     {
       var bytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x01, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
       MySqlGeometry v = new MySqlGeometry(MySqlDbType.Geometry, bytes);
-#if NETCOREAPP3_0
-      Assert.Equal("POINT(3.5E-323 0)", v.ToString());      
+#if NETCOREAPP3_1
+      Assert.AreEqual("POINT(3.5E-323 0)", v.ToString());      
 #else
-      Assert.Equal("POINT(3.45845952088873E-323 0)", v.ToString());
+      Assert.AreEqual("POINT(3.45845952088873E-323 0)", v.ToString());
 #endif
     }
 
     /// <summary>
     /// Bug #86974 Cannot create instance of MySqlGeometry for empty geometry collection 
     /// </summary>
-    [Fact]
+    [Test]
     public void CanGetMySqlGeometryFromEmptyGeometryCollection()
     {
-      if (Fixture.Version.CompareTo(new Version(5,7)) == -1) return;
+      if (Version.CompareTo(new Version(5,7)) == -1) return;
 
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (v Geometry NOT NULL)");
+      ExecuteSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (ST_GeometryCollectionFromText(\"GEOMETRYCOLLECTION()\"))", Connection);
       cmd.ExecuteNonQuery();
@@ -866,8 +857,8 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         var val = reader.GetMySqlGeometry(0);
         var valWithName = reader.GetMySqlGeometry("v");
-        Assert.Equal("POINT(0 0)", val.ToString());
-        Assert.Equal("POINT(0 0)", valWithName.ToString());
+        Assert.AreEqual("POINT(0 0)", val.ToString());
+        Assert.AreEqual("POINT(0 0)", valWithName.ToString());
       }
 
       // reading as geometry
@@ -877,12 +868,12 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         var val = reader.GetMySqlGeometry(0);
         var valWithName = reader.GetMySqlGeometry("v");
-#if NETCOREAPP3_0
-        Assert.Equal("POINT(3.5E-323 0)", val.ToString());
-        Assert.Equal("POINT(3.5E-323 0)", valWithName.ToString());
+#if NETCOREAPP3_1
+        Assert.AreEqual("POINT(3.5E-323 0)", val.ToString());
+        Assert.AreEqual("POINT(3.5E-323 0)", valWithName.ToString());
 #else
-        Assert.Equal("POINT(3.45845952088873E-323 0)", val.ToString());
-        Assert.Equal("POINT(3.45845952088873E-323 0)", valWithName.ToString());
+        Assert.AreEqual("POINT(3.45845952088873E-323 0)", val.ToString());
+        Assert.AreEqual("POINT(3.45845952088873E-323 0)", valWithName.ToString());
 #endif
       }
     }
@@ -891,11 +882,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #30169716 MYSQLEXCEPTION WHEN INSERTING A MYSQLGEOMETRY VALUE
     /// Bug #30169715	WHERE CLAUSE USING MYSQLGEOMETRY AS PARAMETER FINDS NO ROWS
     /// </summary>
-    [Fact]
+    [Test]
     public void Bug30169716()
     {
-      executeSQL("DROP TABLE IF EXISTS geometries");
-      executeSQL("CREATE TABLE geometries(id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, data GEOMETRY)");
+      ExecuteSQL("DROP TABLE IF EXISTS geometries");
+      ExecuteSQL("CREATE TABLE geometries(id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, data GEOMETRY)");
 
       var geometry = new MySqlGeometry(1, 1);
 
@@ -904,7 +895,7 @@ namespace MySql.Data.MySqlClient.Tests
         command.CommandText = "INSERT INTO geometries(data) VALUES(@data); ";
         command.Parameters.AddWithValue("@data", geometry);
         int result=command.ExecuteNonQuery();
-        Assert.Equal(1, result);
+        Assert.AreEqual(1, result);
       }
     }
 
@@ -913,11 +904,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #33322 Incorrect Double/Single value saved to MySQL database using MySQL Connector for
     /// </summary>
-    [Fact]
+    [Test]
     public void StoringAndRetrievingDouble()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (v DOUBLE(25,20) NOT NULL)");
+      ExecuteSQL("CREATE TABLE Test (v DOUBLE(25,20) NOT NULL)");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?v)", Connection);
       cmd.Parameters.Add("?v", MySqlDbType.Double);
@@ -929,34 +919,34 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         double d = reader.GetDouble(0);
-        Assert.Equal(Math.PI, d);
+        Assert.AreEqual(Math.PI, d);
       }
     }
 
     /// <summary>
     /// Bug #40571  	Add GetSByte to the list of public methods supported by MySqlDataReader
     /// </summary>
-    [Fact]
+    [Test]
     public void SByteFromReader()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (c1 TINYINT, c2 TINYINT UNSIGNED)");
-      executeSQL("INSERT INTO Test VALUES (99, 217)");
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL("CREATE TABLE Test (c1 TINYINT, c2 TINYINT UNSIGNED)");
+      ExecuteSQL("INSERT INTO Test VALUES (99, 217)");
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.Equal(99, reader.GetSByte(0));
-        Assert.Equal(217, reader.GetByte(1));
-        Assert.Equal(99, reader.GetByte(0));
+        Assert.AreEqual(99, reader.GetSByte(0));
+        Assert.AreEqual(217, reader.GetByte(1));
+        Assert.AreEqual(99, reader.GetByte(0));
       }
     }
 
-    [Fact]
+    [Test]
     public void NewGuidDataType()
     {
-      executeSQL("CREATE TABLE Test(id INT, g BINARY(16))");
+      ExecuteSQL("CREATE TABLE Test(id INT, g BINARY(16))");
 
       string connStr = Connection.ConnectionString + ";old guids=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -972,8 +962,8 @@ namespace MySql.Data.MySqlClient.Tests
         using (var reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.Equal(1, reader.GetValue(0));
-          Assert.Equal(guid, reader.GetGuid(1));
+          Assert.AreEqual(1, reader.GetValue(0));
+          Assert.AreEqual(guid, reader.GetGuid(1));
         }
       }
     }
@@ -981,11 +971,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #44507 Binary(16) considered as Guid 
     /// </summary>
-    [Fact]
+    [Test]
     public void ReadBinary16AsBinary()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (id INT, guid BINARY(16))");
+      ExecuteSQL("CREATE TABLE Test (id INT, guid BINARY(16))");
 
       string connStr = Connection.ConnectionString + ";old guids=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -1011,17 +1000,16 @@ namespace MySql.Data.MySqlClient.Tests
 
           byte[] bytes = new byte[16];
           long size = reader.GetBytes(1, 0, bytes, 0, 16);
-          Assert.Equal(16, size);
+          Assert.AreEqual(16, size);
         }
       }
     }
 
-    [Fact]
+    [Test]
     public void ReadingUUIDAsGuid()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (id INT, guid CHAR(36))");
-      executeSQL("INSERT INTO Test VALUES (1, UUID())");
+      ExecuteSQL("CREATE TABLE Test (id INT, guid CHAR(36))");
+      ExecuteSQL("INSERT INTO Test VALUES (1, UUID())");
 
       MySqlCommand cmd = new MySqlCommand("SELECT CONCAT('A', guid) FROM Test", Connection);
       string serverGuidStr = cmd.ExecuteScalar().ToString().Substring(1);
@@ -1029,14 +1017,13 @@ namespace MySql.Data.MySqlClient.Tests
 
       cmd.CommandText = "SELECT guid FROM Test";
       Guid g = (Guid)cmd.ExecuteScalar();
-      Assert.Equal(serverGuid, g);
+      Assert.AreEqual(serverGuid, g);
     }
 
-    [Fact]
+    [Test]
     public void NewGuidType()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (id INT, guid CHAR(36))");
+      ExecuteSQL("CREATE TABLE Test (id INT, guid CHAR(36))");
 
       Guid g = Guid.NewGuid();
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, @g)", Connection);
@@ -1045,18 +1032,17 @@ namespace MySql.Data.MySqlClient.Tests
 
       cmd.CommandText = "SELECT guid FROM Test";
       Guid readG = (Guid)cmd.ExecuteScalar();
-      Assert.Equal(g, readG);
+      Assert.AreEqual(g, readG);
     }
 
     /// <summary>
     /// Bug #47928 Old Guids=true setting is lost after null value is
     /// encountered in a Binary(16) 
     /// </summary>
-    [Fact]
+    [Test]
     public void OldGuidsWithNull()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (id INT, guid BINARY(16))");
+      ExecuteSQL("CREATE TABLE Test (id INT, guid BINARY(16))");
 
       string connStr = Connection.ConnectionString + ";old guids=true";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -1088,12 +1074,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #47985	UTF-8 String Length Issue (guids etc)
     /// </summary>
-    [Fact]
+    [Test]
     public void UTF8Char12AsGuid()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (id INT, name CHAR(12) CHARSET utf8)");
-      executeSQL("INSERT INTO Test VALUES (1, 'Name')");
+      ExecuteSQL("CREATE TABLE Test (id INT, name CHAR(12) CHARSET utf8)");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 'Name')");
 
       string connStr = Connection.ConnectionString + ";charset=utf8";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -1105,7 +1090,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
           string s = reader.GetString(1);
-          Assert.Equal("Name", s);
+          Assert.AreEqual("Name", s);
         }
       }
     }
@@ -1113,12 +1098,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #48100	Impossible to retrieve decimal value if it doesn't fit into .Net System.Decimal
     /// </summary>
-    [Fact]
+    [Test]
     public void MySqlDecimal()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (id INT, dec1 DECIMAL(36,2))");
-      executeSQL("INSERT INTO Test VALUES (1, 9999999999999999999999999999999999.99)");
+      ExecuteSQL("CREATE TABLE Test (id INT, dec1 DECIMAL(36,2))");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 9999999999999999999999999999999999.99)");
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -1126,22 +1110,24 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         MySqlDecimal dec = reader.GetMySqlDecimal(1);
         string s = dec.ToString();
-        Assert.Equal(9999999999999999999999999999999999.99, dec.ToDouble());
-        Assert.Equal("9999999999999999999999999999999999.99", dec.ToString());
-        Exception ex = Assert.Throws<OverflowException>(() => dec.Value);
-        Assert.Equal("Value was either too large or too small for a Decimal.", ex.Message);
+        Assert.AreEqual(9999999999999999999999999999999999.99, dec.ToDouble());
+        Assert.AreEqual("9999999999999999999999999999999999.99", dec.ToString());
+
+        void Value() { _ = dec.Value; } 
+
+        Exception ex = Assert.Throws<OverflowException>(() => Value());
+        Assert.AreEqual("Value was either too large or too small for a Decimal.", ex.Message);
       }
     }
 
     /// <summary>
     /// Bug #55644 Value was either too large or too small for a Double 
     /// </summary>
-    [Fact]
+    [Test]
     public void DoubleMinValue()
     {
-      executeSQL("DROP TABLE IF EXISTS test");
-      executeSQL("CREATE TABLE test(dbl double)");
-      MySqlCommand cmd = new MySqlCommand("insert into test values(?param1)");
+      ExecuteSQL("CREATE TABLE Test(dbl double)");
+      MySqlCommand cmd = new MySqlCommand("insert into Test values(?param1)");
       cmd.Connection = Connection;
       cmd.Parameters.Add(new MySqlParameter("?param1", MySqlDbType.Double));
       cmd.Parameters["?param1"].Value = Double.MinValue;
@@ -1149,51 +1135,50 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters["?param1"].Value = Double.MaxValue;
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("SELECT * FROM test", Connection);
+      cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
         double d = reader.GetDouble(0);
-        Assert.Equal(d, double.MinValue);
+        Assert.AreEqual(d, double.MinValue);
         reader.Read();
         d = reader.GetDouble(0);
-        Assert.Equal(d, double.MaxValue);
+        Assert.AreEqual(d, double.MaxValue);
       }
     }
 
     /// <summary>
     /// Bug #58373	ReadInteger problem
     /// </summary>
-    [Fact]
+    [Test]
     public void BigIntAutoInc()
     {
-      executeSQL("DROP TABLE IF EXISTS test");
-      executeSQL("CREATE TABLE test(ID bigint unsigned AUTO_INCREMENT NOT NULL PRIMARY KEY, name VARCHAR(20))");
+      ExecuteSQL("CREATE TABLE Test(ID bigint unsigned AUTO_INCREMENT NOT NULL PRIMARY KEY, name VARCHAR(20))");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, 'boo')", Connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (@id, 'boo')", Connection);
       ulong val = UInt64.MaxValue;
       val -= 100;
       cmd.Parameters.AddWithValue("@id", val);
       cmd.ExecuteNonQuery();
 
-      cmd.CommandText = "INSERT INTO test (name) VALUES ('boo2')";
+      cmd.CommandText = "INSERT INTO Test (name) VALUES ('boo2')";
       cmd.ExecuteNonQuery();
     }
 
     /// <summary>
     /// Bug #29802379	LOAD A DATATABLE FROM A DATAREADER DOESN'T WORK FOR LARGE BIGINT UNSIGNED
     /// </summary>
-    [Fact]
+    [Test]
     public void Bug29802379()
     {
-      executeSQL(@"
+      ExecuteSQL(@"
         CREATE TABLE `test_29802379` (
           `ID` bigint signed NOT NULL AUTO_INCREMENT,
           PRIMARY KEY (`ID`),
           UNIQUE KEY `ID_UNIQUE` (`ID`)
         ) ENGINE=InnoDB AUTO_INCREMENT=2147483648 ;
       ");
-      executeSQL(@"
+      ExecuteSQL(@"
         INSERT INTO test_29802379 (`ID`) VALUES ('2147483648');
         INSERT INTO test_29802379 (`ID`) VALUES ('2147483649');
       ");
@@ -1203,7 +1188,7 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dataTable = new DataTable();
       dataTable.Load(dr);
       int records = dataTable.Rows.Count;
-      Assert.Equal<int>((int)2,records);
+      Assert.AreEqual((int)2,records);
     }
 
     /// <summary>
@@ -1211,63 +1196,61 @@ namespace MySql.Data.MySqlClient.Tests
     /// Executing a simple query that generates a time difference that has a 
     /// fractional second value throws an exception
     /// </summary>
-    [Fact]
+    [Test]
     public void Timediff()
     {
       MySqlCommand cmd = new MySqlCommand("select timediff('2 0:1:1.0', '4 1:2:3.123456')", Connection);
       var result = cmd.ExecuteScalar();
-      Assert.Equal(new TimeSpan(new TimeSpan(-2, -1, -1, -2).Ticks - 1234560), result);
+      Assert.AreEqual(new TimeSpan(new TimeSpan(-2, -1, -1, -2).Ticks - 1234560), result);
     }
 
-    [Fact]
+    [Test]
     public void CanReadJsonValue()
     {
 
-      if (Fixture.Version < new Version(5, 7)) return;
+      if (Version < new Version(5, 7)) return;
 
-      executeSQL("DROP TABLE IF EXISTS test");
-      executeSQL("CREATE TABLE test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
+      ExecuteSQL("CREATE TABLE Test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, '[1]')", Connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (@id, '[1]')", Connection);
       cmd.Parameters.AddWithValue("@id", 1);
       cmd.ExecuteNonQuery();
 
-      string command = @"INSERT INTO test VALUES (@id, '[""a"", {""b"": [true, false]}, [10, 20]]')";
+      string command = @"INSERT INTO Test VALUES (@id, '[""a"", {""b"": [true, false]}, [10, 20]]')";
       cmd = new MySqlCommand(command, Connection);
       cmd.Parameters.AddWithValue("@id", 2);
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("SELECT jsoncolumn from test where id = 2 ", Connection);
+      cmd = new MySqlCommand("SELECT jsoncolumn from Test where id = 2 ", Connection);
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read());
-        Assert.Equal("[\"a\", {\"b\": [true, false]}, [10, 20]]", reader.GetString(0));
+        Assert.AreEqual("[\"a\", {\"b\": [true, false]}, [10, 20]]", reader.GetString(0));
       }
     }
 
-    [Fact]
+    [Test]
     public void CanUpdateJsonValue()
     {
-      if (Fixture.Version < new Version(5, 7)) return;
+      if (Version < new Version(5, 7)) return;
 
-      executeSQL("DROP TABLE IF EXISTS test");
-      executeSQL("CREATE TABLE test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
+      ExecuteSQL("CREATE TABLE Test(id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES (@id, '[1]')", Connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (@id, '[1]')", Connection);
       cmd.Parameters.AddWithValue("@id", 1);
       cmd.ExecuteNonQuery();
 
-      string command = @"UPDATE test set jsoncolumn = '[""a"", {""b"": [true, false]}, [10, 20]]' where id = 1";
+      string command = @"UPDATE Test set jsoncolumn = '[""a"", {""b"": [true, false]}, [10, 20]]' where id = 1";
       cmd = new MySqlCommand(command, Connection);
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("SELECT jsoncolumn from test where id = 1 ", Connection);
+      cmd = new MySqlCommand("SELECT jsoncolumn from Test where id = 1 ", Connection);
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read());
-        Assert.Equal("[\"a\", {\"b\": [true, false]}, [10, 20]]", reader.GetString(0));
+        Assert.AreEqual("[\"a\", {\"b\": [true, false]}, [10, 20]]", reader.GetString(0));
       }
     }
 
@@ -1276,32 +1259,31 @@ namespace MySql.Data.MySqlClient.Tests
     /// and an insensitive serch with a generated column
     /// WL #411 
     ///
-    [Fact]
+    [Test]
     public void CanUseGeneratedColumns()
     {
-      if (Fixture.Version < new Version(5, 7)) return;
+      if (Version < new Version(5, 7)) return;
 
-      executeSQL("DROP TABLE IF EXISTS test");
-      executeSQL("CREATE TABLE `test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
+      ExecuteSQL("CREATE TABLE `Test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('Berlin')", Connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (Name) VALUES ('Berlin')", Connection);
       cmd.ExecuteNonQuery();
-      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('London')", Connection);
+      cmd = new MySqlCommand("INSERT INTO Test (Name) VALUES ('London')", Connection);
       cmd.ExecuteNonQuery();
-      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('France')", Connection);
+      cmd = new MySqlCommand("INSERT INTO Test (Name) VALUES ('France')", Connection);
       cmd.ExecuteNonQuery();
-      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('United Kingdom')", Connection);
+      cmd = new MySqlCommand("INSERT INTO Test (Name) VALUES ('United Kingdom')", Connection);
       cmd.ExecuteNonQuery();
-      cmd = new MySqlCommand("INSERT INTO test (Name) VALUES ('Italy')", Connection);
-      cmd.ExecuteNonQuery();
-
-      cmd = new MySqlCommand("ALTER TABLE test ADD COLUMN Name_ci char(35) CHARACTER SET utf8 AS (Name) STORED;", Connection);
+      cmd = new MySqlCommand("INSERT INTO Test (Name) VALUES ('Italy')", Connection);
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("ALTER TABLE test ADD INDEX (Name_ci);", Connection);
+      cmd = new MySqlCommand("ALTER TABLE Test ADD COLUMN Name_ci char(35) CHARACTER SET utf8 AS (Name) STORED;", Connection);
       cmd.ExecuteNonQuery();
 
-      cmd = new MySqlCommand("SELECT Name FROM test WHERE Name_ci='berlin'", Connection);
+      cmd = new MySqlCommand("ALTER TABLE Test ADD INDEX (Name_ci);", Connection);
+      cmd.ExecuteNonQuery();
+
+      cmd = new MySqlCommand("SELECT Name FROM Test WHERE Name_ci='berlin'", Connection);
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {

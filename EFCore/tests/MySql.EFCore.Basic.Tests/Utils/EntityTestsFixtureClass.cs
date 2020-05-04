@@ -1,4 +1,4 @@
-﻿// Copyright © 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,14 +30,11 @@ using System;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
-using System.Linq;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
-using MySql.Data.EntityFrameworkCore;
+using NUnit.Framework;
 using MySql.Data.MySqlClient;
-using Microsoft.EntityFrameworkCore;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
 {
   public class EntityTestsFixtureClass : IDisposable
   {
@@ -95,7 +92,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       foreach (char c in refSql)
         if (!Char.IsWhiteSpace(c))
           str2.Append(c);
-      Assert.Equal(0, String.Compare(str1.ToString(), str2.ToString(), true));
+      Assert.AreEqual(0, String.Compare(str1.ToString(), str2.ToString(), true));
     }
 
 

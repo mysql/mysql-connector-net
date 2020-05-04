@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,48 +27,40 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFramework.Tests
 {
 
-  public class SimpleQuery : IClassFixture<DefaultFixture>
+  public class SimpleQuery : DefaultFixture
   {
-    private DefaultFixture st;
-
-    public SimpleQuery(DefaultFixture fixture)
-    {
-      st = fixture;
-      st.Setup(this.GetType());
-    }
-
-    [Fact]
+    [Test]
     public void SimpleFindAll()
     {
 
-      using (DefaultContext ctx = st.GetDefaultContext())
+      using (DefaultContext ctx = GetDefaultContext())
       {
         var q = from b in ctx.Books select b;
         string sql = q.ToString();
 
         var expected = @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`PubDate`, `Extent1`.`Pages`, 
                         `Extent1`.`Author_Id` FROM `Books` AS `Extent1`";
-        st.CheckSql(sql, expected);
+        CheckSql(sql, expected);
       }
     }
 
-    [Fact]
+    [Test]
     public void SimpleFindAllWithCondition()
     {
 
-      using (DefaultContext ctx = st.GetDefaultContext())
+      using (DefaultContext ctx = GetDefaultContext())
       {
         var q = from b in ctx.Books where b.Id == 1 select b;
         string sql = q.ToString();
 
         var expected = @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`PubDate`, `Extent1`.`Pages`, 
                         `Extent1`.`Author_Id` FROM `Books` AS `Extent1` WHERE 1 = `Extent1`.`Id`";
-        st.CheckSql(sql, expected);
+        CheckSql(sql, expected);
       }
     }
 

@@ -32,15 +32,14 @@ using MySql.Data.EntityFrameworkCore.Design.Internal;
 using MySql.Data.EntityFrameworkCore.Metadata.Conventions;
 using MySql.Data.EntityFrameworkCore.Metadata.Internal;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.EntityFrameworkCore.Design.Tests
 {
   public class MySQLAnnotationCodeGeneratorTest
   {
-    [Theory]
-    [InlineData(MySQLAnnotationNames.Charset)]
-    [InlineData(MySQLAnnotationNames.Collation)]
+    [TestCase(MySQLAnnotationNames.Charset)]
+    [TestCase(MySQLAnnotationNames.Collation)]
     public void GenerateFluentApiHasCharset(string mySQLAnnotation)
     {
       var generator = new MySQLAnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies());
@@ -56,8 +55,8 @@ namespace MySql.EntityFrameworkCore.Design.Tests
       var annotation = key.FindAnnotation(mySQLAnnotation);
       var result = generator.GenerateFluentApi(key, annotation);
 
-      Assert.Equal(mySQLAnnotation == MySQLAnnotationNames.Charset ? "HasCharSet" : "HasCollation", result.Method);
-      Assert.Equal(1, result.Arguments.Count);
+      Assert.AreEqual(mySQLAnnotation == MySQLAnnotationNames.Charset ? "HasCharSet" : "HasCollation", result.Method);
+      Assert.AreEqual(1, result.Arguments.Count);
     }
   }
 }

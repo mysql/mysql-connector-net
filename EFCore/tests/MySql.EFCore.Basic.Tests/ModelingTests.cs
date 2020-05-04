@@ -21,25 +21,18 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Xunit;
+using NUnit.Framework;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests
 {
-  public class ModelingTests : IClassFixture<SakilaLiteFixture>
+  [TestFixture]
+  public class ModelingTests : SakilaLiteFixture
   {
-    private SakilaLiteFixture fixture;
-
-    public ModelingTests(SakilaLiteFixture fixture)
-    {
-      this.fixture = fixture;
-    }
-
-    [Fact]
+    [Test]
     public void TableSplitting()
     {
       // Inserting data
@@ -97,52 +90,42 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       {
         var films = context.Films.Include(e => e.Details).ToList();
 
-        Action<FilmLite, int, string, short> validate = (film, id, title, releaseYear) =>
-        {
-          Assert.Equal(id, film.FilmId);
-          Assert.NotNull(film.Details);
-          Assert.NotNull(film.Details.Film);
-          Assert.Equal(id, film.Details.FilmId);
-          Assert.Equal(title, film.Title);
-          Assert.Equal(releaseYear, film.Details.ReleaseYear);
-        };
-
-        Assert.Collection(films,
-          film => validate(film, 1, "ACADEMY DINOSAUR", 2006),
-          film => validate(film, 2, "ACE GOLDFINGER", 2006)
-        );
+        Assert.That(films.Where(a => a.FilmId == 1), Has.One.Items);
+        Assert.That(films.Where(a => a.FilmId == 2), Has.One.Items);
+        Assert.That(films.Select(c=>c.Title),Has.Exactly(1).Matches<string>( Title=>Title.Contains("ACADEMY DINOSAUR")));
+        Assert.That(films.Select(c => c.Title), Has.Exactly(1).Matches<string>(Title => Title.Contains("ACE GOLDFINGER")));
+        Assert.That(films.Where(a => a.Details.Film.Details.ReleaseYear == 2006), Has.Exactly(2).Items);
       }
     }
 
-    [Fact]
+    [Test]
     public void ScalarFunctionMapping()
     {
       using (SakilaLiteContext context = new SakilaLiteContext())
       {
         context.Database.ExecuteSqlCommand("CREATE FUNCTION FilmsByActorCount(id SMALLINT) RETURNS INT RETURN (SELECT COUNT(*) FROM film_actor WHERE actor_id = id);");
         var query = context.Actor.Where(c => SakilaLiteContext.FilmsByActorCount(c.ActorId) == 18).ToList();
-        Assert.Collection<Actor>(query,
-          e => { Assert.Equal(31, e.ActorId); },
-          e => { Assert.Equal(71, e.ActorId); }
-        );
+        Assert.That(query.Select(a=>a.ActorId),Has.Exactly(1).Matches<short>(actorid=>actorid.Equals(31)));
+        Assert.That(query.Select(a => a.ActorId), Has.Exactly(1).Matches<short>(actorid => actorid.Equals(71)));
       }
     }
 
-    [Fact]
+    [Test]
     public void LikeFunction()
     {
       using (SakilaLiteContext context = new SakilaLiteContext())
       {
         var query = context.Actor.Where(c => EF.Functions.Like(c.LastName, "A%")).ToList();
-        Assert.NotEmpty(query);
+        Assert.IsNotEmpty(query);
         foreach(Actor actor in query)
         {
-          Assert.StartsWith("A", actor.LastName);
+          StringAssert.StartsWith("A", actor.LastName);
         }
       }
     }
 
-    [Fact(Skip ="Fix this")]
+    [Test]
+    [Ignore("Fix this")]
     public void OwnedEntityTypes()
     {
       using (SakilaLiteOwnedTypesContext context = new SakilaLiteOwnedTypesContext())
@@ -167,8 +150,8 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           context.SaveChanges();
 
           var customer = context.Customer.Where(p => p.Address.AddressId == 1).First();
-          Assert.Equal(1, customer.CustomerId);
-          Assert.Equal("47 MySakila Drive", customer.Address.Address);
+          Assert.AreEqual(1, customer.CustomerId);
+          Assert.AreEqual("47 MySakila Drive", customer.Address.Address);
         }
         finally
         {
@@ -177,13 +160,13 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void ModelLevelQueryFilter()
     {
       using(SakilaLiteContext context = new SakilaLiteContext())
       {
-        Assert.Equal(584, context.Customer.Count());
-        Assert.Equal(599, context.Customer.IgnoreQueryFilters().Count());
+        Assert.AreEqual(584, context.Customer.Count());
+        Assert.AreEqual(599, context.Customer.IgnoreQueryFilters().Count());
       }
     }
   }

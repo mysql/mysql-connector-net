@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,9 +29,7 @@
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
@@ -52,14 +50,14 @@ namespace MySqlX.Data.Tests
       _connectionStringWithSslMode = _connectionString + "sslmode=required;";
     }
 
-    [Fact]
+    [Test]
     public void SessionCanBeOpened()
     {
       Session session = null;
       session = MySQLX.GetSession(_xConnectionURI);
     }
 
-    [Fact]
+    [Test]
     public void ConnectionAfterSessionCanBeOpened()
     {
       Session session = null;
@@ -73,7 +71,7 @@ namespace MySqlX.Data.Tests
       session.Close();
     }
 
-    [Fact]
+    [Test]
     public void Bug28151070_3()
     {
       var connection = new MySqlConnection(_connectionStringWithSslMode);
@@ -84,7 +82,7 @@ namespace MySqlX.Data.Tests
       session = MySQLX.GetSession(_xConnectionURI);
     }
 
-    [Fact]
+    [Test]
     public void Bug28151070_4()
     {
       var connection = new MySqlConnection(_connectionStringWithSslMode);
@@ -92,7 +90,7 @@ namespace MySqlX.Data.Tests
       connection.Close();
     }
 
-    [Fact]
+    [Test]
     public void Bug28151070_5()
     {
       Session session = null;
@@ -103,64 +101,61 @@ namespace MySqlX.Data.Tests
       builder.SslCa = "";
     }
 
-    [Theory]
-#if NET48 || NETCOREAPP3_0
-    [InlineData(";tls-version=TlSv1.3", "Tls13")]
-    [InlineData(";tls-version=TlSv1.2, tLsV11, TLS13, tls1.0", "Tls, Tls11, Tls12, Tls13")]
+#if NET48 || NETCOREAPP3_1
+    [TestCase(";tls-version=TlSv1.3", "Tls13")]
+    [TestCase(";tls-version=TlSv1.2, tLsV11, TLS13, tls1.0", "Tls, Tls11, Tls12, Tls13")]
 #endif
-    [InlineData(";tls-version=TlSv1.2, tLsV11, tls1.0", "Tls, Tls11, Tls12")]
-    [InlineData(";tls-version=TlSv1.2, SsLv3", null, "SsLv3")]
+    [TestCase(";tls-version=TlSv1.2, tLsV11, tls1.0", "Tls, Tls11, Tls12")]
+    [TestCase(";tls-version=TlSv1.2, SsLv3", null, "SsLv3")]
     public void ValidateTlsVersionOptionAsString(string options, string result, string error = null)
     {
       if (result != null)
       {
         MySqlXConnectionStringBuilder builder = new MySqlXConnectionStringBuilder(_connectionString + options);
-        Assert.Equal(result, builder.TlsVersion);
+        Assert.AreEqual(result, builder.TlsVersion);
       }
       else
       {
         string info = string.Empty;
-#if NET48 || NETCOREAPP3_0
+#if NET48 || NETCOREAPP3_1
         info = ", TLSv1.3";
 #endif
-        Assert.ThrowsAny<ArgumentException>(() => { new MySqlXConnectionStringBuilder(_connectionString + options); });
+        Assert.Throws<ArgumentException>(() => { new MySqlXConnectionStringBuilder(_connectionString + options); });
       }
     }
 
-    [Theory]
-#if NET48 || NETCOREAPP3_0
-    [InlineData("TlSv1.2, tLsV11, TLS13, tls1.0", "Tls, Tls11, Tls12, Tls13")]
-    [InlineData("TlSv1.2, TLS13, SsLv3", null, "SsLv3")]
+#if NET48 || NETCOREAPP3_1
+    [TestCase("TlSv1.2, tLsV11, TLS13, tls1.0", "Tls, Tls11, Tls12, Tls13")]
+    [TestCase("TlSv1.2, TLS13, SsLv3", null, "SsLv3")]
 #endif
-    [InlineData("TlSv1.2, tLsV11, tls1.0", "Tls, Tls11, Tls12")]
-    [InlineData("TlSv1.2, SsLv3", null, "SsLv3")]
+    [TestCase("TlSv1.2, tLsV11, tls1.0", "Tls, Tls11, Tls12")]
+    [TestCase("TlSv1.2, SsLv3", null, "SsLv3")]
     public void ValidateTlsVersionOptionAsProperty(string options, string result, string error = null)
     {
       MySqlXConnectionStringBuilder builder = new MySqlXConnectionStringBuilder(_connectionString);
       if (result != null)
       {
         builder.TlsVersion = options;
-        Assert.Equal(result, builder.TlsVersion);
+        Assert.AreEqual(result, builder.TlsVersion);
       }
       else
       {
         string info = string.Empty;
-#if NET48 || NETCOREAPP3_0
+#if NET48 || NETCOREAPP3_1
         info = ", TLSv1.3";
 #endif
-        Assert.ThrowsAny<ArgumentException>(() => { builder.TlsVersion = options; });
+        Assert.Throws<ArgumentException>(() => { builder.TlsVersion = options; });
       }
     }
 
-    [Theory]
-#if NET48 || NETCOREAPP3_0
-    [InlineData(MySqlSslMode.Prefered, "TlSv1.2, tLsV11, TLS13, tls1.0", "Tls, Tls11, Tls12, Tls13", null)]
-    [InlineData(MySqlSslMode.None, "TlSv1.2, tLsV11, TLS13, tls1.0", null, null)]
-    [InlineData(null, "TlSv1.2, tLsV11, TLS13, tls1.0", "Tls, Tls11, Tls12, Tls13", MySqlSslMode.None)]
+#if NET48 || NETCOREAPP3_1
+    [TestCase(MySqlSslMode.Prefered, "TlSv1.2, tLsV11, TLS13, tls1.0", "Tls, Tls11, Tls12, Tls13", null)]
+    [TestCase(MySqlSslMode.None, "TlSv1.2, tLsV11, TLS13, tls1.0", null, null)]
+    [TestCase(null, "TlSv1.2, tLsV11, TLS13, tls1.0", "Tls, Tls11, Tls12, Tls13", MySqlSslMode.None)]
 #endif
-    [InlineData(MySqlSslMode.Prefered, "TlSv1.2, tLsV11, tls1.0", "Tls, Tls11, Tls12", null)]
-    [InlineData(MySqlSslMode.None, "TlSv1.2, tLsV11, tls1.0", null, null)]
-    [InlineData(null, "TlSv1.2, tLsV11, tls1.0", "Tls, Tls11, Tls12", MySqlSslMode.None)]
+    [TestCase(MySqlSslMode.Prefered, "TlSv1.2, tLsV11, tls1.0", "Tls, Tls11, Tls12", null)]
+    [TestCase(MySqlSslMode.None, "TlSv1.2, tLsV11, tls1.0", null, null)]
+    [TestCase(null, "TlSv1.2, tLsV11, tls1.0", "Tls, Tls11, Tls12", MySqlSslMode.None)]
     public void ValidateTlsVersionOptionAndSslMode(MySqlSslMode? sslMode1, string options, string result, MySqlSslMode? sslMode2)
     {
       MySqlXConnectionStringBuilder builder = new MySqlXConnectionStringBuilder(_connectionString);
@@ -169,14 +164,14 @@ namespace MySqlX.Data.Tests
       if (result != null)
       {
         builder.TlsVersion = options;
-        Assert.Equal(result, builder.TlsVersion);
+        Assert.AreEqual(result, builder.TlsVersion);
       }
       else
-        Assert.ThrowsAny<ArgumentException>(() =>
+        Assert.Throws<ArgumentException>(() =>
         { builder.TlsVersion = options; });
       if (sslMode2.HasValue)
       {
-        Assert.ThrowsAny<ArgumentException>(() =>
+        Assert.Throws<ArgumentException>(() =>
         { builder.SslMode = sslMode2.Value; });
       }
     }

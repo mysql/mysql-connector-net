@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,14 +29,14 @@
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using System;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests.ResultTests
 {
   public class CrudGCTests : BaseTest
   {
-#if !(NETCOREAPP2_2 || NETCOREAPP3_0)
-    [Fact]
+#if !NETCOREAPP3_1
+    [Test]
     public void FetchAllNoReference()
     {
       Collection testColl = CreateCollection("test");
@@ -45,7 +45,7 @@ namespace MySqlX.Data.Tests.ResultTests
       stmt.Add(@"{ ""_id"": 3, ""foo"": 3 }");
       stmt.Add(@"{ ""_id"": 4, ""foo"": 4 }");
       Result result = ExecuteAddStatement(stmt);
-      Assert.Equal(4, (int)result.AffectedItemsCount);
+      Assert.AreEqual(4, (int)result.AffectedItemsCount);
 
       var docResult = ExecuteFindStatement(testColl.Find());
       var docs = docResult.FetchAll();
@@ -53,8 +53,8 @@ namespace MySqlX.Data.Tests.ResultTests
       docResult = null;
       GC.Collect();
       Assert.False(wr.IsAlive);
-      Assert.Equal(4, docs.Count);
+      Assert.AreEqual(4, docs.Count);
     }
 #endif
-    }
+  }
 }

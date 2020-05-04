@@ -1,4 +1,4 @@
-// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,39 +27,35 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Xunit;
+using NUnit.Framework;
 using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class ExceptionTests : TestBase
   {
-    public ExceptionTests(TestFixture fixture) : base(fixture)
-    {
-    }
-
-    [Fact (Skip =  "Having an issue")]
+    [Test]
     public void Timeout()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100))");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100))");
       for (int i = 1; i < 10; i++)
-        executeSQL("INSERT INTO Test VALUES (" + i + ", 'This is a long text string that I am inserting')");
+        ExecuteSQL("INSERT INTO Test VALUES (" + i + ", 'This is a long text string that I am inserting')");
 
       // we create a new connection so our base one is not closed
-      var connection = Fixture.GetConnection(false);
+      var connection = GetConnection(false);
       KillConnection(connection);
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);    
        
-      Exception ex = Assert.Throws<MySqlException>(() =>  cmd.ExecuteReader());
-      Assert.Equal("Connection must be valid and open.", ex.Message);     
-      Assert.Equal(ConnectionState.Closed, connection.State);
+      Exception ex = Assert.Throws<InvalidOperationException>(() =>  cmd.ExecuteReader());
+      Assert.AreEqual("Connection must be valid and open.", ex.Message);     
+      Assert.AreEqual(ConnectionState.Closed, connection.State);
       connection.Close();
       
     }
     /// <summary>
     /// Bug #27436 Add the MySqlException.Number property value to the Exception.Data Dictionary  
     /// </summary>
-    [Fact]
+    [Test]
     public void ErrorData()
     {
       MySqlCommand cmd = new MySqlCommand("SELEDT 1", Connection);
@@ -69,7 +65,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (Exception ex)
       {
-        Assert.Equal(1064, ex.Data["Server Error Code"]);
+        Assert.AreEqual(1064, ex.Data["Server Error Code"]);
       }
     }
   }

@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,33 +28,31 @@
 
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Relational;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
+using System;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {
   public class ViewTests : BaseTest
   {
-    [Fact]
+    [Test]
     public void TryUpdatingView()
     {
       ExecuteSQL("CREATE TABLE test(id int)");
       ExecuteSQL("CREATE VIEW view1 AS select *, 1 from test");
 
       List<Table> tables = testSchema.GetTables();
-      Assert.Equal(2, tables.Count);
+      Assert.AreEqual(2, tables.Count);
 
       Table view = tables.First(i => i.IsView);
-      Assert.Equal("view1", view.Name);
+      Assert.AreEqual("view1", view.Name);
       MySqlException ex = Assert.Throws<MySqlException>(() => ExecuteInsertStatement(view.Insert().Values(1)));
-      Assert.Equal("Column '1' is not updatable", ex.Message);
+      Assert.AreEqual("Column '1' is not updatable", ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void GetView()
     {
       ExecuteSQL("CREATE TABLE test(id int)");
@@ -66,10 +64,14 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.False(table.IsView);
     }
 
-    [Fact]
+    //private bool IsView() => testSchema.GetTable("no_exists").IsView;
+
+    [Test]
     public void NonExistingView()
     {
-      Assert.Throws<MySqlException>(() => testSchema.GetTable("no_exists").IsView);
+      bool isView;
+      void IsView() { isView = testSchema.GetTable("no_exists").IsView; };
+      Assert.Throws<MySqlException>(() => IsView());
     }
   }
 }

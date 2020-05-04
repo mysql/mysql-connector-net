@@ -1,4 +1,4 @@
-// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,7 +29,7 @@
 using System;
 using System.Collections.Specialized;
 using System.Web.Security;
-using Xunit;
+using NUnit.Framework;
 using MySql.Web.Security;
 
 namespace MySql.Web.Tests
@@ -72,18 +72,18 @@ namespace MySql.Web.Tests
     }
 
 
-    [Fact]
+    [Test]
     public void CreateAndDeleteRoles()
     {
       // Add the role
       roleProvider.CreateRole("Administrator");
       string[] roles = roleProvider.GetAllRoles();
-      Assert.Equal(1, roles.Length);
-      Assert.Equal("Administrator", roles[0]);
+      Assert.AreEqual(1, roles.Length);
+      Assert.AreEqual("Administrator", roles[0]);
       roleProvider.DeleteRole("Administrator", false);
-    }   
+    }
 
-    [Fact]
+    [Test]
     public void AddUserToRole()
     {
       AddUser("eve", "eveeve!");
@@ -96,8 +96,8 @@ namespace MySql.Web.Tests
       roleProvider.RemoveUsersFromRoles(new string[] { "eve" }, new string[] { "Administrator" });
       Assert.False(roleProvider.IsUserInRole("eve", "Administrator"));
 
-      roleProvider.DeleteRole("Administrator", false);      
-      Assert.Equal(0, roleProvider.GetAllRoles().Length);
+      roleProvider.DeleteRole("Administrator", false);
+      Assert.AreEqual(0, roleProvider.GetAllRoles().Length);
 
       //clean up
       membershipProvider.DeleteUser("eve", true);
@@ -107,7 +107,7 @@ namespace MySql.Web.Tests
     /// <summary>
     /// Bug #38243 Not Handling non existing user when calling AddUsersToRoles method 
     /// </summary>
-    [Fact]
+    [Test]
     public void AddNonExistingUserToRole()
     {
       roleProvider.CreateRole("Administrator");
@@ -117,12 +117,12 @@ namespace MySql.Web.Tests
 
       //Cleanup
       roleProvider.RemoveUsersFromRoles(new string[] { "eve" }, new string[] { "Administrator" });
-      roleProvider.DeleteRole("Administrator", false);      
-      
+      roleProvider.DeleteRole("Administrator", false);
+
     }
 
 
-    [Fact]
+    [Test]
     public void IllegalRoleAndUserNames()
     {
       AttemptToAddUserToRole("test", null);
@@ -132,10 +132,10 @@ namespace MySql.Web.Tests
       AttemptToAddUserToRole("", "Administrator");
 
       //Cleanup
-      roleProvider.DeleteRole("Administrator", false); 
+      roleProvider.DeleteRole("Administrator", false);
     }
 
-    [Fact]
+    [Test]
     public void AddUserToRoleWithRoleClass()
     {
       roleProvider.CreateRole("Administrator");
@@ -143,18 +143,18 @@ namespace MySql.Web.Tests
       MembershipCreateStatus status;
       membershipProvider.CreateUser("eve", "eve1@eve", "eve@boo.com",
         "question", "answer", true, null, out status);
-      Assert.Equal(MembershipCreateStatus.Success, status);
+      Assert.AreEqual(MembershipCreateStatus.Success, status);
 
       roleProvider.AddUsersToRoles(new string[] { "eve"}, new string[] { "Administrator"});
       Assert.True(roleProvider.IsUserInRole("eve", "Administrator"));
-      
-      //Cleanup     
+
+      //Cleanup
       membershipProvider.DeleteUser("eve", true);
       roleProvider.DeleteRole("Administrator", true);
 
     }
 
-    [Fact]
+    [Test]
     public void IsUserInRoleCrossDomain()
     {
       MySQLMembershipProvider provider = new MySQLMembershipProvider();
@@ -193,10 +193,10 @@ namespace MySql.Web.Tests
       Assert.False(r2.IsUserInRole("foo", "Administrator"));
 
       roleProvider.DeleteRole("Administrator", false);
-      Assert.Equal(0, roleProvider.GetAllRoles().Length);
+      Assert.AreEqual(0, roleProvider.GetAllRoles().Length);
 
       //Cleanup
-      provider.DeleteUser("foo",true);      
+      provider.DeleteUser("foo",true);
 
     }
 
@@ -204,7 +204,7 @@ namespace MySql.Web.Tests
     /// Testing fix for Calling RoleProvider.RemoveUserFromRole() causes an exception due to a wrong table being used.
     /// http://clustra.no.oracle.com/orabugs/bug.php?id=14405338 / http://bugs.mysql.com/bug.php?id=65805.
     /// </summary>
-    [Fact]
+    [Test]
     public void TestUserRemoveFindFromRole()
     {
       roleProvider = new MySQLRoleProvider();
@@ -219,15 +219,15 @@ namespace MySql.Web.Tests
         new string[] { "Administrator" });
       Assert.True(roleProvider.IsUserInRole("eve", "Administrator"));
       string[] users = roleProvider.FindUsersInRole("Administrator", "eve");
-      Assert.Equal(1, users.Length);
-      Assert.Equal("eve", users[0]);
+      Assert.AreEqual(1, users.Length);
+      Assert.AreEqual("eve", users[0]);
       roleProvider.RemoveUsersFromRoles(new string[] { "eve" }, new string[] { "Administrator" });
       Assert.False(roleProvider.IsUserInRole("eve", "Administrator"));
-      
+
       //Cleanup
       membershipProvider.DeleteUser("eve", true);
-      roleProvider.DeleteRole("Administrator", false);     
-     
+      roleProvider.DeleteRole("Administrator", false);
+
     }
 
   }

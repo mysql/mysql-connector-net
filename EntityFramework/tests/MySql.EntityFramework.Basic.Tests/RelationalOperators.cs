@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,28 +26,14 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
-using System.Data;
-using MySql.Data.MySqlClient;
-using System.Data.Entity.Core.Objects;
 using System.Data.Common;
-using System.Linq;
-using Xunit;
-using System.Data.Entity.Infrastructure;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class RelationalOperators : IClassFixture<DefaultFixture>
+  public class RelationalOperators : DefaultFixture
   {
-    private DefaultFixture st;
-
-    public RelationalOperators(DefaultFixture fixture)
-    {
-      st = fixture;
-      st.Setup(this.GetType());
-    }
-
-    [Fact]
+    [Test]
     public void Except()
     {
       /*            using (TestDB.TestDB db = new TestDB.TestDB())
@@ -61,27 +47,27 @@ namespace MySql.Data.EntityFramework.Tests
                   }*/
     }
 
-    [Fact]
+    [Test]
     public void Intersect()
     {
     }
 
-    [Fact]
+    [Test]
     public void CrossJoin()
     {
     }
 
-    [Fact]
+    [Test]
     public void Union()
     {
     }
 
-    [Fact]
+    [Test]
     public void UnionAll()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
-        st.TestESql<DbDataRecord>(
+        TestESql<DbDataRecord>(
           @"(SELECT b.Id, b.Name FROM Books AS b) 
                 UNION ALL (SELECT c.Id, c.Name FROM Companies AS c)",
           @"SELECT `UnionAll1`.`Id` AS `C1`, `UnionAll1`.`Id1` AS `C2`, `UnionAll1`.`Name` AS `C3`
@@ -90,6 +76,5 @@ namespace MySql.Data.EntityFramework.Tests
             FROM `Companies` AS `Extent2`)) AS `UnionAll1`");
       }
     }
-
   }
 }

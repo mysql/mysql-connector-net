@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,36 +26,30 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class SqlServerMode : TestBase
   {
-    public SqlServerMode(TestFixture fixture) : base(fixture)
-    {
-    }
-
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
       settings.SqlServerMode = true;
     }
 
-    [Fact]
+    [Test]
     public void Simple()
     {
-      executeSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
-      executeSQL("INSERT INTO Test VALUES (1, 'A')");
+      ExecuteSQL("CREATE TABLE Test (id INT, name VARCHAR(20))");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 'A')");
 
       MySqlCommand cmd = new MySqlCommand("SELECT [id], [name] FROM [Test]", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.Equal(1, reader.GetInt32(0));
-        Assert.Equal("A", reader.GetString(1));
+        Assert.AreEqual(1, reader.GetInt32(0));
+        Assert.AreEqual("A", reader.GetString(1));
       }
     }
-
   }
 }

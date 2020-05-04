@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,7 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Xunit;
+using NUnit.Framework;
 using System.Data;
 using System.Reflection;
 
@@ -35,23 +35,24 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class SimpleTransactions  : TestBase
   {
-    public SimpleTransactions(TestFixture fixture) : base(fixture)
+    protected override void Cleanup()
     {
+      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
     }
 
-    [Fact]
+    [Test]
     public void TestReader()
     {
-      executeSQL("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))");
-      executeSQL("INSERT INTO Test VALUES('P', 'Test1', 'Test2')");
+      ExecuteSQL("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))");
+      ExecuteSQL("INSERT INTO Test VALUES('P', 'Test1', 'Test2')");
 
       MySqlTransaction txn = Connection.BeginTransaction();
       MySqlConnection c = txn.Connection;
-      Assert.Equal(Connection, c);
+      Assert.AreEqual(Connection, c);
       MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM Test WHERE key2='P'",
         Connection, txn);
       MySqlTransaction t2 = cmd.Transaction;
-      Assert.Equal(txn, t2);
+      Assert.AreEqual(txn, t2);
       MySqlDataReader reader = null;
       try
       {
@@ -73,14 +74,14 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #22400 Nested transactions 
     /// </summary>
-    [Fact]
+    [Test]
     public void NestedTransactions()
     {
       MySqlTransaction t1 = Connection.BeginTransaction();
       //try
       //{
         Exception ex = Assert.Throws<InvalidOperationException>(() => { Connection.BeginTransaction(); });
-        Assert.Equal("Nested transactions are not supported.", ex.Message);
+        Assert.AreEqual("Nested transactions are not supported.", ex.Message);
         ////Assert.Fail("Exception should have been thrown");
         //t2.Rollback();
       //}
@@ -93,7 +94,7 @@ namespace MySql.Data.MySqlClient.Tests
       //}
     }
 
-    [Fact]
+    [Test]
     public void BeginTransactionOnPreviouslyOpenConnection()
     {
       string connStr = Connection.ConnectionString;
@@ -106,7 +107,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (Exception ex)
       {
-        Assert.Equal("The connection is not open.", ex.Message);
+        Assert.AreEqual("The connection is not open.", ex.Message);
       }
     }
 
@@ -115,11 +116,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// This test is not a perfect test of this bug as the kill connection is not quite the
     /// same as unplugging the network but it's the best I've figured out so far
     /// </summary>
-    [Fact(Skip = "Temporary Skip")]
+    [Test]
     public void CommitAfterConnectionDead()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
 
       string connStr = Connection.ConnectionString + ";pooling=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -135,12 +136,12 @@ namespace MySql.Data.MySqlClient.Tests
         //try
         //{
         Exception ex = Assert.Throws<InvalidOperationException>(() => trans.Commit());
-        Assert.Equal("Connection must be valid and open to commit transaction", ex.Message);
+        Assert.AreEqual("Connection must be valid and open to commit transaction", ex.Message);
         //}
         //catch (Exception)
         //{
         //}
-        Assert.Equal(ConnectionState.Closed, c.State);
+        Assert.AreEqual(ConnectionState.Closed, c.State);
         c.Close();    // this should work even though we are closed
       }
     }
@@ -148,10 +149,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #39817	Transaction Dispose does not roll back
     /// </summary>
-    [Fact]
+    [Test]
     public void DisposingCallsRollback()
     {
-      executeSQL("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))");
+      ExecuteSQL("CREATE TABLE Test (key2 VARCHAR(1), name VARCHAR(100), name2 VARCHAR(100))");
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES ('a', 'b', 'c')", Connection);
       MySqlTransaction txn = Connection.BeginTransaction();
       using (txn)
@@ -165,7 +166,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.False(isOpen);
     }
 
-    [Fact]
+    [Test]
     public void SimpleRollback()
     {
       try

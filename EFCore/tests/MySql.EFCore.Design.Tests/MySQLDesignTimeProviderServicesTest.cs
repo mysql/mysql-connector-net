@@ -31,7 +31,7 @@ using MySql.Data.EntityFrameworkCore;
 using MySql.Data.EntityFrameworkCore.Design.Internal;
 using System;
 using System.Reflection;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.EntityFrameworkCore.Design.Tests
 {
@@ -43,7 +43,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
     private Type GetDesignTimeServicesType()
         => typeof(MySQLDesignTimeServices);
 
-    [Fact]
+    [Test]
     public void EnsureAssemblyIdentityMatches()
     {
       var runtimeAssembly = GetRuntimeAssembly();
@@ -52,7 +52,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
       
       Assert.NotNull(dtType);      
       Assert.NotNull(dtAttribute);
-      Assert.Equal(dtType.FullName, dtAttribute.TypeName);
+      Assert.AreEqual(dtType.FullName, dtAttribute.TypeName);
     }
   }
 }

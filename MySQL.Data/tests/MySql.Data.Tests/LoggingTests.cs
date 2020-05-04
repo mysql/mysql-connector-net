@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,28 +28,26 @@
 
 using System;
 using System.Text;
-using Xunit;
+using NUnit.Framework;
 using System.Diagnostics;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class LoggingTests : TestBase
   {
-
-    public LoggingTests(TestFixture fixture) : base(fixture)
+    protected override void Cleanup()
     {
+      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
     }
 
-#if !NETCOREAPP1_1
-
-    [Fact]
+    [Test]
     public void SimpleLogging()
     {
-      executeSQL("CREATE TABLE Test(id INT, name VARCHAR(200))");
-      executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      executeSQL("INSERT INTO Test VALUES (2, 'Test2')");
-      executeSQL("INSERT INTO Test VALUES (3, 'Test3')");
-      executeSQL("INSERT INTO Test VALUES (4, 'Test4')");
+      ExecuteSQL("CREATE TABLE Test(id INT, name VARCHAR(200))");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      ExecuteSQL("INSERT INTO Test VALUES (2, 'Test2')");
+      ExecuteSQL("INSERT INTO Test VALUES (3, 'Test3')");
+      ExecuteSQL("INSERT INTO Test VALUES (4, 'Test4')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
@@ -67,18 +65,18 @@ namespace MySql.Data.MySqlClient.Tests
         {
         }
       }
-      //Assert.Equal(4, listener.Strings.Count);
-      Assert.Equal(27, listener.Strings.Count);
-      Assert.Contains("Query Opened: SELECT * FROM Test", listener.Strings[listener.Strings.Count - 5]);
-      Assert.Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1", listener.Strings[listener.Strings.Count - 4]);
-      Assert.Contains("Resultset Closed. Total rows=4, skipped rows=4, size (bytes)=32", listener.Strings[listener.Strings.Count - 3]);
-      Assert.Contains("Query Closed", listener.Strings[listener.Strings.Count - 2]);
+      //Assert.AreEqual(4, listener.Strings.Count);
+      Assert.AreEqual(27, listener.Strings.Count);
+      StringAssert.Contains("Query Opened: SELECT * FROM Test", listener.Strings[listener.Strings.Count - 5]);
+      StringAssert.Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1", listener.Strings[listener.Strings.Count - 4]);
+      StringAssert.Contains("Resultset Closed. Total rows=4, skipped rows=4, size (bytes)=32", listener.Strings[listener.Strings.Count - 3]);
+      StringAssert.Contains("Query Closed", listener.Strings[listener.Strings.Count - 2]);
     }
 
-    [Fact]
+    [Test]
     public void Warnings()
     {
-      executeSQL("CREATE TABLE Test(id INT, name VARCHAR(5))");
+      ExecuteSQL("CREATE TABLE Test(id INT, name VARCHAR(5))");
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
       GenericListener listener = new GenericListener();
@@ -92,19 +90,19 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
       }
 
-      Assert.Equal(32, listener.Strings.Count);
-      Assert.Contains("Query Opened: INSERT IGNORE INTO Test VALUES (1, 'abcdef')", listener.Strings[listener.Strings.Count - 10]);
-      Assert.Contains("Resultset Opened: field(s) = 0, affected rows = 1, inserted id = 0", listener.Strings[listener.Strings.Count - 9]);
-      Assert.Contains("Resultset Closed. Total rows=0, skipped rows=0, size (bytes)=0", listener.Strings[listener.Strings.Count - 8]);
-      Assert.Contains("Query Opened: SHOW WARNINGS", listener.Strings[listener.Strings.Count - 7]);
-      Assert.Contains("Resultset Opened: field(s) = 3, affected rows = -1, inserted id = -1", listener.Strings[listener.Strings.Count - 6]);
-      Assert.Contains("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=55", listener.Strings[listener.Strings.Count - 5]);
-      Assert.Contains("Query Closed", listener.Strings[listener.Strings.Count - 4]);
-      Assert.Contains("MySql Warning: Level=Warning, Code=1265, Message=Data truncated for column 'name' at row 1", listener.Strings[listener.Strings.Count - 3]);
-      Assert.Contains("Query Closed", listener.Strings[listener.Strings.Count - 2]);
+      Assert.AreEqual(32, listener.Strings.Count);
+      StringAssert.Contains("Query Opened: INSERT IGNORE INTO Test VALUES (1, 'abcdef')", listener.Strings[listener.Strings.Count - 10]);
+      StringAssert.Contains("Resultset Opened: field(s) = 0, affected rows = 1, inserted id = 0", listener.Strings[listener.Strings.Count - 9]);
+      StringAssert.Contains("Resultset Closed. Total rows=0, skipped rows=0, size (bytes)=0", listener.Strings[listener.Strings.Count - 8]);
+      StringAssert.Contains("Query Opened: SHOW WARNINGS", listener.Strings[listener.Strings.Count - 7]);
+      StringAssert.Contains("Resultset Opened: field(s) = 3, affected rows = -1, inserted id = -1", listener.Strings[listener.Strings.Count - 6]);
+      StringAssert.Contains("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=55", listener.Strings[listener.Strings.Count - 5]);
+      StringAssert.Contains("Query Closed", listener.Strings[listener.Strings.Count - 4]);
+      StringAssert.Contains("MySql Warning: Level=Warning, Code=1265, Message=Data truncated for column 'name' at row 1", listener.Strings[listener.Strings.Count - 3]);
+      StringAssert.Contains("Query Closed", listener.Strings[listener.Strings.Count - 2]);
     }
 
-    [Fact]
+    [Test]
     public void ProviderNormalizingQuery()
     {
       MySqlTrace.Listeners.Clear();
@@ -124,14 +122,14 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
       }      
 
-      Assert.Equal(28, listener.Strings.Count);
-      Assert.EndsWith("SELECT ?", listener.Strings[listener.Strings.Count - 5], StringComparison.OrdinalIgnoreCase);
+      Assert.AreEqual(28, listener.Strings.Count);
+      StringAssert.EndsWith("SELECT ?", listener.Strings[listener.Strings.Count - 5]);
     }
 
     /// <summary>
     /// Bug #57641	Substring out of range exception in ConsumeQuotedToken
     /// </summary>
-    [Fact]
+    [Test]
     public void QuotedTokenAt300()
     {
       MySqlTrace.Listeners.Clear();
@@ -152,6 +150,5 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-#endif
   }
 }

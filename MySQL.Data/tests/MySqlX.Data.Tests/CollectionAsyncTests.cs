@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,19 +26,18 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
   public class CollectionAsyncTests : BaseTest
   {
-    [Fact]
+    [Test]
     public void CollectionInsert()
     {
       var coll = CreateCollection("test");
@@ -52,7 +51,7 @@ namespace MySqlX.Data.Tests
       Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2));
     }
 
-    [Fact]
+    [Test]
     public void MultipleFindAsync()
     {
       var coll = testSchema.CreateCollection("test");
@@ -81,7 +80,7 @@ namespace MySqlX.Data.Tests
         Assert.False(validator.Contains(value), value + " value exists");
         validator.Add(value);
       }
-      Assert.Equal(docs, validator.Count);
+      Assert.AreEqual(docs, validator.Count);
     }
   }
 }

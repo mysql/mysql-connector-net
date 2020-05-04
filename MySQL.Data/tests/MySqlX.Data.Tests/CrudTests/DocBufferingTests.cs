@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,13 +28,13 @@
 
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests.CrudTests
 {
   public class DocBufferingTests : BaseTest
   {
-    [Fact]
+    [Test]
     public void SmartBuffering()
     {
       Collection test = CreateCollection("test");
@@ -48,13 +48,13 @@ namespace MySqlX.Data.Tests.CrudTests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(test.Add(docs));
-      Assert.Equal(r.Warnings.Count, r.WarningsCount);
+      Assert.AreEqual(r.Warnings.Count, r.WarningsCount);
 
       var docResult = ExecuteFindStatement(test.Find());
       foreach (var doc in docResult)
       {
         var result = ExecuteAddStatement(test2.Add(doc));
-        Assert.Equal<ulong>(1, result.AffectedItemsCount);
+        Assert.AreEqual(1, result.AffectedItemsCount);
       }
     }
   }

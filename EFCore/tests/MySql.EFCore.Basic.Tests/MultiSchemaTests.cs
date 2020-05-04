@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,19 +27,38 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Xunit;
+using NUnit.Framework;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests
 {
   public class MultiSchemaTests
   {
-    [Fact]
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+      using (BodyShopContext context = new BodyShopContext())
+      {
+        using (MySqlConnection conn = (MySqlConnection)context.Database.GetDbConnection())
+        {
+          MySqlCommand cmd = conn.CreateCommand();
+          cmd.CommandText = @"DROP DATABASE IF EXISTS `01cars`;
+            DROP DATABASE IF EXISTS `02bodyshops`;
+            DROP DATABASE IF EXISTS `03employees`;";
+          conn.Open();
+          context.Database.EnsureDeleted();
+          cmd.Connection = conn;
+          cmd.ExecuteNonQuery();
+        }
+      }
+    }
+
+    [Test]
     public void MultiSchemaTest()
     {
       PopulateData();
@@ -60,27 +79,26 @@ namespace MySql.Data.EntityFrameworkCore.Tests
               count++;
             }
           }
-          Assert.Equal(3, count);
+          Assert.AreEqual(3, count);
         }
       }
     }
 
-    [Fact]
+    [Test]
     public void LoadingData()
     {
       PopulateData();
-      using(BodyShopContext context = new BodyShopContext())
+      using (BodyShopContext context = new BodyShopContext())
       {
-        Assert.Equal(2, context.Car.Count());
-        Assert.Equal(2, context.BodyShop.Count());
-        Assert.Equal(2, context.Employee.Count());
+        Assert.AreEqual(2, context.Car.Count());
+        Assert.AreEqual(2, context.BodyShop.Count());
+        Assert.AreEqual(2, context.Employee.Count());
       }
     }
 
-
     private void PopulateData()
     {
-      using(BodyShopContext context = new BodyShopContext())
+      using (BodyShopContext context = new BodyShopContext())
       {
         // Clean databases
         context.Database.EnsureDeleted();

@@ -28,7 +28,7 @@
 
 using System;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 using MySql.Data.MySqlClient;
 using System.Data;
 using System.Globalization;
@@ -36,23 +36,15 @@ using System.Threading;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class DataTypeTests : IClassFixture<DefaultFixture>
+  public class DataTypeTests : DefaultFixture
   {
-    private DefaultFixture st;
-
-    public DataTypeTests(DefaultFixture data)
-    {
-      st = data;
-      st.Setup(this.GetType());
-    }
-
     /// <summary>
     /// Bug #45457 DbType Time is not supported in entity framework
     /// </summary>
-    [Fact]
+    [Test]
     public void TimeType()
     {
-      using (DefaultContext ctx = st.GetDefaultContext())
+      using (DefaultContext ctx = GetDefaultContext())
       {
         TimeSpan birth = new TimeSpan(11, 3, 2);
 
@@ -65,15 +57,14 @@ namespace MySql.Data.EntityFramework.Tests
         ctx.SaveChanges();
 
         Child d = ctx.Children.Where(x => x.ChildId == "ABC").Single();
-        Assert.Equal(birth, d.BirthTime);
-
+        Assert.AreEqual(birth, d.BirthTime);
       }
     }
 
     /// <summary>
     /// Bug #44455	insert and update error with entity framework
     /// </summary>
-    [Fact]
+    [Test]
     public void DoubleValuesNonEnglish()
     {
       CultureInfo curCulture = Thread.CurrentThread.CurrentCulture;
@@ -84,7 +75,7 @@ namespace MySql.Data.EntityFramework.Tests
 
       try
       {
-        using (DefaultContext ctx = st.GetDefaultContext())
+        using (DefaultContext ctx = GetDefaultContext())
         {
           Product p = new Product();
           p.Name = "New Product";
@@ -104,12 +95,12 @@ namespace MySql.Data.EntityFramework.Tests
     /// <summary>
     /// Bug #46311	TimeStamp table column Entity Framework issue.
     /// </summary>
-    [Fact(Skip ="Fix Me")]
+    [Ignore("Fix Me")]
     public void TimestampColumn()
     {
       DateTime now = DateTime.Now;
 
-      using (DefaultContext ctx = st.GetDefaultContext())
+      using (DefaultContext ctx = GetDefaultContext())
       {
         Product p = new Product() { Name = "My Product", MinAge = 7, Weight = 8.0f };
         ctx.Products.Add(p);
@@ -120,17 +111,17 @@ namespace MySql.Data.EntityFramework.Tests
         ctx.SaveChanges();
 
         p = ctx.Products.First();
-        Assert.Equal(now, p.CreatedDate);
+        Assert.AreEqual(now, p.CreatedDate);
       }
     }
 
     /// <summary>
     /// Bug #48417	Invalid cast from 'System.String' to 'System.Guid'
     /// </summary>
-    [Fact]
+    [Test]
     public void GuidType()
     {
-      using (DefaultContext ctx = st.GetDefaultContext())
+      using (DefaultContext ctx = GetDefaultContext())
       {
         TimeSpan birth = new TimeSpan(11, 3, 2);
         Guid g = Guid.NewGuid();
@@ -144,7 +135,7 @@ namespace MySql.Data.EntityFramework.Tests
         ctx.SaveChanges();
 
         Child d = ctx.Children.Where(x => x.ChildId == "GUID").Single();
-        Assert.Equal(g, d.Label);
+        Assert.AreEqual(g, d.Label);
 
       }
     }
@@ -152,7 +143,7 @@ namespace MySql.Data.EntityFramework.Tests
     /// <summary>
     /// Bug #62246	Connector/NET Incorrectly Maps Decimal To AnsiString
     /// </summary>
-    [Fact]
+    [Test]
     public void CanSetDbTypeDecimalFromNewDecimalParameter()
     {
       MySqlParameter newDecimalParameter = new MySqlParameter
@@ -165,7 +156,7 @@ namespace MySql.Data.EntityFramework.Tests
         IsNullable = true
       };
 
-      Assert.Equal(DbType.Decimal, newDecimalParameter.DbType);
+      Assert.AreEqual(DbType.Decimal, newDecimalParameter.DbType);
     }
   }
 }

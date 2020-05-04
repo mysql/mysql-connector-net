@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,28 +31,30 @@ using System;
 using MySql.Data.MySqlClient;
 using System.Threading;
 using System.Globalization;
-using Xunit;
+using NUnit.Framework;
 using System.Data;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class ProviderServicesTests : IClassFixture<DefaultFixture>, IDisposable
+  public class ProviderServicesTests : DefaultFixture
   {
-    private DefaultFixture st;
     private CultureInfo originalCulture;
 
-    public ProviderServicesTests(DefaultFixture fixture)
+    public ProviderServicesTests()
     {
-      st = fixture;
       originalCulture = Thread.CurrentThread.CurrentCulture;
-      st.NeedSetup = true;
-      st.Setup(this.GetType());
     }
 
-    [Fact]
+    [TearDown]
+    public override void TearDown()
+    {
+      Thread.CurrentThread.CurrentCulture = originalCulture;
+    }
+
+    [Test]
     public void CreateAndDeleteDatabase()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         if (ctx.Database.Exists())
           ctx.Database.Delete();
@@ -62,20 +64,22 @@ namespace MySql.Data.EntityFramework.Tests
         ctx.Database.Delete();
         Assert.False(ctx.Database.Exists());
       }
+      NeedSetup = true;
     }
 
-    [Fact]
+    [Test]
     public void DatabaseExists()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
-        DataTable dt = st.Connection.GetSchema("DATABASES", new string[] { st.Connection.Database });
-        Assert.Equal(1, dt.Rows.Count);
+        DataTable dt = Connection.GetSchema("DATABASES", new string[] { Connection.Database });
+        Assert.AreEqual(1, dt.Rows.Count);
         ctx.Database.Delete();
       }
+      NeedSetup = true;
     }
 
-    [Fact(Skip = "EF 5 have an known issue that is happening when the CreateDatabaseScript is called in this test and is suppose to be fixed in EF 6 but need a lot of changes incopatibles with the current architecture")]
+    [Ignore("EF 5 have an known issue that is happening when the CreateDatabaseScript is called in this test and is suppose to be fixed in EF 6 but need a lot of changes incopatibles with the current architecture")]
     public void CheckReservedWordColumnName()
     {
       //using (ReservedWordColumnNameContainer ctx = new ReservedWordColumnNameContainer())
@@ -85,11 +89,11 @@ namespace MySql.Data.EntityFramework.Tests
       //}
     }
 
-    [Fact]
+    [Test]
     public void GetDbProviderManifestTokenDoesNotThrowWhenLocalized()
     {
       Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-CA");
-      using (MySqlConnection connection = new MySqlConnection(st.ConnectionString))
+      using (MySqlConnection connection = new MySqlConnection(ConnectionString))
       {
         MySqlProviderServices providerServices = new MySqlProviderServices();
         var token = providerServices.GetProviderManifestToken(connection);
@@ -97,22 +101,16 @@ namespace MySql.Data.EntityFramework.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void GetDbProviderManifestTokenDoesNotThrowWhenMissingPersistSecurityInfo()
     {
-      using (var conn = new MySqlConnection(st.ConnectionString))
+      using (var conn = new MySqlConnection(ConnectionString))
       {
-      conn.Open();
-      MySqlProviderServices providerServices = new MySqlProviderServices();
-      var token = providerServices.GetProviderManifestToken(conn);
-      Assert.NotNull(token);
-    }
-    }
-
-    public void Dispose()
-    {
-      Thread.CurrentThread.CurrentCulture = originalCulture;
-      st.execSQL($"DROP DATABASE IF EXISTS `{st.Connection.Database}`");
+        conn.Open();
+        MySqlProviderServices providerServices = new MySqlProviderServices();
+        var token = providerServices.GetProviderManifestToken(conn);
+        Assert.NotNull(token);
+      }
     }
   }
 }

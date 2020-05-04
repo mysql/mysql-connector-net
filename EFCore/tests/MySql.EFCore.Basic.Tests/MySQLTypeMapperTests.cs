@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,26 +27,36 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.EntityFrameworkCore.Storage.Internal;
-using MySql.Data.EntityFrameworkCore.Tests;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
-using Xunit;
+using NUnit.Framework;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests
 {
   public class MySQLTypeMapperTests
   {
-    [FactOnVersions("5.6.0", null)]
-    static void InsertAllDataTypes()
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
     {
+      using (var context = new AllDataTypesContext())
+        context.Database.EnsureDeleted();
+      using (var context = new StringTypesContext())
+        context.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void InsertAllDataTypes()
+    {
+      if (!TestUtils.IsAtLeast(5, 7, 0))
+      {
+        Assert.Ignore();
+      }
+
       DateTime now = new DateTime(DateTime.Today.AddSeconds(1).AddMilliseconds(1).AddTicks(10).Ticks);
 
       using (var context = new AllDataTypesContext())
@@ -90,40 +100,40 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       using (var context = new AllDataTypesContext())
       {
         var data = context.AllDataTypes.First();
-        Assert.Equal(1, data.AddressNumber1);
-        Assert.Equal(2, data.AddressNumber2);
-        Assert.Equal(3, data.AddressNumber3);
-        Assert.Equal(4, data.AddressNumber4);
-        Assert.Equal((long)5, data.AddressNumber5);
-        Assert.Equal(6.36f, data.AddressNumber6);
-        Assert.Equal(7.49f, data.AddressNumber7);
-        Assert.Equal(8.64d, data.AddressNumber8);
-        Assert.Equal(9.81m, data.AddressNumber9);
-        Assert.Equal(10, data.AddressNumber10);
-        Assert.Equal("BuildingName1", data.BuildingName1);
-        Assert.Equal("BuildingName2", data.BuildingName2);
-        Assert.Equal("BuildingName3", data.BuildingName3);
-        Assert.Equal("BuildingName4", data.BuildingName4);
-        Assert.Equal("BuildingName5", data.BuildingName5);
-        Assert.Equal("BuildingName6".PadRight(120,'\0'), UTF8Encoding.UTF8.GetString(data.BuildingName6));
-        Assert.Equal("BuildingName7", UTF8Encoding.UTF8.GetString(data.BuildingName7));
-        Assert.Equal("BuildingName8", UTF8Encoding.UTF8.GetString(data.BuildingName8));
-        Assert.Equal("BuildingName9", UTF8Encoding.UTF8.GetString(data.BuildingName9));
-        Assert.Equal("BuildingName10", UTF8Encoding.UTF8.GetString(data.BuildingName10));
-        Assert.Equal("small", data.BuildingName11);
-        Assert.Equal("small,medium,large", data.BuildingName12);
-        Assert.Equal(now.Date, data.BuildingName13);
-        Assert.Equal(now, data.BuildingName14);
-        Assert.Equal(now.TimeOfDay, data.BuildingName15);
-        Assert.Equal(now, data.BuildingName16);
-        Assert.Equal(now.Year, data.BuildingName17);
+        Assert.AreEqual(1, data.AddressNumber1);
+        Assert.AreEqual(2, data.AddressNumber2);
+        Assert.AreEqual(3, data.AddressNumber3);
+        Assert.AreEqual(4, data.AddressNumber4);
+        Assert.AreEqual((long)5, data.AddressNumber5);
+        Assert.AreEqual(6.36f, data.AddressNumber6);
+        Assert.AreEqual(7.49f, data.AddressNumber7);
+        Assert.AreEqual(8.64d, data.AddressNumber8);
+        Assert.AreEqual(9.81m, data.AddressNumber9);
+        Assert.AreEqual(10, data.AddressNumber10);
+        Assert.AreEqual("BuildingName1", data.BuildingName1);
+        Assert.AreEqual("BuildingName2", data.BuildingName2);
+        Assert.AreEqual("BuildingName3", data.BuildingName3);
+        Assert.AreEqual("BuildingName4", data.BuildingName4);
+        Assert.AreEqual("BuildingName5", data.BuildingName5);
+        Assert.AreEqual("BuildingName6".PadRight(120, '\0'), UTF8Encoding.UTF8.GetString(data.BuildingName6));
+        Assert.AreEqual("BuildingName7", UTF8Encoding.UTF8.GetString(data.BuildingName7));
+        Assert.AreEqual("BuildingName8", UTF8Encoding.UTF8.GetString(data.BuildingName8));
+        Assert.AreEqual("BuildingName9", UTF8Encoding.UTF8.GetString(data.BuildingName9));
+        Assert.AreEqual("BuildingName10", UTF8Encoding.UTF8.GetString(data.BuildingName10));
+        Assert.AreEqual("small", data.BuildingName11);
+        Assert.AreEqual("small,medium,large", data.BuildingName12);
+        Assert.AreEqual(now.Date, data.BuildingName13);
+        Assert.AreEqual(now, data.BuildingName14);
+        Assert.AreEqual(now.TimeOfDay, data.BuildingName15);
+        Assert.AreEqual(now, data.BuildingName16);
+        Assert.AreEqual(now.Year, data.BuildingName17);
       }
     }
 
-    [Fact]
+    [Test]
     public void ValidateStringLength()
     {
-      using(var context = new StringTypesContext())
+      using (var context = new StringTypesContext())
       {
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
@@ -141,17 +151,17 @@ namespace MySql.Data.EntityFrameworkCore.Tests
         MySqlCommand cmd = new MySqlCommand(
           $"DESC StringType",
           conn);
-        using(MySqlDataReader reader = cmd.ExecuteReader())
+        using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           int counter = 0;
           while (reader.Read())
           {
             string field = reader.GetString("field");
             string type = validation[field];
-            Assert.Equal(type, reader.GetString("type"));
+            Assert.AreEqual(type, reader.GetString("type"));
             counter++;
           }
-          Assert.Equal(validation.Count, counter);
+          Assert.AreEqual(validation.Count, counter);
         }
       }
     }

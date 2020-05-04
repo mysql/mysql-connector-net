@@ -1,4 +1,4 @@
-// Copyright © 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,10 +26,8 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using System;
-using System.Text;
-using Xunit;
+using NUnit.Framework;
 using MySql.Data.Types;
 using System.Data;
 using System.Globalization;
@@ -43,12 +41,12 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #9619 Cannot update row using DbDataAdapter when row contains an invalid date 
     /// Bug #15112 MySqlDateTime Constructor 
     /// </summary>
-    [Fact]
+    [Test]
     public void TestAllowZeroDateTime()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
         "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
-      executeSQL("INSERT INTO Test (id, d, dt) VALUES (1, '0000-00-00', '0000-00-00 00:00:00')");
+      ExecuteSQL("INSERT INTO Test (id, d, dt) VALUES (1, '0000-00-00', '0000-00-00 00:00:00')");
 
       using (MySqlConnection c = new MySqlConnection(
         Connection.ConnectionString + ";pooling=false;AllowZeroDatetime=true"))
@@ -66,7 +64,7 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.False(reader.GetMySqlDateTime(2).IsValidDateTime);
 
           Exception ex = Assert.Throws<MySqlConversionException>(() =>reader.GetDateTime(1));
-          Assert.Equal("Unable to convert MySQL date/time value to System.DateTime", ex.Message);
+          Assert.AreEqual("Unable to convert MySQL date/time value to System.DateTime", ex.Message);
         }
 
         DataTable dt = new DataTable();
@@ -84,25 +82,25 @@ namespace MySql.Data.MySqlClient.Tests
 
         dt.Clear();
         da.Fill(dt);
-        Assert.Equal(2, dt.Rows.Count);
+        Assert.AreEqual(2, dt.Rows.Count);
         MySqlDateTime date = (MySqlDateTime)dt.Rows[1]["d"];
-        Assert.Equal(2003, date.Year);
-        Assert.Equal(9, date.Month);
-        Assert.Equal(24, date.Day);
+        Assert.AreEqual(2003, date.Year);
+        Assert.AreEqual(9, date.Month);
+        Assert.AreEqual(24, date.Day);
         cb.Dispose();
       }
     }   
 
-    [Fact]
+    [Test]
     public void SortingMySqlDateTimes()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
         "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
 
-      executeSQL("INSERT INTO Test (id, dt) VALUES (1, '2004-10-01')");
-      executeSQL("INSERT INTO Test (id, dt) VALUES (2, '2004-10-02')");
-      executeSQL("INSERT INTO Test (id, dt) VALUES (3, '2004-11-01')");
-      executeSQL("INSERT INTO Test (id, dt) VALUES (4, '2004-11-02')");
+      ExecuteSQL("INSERT INTO Test (id, dt) VALUES (1, '2004-10-01')");
+      ExecuteSQL("INSERT INTO Test (id, dt) VALUES (2, '2004-10-02')");
+      ExecuteSQL("INSERT INTO Test (id, dt) VALUES (3, '2004-11-01')");
+      ExecuteSQL("INSERT INTO Test (id, dt) VALUES (4, '2004-11-02')");
 
       CultureInfo curCulture = Thread.CurrentThread.CurrentCulture;
       CultureInfo curUICulture = Thread.CurrentThread.CurrentUICulture;
@@ -119,20 +117,20 @@ namespace MySql.Data.MySqlClient.Tests
         DataView dv = dt.DefaultView;
         dv.Sort = "dt ASC";
 
-        Assert.Equal(new DateTime(2004, 10, 1).Date, Convert.ToDateTime(dv[0]["dt"]).Date);
-        Assert.Equal(new DateTime(2004, 10, 2).Date, Convert.ToDateTime(dv[1]["dt"]).Date);
-        Assert.Equal(new DateTime(2004, 11, 1).Date, Convert.ToDateTime(dv[2]["dt"]).Date);
-        Assert.Equal(new DateTime(2004, 11, 2).Date, Convert.ToDateTime(dv[3]["dt"]).Date);
+        Assert.AreEqual(new DateTime(2004, 10, 1).Date, Convert.ToDateTime(dv[0]["dt"]).Date);
+        Assert.AreEqual(new DateTime(2004, 10, 2).Date, Convert.ToDateTime(dv[1]["dt"]).Date);
+        Assert.AreEqual(new DateTime(2004, 11, 1).Date, Convert.ToDateTime(dv[2]["dt"]).Date);
+        Assert.AreEqual(new DateTime(2004, 11, 2).Date, Convert.ToDateTime(dv[3]["dt"]).Date);
 
         Thread.CurrentThread.CurrentCulture = curCulture;
         Thread.CurrentThread.CurrentUICulture = curUICulture;
       }
     }       
 
-    [Fact]
+    [Test]
     public void InsertDateTimeValue()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
         "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
 
       using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString +
@@ -159,18 +157,18 @@ namespace MySql.Data.MySqlClient.Tests
         da.Fill(dt);
         cb.Dispose();
 
-        Assert.Equal(1, dt.Rows.Count);
-        Assert.Equal(now.Date, ((DateTime)dt.Rows[0]["dt"]).Date);
+        Assert.AreEqual(1, dt.Rows.Count);
+        Assert.AreEqual(now.Date, ((DateTime)dt.Rows[0]["dt"]).Date);
       }
     }   
 
-    [Fact]
+    [Test]
     public void DateTimeInDataTable()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
         "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
 
-      executeSQL("INSERT INTO Test VALUES(1, Now(), '0000-00-00', NULL, NULL)");
+      ExecuteSQL("INSERT INTO Test VALUES(1, Now(), '0000-00-00', NULL, NULL)");
 
       using (MySqlConnection c = new MySqlConnection(
         Connection.ConnectionString + ";pooling=false;AllowZeroDatetime=true"))
@@ -193,7 +191,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         dt.Rows.Clear();
         da.Fill(dt);
-        Assert.Equal(2, dt.Rows.Count);
+        Assert.AreEqual(2, dt.Rows.Count);
         cb.Dispose();
       }
     }     
