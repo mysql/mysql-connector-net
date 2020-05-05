@@ -7,6 +7,7 @@
 - Contribution added: Fixed a typo in SimpleRoleProvider.GetRoleId that caused an unexpected behavior (MySQL Bug #83657, Oracle Bug #25046352). Thanks to Stein Setvik for the contribution.
 - Fixed an error that ocurred while parsing a MySqlTimeSpan data type (MySQL Bug #91770, Oracle Bug #28393733).
 - Added code to clean up the internal ResulSet in DataReader (MySQL Bug #97300, Oracle Bug #30444429).
+- Fixed an error that occurred when having two databases with same table on a rename-column migration (MySQL Bug 72424, Oracle Bug #23291095).
 
 
 8.0.20

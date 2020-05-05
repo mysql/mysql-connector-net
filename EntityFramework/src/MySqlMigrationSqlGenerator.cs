@@ -1,4 +1,4 @@
-﻿// Copyright © 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2008, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -606,7 +606,9 @@ namespace MySql.Data.EntityFramework
 
       StringBuilder sb = new StringBuilder();
 
-      sb.Append("set @columnType := (select case lower(IS_NULLABLE) when 'no' then CONCAT(column_type, ' not null ')  when 'yes' then column_type end from information_schema.columns where table_name = '" + TrimSchemaPrefix(op.Table) + "' and column_name = '" + op.Name + "');");
+      sb.Append("set @columnType := (select case lower(IS_NULLABLE) when 'no' then CONCAT(column_type, ' not null ')  " +
+        "when 'yes' then column_type end from information_schema.columns " +
+        "where table_name = '" + TrimSchemaPrefix(op.Table) + "' and column_name = '" + op.Name + "' and table_schema = DATABASE());");
       sb.AppendLine();
       sb.Append("set @sqlstmt := (select concat('alter table `" + TrimSchemaPrefix(op.Table) + "` change `" + op.Name + "` `" + op.NewName + "` ' , @columnType));");
       sb.AppendLine();
