@@ -41,6 +41,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
       ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
+      ExecuteSQL("DROP DATABASE IF EXISTS `dotnet3.1`");
     }
 
     [SetUp]
@@ -838,7 +839,7 @@ namespace MySql.Data.MySqlClient.Tests
       //Database and stored procedure contains "."
       ExecuteSQL("CREATE DATABASE IF NOT EXISTS `dotnet3.1`;", true);
       ExecuteSQL("CREATE PROCEDURE `dotnet3.1`.`sp_normalname.1`(p int) BEGIN SELECT p; END", true);
-      using (MySqlConnection rootConnection = new MySqlConnection("server=localhost;port=3306;user id=root;password=;persistsecurityinfo=True;allowuservariables=True;database=dotnet3.1;"))
+      using (MySqlConnection rootConnection = new MySqlConnection($"server=localhost;port={Connection.Settings.Port};user id=root;password=;persistsecurityinfo=True;allowuservariables=True;database=dotnet3.1;"))
       {
         rootConnection.Open();
         using (MySqlCommand cmd = new MySqlCommand("sp_normalname.1", rootConnection))
@@ -849,7 +850,6 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.AreEqual(3, result);
         }
       }
-      ExecuteSQL("drop database `dotnet3.1`;", true);
     }
   }
 }
