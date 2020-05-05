@@ -814,5 +814,42 @@ namespace MySql.Data.MySqlClient.Tests
 
       Assert.AreEqual(5, Convert.ToInt32(cmd.ExecuteScalar()));
     }
+
+    /// <summary>
+    /// Bug #31237338	CANNOT CALL STORED PROCEDURES IN DATABASES WHOSE NAME CONTAINS A PERIOD
+    /// </summary>
+    [Test]
+    public void NamesWithPeriods()
+    {
+      //stored procedure wich name contains "."
+      ExecuteSQL("CREATE PROCEDURE `spversion1.2.3`(p int) BEGIN SELECT p; END");
+      using (var connection = new MySqlConnection(Connection.ConnectionString))
+      {
+        connection.Open();
+        var strName = "SPversion1.2.3";
+        using (MySqlCommand cmd = new MySqlCommand(strName, Connection))
+        {
+          cmd.Parameters.AddWithValue("?p", 2);
+          cmd.CommandType = CommandType.StoredProcedure;
+          var result = cmd.ExecuteScalar();
+          Assert.AreEqual(2, result);
+        }
+      }
+      //Database and stored procedure contains "."
+      ExecuteSQL("CREATE DATABASE IF NOT EXISTS `dotnet3.1`;", true);
+      ExecuteSQL("CREATE PROCEDURE `dotnet3.1`.`sp_normalname.1`(p int) BEGIN SELECT p; END", true);
+      using (MySqlConnection rootConnection = new MySqlConnection("server=localhost;port=3306;user id=root;password=;persistsecurityinfo=True;allowuservariables=True;database=dotnet3.1;"))
+      {
+        rootConnection.Open();
+        using (MySqlCommand cmd = new MySqlCommand("sp_normalname.1", rootConnection))
+        {
+          cmd.Parameters.AddWithValue("?p", 3);
+          cmd.CommandType = CommandType.StoredProcedure;
+          var result = cmd.ExecuteScalar();
+          Assert.AreEqual(3, result);
+        }
+      }
+      ExecuteSQL("drop database `dotnet3.1`;", true);
+    }
   }
 }
