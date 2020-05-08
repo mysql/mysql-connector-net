@@ -9,6 +9,7 @@
 - Added code to clean up the internal ResulSet in DataReader (MySQL Bug #97300, Oracle Bug #30444429).
 - Fixed an error that occurred when having two databases with same table on a rename-column migration (MySQL Bug 72424, Oracle Bug #23291095).
 - Fixed an error that occurred when the database name or stored procedure name contains a period "." (MySQL Bug #99371, Oracle Bug #31237338).
+- Fixed a bug that occurred when a database name is set as uppercase in the connection string, but the actual database name is lowercase.(Oracle Bug #31173265).
 
 
 8.0.20

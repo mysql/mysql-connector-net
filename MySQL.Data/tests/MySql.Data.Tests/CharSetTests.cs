@@ -492,5 +492,29 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual(DBNull.Value, cmd.ExecuteScalar());
       }
     }
+
+    /// <summary>
+    /// Bug #31173265	USING MYSQL.PROC TO SEARCH THE STORED PROCEDURE BUT THIS IS CASE SENSITIVE
+    /// </summary>
+    [Test]
+    public void DatabaseCaseSentitive()
+    {
+      if (Version >= new Version(8, 0, 0)) return;
+
+      ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
+      ExecuteSQL(@"CREATE PROCEDURE spTest () BEGIN SELECT ""test""; END");
+
+      using (var connection = new MySqlConnection(Connection.ConnectionString.Replace(Connection.Database, Connection.Database.ToUpper())))
+      {
+        connection.Open();
+        var strName = "spTest";
+        using (MySqlCommand cmd = new MySqlCommand(strName, connection))
+        {
+          cmd.CommandType = CommandType.StoredProcedure;
+          var result = cmd.ExecuteNonQuery();
+          Assert.AreEqual(0, result);
+        }
+      }
+    }
   }
 }
