@@ -28,6 +28,7 @@
 
 using System;
 using System.Data;
+using MySql.Data.Common;
 using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -499,7 +500,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void DatabaseCaseSentitive()
     {
-      if (Version >= new Version(8, 0, 0)) return;
+      if (Version >= new Version(8, 0, 0) || Platform.IsMono() ) return;
 
       ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
       ExecuteSQL(@"CREATE PROCEDURE spTest () BEGIN SELECT ""test""; END");
