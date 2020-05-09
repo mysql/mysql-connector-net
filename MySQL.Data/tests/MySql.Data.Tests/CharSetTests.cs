@@ -500,7 +500,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void DatabaseCaseSentitive()
     {
-      if (Version >= new Version(8, 0, 0) || Platform.IsMono() ) return;
+      if (Version >= new Version(8, 0, 0) || !Platform.IsWindows() ) return;
 
       ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
       ExecuteSQL(@"CREATE PROCEDURE spTest () BEGIN SELECT ""test""; END");
