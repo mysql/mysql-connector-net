@@ -39,9 +39,10 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
     }
 
-    public MySqlBulkLoaderTests()
+    [OneTimeSetUp]
+    public void OneTimeSetup()
     {
-      if (Version >= new Version(8,0,2)) ExecuteSQL("SET GLOBAL local_infile = 1");
+      if (Version >= new Version(8,0,2)) ExecuteSQL("SET GLOBAL local_infile = 1", true);
     }
 
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
