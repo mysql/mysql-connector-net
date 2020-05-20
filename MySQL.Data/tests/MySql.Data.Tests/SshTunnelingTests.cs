@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2019, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,7 +30,7 @@ using Renci.SshNet;
 using Renci.SshNet.Common;
 using System;
 using System.IO;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -58,7 +58,8 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Validate that the expected errors are being raised when invalid values are provided.
     /// </summary>
-    [Fact(Skip = "Needs SSH setup on PB2")]
+    [Test]
+    [Ignore("Needs SSH setup on PB2")]
     public void ErrorsRaisedByMissingParameters()
     {
       var expectedErrorMessage = "Parameter '{0}' can't be null or empty.";
@@ -70,7 +71,7 @@ namespace MySql.Data.MySqlClient.Tests
       builder.SshPassword = SSH_PASSWORD;
 
       var exception = Assert.Throws<ArgumentException>(() => ValidateConnection(builder.ConnectionString));
-      Assert.Equal(string.Format(expectedErrorMessage, "sshHostName"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, "sshHostName"), exception.Message);
 
       builder.SshHostName = SSH_HOST_NAME;
       builder.SshPassword = SSH_PASSWORD;
@@ -80,11 +81,11 @@ namespace MySql.Data.MySqlClient.Tests
       builder.SshPassword = null;
       builder.SshKeyFile = "invalidFile.ppk";
       var fileException = Assert.Throws<FileNotFoundException>(() => ValidateConnection(builder.ConnectionString));
-      Assert.StartsWith("Could not find file", fileException.Message);
+      StringAssert.StartsWith("Could not find file", fileException.Message);
 
       builder.SshKeyFile = SSH_KEY_FILE_PATH;
       var sshException2 = Assert.Throws<SshPassPhraseNullOrEmptyException>(() => ValidateConnection(builder.ConnectionString));
-      Assert.Equal("Private key is encrypted but passphrase is empty.", sshException2.Message);
+      Assert.AreEqual("Private key is encrypted but passphrase is empty.", sshException2.Message);
 
       builder.SshPassphrase = SSH_KEY_FILE_PASSPHRASE;
       ValidateConnection(builder.ConnectionString);
@@ -96,7 +97,8 @@ namespace MySql.Data.MySqlClient.Tests
     /// <remarks>MySQL Server and the SSH server are located in the same machine. The root user
     /// is configured to only allow local connections. Via SSH Tunneling the client can connect with
     /// root user as if it were a local connection.</remarks>
-    [Fact(Skip = "Needs SSH setup on PB2")]
+    [Test]
+    [Ignore("Needs SSH setup on PB2")]
     public void ConnectAsLocalUserUsingKeys()
     {
       var builder = new MySqlConnectionStringBuilder();
@@ -118,7 +120,8 @@ namespace MySql.Data.MySqlClient.Tests
     /// <remarks>MySQL Server and the SSH server are located in the same machine. The root user
     /// is configured to only allow local connections. Via SSH Tunneling the client can connect with
     /// root user as if it were a local connection.</remarks>
-    [Fact(Skip = "Needs SSH setup on PB2")]
+    [Test]
+    [Ignore("Needs SSH setup on PB2")]
     public void ConnectAsLocalUser()
     {
       var builder = new MySqlConnectionStringBuilder();
@@ -143,7 +146,8 @@ namespace MySql.Data.MySqlClient.Tests
     /// </summary>
     /// <remarks>MySQL Server and the SSH server are located on different machines. Requests made to
     /// the SSH server are forwarded to the machine where the MySQL server instance is running.</remarks>
-    [Fact(Skip = "Needs SSH setup on PB2")]
+    [Test]
+    [Ignore("Needs SSH setup on PB2")]
     public void ConnectAsRemoteUser()
     {
       CreateRemoteUser();
@@ -169,7 +173,8 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Performs a fallback to authenticate with password whenever the Ssh connection fails with an error other than invalid passphrase.
     /// </summary>
-    [Fact(Skip = "Needs SSH setup on PB2")]
+    [Test]
+    [Ignore("Needs SSH setup on PB2")]
     public void ConnectionFallback()
     {
       var builder = new MySqlConnectionStringBuilder();
@@ -189,7 +194,8 @@ namespace MySql.Data.MySqlClient.Tests
     /// Validates that Connector/NET without SSH tunneling is not able to connect to a MySQL Server
     /// instance running on a different machine using a local user.
     /// </summary>
-    [Fact(Skip = "Needs SSH setup on PB2")]
+    [Test]
+    [Ignore("Needs SSH setup on PB2")]
     public void ConnectionFailsWithLocalUserOnRemoteMachineWithoutSSHTunneling()
     {
       CreateRemoteUser();
@@ -213,7 +219,8 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Validates that the SSH Server can be accessed via a user and password.
     /// </summary>
-    [Fact(Skip = "Needs SSH setup on PB2")]
+    [Test]
+    [Ignore("Needs SSH setup on PB2")]
     public void ConnectToSSHServerUsingPassword()
     {
       using (SftpClient sftp = new SftpClient(SSH_HOST_NAME, SSH_PORT, SSH_USER_NAME, SSH_PASSWORD))
@@ -228,7 +235,8 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Validates that the SSH Server can be accessed via a user and passphrase.
     /// </summary>
-    [Fact(Skip = "Needs SSH setup on PB2")]
+    [Test]
+    [Ignore("Needs SSH setup on PB2")]
     public void ConnectToSSHServerUsingKeys()
     {
       var keyFile = new PrivateKeyFile(SSH_KEY_FILE_PATH, SSH_KEY_FILE_PASSPHRASE);

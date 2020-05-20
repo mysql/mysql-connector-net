@@ -1,4 +1,4 @@
-// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,23 +26,18 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class CmdTestsSocketCompressed : CmdTests
   {
-    public CmdTestsSocketCompressed(TestFixture fixture) : base(fixture)
-    {
-    }
-
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
       settings.UseCompression = true;
     }
 
-    [Fact]
+    [Test]
     public override void InsertingPreparedNulls()
     {
       base.InsertingPreparedNulls();

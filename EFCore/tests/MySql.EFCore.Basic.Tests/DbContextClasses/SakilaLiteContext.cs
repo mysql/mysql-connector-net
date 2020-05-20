@@ -26,8 +26,9 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 
-namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
+namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
 {
   #region Contexts
 
@@ -44,7 +45,11 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public SakilaLiteContext(DbContextOptions options)
       : base(options) { }
 
-    partial void OnModelCreating20(ModelBuilder modelBuilder);
+    public void OnModelCreating20(ModelBuilder modelBuilder)
+    {
+      // Self-contained type configuration for code first
+      modelBuilder.ApplyConfiguration<Customer>(new CustomerConfiguration());
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -83,6 +88,11 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
       Database.EnsureCreated();
       if (populateData)
         PopulateData();
+    }
+
+    public void DropContext()
+    {
+      Database.EnsureDeleted();
     }
 
     protected virtual void SetActorEntity(ModelBuilder modelBuilder)
@@ -363,6 +373,13 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
       //    .OnDelete(DeleteBehavior.Restrict)
       //    .HasConstraintName("fk_address_city");
     }
+
+    // Database scalar function mapping
+    [DbFunction]
+    public static int FilmsByActorCount(short actorId)
+    {
+      throw new Exception();
+    }
   }
 
   public class SakilaLiteUpdateContext : SakilaLiteContext
@@ -392,6 +409,45 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
         .HasForeignKey<FilmDetails>(t => t.FilmId);
       modelBuilder.Entity<FilmLite>().ToTable("Film");
       modelBuilder.Entity<FilmDetails>().ToTable("Film");
+    }
+  }
+
+  public class SakilaLiteOwnedTypesContext : SakilaLiteContext
+  {
+    protected override void SetCustomerEntity(ModelBuilder modelBuilder)
+    {
+      // configures Address as an owned Customer type
+      base.SetCustomerEntity(modelBuilder);
+      modelBuilder.Entity<Customer>()
+        .OwnsOne(e => e.Address,
+          owned =>
+          {
+            //EntityTypeBuilder<SakilaAddress> entity = new EntityTypeBuilder<SakilaAddress>(((IInfrastructure<InternalEntityTypeBuilder>)owned).Instance);
+            //base.SetAddressEntity(entity);
+          });
+    }
+
+    protected override void SetAddressEntity(ModelBuilder modelBuilder)
+    {
+      // configuration is set as owned entity
+    }
+
+    public override void PopulateData()
+    {
+      // Customer data
+      this.Database.ExecuteSqlCommand(SakilaLiteData.CustomerData);
+    }
+  }
+
+  #endregion
+
+  #region Configurations
+  class CustomerConfiguration : IEntityTypeConfiguration<Customer>
+  {
+    public void Configure(EntityTypeBuilder<Customer> builder)
+    {
+      // defines a model-level query filter
+      builder.HasQueryFilter(e => e.Active);
     }
   }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,14 +29,15 @@
 using System;
 using System.Data;
 using System.Text;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class CharSetUTF8Tests : TestBase
   {
-    public CharSetUTF8Tests(TestFixture fixture) : base(fixture)
+    protected override void Cleanup()
     {
+      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
     }
 
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
@@ -44,12 +45,12 @@ namespace MySql.Data.MySqlClient.Tests
       settings.CharacterSet = "utf8";
     }
 
-    [Fact]
+    [Test]
     public void UTF8BlogsTruncating()
     {
 
-      executeSQL("DROP TABLE IF EXISTS test");
-      executeSQL("CREATE TABLE test (name LONGTEXT) CHARSET utf8");
+      ExecuteSQL("DROP TABLE IF EXISTS test");
+      ExecuteSQL("CREATE TABLE test (name LONGTEXT) CHARSET utf8");
 
       string szParam = "test:éàçùêû";
       string szSQL = "INSERT INTO test Values (?monParametre)";
@@ -64,52 +65,53 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         string s = reader.GetString(0);
-        Assert.Equal(szParam, s);
+        Assert.AreEqual(szParam, s);
       }
     }
 
     /// <summary>
     /// Bug #14592 Wrong column length returned for VARCHAR UTF8 columns 
     /// </summary>
-    [Fact(Skip = "Not compatible with linux")]
+    [Test]
     public void GetSchemaOnUTF8()
     {
-
-      executeSQL("CREATE TABLE Test(name VARCHAR(40) NOT NULL, name2 VARCHAR(20)) " +
+#if NETCOREAPP3_1
+      if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) Assert.Ignore();
+#endif
+      ExecuteSQL("CREATE TABLE Test(name VARCHAR(40) NOT NULL, name2 VARCHAR(20)) " +
         "CHARACTER SET utf8");
-      executeSQL("INSERT INTO Test VALUES('Test', 'Test')");
+      ExecuteSQL("INSERT INTO Test VALUES('Test', 'Test')");
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         DataTable dt = reader.GetSchemaTable();
-        Assert.Equal(40, dt.Rows[0]["ColumnSize"]);
-        Assert.Equal(20, dt.Rows[1]["ColumnSize"]);
+        Assert.AreEqual(40, dt.Rows[0]["ColumnSize"]);
+        Assert.AreEqual(20, dt.Rows[1]["ColumnSize"]);
       }
     }
 
     /// <summary>
     /// Bug #31117  	Connector/NET exceptions do not support server charset
     /// </summary>
-    [Fact]
+    [Test]
     public void NonLatin1Exception()
     {
-      executeSQL("CREATE TABLE Test (id int)");
+      ExecuteSQL("CREATE TABLE Test (id int)");
 
       MySqlCommand cmd = new MySqlCommand("select `Numéro` from Test", Connection);
-      var exception = Record.Exception(() => cmd.ExecuteScalar());
-      Assert.NotNull(exception);
-      Assert.Equal("Unknown column 'Numéro' in 'field list'", exception.Message);
+      var exception = Assert.Throws<MySqlException>(() => cmd.ExecuteScalar());
+      Assert.AreEqual("Unknown column 'Numéro' in 'field list'", exception.Message);
     }
 
     /// <summary>
     /// Tests for bug http://bugs.mysql.com/bug.php?id=62094
     /// (char field mapped to System.String of MaxLength=3*len(char) in .NET/Connector).
     /// </summary>
-    [Fact]
+    [Test]
     public void GetCharLengthInUTF8()
     {
-      executeSQL(
+      ExecuteSQL(
         @"CREATE TABLE `t62094` ( `id` int(11) NOT NULL, `name` char(1) DEFAULT NULL, 
                 `longname` char(20) DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
       MySqlCommand cmd = new MySqlCommand("select * from t62094", Connection);
@@ -117,14 +119,14 @@ namespace MySql.Data.MySqlClient.Tests
       DataSet ds = new DataSet();
       ad.Fill(ds);
       ad.FillSchema(ds, SchemaType.Mapped);
-      Assert.Equal(1, ds.Tables[0].Columns["name"].MaxLength);
-      Assert.Equal(20, ds.Tables[0].Columns["longname"].MaxLength);
+      Assert.AreEqual(1, ds.Tables[0].Columns["name"].MaxLength);
+      Assert.AreEqual(20, ds.Tables[0].Columns["longname"].MaxLength);
     }
 
-    [Fact]
+    [Test]
     public void BlobAsUtf8()
     {
-      executeSQL(@"CREATE TABLE Test(include_blob BLOB, include_tinyblob TINYBLOB, 
+      ExecuteSQL(@"CREATE TABLE Test(include_blob BLOB, include_tinyblob TINYBLOB, 
             include_longblob LONGBLOB, exclude_tinyblob TINYBLOB, exclude_blob BLOB, 
             exclude_longblob LONGBLOB)");
 
@@ -152,10 +154,10 @@ namespace MySql.Data.MySqlClient.Tests
         da.Fill(dt);
         foreach (DataColumn col in dt.Columns)
         {
-          Assert.Equal(typeof(string), col.DataType);
+          Assert.AreEqual(typeof(string), col.DataType);
           string s = (string)dt.Rows[0][0];
           byte[] b = utf8.GetBytes(s);
-          Assert.Equal(utf8_string, dt.Rows[0][col.Ordinal].ToString());
+          Assert.AreEqual(utf8_string, dt.Rows[0][col.Ordinal].ToString());
         }
       }
 
@@ -170,11 +172,11 @@ namespace MySql.Data.MySqlClient.Tests
         foreach (DataColumn col in dt.Columns)
         {
           if (col.ColumnName.StartsWith("exclude", StringComparison.OrdinalIgnoreCase))
-            Assert.Equal(typeof(byte[]), col.DataType);
+            Assert.AreEqual(typeof(byte[]), col.DataType);
           else
           {
-            Assert.Equal(typeof(string), col.DataType);
-            Assert.Equal(utf8_string, dt.Rows[0][col.Ordinal].ToString());
+            Assert.AreEqual(typeof(string), col.DataType);
+            Assert.AreEqual(utf8_string, dt.Rows[0][col.Ordinal].ToString());
           }
         }
       }
@@ -191,11 +193,11 @@ namespace MySql.Data.MySqlClient.Tests
         {
           if (col.ColumnName.StartsWith("include", StringComparison.OrdinalIgnoreCase))
           {
-            Assert.Equal(typeof(string), col.DataType);
-            Assert.Equal(utf8_string, dt.Rows[0][col.Ordinal].ToString());
+            Assert.AreEqual(typeof(string), col.DataType);
+            Assert.AreEqual(utf8_string, dt.Rows[0][col.Ordinal].ToString());
           }
           else
-            Assert.Equal(typeof(byte[]), col.DataType);
+            Assert.AreEqual(typeof(byte[]), col.DataType);
         }
       }
     }
@@ -206,7 +208,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #31185  	columns names are incorrect when using the 'AS' clause and name with accents
     /// Bug #38721  	GetOrdinal doesn't accept column names accepted by MySQL 5.0
     /// </summary>
-    [Fact]
+    [Test]
     public void UTF8AsColumnNames()
     {
       string connStr = Root.ConnectionString + ";charset=utf8;pooling=false";
@@ -218,36 +220,36 @@ namespace MySql.Data.MySqlClient.Tests
         DataTable dt = new DataTable();
         da.Fill(dt);
 
-        Assert.Equal("Numéro", dt.Columns[0].ColumnName);
+        Assert.AreEqual("Numéro", dt.Columns[0].ColumnName);
 
         MySqlCommand cmd = new MySqlCommand("SELECT NOW() AS 'Numéro'", c);
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           int ord = reader.GetOrdinal("Numéro");
-          Assert.Equal(0, ord);
+          Assert.AreEqual(0, ord);
         }
       }
     }
 
-    [Fact]
+    [Test]
     public void Unicode()
     {
-      executeSQL("CREATE TABLE Test (u2 varchar(255) CHARACTER SET ucs2)");
+      ExecuteSQL("CREATE TABLE Test (u2 varchar(255) CHARACTER SET ucs2)");
 
-      executeSQL("INSERT INTO Test VALUES ( CONVERT('困巫忘否役' using ucs2))");
+      ExecuteSQL("INSERT INTO Test VALUES ( CONVERT('困巫忘否役' using ucs2))");
 
       using (MySqlDataReader reader = ExecuteReader("SELECT * FROM Test"))
       {
         reader.Read();
         string s1 = reader.GetString(0);
-        Assert.Equal("困巫忘否役", s1);
+        Assert.AreEqual("困巫忘否役", s1);
       }
     }
 
-    [Fact]
+    [Test]
     public void UTF8()
     {
-      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET utf8)");
+      ExecuteSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET utf8)");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, 'ЁЄЉҖҚ')", Connection); //russian
       cmd.ExecuteNonQuery();
@@ -277,28 +279,28 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.Equal("ЁЄЉҖҚ", reader.GetString(1));
+        Assert.AreEqual("ЁЄЉҖҚ", reader.GetString(1));
         reader.Read();
-        Assert.Equal("兣冘凥凷冋", reader.GetString(1));
+        Assert.AreEqual("兣冘凥凷冋", reader.GetString(1));
         reader.Read();
-        Assert.Equal("困巫忘否役", reader.GetString(1));
+        Assert.AreEqual("困巫忘否役", reader.GetString(1));
         reader.Read();
-        Assert.Equal("涯割晦叶角", reader.GetString(1));
+        Assert.AreEqual("涯割晦叶角", reader.GetString(1));
         reader.Read();
-        Assert.Equal("ברחפע", reader.GetString(1));
+        Assert.AreEqual("ברחפע", reader.GetString(1));
         reader.Read();
-        Assert.Equal("ψόβΩΞ", reader.GetString(1));
+        Assert.AreEqual("ψόβΩΞ", reader.GetString(1));
         reader.Read();
-        Assert.Equal("þðüçöÝÞÐÜÇÖ", reader.GetString(1));
+        Assert.AreEqual("þðüçöÝÞÐÜÇÖ", reader.GetString(1));
         reader.Read();
-        Assert.Equal("ฅๆษ", reader.GetString(1));
+        Assert.AreEqual("ฅๆษ", reader.GetString(1));
       }
     }
 
-    [Fact]
+    [Test]
     public void UTF8PreparedAndUsingParameters()
     {
-      executeSQL("CREATE TABLE Test (name VARCHAR(200) CHAR SET utf8)");
+      ExecuteSQL("CREATE TABLE Test (name VARCHAR(200) CHAR SET utf8)");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(?val)", Connection);
       cmd.Parameters.Add("?val", MySqlDbType.VarChar);
@@ -332,44 +334,44 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.Equal("ЁЄЉҖҚ", reader.GetString(0));
+        Assert.AreEqual("ЁЄЉҖҚ", reader.GetString(0));
         reader.Read();
-        Assert.Equal("兣冘凥凷冋", reader.GetString(0));
+        Assert.AreEqual("兣冘凥凷冋", reader.GetString(0));
         reader.Read();
-        Assert.Equal("困巫忘否役", reader.GetString(0));
+        Assert.AreEqual("困巫忘否役", reader.GetString(0));
         reader.Read();
-        Assert.Equal("涯割晦叶角", reader.GetString(0));
+        Assert.AreEqual("涯割晦叶角", reader.GetString(0));
         reader.Read();
-        Assert.Equal("ברחפע", reader.GetString(0));
+        Assert.AreEqual("ברחפע", reader.GetString(0));
         reader.Read();
-        Assert.Equal("ψόβΩΞ", reader.GetString(0));
+        Assert.AreEqual("ψόβΩΞ", reader.GetString(0));
         reader.Read();
-        Assert.Equal("þðüçöÝÞÐÜÇÖ", reader.GetString(0));
+        Assert.AreEqual("þðüçöÝÞÐÜÇÖ", reader.GetString(0));
         reader.Read();
-        Assert.Equal("ฅๆษ", reader.GetString(0));
+        Assert.AreEqual("ฅๆษ", reader.GetString(0));
       }
     }
 
-#if !(NETCOREAPP2_2 || NETCOREAPP3_0)
-    [Fact]
+#if !NETCOREAPP3_1
+    [Test]
     public void Chinese()
     {
-      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET big5, name2 VARCHAR(200) CHAR SET gb2312)");
+      ExecuteSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET big5, name2 VARCHAR(200) CHAR SET gb2312)");
 
-      executeSQL("INSERT INTO Test VALUES(1, '困巫忘否役', '涝搞谷侪魍' )");
+      ExecuteSQL("INSERT INTO Test VALUES(1, '困巫忘否役', '涝搞谷侪魍' )");
 
       using (MySqlDataReader reader = ExecuteReader("SELECT * FROM Test"))
       {
         reader.Read();
-        Assert.Equal("困巫忘否役", reader.GetString(1));
-        Assert.Equal("涝搞谷侪魍", reader.GetString(2));
+        Assert.AreEqual("困巫忘否役", reader.GetString(1));
+        Assert.AreEqual("涝搞谷侪魍", reader.GetString(2));
       }
     }
 
-    [Fact]
+    [Test]
     public void Russian()
     {
-      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET cp1251)");
+      ExecuteSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET cp1251)");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, 'щьеи')", Connection);
       cmd.ExecuteNonQuery();
@@ -378,7 +380,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.Equal("щьеи", reader.GetString(1));
+        Assert.AreEqual("щьеи", reader.GetString(1));
       }
     }
 #endif
@@ -386,10 +388,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #25651 SELECT does not work properly when WHERE contains UTF-8 characters 
     /// </summary>
-    [Fact]
+    [Test]
     public void UTF8Parameters()
     {
-      executeSQL("CREATE TABLE Test (id int(11) NOT NULL, " +
+      ExecuteSQL("CREATE TABLE Test (id int(11) NOT NULL, " +
           "value varchar(100) NOT NULL, PRIMARY KEY (id)) " +
           "ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
@@ -400,14 +402,14 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("?parameter", MySqlDbType.VarString);
       cmd.Parameters[0].Value = "šđčćžŠĐČĆŽ";
       object o = cmd.ExecuteScalar();
-      Assert.Equal(1, o);
+      Assert.AreEqual(1, o);
     }
 
-#if !(NETCOREAPP2_2 || NETCOREAPP3_0)
-    [Fact]
+#if !NETCOREAPP3_1
+    [Test]
     public void Turkish()
     {
-      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET latin5 )");
+      ExecuteSQL("CREATE TABLE Test (id int, name VARCHAR(200) CHAR SET latin5 )");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, 'ĞËÇÄŞ')", Connection);
       cmd.ExecuteNonQuery();
@@ -416,7 +418,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.Equal("ĞËÇÄŞ", reader.GetString(1));
+        Assert.AreEqual("ĞËÇÄŞ", reader.GetString(1));
       }
     }
 #endif

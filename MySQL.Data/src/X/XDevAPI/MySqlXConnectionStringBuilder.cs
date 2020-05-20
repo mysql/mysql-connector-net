@@ -95,9 +95,6 @@ namespace MySqlX.XDevAPI
           values[option.Keyword] = option.DefaultValue;
         }
       }
-
-      if (SslMode == MySqlSslMode.Preferred)
-        SslMode = MySqlSslMode.Required;
     }
 
     /// <summary>
@@ -111,6 +108,9 @@ namespace MySqlX.XDevAPI
       {
         ConnectionString = connectionString;
       }
+
+      if (SslMode == MySqlSslMode.Preferred)
+        SslMode = MySqlSslMode.Required;
     }
 
     /// <summary>

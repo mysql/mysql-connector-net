@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,24 +26,20 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Xunit;
 using System.Data;
+using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class EventTests : TestBase
   {
-    public EventTests(TestFixture fixture) : base(fixture)
-    {
-    }
-
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void Warnings()
     {
-      executeSQL("CREATE TABLE Test (name VARCHAR(10))");
+      ExecuteSQL("CREATE TABLE Test (name VARCHAR(10))");
 
-      using (var connection = Fixture.GetConnection(false))
+      using (var connection = GetConnection(false))
       {
         MySqlCommand cmd = new MySqlCommand("SET SQL_MODE=''", connection);
         cmd.ExecuteNonQuery();
@@ -59,14 +55,14 @@ namespace MySql.Data.MySqlClient.Tests
 
     private void WarningsInfoMessage(object sender, MySqlInfoMessageEventArgs args)
     {
-      Assert.Single(args.errors);
+      Assert.That(args.errors, Has.One.Items);
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void StateChange()
     {
-      using (var connection = Fixture.GetConnection(false))
+      using (var connection = GetConnection(false))
       {
         connection.StateChange += new StateChangeEventHandler(StateChangeHandler);
         connection.Close();

@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,27 +29,19 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using MySql.Data.MySqlClient;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class UpdateTests : IClassFixture<DefaultFixture>
+  public class UpdateTests : DefaultFixture
   {
-    private DefaultFixture st;
-
-    public UpdateTests(DefaultFixture data)
-    {
-      st = data;
-      st.Setup(this.GetType());
-    }
-
     /// <summary>
     /// Fix for "Connector/NET Generates Incorrect SELECT Clause after UPDATE" (MySql bug #62134, Oracle bug #13491689).
     /// </summary>
-    [Fact]
+    [Test]
     public void UpdateSimple()
     {
-      var sb = new MySqlConnectionStringBuilder(st.ConnectionString);
+      var sb = new MySqlConnectionStringBuilder(ConnectionString);
       sb.Logging = true;
       using (DefaultContext ctx = new DefaultContext(sb.ToString()))
       {
@@ -71,7 +63,7 @@ namespace MySql.Data.EntityFramework.Tests
           Match m = rx.Match(s);
           if (m.Success)
           {
-            st.CheckSqlContains(m.Groups["item"].Value,
+            CheckSqlContains(m.Groups["item"].Value,
               @"UPDATE `Products` SET `Name`='Acme 2' WHERE `Id` = 1;
                 SELECT `CreatedDate` FROM `Products` WHERE  row_count() = 1 and (`Id` = 1)");
           }

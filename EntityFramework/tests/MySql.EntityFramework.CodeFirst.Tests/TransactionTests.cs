@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,28 +27,14 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
-using System.Data.Entity.Validation;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-  public class TransactionTests : IClassFixture<CodeFirstFixture>
+  public class TransactionTests : CodeFirstFixture
   {
-    private CodeFirstFixture _fixture;
-
-    public TransactionTests(CodeFirstFixture fixture)
-    {
-      _fixture = fixture;
-      _fixture.Setup(this.GetType());
-    }
-
-    [Fact]
+    [Test]
     public void DisposeNestedTransactions()
     {
       using (SakilaDb context = new SakilaDb())
@@ -69,7 +55,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void NestedTransactionsUniqueKey()
     {
       using (SakilaDb context = new SakilaDb())

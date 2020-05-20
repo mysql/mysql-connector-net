@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,20 +28,22 @@
 
 using System;
 using System.Data;
-using Xunit;
+using MySql.Data.Common;
+using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class CharSetTests : TestBase
   {
-    public CharSetTests(TestFixture fixture) : base(fixture)
+    protected override void Cleanup()
     {
+      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
     }
 
-    [Fact]
+    [Test]
     public void UseFunctions()
     {
-      executeSQL("CREATE TABLE Test (valid char, UserCode varchar(100), password varchar(100)) CHARSET latin1");
+      ExecuteSQL("CREATE TABLE Test (valid char, UserCode varchar(100), password varchar(100)) CHARSET latin1");
 
       using (var conn = new MySqlConnection(Connection.ConnectionString + ";charset=latin1"))
       {
@@ -52,11 +54,11 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void VarBinary()
     {
-      executeSQL("CREATE TABLE Test (id int, name varchar(200) collate utf8_bin) charset utf8");
-      executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      ExecuteSQL("CREATE TABLE Test (id int, name varchar(200) collate utf8_bin) charset utf8");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 'Test1')");
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -67,11 +69,11 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void Latin1Connection()
     {
-      executeSQL("CREATE TABLE Test (id INT, name VARCHAR(200)) CHARSET latin1");
-      executeSQL("INSERT INTO Test VALUES( 1, _latin1 'Test')");
+      ExecuteSQL("CREATE TABLE Test (id INT, name VARCHAR(200)) CHARSET latin1");
+      ExecuteSQL("INSERT INTO Test VALUES( 1, _latin1 'Test')");
 
       using (var conn = new MySqlConnection(Connection.ConnectionString + ";charset=latin1"))
       {
@@ -79,14 +81,14 @@ namespace MySql.Data.MySqlClient.Tests
 
         MySqlCommand cmd = new MySqlCommand("SELECT id FROM Test WHERE name LIKE 'Test'", conn);
         object id = cmd.ExecuteScalar();
-        Assert.Equal(1, id);
+        Assert.AreEqual(1, id);
       }
     }
 
     /// <summary>
     /// Bug #40076	"Functions Return String" option does not set the proper encoding for the string
     /// </summary>
-    [Fact]
+    [Test]
     public void FunctionReturnsStringWithCharSet()
     {
       string connStr = Connection.ConnectionString + ";functions return string=true";
@@ -100,7 +102,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.Equal("Trädgårdsvägen1", reader.GetString(0));
+          Assert.AreEqual("Trädgårdsvägen1", reader.GetString(0));
         }
       }
     }
@@ -108,11 +110,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Fix Bug #27818822 CONTRIBUTION: FIXING ENCODING FOR ENTITY FRAMEWORK CORE
     /// </summary>
-    [Fact]
+    [Test]
     public void Encoding()
     {
-      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
-      executeSQL("INSERT INTO Test VALUES(1, 'äâáàç')");
+      ExecuteSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
+      ExecuteSQL("INSERT INTO Test VALUES(1, 'äâáàç')");
 
       using (var conn = new MySqlConnection(Connection.ConnectionString))
       {
@@ -123,12 +125,12 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.Equal("äâáàç", reader.GetString(0));
+          Assert.AreEqual("äâáàç", reader.GetString(0));
         }
       }
     }
 
-    [Fact]
+    [Test]
     public void RespectBinaryFlags()
     {
       if (Connection.driver.Version.isAtLeast(5, 5, 0)) return;
@@ -154,11 +156,11 @@ namespace MySql.Data.MySqlClient.Tests
         DataTable dt = new DataTable();
         da.Fill(dt);
         Assert.True(dt.Rows[0][0] is string);
-        Assert.Equal("Trädgårdsvägen1", dt.Rows[0][0]);
+        Assert.AreEqual("Trädgårdsvägen1", dt.Rows[0][0]);
       }
     }
 
-    [Fact]
+    [Test]
     public void RussianErrorMessagesShowCorrectly()
     {
       MySqlCommand cmd = new MySqlCommand("SHOW VARIABLES LIKE '%lc_messages'", Root);
@@ -180,7 +182,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (MySqlException e)
       {
-        Assert.Equal(expected, e.Message);
+        Assert.AreEqual(expected, e.Message);
       }
     }
 
@@ -190,10 +192,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// Test for fix of Connector/NET cannot read data from a MySql table using UTF-16/UTF-32
     /// (MySql bug #69169, Oracle bug #16776818).
     /// </summary>
-    [Fact]
+    [Test]
     public void UsingUtf16()
     {
-      executeSQL(@"CREATE TABLE Test (
+      ExecuteSQL(@"CREATE TABLE Test (
         `actor_id` smallint(5) unsigned NOT NULL DEFAULT '0',
         `first_name` varchar(45) NOT NULL,
         `last_name` varchar(45) NOT NULL,
@@ -209,7 +211,7 @@ namespace MySql.Data.MySqlClient.Tests
         string sql2 = String.Format(
           "INSERT INTO Test( actor_id, first_name, last_name, last_update ) values ( {0}, '{1}', '{2}', '{3}' )",
           i, firstNames[i], lastNames[i], lastUpdates[i].ToString("yyyy/MM/dd hh:mm:ss"));
-        executeSQL(sql2);
+        ExecuteSQL(sql2);
       }
 
       string sql = "select actor_id, first_name, last_name, last_update from Test";
@@ -235,10 +237,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// 2nd part of tests for fix of Connector/NET cannot read data from a MySql table using UTF-16/UTF-32
     /// (MySql bug #69169, Oracle bug #16776818).
     /// </summary>
-    [Fact]
+    [Test]
     public void UsingUtf32()
     {
-      executeSQL(@"CREATE TABLE `Test` (
+      ExecuteSQL(@"CREATE TABLE `Test` (
           `actor_id` smallint(5) unsigned NOT NULL DEFAULT '0',
           `first_name` varchar(45) NOT NULL,
           `last_name` varchar(45) NOT NULL,
@@ -254,7 +256,7 @@ namespace MySql.Data.MySqlClient.Tests
         string sql2 = string.Format(
           "insert into `Test`( actor_id, first_name, last_name, last_update ) values ( {0}, '{1}', '{2}', '{3}' )",
           i, firstNames[i], lastNames[i], lastUpdates[i].ToString("yyyy/MM/dd hh:mm:ss"));
-        executeSQL(sql2);
+        ExecuteSQL(sql2);
       }
 
       string sql = "select actor_id, first_name, last_name, last_update from `Test`";
@@ -284,12 +286,13 @@ namespace MySql.Data.MySqlClient.Tests
     /// (Oracle bug #21098546).
     /// Disabled due to intermittent failure. Documented under Oracle bug #27010958
     /// </summary>
-    [Fact(Skip = "Fix this")]
+    [Test]
+    [Ignore("Fix this")]
     public void CanInsertChineseCharacterSetGB18030()
     {
-      if (Fixture.Version < new Version(5, 7, 4)) return;
+      if (Version < new Version(5, 7, 4)) return;
 
-      executeSQL("CREATE TABLE Test (id int, name VARCHAR(100) CHAR SET gb18030, KEY(name(20)))");
+      ExecuteSQL("CREATE TABLE Test (id int, name VARCHAR(100) CHAR SET gb18030, KEY(name(20)))");
       using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";charset=gb18030"))
       {
         c.Open();
@@ -302,9 +305,9 @@ namespace MySql.Data.MySqlClient.Tests
         while (reader.Read())
         {
           if (reader.GetUInt32(0) == 1)
-            Assert.Equal("㭋玤䂜蚌", reader.GetString(1));
+            Assert.AreEqual("㭋玤䂜蚌", reader.GetString(1));
           if (reader.GetUInt32(0) == 2)
-            Assert.Equal("念奴娇·赤壁怀古 ·苏东坡", reader.GetString(1));
+            Assert.AreEqual("念奴娇·赤壁怀古 ·苏东坡", reader.GetString(1));
         }
       }
     }
@@ -315,10 +318,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// (Oracle bug #21098546).
     /// Disabled due to intermittent failure. Documented under Oracle bug #27010958
     /// </summary>
-    [Fact(Skip = "Fix this")]
+    [Test]
+    [Ignore("Fix this")]
     public void CanCreateDbUsingChineseCharacterSetGB18030()
     {
-      if (Fixture.Version < new Version(5, 7, 4)) return;
+      if (Version < new Version(5, 7, 4)) return;
 
       MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(Root.ConnectionString);
       rootSb.CharacterSet = "gb18030";
@@ -338,7 +342,7 @@ namespace MySql.Data.MySqlClient.Tests
           using (MySqlConnection conn = new MySqlConnection(rootSb.ConnectionString))
           {
             conn.Open();
-            Assert.Equal(database, conn.Database);
+            Assert.AreEqual(database, conn.Database);
           }
         }
         finally
@@ -352,16 +356,16 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void UTF16LETest()
     {
-      if (Fixture.Version < new Version(5, 6)) return;
+      if (Version < new Version(5, 6)) return;
 
       using (MySqlDataReader reader = ExecuteReader("select _utf16le 'utf16le test';"))
       {
         while (reader.Read())
         {
-          Assert.Equal("瑵ㅦ氶⁥整瑳", reader[0].ToString());
+          Assert.AreEqual("瑵ㅦ氶⁥整瑳", reader[0].ToString());
         }
       }
     }
@@ -369,7 +373,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #13806  	Does not support Code Page 932
     /// </summary>
-    [Fact]
+    [Test]
     public void CP932()
     {
       using (var connection = new MySqlConnection(Connection.ConnectionString + ";charset=cp932"))
@@ -377,21 +381,21 @@ namespace MySql.Data.MySqlClient.Tests
         connection.Open();
         MySqlCommand cmd = new MySqlCommand("SELECT '涯割晦叶角'", connection);
         string s = (string)cmd.ExecuteScalar();
-        Assert.Equal("涯割晦叶角", s);
+        Assert.AreEqual("涯割晦叶角", s);
       }
     }
 
-    [Fact]
+    [Test]
     public void VariousCollations()
     {
-      executeSQL(@"CREATE TABLE Test(`test` VARCHAR(255) NOT NULL) 
+      ExecuteSQL(@"CREATE TABLE Test(`test` VARCHAR(255) NOT NULL) 
                             CHARACTER SET utf8 COLLATE utf8_swedish_ci");
-      executeSQL("INSERT INTO Test VALUES ('myval')");
+      ExecuteSQL("INSERT INTO Test VALUES ('myval')");
       MySqlCommand cmd = new MySqlCommand("SELECT test FROM Test", Connection);
       cmd.ExecuteScalar();
     }
 
-    [Fact]
+    [Test]
     public void ExtendedCharsetOnConnection()
     {
       MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(Root.ConnectionString);
@@ -421,7 +425,7 @@ namespace MySql.Data.MySqlClient.Tests
           using (MySqlConnection conn = new MySqlConnection(sb.ToString()))
           {
             conn.Open();
-            Assert.Equal(database, conn.Database);
+            Assert.AreEqual(database, conn.Database);
           }
         }
         finally
@@ -435,7 +439,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void DefaultCharSet()
     {
       using (var connection = new MySqlConnection(Connection.ConnectionString))
@@ -446,13 +450,13 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
 
         if (Connection.driver.Version.isAtLeast(8, 0, 1))
-          Assert.Equal("utf8mb4", reader.GetString("Value"));
+          Assert.AreEqual("utf8mb4", reader.GetString("Value"));
         else
-          Assert.Equal("latin1", reader.GetString("Value"));
+          Assert.AreEqual("latin1", reader.GetString("Value"));
       }
     }
 
-    [Fact]
+    [Test]
     public void CharacterVariablesByDefault()
     {
       MySqlConnectionStringBuilder rootSb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
@@ -474,10 +478,10 @@ namespace MySql.Data.MySqlClient.Tests
             switch (dr.GetString(0).ToLowerInvariant())
             {
               case "character_set_client":
-                Assert.Equal(characterSet, dr.GetString(1));
+                Assert.AreEqual(characterSet, dr.GetString(1));
                 break;
               case "character_set_connection":
-                Assert.Equal(characterSet, dr.GetString(1));
+                Assert.AreEqual(characterSet, dr.GetString(1));
                 break;
               default:
                 throw new InvalidOperationException(string.Format("Variable '{0}' not expected.", dr.GetString(0)));
@@ -486,7 +490,31 @@ namespace MySql.Data.MySqlClient.Tests
         }
 
         cmd.CommandText = "SELECT @@character_set_results";
-        Assert.Equal(DBNull.Value, cmd.ExecuteScalar());
+        Assert.AreEqual(DBNull.Value, cmd.ExecuteScalar());
+      }
+    }
+
+    /// <summary>
+    /// Bug #31173265	USING MYSQL.PROC TO SEARCH THE STORED PROCEDURE BUT THIS IS CASE SENSITIVE
+    /// </summary>
+    [Test]
+    public void DatabaseCaseSentitive()
+    {
+      if (Version >= new Version(8, 0, 0) || !Platform.IsWindows() ) return;
+
+      ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
+      ExecuteSQL(@"CREATE PROCEDURE spTest () BEGIN SELECT ""test""; END");
+
+      using (var connection = new MySqlConnection(Connection.ConnectionString.Replace(Connection.Database, Connection.Database.ToUpper())))
+      {
+        connection.Open();
+        var strName = "spTest";
+        using (MySqlCommand cmd = new MySqlCommand(strName, connection))
+        {
+          cmd.CommandType = CommandType.StoredProcedure;
+          var result = cmd.ExecuteNonQuery();
+          Assert.AreEqual(0, result);
+        }
       }
     }
   }

@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,58 +26,47 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Data;
-using MySql.Data.MySqlClient;
 using System.Data.Entity.Core.Objects;
-using System.Data.Common;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class RestrictionOperators : IClassFixture<DefaultFixture>
+  public class RestrictionOperators : DefaultFixture
   {
-    private DefaultFixture st;
-
-    public RestrictionOperators(DefaultFixture data)
-    {
-      st = data;
-      st.Setup(this.GetType());
-    }
-
-    [Fact]
+    [Test]
     public void SimpleSelectWithParam()
     {
-      st.TestESql<Book>(
+      TestESql<Book>(
         "SELECT VALUE b FROM Books AS b WHERE b.Pages > @pages",
         @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`PubDate`, `Extent1`.`Pages`, 
           `Extent1`.`Author_Id` FROM `Books` AS `Extent1` WHERE `Extent1`.`Pages` > @pages",
         new ObjectParameter("pages", 200));
     }
 
-    [Fact]
+    [Test]
     public void WhereLiteralOnRelation()
     {
-      st.TestESql<Author>(
+      TestESql<Author>(
         "SELECT VALUE a FROM Authors AS a WHERE a.Address.City = 'Dallas'",
         @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`Age`, `Extent1`.`Address_City`, 
           `Extent1`.`Address_Street`, `Extent1`.`Address_State`, `Extent1`.`Address_ZipCode`
           FROM `Authors` AS `Extent1` WHERE `Extent1`.`Address_City` = @gp1");
     }
 
-    [Fact]
+    [Test]
     public void WhereWithRelatedEntities1()
     {
-      st.TestESql<Book>(
+      TestESql<Book>(
         "SELECT VALUE b FROM Books AS b WHERE b.Author.Address.State = 'TX'",
         @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`PubDate`, `Extent1`.`Pages`, 
           `Extent1`.`Author_Id` FROM `Books` AS `Extent1` INNER JOIN `Authors` AS `Extent2` 
           ON `Extent1`.`Author_Id` = `Extent2`.`Id` WHERE `Extent2`.`Address_State` = @gp1");
     }
 
-    [Fact]
+    [Test]
     public void Exists()
     {
-      st.TestESql<Book>(
+      TestESql<Book>(
         @"SELECT VALUE a FROM Authors AS a WHERE EXISTS(
                     SELECT b FROM a.Books AS b WHERE b.Pages > 200)",
         @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`Age`, `Extent1`.`Address_City`, 

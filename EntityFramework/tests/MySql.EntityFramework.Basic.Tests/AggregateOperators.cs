@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,69 +30,61 @@ using System;
 using System.Linq;
 using System.Data.Common;
 using System.Data;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class AggregateOperators : IClassFixture<DefaultFixture>
+  public class AggregateOperators : DefaultFixture
   {
-    private DefaultFixture _fixture;
-
-    public AggregateOperators(DefaultFixture fixture)
-    {
-      _fixture = fixture;
-      _fixture.Setup(this.GetType());
-    }
-
-    [Fact]
+    [Test]
     public void CountSimple()
     {
-      _fixture.TestESql<Int32>(
+      TestESql<Int32>(
         "SELECT VALUE Count(b.Id) FROM Books as b",
         @"SELECT `GroupBy1`.`A1` AS `C1` FROM(SELECT COUNT(`Extent1`.`Id`) AS `A1`
                          FROM `Books` AS `Extent1`) AS `GroupBy1`");
     }
 
-    [Fact]
+    [Test]
     public void BigCountSimple()
     {
-      _fixture.TestESql<long>(
+      TestESql<long>(
         "SELECT VALUE BigCount(b.Id) FROM Books as b",
         @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT COUNT(`Extent1`.`Id`) AS `A1`
                             FROM `Books` AS `Extent1`) AS `GroupBy1`");
     }
 
-    [Fact]
+    [Test]
     public void CountWithPredicate()
     {
-      _fixture.TestESql<Int32>("SELECT VALUE Count(b.Id) FROM Books AS b WHERE b.Pages > 3",
+      TestESql<Int32>("SELECT VALUE Count(b.Id) FROM Books AS b WHERE b.Pages > 3",
                   @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT COUNT(`Extent1`.`Id`) AS `A1` 
                             FROM `Books` AS `Extent1` WHERE `Extent1`.`Pages` > 3) AS `GroupBy1`");
     }
 
-    [Fact]
+    [Test]
     public void MinSimple()
     {
-      _fixture.TestESql<Int32>(
+      TestESql<Int32>(
         "SELECT VALUE MIN(b.Pages) FROM Books AS b",
         @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT MIN(`Extent1`.`Pages`) AS `A1`
           FROM `Books` AS `Extent1`) AS `GroupBy1`");
     }
 
-    [Fact]
+    [Test]
     public void MinWithPredicate()
     {
-      _fixture.TestESql<DbDataRecord>(
+      TestESql<DbDataRecord>(
         "SELECT Min(b.Pages) FROM Books AS b WHERE b.Author.Age > 50",
         @"SELECT 1 AS `C1`, `GroupBy1`.`A1` AS `C2` FROM(SELECT MIN(`Extent1`.`Pages`) AS `A1`
           FROM `Books` AS `Extent1` INNER JOIN `Authors` AS `Extent2` ON `Extent1`.`Author_Id` = `Extent2`.`Id`
           WHERE `Extent2`.`Age` > 50) AS `GroupBy1`");
     }
 
-    [Fact]
+    [Test]
     public void MinWithGrouping()
     {
-      _fixture.TestESql<Int32>(
+      TestESql<Int32>(
         "SELECT VALUE Min(b.Pages) FROM Books AS b GROUP BY b.Author.Id",
         @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT `Extent1`.`Author_Id` AS `K1`, 
           MIN(`Extent1`.`Pages`) AS `A1` FROM `Books` AS `Extent1`  GROUP BY 
@@ -100,102 +92,102 @@ namespace MySql.Data.EntityFramework.Tests
         );
     }
 
-    [Fact]
+    [Test]
     public void MaxSimple()
     {
-      _fixture.TestESql<Int32>(
+      TestESql<Int32>(
         "SELECT VALUE MAX(b.Pages) FROM Books AS b",
         @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT MAX(`Extent1`.`Pages`) AS `A1`
           FROM `Books` AS `Extent1`) AS `GroupBy1`");
     }
 
-    [Fact]
+    [Test]
     public void MaxWithPredicate()
     {
-      _fixture.TestESql<DbDataRecord>(
+      TestESql<DbDataRecord>(
         "SELECT MAX(b.Pages) FROM Books AS b WHERE b.Author.Id=2",
         @"SELECT 1 AS `C1`, `GroupBy1`.`A1` AS `C2` FROM (SELECT MAX(`Extent1`.`Pages`) AS `A1`
           FROM `Books` AS `Extent1` WHERE `Extent1`.`Author_Id` = 2) AS `GroupBy1`");
     }
 
-    [Fact]
+    [Test]
     public void MaxWithGrouping()
     {
-      _fixture.TestESql<Int32>(
+      TestESql<Int32>(
         "SELECT VALUE MAX(b.Pages) FROM Books AS b GROUP BY b.Author.Id",
         @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT `Extent1`.`Author_Id` AS `K1`,  MAX(`Extent1`.`Pages`) AS `A1`
           FROM `Books` AS `Extent1` GROUP BY `Extent1`.`Author_Id`) AS `GroupBy1`");
     }
 
-    [Fact]
+    [Test]
     public void AverageSimple()
     {
-      _fixture.TestESql<Decimal>(
+      TestESql<Decimal>(
         "SELECT VALUE Avg(b.Pages) FROM Books AS b",
         @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT AVG(`Extent1`.`Pages`) AS `A1`
           FROM `Books` AS `Extent1`) AS `GroupBy1`");
     }
 
-    [Fact]
+    [Test]
     public void AverageWithPredicate()
     {
-      _fixture.TestESql<Decimal>(
+      TestESql<Decimal>(
         "SELECT VALUE AVG(b.Pages) FROM Books AS b WHERE b.Author.Id = 3",
         @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT AVG(`Extent1`.`Pages`) AS `A1`
           FROM `Books` AS `Extent1` WHERE `Extent1`.`Author_Id` = 3) AS `GroupBy1`");
     }
 
-    [Fact]
+    [Test]
     public void AverageWithGrouping()
     {
-      _fixture.TestESql<DbDataRecord>(
+      TestESql<DbDataRecord>(
         "SELECT AVG(b.Pages) FROM Books AS b GROUP BY b.Author.Id",
         @"SELECT 1 AS `C1`, `GroupBy1`.`A1` AS `C2` FROM (SELECT `Extent1`.`Author_Id` AS `K1`, 
           AVG(`Extent1`.`Pages`) AS `A1` FROM `Books` AS `Extent1` GROUP BY `Extent1`.`Author_Id`) AS `GroupBy1`");
     }
 
-    [Fact]
+    [Test]
     public void SumSimple()
     {
-      _fixture.TestESql<Int32>(
+      TestESql<Int32>(
         "SELECT VALUE SUM(b.Pages) FROM Books AS b",
         @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT SUM(`Extent1`.`Pages`) AS `A1`
           FROM `Books` AS `Extent1`) AS `GroupBy1`");
     }
 
-    [Fact]
+    [Test]
     public void SumWithPredicate()
     {
-      _fixture.TestESql<Double>(
+      TestESql<Double>(
         "SELECT VALUE SUM(b.Pages) FROM Books AS b WHERE b.Author.Id = 3",
         @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT SUM(`Extent1`.`Pages`) AS `A1`
           FROM `Books` AS `Extent1` WHERE `Extent1`.`Author_Id` = 3) AS `GroupBy1`");
     }
 
-    [Fact]
+    [Test]
     public void SumWithGrouping()
     {
-      _fixture.TestESql<Double>(
+      TestESql<Double>(
         "SELECT VALUE SUM(b.Pages) FROM Books AS b GROUP BY b.Author.Id",
         @"SELECT `GroupBy1`.`A1` AS `C1` FROM (SELECT `Extent1`.`Author_Id` AS `K1`, 
           SUM(`Extent1`.`Pages`) AS `A1` FROM `Books` AS `Extent1`  GROUP BY 
           `Extent1`.`Author_Id`) AS `GroupBy1`");
     }
 
-    [Fact]
+    [Test]
     public void MaxInSubQuery1()
     {
-      _fixture.TestESql<Book>(
+      TestESql<Book>(
         "SELECT VALUE a FROM Authors AS a WHERE a.Id = MAX(SELECT VALUE b.Author.Id FROM Books AS b)",
         @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`Age`, `Extent1`.`Address_City`, `Extent1`.`Address_Street`, 
           `Extent1`.`Address_State`, `Extent1`.`Address_ZipCode` FROM `Authors` AS `Extent1` INNER JOIN (SELECT
           MAX(`Extent2`.`Author_Id`) AS `A1` FROM `Books` AS `Extent2`) AS `GroupBy1` ON `Extent1`.`Id` = `GroupBy1`.`A1`");
     }
 
-    [Fact]
+    [Test]
     public void MaxInSubQuery2()
     {
-      _fixture.TestESql<Book>(
+      TestESql<Book>(
         "SELECT VALUE a FROM Authors AS a WHERE a.Id = ANYELEMENT(SELECT VALUE MAX(b.Author.Id) FROM Books AS b)",
         @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`Age`, `Extent1`.`Address_City`, `Extent1`.`Address_Street`, 
           `Extent1`.`Address_State`, `Extent1`.`Address_ZipCode` FROM `Authors` AS `Extent1` INNER JOIN (SELECT
@@ -205,14 +197,14 @@ namespace MySql.Data.EntityFramework.Tests
     /// <summary>
     /// This test the fix for bug 67377.
     /// </summary>
-    [Fact]
+    [Test]
     public void FirstOrDefaultNested()
     {
-      using (DefaultContext ctx = _fixture.GetDefaultContext())
+      using (DefaultContext ctx = GetDefaultContext())
       {
         var q = ctx.Authors.Where(p => p.Id == 1).Select(p => new { AuthorId = p.Id, FirstBook = (int?)p.Books.FirstOrDefault().Id });
         var s = q.ToString();
-        _fixture.CheckSql(q.ToString(),
+        CheckSql(q.ToString(),
           @"SELECT `Extent1`.`Id`, (SELECT `Extent2`.`Id` FROM `Books` AS `Extent2` WHERE `Extent1`.`Id` = `Extent2`.`Author_Id` LIMIT 1) AS `C1`
             FROM `Authors` AS `Extent1` WHERE 1 = `Extent1`.`Id`");
       }

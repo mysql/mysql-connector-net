@@ -35,6 +35,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
 namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
 {
+  /// <summary>
+  /// Represents a collation attribute for a property.
+  /// </summary>
   internal class MySqlCollationAttributeConvention : PropertyAttributeConventionBase<MySqlCollationAttribute>
   {
     /// <summary>

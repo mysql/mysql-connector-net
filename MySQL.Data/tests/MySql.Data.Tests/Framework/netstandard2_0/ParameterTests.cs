@@ -1,4 +1,4 @@
-// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,10 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
-using System;
-using Xunit;
-using System.Diagnostics;
+using NUnit.Framework;
 using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -39,10 +36,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #13276  	Exception on serialize after inserting null value
     /// </summary>
-    [Fact]
+    [Test]
     public void InsertValueAfterNull()
     {
-      executeSQL("CREATE TABLE Test (id int auto_increment primary key, foo int)");
+      ExecuteSQL("CREATE TABLE Test (id int auto_increment primary key, foo int)");
 
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       MySqlCommand c = new MySqlCommand("INSERT INTO Test (foo) values (?foo)", Connection);
@@ -60,8 +57,8 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Clear();
       da.Fill(dt);
-      Assert.Equal(2, dt.Rows.Count);
-      Assert.Equal(2, dt.Rows[1]["foo"]);
+      Assert.AreEqual(2, dt.Rows.Count);
+      Assert.AreEqual(2, dt.Rows[1]["foo"]);
     }
   }
 }

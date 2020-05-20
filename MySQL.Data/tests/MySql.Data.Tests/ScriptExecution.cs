@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,21 +26,15 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class ScriptExecution : TestBase
   {
-    public ScriptExecution(TestFixture fixture) : base (fixture)
-    {
-    }
-
     private int statementCount;
 
     private string statementTemplate1 = @"CREATE PROCEDURE `spTest1-{0}`() NOT DETERMINISTIC
@@ -49,7 +43,7 @@ namespace MySql.Data.MySqlClient.Tests
             SELECT 1,2,3;
           END{1}";
 
-    [Fact]
+    [Test]
     public void ExecuteScriptWithProcedures()
     {
       statementCount = 0;
@@ -63,28 +57,28 @@ namespace MySql.Data.MySqlClient.Tests
       script.Connection = Connection;
       script.Delimiter = "$$";
       int count = script.Execute();
-      Assert.Equal(10, count);
+      Assert.AreEqual(10, count);
 
       MySqlCommand cmd = new MySqlCommand(
         String.Format(@"SELECT COUNT(*) FROM information_schema.routines WHERE
         routine_schema = '{0}' AND routine_name LIKE 'spTest1-%'",
         Connection.Database), Connection);
-      Assert.Equal(10, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.AreEqual(10, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
     void ExecuteScriptWithProcedures_QueryExecuted(object sender, MySqlScriptEventArgs e)
     {
       string stmt = String.Format(statementTemplate1, statementCount++, null);
-      Assert.Equal(stmt, e.StatementText);
+      Assert.AreEqual(stmt, e.StatementText);
     }
 
 
     private string statementTemplate2 = @"INSERT INTO Test (id, name) VALUES ({0}, 'a "" na;me'){1}";
 
-    [Fact]
+    [Test]
     public void ExecuteScriptWithInserts()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
       statementCount = 0;
       string scriptText = String.Empty;
       for (int i = 0; i < 10; i++)
@@ -95,19 +89,20 @@ namespace MySql.Data.MySqlClient.Tests
       script.Connection = Connection;
       script.StatementExecuted += new MySqlStatementExecutedEventHandler(ExecuteScriptWithInserts_StatementExecuted);
       int count = script.Execute();
-      Assert.Equal(10, count);
+      Assert.AreEqual(10, count);
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Assert.Equal(10, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.AreEqual(10, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
     void ExecuteScriptWithInserts_StatementExecuted(object sender, MySqlScriptEventArgs e)
     {
       string stmt = String.Format(statementTemplate2, statementCount++, null);
-      Assert.Equal(stmt, e.StatementText);
+      Assert.AreEqual(stmt, e.StatementText);
     }
 
-    [Fact(Skip="Fix This")]
+    [Test]
+    [Ignore("Fix this")]
     public void ExecuteScriptContinueOnError()
     {
       statementCount = 0;
@@ -121,11 +116,11 @@ namespace MySql.Data.MySqlClient.Tests
       script.Connection = Connection;
       script.Error += new MySqlScriptErrorEventHandler(ExecuteScript_ContinueOnError);
       int count = script.Execute();
-      Assert.Equal((int)10, count);
-      Assert.Equal((int)1, statementCount);
+      Assert.AreEqual((int)10, count);
+      Assert.AreEqual((int)1, statementCount);
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Assert.Equal(10, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.AreEqual(10, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
     void ExecuteScript_ContinueOnError(object sender, MySqlScriptErrorEventArgs args)
@@ -134,7 +129,8 @@ namespace MySql.Data.MySqlClient.Tests
       statementCount++;
     }
 
-    [Fact(Skip="Fix This")]
+    [Test]
+    [Ignore("Fix this")]
     public void ExecuteScriptNotContinueOnError()
     {
       statementCount = 0;
@@ -148,11 +144,11 @@ namespace MySql.Data.MySqlClient.Tests
       script.Connection = Connection;
       script.Error += new MySqlScriptErrorEventHandler(ExecuteScript_NotContinueOnError);
       int count = script.Execute();
-      Assert.Equal(5, count);
-      Assert.Equal(1, statementCount);
+      Assert.AreEqual(5, count);
+      Assert.AreEqual(1, statementCount);
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Assert.Equal(5, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.AreEqual(5, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
     void ExecuteScript_NotContinueOnError(object sender, MySqlScriptErrorEventArgs args)
@@ -161,7 +157,7 @@ namespace MySql.Data.MySqlClient.Tests
       statementCount++;
     }
 
-    [Fact]
+    [Test]
     public void ExecuteScriptWithUserVariables()
     {
       string connStr = Connection.ConnectionString.ToLowerInvariant();
@@ -174,14 +170,15 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlScript script = new MySqlScript(scriptText);
         script.Connection = c;
         int count = script.Execute();
-        Assert.Equal(1, count);
+        Assert.AreEqual(1, count);
       }
     }
 
     /// <summary>
     /// Bug #46429 use DELIMITER command in MySql.Data.MySqlClient.MySqlScript  
     /// </summary>
-    [Fact(Skip = "Fix Me")]
+    [Test]
+    [Ignore("Fix for non-windows OS")]
     public void ScriptWithDelimiterStatements()
     {
       StringBuilder sql = new StringBuilder();
@@ -201,7 +198,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #46429	use DELIMITER command in MySql.Data.MySqlClient.MySqlScript
     /// </summary>
-    [Fact]
+    [Test]
     public void DelimiterInScriptV2()
     {
       StringBuilder sql = new StringBuilder();
@@ -226,7 +223,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #50344	MySqlScript.Execute() throws InvalidOperationException
     /// </summary>
-    [Fact]
+    [Test]
     public void EmptyLastLineWithScriptExecute()
     {
       StringBuilder sb = new StringBuilder();
@@ -237,7 +234,7 @@ namespace MySql.Data.MySqlClient.Tests
       script.Execute();
     }
 
-    [Fact]
+    [Test]
     public void DelimiterCommandDoesNotThrow()
     {
       MySqlScript script = new MySqlScript(Connection, "DELIMITER ;");
@@ -246,7 +243,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     #region Async
 
-    [Fact]
+    [Test]
     public async Task ExecuteScriptWithProceduresAsync()
     {
       string spTpl = @"CREATE PROCEDURE `SEScriptWithProceduresAsyncSpTest{0}`() NOT DETERMINISTIC CONTAINS SQL SQL SECURITY DEFINER COMMENT ''  BEGIN SELECT 1,2,3; END{1}";
@@ -260,23 +257,23 @@ namespace MySql.Data.MySqlClient.Tests
       script.StatementExecuted += new MySqlStatementExecutedEventHandler(delegate(object sender, MySqlScriptEventArgs e)
       {
         string stmt = String.Format(spTpl, statementCount++, null);
-        Assert.Equal(stmt, e.StatementText);
+        Assert.AreEqual(stmt, e.StatementText);
       });
       script.Connection = Connection;
       script.Delimiter = "$$";
       int count = await script.ExecuteAsync();
-      Assert.Equal(10, count);
+      Assert.AreEqual(10, count);
 
       MySqlCommand cmd = new MySqlCommand(
         String.Format(@"SELECT COUNT(*) FROM information_schema.routines WHERE routine_schema = '{0}' AND routine_name LIKE 'SEScriptWithProceduresAsyncSpTest%'", 
         Connection.Database), Connection);
-      Assert.Equal(10, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.AreEqual(10, Convert.ToInt32(cmd.ExecuteScalar()));
     }
 
-    [Fact]
+    [Test]
     public async Task ExecuteScriptWithInsertsAsync()
     {
-      executeSQL("CREATE TABLE SEScriptWithInsertsAsyncTest (id int, name varchar(50))");
+      ExecuteSQL("CREATE TABLE SEScriptWithInsertsAsyncTest (id int, name varchar(50))");
       string queryTpl = @"INSERT INTO SEScriptWithInsertsAsyncTest (id, name) VALUES ({0}, 'a "" na;me'){1}";
       statementCount = 0;
       string scriptText = String.Empty;
@@ -289,13 +286,13 @@ namespace MySql.Data.MySqlClient.Tests
       script.StatementExecuted += new MySqlStatementExecutedEventHandler(delegate(object sender, MySqlScriptEventArgs e)
       {
         string stmt = String.Format(queryTpl, statementCount++, null);
-        Assert.Equal(stmt, e.StatementText);
+        Assert.AreEqual(stmt, e.StatementText);
       });
       int count = await script.ExecuteAsync();
-      Assert.Equal(10, count);
+      Assert.AreEqual(10, count);
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM SEScriptWithInsertsAsyncTest", Connection);
-      Assert.Equal(10, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.AreEqual(10, Convert.ToInt32(cmd.ExecuteScalar()));
     }
     #endregion
   }

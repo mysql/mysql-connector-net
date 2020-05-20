@@ -1,4 +1,4 @@
-// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,21 +26,23 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Xunit;
+using NUnit.Framework;
 using System.Data;
+using System;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class Syntax2 : TestBase
   {
-    public Syntax2(TestFixture fixture) : base(fixture)
+    protected override void Cleanup()
     {
+      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
     }
 
-    [Fact]
+    [Test]
     public void CommentsInSQL()
     {
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
       string sql = "INSERT INTO Test /* my table */ VALUES (1 /* this is the id */, 'Test' );" +
         "/* These next inserts are just for testing \r\n" +
         "   comments */\r\n" +
@@ -55,36 +57,36 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       TestDataTable table = new TestDataTable();
       da.Fill(table);
-      Assert.Equal(1, table.Rows[0]["id"]);
-      Assert.Equal("Test", table.Rows[0]["name"]);
-      Assert.Equal(2, table.Rows.Count);
-      Assert.Equal(2, table.Rows[1]["id"]);
-      Assert.Equal("Test2", table.Rows[1]["name"]);
+      Assert.AreEqual(1, table.Rows[0]["id"]);
+      Assert.AreEqual("Test", table.Rows[0]["name"]);
+      Assert.AreEqual(2, table.Rows.Count);
+      Assert.AreEqual(2, table.Rows[1]["id"]);
+      Assert.AreEqual("Test2", table.Rows[1]["name"]);
     }
 
-    [Fact]
+    [Test]
     public void LastInsertid()
     {
-      executeSQL("CREATE TABLE Test(id int auto_increment, name varchar(20), primary key(id))");
+      ExecuteSQL("CREATE TABLE Test(id int auto_increment, name varchar(20), primary key(id))");
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(NULL, 'test')", Connection);
       cmd.ExecuteNonQuery();
-      Assert.Equal(1, cmd.LastInsertedId);
+      Assert.AreEqual(1, cmd.LastInsertedId);
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
       }
-      Assert.Equal(2, cmd.LastInsertedId);
+      Assert.AreEqual(2, cmd.LastInsertedId);
 
       cmd.CommandText = "SELECT id FROM Test";
       cmd.ExecuteScalar();
-      Assert.Equal(-1, cmd.LastInsertedId);
+      Assert.AreEqual(-1, cmd.LastInsertedId);
     }
 
-    [Fact]
+    [Test]
     public void ParsingBugTest()
     {
-      executeSQL(@"CREATE FUNCTION `TestFunction`(A INTEGER (11), B INTEGER (11), C VARCHAR (20)) 
+      ExecuteSQL(@"CREATE FUNCTION `TestFunction`(A INTEGER (11), B INTEGER (11), C VARCHAR (20)) 
           RETURNS int(11)
           RETURN 1");
 
@@ -101,10 +103,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #44960	backslash in string - connector return exeption
     /// </summary>
-    [Fact]
+    [Test]
     public void EscapedBackslash()
     {
-      executeSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
+      ExecuteSQL("CREATE TABLE Test(id INT, name VARCHAR(20))");
 
       MySqlCommand cmd = new MySqlCommand(@"INSERT INTO Test VALUES (1, '\\=\\')", Connection);
       cmd.ExecuteNonQuery();

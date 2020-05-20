@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,21 +27,22 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.EntityFramework.Tests;
+using NUnit.Framework;
 using System;
 using System.Configuration;
 using System.Data;
 using System.Data.Entity.Migrations;
 
-
 namespace MySql.Data.EntityFramework.Migrations.Tests
 {
-  public class SetUpMigrationsTests : DefaultFixture, IDisposable
+  public class SetUpMigrationsTests : DefaultFixture
   {
 
     private Configuration configuration;
     public DbMigrator Migrator;
 
-    public SetUpMigrationsTests() : base()
+    [OneTimeSetUp]
+    public new void OneTimeSetup()
     {
       configuration = new Configuration();
       DataSet dataSet = ConfigurationManager.GetSection("system.data") as System.Data.DataSet;
@@ -61,10 +62,9 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
       Migrator = new DbMigrator(configuration);
     }
 
-    public override void Dispose()
+    [OneTimeTearDown]
+    public new void OneTimeTearDown()
     {
-      base.Dispose();
-
       using (BlogContext context = new BlogContext())
       {
         if (context.Database.Exists())
@@ -89,7 +89,6 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
     }
   }
 
-
   internal sealed class EF6Configuration : DbMigrationsConfiguration<BlogContext>
   {
     public EF6Configuration()
@@ -103,5 +102,4 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
     {
     }
   }
-
 }

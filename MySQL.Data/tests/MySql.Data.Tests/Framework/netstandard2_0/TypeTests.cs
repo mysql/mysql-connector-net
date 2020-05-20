@@ -1,4 +1,4 @@
-// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,10 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
+using NUnit.Framework;
 using MySql.Data.Types;
 using System.IO;
 
@@ -37,24 +34,20 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class TypeTests : TestBase
   {
-    public TypeTests(TestFixture fixture) : base(fixture)
-    {
-    }
-
     /// <summary>
     /// Test fix for http://bugs.mysql.com/bug.php?id=40555
     /// Make MySql.Data.Types.MySqlDateTime serializable.
     /// </summary>
-    [Fact]
+    [Test]
     public void TestSerializationMySqlDataTime()
     {
       MySqlDateTime dt = new MySqlDateTime(2011, 10, 6, 11, 38, 01, 0);
-      Assert.Equal(2011, dt.Year);
-      Assert.Equal(10, dt.Month);
-      Assert.Equal(6, dt.Day);
-      Assert.Equal(11, dt.Hour);
-      Assert.Equal(38, dt.Minute);
-      Assert.Equal(1, dt.Second);
+      Assert.AreEqual(2011, dt.Year);
+      Assert.AreEqual(10, dt.Month);
+      Assert.AreEqual(6, dt.Day);
+      Assert.AreEqual(11, dt.Hour);
+      Assert.AreEqual(38, dt.Minute);
+      Assert.AreEqual(1, dt.Second);
       System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = 
         new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
       MemoryStream ms = new MemoryStream(1024);
@@ -62,12 +55,12 @@ namespace MySql.Data.MySqlClient.Tests
       ms.Position = 0;
       object o = bf.Deserialize(ms);
       dt = (MySqlDateTime)o;
-      Assert.Equal(2011, dt.Year);
-      Assert.Equal(10, dt.Month);
-      Assert.Equal(6, dt.Day);
-      Assert.Equal(11, dt.Hour);
-      Assert.Equal(38, dt.Minute);
-      Assert.Equal(1, dt.Second);
+      Assert.AreEqual(2011, dt.Year);
+      Assert.AreEqual(10, dt.Month);
+      Assert.AreEqual(6, dt.Day);
+      Assert.AreEqual(11, dt.Hour);
+      Assert.AreEqual(38, dt.Minute);
+      Assert.AreEqual(1, dt.Second);
     }
   }
 }

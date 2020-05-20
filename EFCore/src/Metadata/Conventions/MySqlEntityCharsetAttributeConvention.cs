@@ -34,6 +34,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
 namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
 {
+  /// <summary>
+  /// Represents a charset attribute for an entity.
+  /// </summary>
   internal class MySqlEntityCharsetAttributeConvention : EntityTypeAttributeConventionBase<MySqlCharsetAttribute>
   {
     /// <summary>

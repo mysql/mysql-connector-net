@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,24 +28,16 @@
 
 
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class JoinTests : IClassFixture<DefaultFixture>
+  public class JoinTests : DefaultFixture
   {
-    private DefaultFixture st;
-
-    public JoinTests(DefaultFixture fixture)
-    {
-      st = fixture;
-      st.Setup(this.GetType());
-    }
-
-    [Fact]
+    [Test]
     public void SimpleJoin()
     {
-      using (DefaultContext ctx = st.GetDefaultContext())
+      using (DefaultContext ctx = GetDefaultContext())
       {
         var q = from b in ctx.Books
                 join a in ctx.Authors
@@ -58,14 +50,14 @@ namespace MySql.Data.EntityFramework.Tests
                 };
         var expected = @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent2`.`Name` AS `Name1`
                         FROM `Books` AS `Extent1` INNER JOIN `Authors` AS `Extent2` ON `Extent1`.`Author_Id` = `Extent2`.`Id`";
-        st.CheckSql(q.ToString(), expected);
+        CheckSql(q.ToString(), expected);
       }
     }
 
-    [Fact]
+    [Test]
     public void SimpleJoinWithPredicate()
     {
-      using (DefaultContext ctx = st.GetDefaultContext())
+      using (DefaultContext ctx = GetDefaultContext())
       {
         var q = from b in ctx.Books
                 join a in ctx.Authors
@@ -81,14 +73,14 @@ namespace MySql.Data.EntityFramework.Tests
         var expected = @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent2`.`Name` AS `Name1` FROM `Books` AS `Extent1` 
                         INNER JOIN `Authors` AS `Extent2` ON `Extent1`.`Author_Id` = `Extent2`.`Id`
                         WHERE `Extent1`.`Pages` > 300";
-        st.CheckSql(q.ToString(), expected);
+        CheckSql(q.ToString(), expected);
       }
     }
 
-    [Fact]
+    [Test]
     public void JoinOnRightSideAsDerivedTable()
     {
-      using (DefaultContext ctx = st.GetDefaultContext())
+      using (DefaultContext ctx = GetDefaultContext())
       {
         var q = from b in ctx.Books
                 join a in ctx.ContractAuthors
@@ -100,11 +92,11 @@ namespace MySql.Data.EntityFramework.Tests
                         FROM `Books` AS `Extent1` INNER JOIN `ContractAuthors` AS `Extent2` ON (`Extent1`.`Author_Id` = 
                         `Extent2`.`Author_Id`) OR ((`Extent1`.`Author_Id` IS  NULL) AND (`Extent2`.`Author_Id` IS  NULL))
                         WHERE `Extent1`.`Pages` > 300";
-        st.CheckSql(sql, expected);
+        CheckSql(sql, expected);
       }
     }
 
-    //    [Fact]
+    //    [Test]
     //    public void JoinOfUnionsOnRightSideofJoin()
     //    {
     //      using (testEntities context = new testEntities())
@@ -140,7 +132,7 @@ namespace MySql.Data.EntityFramework.Tests
     //        };
     //        Dictionary<string, string> outData = new Dictionary<string, string>();
     //        string sql = query.ToTraceString();
-    //        st.CheckSql(sql, SQLSyntax.JoinOfUnionsOnRightSideOfJoin);
+    //        CheckSql(sql, SQLSyntax.JoinOfUnionsOnRightSideOfJoin);
     //        // check data integrity
     //        foreach (DbDataRecord record in query)
     //        {
@@ -148,7 +140,7 @@ namespace MySql.Data.EntityFramework.Tests
     //            record.GetString( 1 ), record.GetInt32( 2 ), record.GetString( 3 ), 
     //            record.GetInt32( 4 ), record.GetString( 5 )), null);
     //        }
-    //        Assert.Equal(data.Length, outData.Count);
+    //        Assert.AreEqual(data.Length, outData.Count);
     //        for( int i = 0; i < data.Length; i++ )
     //        {
     //          Assert.True(outData.ContainsKey(data[i]));
@@ -156,7 +148,7 @@ namespace MySql.Data.EntityFramework.Tests
     //      }
     //    }
 
-    //    [Fact]
+    //    [Test]
     //    public void t()
     //    {
     //      using (testEntities context = new testEntities())
@@ -175,7 +167,7 @@ namespace MySql.Data.EntityFramework.Tests
     //    /// Tests for bug http://bugs.mysql.com/bug.php?id=61729 
     //    /// (Skip/Take Clauses Causes Null Reference Exception in 6.3.7 and 6.4.1 Only).
     //    /// </summary>
-    //    [Fact]
+    //    [Test]
     //    public void JoinOfNestedUnionsWithLimit()
     //    {
     //      using (testEntities context = new testEntities())
@@ -191,16 +183,16 @@ namespace MySql.Data.EntityFramework.Tests
     //           switch (i)
     //            {
     //             case 0:
-    //               Assert.Equal(5, o.Id);
-    //               Assert.Equal("Debt of Honor", o.Name);
+    //               Assert.AreEqual(5, o.Id);
+    //               Assert.AreEqual("Debt of Honor", o.Name);
     //             break;
     //             case 1:
-    //               Assert.Equal(1, o.Id);
-    //               Assert.Equal("Debt of Honor", o.Name);
+    //               Assert.AreEqual(1, o.Id);
+    //               Assert.AreEqual("Debt of Honor", o.Name);
     //             break;
     //             case 4:
-    //               Assert.Equal(3, o.Id);
-    //               Assert.Equal("Rainmaker", o.Name);
+    //               Assert.AreEqual(3, o.Id);
+    //               Assert.AreEqual("Rainmaker", o.Name);
     //             break;             
     //            }
     //           i++;
@@ -208,7 +200,7 @@ namespace MySql.Data.EntityFramework.Tests
     //      }
     //    }
 
-    //    [Fact]
+    //    [Test]
     //    public void JoinOnRightSideNameClash()
     //    {
     //      using (testEntities context = new testEntities())
@@ -218,10 +210,10 @@ namespace MySql.Data.EntityFramework.Tests
     //                                JOIN testEntities.Books AS b ON a.Id = b.Id) ON c.Id = a.Id";
     //        ObjectQuery<DbDataRecord> query = context.CreateQuery<DbDataRecord>(eSql);
     //        string sql = query.ToTraceString();
-    //        st.CheckSql(sql, SQLSyntax.JoinOnRightSideNameClash);
+    //        CheckSql(sql, SQLSyntax.JoinOnRightSideNameClash);
     //        foreach (DbDataRecord record in query)
     //        {
-    //          Assert.Equal(6, record.FieldCount);
+    //          Assert.AreEqual(6, record.FieldCount);
     //        }
     //      }
     //    }
@@ -229,7 +221,7 @@ namespace MySql.Data.EntityFramework.Tests
     //    /// <summary>
     //    /// Test for fix of Oracle bug 12807366.
     //    /// </summary>
-    //    [Fact]
+    //    [Test]
     //    public void JoinsAndConcatsWithComposedKeys()
     //    {
     //      using (testEntities1 ctx = new testEntities1())
@@ -254,7 +246,7 @@ namespace MySql.Data.EntityFramework.Tests
     //    /// <summary>
     //    /// Test to fix Oracle bug 13491698
     //    /// </summary>
-    //    [Fact]
+    //    [Test]
     //    public void CanIncludeWithEagerLoading()
     //    {
     //      var myarray = new ArrayList();
@@ -262,7 +254,7 @@ namespace MySql.Data.EntityFramework.Tests
     //      {
     //        var author = db.myauthors.Include("mybooks.myeditions").AsEnumerable().First();
     //        var strquery = ((ObjectQuery)db.myauthors.Include("mybooks.myeditions").AsEnumerable()).ToTraceString();
-    //        st.CheckSql(strquery, SQLSyntax.JoinUsingInclude);
+    //        CheckSql(strquery, SQLSyntax.JoinUsingInclude);
     //        foreach (var book in author.mybooks.ToList())
     //        {
     //          foreach (var edition in book.myeditions.ToList())
@@ -271,25 +263,25 @@ namespace MySql.Data.EntityFramework.Tests
     //          }
     //        }
     //        myarray.Sort();
-    //        Assert.Equal(0, myarray.IndexOf("Another Book First Edition"));
-    //        Assert.Equal(1, myarray.IndexOf("Another Book Second Edition"));
-    //        Assert.Equal(2, myarray.IndexOf("Another Book Third Edition"));
-    //        Assert.Equal(3, myarray.IndexOf("Some Book First Edition"));
-    //        Assert.Equal(myarray.Count, 4);
+    //        Assert.AreEqual(0, myarray.IndexOf("Another Book First Edition"));
+    //        Assert.AreEqual(1, myarray.IndexOf("Another Book Second Edition"));
+    //        Assert.AreEqual(2, myarray.IndexOf("Another Book Third Edition"));
+    //        Assert.AreEqual(3, myarray.IndexOf("Some Book First Edition"));
+    //        Assert.AreEqual(myarray.Count, 4);
     //      }
     //    }
 
     //    /// <summary>
     //    /// Tests Fix for Error of "Every derived table must have an alias" in LINQ to Entities when using EF6 + DbFirst + View + Take  (MySql Bug #72148, Oracle bug #19356006).
     //    /// </summary>
-    //    [Fact]
+    //    [Test]
     //    public void TakeWithView()
     //    {
     //      using (testEntities1 ctx = new testEntities1())
     //      {        
     //        var q = ctx.vivideogametitle.Take(10);
     //        string sql = q.ToTraceString();
-    //        st.CheckSql(sql, SQLSyntax.TakeWithView);
+    //        CheckSql(sql, SQLSyntax.TakeWithView);
     //#if DEBUG
     //        Debug.WriteLine(sql);
     //#endif

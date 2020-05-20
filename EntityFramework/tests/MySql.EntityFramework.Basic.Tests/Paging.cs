@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,24 +28,20 @@
 
 using System.Data;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class Paging : IClassFixture<DefaultFixture>
+  public class Paging : DefaultFixture
   {
-    private DefaultFixture st;
-
-    public Paging(DefaultFixture fixture)
+    public override void SetUp()
     {
-      st = fixture;
-      if (st.Setup(this.GetType()))
-        LoadData();
+      LoadData();
     }
 
     void LoadData()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         ctx.Products.Add(new Product() { Name = "Garbage Truck", MinAge = 8 });
         ctx.Products.Add(new Product() { Name = "Fire Truck", MinAge = 12 });
@@ -54,39 +50,39 @@ namespace MySql.Data.EntityFramework.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void Take()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var q = ctx.Books.Take(2);
         var sql = q.ToString();
-        st.CheckSql(sql,
+        CheckSql(sql,
           @"SELECT `Id`, `Name`, `PubDate`, `Pages`, `Author_Id` FROM `Books` LIMIT 2");
       }
     }
 
-    [Fact]
+    [Test]
     public void Skip()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var q = ctx.Books.OrderBy(b=>b.Pages).Skip(3);
         var sql = q.ToString();
-        st.CheckSql(sql,
+        CheckSql(sql,
           @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`PubDate`, `Extent1`.`Pages`, `Extent1`.`Author_Id`
             FROM `Books` AS `Extent1` ORDER BY `Extent1`.`Pages` ASC LIMIT 3,18446744073709551615");
       }
     }
 
-    [Fact]
+    [Test]
     public void SkipAndTakeSimple()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var q = ctx.Books.OrderBy(b => b.Pages).Skip(3).Take(4);
         var sql = q.ToString();
-        st.CheckSql(sql,
+        CheckSql(sql,
           @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`PubDate`, `Extent1`.`Pages`, `Extent1`.`Author_Id`
             FROM `Books` AS `Extent1` ORDER BY `Extent1`.`Pages` ASC LIMIT 3,4");
       }
@@ -95,13 +91,13 @@ namespace MySql.Data.EntityFramework.Tests
     // <summary>
     // Tests fix for bug #64749 - Entity Framework - Take().Count() fails with EntityCommandCompilationException.
     // </summary>
-    [Fact]
+    [Test]
     public void TakeWithCount()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         int cnt = ctx.Products.Take(2).Count();
-        Assert.Equal(2, cnt);
+        Assert.AreEqual(2, cnt);
       }
     }
   }

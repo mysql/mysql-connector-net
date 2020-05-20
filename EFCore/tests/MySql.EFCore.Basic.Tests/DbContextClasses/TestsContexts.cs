@@ -26,14 +26,13 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Metadata;
 using MySql.Data.EntityFrameworkCore.Extensions;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 using System;
 
-namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
+namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
 {
 
   public class NoConfigurationContext : DbContext
@@ -480,7 +479,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
     public DbSet<MyTest> MyTest { get; set; }
   }
 
-  public class CharsetTestContext : MyTestContext
+  public class ConnStringOnConfiguringContext : MyTestContext
   {
     public DbSet<TestCharsetDA> TestCharsetDA { get; set; }
     public DbSet<TestCharsetFA> TestCharsetFA { get; set; }

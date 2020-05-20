@@ -27,9 +27,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 
-
-namespace MySql.Data.EntityFrameworkCore.Tests.DbContextClasses
+namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
 {
   public class SimpleContextWithIgnore : MyTestContext
   {

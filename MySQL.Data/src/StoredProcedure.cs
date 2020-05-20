@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -100,14 +100,23 @@ namespace MySql.Data.MySqlClient
       return StringUtility.ToUpperInvariant(dtdSubstring);
     }
 
-    private string FixProcedureName(string name)
+    private string FixProcedureName(string name,string db)
     {
-      string[] parts = name.Split('.');
-      for (int i = 0; i < parts.Length; i++)
-        if (!parts[i].StartsWith("`", StringComparison.Ordinal))
-          parts[i] = String.Format("`{0}`", parts[i]);
-      if (parts.Length == 1) return parts[0];
-      return String.Format("{0}.{1}", parts[0], parts[1]);
+      if (!name.Contains(db))
+      {
+        return string.Format("`{0}`.`{1}`", db, name);
+      }
+      else
+      {
+        var strpre = string.Format("`{0}`.", db);
+        var strpost = string.Empty;
+        if (name.Contains(strpre))
+        {
+          strpost=name.Remove(0, strpre.Length);
+          strpost = (!strpost.StartsWith("`") && !strpost.EndsWith("`")) ? string.Format("`{0}`", strpost):strpost;
+        }
+        return string.Format("{0}{1}", strpre, strpost);
+      }
     }
 
     private MySqlParameter GetAndFixParameter(string spName, MySqlSchemaRow param, bool realAsFloat, MySqlParameter returnParameter)
@@ -160,9 +169,7 @@ namespace MySql.Data.MySqlClient
       // first retrieve the procedure definition from our
       // procedure cache
       string spName = commandText;
-      if (spName.IndexOf(".") == -1 && !String.IsNullOrEmpty(Connection.Database))
-        spName = Connection.Database + "." + spName;
-      spName = FixProcedureName(spName);
+      spName =  FixProcedureName(spName, Connection.Database);
 
       MySqlParameter returnParameter = GetReturnParameter();
 

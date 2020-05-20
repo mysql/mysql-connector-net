@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,14 +28,14 @@
 
 using MySqlX.XDevAPI.Relational;
 using System;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests.ResultTests
 {
   public class RelationalGCTests : BaseTest
   {
-#if !(NETCOREAPP2_2 || NETCOREAPP3_0)
-    [Fact]
+#if !NETCOREAPP3_1
+    [Test]
     public void FetchAllNoReference()
     {
       ExecuteSQL("CREATE TABLE test(name VARCHAR(40), age INT)");
@@ -48,9 +48,9 @@ namespace MySqlX.Data.Tests.ResultTests
       result = null;
       GC.Collect();
       Assert.False(wr.IsAlive);
-      Assert.Equal(2, rows.Count);
-      Assert.Equal(22, rows[0]["age"]);
-      Assert.Equal("Patric", rows[1]["name"]);
+      Assert.AreEqual(2, rows.Count);
+      Assert.AreEqual(22, rows[0]["age"]);
+      Assert.AreEqual("Patric", rows[1]["name"]);
     }
 #endif
   }

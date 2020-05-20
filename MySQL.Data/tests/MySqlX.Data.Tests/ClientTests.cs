@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,169 +34,194 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
   public class ClientTests : BaseTest
   {
-    public static IEnumerable<object[]> ClientOptions =>
-      new List<object[]>
-      {
-        new object[] {
-          new { pooling = new { enabled = false } },
-          new Func<Client.ConnectionOptions>(() => { var c = new Client.ConnectionOptions(); c.Pooling.Enabled = false; return c; }).Invoke()
-        },
-        new object[] {
-          new { pooling = new { maxsIzE = 100, MAXidleTime = 60000 } },
-          new Func<Client.ConnectionOptions>(() => { var c = new Client.ConnectionOptions(); c.Pooling.MaxSize = 100; c.Pooling.MaxIdleTime = 60000; return c; }).Invoke()
-        },
-        new object[] {
-          new { pooling = new { queuetimeout = 45000 } },
-          new Func<Client.ConnectionOptions>(() => { var c = new Client.ConnectionOptions(); c.Pooling.QueueTimeout = 45000; return c; }).Invoke()
-        },
-        new object[] {
-          "{ \"pooling\": { \"enabled\": false } }",
-          new Func<Client.ConnectionOptions>(() => { var c = new Client.ConnectionOptions(); c.Pooling.Enabled = false; return c; }).Invoke()
-        },
-        new object[] {
-          "{ \"pooling\": { \"maxidleTIME\": 55000, \"QUEUEtimeout\": 120000 } }",
-          new Func<Client.ConnectionOptions>(() => { var c = new Client.ConnectionOptions(); c.Pooling.MaxIdleTime = 55000; c.Pooling.QueueTimeout = 120000; return c; }).Invoke()
-        }
-      };
+    public struct ClientOptions
+    {
+      public object ConnectionOptions { get; set; }
+      public object Options { get; set; }
+    }
+
+    [DatapointSource]
+    private readonly ClientOptions[] clientOptions = new ClientOptions[]
+    {
+      new ClientOptions {
+        ConnectionOptions = new { pooling = new { enabled = false } },
+        Options = new Func<Client.ConnectionOptions>(() => { var c = new Client.ConnectionOptions(); c.Pooling.Enabled = false; return c; }).Invoke()
+      },
+      new ClientOptions {
+        ConnectionOptions = new { pooling = new { maxsIzE = 100, MAXidleTime = 60000 } },
+        Options = new Func<Client.ConnectionOptions>(() => { var c = new Client.ConnectionOptions(); c.Pooling.MaxSize = 100; c.Pooling.MaxIdleTime = 60000; return c; }).Invoke()
+      },
+      new ClientOptions {
+        ConnectionOptions = new { pooling = new { queuetimeout = 45000 } },
+        Options = new Func<Client.ConnectionOptions>(() => { var c = new Client.ConnectionOptions(); c.Pooling.QueueTimeout = 45000; return c; }).Invoke()
+      },
+      new ClientOptions {
+        ConnectionOptions = "{ \"pooling\": { \"enabled\": false } }",
+        Options = new Func<Client.ConnectionOptions>(() => { var c = new Client.ConnectionOptions(); c.Pooling.Enabled = false; return c; }).Invoke()
+      },
+      new ClientOptions {
+        ConnectionOptions = "{ \"pooling\": { \"maxidleTIME\": 55000, \"QUEUEtimeout\": 120000 } }",
+        Options = new Func<Client.ConnectionOptions>(() => { var c = new Client.ConnectionOptions(); c.Pooling.MaxIdleTime = 55000; c.Pooling.QueueTimeout = 120000; return c; }).Invoke()
+      },
+    };
 
     [Theory]
-    [MemberData(nameof(ClientOptions))]
-    public void ParseConnectionOptionsTest(object connectionOptions, object options)
+    public void ParseConnectionOptionsTest(ClientOptions clientOptions)
     {
-      Client.ConnectionOptions poolingOptions = (Client.ConnectionOptions)options;
-      Client.ConnectionOptions connectionOptionsResult = Client.ParseConnectionOptions(connectionOptions);
+      Client.ConnectionOptions poolingOptions = (Client.ConnectionOptions)clientOptions.Options;
+      Client.ConnectionOptions connectionOptionsResult = Client.ParseConnectionOptions(clientOptions.ConnectionOptions);
       Assert.True(poolingOptions.Equals(connectionOptionsResult));
     }
 
-    public static IEnumerable<object[]> InvalidOptions =>
-      new List<object[]>
-      {
-        new object[] {
-          new { pooling = new { isenabled = false } },
-          "pooling.isenabled"
-        },
-        new object[] {
-          new { pooling = new { maxsIzE = 80, MAX_idle_Time = 60000 } },
-          "pooling.MAX_idle_Time"
-        },
-        new object[] {
-          new { enabled = true },
-          "enabled"
-        },
-        new object[] {
-          new { pooling = new { enabled = true }, maxIdleTime = 30000 },
-          "maxIdleTime"
-        },
-        new object[] {
-          "{ \"pooling\": { \"is_enabled\": false } }",
-          "pooling.is_enabled"
-        },
-        new object[] {
-          "{ \"queueTimeout\": 50000 }",
-          "queueTimeout"
-        },
-        new object[] {
-          "{ \"pooling\": { \"idleTIME\": 55000, \"queuetimeout\": 120000 } }",
-          "pooling.idleTIME"
-        },
-        new object[] {
-          "{ \"pooling\": { \"MaxidleTIME\": 55000 }, \"queuetimeout\": 120000 }",
-          "queuetimeout"
-        },
-        new object[] {
-          "{ pooling: { MaxidleTIME: 55000 } }",
-          "JSON"
-        },
-        new object[] {
-          DateTime.Today,
-          DateTime.Today
-        },
-        new object[] {
-          25,
-          25
-        },
-      };
-
-    [Theory]
-    [MemberData(nameof(InvalidOptions))]
-    public void ParseConnectionOptionsInvalidOptions(object connectionOptions, string optionName)
+    public struct InvalidOptions
     {
-      ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() => Client.ParseConnectionOptions(connectionOptions));
-      Assert.Equal(string.Format(ResourcesX.ClientOptionNotValid, optionName), ex.Message, true, true, true);
+      public object ConnectionOptions { get; set; }
+      public string OptionName { get; set; }
     }
 
-    public static IEnumerable<object[]> InvalidValues =>
-      new List<object[]>
-      {
-        new object[] {
-          new { pooling = true },
-          "pooling",
-          true
-        },
-        new object[] {
-          new { pooling = new { maxsIzE = 0 } },
-          "pooling.maxsIzE",
-          0
-        },
-        new object[] {
-          new { pooling = new { maxsIzE = -25, MAXidleTime = 60000 } },
-          "pooling.maxsIzE",
-          -25
-        },
-        new object[] {
-          new { pooling = new { maxsIzE = 90L } },
-          "pooling.maxsIzE",
-          90L
-        },
-        new object[] {
-          "{ \"pooling\": { \"enabled\": yes } }",
-          "pooling.enabled",
-          "yes"
-        },
-        new object[] {
-          "{ \"pooling\": { \"MaxidleTIME\": -22, \"queueTimeout\": 120000 } }",
-          "pooling.MaxidleTIME",
-          -22
-        }
-      };
+    [DatapointSource]
+    private readonly InvalidOptions[] invalidOptions = new InvalidOptions[]
+    {
+      new InvalidOptions {
+        ConnectionOptions = new { pooling = new { isenabled = false } },
+        OptionName = "pooling.isenabled"
+      },
+      new InvalidOptions {
+        ConnectionOptions = new { pooling = new { maxsIzE = 80, MAX_idle_Time = 60000 } },
+        OptionName = "pooling.MAX_idle_Time"
+      },
+      new InvalidOptions {
+        ConnectionOptions = new { enabled = true },
+        OptionName = "enabled"
+      },
+      new InvalidOptions {
+        ConnectionOptions = new { pooling = new { enabled = true }, maxIdleTime = 30000 },
+        OptionName = "maxIdleTime"
+      },
+      new InvalidOptions {
+        ConnectionOptions = "{ \"pooling\": { \"is_enabled\": false } }",
+        OptionName = "pooling.is_enabled"
+      },
+      new InvalidOptions {
+        ConnectionOptions = "{ \"queueTimeout\": 50000 }",
+        OptionName = "queueTimeout"
+      },
+      new InvalidOptions {
+        ConnectionOptions = "{ \"pooling\": { \"idleTIME\": 55000, \"queuetimeout\": 120000 } }",
+        OptionName = "pooling.idleTIME"
+      },
+      new InvalidOptions {
+        ConnectionOptions = "{ \"pooling\": { \"MaxidleTIME\": 55000 }, \"queuetimeout\": 120000 }",
+        OptionName = "queuetimeout"
+      },
+      new InvalidOptions {
+        ConnectionOptions = "{ pooling: { MaxidleTIME: 55000 } }",
+        OptionName = "JSON"
+      },
+      new InvalidOptions {
+        ConnectionOptions = DateTime.Today,
+        OptionName = DateTime.Today.ToString()
+      },
+      new InvalidOptions {
+        ConnectionOptions = 25,
+        OptionName = "25"
+      },
+    };
 
     [Theory]
-    [MemberData(nameof(InvalidValues))]
-    public void ParseConnectionOptionsInvalidValues(object connectionOptions, string optionName, object value)
+    public void ParseConnectionOptionsInvalidOptions(InvalidOptions invalidOptions)
     {
-      ArgumentException ex = Assert.ThrowsAny<ArgumentException>(() => Client.ParseConnectionOptions(connectionOptions));
-      Assert.Equal(string.Format(ResourcesX.ClientOptionInvalidValue, optionName, value), ex.Message, true, true, true);
+      ArgumentException ex = Assert.Throws<ArgumentException>(() => Client.ParseConnectionOptions(invalidOptions.ConnectionOptions));
+      Assert.That(string.Format(ResourcesX.ClientOptionNotValid, invalidOptions.OptionName), Is.EqualTo(ex.Message).IgnoreCase);
     }
 
-    public static IEnumerable<object[]> PoolingTestData =>
-      new List<object[]>
-      {
-        new object[]
-        {
-          new { pooling = new { maxSize = 5, queueTimeout = 5000 } }, 5, 10
-        },
-        new object[]
-        {
-          "{ \"pooling\": { \"maxSize\": 5, \"queueTimeout\": 5000 } }", 5, 10
-        }
-      };
+    public struct InvalidValues
+    {
+      public object ConnectionOptions { get; set; }
+      public string OptionName { get; set; }
+      public object Value { get; set; }
+    }
+
+    [DatapointSource]
+    private readonly InvalidValues[] invalidValues = new InvalidValues[]
+    {
+      new InvalidValues {
+        ConnectionOptions = new { pooling = true },
+        OptionName = "pooling",
+        Value = true
+      },
+      new InvalidValues {
+        ConnectionOptions = new { pooling = new { maxsIzE = 0 } },
+        OptionName = "pooling.maxsIzE",
+        Value = 0
+      },
+      new InvalidValues {
+        ConnectionOptions = new { pooling = new { maxsIzE = -25, MAXidleTime = 60000 } },
+        OptionName = "pooling.maxsIzE",
+        Value = -25
+      },
+      new InvalidValues {
+        ConnectionOptions = new { pooling = new { maxsIzE = 90L } },
+        OptionName = "pooling.maxsIzE",
+        Value = 90L
+      },
+      new InvalidValues {
+        ConnectionOptions = "{ \"pooling\": { \"enabled\": yes } }",
+        OptionName = "pooling.enabled",
+        Value = "yes"
+      },
+      new InvalidValues {
+        ConnectionOptions = "{ \"pooling\": { \"MaxidleTIME\": -22, \"queueTimeout\": 120000 } }",
+        OptionName = "pooling.MaxidleTIME",
+        Value = -22
+      }
+    };
 
     [Theory]
-    [MemberData(nameof(PoolingTestData))]
-    [Trait("Category", "Security")]
-    public void PoolingTest(object connectionOptions, int size, int iterations)
+    public void ParseConnectionOptionsInvalidValues(InvalidValues invalidValues)
     {
-      using (Client client = MySQLX.GetClient(ConnectionString, connectionOptions))
+      ArgumentException ex = Assert.Throws<ArgumentException>(() => Client.ParseConnectionOptions(invalidValues.ConnectionOptions));
+      Assert.That(string.Format(ResourcesX.ClientOptionInvalidValue, invalidValues.OptionName, invalidValues.Value), Is.EqualTo(ex.Message).IgnoreCase);
+    }
+
+    public struct PoolingTestData
+    {
+      public object ConnectionOptions { get; set; }
+      public int Size { get; set; }
+      public int Iterations { get; set; }
+    }
+
+    [DatapointSource]
+    private readonly PoolingTestData[] poolingTestData = new PoolingTestData[] {
+      new PoolingTestData
       {
-        List<string> hosts = new List<string>(size);
-        List<Session> sessions = new List<Session>(size);
-        for (int i = 0; i < size; i++)
+        ConnectionOptions = new { pooling = new { maxSize = 5, queueTimeout = 5000 } },
+        Size = 5,
+        Iterations = 10
+      },
+      new PoolingTestData
+      {
+        ConnectionOptions = "{ \"pooling\": { \"maxSize\": 5, \"queueTimeout\": 5000 } }",
+        Size = 5,
+        Iterations = 10
+      }
+    };
+
+    [Theory]
+    [Property("Category", "Security")]
+    public void PoolingTest(PoolingTestData poolingTestData)
+    {
+      using (Client client = MySQLX.GetClient(ConnectionString, poolingTestData.ConnectionOptions))
+      {
+        List<string> hosts = new List<string>(poolingTestData.Size);
+        List<Session> sessions = new List<Session>(poolingTestData.Size);
+        for (int i = 0; i < poolingTestData.Size; i++)
         {
           Session session = client.GetSession();
           hosts.Add(session.SQL("SELECT host FROM information_schema.PROCESSLIST where id=CONNECTION_ID()").Execute().FetchOne().GetString("host"));
@@ -213,9 +238,9 @@ namespace MySqlX.Data.Tests
         };
         closeSessions.Invoke();
 
-        for (int x = 0; x < iterations; x++)
+        for (int x = 0; x < poolingTestData.Iterations; x++)
         {
-          for (int i = 0; i < size; i++)
+          for (int i = 0; i < poolingTestData.Size; i++)
           {
             Session session = client.GetSession();
             string host = session.SQL("SELECT host FROM information_schema.PROCESSLIST where id=CONNECTION_ID()").Execute().FetchOne().GetString("host");
@@ -227,8 +252,8 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void QueueTimeoutTest()
     {
       int timeout = 3000;
@@ -237,15 +262,16 @@ namespace MySqlX.Data.Tests
         using (Session session1 = client.GetSession())
         {
           Stopwatch stopwatch = Stopwatch.StartNew();
-          TimeoutException ex = Assert.ThrowsAny<TimeoutException>(() => { Session session2 = client.GetSession(); });
+          TimeoutException ex = Assert.Throws<TimeoutException>(() => { Session session2 = client.GetSession(); });
           stopwatch.Stop();
-          Assert.Equal(ResourcesX.PoolingQueueTimeout, ex.Message);
+          Assert.AreEqual(ResourcesX.PoolingQueueTimeout, ex.Message);
           Assert.True(stopwatch.ElapsedMilliseconds >= timeout);
         }
       }
     }
 
-    [Fact]
+    [Test]
+    [Property("Category", "Security")]
     public void ReuseSessions()
     {
       int size = 3;
@@ -253,55 +279,64 @@ namespace MySqlX.Data.Tests
       using (Client client = MySQLX.GetClient(ConnectionString, new { pooling = new { maxSize = size, queueTimeout = timeout } }))
       {
         Session session = client.GetSession();
-        Assert.Equal((sbyte)5, session.SQL("SELECT 5").Execute().FetchOne()[0]);
+        Assert.AreEqual((sbyte)5, session.SQL("SELECT 5").Execute().FetchOne()[0]);
         session.Close();
-        MySqlException ex = Assert.ThrowsAny<MySqlException>(() => { session.SQL("SELECT 5").Execute(); });
-        Assert.Equal(ResourcesX.InvalidSession, ex.Message);
+        MySqlException ex = Assert.Throws<MySqlException>(() => { session.SQL("SELECT 5").Execute(); });
+        Assert.AreEqual(ResourcesX.InvalidSession, ex.Message);
       }
     }
 
     private const int _connectionTimeout = 1000;
-    public static IEnumerable<object[]> MultiHostData =>
-      new List<object[]>
-      {
-        new object[] { $"server=10.10.10.10,127.0.0.1;port={XPort};user=root;connecttimeout={_connectionTimeout};" },
-        new object[] { $"server=unknown,localhost;port={XPort};user=root;connecttimeout={_connectionTimeout};" },
-        new object[] { $"server=(address=10.10.10.10,priority=20),(address=127.0.0.1,priority=100);port={XPort};user=root;connecttimeout={_connectionTimeout};" },
-        new object[] { $"mysqlx://root@[10.10.10.10,127.0.0.1:{XPort}]?connecttimeout={_connectionTimeout}" },
-        new object[] { $"mysqlx://root@[unknown,localhost:{XPort}]?connecttimeout={_connectionTimeout}" },
-        new object[] { $"mysqlx://root@[(address=10.10.10.10,priority=20),(address=127.0.0.1:{XPort},priority=100)]?connecttimeout={_connectionTimeout}" },
-        new object[] { new { server = "10.10.10.10,127.0.0.1", user = "root", port = XPort, connecttimeout = _connectionTimeout } },
-        new object[] { new { server = "unknown,localhost", user = "root", port = XPort, connecttimeout = _connectionTimeout } },
-        new object[] { new { server = "(address=10.10.10.10,priority=100), (address=20.20.20.20,priority=90), (address=127.0.0.1,priority=20)", user = "root", port = XPort, connecttimeout = _connectionTimeout } }
-      };
+
+    public struct MultiHostData
+    {
+      public object ConnectionData { get; set; }
+    }
+
+    [DatapointSource]
+    private readonly MultiHostData[] multiHostData = new MultiHostData[]
+    {
+      new MultiHostData { ConnectionData = $"server=10.10.10.10,127.0.0.1;port={XPort};user=root;connecttimeout={_connectionTimeout};" },
+      new MultiHostData { ConnectionData = $"server=unknown,localhost;port={XPort};user=root;connecttimeout={_connectionTimeout};" },
+      new MultiHostData { ConnectionData = $"server=(address=10.10.10.10,priority=20),(address=127.0.0.1,priority=100);port={XPort};user=root;connecttimeout={_connectionTimeout};" },
+      new MultiHostData { ConnectionData = $"mysqlx://root@[10.10.10.10,127.0.0.1:{XPort}]?connecttimeout={_connectionTimeout}" },
+      new MultiHostData { ConnectionData = $"mysqlx://root@[unknown,localhost:{XPort}]?connecttimeout={_connectionTimeout}" },
+      new MultiHostData { ConnectionData = $"mysqlx://root@[(address=10.10.10.10,priority=20),(address=127.0.0.1:{XPort},priority=100)]?connecttimeout={_connectionTimeout}" },
+      new MultiHostData { ConnectionData = new { server = "10.10.10.10,127.0.0.1", user = "root", port = XPort, connecttimeout = _connectionTimeout } },
+      new MultiHostData { ConnectionData = new { server = "unknown,localhost", user = "root", port = XPort, connecttimeout = _connectionTimeout } },
+      new MultiHostData { ConnectionData = new { server = "(address=10.10.10.10,priority=100), (address=20.20.20.20,priority=90), (address=127.0.0.1,priority=20)", user = "root", port = XPort, connecttimeout = _connectionTimeout } }
+    };
 
     [Theory]
-    [MemberData(nameof(MultiHostData))]
-    public void MultiHostTest(object connectionData)
+    public void MultiHostTest(MultiHostData multiHostData)
     {
-      using (Client client = MySQLX.GetClient(connectionData, "{ \"pooling\": { \"enabled\": true } }"))
+      using (Client client = MySQLX.GetClient(multiHostData.ConnectionData, "{ \"pooling\": { \"enabled\": true } }"))
       {
         using (Session session = client.GetSession())
         {
-          Assert.Equal((sbyte)8, session.SQL("SELECT 8").Execute().FetchOne()[0]);
+          Assert.AreEqual((sbyte)8, session.SQL("SELECT 8").Execute().FetchOne()[0]);
         }
       }
     }
 
-    public static IEnumerable<object[]> CloseData =>
-      new List<object[]>
-      {
-        new object[] { new Action<Session>(s => { s.SQL("SELECT 9").Execute(); }) },
-        new object[] { new Action<Session>(s => { s.Schema.GetCollections(); }) },
-        new object[] { new Action<Session>(s => { s.Schema.GetCollections()[0].Find().Execute(); }) },
-        new object[] { new Action<Session>(s => { s.Schema.GetTables(); }) },
-        new object[] { new Action<Session>(s => { s.Schema.GetTables()[0].Select().Execute(); }) },
-      };
+    public struct CloseData
+    {
+      public Action<Session> Action { get; set; }
+    }
+
+    [DatapointSource]
+    private readonly CloseData[] closeData = new CloseData[]
+    {
+      new CloseData { Action = new Action<Session>(s => { s.SQL("SELECT 9").Execute(); }) },
+      new CloseData { Action = new Action<Session>(s => { s.Schema.GetCollections(); }) },
+      new CloseData { Action = new Action<Session>(s => { s.Schema.GetCollections()[0].Find().Execute(); }) },
+      new CloseData { Action = new Action<Session>(s => { s.Schema.GetTables(); }) },
+      new CloseData { Action = new Action<Session>(s => { s.Schema.GetTables()[0].Select().Execute(); }) },
+    };
 
     [Theory]
-    [MemberData(nameof(CloseData))]
-    [Trait("Category", "Security")]
-    public void CloseTests(Action<Session> action)
+    [Property("Category", "Security")]
+    public void CloseTests(CloseData closeData)
     {
       using (Client client = MySQLX.GetClient(ConnectionString, "{ \"pooling\": { \"enabled\": true } }"))
       {
@@ -310,9 +345,9 @@ namespace MySqlX.Data.Tests
           session.DropSchema(schemaName);
           session.CreateSchema(schemaName);
           client.Close();
-          Assert.Equal(SessionState.Closed, session.XSession.SessionState);
-          MySqlException ex = Assert.ThrowsAny<MySqlException>(() => { action.Invoke(session); });
-          Assert.Equal(ResourcesX.InvalidSession, ex.Message);
+          Assert.AreEqual(SessionState.Closed, session.XSession.SessionState);
+          MySqlException ex = Assert.Throws<MySqlException>(() => { closeData.Action.Invoke(session); });
+          Assert.AreEqual(ResourcesX.InvalidSession, ex.Message);
         }
       }
     }
@@ -320,8 +355,8 @@ namespace MySqlX.Data.Tests
     /// <summary>
     /// WL12515 - DevAPI: Support new session reset functionality
     /// </summary>
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void ResetSessionTest()
     {
       // This feature was implemented since MySQL Server 8.0.16
@@ -358,29 +393,29 @@ namespace MySqlX.Data.Tests
       session.SQL(string.Format("SET @a='session{0}'", id)).Execute();
 
       SqlResult res = session.SQL("SELECT @a AS a").Execute();
-      Assert.Equal("session" + id, res.FetchAll()[0][0]);
+      Assert.AreEqual("session" + id, res.FetchAll()[0][0]);
       res = session.SQL("SHOW CREATE TABLE testResetSession" + id).Execute();
-      Assert.Equal("testResetSession" + id, res.FetchAll()[0][0]);
+      Assert.AreEqual("testResetSession" + id, res.FetchAll()[0][0]);
     }
 
     private void ResetTestAfterClose(Session session, int threadId, int id)
     {
-      Assert.Equal(threadId, session.ThreadId);
+      Assert.AreEqual(threadId, session.ThreadId);
       SqlResult res = session.SQL("SELECT @a IS NULL").Execute();
-      Assert.Equal((sbyte)1, res.FetchOne()[0]);
+      Assert.AreEqual((sbyte)1, res.FetchOne()[0]);
       var ex = Assert.Throws<MySqlException>(() => session.SQL("SHOW CREATE TABLE testResetSession" + id).Execute());
-      Assert.Equal(string.Format("Table 'test.testresetsession{0}' doesn't exist", id), ex.Message);
+      Assert.AreEqual(string.Format("Table 'test.testresetsession{0}' doesn't exist", id), ex.Message);
 
       session.SQL(string.Format("SET @a='session{0}'", id)).Execute();
       res = session.SQL("SELECT @a AS a").Execute();
-      Assert.Equal("session" + id, res.FetchAll()[0][0]);
+      Assert.AreEqual("session" + id, res.FetchAll()[0][0]);
     }
 
     /// <summary>
     /// WL12514 - DevAPI: Support session-connect-attributes
     /// </summary>
-    [Fact]
-    [Trait("Category", "Security")]
+    [Test]
+    [Property("Category", "Security")]
     public void ConnectionAttributes()
     {
       if (!(session.Version.isAtLeast(8, 0, 16))) return;
@@ -409,13 +444,13 @@ namespace MySqlX.Data.Tests
 
       // Errors
       var ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[_key=value]"));
-      Assert.Equal(ResourcesX.InvalidUserDefinedAttribute, ex.Message);
+      Assert.AreEqual(ResourcesX.InvalidUserDefinedAttribute, ex.Message);
 
       ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=123"));
-      Assert.Equal(ResourcesX.InvalidConnectionAttributes, ex.Message);
+      Assert.AreEqual(ResourcesX.InvalidConnectionAttributes, ex.Message);
 
       ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[key=value,key=value2]"));
-      Assert.Equal(string.Format(ResourcesX.DuplicateUserDefinedAttribute, "key"), ex.Message);
+      Assert.AreEqual(string.Format(ResourcesX.DuplicateUserDefinedAttribute, "key"), ex.Message);
 
       MySqlXConnectionStringBuilder builder = new MySqlXConnectionStringBuilder();
       builder.Server = "localhost";
@@ -423,7 +458,7 @@ namespace MySqlX.Data.Tests
       builder.UserID = "root";
       builder.ConnectionAttributes = ";";
       ex = Assert.Throws<MySqlException>(() => MySQLX.GetClient(builder.ConnectionString, "{ \"pooling\": { \"enabled\": true } }"));
-      Assert.Equal("The requested value ';' is invalid for the given keyword 'connection-attributes'.", ex.Message);
+      Assert.AreEqual("The requested value ';' is invalid for the given keyword 'connection-attributes'.", ex.Message);
     }
 
     private void TestConnectionAttributes(string connString, Dictionary<string, object> userAttrs = null)
@@ -433,26 +468,26 @@ namespace MySqlX.Data.Tests
       using (Client client = MySQLX.GetClient(connString, "{ \"pooling\": { \"enabled\": true } }"))
       using (Session session = client.GetSession())
       {
-        Assert.Equal(SessionState.Open, session.XSession.SessionState);
+        Assert.AreEqual(SessionState.Open, session.XSession.SessionState);
         var result = session.SQL(sql).Execute().FetchAll();
 
         if (session.Settings.ConnectionAttributes == "false")
-          Assert.Empty(result);
+          Assert.IsEmpty(result);
         else
         {
-          Assert.NotEmpty(result);
+          Assert.IsNotEmpty(result);
           MySqlConnectAttrs clientAttrs = new MySqlConnectAttrs();
 
           if (userAttrs == null)
           {
-            Assert.Equal(8, result.Count);
+            Assert.AreEqual(8, result.Count);
 
             foreach (Row row in result)
-              Assert.StartsWith("_", row[1].ToString());
+              StringAssert.StartsWith("_", row[1].ToString());
           }
           else
           {
-            Assert.Equal(11, result.Count);
+            Assert.AreEqual(11, result.Count);
 
             for (int i = 0; i < userAttrs.Count; i++)
             {

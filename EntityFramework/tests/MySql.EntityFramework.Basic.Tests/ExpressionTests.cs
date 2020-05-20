@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,30 +26,20 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class ExpressionTests : IClassFixture<DefaultFixture>
+  public class ExpressionTests : DefaultFixture
   {
-    private DefaultFixture st;
-
-    public ExpressionTests(DefaultFixture fixture)
+    public override void LoadData()
     {
-      st = fixture;
-      if (st.Setup(this.GetType()))
-        LoadData();
-    }
-
-    void LoadData()
-    {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         ctx.Products.Add(new Product() { Name = "Garbage Truck", MinAge = 8 });
-        ctx.Products.Add(new Product() { Name = "Fire Truck", MinAge= 12 });
-        ctx.Products.Add(new Product() { Name = "Hula Hoop", MinAge=18 });
+        ctx.Products.Add(new Product() { Name = "Fire Truck", MinAge = 12 });
+        ctx.Products.Add(new Product() { Name = "Hula Hoop", MinAge = 18 });
         ctx.SaveChanges();
       }
     }
@@ -57,54 +47,54 @@ namespace MySql.Data.EntityFramework.Tests
     /// <summary>
     /// Using StartsWith on a list when using variable as parameter
     /// </summary>
-    [Fact]
+    [Test]
     public void CheckStartsWithWhenUsingVariable()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         string str = "Garbage";
         var records = ctx.Products.Where(p => p.Name.StartsWith(str)).ToArray();
-        Assert.Equal(1, records.Count());        
-       }
-     }    
+        Assert.AreEqual(1, records.Count());
+      }
+    }
 
     /// <summary>
     /// Using StartsWith on a list when using a hardcoded value
     /// </summary>
-    [Fact]
+    [Test]
     public void CheckStartsWithWhenUsingValue()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var records = ctx.Products.Where(p => p.Name.StartsWith("Garbage")).ToArray();
-        Assert.Equal(1, records.Count());
+        Assert.AreEqual(1, records.Count());
       }
     }
 
     /// <summary>
     /// Using EndsWith on a list when using a variable as parameter
     /// </summary>
-    [Fact]
+    [Test]
     public void CheckEndsWithWhenUsingVariable()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         string str = "Hoop";
         var records = ctx.Products.Where(p => p.Name.EndsWith(str)).ToArray();
-        Assert.Equal(1, records.Count());
+        Assert.AreEqual(1, records.Count());
       }
     }
 
     /// <summary>
     /// Using EndsWith on a list when using a hardcoded value
     /// </summary>
-    [Fact]
+    [Test]
     public void CheckEndsWithWhenUsingValue()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var records = ctx.Products.Where(p => p.Name.EndsWith("Hoop")).ToArray();
-        Assert.Equal(1, records.Count());
+        Assert.AreEqual(1, records.Count());
       }
     }
 
@@ -112,14 +102,14 @@ namespace MySql.Data.EntityFramework.Tests
     /// <summary>
     /// Using Contains on a list when using a variable
     /// </summary>
-    [Fact]
+    [Test]
     public void CheckContainsWhenUsingVariable()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         string str = "bage";
         var records = ctx.Products.Where(p => p.Name.Contains(str)).ToArray();
-        Assert.Equal(1, records.Count());
+        Assert.AreEqual(1, records.Count());
       }
     }
 
@@ -127,26 +117,26 @@ namespace MySql.Data.EntityFramework.Tests
     /// <summary>
     /// Using Contains on a list when using a hardcoded value
     /// </summary>
-    [Fact]
+    [Test]
     public void CheckContainsWhenUsingHardCodedValue()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var records = ctx.Products.Where(p => p.Name.Contains("bage")).ToArray();
-        Assert.Equal(1, records.Count());
+        Assert.AreEqual(1, records.Count());
       }
     }
 
     /// <summary>
     /// Using Contains on a list when using a hardcoded value
     /// </summary>
-    [Fact]
+    [Test]
     public void CheckContainsWhenUsingHardCodedValueWithPercentageSymbol()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var records = ctx.Products.Where(p => p.Name.Contains("%")).ToArray();
-        Assert.Equal(0, records.Count());
+        Assert.AreEqual(0, records.Count());
       }
     }
 

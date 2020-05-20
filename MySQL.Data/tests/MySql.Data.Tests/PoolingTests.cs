@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,29 +28,22 @@
 
 using System;
 using System.Collections.Generic;
-using Xunit;
+using NUnit.Framework;
 using System.Reflection;
 using System.Threading;
 using System.Data;
-#if !NETCOREAPP1_1
 using System.Timers;
-#endif
-
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class PoolingTests : TestBase
   {
-    public PoolingTests(TestFixture fixture) : base(fixture)
-    {
-    }
-
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
       settings.Pooling = true;
     }
 
-    [Fact]
+    [Test]
     public void BasicConnection()
     {
 
@@ -64,7 +57,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         c = new MySqlConnection(ConnectionSettings.ConnectionString);
         c.Open();
-        Assert.Equal(serverThread, c.ServerThread);
+        Assert.AreEqual(serverThread, c.ServerThread);
         c.Close();
       }
 
@@ -97,7 +90,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void OpenKilled()
     {
       string connStr = ConnectionSettings.ConnectionString + ";min pool size=1; max pool size=1";
@@ -118,7 +111,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.False(threadId == secondThreadId);
     }
 
-    [Fact]
+    [Test]
     public void ReclaimBrokenConnection()
     {
       // now create a new connection string only allowing 1 connection in the pool
@@ -131,7 +124,7 @@ namespace MySql.Data.MySqlClient.Tests
       // now attempting to open a connection should fail
       MySqlConnection c2 = new MySqlConnection(connStr);
       Exception ex = Assert.Throws<MySqlException>(() => c2.Open());
-      Assert.Contains("error connecting: Timeout expired.  The timeout period elapsed prior to obtaining a connection from the pool.", ex.Message);
+      StringAssert.Contains("error connecting: Timeout expired.  The timeout period elapsed prior to obtaining a connection from the pool.", ex.Message);
 
       // we now kill the first connection to simulate a server stoppage
       KillConnection(c);
@@ -139,7 +132,7 @@ namespace MySql.Data.MySqlClient.Tests
       // now we do something on the first connection
 
       ex = Assert.Throws<InvalidOperationException>(() => c.ChangeDatabase("mysql"));
-      Assert.Contains("The connection is not open.", ex.Message);
+      StringAssert.Contains("The connection is not open.", ex.Message);
 
       // Opening a connection now should work
       MySqlConnection connection = new MySqlConnection(connStr);
@@ -148,7 +141,7 @@ namespace MySql.Data.MySqlClient.Tests
       connection.Close();
     }
 
-    [Fact]
+    [Test]
     public void TestUserReset()
     {
       string connStr = ConnectionSettings.ConnectionString + ";connection reset=true;";
@@ -160,18 +153,18 @@ namespace MySql.Data.MySqlClient.Tests
 
         cmd.CommandText = "SELECT @testvar";
         object var = cmd.ExecuteScalar();
-        Assert.Equal("5", var);
+        Assert.AreEqual("5", var);
         c.Close();
 
         c.Open();
         object var2 = cmd.ExecuteScalar();
-        Assert.Equal(DBNull.Value, var2);
+        Assert.AreEqual(DBNull.Value, var2);
         KillConnection(c);
       }
     }
 
     // Test that thread does not come to pool after abort
-    [Fact]
+    [Test]
     public void TestAbort()
     {
       string connStr = ConnectionSettings.ConnectionString;
@@ -195,14 +188,14 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #25614 After connection is closed, and opened again UTF-8 characters are not read well 
     /// </summary>
-    [Fact]
+    [Test]
     public void UTF8AfterClosing()
     {
       string originalValue = "??????????";
-      executeSQL("DROP TABLE IF EXISTS test");
+      ExecuteSQL("DROP TABLE IF EXISTS test");
 
 
-      executeSQL("CREATE TABLE test (id int(11) NOT NULL, " +
+      ExecuteSQL("CREATE TABLE test (id int(11) NOT NULL, " +
         "value varchar(100) NOT NULL, PRIMARY KEY  (`id`) " +
         ") ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
@@ -216,7 +209,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         cmd = new MySqlCommand("SELECT value FROM test WHERE id = 1", con);
         string firstS = cmd.ExecuteScalar().ToString();
-        Assert.Equal(originalValue, firstS);
+        Assert.AreEqual(originalValue, firstS);
 
         con.Close();
         con.Open();
@@ -227,7 +220,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         KillConnection(con);
         con.Close();
-        Assert.Equal(firstS, secondS);
+        Assert.AreEqual(firstS, secondS);
       }
     }
 
@@ -242,7 +235,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #24373 High CPU utilization when no idle connection 
     /// </summary>
-    [Fact]
+    [Test]
     public void MultipleThreads()
     {
       string connStr = ConnectionSettings.ConnectionString + ";max pool size=1";
@@ -261,16 +254,16 @@ namespace MySql.Data.MySqlClient.Tests
       c.Close();
     }
 
-    [Fact]
+    [Test]
     public void NewTest()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (id INT, name VARCHAR(50))");
-      executeSQL("CREATE PROCEDURE spTest(theid INT) BEGIN SELECT * FROM Test WHERE id=theid; END");
-      executeSQL("INSERT INTO Test VALUES (1, 'First')");
-      executeSQL("INSERT INTO Test VALUES (2, 'Second')");
-      executeSQL("INSERT INTO Test VALUES (3, 'Third')");
-      executeSQL("INSERT INTO Test VALUES (4, 'Fourth')");
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL("CREATE TABLE Test (id INT, name VARCHAR(50))");
+      ExecuteSQL("CREATE PROCEDURE spTest(theid INT) BEGIN SELECT * FROM Test WHERE id=theid; END");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 'First')");
+      ExecuteSQL("INSERT INTO Test VALUES (2, 'Second')");
+      ExecuteSQL("INSERT INTO Test VALUES (3, 'Third')");
+      ExecuteSQL("INSERT INTO Test VALUES (4, 'Fourth')");
 
       string connStr = ConnectionSettings.ConnectionString;
 
@@ -290,7 +283,7 @@ namespace MySql.Data.MySqlClient.Tests
             if (recdr.Read())
             {
               int x = recdr.GetOrdinal("name");
-              Assert.Equal(1, x);
+              Assert.AreEqual(1, x);
             }
           }
         }
@@ -315,7 +308,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 #if CLR4
-    [Fact] 
+    [Test] 
     public void CleanIdleConnections()
     {
       string assemblyName = typeof(MySqlConnection).Assembly.FullName;
@@ -389,7 +382,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 #endif
 
-    //[Fact]
+    //[Test]
     //public void ClearPool()
     //{
     //  // Start by clearing clearingPools for a clean test
@@ -414,11 +407,11 @@ namespace MySql.Data.MySqlClient.Tests
     //  FieldInfo idlePool = poolType.GetField("idlePool", BindingFlags.NonPublic | BindingFlags.Instance);
     //  ICollection idleList = (ICollection)idlePool.GetValue(poolHash[settings.ConnectionString]);
     //  Debug.Print("Clear Pool test connection string 2 " + settings.ConnectionString);
-    //  Assert.Equal(9, idleList.Count);      
+    //  Assert.AreEqual(9, idleList.Count);      
 
     //  FieldInfo inUsePool = poolType.GetField("inUsePool", BindingFlags.NonPublic | BindingFlags.Instance);
     //  ICollection inUseList = (ICollection)inUsePool.GetValue(poolHash[settings.ConnectionString]);
-    //  Assert.Equal(1, inUseList.Count);
+    //  Assert.AreEqual(1, inUseList.Count);
 
     //  // now open 4 more of these.  Now we shoudl have 5 open and five
     //  // still in the pool
@@ -428,35 +421,31 @@ namespace MySql.Data.MySqlClient.Tests
     //    connections[i].Open();
     //  }
 
-    //  Assert.Equal(5, inUseList.Count);
-    //  Assert.Equal(5, idleList.Count);
+    //  Assert.AreEqual(5, inUseList.Count);
+    //  Assert.AreEqual(5, idleList.Count);
 
     //  clearingPools = GetClearingPools();
-    //  Assert.Equal(0, clearingPools.Count);
+    //  Assert.AreEqual(0, clearingPools.Count);
 
     //  // now tell this connection to clear its pool
     //  MySqlConnection.ClearPool(connections[0]);
-    //  Assert.Equal(1, clearingPools.Count);
-    //  Assert.Equal(0, idleList.Count);
+    //  Assert.AreEqual(1, clearingPools.Count);
+    //  Assert.AreEqual(0, idleList.Count);
 
     //  for (int i = 0; i < 5; i++)
     //    connections[i].Close();
-    //  Assert.Equal(0, clearingPools.Count);
+    //  Assert.AreEqual(0, clearingPools.Count);
     //}
 
     private static List<MySqlPool> GetClearingPools()
     {
       Type poolManagerType = typeof(MySqlPoolManager);
-#if NETCOREAPP1_1
-      FieldInfo clearingPoolsFI = poolManagerType.GetRuntimeField("clearingPools");
-#else
       FieldInfo clearingPoolsFI = poolManagerType.GetField("clearingPools",
         BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance);
-#endif
       return clearingPoolsFI.GetValue(null) as List<MySqlPool>;
     }
 
-    [Fact]
+    [Test]
     public void TestBadConnections()
     {
       MySqlConnectionStringBuilder builder = new
@@ -474,7 +463,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
         {
           Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
-          Assert.Equal("Unable to connect to any of the specified MySQL hosts.", ex.Message);
+          Assert.AreEqual("Unable to connect to any of the specified MySQL hosts.", ex.Message);
         }
         Thread.Sleep(50);
       }
@@ -484,11 +473,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #42801  	ClearPool .Net connector : NullReferenceException
     /// </summary>
-    [Fact]
+    [Test]
     public void DoubleClearingConnectionPool()
     {
-      MySqlConnection c1 = Fixture.GetConnection();
-      MySqlConnection c2 = Fixture.GetConnection();
+      MySqlConnection c1 = GetConnection();
+      MySqlConnection c2 = GetConnection();
       c1.Close();
       c2.Close();
       MySqlConnection.ClearPool(c1);
@@ -498,7 +487,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #49563  	Mysql Client wrongly communications with server when using pooled connections
     /// </summary>
-    [Fact]
+    [Test]
     public void OpenSecondPooledConnectionWithoutDatabase()
     {
       string connectionString = ConnectionSettings.ConnectionString;
@@ -518,12 +507,12 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #47153	Connector/NET fails to reset connection when encoding has changed
     /// </summary>
-    [Fact]
+    [Test]
     public void ConnectionResetAfterUnicode()
     {
-      executeSQL("DROP TABLE IF EXISTS test");
-      executeSQL("CREATE TABLE test (id INT, name VARCHAR(20) CHARSET UCS2)");
-      executeSQL("INSERT INTO test VALUES (1, 'test')");
+      ExecuteSQL("DROP TABLE IF EXISTS test");
+      ExecuteSQL("CREATE TABLE test (id INT, name VARCHAR(20) CHARSET UCS2)");
+      ExecuteSQL("INSERT INTO test VALUES (1, 'test')");
 
       string connStr = ConnectionSettings.ConnectionString + ";connection reset=true;min pool size=1; max pool size=1";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -547,7 +536,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#if !NETCOREAPP1_1
     private void CacheServerPropertiesInternal(bool cache)
     {
       string connStr = ConnectionSettings.ConnectionString +
@@ -568,10 +556,10 @@ namespace MySql.Data.MySqlClient.Tests
         KillConnection(c);
       }
       int count = listener.CountLinesContaining("SHOW VARIABLES");
-      Assert.Equal(cache ? 1 : 2, count);
+      Assert.AreEqual(cache ? 1 : 2, count);
     }
 
-    [Fact]
+    [Test]
     public void CacheServerProperties()
     {
       //CacheServerPropertiesInternal(true);
@@ -585,11 +573,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// CacheServerProperties can cause 'Packet too large' error
     /// when query exceeds 1024 bytes
     /// </summary>
-    [Fact]
+    [Test]
     public void CacheServerPropertiesCausePacketTooLarge()
     {
-      executeSQL("DROP TABLE IF EXISTS test");
-      executeSQL("CREATE TABLE test (id INT(10), image BLOB)");
+      ExecuteSQL("DROP TABLE IF EXISTS test");
+      ExecuteSQL("CREATE TABLE test (id INT(10), image BLOB)");
 
       InsertSmallBlobInTestTableUsingPoolingConnection();
       InsertSmallBlobInTestTableUsingPoolingConnection();
@@ -600,10 +588,10 @@ namespace MySql.Data.MySqlClient.Tests
         c1.Open();
         MySqlCommand cmd = new MySqlCommand("SELECT Count(*) from test", c1);
         var count = cmd.ExecuteScalar();
-        Assert.Equal(3, Convert.ToInt32(count));
+        Assert.AreEqual(3, Convert.ToInt32(count));
       }
 
-      executeSQL("DROP TABLE test ");
+      ExecuteSQL("DROP TABLE test ");
     }
 
 
@@ -624,7 +612,5 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
       }
     }
-#endif
-
   }
 }

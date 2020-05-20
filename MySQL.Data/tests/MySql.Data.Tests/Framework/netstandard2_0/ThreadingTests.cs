@@ -1,4 +1,4 @@
-// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,7 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Xunit;
+using NUnit.Framework;
 using System.Threading;
 using System.Collections;
 
@@ -35,7 +35,7 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class ThreadingTests : TestBase
   {
-    public ThreadingTests(TestFixture fixture) : base(fixture)
+    public ThreadingTests()
     {
       TableCache.DumpCache();
     }
@@ -53,7 +53,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #17106 MySql.Data.MySqlClient.CharSetMap.GetEncoding thread synchronization issue
     /// </summary>
-    [Fact]
+    [Test]
     public void MultipleThreads()
     {
       GenericListener myListener = new GenericListener();
@@ -113,7 +113,8 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact(Skip="Fix This")]
+    [Test]
+    [Ignore("Fix This")]
     public void HardenedThreadAbortException()
     {
       Thread t = new Thread(new ThreadStart(HardenedThreadAbortExceptionWorker));
@@ -132,7 +133,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       //Assert.InstanceOf(typeof(ThreadAbortException), lastException);
-      Assert.IsType<ThreadAbortException>(lastException);
+      Assert.IsInstanceOf<ThreadAbortException>(lastException);
     }
   }
 }

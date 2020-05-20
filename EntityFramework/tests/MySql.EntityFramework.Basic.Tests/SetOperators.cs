@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,24 +29,20 @@
 using System.Data;
 using MySql.Data.MySqlClient;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class SetOperators : IClassFixture<DefaultFixture>
+  public class SetOperators : DefaultFixture
   {
-    private DefaultFixture st;
-
-    public SetOperators(DefaultFixture fixture)
+    public override void SetUp()
     {
-      st = fixture;
-      if (st.Setup(this.GetType()))
-        LoadData();
+      LoadData();
     }
 
     void LoadData()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         ctx.Products.Add(new Product() { Name = "Garbage Truck", MinAge = 8 });
         ctx.Products.Add(new Product() { Name = "Fire Truck", MinAge = 12 });
@@ -55,50 +51,50 @@ namespace MySql.Data.EntityFramework.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void Any()
     {
       // find all authors that are in our db with no books
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var q = from a in ctx.Authors where !a.Books.Any() select a;
         string sql = q.ToString();
-        st.CheckSql(sql,
+        CheckSql(sql,
           @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`Age`, `Extent1`.`Address_City`, `Extent1`.`Address_Street`, 
           `Extent1`.`Address_State`, `Extent1`.`Address_ZipCode` FROM `Authors` AS `Extent1` WHERE NOT EXISTS(SELECT
           1 AS `C1` FROM `Books` AS `Extent2` WHERE `Extent1`.`Id` = `Extent2`.`Author_Id`)");
       }
     }
 
-    [Fact]
+    [Test]
     public void FirstSimple()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT id FROM products", st.Connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT id FROM products", Connection);
       int id = (int)cmd.ExecuteScalar();
 
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var q = from p in ctx.Products
                 select p;
         Product product = q.First() as Product;
 
-        Assert.Equal(id, product.Id);
+        Assert.AreEqual(id, product.Id);
       }
     }
 
-    [Fact]
+    [Test]
     public void FirstPredicate()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT id FROM products WHERE minage > 8", st.Connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT id FROM products WHERE minage > 8", Connection);
       int id = (int)cmd.ExecuteScalar();
 
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var q = from p in ctx.Products
                 where p.MinAge > 8
                 select p;
         Product product = q.First() as Product;
-        Assert.Equal(id, product.Id);
+        Assert.AreEqual(id, product.Id);
       }
     }
   }

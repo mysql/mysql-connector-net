@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2011, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,7 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Xunit;
+using NUnit.Framework;
 using MySql.Data.MySqlClient;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -69,34 +69,26 @@ namespace MySql.Data.EntityFramework.Tests
     public DbSet<Widget> Widgets { get; set; }
   }
 
-  public class DatesTypesTests : IClassFixture<DefaultFixture>
+  public class DatesTypesTests : DefaultFixture
   {
-    private DefaultFixture st;
-
-    public DatesTypesTests(DefaultFixture fixture)
-    {
-      st = fixture;
-      st.Setup(this.GetType());
-    }
-
-    [Fact]
+    [Test]
     public void CanCreateDBScriptWithDateTimePrecision()
     {
-      if (st.Version < new Version(5, 6, 5)) return;
+      if (Version < new Version(5, 6, 5)) return;
 
-      using (var ctx = new TestContext(st.ConnectionString))
+      using (var ctx = new TestContext(ConnectionString))
       {
-        var script = new MySqlScript(st.Connection);
+        var script = new MySqlScript(Connection);
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         script.Query = context.CreateDatabaseScript();
         script.Execute();
 
-        DataTable schema = st.Connection.GetSchema("COLUMNS", new string[] { null, st.Connection.Database, "widgets" });
+        DataTable schema = Connection.GetSchema("COLUMNS", new string[] { null, Connection.Database, "widgets" });
 
         DataRow row = schema.Rows[3];
-        Assert.Equal("datetime", row.Field<string>("DATA_TYPE"));
-        Assert.Equal((uint)6, row.Field<UInt32>("DATETIME_PRECISION"));
-        Assert.Equal("NO", row.Field<string>("IS_NULLABLE"));
+        Assert.AreEqual("datetime", row.Field<string>("DATA_TYPE"));
+        Assert.AreEqual((uint)6, row.Field<UInt32>("DATETIME_PRECISION"));
+        Assert.AreEqual("NO", row.Field<string>("IS_NULLABLE"));
       }
     }
   }

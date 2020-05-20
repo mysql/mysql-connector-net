@@ -1,4 +1,4 @@
-// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,20 +26,13 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class ReplicationTests: TestBase
   {
-    public ReplicationTests(TestFixture fixture) : base(fixture)
-    {
-    }   
-    
-    [Fact]
+    [Test]
     public void Simple()
     {
       using (MySqlConnection connection = new MySqlConnection(Connection.ConnectionString + ";replication=yes"))
@@ -52,7 +45,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
         catch (MySqlException ex)
         {
-          Assert.Contains("Replicated", ex.Message);
+          StringAssert.Contains("Replicated", ex.Message);
         }
       }
     }

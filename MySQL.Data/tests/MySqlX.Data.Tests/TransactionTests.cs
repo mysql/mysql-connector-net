@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,13 +31,13 @@ using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
 using System;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
   public class TransactionTests : BaseTest
   {
-    [Fact]
+    [Test]
     public void Commit()
     {
       Collection coll = CreateCollection("test");
@@ -53,7 +53,7 @@ namespace MySqlX.Data.Tests
       coll.Session.StartTransaction();
 
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.Equal<ulong>(4, r.AffectedItemsCount);
+      Assert.AreEqual(4, r.AffectedItemsCount);
 
       // now roll it back
       coll.Session.Commit();
@@ -66,7 +66,7 @@ namespace MySqlX.Data.Tests
       Assert.False(foundDocs.Next());
     }
 
-    [Fact]
+    [Test]
     public void Rollback()
     {
       Collection coll = CreateCollection("test");
@@ -82,7 +82,7 @@ namespace MySqlX.Data.Tests
       coll.Session.StartTransaction();
 
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.Equal<ulong>(4, r.AffectedItemsCount);
+      Assert.AreEqual(4, r.AffectedItemsCount);
 
       // now roll it back
       coll.Session.Rollback();
@@ -93,7 +93,7 @@ namespace MySqlX.Data.Tests
 
     #region Savepoints
 
-    [Fact]
+    [Test]
     public void CreateUnnamedSavepoint()
     {
       using(var session = MySQLX.GetSession(ConnectionString))
@@ -107,7 +107,7 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void RollbackToSavepoint()
     {
       using(var session = MySQLX.GetSession(ConnectionString))
@@ -120,15 +120,15 @@ namespace MySqlX.Data.Tests
         ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         var sp = session.SetSavepoint();
         ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
-        Assert.Equal(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.AreEqual(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
         session.RollbackTo(sp);
-        Assert.Single(ExecuteFindStatement(coll.Find()).FetchAll());
+        Assert.That(ExecuteFindStatement(coll.Find()).FetchAll(), Has.One.Items);
 
         session.Rollback();
       }
     }
 
-    [Fact]
+    [Test]
     public void ReleaseSavepoint()
     {
       using(var session = MySQLX.GetSession(ConnectionString))
@@ -141,15 +141,15 @@ namespace MySqlX.Data.Tests
         ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         var sp = session.SetSavepoint();
         ExecuteAddStatement(coll.Add("{ \"test2\": \"test2\" }"));
-        Assert.Equal(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.AreEqual(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
         session.ReleaseSavepoint(sp);
-        Assert.Equal(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.AreEqual(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
 
         session.Rollback();
       }
     }
 
-    [Fact]
+    [Test]
     public void CreateNamedSavepoint()
     {
       using(var session = MySQLX.GetSession(ConnectionString))
@@ -163,7 +163,7 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void RollbackToNamedSavepoint()
     {
       using(var session = MySQLX.GetSession(ConnectionString))
@@ -176,15 +176,15 @@ namespace MySqlX.Data.Tests
         ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         var sp = session.SetSavepoint("mySavedPoint");
         ExecuteAddStatement(coll.Add("{ \"test2\": \"test2\" }"));
-        Assert.Equal(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.AreEqual(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
         session.RollbackTo(sp);
-        Assert.Single(ExecuteFindStatement(coll.Find()).FetchAll());
+        Assert.That(ExecuteFindStatement(coll.Find()).FetchAll(), Has.One.Items);
 
         session.Rollback();
       }
     }
 
-    [Fact]
+    [Test]
     public void ReleaseNamedSavepoint()
     {
       using(var session = MySQLX.GetSession(ConnectionString))
@@ -197,15 +197,15 @@ namespace MySqlX.Data.Tests
         ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         var sp = session.SetSavepoint("mySavedPoint");
         ExecuteAddStatement(coll.Add("{ \"test2\": \"test2\" }"));
-        Assert.Equal(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.AreEqual(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
         session.ReleaseSavepoint(sp);
-        Assert.Equal(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.AreEqual(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
 
         session.Rollback();
       }
     }
 
-    [Fact]
+    [Test]
     public void NonExistentSavepoint()
     {
       using(var session = MySQLX.GetSession(ConnectionString))
@@ -213,16 +213,16 @@ namespace MySqlX.Data.Tests
         session.StartTransaction();
 
         Exception exception = Assert.Throws<MySqlException>(() => session.RollbackTo("nonExistentSavePoint"));
-        Assert.Equal("SAVEPOINT nonExistentSavePoint does not exist", exception.Message);
+        Assert.AreEqual("SAVEPOINT nonExistentSavePoint does not exist", exception.Message);
 
         exception = Assert.Throws<MySqlException>(() => session.ReleaseSavepoint("nonExistentSavePoint"));
-        Assert.Equal("SAVEPOINT nonExistentSavePoint does not exist", exception.Message);
+        Assert.AreEqual("SAVEPOINT nonExistentSavePoint does not exist", exception.Message);
 
         session.Rollback();
       }
     }
 
-    [Fact]
+    [Test]
     public void CreateSavepointWithWeirdNames()
     {
       using(var session = MySQLX.GetSession(ConnectionString))
@@ -231,17 +231,17 @@ namespace MySqlX.Data.Tests
         session.StartTransaction();
 
         Exception ex = Assert.Throws<MySqlException>(() => session.SetSavepoint(""));
-        Assert.StartsWith(errorMessage, ex.Message);
+        StringAssert.StartsWith(errorMessage, ex.Message);
         ex = Assert.Throws<MySqlException>(() => session.SetSavepoint(" "));
-        Assert.StartsWith(errorMessage, ex.Message);
+        StringAssert.StartsWith(errorMessage, ex.Message);
         ex = Assert.Throws<MySqlException>(() => session.SetSavepoint(null));
-        Assert.StartsWith(errorMessage, ex.Message);
+        StringAssert.StartsWith(errorMessage, ex.Message);
         ex = Assert.Throws<MySqlException>(() => session.SetSavepoint("-"));
-        Assert.StartsWith(errorMessage, ex.Message);
+        StringAssert.StartsWith(errorMessage, ex.Message);
         ex = Assert.Throws<MySqlException>(() => session.SetSavepoint("mysp+"));
-        Assert.StartsWith(errorMessage, ex.Message);
+        StringAssert.StartsWith(errorMessage, ex.Message);
         ex = Assert.Throws<MySqlException>(() => session.SetSavepoint("3306"));
-        Assert.StartsWith(errorMessage, ex.Message);
+        StringAssert.StartsWith(errorMessage, ex.Message);
 
         var sp = session.SetSavepoint("_");
         session.RollbackTo(sp);        
@@ -252,7 +252,7 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void OverwriteSavepoint()
     {
       using(var session = MySQLX.GetSession(ConnectionString))
@@ -271,13 +271,13 @@ namespace MySqlX.Data.Tests
         ExecuteAddStatement(coll.Add("{ \"test4\": \"test4\" }"));
         sp = session.SetSavepoint("mySP");
         session.RollbackTo(sp);
-        Assert.Equal(4, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.AreEqual(4, ExecuteFindStatement(coll.Find()).FetchAll().Count);
 
         session.Rollback();
       }
     }
 
-    [Fact]
+    [Test]
     public void MultipleReleasesForSavepoint()
     {
       using(var session = MySQLX.GetSession(ConnectionString))
@@ -287,13 +287,13 @@ namespace MySqlX.Data.Tests
         var sp = session.SetSavepoint("mySP");
         session.ReleaseSavepoint(sp);
         Exception exception = Assert.Throws<MySqlException>(() => session.ReleaseSavepoint(sp));
-        Assert.Equal(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+        Assert.AreEqual(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
 
         session.Rollback();
       }
     }
 
-    [Fact]
+    [Test]
     public void RollbackAndReleaseAfterTransactionCommit()
     {
       using(var session = MySQLX.GetSession(ConnectionString))
@@ -309,14 +309,14 @@ namespace MySqlX.Data.Tests
         session.Commit();
 
         Exception exception = Assert.Throws<MySqlException>(() => session.RollbackTo(sp));
-        Assert.Equal(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+        Assert.AreEqual(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
 
         exception = Assert.Throws<MySqlException>(() => session.ReleaseSavepoint(sp));
-        Assert.Equal(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+        Assert.AreEqual(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
       }
     }
 
-    [Fact]
+    [Test]
     public void RollbackAndReleaseAfterTransactionRollback()
     {
       using(var session = MySQLX.GetSession(ConnectionString))
@@ -332,10 +332,10 @@ namespace MySqlX.Data.Tests
         session.Rollback();
 
         Exception exception = Assert.Throws<MySqlException>(() => session.RollbackTo(sp));
-        Assert.Equal(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+        Assert.AreEqual(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
 
         exception = Assert.Throws<MySqlException>(() => session.ReleaseSavepoint(sp));
-        Assert.Equal(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+        Assert.AreEqual(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
       }
     }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,19 +28,17 @@
 
 using System;
 using System.Data;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class BlobTests : TestBase
   {
-    public BlobTests(TestFixture fixture) : base(fixture) { }
-
-    [Fact]
+    [Test]
     public void InsertNullBinary()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?id, ?b1)", Connection);
       cmd.Parameters.Add(new MySqlParameter("?id", 1));
@@ -58,14 +56,14 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void InsertBinary()
     {
       int lenIn = 400000;
       byte[] dataIn = Utils.CreateBlob(lenIn);
 
-      executeSQL("DROP TABLE IF EXISTS InsertBinary");
-      executeSQL("CREATE TABLE InsertBinary (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
+      ExecuteSQL("DROP TABLE IF EXISTS InsertBinary");
+      ExecuteSQL("CREATE TABLE InsertBinary (id INT NOT NULL, blob1 LONGBLOB, PRIMARY KEY(id))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO InsertBinary VALUES (?id, ?b1)", Connection);
       cmd.Parameters.Add(new MySqlParameter("?id", 1));
@@ -119,13 +117,13 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void GetChars()
     {
       InternalGetChars(false);
     }
 
-    [Fact]
+    [Test]
     public void GetCharsPrepared()
     {
       InternalGetChars(true);
@@ -133,8 +131,8 @@ namespace MySql.Data.MySqlClient.Tests
 
     private void InternalGetChars(bool prepare)
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, text1 LONGTEXT, PRIMARY KEY(id))");
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, text1 LONGTEXT, PRIMARY KEY(id))");
 
       char[] data = new char[20000];
       for (int x = 0; x < data.Length; x++)
@@ -172,13 +170,13 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void InsertText()
     {
       InternalInsertText(false);
     }
 
-    [Fact]
+    [Test]
     public void InsertTextPrepared()
     {
       InternalInsertText(true);
@@ -186,8 +184,8 @@ namespace MySql.Data.MySqlClient.Tests
 
     private void InternalInsertText(bool prepare)
     {
-      executeSQL("DROP TABLE IF EXISTS InsertText");
-      executeSQL("CREATE TABLE InsertText (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
+      ExecuteSQL("DROP TABLE IF EXISTS InsertText");
+      ExecuteSQL("CREATE TABLE InsertText (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
 
       byte[] data = new byte[1024];
       for (int x = 0; x < 1024; x++)
@@ -219,22 +217,22 @@ namespace MySql.Data.MySqlClient.Tests
 
         Assert.True(reader.Read());
 
-        Assert.Equal("This is my blob data", reader.GetString(1));
+        Assert.AreEqual("This is my blob data", reader.GetString(1));
         string s = reader.GetString(2);
         Assert.True(s.Length == 1024, "Checking length returned ");
         Assert.True(s.Substring(0, 9) == "ABCDEFGHI", "Checking first few chars of string");
 
         Assert.True(reader.Read());
-        Assert.Equal(DBNull.Value, reader.GetValue(2));
-        Assert.Equal("This is my text value", reader.GetString(1));
+        Assert.AreEqual(DBNull.Value, reader.GetValue(2));
+        Assert.AreEqual("This is my text value", reader.GetString(1));
       }
     }
 
-    [Fact]
+    [Test]
     public void GetCharsOnLongTextColumn()
     {
-      executeSQL("CREATE TABLE Test1 (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
-      executeSQL("INSERT INTO Test1 (id, text1) VALUES(1, 'Test')");
+      ExecuteSQL("CREATE TABLE Test1 (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
+      ExecuteSQL("INSERT INTO Test1 (id, text1) VALUES(1, 'Test')");
 
       MySqlCommand cmd = new MySqlCommand("SELECT id, text1 FROM Test1", Connection);
       char[] buf = new char[2];
@@ -243,17 +241,17 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         reader.GetChars(1, 0, buf, 0, 2);
-        Assert.Equal('T', buf[0]);
-        Assert.Equal('e', buf[1]);
+        Assert.AreEqual('T', buf[0]);
+        Assert.AreEqual('e', buf[1]);
       }
     }
 
-    [Fact]
+    [Test]
     public void MediumIntBlobSize()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
 
-      executeSQL("CREATE TABLE test (id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, " +
+      ExecuteSQL("CREATE TABLE test (id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, " +
          "image MEDIUMBLOB NOT NULL, imageSize MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0, " +
          "PRIMARY KEY (id))");
 
@@ -274,44 +272,44 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         uint actualsize = reader.GetUInt32(1);
-        Assert.Equal((uint)image.Length, actualsize);
+        Assert.AreEqual((uint)image.Length, actualsize);
 
         uint size = reader.GetUInt32(0);
         byte[] outImage = new byte[size];
         long len = reader.GetBytes(reader.GetOrdinal("image"), 0, outImage, 0, (int)size);
-        Assert.Equal((uint)image.Length, size);
-        Assert.Equal((uint)image.Length, len);
+        Assert.AreEqual((uint)image.Length, size);
+        Assert.AreEqual((uint)image.Length, len);
+      }
+    }
+    
+    [Test]
+    [Ignore("Fix this")]
+    public void BlobBiggerThanMaxPacket()
+    {
+      ExecuteSQL("SET GLOBAL max_allowed_packet=" + 500 * 1024, true);
+
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL("CREATE TABLE test (id INT(10), image BLOB)");
+
+      using (var c = GetConnection())
+      {
+        c.Open();
+        byte[] image = Utils.CreateBlob(1000000);
+
+        MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES(NULL, ?image)", c);
+        cmd.Parameters.AddWithValue("?image", image);
+
+        Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
+        Assert.AreEqual(ex.Message, "Packets larger than max_allowed_packet are not allowed.");
       }
     }
 
-    //TODO:  Fix this
-    //[Fact]
-    //public void BlobBiggerThanMaxPacket()
-    //{      
-    //  executeAsRoot("SET GLOBAL max_allowed_packet=" + 500 * 1024);
-
-    //  executeSQL("DROP TABLE IF EXISTS Test");
-    //  executeSQL("CREATE TABLE test (id INT(10), image BLOB)");
-
-    //  using (var c = GetConnection())
-    //  {
-    //    c.Open();
-    //    byte[] image = Utils.CreateBlob(1000000);
-
-    //    MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES(NULL, ?image)", c);
-    //    cmd.Parameters.AddWithValue("?image", image);
-
-    //    Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
-    //    Assert.Equal(ex.Message, "Packets larger than max_allowed_packet are not allowed.");
-    //  }
-    //}
-
-    [Fact]
+    [Test]
     public void UpdateDataSet()
     {
-      executeSQL("DROP TABLE IF EXISTS Test");
-      executeSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
-      executeSQL("INSERT INTO Test VALUES( 1, NULL, 'Text field' )");
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, blob1 LONGBLOB, text1 LONGTEXT, PRIMARY KEY(id))");
+      ExecuteSQL("INSERT INTO Test VALUES( 1, NULL, 'Text field' )");
 
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataTable dt = new DataTable();
@@ -320,7 +318,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
 
       string s = (string)dt.Rows[0][2];
-      Assert.Equal("Text field", s);
+      Assert.AreEqual("Text field", s);
 
       byte[] inBuf = Utils.CreateBlob(512);
       dt.Rows[0].BeginEdit();

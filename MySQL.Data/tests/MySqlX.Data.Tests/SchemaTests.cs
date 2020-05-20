@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,7 +30,7 @@ using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using System.Collections.Generic;
-using Xunit;
+using NUnit.Framework;
 using System.Linq;
 using System;
 
@@ -38,7 +38,7 @@ namespace MySqlX.Data.Tests
 {
   public class SchemaTests : BaseTest
   {
-    [Fact]
+    [Test]
     public void GetSchemas()
     {
       Session session = GetSession();
@@ -47,7 +47,7 @@ namespace MySqlX.Data.Tests
       Assert.True(schemas.Exists(s => s.Name == base.testSchema.Name));
     }
 
-    [Fact]
+    [Test]
     public void GetInvalidSchema()
     {
       Session s = GetSession();
@@ -55,7 +55,7 @@ namespace MySqlX.Data.Tests
       Assert.False(SchemaExistsInDatabase(schema));
     }
 
-    [Fact]
+    [Test]
     public void GetAllTables()
     {
       Collection coll = CreateCollection("coll");
@@ -65,7 +65,7 @@ namespace MySqlX.Data.Tests
       Assert.True(tables.Count == 1);
     }
 
-    [Fact]
+    [Test]
     public void GetAllViews()
     {
       Collection coll = CreateCollection("coll");
@@ -75,31 +75,32 @@ namespace MySqlX.Data.Tests
       ExecuteSQL("CREATE VIEW view2 AS select * from test");
 
       List<Table> tables = testSchema.GetTables();
-      Assert.Equal(3, tables.Count);
-      Assert.Equal(1, tables.Count(i => !i.IsView));
-      Assert.Equal(2, tables.Count(i => i.IsView));
+      Assert.AreEqual(3, tables.Count);
+      Assert.AreEqual(1, tables.Count(i => !i.IsView));
+      Assert.AreEqual(2, tables.Count(i => i.IsView));
 
       List<Collection> colls = testSchema.GetCollections();
-      Assert.Single(colls);
+      Assert.That(colls, Has.One.Items);
     }
 
-    [Fact (Skip = "Fix for 8.0.13")]
+    [Test]
+    [Ignore("Fix for 8.0.13")]
     public void GetCollectionAsTable()
     {
       Collection testCollection = CreateCollection("test");
 
       Result r = ExecuteAddStatement(testCollection.Add(@"{ ""_id"": 1, ""foo"": 1 }"));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       Table test = testSchema.GetCollectionAsTable("test");
       Assert.True(TableExistsInDatabase(test));
 
       RowResult result = ExecuteSelectStatement(test.Select("_id"));
       Assert.True(result.Next());
-      Assert.Equal("1", result[0]);
+      Assert.AreEqual("1", result[0]);
     }
 
-    [Fact]
+    [Test]
     public void DropSchema()
     {
       string schemaName = "testDrop";

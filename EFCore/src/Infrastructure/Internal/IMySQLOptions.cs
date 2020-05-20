@@ -31,6 +31,9 @@ using MySql.Data.MySqlClient;
 
 namespace MySql.Data.EntityFrameworkCore.Infrastructure.Internal
 {
+  /// <summary>
+  /// Options to set on the provider.
+  /// </summary>
   public interface IMySQLOptions : ISingletonOptions
   {
     CharacterSet CharSet { get; }
