@@ -39,6 +39,10 @@ namespace MySql.Data.EntityFrameworkCore.Infrastructure
   /// </summary>
   public partial class MySQLDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<MySQLDbContextOptionsBuilder, MySQLOptionsExtension>
   {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="MySQLDbContextOptionsBuilder" /> class.
+    /// </summary>
+    /// <param name="optionsBuilder"> The options builder. </param>
     public MySQLDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
         : base(optionsBuilder)
     {
