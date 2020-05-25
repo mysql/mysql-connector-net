@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2019, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -39,6 +39,7 @@ namespace MySqlX.Data.Tests
   /// </summary>
   public class CompressionTests : BaseTest
   {
+    private const string DEFLATE_STREAM= "DEFLATE_STREAM";
     [Test]
     public void ConnectionOptionIsValidUsingBuilder()
     {
@@ -216,40 +217,28 @@ namespace MySqlX.Data.Tests
         using (var session = MySQLX.GetSession(ConnectionStringUri))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.AreEqual(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
           compressionAlgorithm = session.XSession.GetCompressionAlgorithm(false);
-          Assert.AreEqual(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
           session.Close();
         }
 
-        // Update client supported list to lz4_message.
-        XCompressionController.ClientSupportedCompressionAlgorithms = new string[]
-        {
-        XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM,
-        };
-
-        using (var session = MySQLX.GetSession(ConnectionStringUri))
+        using (var session = MySQLX.GetSession(ConnectionStringUri+"compression-algorithms=lz4_message"))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.AreEqual(XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
           compressionAlgorithm = session.XSession.GetCompressionAlgorithm(false);
-          Assert.AreEqual(XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
           session.Close();
         }
 
 #if !NET452
-        // Update client supported list to deflate_stream.
-        XCompressionController.ClientSupportedCompressionAlgorithms = new string[]
-        {
-        XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM,
-        };
-
-        using (var session = MySQLX.GetSession(ConnectionStringUri))
+        using (var session = MySQLX.GetSession(ConnectionStringUri+"compression-algorithms=deflate_stream"))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.AreEqual(XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(CompressionAlgorithms.deflate_stream.ToString(), compressionAlgorithm);
           compressionAlgorithm = session.XSession.GetCompressionAlgorithm(false);
-          Assert.AreEqual(XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(CompressionAlgorithms.deflate_stream.ToString(), compressionAlgorithm);
           session.Close();
         }
 #endif
@@ -257,20 +246,6 @@ namespace MySqlX.Data.Tests
       catch (Exception ex)
       {
         success = false;
-      }
-      finally
-      {
-        // Reset it to its original value to prevent conflicts with other tests.
-        XCompressionController.ClientSupportedCompressionAlgorithms = new string[]
-        {
-        XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM,
-        XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM,
-#if !NET452
-        XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM
-#endif
-        };
-
-        Assert.True(success);
       }
     }
 
@@ -283,21 +258,21 @@ namespace MySqlX.Data.Tests
       try
       {
         // Test with one of the supported compression algorithms.
-        ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM.ToUpperInvariant()}\"");
+        ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{CompressionAlgorithms.zstd_stream.ToString().ToUpperInvariant()}\"");
         using (var session = MySQLX.GetSession(updatedConnectionStringUri))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.AreEqual(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
         }
 
-        ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM.ToUpperInvariant()}\"");
+        ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{CompressionAlgorithms.lz4_message.ToString().ToUpperInvariant()}\"");
         using (var session = MySQLX.GetSession(updatedConnectionStringUri))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.AreEqual(XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
         }
 
-        ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM.ToUpperInvariant()}\"");
+        ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms ={DEFLATE_STREAM}");
 #if NET452
                 var exception = Assert.Throws<NotSupportedException>(() => MySQLX.GetSession(updatedConnectionStringUri));
                 Assert.AreEqual("Compression requested but the compression algorithm negotiation failed.", exception.Message);
@@ -305,28 +280,21 @@ namespace MySqlX.Data.Tests
         using (var session = MySQLX.GetSession(updatedConnectionStringUri))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.AreEqual(XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(CompressionAlgorithms.deflate_stream.ToString(), compressionAlgorithm);
         }
 #endif
 
         // Test with a sublist of supported compression algorithms.
-        ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM.ToUpperInvariant()},{XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM.ToUpperInvariant()}\"");
+        ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{CompressionAlgorithms.zstd_stream.ToString().ToUpperInvariant()},{CompressionAlgorithms.lz4_message.ToString().ToUpperInvariant()}\"");
         using (var session = MySQLX.GetSession(updatedConnectionStringUri))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.AreEqual(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
+          Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
         }
       }
       catch (Exception ex)
       {
         success = false;
-      }
-      finally
-      {
-        // This line ensures that the list of supported compression algorithms is set to its default value.
-        ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM.ToUpperInvariant()},{XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM.ToUpperInvariant()},{XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM.ToUpperInvariant()}\"");
-
-        Assert.True(success);
       }
     }
 
@@ -336,7 +304,7 @@ namespace MySqlX.Data.Tests
       using (var session = MySQLX.GetSession(ConnectionStringUri))
       {
         var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-        if (!(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM == compressionAlgorithm))
+        if (!(CompressionAlgorithms.zstd_stream.ToString() == compressionAlgorithm))
         {
           return;
         }
@@ -348,6 +316,200 @@ namespace MySqlX.Data.Tests
       {
         var session = MySQLX.GetSession(ConnectionStringUri);
         session.Close();
+      }
+    }
+
+    [Test]
+    // WL-14001 XProtocol -- support for configurable compression algorithms
+    public void ConfigurableCompressionAlgorithms()
+    {
+      ExecuteSqlAsRoot(@"SET GLOBAL mysqlx_compression_algorithms = ""ZSTD_STREAM,LZ4_MESSAGE,DEFLATE_STREAM"" ");
+      // FR1_1 Create session with option compression-algorithms for URI, connectionstring, anonymous object, MySqlXConnectionStringBuilder.
+      using (var session = MySQLX.GetSession(ConnectionStringUri + "?compression-algorithms=lz4_message;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
+      }
+
+      using (var session = MySQLX.GetSession(ConnectionString + ";compression-algorithms=lz4_message;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
+      }
+
+#if NET452
+      var exception = Assert.Throws<NotSupportedException>(() => MySQLX.GetSession(new { server = "localhost", port = 33060, uid = "test", password = "test", compressionalgorithms = "deflate_stream" }));
+      Assert.AreEqual("Compression requested but the compression algorithm negotiation failed.", exception.Message);
+#else
+      using (var session = MySQLX.GetSession(new { server = "localhost", port = 33060, uid = "test", password = "test", compressionalgorithms = "deflate_stream" }))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        StringAssert.AreEqualIgnoringCase(CompressionAlgorithms.deflate_stream.ToString(), compressionAlgorithm);
+      }
+#endif
+
+      var sb = new MySqlXConnectionStringBuilder("server=localhost;port=33060;uid=test;password=test;compression-algorithms=lz4_message");
+      using (var session = MySQLX.GetSession(sb.GetConnectionString(true)))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
+      }
+
+      // FR1_2 Create session with option compression-algorithms and set the option with no value either by not including the property in the connection string 
+      // or by setting it with an empty value.
+      using (var session = MySQLX.GetSession("server=localhost;port=33060;uid=test;password=test;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
+      }
+
+      using (var session = MySQLX.GetSession(ConnectionString + ";compression-algorithms="))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
+      }
+
+      // FR2_1,FR2_2 Create session with option compression-algorithms and set the value with multiple compression algorithms for 
+      // URI,connectionstring,anonymous object,MySqlXConnectionStringBuilder.check that the negotiation happens in the order provided in the connection string
+
+      using (var session = MySQLX.GetSession(ConnectionStringUri + "?compression-algorithms=lz4_message,zstd_stream,deflate_stream;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
+      }
+
+      using (var session = MySQLX.GetSession(ConnectionString + ";compression-algorithms=lz4_message,zstd_stream,deflate_stream;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
+      }
+
+#if NET452
+      exception = Assert.Throws<NotSupportedException>(() => MySQLX.GetSession(new { server = "localhost", port = 33060, uid = "test", password = "test", compressionalgorithms = "deflate_stream,lz4_message,zstd_stream" }));
+      Assert.AreEqual("Compression requested but the compression algorithm negotiation failed.", exception.Message);
+#else
+      using (var session = MySQLX.GetSession(new { server = "localhost", port = 33060, uid = "test", password = "test", compressionalgorithms = "deflate_stream,lz4_message,zstd_stream" }))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        StringAssert.AreEqualIgnoringCase(CompressionAlgorithms.deflate_stream.ToString(), compressionAlgorithm);
+      }
+#endif
+
+      sb = new MySqlXConnectionStringBuilder("server=localhost;port=33060;uid=test;password=test;compression-algorithms=lz4_message,zstd_stream,deflate_stream");
+      using (var session = MySQLX.GetSession(sb.GetConnectionString(true)))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
+      }
+
+      // FR3 Create session with option compression-algorithms and set the option with Algorithm aliases lz4, zstd, and deflate.
+      using (var session = MySQLX.GetSession(ConnectionString + ";compression-algorithms=lz4,zstd,deflate;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
+      }
+
+      using (var session = MySQLX.GetSession(ConnectionStringUri + "?compression-algorithms=ZSTD,deflate_stream"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
+      }
+
+      // FR4_1 Create session with option compression-algorithms.Set the option with unsupported and supported algorithms by client.
+      using (var session = MySQLX.GetSession(ConnectionString + ";compression=required;compression-algorithms=NotSupported,lz4,SomethingElse;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
+      }
+
+      using (var session = MySQLX.GetSession(ConnectionStringUri + "?compression-algorithms=ZSTD,NotSupported"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
+      }
+
+      sb = new MySqlXConnectionStringBuilder("server=localhost;port=33060;uid=test;password=test;compression-algorithms=[NotValid,INVALID,NOTSUPPORTED,zstd]");
+      using (var session = MySQLX.GetSession(sb.GetConnectionString(true)))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
+      }
+
+      // FR4_2 Create session and set invalid values to the compression-algorithm option to check if the connection is uncompressed when 
+      // compression option is either not set or set to preferred or disabled.
+      using (var session = MySQLX.GetSession(ConnectionString + ";compression-algorithms=NotSupported,SomethingElse;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.IsNull(compressionAlgorithm);
+      }
+
+      using (var session = MySQLX.GetSession(ConnectionString + ";compression=disabled;compression-algorithms=lz4,NotSupported,SomethingElse;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.IsNull(compressionAlgorithm);
+      }
+
+      using (var session = MySQLX.GetSession(ConnectionString + ";compression=preferred;compression-algorithms=NotSupported,SomethingElse;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.IsNull(compressionAlgorithm);
+      }
+
+      // FR4_3 Create session and set invalid values to the compression-algorithm option.
+      // The connection should terminate with an error when compression option is set to required.
+     
+      Exception ex = Assert.Throws<System.NotSupportedException>(() => MySQLX.GetSession(ConnectionString + ";compression=required;compression-algorithms=NotSupported,SomethingElse;"));
+      Assert.AreEqual("Compression requested but the compression algorithm negotiation failed.", ex.Message);
+
+      // FR4_4 Start server with specific compression algorithm and create session with option 
+      // compression-algorithms.Set the option with multiple compression algorithms.
+      ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{CompressionAlgorithms.lz4_message.ToString().ToUpperInvariant()}\"");
+      using (var session = MySQLX.GetSession(ConnectionString + ";compression=preferred;compression-algorithms=lz4_message,deflate,zstd;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
+      }
+
+      // FR4_5 Start the server with a specific compression algorithm and use some other in the client and when compression option is either 
+      // not set or set to preferred or disabled.Verify that the connection is uncompressed.
+      ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{CompressionAlgorithms.zstd_stream.ToString().ToUpperInvariant()}\"");
+      using (var session = MySQLX.GetSession(ConnectionString))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
+      }
+
+      using (var session = MySQLX.GetSession(ConnectionString + ";compression=preferred;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
+      }
+
+      using (var session = MySQLX.GetSession(ConnectionString + ";compression=disabled;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.IsNull(compressionAlgorithm);
+      }
+
+      //FR4_6,FR_5 Start the server with a specific compression algorithm and use some other in the client and when compression option is set to required.Verify the behaviour
+      using (var session = MySQLX.GetSession(ConnectionString + ";compression=required;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
+      }
+
+      using (var session = MySQLX.GetSession(ConnectionString + ";compression=required;compression-algorithms=zstd_stream"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
+      }
+      
+      // Server algorithm not contain user defined algorithm, with compression preferred
+      ExecuteSqlAsRoot(@"SET GLOBAL mysqlx_compression_algorithms = ""LZ4_MESSAGE"" ");
+      using (var session = MySQLX.GetSession(ConnectionStringUri + "?compression-algorithms=zstd;"))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.IsNull(compressionAlgorithm);
       }
     }
   }

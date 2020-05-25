@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -305,13 +305,15 @@ namespace MySqlX.Sessions
           if (algorithmsDictionary.ContainsKey(XCompressionController.ALGORITHMS_SUBKEY))
           {
             var supportedCompressionAlgorithms = algorithmsDictionary[XCompressionController.ALGORITHMS_SUBKEY].ToList().ToArray();
-            var compressionCapabilities = NegotiateCompression(supportedCompressionAlgorithms);
+            VerifyDefaultOrder(ref supportedCompressionAlgorithms);
+            var userCompressionAlgorithms = NegotiateUserAgainstClientAlgorithms(Settings.CompressionAlgorithm);
+            var compressionCapabilities = NegotiateCompression(supportedCompressionAlgorithms, userCompressionAlgorithms);
             if (compressionCapabilities != null)
             {
               clientCapabilities.Add(XCompressionController.COMPRESSION_KEY, compressionCapabilities);
               var compressionAlgorithm = compressionCapabilities.First().Value.ToString();
-              _readerCompressionController = new XCompressionController(compressionAlgorithm, false);
-              _writerCompressionController = new XCompressionController(compressionAlgorithm, true);
+              _readerCompressionController = new XCompressionController((CompressionAlgorithms)Enum.Parse(typeof(CompressionAlgorithms), compressionAlgorithm), false);
+              _writerCompressionController = new XCompressionController((CompressionAlgorithms)Enum.Parse(typeof(CompressionAlgorithms), compressionAlgorithm), true);
               _reader = new XPacketReaderWriter(_stream, _readerCompressionController);
               _writer = new XPacketReaderWriter(_stream, _writerCompressionController);
             }
@@ -332,10 +334,65 @@ namespace MySqlX.Sessions
     }
 
     /// <summary>
+    /// Reorder the list of algorithms retrieved from server to the preferred order
+    /// </summary>
+    private void VerifyDefaultOrder (ref string[] algorithms)
+    {
+      var clientSupportedAlgorithms = Enum.GetNames(typeof(CompressionAlgorithms));
+      List<string> output = new List<string>();
+      foreach (var item in clientSupportedAlgorithms)
+      {
+        if (algorithms.Contains(item))
+        {
+          output.Add(item);
+        }
+      }
+      algorithms = output.ToArray();
+    }
+
+    /// <summary>
+    /// Validate the algorithms given in the connection string are valid compared with enum CompressionAlgorithms
+    /// </summary>
+    public string[] NegotiateUserAgainstClientAlgorithms(string inputString)
+    {
+      if (string.IsNullOrEmpty(inputString))
+      {
+        return Enum.GetNames(typeof(CompressionAlgorithms));
+      }
+      inputString = inputString.Contains("[") ? inputString.Replace("[", string.Empty) : inputString;
+      inputString = inputString.Contains("]") ? inputString.Replace("]", string.Empty) : inputString;
+      var elements = inputString.ToLowerInvariant().Split(',');
+      List<string> ret = new List<string>();
+      for (var i=0; i<elements.Length;i++)
+      {
+        switch (elements[i])
+        {
+          case "lz4":
+            elements[i] = CompressionAlgorithms.lz4_message.ToString();
+            break;
+          case "zstd":
+            elements[i] = CompressionAlgorithms.zstd_stream.ToString();
+            break;
+#if !NET452
+          case "deflate":
+            elements[i] = CompressionAlgorithms.deflate_stream.ToString();
+            break;
+#endif
+        }
+        if (Enum.IsDefined(typeof(CompressionAlgorithms), elements[i]))
+        {
+          ret.Add(elements[i]);
+        }
+      }
+      return ret.ToArray();
+    }
+
+    /// <summary>
     /// Negotiates compression capabilities with the server.
     /// </summary>
     /// <param name="serverSupportedAlgorithms">An array containing the compression algorithms supported by the server.</param>
-    private Dictionary<string, object> NegotiateCompression(string[] serverSupportedAlgorithms)
+    /// <param name="clientAgainstUserAlgorithms">An array containing the compression algorithms given by user/client.</param>
+    private Dictionary<string, object> NegotiateCompression(string[] serverSupportedAlgorithms,string[] clientAgainstUserAlgorithms)
     {
       if (serverSupportedAlgorithms == null || serverSupportedAlgorithms.Length == 0)
       {
@@ -345,8 +402,8 @@ namespace MySqlX.Sessions
       // If server and client don't have matching compression algorithms either log a warning message
       // or raise an exception based on the selected compression type.
       XCompressionController.LoadLibzstdLibrary();
-      if (!XCompressionController.ClientSupportedCompressionAlgorithms.Any(element => serverSupportedAlgorithms.Contains(element)))
-      {
+      if (!clientAgainstUserAlgorithms.Any(element => serverSupportedAlgorithms.Contains(element)))
+        {
         if (Settings.Compression == CompressionType.Preferred)
         {
           MySqlTrace.LogWarning(-1, ResourcesX.CompressionAlgorithmNegotiationFailed);
@@ -359,14 +416,14 @@ namespace MySqlX.Sessions
       }
 
       string negotiatedAlgorithm = null;
-      for (int index = 0; index < XCompressionController.ClientSupportedCompressionAlgorithms.Length; index++)
+      for (int index = 0; index < clientAgainstUserAlgorithms.Length ; index++)
       {
-        if (!serverSupportedAlgorithms.Contains(XCompressionController.ClientSupportedCompressionAlgorithms[index]))
+       if (!serverSupportedAlgorithms.Contains(clientAgainstUserAlgorithms[index]))
         {
           continue;
         }
 
-        negotiatedAlgorithm = XCompressionController.ClientSupportedCompressionAlgorithms[index];
+        negotiatedAlgorithm = clientAgainstUserAlgorithms[index];
         break;
       }
 
@@ -988,11 +1045,11 @@ namespace MySqlX.Sessions
     {
       if (fromReaderController && _readerCompressionController != null)
       {
-        return _readerCompressionController.CompressionAlgorithm;
+        return _readerCompressionController.CompressionAlgorithm.ToString();
       }
       else if (!fromReaderController && _writerCompressionController != null)
       {
-        return _writerCompressionController.CompressionAlgorithm;
+        return _writerCompressionController.CompressionAlgorithm.ToString();
       }
 
       return null;

@@ -135,6 +135,7 @@ namespace MySqlX.Data.Tests
     [TearDown]
     public virtual void BaseTearDown()
     {
+      ExecuteSqlAsRoot(@"SET GLOBAL mysqlx_compression_algorithms = ""ZSTD_STREAM,LZ4_MESSAGE,DEFLATE_STREAM"" ");
       using (Session s = GetSession())
       {
         Schema schema = s.GetSchema(schemaName);

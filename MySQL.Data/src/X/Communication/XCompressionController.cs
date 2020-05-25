@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2019, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -72,16 +72,6 @@ namespace MySql.Data.X.Communication
     internal const int DEFAULT_SERVER_MAX_COMBINE_MESSAGES_VALUE = 100;
 
     /// <summary>
-    /// deflate_stream compression algorithm.
-    /// </summary>
-    internal const string DEFLATE_STREAM_COMPRESSION_ALGORITHM = "deflate_stream";
-
-    /// <summary>
-    /// lz4_message compression algorithm.
-    /// </summary>
-    internal const string LZ4_MESSAGE_COMPRESSION_ALGORITHM = "lz4_message";
-
-    /// <summary>
     /// The capabilities sub-key used to specify if combining compressed messages is permitted.
     /// </summary>
     internal const string SERVER_COMBINE_MIXED_MESSAGES_SUBKEY = "server_combine_mixed_messages";
@@ -90,11 +80,6 @@ namespace MySql.Data.X.Communication
     /// The capabilities sub-key used to specify the maximum number of compressed messages contained in a compression message.
     /// </summary>
     internal const string SERVER_MAX_COMBINE_MESSAGES_SUBKEY = "server_max_combine_messages";
-
-    /// <summary>
-    /// zstd_stream compression algorithm.
-    /// </summary>
-    internal const string ZSTD_STREAM_COMPRESSION_ALGORITHM = "zstd_stream";
 
     #endregion
 
@@ -128,7 +113,7 @@ namespace MySql.Data.X.Communication
     /// <summary>
     /// Indicates if the libzstd.dll has been loaded.
     /// </summary>
-    private static bool? _libzstdLoaded;
+    internal static bool? LibZstdLoaded;
 
     /// <summary>
     /// Stream used to store multiple X Protocol messages.
@@ -143,35 +128,14 @@ namespace MySql.Data.X.Communication
     #endregion
 
     /// <summary>
-    /// Static constructor used to initialize the client supported compression algorithms.
-    /// </summary>
-    static XCompressionController()
-    {
-      ClientSupportedCompressionAlgorithms = new string[]
-      {
-        ZSTD_STREAM_COMPRESSION_ALGORITHM,
-        LZ4_MESSAGE_COMPRESSION_ALGORITHM,
-        // deflate_stream is not supported in .NET Framework.
-#if !NET452
-        DEFLATE_STREAM_COMPRESSION_ALGORITHM
-#endif
-      };
-    }
-
-    /// <summary>
     /// Main constructor used to set the compression algorithm and initialize the list of messages to
     /// be compressed by the client.
     /// </summary>
     /// <param name="compressionAlgorithm">The compression algorithm to use.</param>
     /// <param name="initializeForCompression">Flag indicating if the initialization is for compression or decompression.</param>
-    public XCompressionController(string compressionAlgorithm, bool initializeForCompression)
+    public XCompressionController(CompressionAlgorithms compressionAlgorithm, bool initializeForCompression)
     {
-      if (string.IsNullOrEmpty(compressionAlgorithm))
-      {
-        throw new ArgumentNullException(compressionAlgorithm);
-      }
-
-      if (!ClientSupportedCompressionAlgorithms.Contains(compressionAlgorithm))
+      if (!Enum.IsDefined(typeof(CompressionAlgorithms), compressionAlgorithm))
       {
         throw new NotSupportedException(string.Format(ResourcesX.CompressionAlgorithmNotSupported, compressionAlgorithm));
       }
@@ -191,13 +155,14 @@ namespace MySql.Data.X.Communication
       _buffer = new MemoryStream();
       switch (CompressionAlgorithm)
       {
-        case ZSTD_STREAM_COMPRESSION_ALGORITHM:
+        case CompressionAlgorithms.zstd_stream:
           if (!_initializeForCompression)
           {
             _zstdDecompressStream = new ZstandardStream(_buffer, CompressionMode.Decompress);
           }
           break;
-        case DEFLATE_STREAM_COMPRESSION_ALGORITHM:
+#if !NET452
+        case CompressionAlgorithms.deflate_stream:
           if (_initializeForCompression)
           {
             _deflateCompressStream = new DeflateStream(_buffer, CompressionMode.Compress, true);
@@ -208,6 +173,7 @@ namespace MySql.Data.X.Communication
           }
 
           break;
+#endif
       }
     }
 
@@ -217,27 +183,14 @@ namespace MySql.Data.X.Communication
     internal List<ClientMessageId> ClientSupportedCompressedMessages { get; private set; }
 
     /// <summary>
-    /// Gets or sets an array containing the compression algorithms supported by the client.
-    /// </summary>
-    internal static string[] ClientSupportedCompressionAlgorithms
-    {
-      get;
-#if DEBUG
-      set;
-#else
-      private set;
-#endif
-    }
-
-    /// <summary>
     /// Gets or sets the compression algorithm.
     /// </summary>
-    internal string CompressionAlgorithm { get; private set; }
+    internal CompressionAlgorithms? CompressionAlgorithm { get; private set; }
 
     /// <summary>
     /// Flag indicating if compression is enabled.
     /// </summary>
-    internal bool IsCompressionEnabled => !string.IsNullOrEmpty(CompressionAlgorithm);
+    internal bool IsCompressionEnabled => CompressionAlgorithm != null;
 
     /// <summary>
     /// Flag indicating if the last decompressed message contains multiple messages.
@@ -258,12 +211,14 @@ namespace MySql.Data.X.Communication
 
       switch (CompressionAlgorithm)
       {
-        case (ZSTD_STREAM_COMPRESSION_ALGORITHM):
+        case (CompressionAlgorithms.zstd_stream):
           return CompressUsingZstdStream(input);
-        case (LZ4_MESSAGE_COMPRESSION_ALGORITHM):
+        case (CompressionAlgorithms.lz4_message):
           return CompressUsingLz4Message(input);
-        case (DEFLATE_STREAM_COMPRESSION_ALGORITHM):
+#if !NET452
+        case (CompressionAlgorithms.deflate_stream):
           return CompressUsingDeflateStream(input);
+#endif
         default:
           throw new NotSupportedException(string.Format(ResourcesX.CompressionAlgorithmNotSupported, CompressionAlgorithm));
       }
@@ -291,7 +246,7 @@ namespace MySql.Data.X.Communication
 
       return compressedData;
 #else
-      throw new NotSupportedException(string.Format(ResourcesX.CompressionForSpecificAlgorithmNotSupportedInNetFramework, DEFLATE_STREAM_COMPRESSION_ALGORITHM));
+      throw new NotSupportedException(string.Format(ResourcesX.CompressionForSpecificAlgorithmNotSupportedInNetFramework, "deflate_stream" ));
 #endif
     }
 
@@ -355,15 +310,17 @@ namespace MySql.Data.X.Communication
       byte[] decompressedData;
       switch (CompressionAlgorithm)
       {
-        case (ZSTD_STREAM_COMPRESSION_ALGORITHM):
+        case (CompressionAlgorithms.zstd_stream):
           decompressedData = DecompressUsingZstdStream(input, length);
           break;
-        case (LZ4_MESSAGE_COMPRESSION_ALGORITHM):
+        case (CompressionAlgorithms.lz4_message):
           decompressedData = DecompressUsingLz4Message(input, length);
           break;
-        case (DEFLATE_STREAM_COMPRESSION_ALGORITHM):
+#if !NET452
+        case (CompressionAlgorithms.deflate_stream):
           decompressedData = DecompressUsingDeflateStream(input, length);
           break;
+#endif
         default:
           throw new NotSupportedException(string.Format(ResourcesX.CompressionAlgorithmNotSupported, CompressionAlgorithm));
       }
@@ -518,16 +475,16 @@ namespace MySql.Data.X.Communication
     internal static void LoadLibzstdLibrary()
     {
       // If the library has already been loaded, there is no need to load it again.
-      if (_libzstdLoaded != null)
+      if (LibZstdLoaded != null)
       {
         return;
       }
 
       // Attempt to load the library from an embedded resource.
-      _libzstdLoaded = UnmanagedLibraryLoader.LoadUnmanagedLibraryFromEmbeddedResources("MySql.Data", "libzstd.dll");
+      LibZstdLoaded = UnmanagedLibraryLoader.LoadUnmanagedLibraryFromEmbeddedResources("MySql.Data", "libzstd.dll");
 
       // If loading from an embedded resource fails, attempt to load it from a file in the output folder.
-      if (_libzstdLoaded == false)
+      if (LibZstdLoaded == false)
       {
         ZstandardInterop.LoadLibzstdLibrary(string.Empty);
         try
@@ -536,23 +493,14 @@ namespace MySql.Data.X.Communication
           using (var testStream = new ZstandardStream(new MemoryStream(), CompressionMode.Compress))
           { }
 
-          _libzstdLoaded = true;
+          LibZstdLoaded = true;
         }
         catch {}
       }
 
       // If all attempts fail, log a warning and update the client supported compression algorithms.
-      if (_libzstdLoaded == false)
+      if (LibZstdLoaded == false)
       {
-        ClientSupportedCompressionAlgorithms = new string[]
-        {
-          LZ4_MESSAGE_COMPRESSION_ALGORITHM,
-          // deflate_stream is not supported in .NET Framework.
-#if !NET452
-          DEFLATE_STREAM_COMPRESSION_ALGORITHM
-#endif
-        };
-
         MySqlTrace.LogWarning(-1, ResourcesX.CompressionFailedToLoadLibzstdAssembly);
       }
     }
