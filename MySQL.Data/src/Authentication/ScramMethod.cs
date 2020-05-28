@@ -36,11 +36,13 @@ namespace MySql.Data.MySqlClient.Authentication
     public class ScramMethod
     {
         private string userName;
+        private string password;
         private string cnonce;
 
-        public ScramMethod(string userId)
+        public ScramMethod(MySqlConnectionStringBuilder settings)
         {
-            this.userName = userId;
+            this.userName = settings.UserID;
+            this.password = settings.Password;
         }
 
         public byte[] NextCycle(byte[] input)
@@ -64,7 +66,22 @@ namespace MySql.Data.MySqlClient.Authentication
             if (!dict.ContainsKey('r')) throw new MySqlException("Unable to authenticate");
             if (!dict.ContainsKey('i')) throw new MySqlException("Unable to authenticate");
             if (!dict['r'].StartsWith(cnonce, StringComparison.Ordinal)) throw new MySqlException("Unable to authenticate");
-            // make sure dict['i'] is a number here
+
+            int count;
+            if (!int.TryParse(dict['i'], out count)) throw new MySqlException("Unable to authenticate");
+
+            var password = Encoding.UTF8.GetBytes(password);
+            salted = Hi(password, Convert.FromBase64String(dict['s']), count);
+            Array.Clear(password, 0, password.Length);
+
+            var withoutProof = "c=" + Convert.ToBase64String(Encoding.ASCII.GetBytes("n,,")) + ",r=" + nonce;
+            auth = Encoding.UTF8.GetBytes(client + "," + server + "," + withoutProof);
+
+            var key = HMAC(salted, Encoding.ASCII.GetBytes("Client Key"));
+            signature = HMAC(Hash(key), auth);
+            Xor(key, signature);
+
+            response = Encoding.UTF8.GetBytes(withoutProof + ",p=" + Convert.ToBase64String(key));
 
         }
 
