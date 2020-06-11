@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -43,6 +43,9 @@ using System.Linq;
 
 namespace MySql.Data.MySqlClient
 {
+	/// <summary>
+  /// Constructs a script that generates a table.
+  /// </summary>
   public class MySqlScriptServices
 	{
 		public string GetTableCreateScript(EntitySet entitySet, string connectionString, string version)
@@ -65,6 +68,9 @@ namespace MySql.Data.MySqlClient
 		}
 	}
 
+	/// <summary>
+	/// The <see cref="DbProviderServices"/> implementation for the MySqlClient provider for MySQL Server.
+	/// </summary>
 	public sealed class MySqlProviderServices : DbProviderServices
 	{
 		internal static readonly MySqlProviderServices Instance;

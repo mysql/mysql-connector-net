@@ -115,7 +115,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to  The buffer cannot be null.
+        ///   Looks up a localized string similar to The buffer cannot be null.
         /// </summary>
         public static string BufferCannotBeNull {
             get {
@@ -124,7 +124,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to  Buffer is not large enough.
+        ///   Looks up a localized string similar to Buffer is not large enough.
         /// </summary>
         public static string BufferNotLargeEnough {
             get {
@@ -610,6 +610,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Either provide a valid path for &apos;allowloadlocalinfileinpath&apos; or enable &apos;allowloadlocalinfile&apos;..
+        /// </summary>
+        public static string InvalidPathForLoadLocalInfile {
+            get {
+                return ResourceManager.GetString("InvalidPathForLoadLocalInfile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Procedure or function &apos;{0}&apos; cannot be found in database &apos;{1}&apos;..
         /// </summary>
         public static string InvalidProcName {
@@ -756,17 +765,7 @@ namespace MySql.Data {
         ///DETERMINISTIC
         ///DISTINCT
         ///DISTINCTROW
-        ///DIV
-        ///DO
-        ///DOUBLE
-        ///DROP
-        ///DUAL
-        ///EACH
-        ///ELSE
-        ///ELSEIF
-        ///ENCLOSED
-        ///END
-        ///ESC [rest of string was truncated]&quot;;.
+        ///D [rest of string was truncated]&quot;;.
         /// </summary>
         public static string keywords {
             get {
@@ -901,7 +900,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to  Offset cannot be negative.
+        ///   Looks up a localized string similar to Offset cannot be negative.
         /// </summary>
         public static string OffsetCannotBeNegative {
             get {
@@ -1297,7 +1296,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to  The stream does not support reading.
+        ///   Looks up a localized string similar to The stream does not support reading.
         /// </summary>
         public static string StreamNoRead {
             get {
@@ -1680,6 +1679,15 @@ namespace MySql.Data {
         public static string UnknownConnectionProtocol {
             get {
                 return ResourceManager.GetString("UnknownConnectionProtocol", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Trying to upload a file from outside the path set on &apos;allowloadlocalinfileinpath&apos; is invalid..
+        /// </summary>
+        public static string UnsafePathForLoadLocalInfile {
+            get {
+                return ResourceManager.GetString("UnsafePathForLoadLocalInfile", resourceCulture);
             }
         }
         

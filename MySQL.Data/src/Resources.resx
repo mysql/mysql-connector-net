@@ -127,19 +127,19 @@
     <value>The stream has already been closed</value>
   </data>
   <data name="BufferCannotBeNull" xml:space="preserve">
-    <value> The buffer cannot be null</value>
+    <value>The buffer cannot be null</value>
   </data>
   <data name="BufferNotLargeEnough" xml:space="preserve">
-    <value> Buffer is not large enough</value>
+    <value>The buffer is not large enough</value>
   </data>
   <data name="OffsetCannotBeNegative" xml:space="preserve">
-    <value> Offset cannot be negative</value>
+    <value>The offset cannot be negative</value>
   </data>
   <data name="CountCannotBeNegative" xml:space="preserve">
     <value> Count cannot be negative</value>
   </data>
   <data name="StreamNoRead" xml:space="preserve">
-    <value> The stream does not support reading</value>
+    <value>The stream does not support reading</value>
   </data>
   <data name="NamedPipeNoSetLength" xml:space="preserve">
     <value>NamedPipeStream doesn't support SetLength</value>
@@ -651,5 +651,11 @@
   </data>
   <data name="DeprecatedSshAlgorithm" xml:space="preserve">
     <value>The {0} algorithm being used by the server({1}) has been deprecated and will be removed in a future version. It is recommended that you configure the server to use a non-deprecated {0} algorithm.</value>
+  </data>
+  <data name="UnsafePathForLoadLocalInfile" xml:space="preserve">
+    <value>Trying to upload a file from outside the path set on 'allowloadlocalinfileinpath' is invalid.</value>
+  </data>
+  <data name="InvalidPathForLoadLocalInfile" xml:space="preserve">
+    <value>Either provide a valid path for 'allowloadlocalinfileinpath' or enable 'allowloadlocalinfile'.</value>
   </data>
 </root>

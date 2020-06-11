@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020 Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -36,13 +36,13 @@ namespace MySql.Data.MySqlClient.Tests
   {
     protected override void Cleanup()
     {
-      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
+      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database), true);
     }
 
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
-      if (Version >= new Version(8,0,2)) ExecuteSQL("SET GLOBAL local_infile = 1", true);
+      if (Version >= new Version(8, 0, 2)) ExecuteSQL("SET GLOBAL local_infile = 1", true);
     }
 
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
@@ -640,6 +640,68 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual("col1", dt.Rows[0][1]);
       Assert.AreEqual("col2", dt.Rows[0][2]);
       Assert.AreEqual("col3", dt.Rows[0][3].ToString().Trim());
+    }
+
+    /// <summary>
+    /// WL14093 - Add option to specify LOAD DATA LOCAL white list folder
+    /// </summary>
+    [TestCase(true, "", true)]
+    [TestCase(true, " ", true)]
+    [TestCase(true, "tmp\\data\\", true)]
+    [TestCase(false, "", false)]
+    [TestCase(false, "otherPath\\", false)]
+    [TestCase(false, "tmp\\", true)]
+    public void BulkLoadUsingSafePath(bool allowLoadLocalInfile, string allowLoadLocalInfileInPath, bool shouldPass)
+    {
+      Connection.Settings.AllowLoadLocalInfile = allowLoadLocalInfile;
+      Connection.Settings.AllowLoadLocalInfileInPath = allowLoadLocalInfileInPath;
+
+      ExecuteSQL(string.Format("CREATE TABLE `{0}`.Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))", Connection.Database), true);
+
+      // create the external file to be uploaded
+      string path = Path.GetTempFileName();
+      StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.Create));
+      for (int i = 0; i < 200; i++)
+        sw.WriteLine(i + "\t'Test'");
+      sw.Flush();
+      sw.Dispose();
+
+      // create another path to test against unsafe directory
+      Directory.CreateDirectory("otherPath");
+
+      // copy the external file to our safe path
+      Directory.CreateDirectory("tmp/data");
+      if (!File.Exists("tmp/data/file.tmp"))
+        File.Copy(path, "tmp/data/file.tmp");
+
+      string filePath = allowLoadLocalInfile ? path : Path.GetFullPath("tmp/data/file.tmp");
+
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection)
+      {
+        TableName = "Test",
+        FileName = filePath,
+        Timeout = 0,
+        Local = true
+      };
+
+      if (shouldPass)
+      {
+        int count = loader.Load();
+        Assert.AreEqual(200, count);
+
+        TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
+        Assert.AreEqual(200, dt.Rows.Count);
+        Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
+      }
+      else
+      {
+        var ex = Assert.Throws<MySqlException>(() => loader.Load());
+        StringAssert.Contains("allowloadlocalinfileinpath", ex.Message);
+      }
+
+      File.Delete(path);
+      Directory.Delete("tmp", true);
+      Directory.Delete("otherPath");
     }
   }
 }
