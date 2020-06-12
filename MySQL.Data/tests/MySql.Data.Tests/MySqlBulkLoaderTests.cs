@@ -647,10 +647,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// </summary>
     [TestCase(true, "", true)]
     [TestCase(true, " ", true)]
-    [TestCase(true, "tmp\\data\\", true)]
+    [TestCase(true, "tmp/data/", true)]
     [TestCase(false, "", false)]
-    [TestCase(false, "otherPath\\", false)]
-    [TestCase(false, "tmp\\", true)]
+    [TestCase(false, "otherPath/", false)]
+    [TestCase(false, "tmp/", true)]
     public void BulkLoadUsingSafePath(bool allowLoadLocalInfile, string allowLoadLocalInfileInPath, bool shouldPass)
     {
       Connection.Settings.AllowLoadLocalInfile = allowLoadLocalInfile;
