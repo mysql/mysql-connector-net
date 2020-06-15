@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,18 +30,13 @@ using MySql.Data.Common;
 using MySqlX.XDevAPI;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class ConnectionStringBuilderTests : TestBase
   {
-    public ConnectionStringBuilderTests(TestFixture fixture) : base(fixture)
-    {
-    }
-
-    [Fact]
+    [Test]
     public void Simple()
     {
       MySqlConnectionStringBuilder sb = null;
@@ -49,66 +44,66 @@ namespace MySql.Data.MySqlClient.Tests
       sb.ConnectionString = "server=localhost;uid=reggie;pwd=pass;port=1111;" +
           "connection timeout=23; pooling=true; min pool size=33; " +
           "max pool size=66;keepalive=1";
-      Assert.Equal("localhost", sb.Server);
-      Assert.Equal("reggie", sb.UserID);
-      Assert.Equal("pass", sb.Password);
-      Assert.Equal(1111, Convert.ToInt32(sb.Port));
-      Assert.Equal(23, Convert.ToInt32(sb.ConnectionTimeout));
+      Assert.AreEqual("localhost", sb.Server);
+      Assert.AreEqual("reggie", sb.UserID);
+      Assert.AreEqual("pass", sb.Password);
+      Assert.AreEqual(1111, Convert.ToInt32(sb.Port));
+      Assert.AreEqual(23, Convert.ToInt32(sb.ConnectionTimeout));
       Assert.True(sb.Pooling);
-      Assert.Equal(33, Convert.ToInt32(sb.MinimumPoolSize));
-      Assert.Equal(66, Convert.ToInt32(sb.MaximumPoolSize));
-      Assert.Equal(1, Convert.ToInt32(sb.Keepalive));
-      Exception  ex = Assert.Throws<ArgumentException>(()=> (sb.ConnectionString = "server=localhost;badkey=badvalue"));
-#if !NETCOREAPP3_0
-      Assert.Equal($"Option not supported.{Environment.NewLine}Parameter name: badkey", ex.Message);        
+      Assert.AreEqual(33, Convert.ToInt32(sb.MinimumPoolSize));
+      Assert.AreEqual(66, Convert.ToInt32(sb.MaximumPoolSize));
+      Assert.AreEqual(1, Convert.ToInt32(sb.Keepalive));
+      Exception  ex = Assert.Throws<ArgumentException>(()=> sb.ConnectionString = "server=localhost;badkey=badvalue");
+#if !NETCOREAPP3_1
+      Assert.AreEqual($"Option not supported.{Environment.NewLine}Parameter name: badkey", ex.Message);        
 #else
-      Assert.Equal("Option not supported. (Parameter 'badkey')", ex.Message);
+      Assert.AreEqual("Option not supported. (Parameter 'badkey')", ex.Message);
 #endif
       sb.Clear();
-      Assert.Equal(15, Convert.ToInt32(sb.ConnectionTimeout));
+      Assert.AreEqual(15, Convert.ToInt32(sb.ConnectionTimeout));
       Assert.True(sb.Pooling);
       Assert.True(sb.Pooling);
-      Assert.Equal(3306, Convert.ToInt32(sb.Port));
-      Assert.Equal(String.Empty, sb.Server);
+      Assert.AreEqual(3306, Convert.ToInt32(sb.Port));
+      Assert.AreEqual(String.Empty, sb.Server);
       Assert.False(sb.PersistSecurityInfo);
-      Assert.Equal(0, Convert.ToInt32(sb.ConnectionLifeTime));
+      Assert.AreEqual(0, Convert.ToInt32(sb.ConnectionLifeTime));
       Assert.False(sb.ConnectionReset);
-      Assert.Equal(0, Convert.ToInt32(sb.MinimumPoolSize));
-      Assert.Equal(100, Convert.ToInt32(sb.MaximumPoolSize));
-      Assert.Equal(String.Empty, sb.UserID);
-      Assert.Equal(String.Empty, sb.Password);
+      Assert.AreEqual(0, Convert.ToInt32(sb.MinimumPoolSize));
+      Assert.AreEqual(100, Convert.ToInt32(sb.MaximumPoolSize));
+      Assert.AreEqual(String.Empty, sb.UserID);
+      Assert.AreEqual(String.Empty, sb.Password);
       Assert.False(sb.UseUsageAdvisor);
-      Assert.Equal(String.Empty, sb.CharacterSet);
+      Assert.AreEqual(String.Empty, sb.CharacterSet);
       Assert.False(sb.UseCompression);
-      Assert.Equal("MYSQL", sb.PipeName);
+      Assert.AreEqual("MYSQL", sb.PipeName);
       Assert.False(sb.Logging);
       Assert.True(sb.AllowBatch);
       Assert.False(sb.ConvertZeroDateTime);
-      Assert.Equal("MYSQL", sb.SharedMemoryName);
-      Assert.Equal(String.Empty, sb.Database);
-      Assert.Equal(MySqlConnectionProtocol.Sockets, sb.ConnectionProtocol);
+      Assert.AreEqual("MYSQL", sb.SharedMemoryName);
+      Assert.AreEqual(String.Empty, sb.Database);
+      Assert.AreEqual(MySqlConnectionProtocol.Sockets, sb.ConnectionProtocol);
       Assert.False(sb.AllowZeroDateTime);
       Assert.False(sb.UsePerformanceMonitor);
-      Assert.Equal(25, Convert.ToInt32(sb.ProcedureCacheSize));
-      Assert.Equal(0, Convert.ToInt32(sb.Keepalive));
+      Assert.AreEqual(25, Convert.ToInt32(sb.ProcedureCacheSize));
+      Assert.AreEqual(0, Convert.ToInt32(sb.Keepalive));
     }
 
     /// <summary>
     /// Bug #37955 Connector/NET keeps adding the same option to the connection string
     /// </summary>
-    [Fact]
+    [Test]
     public void SettingValueMultipeTimes()
     {
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder();
       s["database"] = "test";
       s["database"] = "test2";
-      Assert.Equal("database=test2", s.ConnectionString);
+      Assert.AreEqual("database=test2", s.ConnectionString);
     }
 
     /// <summary>
     /// Bug #51209	error on parameter without value on connectionstring
     /// </summary>
-    [Fact]
+    [Test]
     public void NoValueGivenForConnectionStringOption()
     {
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder();
@@ -120,7 +115,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #59835	.Net Connector MySqlConnectionStringBuilder wrong result ContainsKey function
     /// </summary>
-    [Fact]
+    [Test]
     public void ContainsKey()
     {
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder();
@@ -132,29 +127,29 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.False(s.ContainsKey("badkey"));
     }
 
-    [Fact]
+    [Test]
     public void SettingCheckParameters()
     {
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder("server=localhost;check parameters=false");
       Assert.False(s.CheckParameters);
     }
 
-    [Fact]
+    [Test]
     public void SettingInvalidKeyThrowsArgumentException()
     {
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder();
-      Exception ex = Assert.Throws<ArgumentException>(() => (s["foo keyword"] = "foo"));
-#if !NETCOREAPP3_0
-      Assert.Equal($"Option not supported.{Environment.NewLine}Parameter name: foo keyword", ex.Message);           
+      Exception ex = Assert.Throws<ArgumentException>(() => s["foo keyword"] = "foo");
+#if !NETCOREAPP3_1
+      Assert.AreEqual($"Option not supported.{Environment.NewLine}Parameter name: foo keyword", ex.Message);           
 #else
-      Assert.Equal($"Option not supported. (Parameter 'foo keyword')", ex.Message);
+      Assert.AreEqual($"Option not supported. (Parameter 'foo keyword')", ex.Message);
 #endif
     }
 
     /// <summary>
     /// Bug #66880	Keyword not supported. Parameter name: AttachDbFilename.
     /// </summary>
-    [Fact]
+    [Test]
     public void SafeTryGetValue()
     {
       object obj;
@@ -163,8 +158,8 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Null(obj);
     }
 
-#if !NET452
-    [Fact]
+#if NETCOREAPP3_1
+    [Test]
     public void DotnetCoreNotCurrentlySupported()
     {
       List<string> options = new List<string>(new string[]
@@ -172,53 +167,42 @@ namespace MySql.Data.MySqlClient.Tests
         "sharedmemoryname",
         "pipe",
         "useperformancemonitor",
-#if NETCOREAPP1_1
-        "logging",
-        "useusageadvisor",
-        "interactivesession",
-        "replication"
-#endif
       });
       if (Platform.IsWindows())
         options.Add("integratedsecurity");
 
       foreach(string option in options)
       {
-        PlatformNotSupportedException ex = Assert.ThrowsAny<PlatformNotSupportedException>(() => 
+        PlatformNotSupportedException ex = Assert.Throws<PlatformNotSupportedException>(() => 
         {
           MySqlConnectionStringBuilder connString = new MySqlConnectionStringBuilder($"server=localhost;user=root;password=;{option}=dummy");
         });
       }
 
       MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder();
-      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.SharedMemoryName = "dummy");
+      Assert.Throws<PlatformNotSupportedException>(() => csb.SharedMemoryName = "dummy");
       if (Platform.IsWindows())
-        Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.IntegratedSecurity = true);
-      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.PipeName = "dummy");
-      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.UsePerformanceMonitor = true);
-#if NETCOREAPP1_1
-      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.Logging = true);
-      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.UseUsageAdvisor = true);
-      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.Replication = true);
-#endif
+        Assert.Throws<PlatformNotSupportedException>(() => csb.IntegratedSecurity = true);
+      Assert.Throws<PlatformNotSupportedException>(() => csb.PipeName = "dummy");
+      Assert.Throws<PlatformNotSupportedException>(() => csb.UsePerformanceMonitor = true);
       csb.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
-      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory);
-      Assert.ThrowsAny<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe);
+      Assert.Throws<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory);
+      Assert.Throws<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe);
     }
 #endif
 
-    [Fact]
+    [Test]
     public void IncorrectAuthOptionThrowsArgumentException()
     {
       string[] values = { "OTHER", "Other", "MYSQL42", "PlaINs" };
       foreach (var value in values)
       {
         Exception ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder(String.Format("server=localhost;aUth={0}", value)));
-        Assert.Equal(String.Format("Value '{0}' is not of the correct type.", value), ex.Message);
+        Assert.AreEqual(String.Format("Value '{0}' is not of the correct type.", value), ex.Message);
       }
     }
 
-    [Fact]
+    [Test]
     public void CaseInsensitiveAuthOption()
     {
       string[,] values = new string[,] {
@@ -232,13 +216,13 @@ namespace MySql.Data.MySqlClient.Tests
         for (int j = 0; j < values.GetLength(1); j++)
         {
           var builder = new MySqlXConnectionStringBuilder(String.Format("server=localhost;auth={0}", values[i, j]));
-          Assert.Equal((MySqlAuthenticationMode)(i + 1), builder.Auth);
+          Assert.AreEqual((MySqlAuthenticationMode)(i + 1), builder.Auth);
         }
       }
     }
 
     // Bug #28157737 TABLE CACHING IS NOT SUPPORTED IN THE MYSQLCONNECTIONSTRINGBUILDER CLASS
-    [Fact]
+    [Test]
     public void SettingTableCachingRaisesException()
     {
       var builder = new MySqlConnectionStringBuilder();

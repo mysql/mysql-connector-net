@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,11 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using System;
 using System.Collections.Generic;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
@@ -63,9 +62,9 @@ namespace MySqlX.Data.Tests
     /// </summary>
     /// <remarks>MySQL Server and the SSH server are located in the same machine. The root user
     /// is configured to only allow local connections. Via SSH Tunneling the client can connect with
-    /// root user as if it were a local connection.</remarks>
-    //[Fact(Skip = "Needs SSH setup on PB2")]
-    [Fact]
+    /// root user as if it were a local connection.</remarks>    
+    [Test]
+    [Ignore("Needs SSH setup on PB2")]
     public void ConnectAsLocalUser()
     {
       var builder = new MySqlXConnectionStringBuilder();

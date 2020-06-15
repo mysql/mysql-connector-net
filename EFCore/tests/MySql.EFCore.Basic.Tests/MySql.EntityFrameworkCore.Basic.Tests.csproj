@@ -1,9 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Basic.Tests Class Library</Description>
     <Copyright>Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.</Copyright>
-    <Version>8.0.21</Version>
+    <Version>8.0.22</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>netcoreapp3.1;</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Basic.Tests</AssemblyName>
@@ -23,7 +23,7 @@
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
     <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>  
-    <NoWarn>CS1591,CS1701,CS1702</NoWarn>  
+    <NoWarn>CS1591,CS1701,CS1702,EF1001</NoWarn>  
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
@@ -35,10 +35,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Specification.Tests" Version="3.1.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.1" />
   </ItemGroup>    
 

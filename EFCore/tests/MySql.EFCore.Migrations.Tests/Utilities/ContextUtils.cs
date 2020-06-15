@@ -30,10 +30,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.EntityFrameworkCore.Tests;
 using System;
 using MySql.Data.EntityFrameworkCore.Extensions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests.Utilities
 {

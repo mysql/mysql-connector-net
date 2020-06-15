@@ -32,13 +32,14 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
 using MySql.Data.EntityFrameworkCore.Diagnostics.Internal;
-using MySql.Data.EntityFrameworkCore.Migrations.Operations;
-using MySql.Data.EntityFrameworkCore.Tests.DbContextClasses;
 using MySql.Data.MySqlClient;
 using System.Diagnostics;
-using Xunit;
+using NUnit.Framework;
+using MySql.Data.EntityFrameworkCore;
+using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
+using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 
-namespace MySql.Data.EntityFrameworkCore.Tests
+namespace MySql.EntityFrameworkCore.Basic.Tests
 {
   public partial class ConnectionTests
   {
@@ -72,20 +73,29 @@ namespace MySql.Data.EntityFrameworkCore.Tests
           new CurrentDbContext(new FakeDbContext()));
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+      using (var context = new SakilaLiteUpdateContext())
+      {
+        context.DropContext();
+      }
+    }
+
     private class FakeDbContext : DbContext
     {
     }
 
-    [Fact]
+    [Test]
     public void CanCreateConnectionString()
     {
       using (var connection = CreateConnection(CreateOptions()))
       {
-        Assert.IsType<MySqlConnection>(connection.DbConnection);
+        Assert.IsInstanceOf<MySqlConnection>(connection.DbConnection);
       }
     }
 
-    [Fact]
+    [Test]
     public void CanCreateMainConnection()
     {
       using (var connection = CreateConnection(CreateOptions()))
@@ -109,7 +119,7 @@ namespace MySql.Data.EntityFrameworkCore.Tests
       return optionsBuilder.Options;
     }
 
-    [Fact]
+    [Test]
     public void TransactionTest()
     {
       using (var context = new SakilaLiteUpdateContext())

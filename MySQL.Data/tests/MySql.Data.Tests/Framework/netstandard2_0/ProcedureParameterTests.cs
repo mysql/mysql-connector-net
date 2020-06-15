@@ -27,72 +27,68 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Xunit;
+using NUnit.Framework;
 using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class ProcedureParameterTests : TestBase
   {
-    public ProcedureParameterTests(TestFixture fixture) : base(fixture)
-    {
-    }
-
-    [Fact]
+    [Test]
     public void ProcedureParameters()
     {
-      executeSQL("CREATE PROCEDURE ProcedureParameters (id int, name varchar(50)) BEGIN SELECT 1; END");
+      ExecuteSQL("CREATE PROCEDURE ProcedureParameters (id int, name varchar(50)) BEGIN SELECT 1; END");
 
       string[] restrictions = new string[5];
       restrictions[1] = Connection.Database;
       restrictions[2] = "ProcedureParameters";
       DataTable dt = Connection.GetSchema("Procedure Parameters", restrictions);
       Assert.True(dt.Rows.Count == 2, "Actual result " + dt.Rows.Count);
-      Assert.Equal("Procedure Parameters", dt.TableName);
-      Assert.Equal(Connection.Database, dt.Rows[0]["SPECIFIC_SCHEMA"].ToString());
-      Assert.Equal("ProcedureParameters", dt.Rows[0]["SPECIFIC_NAME"].ToString());
-      Assert.Equal("id", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(1, dt.Rows[0]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[0]["PARAMETER_MODE"]);
+      Assert.AreEqual("Procedure Parameters", dt.TableName);
+      Assert.AreEqual(Connection.Database, dt.Rows[0]["SPECIFIC_SCHEMA"].ToString());
+      Assert.AreEqual("ProcedureParameters", dt.Rows[0]["SPECIFIC_NAME"].ToString());
+      Assert.AreEqual("id", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(1, dt.Rows[0]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[0]["PARAMETER_MODE"]);
 
       restrictions[4] = "name";
       dt.Clear();
       dt = Connection.GetSchema("Procedure Parameters", restrictions);
-      Assert.Equal(1, dt.Rows.Count);
-      Assert.Equal(Connection.Database, dt.Rows[0]["SPECIFIC_SCHEMA"].ToString());
-      Assert.Equal("ProcedureParameters", dt.Rows[0]["SPECIFIC_NAME"].ToString());
-      Assert.Equal("name", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(2, dt.Rows[0]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[0]["PARAMETER_MODE"]);
+      Assert.AreEqual(1, dt.Rows.Count);
+      Assert.AreEqual(Connection.Database, dt.Rows[0]["SPECIFIC_SCHEMA"].ToString());
+      Assert.AreEqual("ProcedureParameters", dt.Rows[0]["SPECIFIC_NAME"].ToString());
+      Assert.AreEqual("name", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(2, dt.Rows[0]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[0]["PARAMETER_MODE"]);
 
-      executeSQL("DROP FUNCTION IF EXISTS spFunc");
-      executeSQL("CREATE FUNCTION spFunc (id int) RETURNS INT BEGIN RETURN 1; END");
+      ExecuteSQL("DROP FUNCTION IF EXISTS spFunc");
+      ExecuteSQL("CREATE FUNCTION spFunc (id int) RETURNS INT BEGIN RETURN 1; END");
 
       restrictions[4] = null;
       restrictions[1] = Connection.Database;
       restrictions[2] = "spFunc";
       dt = Connection.GetSchema("Procedure Parameters", restrictions);
       Assert.True(dt.Rows.Count == 2);
-      Assert.Equal("Procedure Parameters", dt.TableName);
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("spfunc", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal(0, dt.Rows[0]["ORDINAL_POSITION"]);
+      Assert.AreEqual("Procedure Parameters", dt.TableName);
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("spfunc", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual(0, dt.Rows[0]["ORDINAL_POSITION"]);
 
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("spfunc", dt.Rows[1]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("id", dt.Rows[1]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(1, dt.Rows[1]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[1]["PARAMETER_MODE"]);
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("spfunc", dt.Rows[1]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("id", dt.Rows[1]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(1, dt.Rows[1]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[1]["PARAMETER_MODE"]);
     }
 
     /// <summary>
     /// Bug #6902 Errors in parsing stored procedure parameters 
     /// </summary>
-    [Fact]
+    [Test]
     public void ProcedureParameters2()
     {
-      executeSQL("DROP PROCEDURE IF EXISTS spTest");
-      executeSQL(@"CREATE PROCEDURE spTest(`/*id*/` /* before type 1 */ varchar(20), 
+      ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
+      ExecuteSQL(@"CREATE PROCEDURE spTest(`/*id*/` /* before type 1 */ varchar(20), 
            /* after type 1 */ OUT result2 DECIMAL(/*size1*/10,/*size2*/2) /* p2 */) 
            BEGIN SELECT action, result; END");
 
@@ -102,30 +98,30 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = Connection.GetSchema("Procedure Parameters", restrictions);
 
       Assert.True(dt.Rows.Count == 2, "Actual result " + dt.Rows.Count);
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("/*id*/", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(1, dt.Rows[0]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[0]["PARAMETER_MODE"]);
-      Assert.Equal("VARCHAR", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
-      Assert.Equal(20, dt.Rows[0]["CHARACTER_MAXIMUM_LENGTH"]);
-      Assert.Equal(20, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("sptest", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("/*id*/", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(1, dt.Rows[0]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[0]["PARAMETER_MODE"]);
+      Assert.AreEqual("VARCHAR", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(20, dt.Rows[0]["CHARACTER_MAXIMUM_LENGTH"]);
+      Assert.AreEqual(20, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
 
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[1]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("result2", dt.Rows[1]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(2, dt.Rows[1]["ORDINAL_POSITION"]);
-      Assert.Equal("OUT", dt.Rows[1]["PARAMETER_MODE"]);
-      Assert.Equal("DECIMAL", dt.Rows[1]["DATA_TYPE"].ToString().ToUpper());
-      Assert.Equal(10, Convert.ToInt32(dt.Rows[1]["NUMERIC_PRECISION"]));
-      Assert.Equal(2, dt.Rows[1]["NUMERIC_SCALE"]);
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("sptest", dt.Rows[1]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("result2", dt.Rows[1]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(2, dt.Rows[1]["ORDINAL_POSITION"]);
+      Assert.AreEqual("OUT", dt.Rows[1]["PARAMETER_MODE"]);
+      Assert.AreEqual("DECIMAL", dt.Rows[1]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(10, Convert.ToInt32(dt.Rows[1]["NUMERIC_PRECISION"]));
+      Assert.AreEqual(2, dt.Rows[1]["NUMERIC_SCALE"]);
     }
 
-    [Fact]
+    [Test]
     public void ProcedureParameters3()
     {
-      executeSQL("DROP PROCEDURE IF EXISTS spTest");
-      executeSQL(@"CREATE  PROCEDURE spTest (_ACTION varchar(20),
+      ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
+      ExecuteSQL(@"CREATE  PROCEDURE spTest (_ACTION varchar(20),
           `/*dumb-identifier-1*/` int, `#dumb-identifier-2` int,
           `--dumb-identifier-3` int, 
           _CLIENT_ID int, -- ABC
@@ -151,101 +147,101 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = Connection.GetSchema("Procedure Parameters", restrictions);
 
       Assert.True(dt.Rows.Count == 12, "Rows count failed");
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("_action", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(1, dt.Rows[0]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[0]["PARAMETER_MODE"]);
-      Assert.Equal("VARCHAR", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
-      Assert.Equal(20, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[0]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("sptest", dt.Rows[0]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("_action", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(1, dt.Rows[0]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[0]["PARAMETER_MODE"]);
+      Assert.AreEqual("VARCHAR", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(20, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
 
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[1]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("/*dumb-identifier-1*/", dt.Rows[1]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(2, dt.Rows[1]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[1]["PARAMETER_MODE"]);
-      Assert.Equal("INT", dt.Rows[1]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[1]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("sptest", dt.Rows[1]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("/*dumb-identifier-1*/", dt.Rows[1]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(2, dt.Rows[1]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[1]["PARAMETER_MODE"]);
+      Assert.AreEqual("INT", dt.Rows[1]["DATA_TYPE"].ToString().ToUpper());
 
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[2]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[2]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("#dumb-identifier-2", dt.Rows[2]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(3, dt.Rows[2]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[2]["PARAMETER_MODE"]);
-      Assert.Equal("INT", dt.Rows[2]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[2]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("sptest", dt.Rows[2]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("#dumb-identifier-2", dt.Rows[2]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(3, dt.Rows[2]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[2]["PARAMETER_MODE"]);
+      Assert.AreEqual("INT", dt.Rows[2]["DATA_TYPE"].ToString().ToUpper());
 
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[3]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[3]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("--dumb-identifier-3", dt.Rows[3]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(4, dt.Rows[3]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[3]["PARAMETER_MODE"]);
-      Assert.Equal("INT", dt.Rows[3]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[3]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("sptest", dt.Rows[3]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("--dumb-identifier-3", dt.Rows[3]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(4, dt.Rows[3]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[3]["PARAMETER_MODE"]);
+      Assert.AreEqual("INT", dt.Rows[3]["DATA_TYPE"].ToString().ToUpper());
 
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[4]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[4]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("_client_id", dt.Rows[4]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(5, dt.Rows[4]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[4]["PARAMETER_MODE"]);
-      Assert.Equal("INT", dt.Rows[4]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[4]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("sptest", dt.Rows[4]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("_client_id", dt.Rows[4]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(5, dt.Rows[4]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[4]["PARAMETER_MODE"]);
+      Assert.AreEqual("INT", dt.Rows[4]["DATA_TYPE"].ToString().ToUpper());
 
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[5]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[5]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("_login_id", dt.Rows[5]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(6, dt.Rows[5]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[5]["PARAMETER_MODE"]);
-      Assert.Equal("INT", dt.Rows[5]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[5]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("sptest", dt.Rows[5]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("_login_id", dt.Rows[5]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(6, dt.Rows[5]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[5]["PARAMETER_MODE"]);
+      Assert.AreEqual("INT", dt.Rows[5]["DATA_TYPE"].ToString().ToUpper());
 
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[6]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[6]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("_where", dt.Rows[6]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(7, dt.Rows[6]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[6]["PARAMETER_MODE"]);
-      Assert.Equal("VARCHAR", dt.Rows[6]["DATA_TYPE"].ToString().ToUpper());
-      Assert.Equal(2000, dt.Rows[6]["CHARACTER_OCTET_LENGTH"]);
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[6]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("sptest", dt.Rows[6]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("_where", dt.Rows[6]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(7, dt.Rows[6]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[6]["PARAMETER_MODE"]);
+      Assert.AreEqual("VARCHAR", dt.Rows[6]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(2000, dt.Rows[6]["CHARACTER_OCTET_LENGTH"]);
 
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[7]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[7]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("_sort", dt.Rows[7]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(8, dt.Rows[7]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[7]["PARAMETER_MODE"]);
-      Assert.Equal("VARCHAR", dt.Rows[7]["DATA_TYPE"].ToString().ToUpper());
-      Assert.Equal(2000, dt.Rows[7]["CHARACTER_OCTET_LENGTH"]);
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[7]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("sptest", dt.Rows[7]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("_sort", dt.Rows[7]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(8, dt.Rows[7]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[7]["PARAMETER_MODE"]);
+      Assert.AreEqual("VARCHAR", dt.Rows[7]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(2000, dt.Rows[7]["CHARACTER_OCTET_LENGTH"]);
 
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[8]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[8]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("_sql", dt.Rows[8]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(9, dt.Rows[8]["ORDINAL_POSITION"]);
-      Assert.Equal("OUT", dt.Rows[8]["PARAMETER_MODE"]);
-      Assert.Equal("VARCHAR", dt.Rows[8]["DATA_TYPE"].ToString().ToUpper());
-      Assert.Equal(8000, dt.Rows[8]["CHARACTER_OCTET_LENGTH"]);
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[8]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("sptest", dt.Rows[8]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("_sql", dt.Rows[8]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(9, dt.Rows[8]["ORDINAL_POSITION"]);
+      Assert.AreEqual("OUT", dt.Rows[8]["PARAMETER_MODE"]);
+      Assert.AreEqual("VARCHAR", dt.Rows[8]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(8000, dt.Rows[8]["CHARACTER_OCTET_LENGTH"]);
 
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[9]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[9]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("_song_id", dt.Rows[9]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(10, dt.Rows[9]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[9]["PARAMETER_MODE"]);
-      Assert.Equal("INT", dt.Rows[9]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[9]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("sptest", dt.Rows[9]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("_song_id", dt.Rows[9]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(10, dt.Rows[9]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[9]["PARAMETER_MODE"]);
+      Assert.AreEqual("INT", dt.Rows[9]["DATA_TYPE"].ToString().ToUpper());
 
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[10]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[10]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("_notes", dt.Rows[10]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(11, dt.Rows[10]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[10]["PARAMETER_MODE"]);
-      Assert.Equal("VARCHAR", dt.Rows[10]["DATA_TYPE"].ToString().ToUpper());
-      Assert.Equal(2000, dt.Rows[10]["CHARACTER_OCTET_LENGTH"]);
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[10]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("sptest", dt.Rows[10]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("_notes", dt.Rows[10]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(11, dt.Rows[10]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[10]["PARAMETER_MODE"]);
+      Assert.AreEqual("VARCHAR", dt.Rows[10]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(2000, dt.Rows[10]["CHARACTER_OCTET_LENGTH"]);
 
-      Assert.Equal(Connection.Database.ToLower(), dt.Rows[11]["SPECIFIC_SCHEMA"].ToString().ToLower());
-      Assert.Equal("sptest", dt.Rows[11]["SPECIFIC_NAME"].ToString().ToLower());
-      Assert.Equal("_result", dt.Rows[11]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(12, dt.Rows[11]["ORDINAL_POSITION"]);
-      Assert.Equal("OUT", dt.Rows[11]["PARAMETER_MODE"]);
-      Assert.Equal("VARCHAR", dt.Rows[11]["DATA_TYPE"].ToString().ToUpper());
-      Assert.Equal(10, dt.Rows[11]["CHARACTER_OCTET_LENGTH"]);
+      Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[11]["SPECIFIC_SCHEMA"].ToString().ToLower());
+      Assert.AreEqual("sptest", dt.Rows[11]["SPECIFIC_NAME"].ToString().ToLower());
+      Assert.AreEqual("_result", dt.Rows[11]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(12, dt.Rows[11]["ORDINAL_POSITION"]);
+      Assert.AreEqual("OUT", dt.Rows[11]["PARAMETER_MODE"]);
+      Assert.AreEqual("VARCHAR", dt.Rows[11]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(10, dt.Rows[11]["CHARACTER_OCTET_LENGTH"]);
     }
 
-    [Fact]
+    [Test]
     public void ProcedureParameters4()
     {
-      executeSQL(@"CREATE  PROCEDURE ProcedureParameters4 (name VARCHAR(1200) 
+      ExecuteSQL(@"CREATE  PROCEDURE ProcedureParameters4 (name VARCHAR(1200) 
           CHARACTER /* hello*/ SET utf8) BEGIN SELECT name; END");
 
       string[] restrictions = new string[5];
@@ -254,24 +250,24 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = Connection.GetSchema("Procedure Parameters", restrictions);
 
       Assert.True(dt.Rows.Count == 1, "Actual Result " + dt.Rows.Count);
-      Assert.Equal(Connection.Database, dt.Rows[0]["SPECIFIC_SCHEMA"].ToString());
-      Assert.Equal("ProcedureParameters4", dt.Rows[0]["SPECIFIC_NAME"].ToString());
-      Assert.Equal("name", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(1, dt.Rows[0]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[0]["PARAMETER_MODE"]);
-      Assert.Equal("VARCHAR", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
-      Assert.Equal(1200, dt.Rows[0]["CHARACTER_MAXIMUM_LENGTH"]);
-      Assert.Equal(3600, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
+      Assert.AreEqual(Connection.Database, dt.Rows[0]["SPECIFIC_SCHEMA"].ToString());
+      Assert.AreEqual("ProcedureParameters4", dt.Rows[0]["SPECIFIC_NAME"].ToString());
+      Assert.AreEqual("name", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(1, dt.Rows[0]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[0]["PARAMETER_MODE"]);
+      Assert.AreEqual("VARCHAR", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual(1200, dt.Rows[0]["CHARACTER_MAXIMUM_LENGTH"]);
+      Assert.AreEqual(3600, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
       //else
-      //  Assert.Equal(4800, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
-      Assert.Equal("utf8", dt.Rows[0]["CHARACTER_SET_NAME"]);
-      Assert.Equal("utf8_general_ci", dt.Rows[0]["COLLATION_NAME"]);
+      //  Assert.AreEqual(4800, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
+      Assert.AreEqual("utf8", dt.Rows[0]["CHARACTER_SET_NAME"]);
+      Assert.AreEqual("utf8_general_ci", dt.Rows[0]["COLLATION_NAME"]);
     }
 
-    [Fact]
+    [Test]
     public void ProcedureParameters5()
     {
-      executeSQL(@"CREATE  PROCEDURE ProcedureParameters5 (name VARCHAR(1200) ASCII BINARY, 
+      ExecuteSQL(@"CREATE  PROCEDURE ProcedureParameters5 (name VARCHAR(1200) ASCII BINARY, 
           name2 TEXT UNICODE) BEGIN SELECT name; END");
 
       string[] restrictions = new string[5];
@@ -280,25 +276,25 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = Connection.GetSchema("Procedure Parameters", restrictions);
 
       Assert.True(dt.Rows.Count == 2);
-      Assert.Equal(Connection.Database, dt.Rows[0]["SPECIFIC_SCHEMA"].ToString());
-      Assert.Equal("ProcedureParameters5", dt.Rows[0]["SPECIFIC_NAME"].ToString());
-      Assert.Equal("name", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(1, dt.Rows[0]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[0]["PARAMETER_MODE"]);
-      Assert.Equal("VARCHAR", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
-      Assert.Equal("latin1", dt.Rows[0]["CHARACTER_SET_NAME"]);
-      Assert.Equal(1200, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
+      Assert.AreEqual(Connection.Database, dt.Rows[0]["SPECIFIC_SCHEMA"].ToString());
+      Assert.AreEqual("ProcedureParameters5", dt.Rows[0]["SPECIFIC_NAME"].ToString());
+      Assert.AreEqual("name", dt.Rows[0]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(1, dt.Rows[0]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[0]["PARAMETER_MODE"]);
+      Assert.AreEqual("VARCHAR", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual("latin1", dt.Rows[0]["CHARACTER_SET_NAME"]);
+      Assert.AreEqual(1200, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
 
-      Assert.Equal(Connection.Database, dt.Rows[1]["SPECIFIC_SCHEMA"].ToString());
-      Assert.Equal("ProcedureParameters5", dt.Rows[1]["SPECIFIC_NAME"].ToString());
-      Assert.Equal("name2", dt.Rows[1]["PARAMETER_NAME"].ToString().ToLower());
-      Assert.Equal(2, dt.Rows[1]["ORDINAL_POSITION"]);
-      Assert.Equal("IN", dt.Rows[1]["PARAMETER_MODE"]);
-      Assert.Equal("TEXT", dt.Rows[1]["DATA_TYPE"].ToString().ToUpper());
-      Assert.Equal("ucs2", dt.Rows[1]["CHARACTER_SET_NAME"]);
+      Assert.AreEqual(Connection.Database, dt.Rows[1]["SPECIFIC_SCHEMA"].ToString());
+      Assert.AreEqual("ProcedureParameters5", dt.Rows[1]["SPECIFIC_NAME"].ToString());
+      Assert.AreEqual("name2", dt.Rows[1]["PARAMETER_NAME"].ToString().ToLower());
+      Assert.AreEqual(2, dt.Rows[1]["ORDINAL_POSITION"]);
+      Assert.AreEqual("IN", dt.Rows[1]["PARAMETER_MODE"]);
+      Assert.AreEqual("TEXT", dt.Rows[1]["DATA_TYPE"].ToString().ToUpper());
+      Assert.AreEqual("ucs2", dt.Rows[1]["CHARACTER_SET_NAME"]);
     }
 
-    [Fact]
+    [Test]
     public void DTD_Identifier()
     {
       using (var conn = new MySqlConnection(Connection.ConnectionString))
@@ -318,17 +314,17 @@ namespace MySql.Data.MySqlClient.Tests
         DataTable dt = Connection.GetSchema("Procedure Parameters", restrictions);
 
         Assert.True(dt.Rows.Count == 6, "Actual Result " + dt.Rows.Count);
-        Assert.Equal("INT(10) UNSIGNED ZEROFILL",
+        Assert.AreEqual("INT(10) UNSIGNED ZEROFILL",
           dt.Rows[0]["DTD_IDENTIFIER"].ToString().ToUpper());
-        Assert.Equal("DECIMAL(10,2)",
+        Assert.AreEqual("DECIMAL(10,2)",
           dt.Rows[1]["DTD_IDENTIFIER"].ToString().ToUpper());
-        Assert.Equal("VARCHAR(20)",
+        Assert.AreEqual("VARCHAR(20)",
           dt.Rows[2]["DTD_IDENTIFIER"].ToString().ToUpper());
-        Assert.Equal("TINYTEXT",
+        Assert.AreEqual("TINYTEXT",
           dt.Rows[3]["DTD_IDENTIFIER"].ToString().ToUpper());
-        Assert.Equal("ENUM('A','B','C')",
+        Assert.AreEqual("ENUM('A','B','C')",
           dt.Rows[4]["DTD_IDENTIFIER"].ToString().ToUpper());
-        Assert.Equal("SET('1','2','3')",
+        Assert.AreEqual("SET('1','2','3')",
           dt.Rows[5]["DTD_IDENTIFIER"].ToString().ToUpper());
         conn.Close();
       }
@@ -337,7 +333,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #48586	Expose defined possible enum values
     /// </summary>
-    [Fact]
+    [Test]
     public void PossibleValues()
     {
       var builder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
@@ -360,14 +356,14 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Null(cmd.Parameters["@t1"].PossibleValues);
         MySqlParameter t2 = cmd.Parameters["@t2"];
         Assert.NotNull(t2.PossibleValues);
-        Assert.Equal("a", t2.PossibleValues[0]);
-        Assert.Equal("b", t2.PossibleValues[1]);
-        Assert.Equal("c", t2.PossibleValues[2]);
+        Assert.AreEqual("a", t2.PossibleValues[0]);
+        Assert.AreEqual("b", t2.PossibleValues[1]);
+        Assert.AreEqual("c", t2.PossibleValues[2]);
         MySqlParameter t3 = cmd.Parameters["@t3"];
         Assert.NotNull(t3.PossibleValues);
-        Assert.Equal("1", t3.PossibleValues[0]);
-        Assert.Equal("2", t3.PossibleValues[1]);
-        Assert.Equal("3", t3.PossibleValues[2]);
+        Assert.AreEqual("1", t3.PossibleValues[0]);
+        Assert.AreEqual("2", t3.PossibleValues[1]);
+        Assert.AreEqual("3", t3.PossibleValues[2]);
         conn.Close();
       }
 
@@ -388,14 +384,14 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Null(cmd.Parameters["@t1"].PossibleValues);
         MySqlParameter t2 = cmd.Parameters["@t2"];
         Assert.NotNull(t2.PossibleValues);
-        Assert.Equal("a", t2.PossibleValues[0]);
-        Assert.Equal("b", t2.PossibleValues[1]);
-        Assert.Equal("c", t2.PossibleValues[2]);
+        Assert.AreEqual("a", t2.PossibleValues[0]);
+        Assert.AreEqual("b", t2.PossibleValues[1]);
+        Assert.AreEqual("c", t2.PossibleValues[2]);
         MySqlParameter t3 = cmd.Parameters["@t3"];
         Assert.NotNull(t3.PossibleValues);
-        Assert.Equal("1", t3.PossibleValues[0]);
-        Assert.Equal("2", t3.PossibleValues[1]);
-        Assert.Equal("3", t3.PossibleValues[2]);
+        Assert.AreEqual("1", t3.PossibleValues[0]);
+        Assert.AreEqual("2", t3.PossibleValues[1]);
+        Assert.AreEqual("3", t3.PossibleValues[2]);
         conn.Close();
       }
     }
@@ -403,11 +399,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #62416	IndexOutOfRangeException when using return parameter with no name
     /// </summary>
-    [Fact]
+    [Test]
     public void UnnamedReturnValue()
     {
-      executeSQL("DROP FUNCTION IF EXISTS spFunc");
-      executeSQL("CREATE FUNCTION spFunc() RETURNS DATETIME BEGIN RETURN NOW(); END");
+      ExecuteSQL("DROP FUNCTION IF EXISTS spFunc");
+      ExecuteSQL("CREATE FUNCTION spFunc() RETURNS DATETIME BEGIN RETURN NOW(); END");
       MySqlCommand cmd = new MySqlCommand("spFunc", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       MySqlParameter p1 = new MySqlParameter("", MySqlDbType.DateTime);
@@ -419,9 +415,8 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #30029732	ERROR EXECUTING STORED ROUTINES
     /// </summary>
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [TestCase(true)]
+    [TestCase(false)]
     public void StoredProcedureWithDifferentUser(bool hasPrivileges)
     {
       //Create Required Objects for all the tests
@@ -454,7 +449,7 @@ namespace MySql.Data.MySqlClient.Tests
              END;
              ";
 
-      executeSQL(sql, true);
+      ExecuteSQL(sql, true);
 
       Connection.Settings.UserID = hasPrivileges ? Connection.Settings.UserID : "atest";
 
@@ -496,8 +491,84 @@ namespace MySql.Data.MySqlClient.Tests
       sql = $"use `{Connection.Settings.Database}`; " + @"drop procedure get_hello;
         drop procedure get_hello2;
         drop user 'atest'@'localhost';";
-      executeSQL(sql, true);
+      ExecuteSQL(sql, true);
     }
 
+    /// <summary>
+    /// Bug #30444429 GETSCHEMATABLE RETURNS UNEXPECTED TABLE WHEN SPROC HAS OUTPUT PARAMETERS
+    /// </summary>
+    [Test]
+    public void OutputParameterAndResultset()
+    {
+      using (var connection = new MySqlConnection(Connection.ConnectionString))
+      {
+        connection.Open();
+        //Stored procedure with Output parameter + ResultSet
+        ExecuteSQL(@"CREATE PROCEDURE out_int(
+                     OUT value INT
+                    )
+                    BEGIN
+                     SELECT 1 INTO value;
+                     select value+1;
+                    END;");
+        using (var cmd = connection.CreateCommand())
+        {
+          cmd.CommandText = "out_int";
+          cmd.CommandType = CommandType.StoredProcedure;
+          MySqlParameter _outputParam = cmd.Parameters.Add(new MySqlParameter
+          {
+            ParameterName = "@value",
+            DbType = DbType.Int32,
+            Direction = ParameterDirection.Output,
+          });
+
+          using (var reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              var stdout1 = reader.GetInt32(0);
+              Assert.AreEqual(2, stdout1);
+              var schema = reader.GetSchemaTable();
+              Assert.NotNull(schema);
+              Assert.True(reader.HasRows);
+              Assert.AreEqual(1, reader.FieldCount);
+            }
+          }
+          var outparam1 = _outputParam.Value;
+          Assert.AreEqual(1, outparam1);
+        }
+
+
+        //Stored procedure with Output parameter Only
+        ExecuteSQL(@"CREATE PROCEDURE out_int2(
+                     OUT value INT
+                    )
+                    BEGIN
+                     SELECT 1 INTO value;
+                    END;");
+        using (var cmd = connection.CreateCommand())
+        {
+          cmd.CommandText = "out_int2";
+          cmd.CommandType = CommandType.StoredProcedure;
+          MySqlParameter _outputParam2 = cmd.Parameters.Add(new MySqlParameter
+          {
+            ParameterName = "@value",
+            DbType = DbType.Int32,
+            Direction = ParameterDirection.Output,
+          });
+
+          using (var reader = cmd.ExecuteReader())
+          {
+            reader.Read();
+            var schema = reader.GetSchemaTable();
+            Assert.Null(schema);
+            Assert.False(reader.HasRows);
+            Assert.AreEqual(0, reader.FieldCount);
+          }
+          var outparam1 = _outputParam2.Value;
+          Assert.AreEqual(1, outparam1);
+        }
+      }
+    }
   }
 }

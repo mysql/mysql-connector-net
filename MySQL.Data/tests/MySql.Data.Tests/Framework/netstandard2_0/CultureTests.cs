@@ -1,4 +1,4 @@
-// Copyright © 2013, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,7 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Xunit;
+using NUnit.Framework;
 using System.Threading;
 using System.Globalization;
 using System.Data;
@@ -36,17 +36,18 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class CultureTests : TestBase
   {
-    public CultureTests(TestFixture fixture) : base(fixture)
+    protected override void Cleanup()
     {
+      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
     }
 
-    [Fact]
+    [Test]
     public void TestFloats()
     {
       InternalTestFloats(false);
     }
 
-    [Fact]
+    [Test]
     public void TestFloatsPrepared()
     {
       InternalTestFloats(true);
@@ -61,7 +62,7 @@ namespace MySql.Data.MySqlClient.Tests
       Thread.CurrentThread.CurrentCulture = c;
       Thread.CurrentThread.CurrentUICulture = c;
 
-      executeSQL("CREATE TABLE Test (fl FLOAT, db DOUBLE, dec1 DECIMAL(5,2))");
+      ExecuteSQL("CREATE TABLE Test (fl FLOAT, db DOUBLE, dec1 DECIMAL(5,2))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (?fl, ?db, ?dec)", Connection);
       cmd.Parameters.Add("?fl", MySqlDbType.Float);
@@ -73,7 +74,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (prepared)
         cmd.Prepare();
       int count = cmd.ExecuteNonQuery();
-      Assert.Equal(1, count);
+      Assert.AreEqual(1, count);
 
       try
       {
@@ -82,9 +83,9 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.Equal((decimal)2.3, (decimal)reader.GetFloat(0));
-          Assert.Equal(4.6, reader.GetDouble(1));
-          Assert.Equal((decimal)23.82, reader.GetDecimal(2));
+          Assert.AreEqual((decimal)2.3, (decimal)reader.GetFloat(0));
+          Assert.AreEqual(4.6, reader.GetDouble(1));
+          Assert.AreEqual((decimal)23.82, reader.GetDecimal(2));
         }
       }
       finally
@@ -97,7 +98,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #8228  	turkish character set causing the error
     /// </summary>
-    [Fact]
+    [Test]
     public void Turkish()
     {
       CultureInfo curCulture = Thread.CurrentThread.CurrentCulture;
@@ -118,11 +119,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #29931  	Connector/NET does not handle Saudi Hijri calendar correctly
     /// </summary>
-    [Fact]
+    [Test]
     public void ArabicCalendars()
     {
-      executeSQL("CREATE TABLE test(dt DATETIME)");
-      executeSQL("INSERT INTO test VALUES ('2007-01-01 12:30:45')");
+      ExecuteSQL("CREATE TABLE test(dt DATETIME)");
+      ExecuteSQL("INSERT INTO test VALUES ('2007-01-01 12:30:45')");
 
       CultureInfo curCulture = Thread.CurrentThread.CurrentCulture;
       CultureInfo curUICulture = Thread.CurrentThread.CurrentUICulture;
@@ -132,12 +133,12 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlCommand cmd = new MySqlCommand("SELECT dt FROM test", Connection);
       DateTime dt = (DateTime)cmd.ExecuteScalar();
-      Assert.Equal(2007, dt.Year);
-      Assert.Equal(1, dt.Month);
-      Assert.Equal(1, dt.Day);
-      Assert.Equal(12, dt.Hour);
-      Assert.Equal(30, dt.Minute);
-      Assert.Equal(45, dt.Second);
+      Assert.AreEqual(2007, dt.Year);
+      Assert.AreEqual(1, dt.Month);
+      Assert.AreEqual(1, dt.Day);
+      Assert.AreEqual(12, dt.Hour);
+      Assert.AreEqual(30, dt.Minute);
+      Assert.AreEqual(45, dt.Second);
 
       Thread.CurrentThread.CurrentCulture = curCulture;
       Thread.CurrentThread.CurrentUICulture = curUICulture;
@@ -146,13 +147,13 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #52187	FunctionsReturnString=true messes up decimal separator
     /// </summary>
-    [Fact]
+    [Test]
     public void FunctionsReturnStringAndDecimal()
     {
-      executeSQL("CREATE TABLE bug52187a (a decimal(5,2) not null)");
-      executeSQL("CREATE TABLE bug52187b (b decimal(5,2) not null)");
-      executeSQL("insert into bug52187a values (1.25)");
-      executeSQL("insert into bug52187b values (5.99)");
+      ExecuteSQL("CREATE TABLE bug52187a (a decimal(5,2) not null)");
+      ExecuteSQL("CREATE TABLE bug52187b (b decimal(5,2) not null)");
+      ExecuteSQL("insert into bug52187a values (1.25)");
+      ExecuteSQL("insert into bug52187b values (5.99)");
 
       CultureInfo curCulture = Thread.CurrentThread.CurrentCulture;
       CultureInfo curUICulture = Thread.CurrentThread.CurrentUICulture;
@@ -170,9 +171,9 @@ namespace MySql.Data.MySqlClient.Tests
             "select *,(select b from bug52187b) as field_b from bug52187a", con);
           DataTable dt = new DataTable();
           da.Fill(dt);
-          Assert.Equal(1, dt.Rows.Count);
-          Assert.Equal((decimal)1.25, (decimal)dt.Rows[0][0]);
-          Assert.Equal((decimal)5.99, (decimal)dt.Rows[0][1]);
+          Assert.AreEqual(1, dt.Rows.Count);
+          Assert.AreEqual((decimal)1.25, (decimal)dt.Rows[0][0]);
+          Assert.AreEqual((decimal)5.99, (decimal)dt.Rows[0][1]);
         }
       }
       finally

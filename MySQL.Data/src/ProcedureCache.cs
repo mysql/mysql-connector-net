@@ -137,18 +137,22 @@ namespace MySql.Data.MySqlClient
 
     private static ProcedureCacheEntry GetProcData(MySqlConnection connection, string spName)
     {
-      string schema = String.Empty;
       string name = spName;
+      string currentDB = connection.CurrentDatabase();
+      string schema = string.Format("`{0}`", currentDB);
 
-      int dotIndex = spName.IndexOf(".");
-      if (dotIndex != -1)
+      if (spName.Contains(currentDB))
       {
-        schema = spName.Substring(0, dotIndex);
-        name = spName.Substring(dotIndex + 1, spName.Length - dotIndex - 1);
+        name = spName.StartsWith("`") ? spName.Remove(0,schema.Length+1): string.Format("`{0}`", spName.Remove(0, schema.Length-1));
+      }
+      else
+      {
+        name = spName.StartsWith(".") ? spName.Remove(0, 1) : name;
+        name = (!name.StartsWith("`") && !name.EndsWith("`")) ? string.Format("`{0}`", name) : name;
       }
 
       string[] restrictions = new string[4];
-      restrictions[1] = schema.Length > 0 ? schema : connection.CurrentDatabase();
+      restrictions[1] = schema.Length > 0 ? schema : currentDB;
       restrictions[2] = name;
       MySqlSchemaCollection proc = connection.GetSchemaCollection("procedures", restrictions);
       if (proc.Rows.Count > 1)

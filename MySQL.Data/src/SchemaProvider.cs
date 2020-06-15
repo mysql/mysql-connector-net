@@ -664,7 +664,7 @@ namespace MySql.Data.MySqlClient
         {
           if (restrictions.Length >= 2 && restrictions[1] != null)
             sql.AppendFormat(CultureInfo.InvariantCulture,
-              " AND db LIKE '{0}'", restrictions[1]);
+              " AND lower(db) LIKE '{0}'",  restrictions[1].ToLower());
           if (restrictions.Length >= 3 && restrictions[2] != null)
             sql.AppendFormat(CultureInfo.InvariantCulture,
               " AND name LIKE '{0}'", restrictions[2]);

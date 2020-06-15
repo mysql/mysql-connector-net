@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,7 +28,7 @@
 
 using System.Linq;
 using MySqlX.XDevAPI.Relational;
-using Xunit;
+using NUnit.Framework;
 using MySql.Data.MySqlClient;
 
 namespace MySqlX.Data.Tests.RelationalTests
@@ -39,7 +39,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
     }
 
-    [Fact]
+    [Test]
     public void InsertMultipleValues()
     {
       ExecuteSQL("CREATE TABLE test.test(name VARCHAR(40), age INT)");
@@ -49,20 +49,20 @@ namespace MySqlX.Data.Tests.RelationalTests
         .Values("Henry", "22")
         .Values("Patric", 30)
         );
-      Assert.Equal<ulong>(2, result.AffectedItemsCount);
+      Assert.AreEqual(2, result.AffectedItemsCount);
 
       var selectResult = ExecuteSelectStatement(table.Select());
       while (selectResult.Next()) ;
-      Assert.Equal(2, selectResult.Rows.Count);
-      Assert.Equal("Henry", selectResult.Rows.ToArray()[0][0]);
-      Assert.Equal(22, selectResult.Rows.ToArray()[0][1]);
-      Assert.Equal("Patric", selectResult.Rows.ToArray()[1][0]);
-      Assert.Equal(30, selectResult.Rows.ToArray()[1][1]);
+      Assert.AreEqual(2, selectResult.Rows.Count);
+      Assert.AreEqual("Henry", selectResult.Rows.ToArray()[0][0]);
+      Assert.AreEqual(22, selectResult.Rows.ToArray()[0][1]);
+      Assert.AreEqual("Patric", selectResult.Rows.ToArray()[1][0]);
+      Assert.AreEqual(30, selectResult.Rows.ToArray()[1][1]);
 
-      Assert.Equal(2, table.Count());
+      Assert.AreEqual(2, table.Count());
     }
 
-    [Fact]
+    [Test]
     public void InsertExpressions()
     {
       ExecuteSQL("CREATE TABLE test.test(name VARCHAR(40), age INT)");
@@ -71,16 +71,16 @@ namespace MySqlX.Data.Tests.RelationalTests
       var result = ExecuteInsertStatement(table.Insert("name", "age")
         .Values("upper('mark')", "50-16")
         );
-      Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      Assert.AreEqual(1, result.AffectedItemsCount);
 
       var selectResult = ExecuteSelectStatement(table.Select());
       while (selectResult.Next()) ;
-      Assert.Single(selectResult.Rows);
-      Assert.Equal("MARK", selectResult.Rows.ToArray()[0][0]);
-      Assert.Equal(34, selectResult.Rows.ToArray()[0][1]);
+      Assert.That(selectResult.Rows, Has.One.Items);
+      Assert.AreEqual("MARK", selectResult.Rows.ToArray()[0][0]);
+      Assert.AreEqual(34, selectResult.Rows.ToArray()[0][1]);
     }
 
-    [Fact]
+    [Test]
     public void ReuseStatement()
     {
       ExecuteSQL("CREATE TABLE test(name VARCHAR(40), age INT)");
@@ -88,11 +88,11 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       var stmt = table.Insert("name", "age");
       var result = ExecuteInsertStatement(stmt.Values("upper('mark')", "50-16"));
-      Assert.Equal<ulong>(1, result.AffectedItemsCount);
+      Assert.AreEqual(1, result.AffectedItemsCount);
       // error 5014 - Wrong number of fields in row being inserted
-      Assert.Equal(5014u, Assert.Throws<MySqlException>(() => result = ExecuteInsertStatement(stmt.Values("George", 34, 1))).Code);
-      Assert.Equal(5014u, Assert.Throws<MySqlException>(() => ExecuteInsertStatement(stmt.Values("George", 34))).Code);
-      Assert.Single(ExecuteSelectStatement(table.Select()).FetchAll());
+      Assert.AreEqual(5014u, Assert.Throws<MySqlException>(() => result = ExecuteInsertStatement(stmt.Values("George", 34, 1))).Code);
+      Assert.AreEqual(5014u, Assert.Throws<MySqlException>(() => ExecuteInsertStatement(stmt.Values("George", 34))).Code);
+      Assert.That(ExecuteSelectStatement(table.Select()).FetchAll(), Has.One.Items);
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -25,34 +25,32 @@ using System.Data;
 using System.Configuration;
 using System.Reflection;
 using System;
-using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Resources;
-using System.Xml;
 using System.IO;
 using System.Text;
-using Xunit;
+using NUnit.Framework;
 using System.Data.Entity.Core.EntityClient;
 using System.Data.Entity;
 using MySql.Data.EntityFramework.Tests;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-  public class CodeFirstFixture : DefaultFixture, IDisposable
+  public class CodeFirstFixture : DefaultFixture
   {
     // A trace listener to use during testing.
     private AssertFailTraceListener asertFailListener = new AssertFailTraceListener();
-    private bool disposed = false;
 
-    public CodeFirstFixture() : base()
+    public CodeFirstFixture()
     {
       // Initilizes MySql EF configuration
       MySqlEFConfiguration.SetConfiguration(new MySqlEFConfiguration());
+    }
 
-      Setup(this.GetType());
-      NeedSetup = true;
+    [OneTimeSetUp]
+    public new void OneTimeSetup()
+    {
       // Override sql_mode so it converts automatically from varchar(65535) to text
-      MySqlCommand cmd = new MySqlCommand("SET GLOBAL SQL_MODE=``", this.Connection);
+      MySqlCommand cmd = new MySqlCommand("SET GLOBAL SQL_MODE=``", Connection);
       cmd.ExecuteNonQuery();
 
       // Replace existing listeners with listener for testing.
@@ -72,7 +70,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
         , "MySql.Data.MySqlClient"
         , "MySql.Data.MySqlClient"
         ,
-        typeof(MySql.Data.MySqlClient.MySqlClientFactory).AssemblyQualifiedName);
+        typeof(MySqlClientFactory).AssemblyQualifiedName);
 
 
       cmd = new MySqlCommand("SELECT COUNT(SCHEMA_NAME) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'sakila'", Connection);
@@ -80,7 +78,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       if (Convert.ToInt32(cmd.ExecuteScalar() ?? 0) == 0)
       {
         Assembly executingAssembly = Assembly.GetExecutingAssembly();
-        using (var stream = executingAssembly.GetManifestResourceStream("MySql.EntityFramework6.CodeFirst.Tests.Properties.sakila-schema.sql"))
+        using (var stream = executingAssembly.GetManifestResourceStream("MySql.EntityFramework.CodeFirst.Tests.Properties.sakila-schema.sql"))
         {
           using (StreamReader sr = new StreamReader(stream))
           {
@@ -90,7 +88,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
           }
         }
 
-        using (var stream = executingAssembly.GetManifestResourceStream("MySql.EntityFramework6.CodeFirst.Tests.Properties.sakila-data.sql"))
+        using (var stream = executingAssembly.GetManifestResourceStream("MySql.EntityFramework.CodeFirst.Tests.Properties.sakila-data.sql"))
         {
           using (StreamReader sr = new StreamReader(stream))
           {
@@ -100,6 +98,28 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
           }
         }
       }
+    }
+
+    [OneTimeTearDown]
+    public new void OneTimeTearDown()
+    {
+      DeleteContext<AutoIncrementBugContext>();
+      DeleteContext<MovieDBContext>();
+      DeleteContext<SakilaDb>();
+      DeleteContext<DinosauriaDBContext>();
+      DeleteContext<MovieCodedBasedConfigDBContext>();
+      DeleteContext<EnumTestSupportContext>();
+      DeleteContext<JourneyContext>();
+      DeleteContext<EntityAndComplexTypeContext>();
+      DeleteContext<PromotionsDB>();
+      DeleteContext<ShipContext>();
+      DeleteContext<SiteDbContext>();
+      DeleteContext<VehicleDbContext>();
+      DeleteContext<VehicleDbContext2>();
+      DeleteContext<VehicleDbContext3>();
+      DeleteContext<ProductsDbContext>();
+      DeleteContext<ShortDbContext>();
+      DeleteContext<UsingUnionContext>();
     }
 
     public static string GetEFConnectionString<T>(string database = null) where T : DbContext
@@ -107,48 +127,13 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder();
       sb.Server = "localhost";
       string port = Environment.GetEnvironmentVariable("MYSQL_PORT");
-      sb.Port = string.IsNullOrEmpty(port) ? 3305 : uint.Parse(port);
+      sb.Port = string.IsNullOrEmpty(port) ? 3306 : uint.Parse(port);
       sb.UserID = "root";
       sb.Pooling = false;
       sb.AllowUserVariables = true;
       sb.Database = database ?? typeof(T).Name;
 
       return sb.ToString();
-    }
-
-    public override void Dispose()
-    {
-      base.Dispose();
-    }
-
-    public override void Dispose(bool disposing)
-    {
-      if (disposed)
-        return;
-
-      if (disposing)
-      {
-        DeleteContext<AutoIncrementBugContext>();
-        DeleteContext<MovieDBContext>();
-        //DeleteContext<SakilaDb>();
-        DeleteContext<DinosauriaDBContext>();
-        DeleteContext<MovieCodedBasedConfigDBContext>();
-        DeleteContext<EnumTestSupportContext>();
-        DeleteContext<JourneyContext>();
-        DeleteContext<EntityAndComplexTypeContext>();
-        DeleteContext<PromotionsDB>();
-        DeleteContext<ShipContext>();
-        DeleteContext<SiteDbContext>();
-        DeleteContext<VehicleDbContext>();
-        DeleteContext<VehicleDbContext2>();
-        DeleteContext<VehicleDbContext3>();
-        DeleteContext<ProductsDbContext>();
-        DeleteContext<ShortDbContext>();
-        DeleteContext<UsingUnionContext>();
-      }
-
-      base.Dispose(disposing);
-      disposed = true;
     }
 
     private void DeleteContext<T>() where T : DbContext, new()
@@ -164,7 +149,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       return null;
     }
 
-    protected internal void CheckSql(string sql, string refSql)
+    internal protected static new void CheckSql(string sql, string refSql)
     {
       StringBuilder str1 = new StringBuilder();
       StringBuilder str2 = new StringBuilder();
@@ -174,7 +159,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       foreach (char c in refSql)
         if (!Char.IsWhiteSpace(c))
           str2.Append(c);
-      Assert.Equal(0, String.Compare(str1.ToString(), str2.ToString(), true));
+      Assert.AreEqual(0, String.Compare(str1.ToString(), str2.ToString(), true));
     }
 
     private class AssertFailTraceListener : DefaultTraceListener
@@ -189,6 +174,5 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
         Assert.True(message == String.Empty, "Failure: " + message);
       }
     }
-
   }
 }

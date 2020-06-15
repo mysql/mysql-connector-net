@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,19 +26,17 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
+using NUnit.Framework;
 using System.Diagnostics;
-using System.Data;
+using System;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class UsageAdvisorTests : TestBase
   {
-    public UsageAdvisorTests(TestFixture fixture) : base(fixture)
+    protected override void Cleanup()
     {
+      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
     }
 
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
@@ -46,14 +44,14 @@ namespace MySql.Data.MySqlClient.Tests
       settings.UseUsageAdvisor = true;
     }
 
-    [Fact]
+    [Test]
     public void NotReadingEveryField()
     {
-      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
-      executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      executeSQL("INSERT INTO Test VALUES (2, 'Test2')");
-      executeSQL("INSERT INTO Test VALUES (3, 'Test3')");
-      executeSQL("INSERT INTO Test VALUES (4, 'Test4')");
+      ExecuteSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      ExecuteSQL("INSERT INTO Test VALUES (2, 'Test2')");
+      ExecuteSQL("INSERT INTO Test VALUES (3, 'Test3')");
+      ExecuteSQL("INSERT INTO Test VALUES (4, 'Test4')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
@@ -68,33 +66,33 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         Assert.True(reader.NextResult());
         reader.Read();
-        Assert.Equal("Test3", reader.GetString(1));
+        Assert.AreEqual("Test3", reader.GetString(1));
         Assert.False(reader.NextResult());
       }
 
-      Assert.Equal(12, listener.Strings.Count);
-      Assert.Contains("Query Opened: SELECT * FROM Test; SELECT * FROM Test WHERE id > 2", listener.Strings[0]);
-      Assert.Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1", listener.Strings[1]);
-      Assert.Contains("Usage Advisor Warning: Query does not use an index", listener.Strings[2]);
-      Assert.Contains("Usage Advisor Warning: Skipped 2 rows. Consider a more focused query.", listener.Strings[3]);
-      Assert.Contains("Usage Advisor Warning: The following columns were not accessed: name", listener.Strings[4]);
-      Assert.Contains("Resultset Closed. Total rows=4, skipped rows=2, size (bytes)=32", listener.Strings[5]);
-      Assert.Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1", listener.Strings[6]);
-      Assert.Contains("Usage Advisor Warning: Query does not use an index", listener.Strings[7]);
-      Assert.Contains("Usage Advisor Warning: Skipped 1 rows. Consider a more focused query.", listener.Strings[8]);
-      Assert.Contains("Usage Advisor Warning: The following columns were not accessed: id", listener.Strings[9]);
-      Assert.Contains("Resultset Closed. Total rows=2, skipped rows=1, size (bytes)=16", listener.Strings[10]);
-      Assert.Contains("Query Closed", listener.Strings[11]);
+      Assert.AreEqual(12, listener.Strings.Count);
+      StringAssert.Contains("Query Opened: SELECT * FROM Test; SELECT * FROM Test WHERE id > 2", listener.Strings[0]);
+      StringAssert.Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1", listener.Strings[1]);
+      StringAssert.Contains("Usage Advisor Warning: Query does not use an index", listener.Strings[2]);
+      StringAssert.Contains("Usage Advisor Warning: Skipped 2 rows. Consider a more focused query.", listener.Strings[3]);
+      StringAssert.Contains("Usage Advisor Warning: The following columns were not accessed: name", listener.Strings[4]);
+      StringAssert.Contains("Resultset Closed. Total rows=4, skipped rows=2, size (bytes)=32", listener.Strings[5]);
+      StringAssert.Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1", listener.Strings[6]);
+      StringAssert.Contains("Usage Advisor Warning: Query does not use an index", listener.Strings[7]);
+      StringAssert.Contains("Usage Advisor Warning: Skipped 1 rows. Consider a more focused query.", listener.Strings[8]);
+      StringAssert.Contains("Usage Advisor Warning: The following columns were not accessed: id", listener.Strings[9]);
+      StringAssert.Contains("Resultset Closed. Total rows=2, skipped rows=1, size (bytes)=16", listener.Strings[10]);
+      StringAssert.Contains("Query Closed", listener.Strings[11]);
     }
 
-    [Fact]
+    [Test]
     public void NotReadingEveryRow()
     {
-      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
-      executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      executeSQL("INSERT INTO Test VALUES (2, 'Test2')");
-      executeSQL("INSERT INTO Test VALUES (3, 'Test3')");
-      executeSQL("INSERT INTO Test VALUES (4, 'Test4')");
+      ExecuteSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      ExecuteSQL("INSERT INTO Test VALUES (2, 'Test2')");
+      ExecuteSQL("INSERT INTO Test VALUES (3, 'Test3')");
+      ExecuteSQL("INSERT INTO Test VALUES (4, 'Test4')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
@@ -112,25 +110,25 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.False(reader.NextResult());
       }
 
-      Assert.Equal(11, listener.Strings.Count);
-      Assert.Contains("Query Opened: SELECT * FROM Test; SELECT * FROM Test WHERE id > 2", listener.Strings[0]);
-      Assert.Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1", listener.Strings[1]);
-      Assert.Contains("Usage Advisor Warning: Query does not use an index", listener.Strings[2]);
-      Assert.Contains("Usage Advisor Warning: Skipped 2 rows. Consider a more focused query.", listener.Strings[3]);
-      Assert.Contains("Usage Advisor Warning: The following columns were not accessed: id,name", listener.Strings[4]);
-      Assert.Contains("Resultset Closed. Total rows=4, skipped rows=2, size (bytes)=32", listener.Strings[5]);
-      Assert.Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1", listener.Strings[6]);
-      Assert.Contains("Usage Advisor Warning: Query does not use an index", listener.Strings[7]);
-      Assert.Contains("Usage Advisor Warning: The following columns were not accessed: id,name", listener.Strings[8]);
-      Assert.Contains("Resultset Closed. Total rows=2, skipped rows=0, size (bytes)=16", listener.Strings[9]);
-      Assert.Contains("Query Closed", listener.Strings[10]);
+      Assert.AreEqual(11, listener.Strings.Count);
+      StringAssert.Contains("Query Opened: SELECT * FROM Test; SELECT * FROM Test WHERE id > 2", listener.Strings[0]);
+      StringAssert.Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1", listener.Strings[1]);
+      StringAssert.Contains("Usage Advisor Warning: Query does not use an index", listener.Strings[2]);
+      StringAssert.Contains("Usage Advisor Warning: Skipped 2 rows. Consider a more focused query.", listener.Strings[3]);
+      StringAssert.Contains("Usage Advisor Warning: The following columns were not accessed: id,name", listener.Strings[4]);
+      StringAssert.Contains("Resultset Closed. Total rows=4, skipped rows=2, size (bytes)=32", listener.Strings[5]);
+      StringAssert.Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1", listener.Strings[6]);
+      StringAssert.Contains("Usage Advisor Warning: Query does not use an index", listener.Strings[7]);
+      StringAssert.Contains("Usage Advisor Warning: The following columns were not accessed: id,name", listener.Strings[8]);
+      StringAssert.Contains("Resultset Closed. Total rows=2, skipped rows=0, size (bytes)=16", listener.Strings[9]);
+      StringAssert.Contains("Query Closed", listener.Strings[10]);
     }
 
-    [Fact]
+    [Test]
     public void FieldConversion()
     {
-      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
-      executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      ExecuteSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 'Test1')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
@@ -146,23 +144,23 @@ namespace MySql.Data.MySqlClient.Tests
         string str = reader.GetString(1);
       }
 
-      Assert.Equal(6, listener.Strings.Count);
-      Assert.Contains("Query Opened: SELECT * FROM Test", listener.Strings[0]);
-      Assert.Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1", listener.Strings[1]);
-      Assert.Contains("Usage Advisor Warning: Query does not use an index", listener.Strings[2]);
-      Assert.Contains("Usage Advisor Warning: The field 'id' was converted to the following types: Int16,Int64", listener.Strings[3]);
-      Assert.Contains("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=8", listener.Strings[4]);
-      Assert.Contains("Query Closed", listener.Strings[5]);
+      Assert.AreEqual(6, listener.Strings.Count);
+      StringAssert.Contains("Query Opened: SELECT * FROM Test", listener.Strings[0]);
+      StringAssert.Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1", listener.Strings[1]);
+      StringAssert.Contains("Usage Advisor Warning: Query does not use an index", listener.Strings[2]);
+      StringAssert.Contains("Usage Advisor Warning: The field 'id' was converted to the following types: Int16,Int64", listener.Strings[3]);
+      StringAssert.Contains("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=8", listener.Strings[4]);
+      StringAssert.Contains("Query Closed", listener.Strings[5]);
     }
 
-    [Fact]
+    [Test]
     public void NoIndexUsed()
     {
-      executeSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
-      executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      executeSQL("INSERT INTO Test VALUES (2, 'Test1')");
-      executeSQL("INSERT INTO Test VALUES (3, 'Test1')");
-      executeSQL("INSERT INTO Test VALUES (4, 'Test1')");
+      ExecuteSQL("CREATE TABLE Test (id int, name VARCHAR(200))");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      ExecuteSQL("INSERT INTO Test VALUES (2, 'Test1')");
+      ExecuteSQL("INSERT INTO Test VALUES (3, 'Test1')");
+      ExecuteSQL("INSERT INTO Test VALUES (4, 'Test1')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
@@ -175,23 +173,23 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
       }
 
-      Assert.Equal(6, listener.Strings.Count);
-      Assert.Contains("Query Opened: SELECT name FROM Test WHERE id=3", listener.Strings[0]);
-      Assert.Contains("Resultset Opened: field(s) = 1, affected rows = -1, inserted id = -1", listener.Strings[1]);
-      Assert.Contains("Usage Advisor Warning: Query does not use an index", listener.Strings[2]);
-      Assert.Contains("Usage Advisor Warning: The following columns were not accessed: name", listener.Strings[3]);
-      Assert.Contains("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=6", listener.Strings[4]);
-      Assert.Contains("Query Closed", listener.Strings[5]);
+      Assert.AreEqual(6, listener.Strings.Count);
+      StringAssert.Contains("Query Opened: SELECT name FROM Test WHERE id=3", listener.Strings[0]);
+      StringAssert.Contains("Resultset Opened: field(s) = 1, affected rows = -1, inserted id = -1", listener.Strings[1]);
+      StringAssert.Contains("Usage Advisor Warning: Query does not use an index", listener.Strings[2]);
+      StringAssert.Contains("Usage Advisor Warning: The following columns were not accessed: name", listener.Strings[3]);
+      StringAssert.Contains("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=6", listener.Strings[4]);
+      StringAssert.Contains("Query Closed", listener.Strings[5]);
     }
 
-    [Fact]
+    [Test]
     public void BadIndexUsed()
     {
-      executeSQL("CREATE TABLE Test(id INT, name VARCHAR(20) PRIMARY KEY)");
-      executeSQL("INSERT INTO Test VALUES (1, 'Test1')");
-      executeSQL("INSERT INTO Test VALUES (2, 'Test2')");
-      executeSQL("INSERT INTO Test VALUES (3, 'Test3')");
-      executeSQL("INSERT INTO Test VALUES (4, 'Test4')");
+      ExecuteSQL("CREATE TABLE Test(id INT, name VARCHAR(20) PRIMARY KEY)");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 'Test1')");
+      ExecuteSQL("INSERT INTO Test VALUES (2, 'Test2')");
+      ExecuteSQL("INSERT INTO Test VALUES (3, 'Test3')");
+      ExecuteSQL("INSERT INTO Test VALUES (4, 'Test4')");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = SourceLevels.All;
@@ -204,13 +202,13 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
       }
 
-      Assert.Equal(6, listener.Strings.Count);
-      Assert.Contains("Query Opened: SELECT name FROM Test WHERE id=3", listener.Strings[0]);
-      Assert.Contains("Resultset Opened: field(s) = 1, affected rows = -1, inserted id = -1", listener.Strings[1]);
-      Assert.Contains("Usage Advisor Warning: Query does not use an index", listener.Strings[2]);
-      Assert.Contains("Usage Advisor Warning: The following columns were not accessed: name", listener.Strings[3]);
-      Assert.Contains("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=6", listener.Strings[4]);
-      Assert.Contains("Query Closed", listener.Strings[5]);
+      Assert.AreEqual(6, listener.Strings.Count);
+      StringAssert.Contains("Query Opened: SELECT name FROM Test WHERE id=3", listener.Strings[0]);
+      StringAssert.Contains("Resultset Opened: field(s) = 1, affected rows = -1, inserted id = -1", listener.Strings[1]);
+      StringAssert.Contains("Usage Advisor Warning: Query does not use an index", listener.Strings[2]);
+      StringAssert.Contains("Usage Advisor Warning: The following columns were not accessed: name", listener.Strings[3]);
+      StringAssert.Contains("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=6", listener.Strings[4]);
+      StringAssert.Contains("Query Closed", listener.Strings[5]);
     }
   }
 }

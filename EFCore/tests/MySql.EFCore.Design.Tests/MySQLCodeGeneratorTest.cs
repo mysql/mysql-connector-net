@@ -30,13 +30,13 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using MySql.Data.EntityFrameworkCore.Scaffolding.Internal;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.EntityFrameworkCore.Design.Tests
 {
   public class MySQLCodeGeneratorTest
   {
-    [Fact]
+    [Test]
     public virtual void UseProviderMethodIsGeneratedCorrectly()
     {
       var codeGenerator = new MySQLCodeGenerator(
@@ -45,14 +45,12 @@ namespace MySql.EntityFrameworkCore.Design.Tests
 
       var result = codeGenerator.GenerateUseProvider("Data Source=Test", providerOptions: null);
 
-      Assert.Equal("UseMySQL", result.Method);
-      Assert.Collection(
-          result.Arguments,
-          a => Assert.Equal("Data Source=Test", a));
+      Assert.AreEqual("UseMySQL", result.Method);
+      Assert.That(result.Arguments, Has.Exactly(1).EqualTo("Data Source=Test"));
       Assert.Null(result.ChainedCall);
     }
 
-    [Fact]
+    [Test]
     public virtual void UseProviderMethodIsGeneratedCorrectlyWithOptions()
     {
       var codeGenerator = new MySQLCodeGenerator(
@@ -63,17 +61,12 @@ namespace MySql.EntityFrameworkCore.Design.Tests
 
       var result = codeGenerator.GenerateUseProvider("Data Source=Test", providerOptions);
 
-      Assert.Equal("UseMySQL", result.Method);
-      Assert.Collection(
-          result.Arguments,
-          a => Assert.Equal("Data Source=Test", a),
-          a =>
-          {
-            var nestedClosure = Assert.IsType<NestedClosureCodeFragment>(a);
-
-            Assert.Equal("x", nestedClosure.Parameter);
-            Assert.Same(providerOptions, nestedClosure.MethodCall);
-          });
+      Assert.AreEqual("UseMySQL", result.Method);
+      Assert.That(result.Arguments, Has.Exactly(1).EqualTo("Data Source=Test"));
+      Assert.IsInstanceOf<NestedClosureCodeFragment>(result.Arguments[1]);
+      NestedClosureCodeFragment nestedClosure =(NestedClosureCodeFragment) result.Arguments[1];
+      Assert.AreEqual("x", nestedClosure.Parameter);
+      Assert.AreSame(providerOptions, nestedClosure.MethodCall);
       Assert.Null(result.ChainedCall);
     }
   }

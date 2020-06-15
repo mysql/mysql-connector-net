@@ -33,7 +33,7 @@ using MySql.EntityFrameworkCore.Migrations.Tests.Utilities;
 using MySql.Data.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests
 {
@@ -43,7 +43,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
       protected virtual string Sql { get; set; }
       protected static string EOL => Environment.NewLine;
 
-      [Fact]
+      [Test]
       public virtual void CreateTableOperation()
       {
         Generate(
@@ -102,7 +102,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
       }
 
 
-    [Fact]
+    [Test]
     public void AddColumnOperation()
     {
       Generate(new AddColumnOperation
@@ -118,7 +118,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     }
 
 
-    [Fact]
+    [Test]
     public virtual void AddColumnOperationWithComputedValueSql()
     {
       Generate(new AddColumnOperation
@@ -134,7 +134,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
      );
     }
 
-    [Fact]
+    [Test]
     public virtual void AddColumnOperationWithDefaultValueSql()
     {
       Generate(new AddColumnOperation
@@ -151,7 +151,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     }
 
 
-    [Fact]
+    [Test]
     public virtual void AddColumnOperation_with_maxLength()
     {
       Generate(
@@ -169,7 +169,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     }
 
 
-    [Fact]
+    [Test]
     public virtual void AlterColumnOperation()
     {
       Generate(new AlterColumnOperation
@@ -185,7 +185,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     }
 
 
-    [Fact]
+    [Test]
     public virtual void AlterColumnOperationWithoutType()
     {
       Generate(
@@ -198,7 +198,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     }
 
 
-    [Fact]
+    [Test]
     public virtual void RenameTableOperationInSchema()
     {
        Generate(
@@ -211,7 +211,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
               });
     }
 
-    [Fact]
+    [Test]
     public virtual void CreateUniqueIndexOperation()
     {
         Generate(
@@ -226,7 +226,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     }
 
 
-    [Fact]
+    [Test]
     public virtual void CreateNonUniqueIndexOperation()
     {
         Generate(
@@ -239,7 +239,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
             });
     }
 
-    [Fact]
+    [Test]
     public virtual void RenameIndexOperation()
     {
       Generate(
@@ -251,7 +251,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
            });
     }
 
-    [Fact]
+    [Test]
     public virtual void DropIndexOperation()
     {
       Generate(
@@ -262,7 +262,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
             });
     }
 
-    [Fact]
+    [Test]
     public virtual void DropPrimaryKeyOperation()
     {
       Generate(
@@ -273,7 +273,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
         });
     }
 
-    [Fact]
+    [Test]
     public virtual void AddPrimaryKeyOperation()
     {
       Generate(

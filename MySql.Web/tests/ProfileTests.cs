@@ -1,4 +1,4 @@
-// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,7 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Xunit;
+using NUnit.Framework;
 using MySql.Web.Profile;
 using System.Collections.Specialized;
 using System.Reflection;
@@ -48,10 +48,20 @@ namespace MySql.Web.Tests
       p.Initialize(null, config);
       return p;
     }
+    [TearDown]
+    public void Cleanup()
+    {
+      execSQL(@"delete from my_aspnet_applications;
+                delete from my_aspnet_paths;
+                delete from my_aspnet_users;
+                 delete from my_aspnet_profiles;
+                delete from my_aspnet_personalizationallusers;");
+    }
 
-    [Fact]
+    [Test]
     public void SettingValuesCreatesAnAppAndUserId()
     {
+
       MySQLProfileProvider provider = InitProfileProvider();
       SettingsContext ctx = new SettingsContext();
       ctx.Add("IsAuthenticated", false);
@@ -68,29 +78,29 @@ namespace MySql.Web.Tests
       provider.SetPropertyValues(ctx, values);
 
       DataTable dt = FillTable("SELECT * FROM my_aspnet_applications");
-      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_applications is not 1");      
+      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_applications is not 1");
       
       dt = FillTable("SELECT * FROM my_aspnet_users");
-      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_users is not 1");            
+      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_users is not 1");
 
 
       dt = FillTable("SELECT * FROM my_aspnet_profiles");
-      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_profiles is not 1");                       
+      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_profiles is not 1");
 
       values["color"].PropertyValue = "green";
       provider.SetPropertyValues(ctx, values);
 
       dt = FillTable("SELECT * FROM my_aspnet_applications");
-      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_applications is not 1 after setting property");      
+      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_applications is not 1 after setting property");
 
       dt = FillTable("SELECT * FROM my_aspnet_users");
-      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_users is not 1 after setting property");            
+      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_users is not 1 after setting property");
 
       dt = FillTable("SELECT * FROM my_aspnet_profiles");
-      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_profiles is not 1 after setting property");                       
+      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_profiles is not 1 after setting property");
     }
 
-    [Fact]
+    [Test]
     public void AnonymousUserSettingNonAnonymousProperties()
     {
       MySQLProfileProvider provider = InitProfileProvider();
@@ -116,10 +126,10 @@ namespace MySql.Web.Tests
 
       dt = FillTable("SELECT * FROM my_aspnet_profiles");
       Assert.True(0 == dt.Rows.Count, "Table my_aspnet_profiles Rows is not 0");
-      
+
     }
 
-    [Fact]
+    [Test]
     public void StringCollectionAsProperty()
     {
       ProfileBase profile = ProfileBase.Create("foo", true);
@@ -132,11 +142,11 @@ namespace MySql.Web.Tests
       profile.Save();
 
       DataTable dt = FillTable("SELECT * FROM my_aspnet_applications");
-      Assert.Equal(1, dt.Rows.Count);
+      Assert.AreEqual(1, dt.Rows.Count);
       dt = FillTable("SELECT * FROM my_aspnet_users");
-      Assert.Equal(1, dt.Rows.Count);
+      Assert.AreEqual(1, dt.Rows.Count);
       dt = FillTable("SELECT * FROM my_aspnet_profiles");
-      Assert.Equal(1, dt.Rows.Count);
+      Assert.AreEqual(1, dt.Rows.Count);
 
       // now retrieve them
       SettingsPropertyCollection getProps = new SettingsPropertyCollection();
@@ -150,16 +160,16 @@ namespace MySql.Web.Tests
       ctx.Add("IsAuthenticated", true);
       ctx.Add("UserName", "foo");
       SettingsPropertyValueCollection getValues = provider.GetPropertyValues(ctx, getProps);
-      Assert.Equal(1, getValues.Count);
+      Assert.AreEqual(1, getValues.Count);
       SettingsPropertyValue getValue1 = getValues["FavoriteColors"];
       StringCollection outValue = (StringCollection)getValue1.PropertyValue;
-      Assert.Equal(3, outValue.Count);
-      Assert.Equal("red", outValue[0]);
-      Assert.Equal("green", outValue[1]);
-      Assert.Equal("blue", outValue[2]);
+      Assert.AreEqual(3, outValue.Count);
+      Assert.AreEqual("red", outValue[0]);
+      Assert.AreEqual("green", outValue[1]);
+      Assert.AreEqual("blue", outValue[2]);
     }
 
-    [Fact]
+    [Test]
     public void AuthenticatedDateTime()
     {
       ProfileBase profile = ProfileBase.Create("foo", true);
@@ -180,14 +190,14 @@ namespace MySql.Web.Tests
       ctx.Add("UserName", "foo");
 
       SettingsPropertyValueCollection getValues = provider.GetPropertyValues(ctx, getProps);
-      Assert.Equal(1, getValues.Count);
+      Assert.AreEqual(1, getValues.Count);
       SettingsPropertyValue getValue1 = getValues["BirthDate"];
-      Assert.Equal(date, getValue1.PropertyValue);
+      Assert.AreEqual(date, getValue1.PropertyValue);
     }
 
     /// <summary>
     /// We have to manually reset the app id because our profile provider is loaded from
-    /// previous tests but we are destroying our database between tests.  This means that 
+    /// previous tests but we are destroying our database between tests.  This means that
     /// our provider thinks we have an application in our database when we really don't.
     /// Doing this will force the provider to generate a new app id.
     /// Note that this is not really a problem in a normal app that is not destroying
@@ -205,7 +215,7 @@ namespace MySql.Web.Tests
       pi.SetValue(appObject, -1, null);
     }
 
-    [Fact]
+    [Test,Order(4)]
     public void AuthenticatedStringProperty()
     {
       ProfileBase profile = ProfileBase.Create("foo", true);
@@ -224,15 +234,15 @@ namespace MySql.Web.Tests
       ctx.Add("UserName", "foo");
 
       SettingsPropertyValueCollection getValues = provider.GetPropertyValues(ctx, getProps);
-      Assert.Equal(1, getValues.Count);
+      Assert.AreEqual(1, getValues.Count);
       SettingsPropertyValue getValue1 = getValues["Name"];
-      Assert.Equal("Fred Flintstone", getValue1.PropertyValue);
+      Assert.AreEqual("Fred Flintstone", getValue1.PropertyValue);
     }
 
     /// <summary>
     /// Bug #41654	FindProfilesByUserName error into Connector .NET
     /// </summary>
-    [Fact]
+    [Test]
     public void GetAllProfiles()
     {
       ProfileBase profile = ProfileBase.Create("foo", true);
@@ -253,24 +263,24 @@ namespace MySql.Web.Tests
       int total;
       ProfileInfoCollection profiles = provider.GetAllProfiles(
           ProfileAuthenticationOption.All, 0, 10, out total);
-      Assert.Equal(1, total);
+      Assert.AreEqual(1, total);
     }
 
     /// <summary>
     /// Tests deleting a user profile
     /// </summary>
-    [Fact]
+    [Test]
     public void DeleteProfiles()
     {
       ProfileBase profile = ProfileBase.Create("foo", true);
       profile.SetPropertyValue("Name", "this is my name");
       profile.Save();
       profile = ProfileBase.Create("foo", true); // refresh profile from database
-      Assert.Equal("this is my name", profile.GetPropertyValue("Name"));
+      Assert.AreEqual("this is my name", profile.GetPropertyValue("Name"));
 
-      Assert.Equal(1, ProfileManager.DeleteProfiles(new string[] { "foo" }));
+      Assert.AreEqual(1, ProfileManager.DeleteProfiles(new string[] { "foo" }));
       profile = ProfileBase.Create("foo", true); // refresh profile from database
-      Assert.Equal(string.Empty, profile.GetPropertyValue("Name"));
+      Assert.AreEqual(string.Empty, profile.GetPropertyValue("Name"));
     }
 
   }

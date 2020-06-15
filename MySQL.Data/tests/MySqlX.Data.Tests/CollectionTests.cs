@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,7 +28,7 @@
 
 using System.Collections.Generic;
 using MySqlX.XDevAPI;
-using Xunit;
+using NUnit.Framework;
 using MySql.Data.MySqlClient;
 using System;
 using MySql.Data.X.XDevAPI.Common;
@@ -37,16 +37,16 @@ namespace MySqlX.Data.Tests
 {
   public class CollectionTests : BaseTest
   {
-    [Fact]
+    [Test]
     public void GetAllCollections()
     {
       Collection book = CreateCollection("book");
       List<Collection> collections = book.Schema.GetCollections();
-      Assert.True(collections.Count == 1);
+      Assert.That(collections, Has.One.Items);
       Assert.True(collections[0].Name == "book");
     }
 
-    [Fact]
+    [Test]
     public void CreateAndDropCollection()
     {
       Session s = GetSession();
@@ -69,7 +69,7 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentNullException>(() => test.DropCollection(null));
     }
 
-    [Fact]
+    [Test]
     public void CreateCollectionIndex()
     {
       Session session = GetSession();
@@ -78,10 +78,10 @@ namespace MySqlX.Data.Tests
       Assert.True(CollectionExistsInDatabase(testColl), "ExistsInDatabase failed");
       testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ] }");
       var result = ExecuteAddStatement(testColl.Add(new { myId = 1 }).Add(new { myId = 2 }));
-      Assert.Equal<ulong>(result.AffectedItemsCount, 2);
+      Assert.AreEqual(result.AffectedItemsCount, 2);
     }
 
-    [Fact]
+    [Test]
     public void DropCollectionIndex()
     {
       Session session = GetSession();
@@ -102,16 +102,16 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentNullException>(() => testColl.DropIndex(null));
     }
 
-    [Fact]
+    [Test]
     public void ValidateExistence()
     {
       Session session = GetSession();
       Schema schema = session.GetSchema("test");
       var ex = Assert.Throws<MySqlException>(() => schema.GetCollection("nonExistentCollection", true));
-      Assert.Equal("Collection 'nonExistentCollection' does not exist.", ex.Message);
+      Assert.AreEqual("Collection 'nonExistentCollection' does not exist.", ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void CountCollection()
     {
       Session session = GetSession();
@@ -121,9 +121,9 @@ namespace MySqlX.Data.Tests
 
       // Zero records
       var collection = schema.GetCollection("testCount");
-      Assert.Equal(count, collection.Count());
+      Assert.AreEqual(count, collection.Count());
       var table = schema.GetTable("testCount");
-      Assert.Equal(count, table.Count());
+      Assert.AreEqual(count, table.Count());
 
       // Insert some records
       var stm = collection.Add(@"{ ""_id"": 1, ""foo"": 1 }")
@@ -131,25 +131,25 @@ namespace MySqlX.Data.Tests
         .Add(@"{ ""_id"": 3, ""foo"": 3 }");
       stm.Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
-      Assert.Equal(count, collection.Count());
+      Assert.AreEqual(count, collection.Count());
 
       table.Insert("doc").Values(@"{ ""_id"": 4, ""foo"": 4 }").Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
-      Assert.Equal(count, table.Count());
+      Assert.AreEqual(count, table.Count());
 
       collection.RemoveOne(2);
       count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
-      Assert.Equal(count, collection.Count());
-      Assert.Equal(count, table.Count());
+      Assert.AreEqual(count, collection.Count());
+      Assert.AreEqual(count, table.Count());
 
       // Collection/Table does not exist
       var ex = Assert.Throws<MySqlException>(() => schema.GetCollection("testCount_").Count());
-      Assert.Equal("Collection 'testCount_' does not exist in schema 'test'.", ex.Message);
+      Assert.AreEqual("Collection 'testCount_' does not exist in schema 'test'.", ex.Message);
       ex = Assert.Throws<MySqlException>(() => schema.GetTable("testCount_").Count());
-      Assert.Equal("Table 'testCount_' does not exist in schema 'test'.", ex.Message);
+      Assert.AreEqual("Table 'testCount_' does not exist in schema 'test'.", ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void ModifyCollectionNoLevelNorSchema()
     {
       Session s = GetSession();
@@ -162,7 +162,7 @@ namespace MySqlX.Data.Tests
       Assert.Throws<MySqlException>(() => test.ModifyCollection("coll", options1));
     }
 
-    [Fact]
+    [Test]
     public void CreateCollectionWithOptions()
     {
       Session s = GetSession();
@@ -202,7 +202,7 @@ namespace MySqlX.Data.Tests
       testbug1.Add(@"{ ""latitude"": 20, ""longitude"": 30 }").Execute();
       testbug1.Add(@"{ ""sexo"": 1, ""edad"": 20 }").Execute();
       int.TryParse(session.SQL("SELECT COUNT(*) FROM test.bug_0962").Execute().FetchOne()[0].ToString(), out int expected_count);
-      Assert.Equal(2, expected_count);  //Collection is created as STRICT with empty json schema,both records were inserted
+      Assert.AreEqual(2, expected_count);  //Collection is created as STRICT with empty json schema,both records were inserted
 
       options = new CreateCollectionOptions();
       val = new Validation() { Schema = str };
@@ -210,7 +210,7 @@ namespace MySqlX.Data.Tests
       testbug1 = test.CreateCollection("bug_0962b", options);// adding an schema from
       testbug1.Add(@"{ ""latitude"": 20, ""longitude"": 30 }").Execute();
       var invalidEx = Assert.Throws<MySqlException>(() => testbug1.Add(@"{ ""sexo"": 1, ""edad"": 20 }").Execute());
-      Assert.Contains("Document is not valid according to the schema assigned to collection", invalidEx.Message);
+      StringAssert.Contains("Document is not valid according to the schema assigned to collection", invalidEx.Message);
 
       // Create a Collection passing a reuse_existing parameter to server
       CreateCollectionOptions options_reuse = new CreateCollectionOptions();
@@ -223,19 +223,19 @@ namespace MySqlX.Data.Tests
       var insert_statement = testColl.Add(@"{ ""latitude"": 20, ""longitude"": 30 }");
       insert_statement.Execute();
       var count = session.SQL("SELECT COUNT(*) FROM test.testWithSchemaValidation").Execute().FetchOne()[0];
-      Assert.Equal(count, testColl.Count());
+      Assert.AreEqual(count, testColl.Count());
 
       //Insert invalid record with Level Strict
       insert_statement = testColl.Add(@"{ ""OtherField"": ""value"", ""Age"": 30 }");
       var invalidInsertEx = Assert.Throws<MySqlException>(() => insert_statement.Execute());
-      Assert.Contains("Document is not valid according to the schema assigned to collection", invalidInsertEx.Message);
+      StringAssert.Contains("Document is not valid according to the schema assigned to collection", invalidInsertEx.Message);
 
       //Test: Old MySQL Server Version exceptions
       if (!(session.Version.isAtLeast(8, 0, 19)))
       {
         //FR6.2
         var ex1 = Assert.Throws<MySqlException>(() => test.CreateCollection("testInvalid", options));
-        Assert.Contains("Invalid number of arguments, expected 2 but got 3, " +
+        StringAssert.Contains("Invalid number of arguments, expected 2 but got 3, " +
         "The server doesn't support the requested operation. Please update the MySQL Server and/or Client library", ex1.Message);
 
         //FR6.3
@@ -243,7 +243,7 @@ namespace MySqlX.Data.Tests
         ModifyCollectionOptions modifyOptions = new ModifyCollectionOptions();
         modifyOptions.Validation = val;
         var ex2 = Assert.Throws<MySqlException>(() => test.ModifyCollection("testInvalid", modifyOptions));
-        Assert.Contains("Invalid mysqlx command modify_collection_options, " +
+        StringAssert.Contains("Invalid mysqlx command modify_collection_options, " +
         "The server doesn't support the requested operation. Please update the MySQL Server and/or Client library", ex2.Message);
       }
 
@@ -255,7 +255,7 @@ namespace MySqlX.Data.Tests
       insert_statement = col_test.Add(@"{ ""latitude"": 120, ""longitude"": 78 }");
       insert_statement.Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.Test_2b_1").Execute().FetchOne()[0];
-      Assert.Equal(count, col_test.Count());
+      Assert.AreEqual(count, col_test.Count());
 
       //Create collection with json schema and level OFF,ReuseExisting set to true, Try to insert
       options = new CreateCollectionOptions();
@@ -266,7 +266,7 @@ namespace MySqlX.Data.Tests
       insert_statement = col_test.Add(@"{ ""latitude"": 20, ""longitude"": 42 }");
       insert_statement.Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.Test_2b_2").Execute().FetchOne()[0];
-      Assert.Equal(count, col_test.Count());
+      Assert.AreEqual(count, col_test.Count());
 
       //Create collection with only schema option, Try to insert
       options = new CreateCollectionOptions();
@@ -276,7 +276,7 @@ namespace MySqlX.Data.Tests
       insert_statement = col_test.Add(@"{ ""latitude"": 5, ""longitude"": 10 }");
       insert_statement.Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.Test_2b_3").Execute().FetchOne()[0];
-      Assert.Equal(count, col_test.Count());
+      Assert.AreEqual(count, col_test.Count());
 
       //Create collection with only schema option,ReuseExisting set to true, Try to insert
       options = new CreateCollectionOptions();
@@ -287,7 +287,7 @@ namespace MySqlX.Data.Tests
       insert_statement = col_test.Add(@"{ ""latitude"": 25, ""longitude"": 52 }");
       insert_statement.Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.Test_2b_4").Execute().FetchOne()[0];
-      Assert.Equal(count, col_test.Count());
+      Assert.AreEqual(count, col_test.Count());
 
       //Create collection with only level option
       options = new CreateCollectionOptions();
@@ -301,7 +301,7 @@ namespace MySqlX.Data.Tests
       testReuseOptions.Validation = new Validation() { Level = ValidationLevel.OFF };
       test.CreateCollection("testReuse");
       var exreuse = Assert.Throws<MySqlException>(() => test.CreateCollection("testReuse", testReuseOptions));
-      Assert.Equal("Table 'testreuse' already exists", exreuse.Message);
+      Assert.AreEqual("Table 'testreuse' already exists", exreuse.Message);
 
       //Test: Resuse Existing = True should return existing collection
       testReuseOptions.ReuseExisting = true;
@@ -315,13 +315,13 @@ namespace MySqlX.Data.Tests
       res_stm.Execute();
       var num = session.SQL("SELECT COUNT(*) FROM test.TestCreateInsert").Execute().FetchOne()[0];
       var collection_test = test.GetCollection("TestCreateInsert");
-      Assert.Equal(num, collection_test.Count());
+      Assert.AreEqual(num, collection_test.Count());
 
       //Passing invalid Schema
       options = new CreateCollectionOptions();
       options.Validation = new Validation() { Level = ValidationLevel.STRICT, Schema = "Not Valid JSON Schema" };
       Exception ex_schema = Assert.Throws<Exception>(() => test.CreateCollection("testInvalidSchema", options));
-      Assert.Contains(@"The value provided is not a valid JSON document.", ex_schema.Message);
+      StringAssert.Contains(@"The value provided is not a valid JSON document.", ex_schema.Message);
 
       //Testing an schema with different data types
       str = "{\"id\": \"http://json-schema.org/geo\","
@@ -344,7 +344,7 @@ namespace MySqlX.Data.Tests
       Assert.True(CollectionExistsInDatabase(person_col));
       person_col.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       var rows = session.SQL("SELECT COUNT(*) FROM test.testWithPersonSchema").Execute().FetchOne()[0];
-      Assert.Equal(rows, person_col.Count());
+      Assert.AreEqual(rows, person_col.Count());
 
       // Create an existing collection with different schema
       options = new CreateCollectionOptions();
@@ -354,7 +354,7 @@ namespace MySqlX.Data.Tests
       Assert.True(CollectionExistsInDatabase(col_schema1));
 
       col_schema1.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
-      Assert.Equal(1, col_schema1.Count());
+      Assert.AreEqual(1, col_schema1.Count());
       var sqlDefinition1 = session.SQL("SHOW CREATE TABLE test.testSchema1").Execute().FetchOne()[1];
       
 
@@ -375,7 +375,7 @@ namespace MySqlX.Data.Tests
       options.Validation = new Validation() { Level = ValidationLevel.STRICT, Schema = schema2 };
       Collection col_schema2 = test.CreateCollection("testSchema1", options);
       var sqlDefinition2 = session.SQL("SHOW CREATE TABLE test.testSchema1").Execute().FetchOne()[1];
-      Assert.Equal(sqlDefinition1, sqlDefinition2);
+      Assert.AreEqual(sqlDefinition1, sqlDefinition2);
 
       // Tests for original method CreateCollection
       //Create a collection without sending reuseExisting parameter and insert record
@@ -383,24 +383,24 @@ namespace MySqlX.Data.Tests
       Assert.True(CollectionExistsInDatabase(original_col1));
       original_col1.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       rows = session.SQL("SELECT COUNT(*) FROM test.testOriginal1").Execute().FetchOne()[0];
-      Assert.Equal(rows, original_col1.Count());
+      Assert.AreEqual(rows, original_col1.Count());
 
       //Create a new collection sending reuseExisting as true, insert record
       Collection original_col2 = test.CreateCollection("testOriginal2",true);
       Assert.True(CollectionExistsInDatabase(original_col2));
       original_col2.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       rows = session.SQL("SELECT COUNT(*) FROM test.testOriginal2").Execute().FetchOne()[0];
-      Assert.Equal(rows, original_col2.Count());
+      Assert.AreEqual(rows, original_col2.Count());
 
       //Create an existing collection sending reuseExisting as true, insert record
       Collection original_col3 = test.CreateCollection("testOriginal2",true);
       Assert.True(CollectionExistsInDatabase(original_col3));
       original_col3.Add(@"{ ""name"": ""John2"", ""age"": 12 }").Execute();
-      Assert.Equal(2, original_col3.Count());
+      Assert.AreEqual(2, original_col3.Count());
 
       //Create an existing collection sending reuseExisting as false,exception expected
       var ex_existing = Assert.Throws<MySqlException>(() => test.CreateCollection("testOriginal2", false));
-      Assert.Equal(@"Table 'testoriginal2' already exists", ex_existing.Message);
+      Assert.AreEqual(@"Table 'testoriginal2' already exists", ex_existing.Message);
 
       //ModifyCollection Test Cases
 
@@ -414,7 +414,7 @@ namespace MySqlX.Data.Tests
                                      .Add(@"{ ""OtherField"": ""value"", ""Age"": 30 }");
       insert_statement.Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.testWithSchemaValidation").Execute().FetchOne()[0];
-      Assert.Equal(count, col_Test_2a_1.Count());
+      Assert.AreEqual(count, col_Test_2a_1.Count());
 
       //Modify collection with only schema option
       Test_Options.Validation = new Validation() { Schema = "{ }" };
@@ -427,7 +427,7 @@ namespace MySqlX.Data.Tests
       emptyOptions.Validation = new Validation() { };
       test.CreateCollection("testnull");
       exreuse = Assert.Throws<MySqlException>(() => test.ModifyCollection("testnull", null));
-      Assert.Equal(@"Arguments value used under ""validation"" must be an object with at least one field", exreuse.Message);
+      Assert.AreEqual(@"Arguments value used under ""validation"" must be an object with at least one field", exreuse.Message);
     }
   }
 }

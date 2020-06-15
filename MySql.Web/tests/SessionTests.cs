@@ -1,4 +1,4 @@
-// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,7 +34,7 @@ using System.Collections.Specialized;
 using System.Net;
 using System.Diagnostics;
 using System.Configuration;
-using Xunit;
+using NUnit.Framework;
 using MySql.Data.MySqlClient;
 using MySql.Web.SessionState;
 
@@ -138,30 +138,34 @@ namespace MySql.Web.Tests
     }
 
 
-    [Fact]
+    [Test]
     public void SessionItemWithExpireCallback()
     {
+      execSQL(@"delete from my_aspnet_sessions;
+                delete from my_aspnet_sessioncleanup;");
       SetSessionItemExpiredCallback(true);
       _evt.WaitOne();
 
-      Assert.Equal(strSessionID, calledId);
+      Assert.AreEqual(strSessionID, calledId);
 
       int i = 0;
-      while (((long)MySqlHelper.ExecuteScalar(Connection, "SELECT Count(*) FROM my_aspnet_sessions;") != 0) && (i < 10))
+      while (((long)CountSessions() != 0) && (i < 10))
       {
         Thread.Sleep(500);
         i++;
       }
 
-      Assert.Equal(0, CountSessions());
+      Assert.AreEqual(0, CountSessions());
     }
 
 
-    [Fact]
+    [Test]
     public void SessionItemWithoutExpireCallback()
     {
+      execSQL(@"delete from my_aspnet_sessions;
+                delete from my_aspnet_sessioncleanup;");
       SetSessionItemExpiredCallback(false);
-      Assert.NotEqual(strSessionID, calledId);
+      Assert.AreNotEqual(strSessionID, calledId);
 
       int i = 0;
       while (((long)MySqlHelper.ExecuteScalar(Connection, "SELECT Count(*) FROM my_aspnet_sessions;") != 0) && (i < 10))
@@ -170,10 +174,10 @@ namespace MySql.Web.Tests
         i++;
       }
 
-      Assert.Equal(0, CountSessions());
+      Assert.AreEqual(0, CountSessions());
     }
 
-    [Fact]
+    [Test]
     public void DeleteSessionAppSpecific()
     {
       // create two sessions of different appId
@@ -197,8 +201,8 @@ namespace MySql.Web.Tests
       }
 
       session.Dispose();
-      Assert.Equal(1, CountSessions());
-
+      Assert.AreEqual(1, CountSessions());
+      session.Dispose();
     }
 
     public class ThreadRequestData
@@ -211,10 +215,10 @@ namespace MySql.Web.Tests
     delegate WebResponse GetResponse();
     delegate void ThreadRequest(ThreadRequestData data);
 
-    [Fact(Skip ="Fix Me")]
+    [Ignore("Fix Me")]
     public void SessionLocking()
     {
-      // Copy updated configuration file for web server process 
+      // Copy updated configuration file for web server process
       Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
       ConnectionStringSettings css = config.ConnectionStrings.ConnectionStrings["LocalMySqlServer"];
       string curDir = Directory.GetCurrentDirectory();

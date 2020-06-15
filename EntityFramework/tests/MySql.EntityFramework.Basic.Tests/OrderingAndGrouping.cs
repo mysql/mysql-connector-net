@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,43 +29,35 @@
 
 using System.Data;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class OrderingAndGrouping : IClassFixture<DefaultFixture>
+  public class OrderingAndGrouping : DefaultFixture
   {
-    private DefaultFixture st;
-
-    public OrderingAndGrouping(DefaultFixture fixture)
-    {
-      st = fixture;
-      st.Setup(this.GetType());
-    }
-
-    [Fact]
+    [Test]
     public void OrderBySimple()
     {
-      st.TestESql<Book>(
+      TestESql<Book>(
         "SELECT VALUE b FROM Books AS b ORDER BY b.Pages",
         @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`PubDate`, `Extent1`.`Pages`, 
           `Extent1`.`Author_Id` FROM `Books` AS `Extent1` ORDER BY `Extent1`.`Pages` ASC");
     }
 
-    [Fact]
+    [Test]
     public void OrderByWithPredicate()
     {
-      st.TestESql<Book>(
+      TestESql<Book>(
         "SELECT VALUE b FROM Books AS b WHERE b.Pages > 200 ORDER BY b.Pages",
         @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`PubDate`, `Extent1`.`Pages`, 
         `Extent1`.`Author_Id` FROM `Books` AS `Extent1` WHERE `Extent1`.`Pages` > 200
         ORDER BY `Extent1`.`Pages` ASC");
     }
 
-    [Fact]
+    [Test]
     public void CanGroupBySingleColumn()
     {
-      using (DefaultContext ctx = st.GetDefaultContext())
+      using (DefaultContext ctx = GetDefaultContext())
       {
         var authors = from a in ctx.Authors
                       group a by a.Age into cgroup
@@ -75,17 +67,17 @@ namespace MySql.Data.EntityFramework.Tests
                         Count = cgroup.Count()
                       };
         string sql = authors.ToString();
-        st.CheckSql(sql,
+        CheckSql(sql,
           @"SELECT `GroupBy1`.`K1` AS `Age`,  `GroupBy1`.`A1` AS `C1` FROM (SELECT
           `Extent1`.`Age` AS `K1`, COUNT(1) AS `A1` FROM `Authors` AS `Extent1`
           GROUP BY `Extent1`.`Age`) AS `GroupBy1`");
       }
     }
 
-    [Fact]
+    [Test]
     public void CanGroupByMultipleColumns()
     {
-      using (DefaultContext ctx = st.GetDefaultContext())
+      using (DefaultContext ctx = GetDefaultContext())
       {
         var authors = from a in ctx.Authors
                         group a by new { a.Age, a.Name } into cgroup
@@ -96,14 +88,14 @@ namespace MySql.Data.EntityFramework.Tests
                         };
 
         string sql = authors.ToString();
-        st.CheckSql(sql,
+        CheckSql(sql,
           @"SELECT `GroupBy1`.`K2` AS `Age`, `GroupBy1`.`K1` AS `Name`, `GroupBy1`.`A1` AS `C1`
             FROM (SELECT `Extent1`.`Name` AS `K1`, `Extent1`.`Age` AS `K2`, COUNT(1) AS `A1`
             FROM `Authors` AS `Extent1` GROUP BY `Extent1`.`Name`, `Extent1`.`Age`) AS `GroupBy1`");
       }
     }
 
-    [Fact(Skip ="Fix Me")]
+    [Ignore("Fix Me")]
     public void OrdersTableDoesNotProvokeSyntaxError()
     {
       //using (model2Entities context = new model2Entities())

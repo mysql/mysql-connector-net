@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,29 +27,31 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class StressTests : TestBase
   {
-    public StressTests(TestFixture fixture) : base(fixture)
+    protected override void Cleanup()
     {
+      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
     }
 
-    [Fact(Skip="Fix this")]
+    [Test]
+    [Ignore("Fix this")]
     public void TestMultiPacket()
     {
       int len = 20000000;
 
-      executeSQL(@"CREATE TABLE Test (id INT NOT NULL, name varchar(100), blob1 LONGBLOB, text1 TEXT, 
+      ExecuteSQL(@"CREATE TABLE Test (id INT NOT NULL, name varchar(100), blob1 LONGBLOB, text1 TEXT, 
                   PRIMARY KEY(id))");
-      executeSQL("SET GLOBAL max_allowed_packet=64000000", true);
+      ExecuteSQL("SET GLOBAL max_allowed_packet=64000000", true);
 
       // currently do not test this with compression
       if (Connection.UseCompression) return;
 
-      using (MySqlConnection c = Fixture.GetConnection())
+      using (MySqlConnection c = GetConnection())
       {
         c.Open();
         byte[] dataIn = MySql.Data.MySqlClient.Tests.Utils.CreateBlob(len);
@@ -72,12 +74,12 @@ namespace MySql.Data.MySqlClient.Tests
           reader.Read();
           byte[] dataOut = new byte[len];
           long count = reader.GetBytes(2, 0, dataOut, 0, len);
-          Assert.Equal(len, count);
+          Assert.AreEqual(len, count);
           int i = 0;
           try
           {
             for (; i < len; i++)
-              Assert.Equal(dataIn[i], dataOut[i]);
+              Assert.AreEqual(dataIn[i], dataOut[i]);
           }
           catch (Exception)
           {
@@ -86,21 +88,21 @@ namespace MySql.Data.MySqlClient.Tests
 
           reader.Read();
           count = reader.GetBytes(2, 0, dataOut, 0, len);
-          Assert.Equal(len, count);
+          Assert.AreEqual(len, count);
 
           for (int x = 0; x < len; x++)
-            Assert.Equal(dataIn2[x], dataOut[x]);
+            Assert.AreEqual(dataIn2[x], dataOut[x]);
         }
       }
     }
 
-    [Fact]
+    [Test]
     public void TestSequence()
     {
-      if (Fixture.Version > new Version(5, 6, 6))
-        executeSQL("SET GLOBAL innodb_lru_scan_depth=256");
+      if (Version > new Version(5, 6, 6))
+        ExecuteSQL("SET GLOBAL innodb_lru_scan_depth=256");
 
-      executeSQL(@"CREATE TABLE Test (id INT NOT NULL, name varchar(100), blob1 LONGBLOB, text1 TEXT, 
+      ExecuteSQL(@"CREATE TABLE Test (id INT NOT NULL, name varchar(100), blob1 LONGBLOB, text1 TEXT, 
                   PRIMARY KEY(id))");
       MySqlCommand cmd = new MySqlCommand("insert into Test (id, name) values (?id, 'test')", Connection);
       cmd.Parameters.Add(new MySqlParameter("?id", 1));
@@ -122,7 +124,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
         reader.Close();
 
-        Assert.Equal(8000, i2);
+        Assert.AreEqual(8000, i2);
         cmd = new MySqlCommand("delete from Test where id >= 100", Connection);
         cmd.ExecuteNonQuery();
       }

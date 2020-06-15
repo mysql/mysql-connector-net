@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -463,8 +463,8 @@ namespace MySql.Data.MySqlClient
                 LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu ON 
                 kcu.constraint_catalog <=> rc.constraint_catalog AND
                 kcu.constraint_schema <=> rc.constraint_schema AND 
-                kcu.constraint_name <=> rc.constraint_name AND
-                kcu.ORDINAL_POSITION=1 WHERE 1=1";
+                kcu.constraint_name <=> rc.constraint_name 
+                WHERE 1=1 AND kcu.ORDINAL_POSITION=1";
 
       StringBuilder where = new StringBuilder();
       if (restrictions.Length >= 2 && !String.IsNullOrEmpty(restrictions[1]))

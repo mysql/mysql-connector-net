@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,15 +30,15 @@ using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Relational;
 using System;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
   public class BasicSelectTests : BaseTest
   {
-    [Fact]
+    [Test]
     public void SimpleSelect()
-    {
+    {     
       CreateBooksTable();
       Table books = GetTable("test", "books");
 
@@ -48,7 +48,7 @@ namespace MySqlX.Data.Tests
       Assert.True(rows.Count == 2);
     }
 
-    [Fact]
+    [Test]
     public void SimpleSelectWithWhere()
     {
       CreateBooksTable();
@@ -57,7 +57,7 @@ namespace MySqlX.Data.Tests
       RowResult result = ExecuteSelectStatement(books.Select("name", "pages").Where("pages > 250"));
       var rows = result.FetchAll();
       Assert.True(result.Columns.Count == 2);
-      Assert.True(rows.Count == 1);
+      Assert.That(rows, Has.One.Items);
     }
 
     private void CreateBooksTable()
@@ -69,13 +69,13 @@ namespace MySqlX.Data.Tests
     }
 
     public enum LockMode { Exclusive, Shared }
-    [Theory]
-    [InlineData(LockContention.Default, LockMode.Exclusive)]
-    [InlineData(LockContention.NoWait, LockMode.Exclusive)]
-    [InlineData(LockContention.SkipLocked, LockMode.Exclusive)]
-    [InlineData(LockContention.Default, LockMode.Shared)]
-    [InlineData(LockContention.NoWait, LockMode.Shared)]
-    [InlineData(LockContention.SkipLocked, LockMode.Shared)]
+
+    [TestCase(LockContention.Default, LockMode.Exclusive)]
+    [TestCase(LockContention.NoWait, LockMode.Exclusive)]
+    [TestCase(LockContention.SkipLocked, LockMode.Exclusive)]
+    [TestCase(LockContention.Default, LockMode.Shared)]
+    [TestCase(LockContention.NoWait, LockMode.Shared)]
+    [TestCase(LockContention.SkipLocked, LockMode.Shared)]
     public void LockExclusiveAndSharedWithWaitingOptions(LockContention lockOption, LockMode lockMode)
     {
       if (!session.XSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
@@ -91,8 +91,8 @@ namespace MySqlX.Data.Tests
         s1.StartTransaction();
         RowResult r1 = ExecuteSelectStatement(t1.Select().Where("id = :id").Bind("id", 1).LockExclusive());
         var rows1 = r1.FetchAll();
-        Assert.Single(rows1);
-        Assert.Equal(1, rows1[0]["id"]);
+        Assert.That(rows1, Has.One.Items);
+        Assert.AreEqual(1, rows1[0]["id"]);
 
         // second session tries to read the locked row
         using (Session s2 = MySQLX.GetSession(ConnectionString))
@@ -110,26 +110,26 @@ namespace MySqlX.Data.Tests
           {
             case LockContention.Default:
               // error 1205 Lock wait timeout exceeded; try restarting transaction
-              Assert.Equal(1205u, Assert.ThrowsAny<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code);
+              Assert.AreEqual(1205u, Assert.Throws<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code);
               break;
             case LockContention.NoWait:
               // error 1205 Lock wait timeout exceeded; try restarting transaction
-              uint expectedError = 1205; 
+              uint expectedError = 1205;
               if (session.XSession.GetServerVersion().isAtLeast(8, 0, 5))
                 // error 3572 Statement aborted because lock(s) could not be acquired immediately and NOWAIT is set
                 expectedError = 3572;
-              Assert.Equal(expectedError, Assert.ThrowsAny<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code);
+              Assert.AreEqual(expectedError, Assert.Throws<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code);
               break;
             case LockContention.SkipLocked:
-              if(!session.XSession.GetServerVersion().isAtLeast(8, 0, 5))
+              if (!session.XSession.GetServerVersion().isAtLeast(8, 0, 5))
               {
                 // error 1205 Lock wait timeout exceeded; try restarting transaction
-                Assert.Equal(1205u, Assert.ThrowsAny<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code);
+                Assert.AreEqual(1205u, Assert.Throws<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code);
                 break;
               }
               var rows2 = ExecuteSelectStatement(stmt2).FetchAll();
-              Assert.Single(rows2);
-              Assert.Equal(2, rows2[0]["id"]);
+              Assert.That(rows2, Has.One.Items);
+              Assert.AreEqual(2, rows2[0]["id"]);
               break;
             default:
               throw new NotImplementedException(lockOption.ToString());

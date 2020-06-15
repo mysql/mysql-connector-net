@@ -34,7 +34,7 @@ using System.Reflection;
 namespace MySql.Data.EntityFrameworkCore.Extensions
 {
   /// <summary>
-  ///     SQL Server specific extension methods for <see cref="MigrationBuilder" />.
+  ///     MySQL specific extension methods for <see cref="MigrationBuilder" />.
   /// </summary>
   public static class MySQLMigrationBuilderExtensions
   {

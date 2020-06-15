@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2014, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,9 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Configuration;
 using System.Data;
-using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Diagnostics;
@@ -38,38 +36,26 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
-using Xunit;
+using NUnit.Framework;
 using System.Data.Entity.Spatial;
 using MySql.Data.EntityFramework.Tests;
 using MySql.EntityFramework.CodeFirst.Tests.Properties;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-  public class CodeFirstTests : IClassFixture<CodeFirstFixture>, IDisposable
+  public class CodeFirstTests : CodeFirstFixture
   {
-    private CodeFirstFixture _fixture;
-
-    public CodeFirstTests(CodeFirstFixture fixture)
-    {
-      _fixture = fixture;
-      _fixture.Setup(this.GetType());
-    }
-
-    public void Dispose()
-    {
-    }
-
     //private void ReInitDb()
     //{
-    //  _fixture.execSQL(string.Format("drop database if exists `{0}`", _fixture.Connection.Database));
-    //  _fixture.execSQL(string.Format("create database `{0}`", _fixture.Connection.Database));
+    //  execSQL(string.Format("drop database if exists `{0}`", Connection.Database));
+    //  execSQL(string.Format("create database `{0}`", Connection.Database));
     //}
 
     /// <summary>
     /// Tests for fix of http://bugs.mysql.com/bug.php?id=61230
     /// ("The provider did not return a ProviderManifestToken string.").
     /// </summary>
-    [Fact]
+    [Test]
     public void SimpleCodeFirstSelect()
     {
 #if DEBUG
@@ -84,20 +70,20 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       {
         j--;
       }
-      Assert.Equal(0, j);
+      Assert.AreEqual(0, j);
     }
 
     /// <summary>
     /// Tests for fix of http://bugs.mysql.com/bug.php?id=62150
     /// ("EF4.1, Code First, CreateDatabaseScript() generates an invalid MySQL script.").
     /// </summary>
-    [Fact]
+    [Test]
     public void AlterTableTest()
     {
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      MovieDBContext db = new MovieDBContext();      
+      MovieDBContext db = new MovieDBContext();
       db.Database.Initialize(true);
       MovieDBInitialize.DoDataPopulation(db);
       var l = db.MovieFormats.ToList();
@@ -106,20 +92,20 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       {
         j--;
       }
-      Assert.Equal(0, j);
+      Assert.AreEqual(0, j);
       MovieFormat m = new MovieFormat();
       m.Format = 8.0f;
       db.MovieFormats.Add(m);
       db.SaveChanges();
       MovieFormat m2 = db.MovieFormats.Where(p => p.Format == 8.0f).FirstOrDefault();
       Assert.NotNull(m2);
-      Assert.Equal( 8.0f, m2.Format);
+      Assert.AreEqual(8.0f, m2.Format);
     }
 
     /// <summary>
     /// Fix for "Connector/Net Generates Incorrect SELECT Clause after UPDATE" (MySql bug #62134, Oracle bug #13491689).
     /// </summary>
-    [Fact]
+    [Test]
     public void ConcurrencyCheckWithNonDbGeneratedColumn()
     {
 #if DEBUG
@@ -164,7 +150,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
           Match m = rx.Match(s);
           if (m.Success)
           {
-            _fixture.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithNonDbGeneratedLock);
+            CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithNonDbGeneratedLock);
             //Assert.Pass();
           }
         }
@@ -175,7 +161,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     /// <summary>
     /// This tests fix for http://bugs.mysql.com/bug.php?id=64216.
     /// </summary>
-    [Fact]
+    [Test]
     public void CheckByteArray()
     {
 #if DEBUG
@@ -187,13 +173,13 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
         ((IObjectContextAdapter)db).ObjectContext.CreateDatabaseScript();
       Regex rx = new Regex(@"`Data` (?<type>[^\),]*)", RegexOptions.Compiled | RegexOptions.Singleline);
       Match m = rx.Match(dbCreationScript);
-      Assert.Equal("longblob", m.Groups["type"].Value);
+      Assert.AreEqual("longblob", m.Groups["type"].Value);
     }
 
-/// <summary>
+    /// <summary>
     /// Validates a stored procedure call using Code First
     /// Bug #14008699
-    [Fact]
+    [Test]
     public void CallStoredProcedure()
     {
 #if DEBUG
@@ -206,7 +192,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
         context.Database.ExecuteSqlCommand(@"create procedure `GetCount`() begin select 5; end;");
         long count = context.Database.SqlQuery<long>("GetCount").First();
 
-        Assert.Equal(5, count);
+        Assert.AreEqual(5, count);
       }
     }
 
@@ -214,7 +200,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     /// Tests for fix of http://bugs.mysql.com/bug.php?id=63920
     /// Maxlength error when it's used code-first and inheritance (discriminator generated column)
     /// </summary>
-    [Fact]
+    [Test]
     public void Bug63920_Test1()
     {
 #if DEBUG
@@ -224,7 +210,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       {
         context.Database.Delete();
         context.Database.Initialize(true);
-        
+
         context.Vehicles.Add(new Car { Id = 1, Name = "Mustang", Year = 2012, CarProperty = "Car" });
         context.Vehicles.Add(new Bike { Id = 101, Name = "Mountain", Year = 2011, BikeProperty = "Bike" });
         context.SaveChanges();
@@ -239,7 +225,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
           records = Convert.ToInt32(cmd.ExecuteScalar());
         }
 
-        Assert.Equal(context.Vehicles.Count(), records);
+        Assert.AreEqual(context.Vehicles.Count(), records);
       }
     }
 
@@ -247,7 +233,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     /// Tests for fix of http://bugs.mysql.com/bug.php?id=63920
     /// Key reference generation script error when it's used code-first and a single table for the inherited models
     /// </summary>
-    [Fact]
+    [Test]
     public void Bug63920_Test2()
     {
 #if DEBUG
@@ -272,15 +258,16 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
           records = Convert.ToInt32(cmd.ExecuteScalar());
         }
 
-        Assert.Equal(context.Vehicles.Count(), records);
-      }     
+        Assert.AreEqual(context.Vehicles.Count(), records);
+      }
     }
 
     /// <summary>
     /// This test fix for precision customization for columns bug (http://bugs.mysql.com/bug.php?id=65001), 
     /// Trying to customize column precision in Code First does not work).
     /// </summary>
-    [Fact]
+    [Test]
+    [Ignore("Fix this")]
     public void TestPrecisionNscale()
     {
 #if DEBUG
@@ -290,12 +277,12 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       db.Database.Initialize(true);
       var l = db.Movies.ToList();
       using (MySqlDataReader r = new MySqlCommand($@"select numeric_precision, numeric_scale from information_schema.columns 
-where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' and column_name = 'Price'", _fixture.Connection).ExecuteReader())
+where table_schema = '{Connection.Database}' and table_name = 'movies' and column_name = 'Price'", Connection).ExecuteReader())
       {
-      r.Read();
-      Assert.Equal( 16, r.GetInt32( 0 ) );
-      Assert.Equal( 2, r.GetInt32( 1 ) );
-    }       
+        r.Read();
+        Assert.AreEqual(16, r.GetInt32(0));
+        Assert.AreEqual(2, r.GetInt32(1));
+      }
     }
 
     /// <summary>
@@ -307,7 +294,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// Max Length left empty will be nvarchar(max)
     /// Max Length(100) will be nvarchar(100)                
     /// </summary>
-    [Fact]
+    [Test]
     public void TestStringTypeToStoreType()
     {
 #if DEBUG
@@ -328,9 +315,9 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.Equal("Description", reader[0].ToString());
-            Assert.Equal("NO", reader[1].ToString());
-            Assert.Equal("mediumtext", reader[2].ToString());
+            Assert.AreEqual("Description", reader[0].ToString());
+            Assert.AreEqual("NO", reader[1].ToString());
+            Assert.AreEqual("mediumtext", reader[2].ToString());
           }
           reader.Close();
 
@@ -338,10 +325,10 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
           reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.Equal("Name", reader[0].ToString());
-            Assert.Equal("NO", reader[1].ToString());
-            Assert.Equal("varchar", reader[2].ToString());
-            Assert.Equal("255", reader[3].ToString());
+            Assert.AreEqual("Name", reader[0].ToString());
+            Assert.AreEqual("NO", reader[1].ToString());
+            Assert.AreEqual("varchar", reader[2].ToString());
+            Assert.AreEqual("255", reader[3].ToString());
           }
           reader.Close();
 
@@ -349,10 +336,10 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
           reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.Equal("LongDescription", reader[0].ToString());
-            Assert.Equal("NO", reader[1].ToString());
-            Assert.Equal("longtext", reader[2].ToString());
-            Assert.Equal("4294967295", reader[3].ToString());
+            Assert.AreEqual("LongDescription", reader[0].ToString());
+            Assert.AreEqual("NO", reader[1].ToString());
+            Assert.AreEqual("longtext", reader[2].ToString());
+            Assert.AreEqual("4294967295", reader[3].ToString());
           }
         }
       }
@@ -362,7 +349,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// Test fix for http://bugs.mysql.com/bug.php?id=66066 / http://clustra.no.oracle.com/orabugs/bug.php?id=14479715
     /// (Using EF, crash when generating insert with no values.).
     /// </summary>
-    [Fact]
+    [Test]
     public void AddingEmptyRow()
     {
 #if DEBUG
@@ -378,15 +365,15 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
       using (MovieDBContext ctx2 = new MovieDBContext())
       {
         var q = from esc in ctx2.EntitySingleColumns where esc.Id == 1 select esc;
-        Assert.Equal(1, q.Count());
+        Assert.AreEqual(1, q.Count());
       }
     }
 
-/// <summary>
+    /// <summary>
     /// Test for identity columns when type is Integer or Guid (auto-generate
     /// values)
     /// </summary>
-    [Fact]
+    [Test]
     public void IdentityTest()
     {
 #if DEBUG
@@ -439,12 +426,12 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
             switch (name)
             {
               case "Nissan":
-                Assert.Equal(dr.GetGuid(0), nissan.ManufacturerId);
-                Assert.Equal(dr.GetGuid(2), nissan.GroupIdentifier);
+                Assert.AreEqual(dr.GetGuid(0), nissan.ManufacturerId);
+                Assert.AreEqual(dr.GetGuid(2), nissan.GroupIdentifier);
                 break;
               case "Ford":
-                Assert.Equal(dr.GetGuid(0), ford.ManufacturerId);
-                Assert.Equal(dr.GetGuid(2), ford.GroupIdentifier);
+                Assert.AreEqual(dr.GetGuid(0), ford.ManufacturerId);
+                Assert.AreEqual(dr.GetGuid(2), ford.GroupIdentifier);
                 break;
               default:
                 //Assert.Fail();
@@ -458,22 +445,22 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
           dr = cmd.ExecuteReader();
           if (!dr.HasRows)
             //Assert.Fail("No records found");
-          while (dr.Read())
-          {
-            string name = dr.GetString(1);
-            switch (name)
+            while (dr.Read())
             {
-              case "Distributor1":
-                Assert.Equal(dr.GetInt32(0), dis1.DistributorId);
-                break;
-              case "Distributor2":
-                Assert.Equal(dr.GetInt32(0), dis2.DistributorId);
-                break;
-              default:
-                //Assert.Fail();
-                break;
+              string name = dr.GetString(1);
+              switch (name)
+              {
+                case "Distributor1":
+                  Assert.AreEqual(dr.GetInt32(0), dis1.DistributorId);
+                  break;
+                case "Distributor2":
+                  Assert.AreEqual(dr.GetInt32(0), dis2.DistributorId);
+                  break;
+                default:
+                  //Assert.Fail();
+                  break;
+              }
             }
-          }
           dr.Close();
         }
       }
@@ -482,7 +469,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// <summary>
     /// This test the fix for bug 67377.
     /// </summary>
-    [Fact]
+    [Test]
     public void FirstOrDefaultNested()
     {
 #if DEBUG
@@ -493,7 +480,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         ctx.Database.Initialize(true);
         MovieDBInitialize.DoDataPopulation(ctx);
         int DirectorId = 1;
-        var q = ctx.Movies.Where(p => p.Director.ID == DirectorId).Select(p => 
+        var q = ctx.Movies.Where(p => p.Director.ID == DirectorId).Select(p =>
           new
           {
             Id = p.ID,
@@ -508,14 +495,14 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         {
           j--;
         }
-        Assert.Equal(0, j);
+        Assert.AreEqual(0, j);
       }
     }
 
     /// <summary>
     /// This tests the fix for bug 73549, Generated Sql does not contain ORDER BY statement whose is requested by LINQ.
     /// </summary>
-    [Fact]
+    [Test]
     public void FirstOrDefaultNestedWithOrderBy()
     {
 #if DEBUG
@@ -532,7 +519,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
                   curAddr.city.country.country1
                 };
         string sql = q.ToString();
-        _fixture.CheckSql(sql, SQLSyntax.FirstOrDefaultNestedWithOrderBy);
+        CheckSql(sql, SQLSyntax.FirstOrDefaultNestedWithOrderBy);
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
@@ -541,21 +528,21 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         {
           //Debug.WriteLine( r.country1 );
         }
-        Assert.Equal(599, j);
+        Assert.AreEqual(599, j);
       }
     }
-  
+
     /// <summary>
     /// SUPPORT FOR DATE TYPES WITH PRECISION
     /// </summary>
-    [Fact]
+    [Test]
     public void CanDefineDatesWithPrecisionFor56()
     {
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      
-      if (_fixture.Version < new Version(5, 6)) return;
+
+      if (Version < new Version(5, 6)) return;
 
       using (var db = new ProductsDbContext())
       {
@@ -568,10 +555,10 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.Equal("DateTimeWithPrecision", reader[0].ToString());
-            Assert.Equal("NO", reader[1].ToString());
-            Assert.Equal("datetime", reader[2].ToString());
-            Assert.Equal("3", reader[3].ToString());
+            Assert.AreEqual("DateTimeWithPrecision", reader[0].ToString());
+            Assert.AreEqual("NO", reader[1].ToString());
+            Assert.AreEqual("datetime", reader[2].ToString());
+            Assert.AreEqual("3", reader[3].ToString());
           }
           reader.Close();
 
@@ -580,10 +567,10 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
           reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.Equal("TimeStampWithPrecision", reader[0].ToString());
-            Assert.Equal("NO", reader[1].ToString());
-            Assert.Equal("timestamp", reader[2].ToString());
-            Assert.Equal("3", reader[3].ToString());
+            Assert.AreEqual("TimeStampWithPrecision", reader[0].ToString());
+            Assert.AreEqual("NO", reader[1].ToString());
+            Assert.AreEqual("timestamp", reader[2].ToString());
+            Assert.AreEqual("3", reader[3].ToString());
           }
           reader.Close();
         }
@@ -594,13 +581,14 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// <summary>
     /// Orabug #15935094 SUPPORT FOR CURRENT_TIMESTAMP AS DEFAULT FOR DATETIME WITH EF
     /// </summary>
-    [Fact]
+    [Test]
+    [Ignore("Fix this")]
     public void CanDefineDateTimeAndTimestampWithIdentity()
     {
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      if (_fixture.Version < new Version(5, 6)) return;
+      if (Version < new Version(5, 6)) return;
 
       using (var db = new ProductsDbContext())
       {
@@ -610,7 +598,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         con.Open();
         cmd.ExecuteNonQuery();
         con.Close();
-        
+
         Product product = new Product
         {
           //Omitting Identity Columns
@@ -627,8 +615,8 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
 
         Assert.NotNull(db.Products.First().Timestamp);
         Assert.NotNull(db.Products.First().DateCreated);
-        Assert.Equal(new DateTime(2012, 3, 18, 23, 9, 7, 6), db.Products.First().DateTimeWithPrecision);
-        Assert.Equal(1, db.Products.Count());
+        Assert.AreEqual(new DateTime(2012, 3, 18, 23, 9, 7, 6), db.Products.First().DateTimeWithPrecision);
+        Assert.AreEqual(1, db.Products.Count());
         db.Database.Delete();
       }
     }
@@ -638,7 +626,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// Test of fix for bug Support for EntityFramework 4.3 Code First Generated Identifiers (MySql Bug #67285, Oracle bug #16286397).
     /// FKs are renamed to met http://dev.mysql.com/doc/refman/5.0/en/identifiers.html limitations.
     /// </summary>
-    [Fact]
+    [Test]
     public void LongIdentifiersInheritanceTPT()
     {
 #if DEBUG
@@ -660,7 +648,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// Test fix for http://bugs.mysql.com/bug.php?id=67183
     /// (Malformed Query while eager loading with EF 4 due to multiple projections).
     /// </summary>
-    [Fact]
+    [Test]
     public void ShipTest()
     {
 #if DEBUG
@@ -729,7 +717,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         query = query.Include(entity => entity.Ships.Select(s => s.CrewMembers.Select(cm => cm.Rank)));
         query = query.Include(entity => entity.Ships.Select(s => s.CrewMembers.Select(cm => cm.Clearance)));
 
-        string[] data = new string[] { 
+        string[] data = new string[] {
           "1,Harbor ABCD,1,1,1,Ship AB,1,1,1,1,1,CrewMember A,1,Rank A,1,Clearance A",
           "1,Harbor ABCD,1,1,1,Ship AB,1,2,1,2,2,CrewMember B,2,Rank B,2,Clearance B",
           "1,Harbor ABCD,1,2,1,Ship CD,1,3,2,3,3,CrewMember C,3,Rank C,3,Clearance C",
@@ -738,16 +726,16 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         Dictionary<string, string> outData = new Dictionary<string, string>();
 
         var sqlString = query.ToString();
-        _fixture.CheckSql(sqlString, SQLSyntax.ShipQueryMalformedDueMultipleProjecttionsCorrectedEF6);
+        CheckSql(sqlString, SQLSyntax.ShipQueryMalformedDueMultipleProjecttionsCorrectedEF6);
         // see below for the generated SQL query
 
         var harbor = query.Single();
-        
+
         foreach (var ship in harbor.Ships)
         {
           foreach (var crewMember in ship.CrewMembers)
           {
-            outData.Add(string.Format( 
+            outData.Add(string.Format(
               "{0},{1},1,{2},{3},{4},1,{5},{6},{7},{8},{9},{10},{11},{12},{13}",
               harbor.HarborId, harbor.Description, ship.ShipId, harbor.HarborId,
               ship.Description, crewMember.CrewMemberId, crewMember.ShipId, crewMember.RankId,
@@ -757,7 +745,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
           }
         }
         // check data integrity
-        Assert.Equal(outData.Count, data.Length);
+        Assert.AreEqual(outData.Count, data.Length);
         for (int i = 0; i < data.Length; i++)
         {
           Assert.True(outData.ContainsKey(data[i]));
@@ -768,7 +756,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// <summary>
     /// Tests fix for bug http://bugs.mysql.com/bug.php?id=68513, Error in LINQ to Entities query when using Distinct().Count().
     /// </summary>
-    [Fact]
+    [Test]
     public void DistinctCount()
     {
 #if DEBUG
@@ -788,16 +776,16 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         ctx.SaveChanges();
 
         var q = (from vis in ctx.Visitante.Include("site")
-                  group vis by vis.nCdSite into g
-                  select new retorno
-                  {
-                    Key = g.Key,
-                    Online = g.Select(e => e.sDsIp).Distinct().Count()
-                  });
+                 group vis by vis.nCdSite into g
+                 select new retorno
+                 {
+                   Key = g.Key,
+                   Online = g.Select(e => e.sDsIp).Distinct().Count()
+                 });
         string sql = q.ToString();
-        _fixture.CheckSql(sql, SQLSyntax.CountGroupBy);
+        CheckSql(sql, SQLSyntax.CountGroupBy);
         var q2 = q.ToList<retorno>();
-        foreach( var row in q2 )
+        foreach (var row in q2)
         {
         }
       }
@@ -806,7 +794,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// <summary>
     /// Tests fix for bug http://bugs.mysql.com/bug.php?id=68513, Error in LINQ to Entities query when using Distinct().Count().
     /// </summary>
-    [Fact]
+    [Test]
     public void DistinctCount2()
     {
 #if DEBUG
@@ -826,16 +814,16 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         ctx.Site.Add(s2);
         ctx.Pagina.Add(p1);
         ctx.SaveChanges();
-        
+
         var q = (from pag in ctx.Pagina.Include("visitante").Include("site")
-                   group pag by pag.visitante.nCdSite into g
-                   select new retorno
-                   {
-                       Key = g.Key,
-                       Online = g.Select(e => e.visitante.sDsIp).Distinct().Count()
-                   });        
+                 group pag by pag.visitante.nCdSite into g
+                 select new retorno
+                 {
+                   Key = g.Key,
+                   Online = g.Select(e => e.visitante.sDsIp).Distinct().Count()
+                 });
         string sql = q.ToString();
-        _fixture.CheckSql(sql, SQLSyntax.CountGroupBy2);
+        CheckSql(sql, SQLSyntax.CountGroupBy2);
         var q2 = q.ToList<retorno>();
         foreach (var row in q2)
         {
@@ -846,7 +834,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// <summary>
     /// Tests fix for bug http://bugs.mysql.com/bug.php?id=65723, MySql Provider for EntityFramework produces "bad" SQL for OrderBy.
     /// </summary>
-    [Fact]
+    [Test]
     public void BadOrderBy()
     {
 #if DEBUG
@@ -860,7 +848,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         var q = db.Movies.Where(p => p.ReleaseDate >= filterDate).
           OrderByDescending(p => p.ReleaseDate).Take(2);
         string sql = q.ToString();
-        _fixture.CheckSql(SQLSyntax.NestedOrderBy, sql);
+        CheckSql(SQLSyntax.NestedOrderBy, sql);
         // Data integrity testing
         Movie[] data = new Movie[] {
           new Movie() { ID = 4, Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime( 2005, 5, 19 ) },
@@ -869,19 +857,19 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         int i = 0;
         foreach (Movie m in q)
         {
-          Assert.Equal(data[i].ID, m.ID);
-          Assert.Equal(data[i].Title, m.Title);
-          Assert.Equal(data[i].ReleaseDate, m.ReleaseDate);
+          Assert.AreEqual(data[i].ID, m.ID);
+          Assert.AreEqual(data[i].Title, m.Title);
+          Assert.AreEqual(data[i].ReleaseDate, m.ReleaseDate);
           i++;
         }
-        Assert.Equal(2, i);
+        Assert.AreEqual(2, i);
       }
     }
 
     /// <summary>
     /// Tests fix for bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
     /// </summary>
-    [Fact]
+    [Test]
     public void BadContainsOrderByTake()
     {
 #if DEBUG
@@ -899,23 +887,23 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         var q1 = q.Take(10);
         string sql = q1.ToString();
 
-        _fixture.CheckSql(SQLSyntax.QueryWithOrderByTakeContains, sql);
+        CheckSql(SQLSyntax.QueryWithOrderByTakeContains, sql);
 
         int i = 0;
         foreach (var row in q1)
         {
-          Assert.Equal( MovieDBInitialize.data[i].ID, row.ID);
-          Assert.Equal( MovieDBInitialize.data[i].Title, row.Title);
-          Assert.Equal( MovieDBInitialize.data[i].ReleaseDate, row.ReleaseDate);
+          Assert.AreEqual(MovieDBInitialize.data[i].ID, row.ID);
+          Assert.AreEqual(MovieDBInitialize.data[i].Title, row.Title);
+          Assert.AreEqual(MovieDBInitialize.data[i].ReleaseDate, row.ReleaseDate);
           i++;
         }
       }
     }
-    
+
     /// <summary>
     /// Tests fix for bug http://bugs.mysql.com/bug.php?id=69922, Unknown column Extent1...
     /// </summary>
-    [Fact]
+    [Test]
     public void BadAliasTable()
     {
 #if DEBUG
@@ -934,9 +922,9 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
                &&
              (x.ActiveTo == null || x.ActiveTo >= now)
           )
-          .OrderBy(x => x.DisplayOrder).Select( d => d );
+          .OrderBy(x => x.DisplayOrder).Select(d => d);
         string sql = q.ToString();
-        foreach( var row in q )
+        foreach (var row in q)
         {
         }
       }
@@ -945,7 +933,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// <summary>
     /// Tests other variants of bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
     /// </summary>
-    [Fact]
+    [Test]
     public void BadContainsOrderByTake2()
     {
 #if DEBUG
@@ -966,18 +954,18 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
 #endif
         List<Movie> l = q.ToList();
         int j = l.Count;
-        foreach( Movie m in l )
+        foreach (Movie m in l)
         {
           j--;
         }
-        Assert.Equal(0, j);
+        Assert.AreEqual(0, j);
       }
     }
 
     /// <summary>
     /// Tests other variants of bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
     /// </summary>
-    [Fact]
+    [Test]
     public void BadContainsOrderByTake3()
     {
 #if DEBUG
@@ -993,12 +981,12 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
                 Skip(1).
                 Take(1).Select(m => new
                 {
-                  Id = m.ID, 
-                  CriticsScore = ( 
-                    m.Title == "Terminator 1" ? "Good" : 
-                    m.Title == "Predator" ? "Sunday best, cheese" : 
+                  Id = m.ID,
+                  CriticsScore = (
+                    m.Title == "Terminator 1" ? "Good" :
+                    m.Title == "Predator" ? "Sunday best, cheese" :
                     m.Title == "The Matrix" ? "Really Good" :
-                    m.Title == "Star Wars, The Sith Revenge" ? "Really Good" : "Unknown" )
+                    m.Title == "Star Wars, The Sith Revenge" ? "Really Good" : "Unknown")
                 });
         string sql = q.ToString();
 #if DEBUG
@@ -1009,14 +997,14 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         {
           j--;
         }
-        Assert.Equal(0, j);
+        Assert.AreEqual(0, j);
       }
     }
 
     /// <summary>
     /// Tests other variants of bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
     /// </summary>
-    [Fact]
+    [Test]
     public void BadContainsOrderByTake4()
     {
 #if DEBUG
@@ -1027,10 +1015,10 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         db.Database.Initialize(true);
         MovieDBInitialize.DoDataPopulation(db);
         bool q = db.Movies.Any(m => m.ReleaseDate.Year > 1985);
-//        string sql = q.ToString();
-//#if DEBUG
-//        Debug.WriteLine(sql);
-//#endif
+        //        string sql = q.ToString();
+        //#if DEBUG
+        //        Debug.WriteLine(sql);
+        //#endif
         //foreach (var row in q)
         //{
         //}
@@ -1040,7 +1028,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// <summary>
     /// Tests other variants of bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
     /// </summary>
-    [Fact]
+    [Test]
     public void BadContainsOrderByTake5()
     {
 #if DEBUG
@@ -1052,21 +1040,21 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         MovieDBInitialize.DoDataPopulation(db);
         // TODO: add subquery like
         // var shifts = Shifts.Where(s => !EmployeeShifts.Where(es => es.ShiftID == s.ShiftID).Any());
-        bool q = db.Movies.Where( m => m.ReleaseDate.Month != 10 ).Any(m => m.ReleaseDate.Year > 1985);
-//        string sql = q.ToString();
-//#if DEBUG
-//        Debug.WriteLine(sql);
-//#endif
-//        foreach (var row in q)
-//        {
-//        }
+        bool q = db.Movies.Where(m => m.ReleaseDate.Month != 10).Any(m => m.ReleaseDate.Year > 1985);
+        //        string sql = q.ToString();
+        //#if DEBUG
+        //        Debug.WriteLine(sql);
+        //#endif
+        //        foreach (var row in q)
+        //        {
+        //        }
       }
     }
 
     /// <summary>
     /// Tests other variants of bug http://bugs.mysql.com/bug.php?id=69751, Invalid SQL query generated for query with Contains, OrderBy, and Take.
     /// </summary>
-    [Fact]
+    [Test]
     public void BadContainsOrderByTake6()
     {
 #if DEBUG
@@ -1077,7 +1065,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         db.Database.Initialize(true);
         MovieDBInitialize.DoDataPopulation(db);
         var q = from m in db.Movies
-                where m.Title.Contains("x") && db.Medias.Where( mm => mm.Format == "Digital" ).Any()
+                where m.Title.Contains("x") && db.Medias.Where(mm => mm.Format == "Digital").Any()
                 select m;
         string sql = q.ToString();
 #if DEBUG
@@ -1088,14 +1076,14 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         {
           j--;
         }
-        Assert.Equal(0, j);
+        Assert.AreEqual(0, j);
       }
     }
 
-  /// <summary>
+    /// <summary>
     /// Test for Mysql Bug 70602: http://bugs.mysql.com/bug.php?id=70602
     /// </summary>
-    [Fact]
+    [Test]
     public void AutoIncrementBug()
     {
 #if DEBUG
@@ -1114,7 +1102,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
       dbContext.Database.Delete();
     }
 
-    [Fact]
+    [Test]
     public void SimpleCodeFirstSelectCbc()
     {
       MovieCodedBasedConfigDBContext db = new MovieCodedBasedConfigDBContext();
@@ -1126,7 +1114,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
       }
     }
 
-    [Fact]
+    [Test]
     public void TestStoredProcedureMapping()
     {
       using (var db = new MovieCodedBasedConfigDBContext())
@@ -1148,8 +1136,8 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         db.SaveChanges();
       }
     }
-    
-    [Fact]
+
+    [Test]
     public void MigrationHistoryConfigurationTest()
     {
       MovieCodedBasedConfigDBContext db = new MovieCodedBasedConfigDBContext();
@@ -1158,11 +1146,11 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
       foreach (var i in l)
       {
       }
-      var result = MySqlHelper.ExecuteScalar($"server=localhost;User Id=root;database={db.Database.Connection.Database};logging=true; port=3305;", "SELECT COUNT(_MigrationId) FROM __MySqlMigrations;");
-      Assert.Equal(1, int.Parse(result.ToString()));
+      var result = MySqlHelper.ExecuteScalar($"server=localhost;User Id=root;database={db.Database.Connection.Database};logging=true; port=" + Port + ";", "SELECT COUNT(_MigrationId) FROM __MySqlMigrations;");
+      Assert.AreEqual(1, int.Parse(result.ToString()));
     }
 
-    [Fact]
+    [Test]
     public void DbSetRangeTest()
     {
       using (MovieDBContext db = new MovieDBContext())
@@ -1172,21 +1160,21 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         Movie m2 = new Movie() { Title = "The Matrix", ReleaseDate = new DateTime(1999, 3, 31) };
         Movie m3 = new Movie() { Title = "Predator", ReleaseDate = new DateTime(1987, 6, 12) };
         Movie m4 = new Movie() { Title = "Star Wars, The Sith Revenge", ReleaseDate = new DateTime(2005, 5, 19) };
-        db.Movies.AddRange( new Movie[] { m1, m2, m3, m4 });
+        db.Movies.AddRange(new Movie[] { m1, m2, m3, m4 });
         db.SaveChanges();
         var q = from m in db.Movies select m;
-        Assert.Equal(4, q.Count());
+        Assert.AreEqual(4, q.Count());
         foreach (var row in q)
         {
         }
         db.Movies.RemoveRange(q.ToList());
         db.SaveChanges();
         var q2 = from m in db.Movies select m;
-        Assert.Equal(0, q2.Count());
+        Assert.AreEqual(0, q2.Count());
       }
     }
 
-    [Fact]
+    [Test]
     public void EnumSupportTest()
     {
       using (var dbCtx = new EnumTestSupportContext())
@@ -1199,12 +1187,13 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
                         where s.Subject == SchoolSubject.History
                         select s).FirstOrDefault();
 
-        Assert.NotEqual(null, schedule);
-        Assert.Equal(SchoolSubject.History, schedule.Subject);
+        Assert.AreNotEqual(null, schedule);
+        Assert.AreEqual(SchoolSubject.History, schedule.Subject);
       }
     }
 
-    [Fact]
+    [Test]
+    [Ignore("Fix this")]
     public void SpatialSupportTest()
     {
       using (var dbCtx = new JourneyContext())
@@ -1225,17 +1214,17 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
 
         var distance = (point.Distance(place.location) * 100);
 
-        Assert.NotEqual(null, place);
-        Assert.Equal(8.6944880240295852D, distance.Value);
+        Assert.AreNotEqual(null, place);
+        Assert.AreEqual(8.6944880240295852D, distance.Value);
 
         var distanceDB = from p in dbCtx.MyPlaces
                          select p.location.Distance(point);
 
-        Assert.Equal(0.086944880240295852D, distanceDB.FirstOrDefault());
+        Assert.AreEqual(0.086944880240295852D, distanceDB.FirstOrDefault());
       }
     }
 
-    [Fact]
+    [Test]
     public void BeginTransactionSupportTest()
     {
       using (var dbcontext = new MovieCodedBasedConfigDBContext())
@@ -1254,13 +1243,13 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
             });
 
             dbcontext.SaveChanges();
-            var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
-            Assert.Equal(0, int.Parse(result.ToString()));
+            var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true;port=" + Port + ";", "select COUNT(*) from moviecbcs;");
+            Assert.AreEqual(0, int.Parse(result.ToString()));
 
             transaction.Commit();
 
-            result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
-            Assert.Equal(1, int.Parse(result.ToString()));
+            result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=" + Port + ";", "select COUNT(*) from moviecbcs;");
+            Assert.AreEqual(1, int.Parse(result.ToString()));
           }
           catch (Exception)
           {
@@ -1275,14 +1264,14 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// 1- "DbContext.Database.UseTransaction, that use a transaction created from an open connection"
     /// 2- "DbContext can now be created with a DbConnection that is already opened"
     /// </summary>
-    [Fact]
+    [Test]
     public void UseTransactionSupportTest()
     {
       using (var context = new MovieCodedBasedConfigDBContext())
       {
         context.Database.CreateIfNotExists();
       }
-      using (var connection = new MySqlConnection($"server=localhost;User Id=root;database={nameof(MovieCodedBasedConfigDBContext)};logging=true; port=3305;"))
+      using (var connection = new MySqlConnection($"server=localhost;User Id=root;database={nameof(MovieCodedBasedConfigDBContext)};logging=true; port=" + Port + ";"))
       {
         connection.Open();
         using (var transaction = connection.BeginTransaction())
@@ -1303,13 +1292,13 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
 
               dbcontext.SaveChanges();
             }
-            var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
-            Assert.Equal(0, int.Parse(result.ToString()));
+            var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=" + Port + ";", "select COUNT(*) from moviecbcs;");
+            Assert.AreEqual(0, int.Parse(result.ToString()));
 
             transaction.Commit();
 
-            result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
-            Assert.Equal(1, int.Parse(result.ToString()));
+            result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=" + Port + ";", "select COUNT(*) from moviecbcs;");
+            Assert.AreEqual(1, int.Parse(result.ToString()));
           }
           catch (Exception)
           {
@@ -1319,7 +1308,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
       }
     }
 
-    [Fact]
+    [Test]
     public void HasChangesSupportTest()
     {
       using (var dbcontext = new MovieCodedBasedConfigDBContext())
@@ -1340,7 +1329,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
       }
     }
 
-    [Fact]
+    [Test]
     public void MySqlLoggingToFileSupportTest()
     {
       string logName = "mysql.log";
@@ -1362,10 +1351,10 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         dbcontext.SaveChanges();
       }
 
-      Assert.Equal(true, System.IO.File.Exists(logName));
+      Assert.AreEqual(true, System.IO.File.Exists(logName));
     }
 
-    [Fact]
+    [Test]
     public void MySqlLoggingToConsoleSupportTest()
     {
       string logName = "mysql_2.log";
@@ -1404,10 +1393,10 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
       writer.Close();
       file.Close();
 
-      Assert.Equal(true, System.IO.File.Exists(logName));
+      Assert.AreEqual(true, System.IO.File.Exists(logName));
     }
 
-    [Fact]
+    [Test]
     public void EntityAndComplexTypeSupportTest()
     {
       using (var dbContext = new EntityAndComplexTypeContext())
@@ -1423,12 +1412,12 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         dbContext.SaveChanges();
 
         var student = (from s in dbContext.Students
-                        select s).FirstOrDefault();
+                       select s).FirstOrDefault();
 
-        Assert.NotEqual(null, student);
-        Assert.NotEqual(null, student.Schedule);
-        Assert.NotEqual(true, string.IsNullOrEmpty(student.Address.Street));
-        Assert.NotEqual(0, student.Schedule.Count());
+        Assert.AreNotEqual(null, student);
+        Assert.AreNotEqual(null, student.Schedule);
+        Assert.AreNotEqual(true, string.IsNullOrEmpty(student.Address.Street));
+        Assert.AreNotEqual(0, student.Schedule.Count());
       }
     }
 
@@ -1437,10 +1426,10 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// WHY 3?: 1)For main process (User: root, DB: mysql). 2)For Setup Class. 3)For the connections in this test.
     /// The expected result is that opening a third connection and trying to open a fourth(with an asynchronous task) the execution strategy implementation handle the reconnection process until the third one is closed.
     /// </summary>
-    //[Fact] //<---DON'T FORGET ME TO RUN! =D
+    //[Test] //<---DON'T FORGET ME TO RUN! =D
     public void ExecutionStrategyTest()
     {
-      var connection = new MySqlConnection("server=localhost;User Id=root;logging=true; port=3305;");
+      var connection = new MySqlConnection("server=localhost;User Id=root;logging=true; port=" + Port + ";");
       using (var dbcontext = new MovieCodedBasedConfigDBContext())
       {
         dbcontext.Database.Initialize(true);
@@ -1457,11 +1446,11 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         connection.Close();
         connection.Dispose();
       }
-      var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=3305;", "select COUNT(*) from moviecbcs;");
-      Assert.Equal(1, int.Parse(result.ToString()));
+      var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=" + Port + ";", "select COUNT(*) from moviecbcs;");
+      Assert.AreEqual(1, int.Parse(result.ToString()));
     }
 
-    [Fact]
+    [Test]
     public void UnknownProjectC1()
     {
 #if DEBUG
@@ -1474,7 +1463,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         long myKey = 20;
         var q = (from r in db.Movies where (r.ID == myKey) select (long)r.ID).OrderBy(p => p);
         string sql = q.ToString();
-        _fixture.CheckSql(sql, SQLSyntax.UnknownProjectC1EF6);
+        CheckSql(sql, SQLSyntax.UnknownProjectC1EF6);
 
 #if DEBUG
         Debug.WriteLine(sql);
@@ -1483,7 +1472,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
       }
     }
 
-    [Fact]
+    [Test]
     public void StartsWithTest()
     {
 #if DEBUG
@@ -1497,7 +1486,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
 
       string sql = l.ToString();
 
-      _fixture.CheckSql(sql, SQLSyntax.QueryWithStartsWith);
+      CheckSql(sql, SQLSyntax.QueryWithStartsWith);
 
 #if DEBUG
       Debug.WriteLine(sql);
@@ -1507,10 +1496,10 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
       {
         j--;
       }
-      Assert.Equal(0, j);
+      Assert.AreEqual(0, j);
     }
 
-    [Fact]
+    [Test]
     public void EndsWithTest()
     {
 #if DEBUG
@@ -1524,7 +1513,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
 
       string sql = l.ToString();
 
-      _fixture.CheckSql(sql, SQLSyntax.QueryWithEndsWith);
+      CheckSql(sql, SQLSyntax.QueryWithEndsWith);
 
 #if DEBUG
       Debug.WriteLine(sql);
@@ -1534,10 +1523,10 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
       {
         j--;
       }
-      Assert.Equal(0, j);
+      Assert.AreEqual(0, j);
     }
 
-    [Fact]
+    [Test]
     public void ContainsTest()
     {
 #if DEBUG
@@ -1550,7 +1539,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
       var l = db.Movies.Where(p => p.Title.Contains(term));
 
       string sql = l.ToString();
-      _fixture.CheckSql(sql, SQLSyntax.QueryWithContains);
+      CheckSql(sql, SQLSyntax.QueryWithContains);
 
 #if DEBUG
       Debug.WriteLine(sql);
@@ -1560,14 +1549,14 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
       {
         j--;
       }
-      Assert.Equal(0, j);
+      Assert.AreEqual(0, j);
     }
 
 
     /// <summary>
     /// Test to reproduce bug http://bugs.mysql.com/bug.php?id=73643, Exception when using IEnumera.Contains(model.property) in Where predicate
     /// </summary>
-    [Fact]
+    [Test]
     public void TestContainsListWithCast()
     {
 #if DEBUG
@@ -1580,7 +1569,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         long[] longs = new long[] { 1, 2, 3 };
         var q = db.Movies.Where(p => longs.Contains((long)p.ID));
         string sql = q.ToString();
-        _fixture.CheckSql(sql, SQLSyntax.TestContainsListWithCast);
+        CheckSql(sql, SQLSyntax.TestContainsListWithCast);
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
@@ -1591,20 +1580,20 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// <summary>
     /// Test to reproduce bug http://bugs.mysql.com/bug.php?id=73643, Exception when using IEnumera.Contains(model.property) in Where predicate
     /// </summary>
-    [Fact]
+    [Test]
     public void TestContainsListWitConstant()
     {
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      using( MovieDBContext db = new MovieDBContext() )
+      using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
 
         List<string> strIds = new List<string>(new string[] { "two" });
         var q = db.Movies.Where(p => strIds.Contains("two"));
         string sql = q.ToString();
-        _fixture.CheckSql(sql, SQLSyntax.TestContainsListWitConstant);
+        CheckSql(sql, SQLSyntax.TestContainsListWitConstant);
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
@@ -1615,13 +1604,13 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// <summary>
     /// Test to reproduce bug http://bugs.mysql.com/bug.php?id=73643, Exception when using IEnumera.Contains(model.property) in Where predicate
     /// </summary>
-    [Fact]
+    [Test]
     public void TestContainsListWithParameterReference()
     {
 #if DEBUG
       Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
 #endif
-      using( MovieDBContext db = new MovieDBContext() )
+      using (MovieDBContext db = new MovieDBContext())
       {
         db.Database.Initialize(true);
 
@@ -1629,7 +1618,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         int myNum = 1;
         var q = db.Movies.Where(p => longs.Contains(myNum));
         string sql = q.ToString();
-        _fixture.CheckSql(sql, SQLSyntax.TestContainsListWithParameterReference);
+        CheckSql(sql, SQLSyntax.TestContainsListWithParameterReference);
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
@@ -1637,7 +1626,7 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
       }
     }
 
-    [Fact]
+    [Test]
     public void ReplaceTableNameVisitor()
     {
       using (SakilaDb context = new SakilaDb())
@@ -1645,12 +1634,12 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
         var date = new DateTime(2005, 6, 1);
         var rentals = context.customers.Where(t => t.rentals.Any(r => r.rental_date < date)).OrderBy(o => o.customer_id);
         string sql = rentals.ToString();
-        _fixture.CheckSql(sql, SQLSyntax.ReplaceNameVisitorQuery);
+        CheckSql(sql, SQLSyntax.ReplaceNameVisitorQuery);
 #if DEBUG
         Debug.WriteLine(sql);
 #endif
         var result = rentals.ToList();
-        Assert.Equal(520, rentals.Count());
+        Assert.AreEqual(520, rentals.Count());
       }
     }
 
@@ -1658,16 +1647,16 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     /// <summary>
     /// Bug #70941 - Invalid SQL query when eager loading two nested collections
     /// </summary>
-    [Fact]
+    [Test]
     public void InvalidQuery()
     {
       using (UsingUnionContext context = new UsingUnionContext())
       {
         if (context.Database.Exists())
-        context.Database.Delete();
-        
+          context.Database.Delete();
+
         context.Database.Create();
-                
+
         for (int i = 1; i <= 3; i++)
         {
           var order = new Order();
@@ -1683,23 +1672,23 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
           client.Orders.Add(order);
 
           context.Clients.Add(client);
-        }       
+        }
         context.SaveChanges();
-                
+
         var clients = context.Clients
                     .Include(c => c.Orders.Select(o => o.Items))
-                    .Include(c => c.Orders.Select(o => o.Discounts)).ToList();        
+                    .Include(c => c.Orders.Select(o => o.Discounts)).ToList();
 
-        Assert.Equal(clients.Count(), 3);
-        Assert.Equal(clients.Where(t => t.Id == 1).Single().Orders.Count(), 1);
-        Assert.Equal(clients.Where(t => t.Id == 1).Single().Orders.Where(j => j.Id == 1).Single().Items.Count(), 3);
-      }    
+        Assert.AreEqual(clients.Count(), 3);
+        Assert.AreEqual(clients.Where(t => t.Id == 1).Single().Orders.Count(), 1);
+        Assert.AreEqual(clients.Where(t => t.Id == 1).Single().Orders.Where(j => j.Id == 1).Single().Items.Count(), 3);
+      }
     }
 
     /// <summary>
     /// Bug #28095165 - CONTRIBUTION: FIX CONCURRENCYCHECK + DATABASEGENERATEDOPTION.COMPUTED
     /// </summary>
-    [Fact]
+    [Test]
     public void ConcurrencyCheckWithDbGeneratedColumn()
     {
 #if DEBUG
@@ -1739,22 +1728,22 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
           mr.Id = 1;
           mr.Name = "Commercial";
           db.MovieReleases2.Add(mr);
-          Assert.Equal(mr.RowVersion, 0);
+          Assert.AreEqual(mr.RowVersion, 0);
           db.SaveChanges(); // ADD
-          Assert.Equal(mr.RowVersion, 0);
+          Assert.AreEqual(mr.RowVersion, 0);
 
           mr.Name = "Director's Cut";
           db.SaveChanges(); // UPDATE #1
-          Assert.Equal(mr.RowVersion, 1);
+          Assert.AreEqual(mr.RowVersion, 1);
 
           mr.Name = "Avengers";
           db.SaveChanges(); // UPDATE #2
-          Assert.Equal(mr.RowVersion, 2);
-  }
+          Assert.AreEqual(mr.RowVersion, 2);
+        }
         finally
         {
           db.Database.ExecuteSqlCommand(@"DROP TABLE IF EXISTS `MovieReleases2`");
-}
+        }
         // Check sql        
         Regex rx = new Regex(@"Query Opened: (?<item>UPDATE .*)", RegexOptions.Compiled | RegexOptions.Singleline);
         int n = 0;
@@ -1765,11 +1754,11 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
           {
             if (n++ == 0)
             {
-              _fixture.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithDbGeneratedLock1);
+              CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithDbGeneratedLock1);
             }
             else
             {
-              _fixture.CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithDbGeneratedLock2);
+              CheckSql(m.Groups["item"].Value, SQLSyntax.UpdateWithSelectWithDbGeneratedLock2);
             }
           }
         }
@@ -1777,4 +1766,3 @@ where table_schema = '{_fixture.Connection.Database}' and table_name = 'movies' 
     }
   }
 }
-

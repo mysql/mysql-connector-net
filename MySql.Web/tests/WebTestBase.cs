@@ -35,6 +35,7 @@ using MySql.Web.Common;
 using System.Data;
 using System.IO;
 using MySql.Data.Common;
+using NUnit.Framework;
 
 namespace MySql.Web.Tests
 {
@@ -56,6 +57,15 @@ namespace MySql.Web.Tests
       AddConnectionStringToConfigFile();
     }
 
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+      using (var conn = new MySqlConnection(ConnectionString))
+      {
+        conn.Open();
+        execSQL($"DROP DATABASE IF EXISTS `mysqlweb`");
+      }
+    }
 
     protected virtual void Init()
     {
@@ -130,7 +140,7 @@ namespace MySql.Web.Tests
     internal protected void LoadSchema(int version)
     {
       if (version < 1) return;
-      
+
       MySQLMembershipProvider provider = new MySQLMembershipProvider();
       string schema = LoadResource($"MySql.Web.Properties.schema{version}.sql");
       MySqlScript script = new MySqlScript(Connection);

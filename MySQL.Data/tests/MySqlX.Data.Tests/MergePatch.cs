@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,7 +31,7 @@ using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using System;
 using System.Collections.Generic;
-using Xunit;
+using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
@@ -82,7 +82,7 @@ namespace MySqlX.Data.Tests
 
     #region General
 
-    [Fact]
+    [Test]
     public void PatchExpectedExceptions()
     {
       Collection collection = CreateCollection("test");
@@ -98,38 +98,38 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void SimplePatch()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add("{ \"_id\": \"123\", \"email\": \"alice@ora.com\", \"startDate\": \"4/1/2017\" }"));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
       r = ExecuteAddStatement(collection.Add("{ \"_id\": \"124\", \"email\": \"jose@ora.com\", \"startDate\": \"4/1/2017\" }"));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       ExecuteModifyStatement(collection.Modify("email = \"alice@ora.com\"").Patch("{ \"_id\": \"123\", \"email\":\"bob@ora.com\", \"startDate\":null }"));
 
       DbDoc document = collection.GetOne("123");
-      Assert.Equal("123", document.Id);
-      Assert.Equal("bob@ora.com", document.values["email"]);
+      Assert.AreEqual("123", document.Id);
+      Assert.AreEqual("bob@ora.com", document.values["email"]);
       Assert.True(!document.values.ContainsKey("startDate"));
 
       document = collection.GetOne("124");
-      Assert.Equal("124", document.Id);
-      Assert.Equal("jose@ora.com", document.values["email"]);
+      Assert.AreEqual("124", document.Id);
+      Assert.AreEqual("jose@ora.com", document.values["email"]);
       Assert.True(document.values.ContainsKey("startDate"));
     }
 
-    [Fact]
+    [Test]
     public void SimplePatchUsingMySqlExpressionClass()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add("{ \"_id\": \"123\", \"email\": \"alice@ora.com\", \"startDate\": \"4/1/2017\" }"));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       var patch = new {
         email = new MySqlExpression("UPPER($.email)")
@@ -137,17 +137,17 @@ namespace MySqlX.Data.Tests
 
       ExecuteModifyStatement(collection.Modify("true").Patch(patch));
       DbDoc document = collection.GetOne("123");
-      Assert.Equal("ALICE@ORA.COM", document.values["email"]);
+      Assert.AreEqual("ALICE@ORA.COM", document.values["email"]);
     }
 
-    [Fact]
+    [Test]
     public void CRUD()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsJsonStrings));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       // Add field.
       ExecuteModifyStatement(collection.Modify("language = :lang").Patch("{ \"translations\": [\"Spanish\"] }").Bind("lang", "English"));
@@ -159,8 +159,8 @@ namespace MySqlX.Data.Tests
       document = ExecuteFindStatement(collection.Find("language = :lang").Bind("lang", "English")).FetchOne();
       Assert.True(document.values.ContainsKey("translations"));
       var translations = (object[]) document.values["translations"];
-      Assert.Equal("Spanish", (string)translations[0]);
-      Assert.Equal("Italian", (string)translations[1]);
+      Assert.AreEqual("Spanish", (string)translations[0]);
+      Assert.AreEqual("Italian", (string)translations[1]);
 
       // Remove field.
       ExecuteModifyStatement(collection.Modify("language = :lang").Patch("{ \"translations\": null }").Bind("lang", "English"));
@@ -177,7 +177,7 @@ namespace MySqlX.Data.Tests
       ExecuteModifyStatement(collection.Modify("additionalinfo.director.name = :director").Patch("{ \"additionalinfo\": { \"musicby\": \"The Sakila\" } }").Bind("director", "Sharice Legaspi"));
       document = ExecuteFindStatement(collection.Find("language = :lang").Bind("lang", "English")).FetchOne();
       Assert.True(((Dictionary<string,object>) document.values["additionalinfo"]).ContainsKey("musicby"));
-      Assert.Equal("The Sakila", ((Dictionary<string,object>) document.values["additionalinfo"])["musicby"]);
+      Assert.AreEqual("The Sakila", ((Dictionary<string,object>) document.values["additionalinfo"])["musicby"]);
 
       // Remove field.
       ExecuteModifyStatement(collection.Modify("additionalinfo.director.name = :director").Patch("{ \"additionalinfo\": { \"musicby\": null } }").Bind("director", "Sharice Legaspi"));
@@ -194,7 +194,7 @@ namespace MySqlX.Data.Tests
       ExecuteModifyStatement(collection.Modify("additionalinfo.director.name = :director").Patch("{ \"additionalinfo\": { \"director\": { \"country\": \"Canada\" } } }").Bind("director", "Sharice Legaspi"));
       document = ExecuteFindStatement(collection.Find("language = :lang").Bind("lang", "English")).FetchOne();
       Assert.True(((Dictionary<string, object>)((Dictionary<string,object>) document.values["additionalinfo"])["director"]).ContainsKey("country"));
-      Assert.Equal("Canada", ((Dictionary<string, object>)((Dictionary<string, object>)document.values["additionalinfo"])["director"])["country"]);
+      Assert.AreEqual("Canada", ((Dictionary<string, object>)((Dictionary<string, object>)document.values["additionalinfo"])["director"])["country"]);
 
       // Remove field.
       ExecuteModifyStatement(collection.Modify("additionalinfo.director.name = :director").Patch("{ \"additionalinfo\": { \"director\": { \"country\": null } } }").Bind("director", "Sharice Legaspi"));
@@ -206,47 +206,47 @@ namespace MySqlX.Data.Tests
 
     #region Nested operations
 
-    [Fact]
+    [Test]
     public void ReplaceUpdateInDifferentNestingLevels()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
-      Assert.Equal("AFRICAN EGG", document["title"]);
+      Assert.AreEqual("AFRICAN EGG", document["title"]);
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"title\": \"The African Egg\" }").Bind("id", "a6f4b93e1a264a108393524f29546a8c"));
       document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
-      Assert.Equal("The African Egg", document["title"]);
+      Assert.AreEqual("The African Egg", document["title"]);
 
-      Assert.Equal(57, ((Dictionary<string, object>) ((Dictionary<string, object>) document.values["additionalinfo"])["director"])["age"]);
+      Assert.AreEqual(57, ((Dictionary<string, object>) ((Dictionary<string, object>) document.values["additionalinfo"])["director"])["age"]);
       ExecuteModifyStatement(collection.Modify("additionalinfo.director.name = :director").Patch("{ \"additionalinfo\": { \"director\": { \"age\": 67 } } }").Bind("director", "Sharice Legaspi"));
       document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
-      Assert.Equal(67, ((Dictionary<string, object>) ((Dictionary<string, object>) document.values["additionalinfo"])["director"])["age"]);
+      Assert.AreEqual(67, ((Dictionary<string, object>) ((Dictionary<string, object>) document.values["additionalinfo"])["director"])["age"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"additionalinfo\": { \"director\": { \"age\": 77 } } }").Bind("id", "a6f4b93e1a264a108393524f29546a8c"));
       document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
-      Assert.Equal(77, ((Dictionary<string, object>) ((Dictionary<string, object>) document.values["additionalinfo"])["director"])["age"]);
+      Assert.AreEqual(77, ((Dictionary<string, object>) ((Dictionary<string, object>) document.values["additionalinfo"])["director"])["age"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"title\": { \"movie\": \"The African Egg\"} }").Bind("id", "a6f4b93e1a264a108393524f29546a8c"));
       document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
-      Assert.Equal("The African Egg", ((Dictionary<string, object>) document.values["title"])["movie"]);
+      Assert.AreEqual("The African Egg", ((Dictionary<string, object>) document.values["title"])["movie"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"additionalinfo\": \"No data available\" }").Bind("id", "a6f4b93e1a264a108393524f29546a8c"));
       document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
-      Assert.Equal("No data available", document.values["additionalinfo"]);
+      Assert.AreEqual("No data available", document.values["additionalinfo"]);
     }
 
-    [Fact]
+    [Test]
     public void AddRemoveFieldInDifferentNestingLevels()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       Assert.False(document.values.ContainsKey("translations"));
@@ -278,14 +278,14 @@ namespace MySqlX.Data.Tests
 
     #region Multiple fields
 
-    [Fact]
+    [Test]
     public void CRUDMultipleFields()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
 
@@ -293,23 +293,23 @@ namespace MySqlX.Data.Tests
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"field 1\": \"one\", \"field 2\": \"two\", \"field 3\": \"three\" }").Bind("id", "a6f4b93e1a264a108393524f29546a8c"));
       ExecuteModifyStatement(collection.Modify("additionalinfo.director.name = :director").Patch("{ \"additionalinfo\": { \"director\": { \"field 1\": \"one\", \"field 2\": \"two\", \"field 3\": \"three\" } } }").Bind("director", "Sharice Legaspi"));
       document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
-      Assert.Equal("one", document.values["field 1"]);
-      Assert.Equal("two", document.values["field 2"]);
-      Assert.Equal("three", document.values["field 3"]);
-      Assert.Equal("one", (((Dictionary<string, object>)((Dictionary<string, object>) document.values["additionalinfo"])["director"]))["field 1"]);
-      Assert.Equal("two", (((Dictionary<string, object>)((Dictionary<string, object>) document.values["additionalinfo"])["director"]))["field 2"]);
-      Assert.Equal("three", (((Dictionary<string, object>)((Dictionary<string, object>) document.values["additionalinfo"])["director"]))["field 3"]);
+      Assert.AreEqual("one", document.values["field 1"]);
+      Assert.AreEqual("two", document.values["field 2"]);
+      Assert.AreEqual("three", document.values["field 3"]);
+      Assert.AreEqual("one", (((Dictionary<string, object>)((Dictionary<string, object>) document.values["additionalinfo"])["director"]))["field 1"]);
+      Assert.AreEqual("two", (((Dictionary<string, object>)((Dictionary<string, object>) document.values["additionalinfo"])["director"]))["field 2"]);
+      Assert.AreEqual("three", (((Dictionary<string, object>)((Dictionary<string, object>) document.values["additionalinfo"])["director"]))["field 3"]);
 
       // Update/Replace fields.
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"field 1\": \"ONE\", \"field 2\": \"TWO\", \"field 3\": \"THREE\" }").Bind("id", "a6f4b93e1a264a108393524f29546a8c"));
       ExecuteModifyStatement(collection.Modify("additionalinfo.director.name = :director").Patch("{ \"additionalinfo\": { \"director\": { \"field 1\": \"ONE\", \"field 2\": \"TWO\", \"field 3\": \"THREE\" } } }").Bind("director", "Sharice Legaspi"));
       document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
-      Assert.Equal("ONE", document.values["field 1"]);
-      Assert.Equal("TWO", document.values["field 2"]);
-      Assert.Equal("THREE", document.values["field 3"]);
-      Assert.Equal("ONE", (((Dictionary<string, object>)((Dictionary<string, object>) document.values["additionalinfo"])["director"]))["field 1"]);
-      Assert.Equal("TWO", (((Dictionary<string, object>)((Dictionary<string, object>) document.values["additionalinfo"])["director"]))["field 2"]);
-      Assert.Equal("THREE", (((Dictionary<string, object>)((Dictionary<string, object>) document.values["additionalinfo"])["director"]))["field 3"]);
+      Assert.AreEqual("ONE", document.values["field 1"]);
+      Assert.AreEqual("TWO", document.values["field 2"]);
+      Assert.AreEqual("THREE", document.values["field 3"]);
+      Assert.AreEqual("ONE", (((Dictionary<string, object>)((Dictionary<string, object>) document.values["additionalinfo"])["director"]))["field 1"]);
+      Assert.AreEqual("TWO", (((Dictionary<string, object>)((Dictionary<string, object>) document.values["additionalinfo"])["director"]))["field 2"]);
+      Assert.AreEqual("THREE", (((Dictionary<string, object>)((Dictionary<string, object>) document.values["additionalinfo"])["director"]))["field 3"]);
 
       // Remove fields.
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"field 1\": null, \"field 2\": null, \"field 3\": null }").Bind("id", "a6f4b93e1a264a108393524f29546a8c"));
@@ -327,14 +327,14 @@ namespace MySqlX.Data.Tests
 
     #region Using expressions
 
-    [Fact]
+    [Test]
     public void AddNewFieldUsingExpressions()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       DbDoc document = ExecuteFindStatement(collection.Find()).FetchOne();
       Assert.False(((Dictionary<string, object>)((object[]) document.values["actors"])[0]).ContainsKey("age"));
@@ -344,48 +344,48 @@ namespace MySqlX.Data.Tests
       Assert.False(document.values.ContainsKey("audio"));
       ExecuteModifyStatement(collection.Modify("true").Patch("{ \"audio\": CONCAT($.language, ', no subtitles') }"));
       document = ExecuteFindStatement(collection.Find()).FetchOne();
-      Assert.Equal("English, no subtitles", document.values["audio"]);
+      Assert.AreEqual("English, no subtitles", document.values["audio"]);
     }
 
-    [Fact]
+    [Test]
     public void ReplaceUpdateUsingExpressions()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
 
       Assert.False(document.values.ContainsKey("audio"));
       ExecuteModifyStatement(collection.Modify("true").Patch("{ \"audio\": CONCAT(UPPER($.language), ', No Subtitles') }"));
       document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
-      Assert.Equal("ENGLISH, No Subtitles", document.values["audio"]);
+      Assert.AreEqual("ENGLISH, No Subtitles", document.values["audio"]);
     }
 
-    [Fact]
+    [Test]
     public void ReplaceUpdateIdUsingExpressions()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       // Changes to the _id field are ignored.
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"_id\": replace(UUID(), '-', '') }").Bind("id", "a6f4b93e1a264a108393524f29546a8c"));
       DbDoc document = ExecuteFindStatement(collection.Find()).FetchOne();
-      Assert.Equal("a6f4b93e1a264a108393524f29546a8c", document.Id);
+      Assert.AreEqual("a6f4b93e1a264a108393524f29546a8c", document.Id);
     }
 
-    [Fact]
+    [Test]
     public void AddIdToNestedDocumentUsingExpressions()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       Assert.False(((Dictionary<string, object>) document.values["additionalinfo"]).ContainsKey("_id"));
@@ -394,45 +394,45 @@ namespace MySqlX.Data.Tests
       Assert.True(((Dictionary<string, object>) document.values["additionalinfo"]).ContainsKey("_id"));
     }
 
-    [Fact]
+    [Test]
     public void AddNullFieldUsingExpressions()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       Assert.False(((Dictionary<string, object>) document.values["additionalinfo"]).ContainsKey("releasedate"));
       Exception ex = Assert.Throws<MySqlException>(() => ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"releasedate\": DATE_ADD('2006-04-00',INTERVAL 1 DAY) }").Bind("id", "a6f4b93e1a264a108393524f29546a8c")));
-      Assert.Equal("Invalid data for update operation on document collection table", ex.Message);
+      Assert.AreEqual("Invalid data for update operation on document collection table", ex.Message);
     }
 
-    [Fact]
+    [Test]
     public void ReplaceUpdateNullFieldReturnedFromExpression()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
-      Assert.Equal("AFRICAN EGG", document.values["title"]);
+      Assert.AreEqual("AFRICAN EGG", document.values["title"]);
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"title\": concat('my ', NULL, ' title') }").Bind("id", "a6f4b93e1a264a108393524f29546a8c"));
       document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       Assert.False(document.values.ContainsKey("title"));
     }
 
-    [Fact]
+    [Test]
     public void AddNewFieldReturnedFromExpression()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       Assert.False(document.values.ContainsKey("docfield"));
@@ -441,85 +441,85 @@ namespace MySqlX.Data.Tests
       Assert.True(document.values.ContainsKey("docfield"));
     }
 
-    [Fact]
+    [Test]
     public void ReplaceUpdateFieldWithDocumentReturnedFromExpression()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
-      Assert.Equal("Science fiction", document.values["genre"]);
+      Assert.AreEqual("Science fiction", document.values["genre"]);
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"genre\": JSON_OBJECT('name', 'Science Fiction') }").Bind("id", "a6f4b93e1a264a108393524f29546a8c"));
       document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
-      Assert.Equal("Science Fiction", ((Dictionary<string, object>) document.values["genre"])["name"]);
+      Assert.AreEqual("Science Fiction", ((Dictionary<string, object>) document.values["genre"])["name"]);
     }
 
     #endregion
 
     #region Using _id
 
-    [Fact]
+    [Test]
     public void ReplaceUpdateId()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       // Changes to the _id field are ignored.
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"_id\": \"b5f4b93e1a264a108393524f29546a9d\" }").Bind("id", "a6f4b93e1a264a108393524f29546a8c"));
       DbDoc document = ExecuteFindStatement(collection.Find()).FetchOne();
-      Assert.Equal("a6f4b93e1a264a108393524f29546a8c", document.Id);
+      Assert.AreEqual("a6f4b93e1a264a108393524f29546a8c", document.Id);
     }
 
-    [Fact]
+    [Test]
     public void AddIdToNestedDocument()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       // Add id to nested document is allowed.
       DbDoc document = ExecuteFindStatement(collection.Find()).FetchOne();
       var field = (Dictionary<string, object>) document.values["additionalinfo"];
-      Assert.Equal(3, field.Count);
+      Assert.AreEqual(3, field.Count);
       Assert.False(field.ContainsKey("_id"));
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"additionalinfo\": { \"_id\": \"b5f4b93e1a264a108393524f29546a9d\" } }").Bind("id", "a6f4b93e1a264a108393524f29546a8c"));
       document = ExecuteFindStatement(collection.Find()).FetchOne();
       field = (Dictionary<string, object>) document.values["additionalinfo"];
-      Assert.Equal(4, field.Count);
+      Assert.AreEqual(4, field.Count);
       Assert.True(field.ContainsKey("_id"));
-      Assert.Equal("b5f4b93e1a264a108393524f29546a9d", field["_id"]);
+      Assert.AreEqual("b5f4b93e1a264a108393524f29546a9d", field["_id"]);
     }
 
-    [Fact]
+    [Test]
     public void SetNullToId()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsJsonStrings));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       // Changes to the _id field are ignored.
       ExecuteModifyStatement(collection.Modify("true").Patch("{ \"_id\": NULL }"));
-      Assert.Equal("a6f4b93e1a264a108393524f29546a8c", ExecuteFindStatement(collection.Find()).FetchOne().Id);
+      Assert.AreEqual("a6f4b93e1a264a108393524f29546a8c", ExecuteFindStatement(collection.Find()).FetchOne().Id);
     }
 
-    [Fact]
+    [Test]
     public void AddNullFields()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsJsonStrings));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       ExecuteModifyStatement(collection.Modify("true").Patch("{ \"nullfield\": NULL }"));
       Assert.False(ExecuteFindStatement(collection.Find()).FetchOne().values.ContainsKey("nullfield"));
@@ -543,14 +543,14 @@ namespace MySqlX.Data.Tests
       Assert.Null(nestedNullArray[1]);
     }
 
-    [Fact]
+    [Test]
     public void AddNestedNullFields()
     {
       if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsJsonStrings));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       ExecuteModifyStatement(collection.Modify("true").Patch("{ \"additionalinfo\": { \"nullfield\": NULL } }"));
       Assert.False(((Dictionary<string, object>) ExecuteFindStatement(collection.Find()).FetchOne().values["additionalinfo"]).ContainsKey("nullfield"));
@@ -574,116 +574,116 @@ namespace MySqlX.Data.Tests
       ExecuteModifyStatement(collection.Modify("true").Patch("{ \"additionalinfo\": { \"nullfield\": { \"nested\": JSON_OBJECT('field', null) } } }"));
       document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
       var nestedObject = (Dictionary<string, object>)((Dictionary<string, object>)((Dictionary<string, object>)document.values["additionalinfo"])["nullfield"])["nested"];
-      Assert.Empty(nestedObject);
+      CollectionAssert.IsEmpty(nestedObject);
     }
 
     #endregion
 
-    [Fact]
+    [Test]
     public void GetDocumentProperties()
     {
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       // Get root string properties.
       DbDoc document = collection.GetOne("a6f4b93e1a264a108393524f29546a8c");
-      Assert.Equal("a6f4b93e1a264a108393524f29546a8c", document.Id);
-      Assert.Equal("AFRICAN EGG", document["title"]);
-      Assert.Equal("G", document["rating"]);
+      Assert.AreEqual("a6f4b93e1a264a108393524f29546a8c", document.Id);
+      Assert.AreEqual("AFRICAN EGG", document["title"]);
+      Assert.AreEqual("G", document["rating"]);
 
       // Get root numeric properties.
-      Assert.Equal(2006, document["releaseyear"]);
-      Assert.Equal(130, document["duration"]);
+      Assert.AreEqual(2006, document["releaseyear"]);
+      Assert.AreEqual(130, document["duration"]);
 
       // Get root array.
       object[] actors = document["actors"] as object[];
       Assert.True(actors.Length == 3);
       Dictionary<string, object> actor1 = actors[1] as Dictionary<string, object>;
-      Assert.Equal("VAL BOLGER", actor1["name"]);
+      Assert.AreEqual("VAL BOLGER", actor1["name"]);
 
       // Get nested string properies.
-      Assert.Equal("Sharice Legaspi", document["additionalinfo.director.name"]);
-      Assert.Equal(57, document["additionalinfo.director.age"]);
-      Assert.Equal("Italy", document["additionalinfo.director.birthplace.country"]);
+      Assert.AreEqual("Sharice Legaspi", document["additionalinfo.director.name"]);
+      Assert.AreEqual(57, document["additionalinfo.director.age"]);
+      Assert.AreEqual("Italy", document["additionalinfo.director.birthplace.country"]);
 
       // Get nested array.
       object[] awards = document["additionalinfo.director.awards"] as object[];
       Assert.True(awards.Length == 2);
     }
 
-    [Fact]
+    [Test]
     public void PatchUsingDateAndTimeFunctions()
     {
       string t1 = "{\"_id\": \"1\", \"name\": \"Alice\" }";
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(t1));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": YEAR('2000-01-01') }").Bind("id", "1"));
       DbDoc document = collection.GetOne("1");
-      Assert.Equal(2000, document["dateAndTimeValue"]);
+      Assert.AreEqual(2000, document["dateAndTimeValue"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": MONTH('2008-02-03') }").Bind("id", "1"));
       document = collection.GetOne("1");
-      Assert.Equal(2, document["dateAndTimeValue"]);
+      Assert.AreEqual(2, document["dateAndTimeValue"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": WEEK('2008-02-20') }").Bind("id", "1"));
       document = collection.GetOne("1");
-      Assert.Equal(7, document["dateAndTimeValue"]);
+      Assert.AreEqual(7, document["dateAndTimeValue"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": DAY('2008-02-20') }").Bind("id", "1"));
       document = collection.GetOne("1");
-      Assert.Equal(20, document["dateAndTimeValue"]);
+      Assert.AreEqual(20, document["dateAndTimeValue"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": HOUR('10:05:03') }").Bind("id", "1"));
       document = collection.GetOne("1");
-      Assert.Equal(10, document["dateAndTimeValue"]);
+      Assert.AreEqual(10, document["dateAndTimeValue"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": MINUTE('2008-02-03 10:05:03') }").Bind("id", "1"));
       document = collection.GetOne("1");
-      Assert.Equal(5, document["dateAndTimeValue"]);
+      Assert.AreEqual(5, document["dateAndTimeValue"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": SECOND('10:05:03') }").Bind("id", "1"));
       document = collection.GetOne("1");
-      Assert.Equal(3, document["dateAndTimeValue"]);
+      Assert.AreEqual(3, document["dateAndTimeValue"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": MICROSECOND('12:00:00.123456') }").Bind("id", "1"));
       document = collection.GetOne("1");
-      Assert.Equal(123456, document["dateAndTimeValue"]);
+      Assert.AreEqual(123456, document["dateAndTimeValue"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": QUARTER('2008-04-01') }").Bind("id", "1"));
       document = collection.GetOne("1");
-      Assert.Equal(2, document["dateAndTimeValue"]);
+      Assert.AreEqual(2, document["dateAndTimeValue"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": TIME('2003-12-31 01:02:03') }").Bind("id", "1"));
       document = collection.GetOne("1");
-      Assert.Equal("01:02:03.000000", document["dateAndTimeValue"]);
+      Assert.AreEqual("01:02:03.000000", document["dateAndTimeValue"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"dateAndTimeValue\": DATE('2003-12-31 01:02:03') }").Bind("id", "1"));
       document = collection.GetOne("1");
-      Assert.Equal("2003-12-31", document["dateAndTimeValue"]);
+      Assert.AreEqual("2003-12-31", document["dateAndTimeValue"]);
     }
 
-    [Fact]
+    [Test]
     public void PatchUsingOtherKnownFunctions()
     {
       string t1 = "{\"_id\": \"1\", \"name\": \"Alice\" }";
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(t1));
-      Assert.Equal<ulong>(1, r.AffectedItemsCount);
+      Assert.AreEqual(1, r.AffectedItemsCount);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"otherValue\": CHAR(77, 121, 83, 81, '76') }").Bind("id", "1"));
       DbDoc document = collection.GetOne("1");
-      Assert.Equal("base64:type15:TXlTUUw=", document["otherValue"]);
+      Assert.AreEqual("base64:type15:TXlTUUw=", document["otherValue"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"otherValue\": HEX('abc') }").Bind("id", "1"));
       document = collection.GetOne("1");
-      Assert.Equal("616263", document["otherValue"]);
+      Assert.AreEqual("616263", document["otherValue"]);
 
       ExecuteModifyStatement(collection.Modify("_id = :id").Patch("{ \"otherValue\": BIN(12) }").Bind("id", "1"));
       document = collection.GetOne("1");
-      Assert.Equal("1100", document["otherValue"]);
+      Assert.AreEqual("1100", document["otherValue"]);
     }
   }
 }

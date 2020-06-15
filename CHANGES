@@ -1,9 +1,20 @@
+8.0.22
+- Fixed an error that occurred when trying to find the "__EFMigrationHistory" table during a migration using EF Core (MySQL Bug #85902, Oracle Bug #2501276).
+- A third-party library that was built in debug mode now is built in release mode (MySQL Bug#98955, Oracle Bug #31061034).
+
+
 8.0.21
 - Revised SqlNullValueException, raised when a stored procedure is executed by a user with sufficient privileges(MySQL Bug #96143, Oracle Bug #30029732).
 - Fixed an error that returned a BLOB object, instead of the expected MySqlGeometry object, when the wrong type assignment was used with the AddWithValue method to define a command parameter and the type was inferred (MySQL Bug #96499, MySQL Bug #96498, Oracle Bug #30169716, Oracle Bug #30169715).
 - Fixed an issue in which the wrong isolation level was obtained after a transaction finished (MySQL Bug #86263, Oracle Bug #26035791).
 - Fixed an error caused by a missing unsigned flag when a bigint field is used.(MySQL Bug #95382, Oracle Bug #29802379).
 - Fixed an error that returned NullReferenceException when initializing a MySqlConnection with null (MySQL Bug #98322, Oracle Bug #30791289).
+- Contribution added: Fixed a typo in SimpleRoleProvider.GetRoleId that caused an unexpected behavior (MySQL Bug #83657, Oracle Bug #25046352). Thanks to Stein Setvik for the contribution.
+- Fixed an error that occurred while parsing a MySqlTimeSpan data type (MySQL Bug #91770, Oracle Bug #28393733).
+- Added code to clean up the internal ResulSet in DataReader (MySQL Bug #97300, Oracle Bug #30444429).
+- Fixed an error that occurred when having two databases with same table on a rename-column migration (MySQL Bug 72424, Oracle Bug #23291095).
+- Fixed an error that occurred when the database name or stored procedure name contains a period "." (MySQL Bug #99371, Oracle Bug #31237338).
+- Fixed a bug that occurred when a database name is set as uppercase in the connection string, but the actual database name is lowercase.(Oracle Bug #31173265).
 
 
 8.0.20

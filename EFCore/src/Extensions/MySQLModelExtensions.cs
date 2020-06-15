@@ -33,6 +33,9 @@ using MySql.Data.EntityFrameworkCore.Metadata.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Extensions
 {
+  /// <summary>
+  ///     Extension methods for <see cref="IModel" /> for SQL Server-specific metadata.
+  /// </summary>
   public static class MySQLModelExtensions
   {
     /// <summary>

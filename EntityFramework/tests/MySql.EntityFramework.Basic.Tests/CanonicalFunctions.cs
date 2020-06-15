@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,27 +28,18 @@
 
 using System;
 using System.Linq;
-using Xunit;
+using NUnit.Framework;
 using System.Data.Common;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-  public class CanonicalFunctions : IClassFixture<DefaultFixture>
+  public class CanonicalFunctions : DefaultFixture
   {
-    private DefaultFixture st;
-
-    public CanonicalFunctions(DefaultFixture fixture)
+    public override void LoadData()
     {
-      st = fixture;
-      if (st.Setup(this.GetType()))
-        LoadData();
-    }
-
-    void LoadData()
-    {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         ctx.Products.Add(new Product() { Id = 1, Name = "Garbage Truck", Weight = 8.865f });
         ctx.Products.Add(new Product() { Id = 2, Name = "Fire Truck", Weight = 12.623f });
@@ -60,52 +51,52 @@ namespace MySql.Data.EntityFramework.Tests
     //private EntityConnection GetEntityConnection()
     //{
     //  string connectionString = String.Format(
-    //      "metadata=TestDB.csdl|TestDB.msl|TestDB.ssdl;provider=MySql.Data.MySqlClient; provider connection string=\"{0}\"", st.GetConnectionString(true));
+    //      "metadata=TestDB.csdl|TestDB.msl|TestDB.ssdl;provider=MySql.Data.MySqlClient; provider connection string=\"{0}\"", GetConnectionString(true));
     //  EntityConnection connection = new EntityConnection(connectionString);
     //  return connection;
     //}
 
-    [Fact]
+    [Test]
     public void Bitwise()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         ObjectQuery<Int32> q = context.CreateQuery<Int32>("BitwiseAnd(255,15)");
         foreach (int i in q)
-          Assert.Equal(15, i);
+          Assert.AreEqual(15, i);
         q = context.CreateQuery<Int32>("BitwiseOr(240,31)");
         foreach (int i in q)
-          Assert.Equal(255, i);
+          Assert.AreEqual(255, i);
         q = context.CreateQuery<Int32>("BitwiseXor(255,15)");
         foreach (int i in q)
-          Assert.Equal(240, i);
+          Assert.AreEqual(240, i);
       }
     }
 
-    [Fact]
+    [Test]
     public void CurrentDateTime()
     {
       DateTime current = DateTime.Now;
 
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         ObjectQuery<DateTime> q = context.CreateQuery<DateTime>("CurrentDateTime()");
         foreach (DateTime dt in q)
         {
-          Assert.Equal(current.Year, dt.Year);
-          Assert.Equal(current.Month, dt.Month);
-          Assert.Equal(current.Day, dt.Day);
+          Assert.AreEqual(current.Year, dt.Year);
+          Assert.AreEqual(current.Month, dt.Month);
+          Assert.AreEqual(current.Day, dt.Day);
           // we don't check time as that will be always be different
         }
       }
     }
 
-    [Fact]
+    [Test]
     public void YearMonthDay()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         ObjectQuery<DbDataRecord> q = context.CreateQuery<DbDataRecord>(
@@ -113,17 +104,17 @@ namespace MySql.Data.EntityFramework.Tests
                         FROM Companies AS c WHERE c.Id=1");
         foreach (DbDataRecord record in q)
         {
-          Assert.Equal(1996, record[1]);
-          Assert.Equal(11, record[2]);
-          Assert.Equal(15, record[3]);
+          Assert.AreEqual(1996, record[1]);
+          Assert.AreEqual(11, record[2]);
+          Assert.AreEqual(15, record[3]);
         }
       }
     }
 
-    [Fact]
+    [Test]
     public void HourMinuteSecond()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         ObjectQuery<DbDataRecord> q = context.CreateQuery<DbDataRecord>(
@@ -131,87 +122,87 @@ namespace MySql.Data.EntityFramework.Tests
                         FROM Companies AS c WHERE c.Id=1");
         foreach (DbDataRecord record in q)
         {
-          Assert.Equal(5, record[1]);
-          Assert.Equal(18, record[2]);
-          Assert.Equal(23, record[3]);
+          Assert.AreEqual(5, record[1]);
+          Assert.AreEqual(18, record[2]);
+          Assert.AreEqual(23, record[3]);
         }
       }
     }
 
-    [Fact]
+    [Test]
     public void IndexOf()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         ObjectQuery<Int32> q = context.CreateQuery<Int32>(@"IndexOf('needle', 'haystackneedle')");
         foreach (int index in q)
-          Assert.Equal(9, index);
+          Assert.AreEqual(9, index);
 
         q = context.CreateQuery<Int32>(@"IndexOf('haystack', 'needle')");
         foreach (int index in q)
-          Assert.Equal(0, index);
+          Assert.AreEqual(0, index);
       }
     }
 
-    [Fact]
+    [Test]
     public void LeftRight()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         string entitySQL = "CONCAT(LEFT('foo',3),RIGHT('bar',3))";
         ObjectQuery<String> query = context.CreateQuery<String>(entitySQL);
         foreach (string s in query)
-          Assert.Equal("foobar", s);
+          Assert.AreEqual("foobar", s);
 
         entitySQL = "CONCAT(LEFT('foobar',3),RIGHT('barfoo',3))";
         query = context.CreateQuery<String>(entitySQL);
         foreach (string s in query)
-          Assert.Equal("foofoo", s);
+          Assert.AreEqual("foofoo", s);
 
         entitySQL = "CONCAT(LEFT('foobar',8),RIGHT('barfoo',8))";
         query = context.CreateQuery<String>(entitySQL);
         foreach (string s in query)
-          Assert.Equal("foobarbarfoo", s);
+          Assert.AreEqual("foobarbarfoo", s);
       }
     }
 
-    [Fact]
+    [Test]
     public void Length()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         string entitySQL = "Length('abc')";
         ObjectQuery<Int32> query = context.CreateQuery<Int32>(entitySQL);
         foreach (int len in query)
-          Assert.Equal(3, len);
+          Assert.AreEqual(3, len);
       }
     }
 
-    [Fact]
+    [Test]
     public void Trims()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         ObjectQuery<string> query = context.CreateQuery<string>("LTrim('   text   ')");
         foreach (string s in query)
-          Assert.Equal("text   ", s);
+          Assert.AreEqual("text   ", s);
         query = context.CreateQuery<string>("RTrim('   text   ')");
         foreach (string s in query)
-          Assert.Equal("   text", s);
+          Assert.AreEqual("   text", s);
         query = context.CreateQuery<string>("Trim('   text   ')");
         foreach (string s in query)
-          Assert.Equal("text", s);
+          Assert.AreEqual("text", s);
       }
     }
 
-    [Fact]
+    [Test]
     public void Round()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         ObjectQuery<DbDataRecord> q = context.CreateQuery<DbDataRecord>(@"
@@ -222,32 +213,32 @@ namespace MySql.Data.EntityFramework.Tests
                     FROM Products AS p WHERE p.Id=1");
         foreach (DbDataRecord r in q)
         {
-          Assert.Equal(1, r[0]);
-          Assert.Equal(8.865f, (float)r[1]);
-          Assert.Equal(9, Convert.ToInt32(r[2]));
-          Assert.Equal(8, Convert.ToInt32(r[3]));
-          Assert.Equal(9, Convert.ToInt32(r[4]));
+          Assert.AreEqual(1, r[0]);
+          Assert.AreEqual(8.865f, (float)r[1]);
+          Assert.AreEqual(9, Convert.ToInt32(r[2]));
+          Assert.AreEqual(8, Convert.ToInt32(r[3]));
+          Assert.AreEqual(9, Convert.ToInt32(r[4]));
         }
       }
     }
 
-    [Fact]
+    [Test]
     public void Substring()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         ObjectQuery<string> query = context.CreateQuery<string>("SUBSTRING('foobarfoo',4,3)");
         query = context.CreateQuery<string>("SUBSTRING('foobarfoo',4,30)");
         foreach (string s in query)
-          Assert.Equal("barfoo", s);
+          Assert.AreEqual("barfoo", s);
       }
     }
 
-    [Fact]
+    [Test]
     public void ToUpperToLowerReverse()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         ObjectQuery<DbDataRecord> q = context.CreateQuery<DbDataRecord>(
@@ -255,31 +246,30 @@ namespace MySql.Data.EntityFramework.Tests
                     Reverse(c.Name) FROM Companies AS c WHERE c.Id=1");
         foreach (DbDataRecord r in q)
         {
-          Assert.Equal("HASBRO", r[0]);
-          Assert.Equal("hasbro", r[1]);
-          Assert.Equal("orbsaH", r[2]);
+          Assert.AreEqual("HASBRO", r[0]);
+          Assert.AreEqual("hasbro", r[1]);
+          Assert.AreEqual("orbsaH", r[2]);
         }
       }
     }
 
-    [Fact]
+    [Test]
     public void Replace()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         ObjectQuery<string> q = context.CreateQuery<string>(
             @"Replace('abcdefghi', 'def', 'zzz')");
         foreach (string s in q)
-          Assert.Equal("abczzzghi", s);
+          Assert.AreEqual("abczzzghi", s);
       }
     }
 
-    [Fact]
+    [Test]
     public void CanRoundToNonZeroDigits()
     {
-
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         DbDataRecord product = context.CreateQuery<DbDataRecord>(@"
@@ -287,19 +277,19 @@ namespace MySql.Data.EntityFramework.Tests
                                         Round(p.Weight, 2) AS [Rounded Weight]
                                         FROM Products AS p WHERE p.Id=1").First();
 
-        Assert.Equal((float)8.865, (float)product[1]);
-        Assert.Equal((double)8.86, (double)product[2]);
+        Assert.AreEqual((float)8.865, (float)product[1]);
+        Assert.AreEqual((double)8.86, (double)product[2]);
       }
     }
 
     /// <summary>
-    /// Fix for bug "Using List.Contains in Linq to EF generates many ORs instead of more efficient IN"
+    /// Fix for bug "Using LiContains in Linq to EF generates many ORs instead of more efficient IN"
     /// (http://bugs.mysql.com/bug.php?id=64934 / http://www.google.com ).
     /// </summary>
-    [Fact]
+    [Test]
     public void ListContains2In()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         int[] Ages = new int[] { 8, 9, 10 };
         var q = from e in ctx.Products
@@ -307,17 +297,17 @@ namespace MySql.Data.EntityFramework.Tests
                 orderby e.Name
                 select e;
         var sql = q.ToString();
-        st.CheckSql(sql, 
+        CheckSql(sql, 
           @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`MinAge`, `Extent1`.`Weight`, 
           `Extent1`.`CreatedDate` FROM `Products` AS `Extent1` WHERE `Extent1`.`MinAge` IN ( 8,9,10 )
           ORDER BY `Extent1`.`Name` ASC");
       }
     }
 
-    [Fact]
+    [Test]
     public void ComplexListIn()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         int[] Ages = new int[] { 8, 9, 10 };
         var q = from e in ctx.Products
@@ -326,7 +316,7 @@ namespace MySql.Data.EntityFramework.Tests
                 orderby e.Name
                 select e;
         var sql = q.ToString();
-        st.CheckSql(sql,
+        CheckSql(sql,
           @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`MinAge`, `Extent1`.`Weight`, `Extent1`.`CreatedDate`
             FROM `Products` AS `Extent1` WHERE ((`Extent1`.`MinAge` IN ( 8,9,10 )) AND 
             (`Extent1`.`Name` LIKE @gp1)) OR (`Extent1`.`MinAge` NOT  IN ( 8,9,10 )) ORDER BY 
@@ -334,10 +324,10 @@ namespace MySql.Data.EntityFramework.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void MultipleOrs()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         // 3rd test, using only ||'s
         var q = from e in ctx.Products
@@ -347,7 +337,7 @@ namespace MySql.Data.EntityFramework.Tests
             orderby e.Name
             select e;
         var sql = q.ToString();
-        st.CheckSql(sql,
+        CheckSql(sql,
           @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`MinAge`, `Extent1`.`Weight`, `Extent1`.`CreatedDate`
           FROM `Products` AS `Extent1` WHERE (((((((37 = `Extent1`.`MinAge`) OR (38 = `Extent1`.`MinAge`)) OR 
           (39 = `Extent1`.`MinAge`)) OR (40 = `Extent1`.`MinAge`)) OR (40 = `Extent1`.`MinAge`)) OR 
@@ -360,11 +350,11 @@ namespace MySql.Data.EntityFramework.Tests
     /// Fix for bug LINQ to SQL's StartsWith() and Contains() generate slow LOCATE() 
     /// instead of LIKE (bug http://bugs.mysql.com/bug.php?id=64935 / http://clustra.no.oracle.com/orabugs/14009363).
     /// </summary>
-    [Fact]
+    [Test]
     public void ConversionToLike()
     {
       // Generates queries for each LIKE + wildcards case and checks SQL generated.
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         // Like 'pattern%'
         var q = from c in ctx.Products
@@ -372,7 +362,7 @@ namespace MySql.Data.EntityFramework.Tests
                 orderby c.Name
                 select c;
         var sql = q.ToString();
-        st.CheckSql(sql, 
+        CheckSql(sql, 
           @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`MinAge`, `Extent1`.`Weight`, 
             `Extent1`.`CreatedDate` FROM `Products` AS `Extent1` WHERE `Extent1`.`Name` LIKE @gp1
             ORDER BY `Extent1`.`Name` ASC");
@@ -383,7 +373,7 @@ namespace MySql.Data.EntityFramework.Tests
             orderby c.Name
             select c;
         sql = q.ToString();
-        st.CheckSql(sql,
+        CheckSql(sql,
           @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`MinAge`, `Extent1`.`Weight`, 
           `Extent1`.`CreatedDate` FROM `Products` AS `Extent1` WHERE `Extent1`.`Name` LIKE @gp1
           ORDER BY `Extent1`.`Name` ASC");
@@ -394,7 +384,7 @@ namespace MySql.Data.EntityFramework.Tests
             orderby c.Name
             select c;
         sql = q.ToString();
-        st.CheckSql(sql,
+        CheckSql(sql,
           @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`MinAge`, `Extent1`.`Weight`, `Extent1`.`CreatedDate`
           FROM `Products` AS `Extent1` WHERE `Extent1`.`Name` LIKE @gp1 ORDER BY `Extent1`.`Name` ASC");
       }
@@ -403,17 +393,17 @@ namespace MySql.Data.EntityFramework.Tests
     ///// <summary>
     ///// Tests fix for bug http://bugs.mysql.com/bug.php?id=69409, Entity Framework Syntax Error in Where clause.
     ///// </summary>
-    [Fact]
+    [Test]
     public void EFSyntaxErrorApostrophe()
     {
-      using (DefaultContext ctx = new DefaultContext(st.ConnectionString))
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var q = from c in ctx.Products
                 where c.Name.EndsWith("y'")
                 orderby c.Name
                 select c;
         var sql = q.ToString();
-        st.CheckSql(sql,
+        CheckSql(sql,
           @"SELECT `Extent1`.`Id`, `Extent1`.`Name`, `Extent1`.`MinAge`, `Extent1`.`Weight`, `Extent1`.`CreatedDate`
             FROM `Products` AS `Extent1` WHERE `Extent1`.`Name` LIKE @gp1 ORDER BY `Extent1`.`Name` ASC");
       }

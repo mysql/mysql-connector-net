@@ -1,4 +1,4 @@
-// Copyright © 2014, 2015, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,7 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using Xunit;
+using NUnit.Framework;
 using MySql.Web.Security;
 using System.Collections.Specialized;
 using MySql.Data.MySqlClient;
@@ -62,14 +62,21 @@ namespace MySql.Web.Tests
       MySqlWebSecurity.InitializeDatabaseConnection(ConnectionString, "MySqlSimpleMembership", _userTable, _userIdColumn, _userNameColumn, true, true);
     }
 
-    [Fact]
+    [TearDown]
+    public void Cleanup()
+    {
+      execSQL(@"delete from userprofile;
+                delete from webpages_membership;");
+    }
+
+    [Test]
     public void CheckIfRoleNotExists()
     {
       var roleExists = _simpleRoleProvider.RoleExists("roleName");
       Assert.False(roleExists);
     }
 
-    [Fact]
+    [Test]
     public void CheckIfRoleExists()
     {
       if (!Roles.RoleExists("Administrator"))
@@ -80,22 +87,22 @@ namespace MySql.Web.Tests
       }
     }
 
-    [Fact]
+    [Test]
     public void CreateUserAndAccountTest()
     {
       MySqlWebSecurity.CreateUserAndAccount(_userName, _pass);
       Assert.True(MySqlWebSecurity.UserExists(_userName));
       var user = MySqlHelper.ExecuteDataRow(ConnectionString, string.Format("select * from {0} where {1} = '{2}'", _userTable, _userNameColumn, _userName));
-      Assert.NotNull(user);
-      Assert.Equal(_userName, user[_userNameColumn]);
+      Assert.IsNotNull(user);
+      Assert.AreEqual(_userName, user[_userNameColumn]);
 
       Assert.True(_simpleProvider.ValidateUser(_userName, _pass));
       //We need to mock the login because in that method there is a call to "FormsAuthentication.SetAuthCookie" which causes an "Object reference not set to an instance of an object" exception, because the test doesn't run on web application context
-      //Assert.True(MySqlWebSecurity.Login(_userName, _pass));    
+      //Assert.True(MySqlWebSecurity.Login(_userName, _pass));
     }
 
     //We need to mock this test because there is no data on Membership object, there is no user available because login doesn't add it to the context
-    //[Fact]
+    //[Test]
     public void ChangePasswordTest()
     {
       string newPass = "newpassword";
@@ -113,7 +120,7 @@ namespace MySql.Web.Tests
       //Assert.True(MySqlWebSecurity.Login(_userName, newPass));
     }
 
-    [Fact]
+    [Test]
     public void ConfirmAccountWithTokenTest()
     {
       var token = MySqlWebSecurity.CreateUserAndAccount(_userName, _pass, null, true);
@@ -121,7 +128,7 @@ namespace MySql.Web.Tests
       Assert.True(MySqlWebSecurity.ConfirmAccount(token));
     }
 
-    [Fact]
+    [Test]
     public void ConfirmAccountWithUserAndTokenTest()
     {
       var token = MySqlWebSecurity.CreateUserAndAccount(_userName, _pass, null, true);
@@ -129,7 +136,7 @@ namespace MySql.Web.Tests
       Assert.True(MySqlWebSecurity.ConfirmAccount(_userName, token));
     }
 
-    [Fact]
+    [Test]
     public void ConfirmAccountWithoutTokenTest()
     {
       var token = "falsetoken";
@@ -138,14 +145,16 @@ namespace MySql.Web.Tests
       Assert.False(MySqlWebSecurity.ConfirmAccount(token));
     }
 
-    [Fact]
+    [Test]
     public void CreatedDateTest()
     {
+      execSQL(@"delete from userprofile;
+                delete from webpages_membership;");
       MySqlWebSecurity.CreateUserAndAccount(_userName, _pass);
-      Assert.NotEqual(DateTime.MinValue, MySqlWebSecurity.GetCreateDate(_userName));
+      Assert.AreNotEqual(DateTime.MinValue, MySqlWebSecurity.GetCreateDate(_userName));
     }
 
-    [Fact]
+    [Test]
     public void DeleteTest()
     {
       _simpleProvider.CreateUserAndAccount(_userName, _pass, false, null);
@@ -154,45 +163,40 @@ namespace MySql.Web.Tests
       Assert.True(_simpleProvider.DeleteUser(_userName, true));
     }
 
-    [Fact]
+    [Test]
     public void UserIsConfirmedTest()
     {
       MySqlWebSecurity.CreateUserAndAccount(_userName, _pass, null, true);
       Assert.False(MySqlWebSecurity.IsConfirmed(_userName));
     }
 
-    [Fact]
+    [Test]
     public void UserIsLockedOutTest()
     {
       MySqlWebSecurity.CreateUserAndAccount(_userName, _pass, null, true);
       Assert.False(MySqlWebSecurity.IsAccountLockedOut(_userName, 5, 60));
     }
 
-    [Fact]
+    [Test]
     public void PasswordTest()
     {
       MySqlWebSecurity.CreateUserAndAccount(_userName, _pass);
-      Assert.Equal(DateTime.MinValue, MySqlWebSecurity.GetLastPasswordFailureDate(_userName));
-      Assert.NotEqual(DateTime.MinValue, MySqlWebSecurity.GetPasswordChangedDate(_userName));
-      Assert.Equal(0, MySqlWebSecurity.GetPasswordFailuresSinceLastSuccess(_userName));
+      Assert.AreEqual(DateTime.MinValue, MySqlWebSecurity.GetLastPasswordFailureDate(_userName));
+      Assert.AreNotEqual(DateTime.MinValue, MySqlWebSecurity.GetPasswordChangedDate(_userName));
+      Assert.AreEqual(0, MySqlWebSecurity.GetPasswordFailuresSinceLastSuccess(_userName));
     }
 
     //Password reset token must be assigned to the user but that field is not added in any part of the code, so maybe that field must be handled manually by the user
     // should we handle this functionality? WebMatrix.WebData.SimpleMembershipProvider doesn't handle it
-    [Fact(Skip ="Fix Me")]
+    [Ignore("Fix Me")]
     public void PasswordResetTokenTest()
     {
       var token = MySqlWebSecurity.CreateUserAndAccount(_userName, _pass, null, true);
       int userID = MySqlWebSecurity.GetUserId(_userName);
       Assert.True(MySqlWebSecurity.ConfirmAccount(token));
       var newToken = MySqlWebSecurity.GeneratePasswordResetToken(_userName, 1440);
-      Assert.NotEqual(null, newToken);
-      Assert.Equal(MySqlWebSecurity.GetUserIdFromPasswordResetToken(newToken), userID);
-    }
-
-    public void Dispose()
-    {
-      _simpleProvider.DeleteUser(_userName, true);
+      Assert.AreNotEqual(null, newToken);
+      Assert.AreEqual(MySqlWebSecurity.GetUserIdFromPasswordResetToken(newToken), userID);
     }
   }
 }
