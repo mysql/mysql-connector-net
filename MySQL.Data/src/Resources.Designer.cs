@@ -187,6 +187,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Clear-password authentication is not supported over insecure channels..
+        /// </summary>
+        public static string ClearPasswordNotSupported {
+            get {
+                return ResourceManager.GetString("ClearPasswordNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The CommandText property has not been properly initialized..
         /// </summary>
         public static string CommandTextNotInitialized {

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2016, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -877,5 +877,42 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     #endregion
+
+    #region mysql_clear_password Authentication plugin
+    [Test]
+    [Ignore("This test require start the mysql server commercial with the configuration specified in file Resources/my.ini")]
+    [Property("Category", "Security")]
+    public void ConnectUsingClearTextPlugin()
+    {
+      MySqlDataReader pluginReader = ExecuteReader("SELECT * FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME = 'authentication_ldap_simple'");
+      if (!pluginReader.HasRows)
+        throw new Exception("The authentication_ldap_simple plugin isn't available.");
+      pluginReader.Close();
+
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(Settings.ConnectionString);
+      string userName = "test1@MYSQL.LOCAL";
+      string ldapstr = "CN=test1,CN=Users,DC=mysql,DC=local";
+      string pluginName = "authentication_ldap_simple";
+      CreateUser(userName, ldapstr, pluginName);
+      settings.UserID = userName;
+      settings.Password = "Testpw1";
+
+      using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
+      {
+        connection.Open();
+        Assert.AreEqual(ConnectionState.Open, connection.connectionState);
+        var sql = string.Format("select user,plugin from mysql.user where user like '{0}'", settings.UserID);
+        MySqlCommand command = new MySqlCommand(sql, connection);
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          StringAssert.AreEqualIgnoringCase("test1@MYSQL.LOCAL", reader.GetString(0));
+          StringAssert.AreEqualIgnoringCase("authentication_ldap_simple", reader.GetString(1));
+        }
+      }
+    }
+
+    #endregion
+
   }
 }

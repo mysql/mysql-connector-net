@@ -1,5 +1,4 @@
-﻿// Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
-//
+﻿// Copyright (c) 2020, Oracle and/or its affiliates.
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
 // published by the Free Software Foundation.
@@ -31,19 +30,26 @@ using System;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
-    /// <summary>
-    /// Allows connections to a user account set with the mysql_clear_password authentication plugin.
-    /// </summary>
-    public class MySqlClearPasswordPlugin : MySqlAuthenticationPlugin
+  /// <summary>
+  /// Allows connections to a user account set with the mysql_clear_password authentication plugin.
+  /// </summary>
+  public class MySqlClearPasswordPlugin : MySqlAuthenticationPlugin
+  {
+    private byte[] passBytes;
+    public override string PluginName => "mysql_clear_password";
+    protected override byte[] MoreData(byte[] data)
     {
-        public override string PluginName => "mysql_clear_password";
-
-
-        protected override byte[] MoreData(byte[] data)
-        {
-            if (Settings.SslMode != MySqlSslMode.)
-            byte[] passBytes = System.Text.Encoding.UTF8.GetBytes(Settings.Password);
-            return passBytes;
-        }
+      if ((Settings.SslMode != MySqlSslMode.None &&
+      Settings.ConnectionProtocol != MySqlConnectionProtocol.UnixSocket) ||
+      (Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket))
+      {
+        passBytes = System.Text.Encoding.UTF8.GetBytes(Settings.Password);
+        return passBytes;
+      }
+      else
+      {
+        throw new MySqlException(Resources.ClearPasswordNotSupported);
+      }
     }
+  }
 }
