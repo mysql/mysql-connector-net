@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2016, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,11 +30,21 @@ using MySql.Data.MySqlClient.Authentication;
 using System;
 using System.Data;
 using NUnit.Framework;
+using System.Text;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class AuthTests : TestBase
   {
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+      var users = Utils.FillTable(("SELECT user, host FROM mysql.user WHERE user NOT LIKE 'mysql%' AND user NOT LIKE 'root'"), Root);
+      foreach (DataRow row in users.Rows)
+        ExecuteSQL(string.Format("DROP USER '{0}'@'{1}'", row[0].ToString(), row[1].ToString()), true);
+      ExecuteSQL("FLUSH PRIVILEGES", true);
+    }
+
     #region Windows Authentication Plugin
 
     [Test]
@@ -876,6 +886,74 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    #endregion
+
+    #region LDAP SASL Plugin using SCRAM-SHA-1
+    /// <summary>
+    /// WL14116 - Add support for SCRAM-SHA-1
+    /// This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini
+    /// It uses preconfigured LDAP servers present in the labs.
+    /// </summary>
+    [Test]
+    [Ignore("This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini")]
+    [Property("Category", "Security")]
+    public void ConnectUsingMySqlSASLPlugin()
+    {
+      string userName = "sadmin";
+      string password = "perola";
+      string pluginName = "authentication_ldap_sasl";
+      string proxyUser = "common";
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(Settings.ConnectionString)
+      {
+        UserID = userName,
+        Password = password,
+        Database = string.Empty
+      };
+
+      CreateUser(userName, password, pluginName, "%");
+      CreateUser(proxyUser, "", null, "%");
+      ExecuteSQL(@$"GRANT ALL ON *.* TO '{proxyUser}';
+        GRANT PROXY on '{proxyUser}' TO '{userName}';", true);
+
+      using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
+      {
+        connection.Open();
+        MySqlCommand command = new MySqlCommand($"SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{userName}';", connection);
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          Assert.AreEqual(AuthState.VALIDATE, MySqlSASLPlugin.method._state);
+          Assert.True(reader.Read());
+          StringAssert.AreEqualIgnoringCase(userName, reader.GetString(0));
+          StringAssert.AreEqualIgnoringCase(pluginName, reader.GetString(1));
+        }
+      }
+    }
+
+    [Test]
+    public void AssertScramSha1()
+    {
+      string expected = "c=bixhPXVzZXIs,r=fyko+d2lbbFgONRv9qkxdawL3rfcNHYJY1ZVvWVs7j,p=NdEpo1qMJaCn9xyrYplfuEKubqQ=";
+      string challenge1 = "r=fyko+d2lbbFgONRv9qkxdawL3rfcNHYJY1ZVvWVs7j,s=QSXCR+Q6sek8bf92,i=4096";
+      string challenge2 = "v=n1qgUn3vi9dh7nG1+Giie5qsaVQ=";
+      string fixedNonce = "fyko+d2lbbFgONRv9qkxdawL";
+      byte[] response;
+
+      ScramMethod scramSha1 = new ScramMethod(new MySqlConnectionStringBuilder("user=user;password=pencil;"));
+      scramSha1._cnonce = fixedNonce;
+      Assert.AreEqual(AuthState.INITIAL, scramSha1._state);
+
+      var challenge = Encoding.UTF8.GetString(scramSha1.NextCycle(null));
+      Assert.AreEqual("n,a=user,n=user,r=" + fixedNonce, challenge);
+      Assert.AreEqual(AuthState.FINAL, scramSha1._state);
+
+      response = Encoding.UTF8.GetBytes(challenge1);
+      challenge = Encoding.UTF8.GetString(scramSha1.NextCycle(response));
+      Assert.AreEqual(expected, challenge);
+      Assert.AreEqual(AuthState.VALIDATE, scramSha1._state);
+
+      response = Encoding.UTF8.GetBytes(challenge2);
+      Assert.IsNull(scramSha1.NextCycle(response));
+    }
     #endregion
   }
 }
