@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,7 @@ namespace MySql.Data.EntityFramework.Tests
       LoadData();
     }
 
-    void LoadData()
+    public override void LoadData()
     {
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
@@ -69,7 +69,7 @@ namespace MySql.Data.EntityFramework.Tests
     [Test]
     public void FirstSimple()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT id FROM products", Connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT Id FROM Products", Connection);
       int id = (int)cmd.ExecuteScalar();
 
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
@@ -85,7 +85,7 @@ namespace MySql.Data.EntityFramework.Tests
     [Test]
     public void FirstPredicate()
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT id FROM products WHERE minage > 8", Connection);
+      MySqlCommand cmd = new MySqlCommand("SELECT Id FROM Products WHERE MinAge > 8", Connection);
       int id = (int)cmd.ExecuteScalar();
 
       using (DefaultContext ctx = new DefaultContext(ConnectionString))

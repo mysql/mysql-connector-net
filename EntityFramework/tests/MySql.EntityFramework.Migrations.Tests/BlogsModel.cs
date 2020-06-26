@@ -1,4 +1,4 @@
-// Copyright © 2013, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,18 +26,15 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Data.Entity;
 using System.ComponentModel.DataAnnotations;
 
 namespace MySql.Data.EntityFramework.Migrations.Tests
 {
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
   public class BlogContext : DbContext
   {
-    public BlogContext() : base("BlogsContext") { }
+    public BlogContext() : base(SetUpMigrationsTests.ConnectionStringBlogContext) { }
 
     public DbSet<Blog> Blog { get; set; }
 

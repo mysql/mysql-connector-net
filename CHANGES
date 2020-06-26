@@ -1,7 +1,7 @@
 8.0.22
 - Fixed an error that occurred when trying to find the "__EFMigrationHistory" table during a migration using EF Core (MySQL Bug #85902, Oracle Bug #2501276).
 - A third-party library that was built in debug mode now is built in release mode (MySQL Bug#98955, Oracle Bug #31061034).
-
+- Added support for Entity Framework 6.4 that runs over .NET Core 3.1 (WL14076).
 
 8.0.21
 - Revised SqlNullValueException, raised when a stored procedure is executed by a user with sufficient privileges(MySQL Bug #96143, Oracle Bug #30029732).

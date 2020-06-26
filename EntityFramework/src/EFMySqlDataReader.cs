@@ -230,12 +230,11 @@ namespace MySql.Data.EntityFramework
       {
         return new DateTimeOffset((DateTime)sourceValue);
       }
-#if NET_45_OR_GREATER
+
       if (sourceValue is Byte[] && targetType == typeof(DbGeometry))
       {
         return new MySqlGeometry(MySqlDbType.Geometry, sourceValue as Byte[]);
       }
-#endif
 
       return Convert.ChangeType(sourceValue, targetType, CultureInfo.InvariantCulture);
     }

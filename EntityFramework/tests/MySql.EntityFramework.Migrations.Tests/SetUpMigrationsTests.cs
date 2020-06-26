@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,6 +32,7 @@ using System;
 using System.Configuration;
 using System.Data;
 using System.Data.Entity.Migrations;
+using System.Reflection;
 
 namespace MySql.Data.EntityFramework.Migrations.Tests
 {
@@ -40,25 +41,31 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
 
     private Configuration configuration;
     public DbMigrator Migrator;
+    public static string ConnectionStringBlogContext { get; set; }
 
     [OneTimeSetUp]
     public new void OneTimeSetup()
     {
+      ConnectionStringBlogContext = $"{ConfigurationManager.ConnectionStrings["BlogsContext"].ConnectionString}port={Port}";
+
       configuration = new Configuration();
       DataSet dataSet = ConfigurationManager.GetSection("system.data") as System.Data.DataSet;
-      DataView vi = dataSet.Tables[0].DefaultView;
-      vi.Sort = "Name";
-      int idx = -1;
-      if (((idx = vi.Find("MySql")) != -1) || ((idx = vi.Find("MySQL Data Provider")) != -1))
+      if (dataSet != null)
       {
-        DataRow row = vi[idx].Row;
-        dataSet.Tables[0].Rows.Remove(row);
+        DataView vi = dataSet.Tables[0].DefaultView;
+        vi.Sort = "Name";
+        int idx = -1;
+        if (((idx = vi.Find("MySql")) != -1) || ((idx = vi.Find("MySQL Data Provider")) != -1))
+        {
+          DataRow row = vi[idx].Row;
+          dataSet.Tables[0].Rows.Remove(row);
+        }
+        dataSet.Tables[0].Rows.Add("MySql"
+          , "MySql.Data.MySqlClient"
+          , "MySql.Data.MySqlClient"
+          ,
+          typeof(MySql.Data.MySqlClient.MySqlClientFactory).AssemblyQualifiedName);
       }
-      dataSet.Tables[0].Rows.Add("MySql"
-        , "MySql.Data.MySqlClient"
-        , "MySql.Data.MySqlClient"
-        ,
-        typeof(MySql.Data.MySqlClient.MySqlClientFactory).AssemblyQualifiedName);
       Migrator = new DbMigrator(configuration);
     }
 
