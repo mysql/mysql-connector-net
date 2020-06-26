@@ -647,8 +647,11 @@ namespace MySql.Data.MySqlClient.Tests
     /// </summary>
     [TestCase(true, "", true)]
     [TestCase(true, " ", true)]
+    [TestCase(true, null, true)]
     [TestCase(true, "tmp/data/", true)]
     [TestCase(false, "", false)]
+    [TestCase(false, " ", false)]
+    [TestCase(false, null, false)]
     [TestCase(false, "otherPath/", false)]
     [TestCase(false, "tmp/", true)]
     public void BulkLoadUsingSafePath(bool allowLoadLocalInfile, string allowLoadLocalInfileInPath, bool shouldPass)
@@ -696,7 +699,10 @@ namespace MySql.Data.MySqlClient.Tests
       else
       {
         var ex = Assert.Throws<MySqlException>(() => loader.Load());
-        StringAssert.Contains("allowloadlocalinfileinpath", ex.Message);
+        if (allowLoadLocalInfileInPath == " " || allowLoadLocalInfileInPath is null)
+          Assert.AreEqual("Loading local data is disabled; this must be enabled on both the client and server sides", ex.Message);
+        else
+          StringAssert.Contains("allowloadlocalinfileinpath", ex.Message);
       }
 
       File.Delete(path);
