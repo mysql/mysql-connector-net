@@ -179,7 +179,7 @@ namespace MySql.Data.Common
         SslProtocols sslProtocolsToUse = (SslProtocols)Enum.Parse(typeof(SslProtocols), _settings.TlsVersion);
         List<SslProtocols> listProtocols = new List<SslProtocols>();
 
-#if NET48 || NETSTANDARD2_1
+#if NET48 || NETSTANDARD2_1 || NET5_0
         if (sslProtocolsToUse.HasFlag((SslProtocols)12288))
           listProtocols.Add((SslProtocols)12288);
 #endif

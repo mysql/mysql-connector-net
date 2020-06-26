@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2019, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,24 +26,57 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MySql.Data.X.XDevAPI.Common
+namespace MySqlX.XDevAPI.Common
 {
   /// <summary>
   /// This object store the required parameters to create a Collection with schema validation.
   /// </summary>
-  /// <param name="ReuseExisting">If false, throws an exception if the collection exists.</param>
-  /// <param name="Validation">Object which hold the Level and Schema parameters</param>
-  /// <see cref="Validation"/>
-
   public struct CreateCollectionOptions
   {
+    /// <summary>
+    /// If false, throws an exception if the collection exists.
+    /// </summary>
     public bool ReuseExisting { get; set; }
+    /// <summary>
+    /// Object which hold the Level and Schema parameters.
+    /// </summary>
     public Validation Validation { get; set; }
+  }
+
+  /// <summary>
+  /// This object store the required parameters to modify a Collection with schema validation.
+  /// </summary>
+  public struct ModifyCollectionOptions
+  {
+    /// <summary>
+    /// This object store the required parameters to Modify a Collection with schema validation.
+    /// </summary>
+    public Validation Validation { get; set; }
+  }
+
+  /// <summary>
+  /// This object store the required parameters to create a Collection with schema validation.
+  /// </summary>
+  public struct Validation
+  {
+    /// <summary>
+    /// It can be STRICT to enable schema validation or OFF to disable <see cref="ValidationLevel"/>.
+    /// </summary>
+    public ValidationLevel? Level { get; set; }
+    /// <summary>
+    /// The JSON which define the rules to be validated in the collection.
+    /// </summary>
+    public string Schema { get; set; }
+  }
+
+  /// <summary>
+  /// The possible values for parameter Level in Validation object.
+  /// </summary>
+  public enum ValidationLevel
+  {
+    //Disable schema validation
+    OFF,
+    //Enable schema validation
+    STRICT
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2019, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -101,6 +101,7 @@ namespace MySqlX.XDevAPI
     /// Constructor accepting a connection string.
     /// </summary>
     /// <param name="connectionString">The connection string.</param>
+    /// <param name="isDefaultPort">A flag indicating if the default port is used in the connection.</param>
     public MySqlXConnectionStringBuilder(string connectionString, bool isDefaultPort = true) : this()
     {
       AnalyzeConnectionString(connectionString, true, isDefaultPort);

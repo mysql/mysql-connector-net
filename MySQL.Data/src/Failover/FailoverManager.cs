@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -87,8 +87,9 @@ namespace MySql.Data.Failover
     /// <param name="originalConnectionString">The original connection string set by the user.</param>
     /// <param name="connectionString">An out parameter that stores the updated connection string.</param>
     /// <param name="client">A <see cref="Client"/> object in case this is a pooling scenario.</param>
+    /// <param name="isDefaultPort">A flag indicating if the default port is used in the connection.</param>
     /// <returns>An <see cref="InternalSession"/> instance if the connection was succesfully established, a <see cref="MySqlException"/> exception is thrown otherwise.</returns>
-    internal static InternalSession AttemptConnectionXProtocol(string originalConnectionString, out string connectionString, bool isDefaulPort, Client client = null)
+    internal static InternalSession AttemptConnectionXProtocol(string originalConnectionString, out string connectionString, bool isDefaultPort, Client client = null)
     {
       if (FailoverGroup == null || originalConnectionString == null)
       {
@@ -122,7 +123,7 @@ namespace MySql.Data.Failover
           "server=" + currentHost.Host + ";" + originalConnectionString;
         if (currentHost != null && currentHost.Port != -1)
           connectionString = connectionString.Replace(connectionString.Split(';').First(p => p.Contains("port")).Split('=')[1], currentHost.Port.ToString());
-        Settings = new MySqlXConnectionStringBuilder(connectionString, isDefaulPort);
+        Settings = new MySqlXConnectionStringBuilder(connectionString, isDefaultPort);
 
         try { internalSession = InternalSession.GetSession(Settings); }
         catch (Exception) { }

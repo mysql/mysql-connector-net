@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2019, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,9 +27,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using K4os.Compression.LZ4.Streams;
+using MySql.Data;
 using MySql.Data.MySqlClient;
-using MySql.Data.X.common;
-using MySqlX.Communication;
+using MySqlX.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,7 +37,7 @@ using System.IO.Compression;
 using System.Linq;
 using Zstandard.Net;
 
-namespace MySql.Data.X.Communication
+namespace MySqlX.Communication
 {
   /// <summary>
   /// Provides support for configuring X Protocol compressed messages.

@@ -29,6 +29,7 @@
 using System;
 using System.Data;
 using System.Reflection;
+using System.Security.Authentication;
 using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -387,6 +388,7 @@ namespace MySql.Data.MySqlClient.Tests
       builder.SslCert = _sslCert;
       builder.SslKey = _sslKey;
       builder.SslMode = MySqlSslMode.VerifyFull;
+      builder.TlsVersion = "Tlsv1.2";
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         connection.Open();
@@ -396,7 +398,8 @@ namespace MySql.Data.MySqlClient.Tests
       builder.SslKey = _sslKey.Replace("client-key.pem", "client-key_altered.pem");
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
-        var exception = Assert.Throws<MySqlException>(() => connection.Open());
+        try { connection.Open(); }
+        catch (Exception ex) { Assert.True(ex is MySqlException || ex is AuthenticationException); }
       }
     }
 

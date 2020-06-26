@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Title>MySql.Data.Tests</Title>
@@ -8,7 +8,7 @@
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
-    <TargetFrameworks>netcoreapp3.1;net452;net48;</TargetFrameworks>
+    <TargetFrameworks>net5.0;netcoreapp3.1;net452;net48;</TargetFrameworks>
     <PackageId>MySqlx.Data.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
@@ -35,7 +35,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\MySql.Data.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Compile Update="Resources.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -50,6 +50,10 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+    <DefineConstants>$(DefineConstants);NET5_0</DefineConstants>
+  </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>

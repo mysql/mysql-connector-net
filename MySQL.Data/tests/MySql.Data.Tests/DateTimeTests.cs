@@ -440,7 +440,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         while (rdr.Read())
         {
-#if NETCOREAPP3_1
+#if (NETCOREAPP3_1 || NET5_0)
           Assert.AreEqual(345, rdr.GetTimeSpan(0).Milliseconds);
 #else
           Assert.AreEqual(346, rdr.GetTimeSpan(0).Milliseconds);

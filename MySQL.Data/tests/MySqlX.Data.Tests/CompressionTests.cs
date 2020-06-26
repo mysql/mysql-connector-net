@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2019, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,10 +27,10 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.MySqlClient;
-using MySql.Data.X.Communication;
 using MySqlX.XDevAPI;
 using System;
 using NUnit.Framework;
+using MySqlX.Communication;
 
 namespace MySqlX.Data.Tests
 {
@@ -223,10 +223,12 @@ namespace MySqlX.Data.Tests
         }
 
         // Update client supported list to lz4_message.
+#if DEBUG
         XCompressionController.ClientSupportedCompressionAlgorithms = new string[]
         {
         XCompressionController.LZ4_MESSAGE_COMPRESSION_ALGORITHM,
         };
+#endif
 
         using (var session = MySQLX.GetSession(ConnectionStringUri))
         {
@@ -237,7 +239,7 @@ namespace MySqlX.Data.Tests
           session.Close();
         }
 
-#if !NET452
+#if !NET452 && DEBUG
         // Update client supported list to deflate_stream.
         XCompressionController.ClientSupportedCompressionAlgorithms = new string[]
         {
@@ -254,12 +256,13 @@ namespace MySqlX.Data.Tests
         }
 #endif
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         success = false;
       }
       finally
       {
+#if DEBUG
         // Reset it to its original value to prevent conflicts with other tests.
         XCompressionController.ClientSupportedCompressionAlgorithms = new string[]
         {
@@ -269,7 +272,7 @@ namespace MySqlX.Data.Tests
         XCompressionController.DEFLATE_STREAM_COMPRESSION_ALGORITHM
 #endif
         };
-
+#endif
         Assert.True(success);
       }
     }
@@ -317,7 +320,7 @@ namespace MySqlX.Data.Tests
           Assert.AreEqual(XCompressionController.ZSTD_STREAM_COMPRESSION_ALGORITHM, compressionAlgorithm);
         }
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         success = false;
       }
