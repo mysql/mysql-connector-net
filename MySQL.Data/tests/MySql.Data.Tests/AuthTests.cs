@@ -894,15 +894,13 @@ namespace MySql.Data.MySqlClient.Tests
     /// This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini
     /// It uses preconfigured LDAP servers present in the labs.
     /// </summary>
-    [Test]
+    [TestCase("sadmin", "perola", "authentication_ldap_sasl", "common", true)]
+    [TestCase("wrongUser", "perola", "authentication_ldap_sasl", "common", false)]
+    [TestCase("sadmin", "wrongPassword", "authentication_ldap_sasl", "common", false)]
     [Ignore("This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini")]
     [Property("Category", "Security")]
-    public void ConnectUsingMySqlSASLPlugin()
+    public void ConnectUsingMySqlSASLPlugin(string userName, string password, string pluginName, string proxyUser, bool shouldPass)
     {
-      string userName = "sadmin";
-      string password = "perola";
-      string pluginName = "authentication_ldap_sasl";
-      string proxyUser = "common";
       MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(Settings.ConnectionString)
       {
         UserID = userName,
@@ -912,20 +910,25 @@ namespace MySql.Data.MySqlClient.Tests
 
       CreateUser(userName, password, pluginName, "%");
       CreateUser(proxyUser, "", null, "%");
-      ExecuteSQL(@$"GRANT ALL ON *.* TO '{proxyUser}';
+      ExecuteSQL($@"GRANT ALL ON *.* TO '{proxyUser}';
         GRANT PROXY on '{proxyUser}' TO '{userName}';", true);
 
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
-        connection.Open();
-        MySqlCommand command = new MySqlCommand($"SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{userName}';", connection);
-        using (MySqlDataReader reader = command.ExecuteReader())
+        if (shouldPass)
         {
-          Assert.AreEqual(AuthState.VALIDATE, MySqlSASLPlugin.method._state);
-          Assert.True(reader.Read());
-          StringAssert.AreEqualIgnoringCase(userName, reader.GetString(0));
-          StringAssert.AreEqualIgnoringCase(pluginName, reader.GetString(1));
+          connection.Open();
+          MySqlCommand command = new MySqlCommand($"SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{userName}';", connection);
+          using (MySqlDataReader reader = command.ExecuteReader())
+          {
+            Assert.AreEqual(AuthState.VALIDATE, MySqlSASLPlugin.method._state);
+            Assert.True(reader.Read());
+            StringAssert.AreEqualIgnoringCase(userName, reader.GetString(0));
+            StringAssert.AreEqualIgnoringCase(pluginName, reader.GetString(1));
+          }
         }
+        else
+          Assert.Throws<MySqlException>(() => connection.Open());
       }
     }
 
@@ -953,6 +956,81 @@ namespace MySql.Data.MySqlClient.Tests
 
       response = Encoding.UTF8.GetBytes(challenge2);
       Assert.IsNull(scramSha1.NextCycle(response));
+    }
+
+    [Test]
+    public void AssertSaslPrep()
+    {
+      // Valid String
+      Assert.AreEqual("my,0TEXT", ScramMethod.SaslPrep("my,0TEXT"));
+      Assert.AreEqual("my,0 TEXT", ScramMethod.SaslPrep("my,0 TEXT"));
+
+      // Queries for matching strings MAY contain unassigned code points.
+      Assert.AreEqual("\u0888my,0TEXT", ScramMethod.SaslPrep("\u0888my,0TEXT"));
+      Assert.AreEqual("my,0\u0890TEXT", ScramMethod.SaslPrep("my,0\u0890TEXT"));
+      Assert.AreEqual("my,0TEXT\u089F", ScramMethod.SaslPrep("my,0TEXT\u089F"));
+
+      // Mapping: non-ASCII space characters.
+      Assert.AreEqual("my,0 TEXT", ScramMethod.SaslPrep("my,0\u1680TEXT"));
+      Assert.AreEqual("my,0 TEXT", ScramMethod.SaslPrep("my,0\u200BTEXT"));
+      Assert.AreEqual(" my,0 TEXT ", ScramMethod.SaslPrep("\u00A0my,0\u2000TEXT\u3000"));
+
+      // Mapping: the "commonly mapped to nothing" characters.
+      Assert.AreEqual("my,0TEXT", ScramMethod.SaslPrep("my,0\u00ADTEXT"));
+      Assert.AreEqual("my,0TEXT", ScramMethod.SaslPrep("my,0\uFE0ATEXT"));
+      Assert.AreEqual("my,0TEXT", ScramMethod.SaslPrep("\u00ADmy,0\u1806TE\uFE0FXT\uFEFF"));
+
+      // KC Normalization.
+      Assert.AreEqual("my,0 fi TEXT", ScramMethod.SaslPrep("my,0 \uFB01 TEXT"));
+      Assert.AreEqual("my,0 fi TEXT", ScramMethod.SaslPrep("my,0 \uFB01 TEXT"));
+
+      // Prohibited Output: ASCII control characters.
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("\u007Fmy,0TEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0\u001FTEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0TEXT\u0000"));
+
+      // Prohibited Output: non-ASCII control characters.
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("\uFFFCmy,0TEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0\u008DTEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0\uD834\uDD73TEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0TEXT\u2028"));
+
+      // Prohibited Output: private use characters.
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("\uE000my,0TEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0\uF8FFTEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0\uDBC0\uDC00TEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0TEXT\uDB80\uDC46"));
+
+      // Prohibited Output: non-character code points.
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("\uDB3F\uDFFFmy,0TEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0\uFDD0TEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0\uD9FF\uDFFETEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0TEXT\uDBBF\uDFFF"));
+
+      // Prohibited Output: surrogate code points.
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("\uD83D\uDC2Cmy,0TEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0\uD83C\uDF63TEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0TEXT\uD83C\uDF7B"));
+
+      // Prohibited Output: inappropriate for plain text characters.
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("\uFFFACmy,0TEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0\uFFFDTEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0TEXT\uFFFC"));
+
+      // Prohibited Output: inappropriate for canonical representation characters.
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("\u2FF0my,0TEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0\u2FFBTEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0TEXT\u2FF8"));
+
+      // Prohibited Output: change display properties or deprecated characters.
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("\u206Fmy,0TEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0\u200ETEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0TEXT\u202E"));
+
+      // Prohibited Output: tagging characters.
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("\uDB40\uDC7Fmy,0TEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0\uDB40\uDC21TEXT"));
+      Assert.Throws<ArgumentException>(() => ScramMethod.SaslPrep("my,0TEXT\uDB40\uDC01"));
     }
     #endregion
   }

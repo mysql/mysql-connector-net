@@ -264,39 +264,8 @@ namespace MySql.Data.MySqlClient.Authentication
     /// <param name="c">The character.</param>
     internal static bool IsCommonlyMappedToNothing(char c)
     {
-      switch (c)
-      {
-        case '\u00AD':
-        case '\u034F':
-        case '\u1806':
-        case '\u180B':
-        case '\u180C':
-        case '\u180D':
-        case '\u200B':
-        case '\u200C':
-        case '\u200D':
-        case '\u2060':
-        case '\uFE00':
-        case '\uFE01':
-        case '\uFE02':
-        case '\uFE03':
-        case '\uFE04':
-        case '\uFE05':
-        case '\uFE06':
-        case '\uFE07':
-        case '\uFE08':
-        case '\uFE09':
-        case '\uFE0A':
-        case '\uFE0B':
-        case '\uFE0C':
-        case '\uFE0D':
-        case '\uFE0E':
-        case '\uFE0F':
-        case '\uFEFF':
-          return true;
-        default:
-          return false;
-      }
+      return c == '\u00AD' || c == '\u034F' || c == '\u1806' || c >= '\u180B' && c <= '\u180D' || c >= '\u200B' && c <= '\u200D'
+                || c == '\u2060' || c >= '\uFE00' && c <= '\uFE0F' || c == '\uFEFF';
     }
 
     /// <summary>
@@ -312,6 +281,12 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       int u = char.ConvertToUtf32(s, index);
 
+      // Non-ASCII control characters: https://tools.ietf.org/html/rfc3454#appendix-C.2.2
+      if ((u >= 0x0080 && u <= 0x009F) || u == 0x06DD || u == 0x070F || u == 0x180E || u == 0x200C || u == 0x200D ||
+        u == 0x2028 || u == 0x2029 || (u >= 0x2060 && u <= 0x2063) || (u >= 0x206A && u <= 0x206F) || u == 0xFEFF ||
+        (u >= 0xFFF9 && u <= 0xFFFC) || (u >= 0x1D173 && u <= 0x1D17A))
+        return true;
+
       // Private Use characters: http://tools.ietf.org/html/rfc3454#appendix-C.3
       if ((u >= 0xE000 && u <= 0xF8FF) || (u >= 0xF0000 && u <= 0xFFFFD) || (u >= 0x100000 && u <= 0x10FFFD))
         return true;
@@ -326,7 +301,7 @@ namespace MySql.Data.MySqlClient.Authentication
         return true;
 
       // Surrogate code points: http://tools.ietf.org/html/rfc3454#appendix-C.5
-      if (u >= 0xD800 && u <= 0xDFFF)
+      if (char.IsSurrogate(s,index))
         return true;
 
       // Inappropriate for plain text: http://tools.ietf.org/html/rfc3454#appendix-C.6
