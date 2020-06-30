@@ -713,7 +713,10 @@ namespace MySql.Data.MySqlClient.Tests
       {
         var ex = Assert.Throws<MySqlException>(() => loader.Load());
         if (allowLoadLocalInfileInPath == " " || allowLoadLocalInfileInPath is null)
-          Assert.AreEqual("Loading local data is disabled; this must be enabled on both the client and server sides", ex.Message);
+          if (Version > new Version(8,0))
+            Assert.AreEqual("Loading local data is disabled; this must be enabled on both the client and server sides", ex.Message);
+          else
+            Assert.AreEqual("The used command is not allowed with this MySQL version", ex.Message);
         else
           StringAssert.Contains("allowloadlocalinfileinpath", ex.Message);
       }
