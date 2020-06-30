@@ -28,6 +28,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -654,8 +655,18 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase(false, null, false)]
     [TestCase(false, "otherPath/", false)]
     [TestCase(false, "tmp/", true)]
+    [TestCase(false, "c:/SymLink/", false)] // symbolic link
     public void BulkLoadUsingSafePath(bool allowLoadLocalInfile, string allowLoadLocalInfileInPath, bool shouldPass)
     {
+      DirectoryInfo info;
+      bool isSymLink = false;
+
+      if (!string.IsNullOrWhiteSpace(allowLoadLocalInfileInPath))
+      {
+        info = new DirectoryInfo(allowLoadLocalInfileInPath);
+        isSymLink = info.Attributes.HasFlag(FileAttributes.ReparsePoint);
+      }
+
       Connection.Settings.AllowLoadLocalInfile = allowLoadLocalInfile;
       Connection.Settings.AllowLoadLocalInfileInPath = allowLoadLocalInfileInPath;
 
@@ -696,6 +707,8 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual(200, dt.Rows.Count);
         Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
       }
+      else if (isSymLink && !Directory.Exists(allowLoadLocalInfileInPath))
+        Assert.Ignore("For the symbolic link test to run, it should be manually created before executing it.");
       else
       {
         var ex = Assert.Throws<MySqlException>(() => loader.Load());
