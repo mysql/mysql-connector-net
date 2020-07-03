@@ -882,7 +882,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     #region mysql_clear_password Authentication plugin
     [Test]
-   // [Ignore("This test require start the mysql server commercial with the configuration specified in file Resources/my.ini")]
+    [Ignore("This test require start the mysql server commercial with the configuration specified in file Resources/my.ini")]
     [Property("Category", "Security")]
     public void ConnectUsingClearTextPlugin()
     {
