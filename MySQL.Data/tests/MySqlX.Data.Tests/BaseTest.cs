@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -135,7 +135,6 @@ namespace MySqlX.Data.Tests
     [TearDown]
     public virtual void BaseTearDown()
     {
-      ExecuteSqlAsRoot(@"SET GLOBAL mysqlx_compression_algorithms = ""ZSTD_STREAM,LZ4_MESSAGE,DEFLATE_STREAM"" ");
       using (Session s = GetSession())
       {
         Schema schema = s.GetSchema(schemaName);

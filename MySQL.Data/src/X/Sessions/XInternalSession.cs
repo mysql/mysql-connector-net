@@ -355,29 +355,40 @@ namespace MySqlX.Sessions
     /// </summary>
     public string[] NegotiateUserAgainstClientAlgorithms(string inputString)
     {
+      inputString = inputString.Contains("[") ? inputString.Replace("[", string.Empty) : inputString;
+      inputString = inputString.Contains("]") ? inputString.Replace("]", string.Empty) : inputString;
+      inputString.Trim();
       if (string.IsNullOrEmpty(inputString))
       {
         return Enum.GetNames(typeof(CompressionAlgorithms));
       }
-      inputString = inputString.Contains("[") ? inputString.Replace("[", string.Empty) : inputString;
-      inputString = inputString.Contains("]") ? inputString.Replace("]", string.Empty) : inputString;
       var elements = inputString.ToLowerInvariant().Split(',');
       List<string> ret = new List<string>();
       for (var i=0; i<elements.Length;i++)
       {
-        switch (elements[i])
+        switch (elements[i].ToLowerInvariant())
         {
           case "lz4":
+          case "lz4_message":
             elements[i] = CompressionAlgorithms.lz4_message.ToString();
             break;
           case "zstd":
+          case "zstd_stream":
             elements[i] = CompressionAlgorithms.zstd_stream.ToString();
             break;
-#if !NET452
+
           case "deflate":
+          case "deflate_stream":
+#if NET452
+            if (elements.Length==1 && Settings.Compression == CompressionType.Required)
+            {
+              throw new NotSupportedException(string.Format(ResourcesX.CompressionForSpecificAlgorithmNotSupportedInNetFramework, elements[i]));
+            }
+#else
             elements[i] = CompressionAlgorithms.deflate_stream.ToString();
-            break;
 #endif
+            break;
+
         }
         if (Enum.IsDefined(typeof(CompressionAlgorithms), elements[i]))
         {
@@ -396,6 +407,10 @@ namespace MySqlX.Sessions
     {
       if (serverSupportedAlgorithms == null || serverSupportedAlgorithms.Length == 0)
       {
+        if (Settings.Compression == CompressionType.Required && clientAgainstUserAlgorithms.Length>0)
+        {
+          throw new NotSupportedException(ResourcesX.CompressionAlgorithmNegotiationFailed);
+        }
         return null;
       }
 
