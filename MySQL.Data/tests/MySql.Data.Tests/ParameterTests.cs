@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -654,5 +654,22 @@ namespace MySql.Data.MySqlClient.Tests
         connection.Close();
       }
     }
+
+    /// <summary >
+    /// Bug #25573071 MYSQLPARAMETER INT ZERO EVALUATED TO NULL
+    /// </summary>
+    [Test]
+    public void ZeroParameterAsNull()
+    {
+      ExecuteSQL(@"DROP TABLE IF EXISTS `audit`");
+      ExecuteSQL(@"CREATE TABLE `audit` (`ProviderId` int(11) NOT NULL,`Permanent` tinyint(4) NOT NULL DEFAULT '1')");
+      ExecuteSQL(@"insert into `audit` values (1,0);");
+      var query = "SELECT * FROM audit t1 WHERE t1.Permanent = ?IsFalse";
+      MySqlCommand cmd = new MySqlCommand(query, Connection);
+      MySqlParameter[] parameters = new[] { new MySqlParameter("IsFalse", 0)};
+      var ds=MySqlHelper.ExecuteDataset(Connection.ConnectionString, query, parameters);
+      Assert.AreEqual(ds.Tables[0].Rows.Count,1);
+    }
+
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -94,6 +94,27 @@ namespace MySql.Data.MySqlClient
     public MySqlParameter(string parameterName, MySqlDbType dbType) : this(parameterName, null)
     {
       MySqlDbType = dbType;
+      SetNumericDefaultValueByType(MySqlDbType);
+    }
+
+    private void SetNumericDefaultValueByType(MySqlDbType mySqlDbType)
+    {
+      switch (mySqlDbType)
+      {
+        case MySqlDbType.Decimal:
+        case MySqlDbType.Byte:
+        case MySqlDbType.Int16:
+        case MySqlDbType.Int24:
+        case MySqlDbType.Int32:
+        case MySqlDbType.Int64:
+        case MySqlDbType.Float:
+        case MySqlDbType.Double:
+          if (Value is null)
+          {
+            Value = 0;
+          }
+          break;
+      }
     }
 
     /// <summary>
