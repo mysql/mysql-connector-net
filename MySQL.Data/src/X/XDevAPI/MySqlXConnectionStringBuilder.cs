@@ -71,7 +71,9 @@ namespace MySqlX.XDevAPI
         (msb, sender, value) => { msb.SetValue("connection-attributes", value); }, (msb, sender) => msb.ConnectionAttributes));
       Options.Add(new MySqlConnectionStringOption("compression", "use-compression", typeof(CompressionType), CompressionType.Preferred, false,
         (msb, sender, value) => { msb.SetValue("compression", value); }, (msb, sender) => msb.Compression));
-
+      Options.Add(new MySqlConnectionStringOption("compression-algorithms", "compressionalgorithms", typeof(string), string.Empty, false,
+              (msb, sender, value) => { msb.SetValue("compression-algorithms", value); }, (msb, sender) => msb.CompressionAlgorithm));
+      
       // Authentication options.
       Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false,
         (msb, sender, value) => { msb.SetValue("auth", value); }, (msb, sender) => msb.Auth));
@@ -198,6 +200,19 @@ namespace MySqlX.XDevAPI
       get { return (CompressionType)values["compression"]; }
       set { SetValue("compression", value); }
     }
+
+    /// <summary>
+    /// Gets or sets the compression algorithm.
+    /// </summary>
+    [Category("Server")]
+    [DisplayName("Compression Algorithm")]
+    [Description("Compression algorithm")]
+    public string CompressionAlgorithm
+    {
+      get { return values["compression-algorithms"] is null ? string.Empty : values["compression-algorithms"].ToString(); }
+      set { SetValue("compression-algorithms", value); }
+    }
+
 
     #endregion
 

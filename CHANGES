@@ -6,6 +6,7 @@
 - Added support for Entity Framework 6.4 that runs over .NET Core 3.1 (WL14076).
 - Added support for .NET 5.0 (WL14044).
 - Added the new 'allowLoadLocalInfileInPath' connection string option that allows the user to specify a safe path where files can be sent to server using Load Data Local (WL-14093).
+- Added support for configurable compression algorithms (WL14001).
 
 
 8.0.21

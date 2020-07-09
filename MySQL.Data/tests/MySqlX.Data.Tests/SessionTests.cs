@@ -1098,7 +1098,7 @@ namespace MySqlX.Data.Tests
       builder.CharacterSet = globalSession.Settings.CharacterSet;
       builder.SslMode = MySqlSslMode.VerifyCA;
       // Setting SslCa will also set CertificateFile.
-      builder.SslCa = "../../../../MySql.Data.Tests/client.pfx";
+      builder.SslCa = TestContext.CurrentContext.TestDirectory + "\\client.pfx";
       builder.CertificatePassword = "pass";
       builder.ConnectTimeout = 10000;
       builder.Keepalive = 10;
