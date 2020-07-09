@@ -131,13 +131,11 @@ namespace MySql.Data.MySqlClient
 				parameter.Direction = ParameterDirection.Input;
 				parameter.DbType = Metadata.GetDbType(queryParameter.Value);
 
-#if NET_45_OR_GREATER
 				if (queryParameter.Value.EdmType is PrimitiveType &&
 				((PrimitiveType)queryParameter.Value.EdmType).PrimitiveTypeKind == PrimitiveTypeKind.Geometry)
 				{
 					((MySqlParameter)parameter).MySqlDbType = MySqlDbType.Geometry;
 				}
-#endif
 
 				FunctionParameter funcParam;
 				if (function != null &&

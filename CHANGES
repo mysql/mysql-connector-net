@@ -3,7 +3,7 @@
 - A third-party library that was built in debug mode now is built in release mode (MySQL Bug#98955, Oracle Bug #31061034).
 - Fixed and error that occurred when using the Convert.ToString method on a property of an entity in EF Core (MySQL Bug #99523, Oracle Bug #31337609).
 - Fixed a bug that sets column to "NOT NULL" when using the alter-column migration script (MySQL Bug #96913, Oracle Bug #31070175). 
-
+- Added support for Entity Framework 6.4 that runs over .NET Core 3.1 (WL14076).
 
 8.0.21
 - Revised SqlNullValueException, raised when a stored procedure is executed by a user with sufficient privileges(MySQL Bug #96143, Oracle Bug #30029732).

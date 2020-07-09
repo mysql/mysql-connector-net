@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -251,7 +251,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       ExecuteSQL("DROP TABLE IF EXISTS Test");
 
-      ExecuteSQL("CREATE TABLE test (id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, " +
+      ExecuteSQL("CREATE TABLE Test (id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, " +
          "image MEDIUMBLOB NOT NULL, imageSize MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0, " +
          "PRIMARY KEY (id))");
 
@@ -259,12 +259,12 @@ namespace MySql.Data.MySqlClient.Tests
       for (int x = 0; x < image.Length; x++)
         image[x] = (byte)(x % 47);
 
-      MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES(NULL, ?image, ?size)", Connection);
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(NULL, ?image, ?size)", Connection);
       cmd.Parameters.AddWithValue("?image", image);
       cmd.Parameters.AddWithValue("?size", image.Length);
       cmd.ExecuteNonQuery();
 
-      cmd.CommandText = "SELECT imageSize, length(image), image FROM test WHERE id=?id";
+      cmd.CommandText = "SELECT imageSize, length(image), image FROM Test WHERE id=?id";
       cmd.Parameters.AddWithValue("?id", 1);
       cmd.Prepare();
 
@@ -283,20 +283,18 @@ namespace MySql.Data.MySqlClient.Tests
     }
     
     [Test]
-    [Ignore("Fix this")]
     public void BlobBiggerThanMaxPacket()
     {
       ExecuteSQL("SET GLOBAL max_allowed_packet=" + 500 * 1024, true);
 
       ExecuteSQL("DROP TABLE IF EXISTS Test");
-      ExecuteSQL("CREATE TABLE test (id INT(10), image BLOB)");
+      ExecuteSQL("CREATE TABLE Test (id INT(10), image BLOB)");
 
       using (var c = GetConnection())
       {
-        c.Open();
         byte[] image = Utils.CreateBlob(1000000);
 
-        MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES(NULL, ?image)", c);
+        MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(NULL, ?image)", c);
         cmd.Parameters.AddWithValue("?image", image);
 
         Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());

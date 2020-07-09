@@ -65,10 +65,8 @@ namespace MySql.Data.EntityFramework
             return new MySqlClient.MySqlProviderServices();
           case EServiceType.IProviderInvariantName:
             return new MySqlProviderInvariantName();
-#if NET_45_OR_GREATER
           case EServiceType.IDbProviderFactoryResolver:
             return new MySqlProviderFactoryResolver(); 
-#endif
           case EServiceType.IManifestTokenResolver:
             return new MySqlManifestTokenResolver();
           case EServiceType.IDbModelCacheKey:
@@ -129,11 +127,7 @@ namespace MySql.Data.EntityFramework
     /// <returns>The provider factory for the connection.</returns>
     public DbProviderFactory ResolveProviderFactory(DbConnection connection)
     {
-#if NET_45_OR_GREATER 
       return DbProviderFactories.GetFactory(connection);
-#else
-      return DbProviderFactories.GetFactory(MySqlProviderInvariantName.ProviderName);
-#endif
     }
   }
 

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -32,6 +32,7 @@ using NUnit.Framework;
 using System.Data.Entity.Core.EntityClient;
 using System.Data.Entity;
 using MySql.Data.EntityFramework.Tests;
+using NUnit.Framework.Internal;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
@@ -58,20 +59,22 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       Trace.Listeners.Add(this.asertFailListener);
 
       DataSet dataSet = ConfigurationManager.GetSection("system.data") as DataSet;
-      DataView vi = dataSet.Tables[0].DefaultView;
-      vi.Sort = "Name";
-      int idx = -1;
-      if (((idx = vi.Find("MySql")) != -1) || ((idx = vi.Find("MySQL Data Provider")) != -1))
+      if (dataSet != null)
       {
-        DataRow row = vi[idx].Row;
-        dataSet.Tables[0].Rows.Remove(row);
+        DataView vi = dataSet.Tables[0].DefaultView;
+        vi.Sort = "Name";
+        int idx = -1;
+        if (((idx = vi.Find("MySql")) != -1) || ((idx = vi.Find("MySQL Data Provider")) != -1))
+        {
+          DataRow row = vi[idx].Row;
+          dataSet.Tables[0].Rows.Remove(row);
+        }
+        dataSet.Tables[0].Rows.Add("MySql"
+          , "MySql.Data.MySqlClient"
+          , "MySql.Data.MySqlClient"
+          ,
+          typeof(MySqlClientFactory).AssemblyQualifiedName);
       }
-      dataSet.Tables[0].Rows.Add("MySql"
-        , "MySql.Data.MySqlClient"
-        , "MySql.Data.MySqlClient"
-        ,
-        typeof(MySqlClientFactory).AssemblyQualifiedName);
-
 
       cmd = new MySqlCommand("SELECT COUNT(SCHEMA_NAME) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'sakila'", Connection);
 
