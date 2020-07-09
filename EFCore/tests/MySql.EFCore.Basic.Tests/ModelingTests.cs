@@ -26,6 +26,7 @@ using System.Linq;
 using NUnit.Framework;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
+using System.Collections.Generic;
 
 namespace MySql.EntityFrameworkCore.Basic.Tests
 {
@@ -92,7 +93,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 
         Assert.That(films.Where(a => a.FilmId == 1), Has.One.Items);
         Assert.That(films.Where(a => a.FilmId == 2), Has.One.Items);
-        Assert.That(films.Select(c=>c.Title),Has.Exactly(1).Matches<string>( Title=>Title.Contains("ACADEMY DINOSAUR")));
+        Assert.That(films.Select(c => c.Title), Has.Exactly(1).Matches<string>(Title => Title.Contains("ACADEMY DINOSAUR")));
         Assert.That(films.Select(c => c.Title), Has.Exactly(1).Matches<string>(Title => Title.Contains("ACE GOLDFINGER")));
         Assert.That(films.Where(a => a.Details.Film.Details.ReleaseYear == 2006), Has.Exactly(2).Items);
       }
@@ -105,7 +106,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       {
         context.Database.ExecuteSqlCommand("CREATE FUNCTION FilmsByActorCount(id SMALLINT) RETURNS INT RETURN (SELECT COUNT(*) FROM film_actor WHERE actor_id = id);");
         var query = context.Actor.Where(c => SakilaLiteContext.FilmsByActorCount(c.ActorId) == 18).ToList();
-        Assert.That(query.Select(a=>a.ActorId),Has.Exactly(1).Matches<short>(actorid=>actorid.Equals(31)));
+        Assert.That(query.Select(a => a.ActorId), Has.Exactly(1).Matches<short>(actorid => actorid.Equals(31)));
         Assert.That(query.Select(a => a.ActorId), Has.Exactly(1).Matches<short>(actorid => actorid.Equals(71)));
       }
     }
@@ -117,7 +118,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       {
         var query = context.Actor.Where(c => EF.Functions.Like(c.LastName, "A%")).ToList();
         Assert.IsNotEmpty(query);
-        foreach(Actor actor in query)
+        foreach (Actor actor in query)
         {
           StringAssert.StartsWith("A", actor.LastName);
         }
@@ -163,10 +164,30 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void ModelLevelQueryFilter()
     {
-      using(SakilaLiteContext context = new SakilaLiteContext())
+      using (SakilaLiteContext context = new SakilaLiteContext())
       {
         Assert.AreEqual(584, context.Customer.Count());
         Assert.AreEqual(599, context.Customer.IgnoreQueryFilters().Count());
+      }
+    }
+
+    /// <summary>
+    /// Bug 31337609 - MYSQL.DATA.ENTITYFRAMEWORKCORE NUGET PACKAGE 8.0.20
+    /// </summary>
+    [Test]
+    public void ConvertToType()
+    {
+      using (var context = new SakilaLiteContext())
+      {
+        var ls = new List<ActorTest>();
+        ls = context.Actor.OrderBy(a => a.ActorId).Select(b => new ActorTest
+        {
+          Number = Convert.ToInt32(b.ActorId),
+          Value = Convert.ToString(b.LastUpdate),
+          Text = b.FirstName,
+        }).ToList();
+
+        Assert.IsNotEmpty(ls);
       }
     }
   }

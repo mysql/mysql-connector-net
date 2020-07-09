@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -118,10 +118,21 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
           : -1;
     }
 
-    protected override string EscapeSqlLiteral([NotNull] string literal)
-      => literal.Replace("'", "''");
+    protected override string GenerateNonNullSqlLiteral(object value)
+      => EscapeLineBreaks((string)value);
 
-    protected override string GenerateNonNullSqlLiteral([NotNull] object value)
-      => $"'{EscapeSqlLiteral((string)value)}'";
+    private static readonly char[] LineBreakChars = new char[] { '\r', '\n' };
+    private string EscapeLineBreaks(string value)
+    {
+      var escapedLiteral = $"'{EscapeSqlLiteral(value)}'";
+
+      if (value.IndexOfAny(LineBreakChars) != -1)
+        escapedLiteral = "CONCAT(" + escapedLiteral
+                    .Replace("\r\n", "', CHAR(13, 10), '")
+                    .Replace("\r", "', CHAR(13), '")
+                    .Replace("\n", "', CHAR(10), '") + ")";
+
+      return escapedLiteral;
+    }
   }
 }

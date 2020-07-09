@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2020 Oracle and/or its affiliates.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -549,6 +549,13 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
     public DateTime LastUpdate { get; set; }
 
     public FilmLite Film { get; set; }
+  }
+
+  public class ActorTest
+  {
+    public string Value { get; set; }
+    public string Text { get; set; }
+    public int Number { get; set; }
   }
 
   #endregion
