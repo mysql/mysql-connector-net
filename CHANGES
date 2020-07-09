@@ -5,6 +5,8 @@
 - Fixed a bug that sets column to "NOT NULL" when using the alter-column migration script (MySQL Bug #96913, Oracle Bug #31070175). 
 - Added support for Entity Framework 6.4 that runs over .NET Core 3.1 (WL14076).
 - Added support for .NET 5.0 (WL14044).
+- Added the new 'allowLoadLocalInfileInPath' connection string option that allows the user to specify a safe path where files can be sent to server using Load Data Local (WL-14093).
+
 
 8.0.21
 - Revised SqlNullValueException, raised when a stored procedure is executed by a user with sufficient privileges(MySQL Bug #96143, Oracle Bug #30029732).

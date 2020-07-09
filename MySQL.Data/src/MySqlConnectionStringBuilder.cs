@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -100,6 +100,7 @@ namespace MySql.Data.MySqlClient
         (msb, sender) => (uint)msb.values["connectiontimeout"]
         ));
       Options.Add(new MySqlConnectionStringOption("allowloadlocalinfile", "allow load local infile", typeof(bool), false, false));
+      Options.Add(new MySqlConnectionStringOption("allowloadlocalinfileinpath", "allow load local infile in path", typeof(string), "", false));
 
       // Authentication options.
       Options.Add(new MySqlConnectionStringOption("persistsecurityinfo", "persist security info", typeof(bool), false, false,
@@ -373,6 +374,19 @@ namespace MySql.Data.MySqlClient
     {
       get { return (bool)values["allowloadlocalinfile"]; }
       set { SetValue("allowloadlocalinfile", value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the safe path where files can be read and uploaded to the server.
+    /// </summary>
+    [Category("Connection")]
+    [DisplayName("Allow Load Local Infile In Path")]
+    [Description("Allows specifying a safe path to read and upload files to server.")]
+    [RefreshProperties(RefreshProperties.All)]
+    public string AllowLoadLocalInfileInPath
+    {
+      get { return (string)values["allowloadlocalinfileinpath"]; }
+      set { SetValue("allowloadlocalinfileinpath", value); }
     }
 
     #endregion
