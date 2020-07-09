@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -176,6 +176,7 @@ namespace MySqlX.XDevAPI
     /// Initializes a new instance of the BaseSession class based on the specified connection string.
     /// </summary>
     /// <param name="connectionString">The connection used to create the session.</param>
+    /// <param name="client">A <see cref="Client"/> object.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connectionString"/> is <c>null</c>.</exception>
     /// <exception cref="UriFormatException">Unable to parse the <paramref name="connectionString"/> when 
     /// in URI format.</exception>
@@ -259,6 +260,7 @@ namespace MySqlX.XDevAPI
     /// Initializes a new instance of the BaseSession class based on the specified anonymous type object.
     /// </summary>
     /// <param name="connectionData">The connection data as an anonymous type used to create the session.</param>
+    /// <param name="client">A <see cref="Client"/> object.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connectionData"/> is null.</exception>
     /// <remarks>
     /// <para>Multiple hosts can be specified as part of the <paramref name="connectionData"/>, which enables client-side failover when trying to
@@ -494,6 +496,7 @@ namespace MySqlX.XDevAPI
     /// Parses the connection data.
     /// </summary>
     /// <param name="connectionData">The connection string or connection URI.</param>
+    /// <param name="client">A <see cref="Client"/> object.</param>
     /// <returns>An updated connection string representation of the provided connection string or connection URI.</returns>
     protected internal string ParseConnectionData(string connectionData, Client client = null)
     {
@@ -617,6 +620,7 @@ namespace MySqlX.XDevAPI
     /// <param name="uri">An <see cref="Uri"/> instance with the values for the provided connection options.</param>
     /// <param name="unixSocketPath">The path of the Unix socket file.</param>
     /// <param name="parseServerAsUnixSocket">If <c>true</c> the <paramref name="unixSocketPath"/> replaces the value for the server connection option; otherwise, <c>false</c></param>
+    /// <param name="isDnsSrvScheme">Flag indicating if this is a connection using DNS SRV.</param>
     /// <returns>A connection string.</returns>
     private string ConvertToConnectionString(Uri uri, string unixSocketPath, bool parseServerAsUnixSocket, bool isDnsSrvScheme)
     {

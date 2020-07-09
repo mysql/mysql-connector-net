@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Title>MySql.Data.Tests</Title>
@@ -8,7 +8,7 @@
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
-    <TargetFrameworks>netcoreapp3.1;net452;net48;</TargetFrameworks>
+    <TargetFrameworks>net5.0;netcoreapp3.1;net452;net48;</TargetFrameworks>
     <PackageId>MySql.Data.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
@@ -28,8 +28,7 @@
     <NoWarn>CS1591,CS1587,CS1701,CS1702,CS1570,CA2100</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1'">
-    <Compile Remove="Framework\netstandard2_0\MediumTrust\*.cs" />
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1' or '$(TargetFramework)'=='net5.0'">
     <Compile Remove="Framework\netstandard2_0\PartialTrustSandbox.cs" />
     <Compile Remove="Framework\netstandard2_0\CmdTestsPipe.cs;Framework\netstandard2_0\CmdTestsPipeCompressed.cs;Framework\netstandard2_0\CmdTestsSharedmemCompressed.cs;Framework\netstandard2_0\CmdTestsSharedMem.cs;" />
     <Compile Remove="Framework\netstandard2_0\PSPipeCompressed.cs;Framework\netstandard2_0\PSPipe.cs;Framework\netstandard2_0\PSSharedMemory.cs;Framework\netstandard2_0\PSSharedMemoryCompressed.cs;" />
@@ -49,7 +48,12 @@
 
   <ItemGroup>
     <Compile Remove="Framework\netstandard2_0\InstallerTests.cs" />
+    <Compile Remove="Framework\netstandard2_0\MediumTrust\*.cs" />
   </ItemGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+    <DefineConstants>$(DefineConstants);NET5_0</DefineConstants>
+  </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
@@ -66,11 +70,11 @@
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\MySql.Data.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Reference Include="Renci.SshNet">
       <HintPath>..\..\..\Dependencies\Renci.SshNet.dll</HintPath>

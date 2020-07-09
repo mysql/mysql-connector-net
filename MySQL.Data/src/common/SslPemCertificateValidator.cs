@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2019, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -78,6 +78,7 @@ namespace MySql.Data.common
     /// Raises an exception if the specified connection option is null, empty or whitespace.
     /// </summary>
     /// <param name="connectionOption">The connection option to verify.</param>
+    /// <param name="connectionOptionName">The name of the connection option.</param>
     private static void VerifyEmptyOrWhitespaceSslConnectionOption(string connectionOption, string connectionOptionName)
     {
       if (string.IsNullOrWhiteSpace(connectionOption))
@@ -91,7 +92,7 @@ namespace MySql.Data.common
     /// <summary>
     /// Reads the specified file as a byte array.
     /// </summary>
-    /// <param name="fileName">The path of the file to read.</param>
+    /// <param name="filePath">The path of the file to read.</param>
     /// <returns>A byte array representing the read file.</returns>
     private static byte[] GetBuffer(string filePath)
     {

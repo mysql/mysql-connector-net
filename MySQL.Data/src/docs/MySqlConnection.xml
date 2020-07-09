@@ -430,6 +430,7 @@
   <BeginTransaction1>
     <summary>Begins a database transaction with the specified isolation level.</summary>
     <param name="iso">The isolation level under which the transaction should run. </param>
+    <param name="scope">The scope of the transaction. </param>
     <returns>An object representing the new transaction.</returns>
     <exception cref="InvalidOperationException">Parallel exceptions are not supported.</exception>
     <remarks>

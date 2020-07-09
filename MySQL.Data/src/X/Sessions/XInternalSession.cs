@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -46,8 +46,6 @@ using System.Text;
 using System.Diagnostics;
 using System.Collections;
 using System.Threading;
-using MySql.Data.X.XDevAPI.Common;
-using MySql.Data.X.Communication;
 
 namespace MySqlX.Sessions
 {
@@ -569,7 +567,6 @@ namespace MySqlX.Sessions
     /// <param name="collectionName">The name of the collection.</param>
     /// <param name="options">This object hold the parameters required to Modify the collection.</param>
     /// <see cref="ModifyCollectionOptions"/>
-    /// <returns>Collection referente.</returns>
     public void ModifyCollection(string schemaName, string collectionName, ModifyCollectionOptions? options)
     {
       var dictionary = new Dictionary<string, object>();

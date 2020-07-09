@@ -54,7 +54,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(66, Convert.ToInt32(sb.MaximumPoolSize));
       Assert.AreEqual(1, Convert.ToInt32(sb.Keepalive));
       Exception  ex = Assert.Throws<ArgumentException>(()=> sb.ConnectionString = "server=localhost;badkey=badvalue");
-#if !NETCOREAPP3_1
+#if !(NETCOREAPP3_1 || NET5_0)
       Assert.AreEqual($"Option not supported.{Environment.NewLine}Parameter name: badkey", ex.Message);        
 #else
       Assert.AreEqual("Option not supported. (Parameter 'badkey')", ex.Message);
@@ -139,7 +139,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder();
       Exception ex = Assert.Throws<ArgumentException>(() => s["foo keyword"] = "foo");
-#if !NETCOREAPP3_1
+#if NET452 || NET48
       Assert.AreEqual($"Option not supported.{Environment.NewLine}Parameter name: foo keyword", ex.Message);           
 #else
       Assert.AreEqual($"Option not supported. (Parameter 'foo keyword')", ex.Message);

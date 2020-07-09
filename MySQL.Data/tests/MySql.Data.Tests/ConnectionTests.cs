@@ -28,6 +28,7 @@
 
 using System;
 using System.Data;
+using System.Security.Authentication;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -747,10 +748,10 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase("Tlsv1", "TLSv1")]
     [TestCase("Tlsv1.0, Tlsv1.1", "TLSv1.1")]
     [TestCase("Tlsv1.0, Tlsv1.1, Tlsv1.2", "TLSv1.2")]
-    //#if NET48 || NETCOREAPP3_1
-    // [TestCase("Tlsv1.3", "Tlsv1.3", Skip = "Waiting for full support")]
-    //[TestCase("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.3", Skip = "Waiting for full support")]
-    //#else
+    //#if NET48 || NETCOREAPP3_1 || NET5_0
+    //    [TestCase("Tlsv1.3", "Tlsv1.3")]
+    //    [TestCase("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.3")]
+    //#endif
 #if NET452
     [TestCase("Tlsv1.3", "")]
     [TestCase("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.2")]
@@ -773,7 +774,10 @@ namespace MySql.Data.MySqlClient.Tests
       {
         using (conn)
         {
-          conn.Open();
+          // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+          try { conn.Open(); }
+          catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
+
           Assert.AreEqual(ConnectionState.Open, conn.State);
           MySqlCommand cmd = conn.CreateCommand();
           cmd.CommandText = "SHOW SESSION STATUS LIKE 'ssl_version'";

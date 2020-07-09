@@ -34,6 +34,11 @@ namespace MySqlX.Data.Tests
 {
   public class DbDocTests
   {
+    private string RemoveLineEndings(string str)
+    {
+      return str.Replace("\r\n", string.Empty).Replace("\r", string.Empty);
+    }
+
     [Test]
     public void SimpleConverstionToJson()
     {
@@ -41,10 +46,11 @@ namespace MySqlX.Data.Tests
       d.SetValue("_id", 1);
       d.SetValue("pages", 20);
       string s = d.ToString();
-      StringAssert.AreEqualIgnoringCase(@"{
+      string json = @"{
   ""_id"": 1, 
   ""pages"": 20
-}", d.ToString());
+}";
+      StringAssert.AreEqualIgnoringCase(RemoveLineEndings(json), RemoveLineEndings(s));
     }
 
     [Test]
@@ -106,7 +112,7 @@ namespace MySqlX.Data.Tests
       d2.SetValue("pages", 20);
       d2.SetValue("books", docs);
       StringAssert.AreEqualIgnoringCase(d.ToString(), d2.ToString());
-      StringAssert.AreEqualIgnoringCase(json, d2.ToString());
+      StringAssert.AreEqualIgnoringCase(RemoveLineEndings(json), RemoveLineEndings(d2.ToString()));
     }
 
     [Test]
