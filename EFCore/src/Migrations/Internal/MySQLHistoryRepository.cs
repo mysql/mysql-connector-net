@@ -128,17 +128,8 @@ namespace MySql.Data.EntityFrameworkCore.Migrations.Internal
 
     public override string GetCreateIfNotExistsScript()
     {
-      var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
-      var builder = new StringBuilder();
-
-      builder.AppendLine("  IF EXISTS(SELECT 1 FROM information_schema.tables ");
-      builder.AppendLine("  WHERE table_name = '")
-             .Append(stringTypeMapping.GenerateSqlLiteral(TableName))
-             .AppendLine("' AND table_schema = DATABASE()) ")
-             .AppendLine("BEGIN")
-             .AppendLine(GetCreateScript())
-             .AppendLine("END;");
-      return builder.ToString();
+      var script = GetCreateScript();
+      return script.Insert(script.IndexOf("CREATE TABLE", StringComparison.Ordinal) + 12, " IF NOT EXISTS");
     }
 
     public override string GetEndIfScript() => "END;" + Environment.NewLine;

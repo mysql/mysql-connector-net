@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2016, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -101,7 +101,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     public override void AlterColumnOperation()
     {
       base.AlterColumnOperation();
-      Assert.AreEqual("ALTER TABLE Person MODIFY `Age` int NOT NULL DEFAULT 7;" + EOL, Sql);
+      Assert.AreEqual("ALTER TABLE `Person` MODIFY `Age` int NOT NULL DEFAULT 7;" + EOL, Sql);
     }
 
 
@@ -109,7 +109,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     public override void AlterColumnOperationWithoutType()
     {
       base.AlterColumnOperationWithoutType();
-      Assert.AreEqual("ALTER TABLE Person MODIFY `Age` int NOT NULL;" + EOL, Sql);
+      Assert.AreEqual("ALTER TABLE `Person` MODIFY `Age` int NOT NULL;" + EOL, Sql);
     }
 
     [Test]

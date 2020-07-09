@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,7 +38,6 @@ using MySql.Data.EntityFrameworkCore.Utils;
 using System.Text.RegularExpressions;
 using MySql.Data.EntityFrameworkCore.Internal;
 using MySql.Data.EntityFrameworkCore.Metadata;
-using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Migrations
 {
@@ -121,6 +120,22 @@ namespace MySql.Data.EntityFrameworkCore.Migrations
 
       EndStatement(builder);
     }
+
+    /// <summary>
+    ///     Generates a SQL fragment for a column definition in an <see cref="AddColumnOperation" />.
+    /// </summary>
+    /// <param name="operation"> The operation. </param>
+    /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+    /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+    protected override void ColumnDefinition(AddColumnOperation operation, IModel model,
+        MigrationCommandListBuilder builder)
+        => ColumnDefinition(
+            operation.Schema,
+            operation.Table,
+            operation.Name,
+            operation,
+            model,
+            builder);
 
     /// <summary>
     ///     Generates a SQL fragment for a column definition for the given column metadata.
@@ -336,20 +351,11 @@ namespace MySql.Data.EntityFrameworkCore.Migrations
       Check.NotNull(operation, nameof(operation));
       Check.NotNull(builder, nameof(builder));
 
-      var operationColumn = new AddColumnOperation();
-      operationColumn.Schema = operation.Schema;
-      operationColumn.Table = operation.Table;
-      operationColumn.Name = operation.Name;
-      operationColumn.ClrType = operation.ClrType;
-      operationColumn.ColumnType = operation.ColumnType;
-      operationColumn.ComputedColumnSql = operation.ComputedColumnSql;
-      operationColumn.DefaultValue = operation.DefaultValue;
-      operationColumn.DefaultValueSql = operation.DefaultValueSql;
-
       builder
-       .Append("ALTER TABLE " + operation.Table)
+       .Append("ALTER TABLE ")
+       .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
        .Append(" MODIFY ");
-      ColumnDefinition(operationColumn, model, builder);
+      ColumnDefinition(operation.Schema, operation.Table, operation.Name, operation, model, builder);
       builder
         .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
       EndStatement(builder);
