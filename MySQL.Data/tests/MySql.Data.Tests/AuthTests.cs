@@ -32,6 +32,7 @@ using System.Data;
 using NUnit.Framework;
 using MySql.Data.Common;
 using System.Reflection;
+using System.Text;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -1048,9 +1049,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
     }
-      #endregion
-
-    }
+    #endregion
 
     #region LDAP SASL Plugin using SCRAM-SHA-1
     /// <summary>
