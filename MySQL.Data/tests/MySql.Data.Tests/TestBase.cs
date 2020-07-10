@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -189,17 +189,17 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    public string CreateUser(string userName, string password, string plugin)
+    public string CreateUser(string userName, string password, string plugin, string host = "localhost")
     {
       using (var connection = GetConnection(true))
       {
         if (Version >= new Version("5.7"))
         {
-          ExecuteSQL(String.Format("DROP USER IF EXISTS '{0}'@'localhost';", userName), connection);
+          ExecuteSQL(String.Format("DROP USER IF EXISTS '{0}'@'{1}';", userName, host), connection);
           ExecuteSQL(
           String.Format(
-            "CREATE USER '{0}'@'localhost' IDENTIFIED {1} BY '{2}'",
-            userName,
+            "CREATE USER '{0}'@'{1}' IDENTIFIED {2} BY '{3}'",
+            userName, host,
             (plugin == null ? string.Empty : String.Format("WITH '{0}' ", plugin)), password),
           connection);
         }
@@ -208,13 +208,13 @@ namespace MySql.Data.MySqlClient.Tests
           var cmd = connection.CreateCommand();
           cmd.CommandText = String.Format("SELECT count(*) FROM mysql.user WHERE user LIKE '{0}%'", userName);
           if ((long)cmd.ExecuteScalar() > 0)
-            ExecuteSQL(String.Format("DROP USER '{0}'@'localhost';", userName), connection);
-          ExecuteSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED WITH '{1}'", userName, plugin), connection);
+            ExecuteSQL(String.Format("DROP USER '{0}'@'{1}';", userName, host), connection);
+          ExecuteSQL(String.Format("CREATE USER '{0}'@'{1}' IDENTIFIED WITH '{2}'", userName, host, plugin), connection);
           if (plugin == "sha256_password") ExecuteSQL("SET old_passwords = 2", connection);
-          ExecuteSQL(String.Format("SET PASSWORD FOR '{0}'@'localhost' = PASSWORD('{1}')", userName, password), connection);
+          ExecuteSQL(String.Format("SET PASSWORD FOR '{0}'@'{1}' = PASSWORD('{2}')", userName, host, password), connection);
         }
 
-        ExecuteSQL(String.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName), connection);
+        ExecuteSQL(String.Format("GRANT ALL ON *.* TO '{0}'@'{1}'", userName, host), connection);
         ExecuteSQL("FLUSH PRIVILEGES", connection);
         return userName;
       }

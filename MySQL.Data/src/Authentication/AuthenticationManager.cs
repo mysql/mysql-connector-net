@@ -1,4 +1,4 @@
-// Copyright © 2012, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2012, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,8 +29,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MySql.Data.MySqlClient;
-
 
 namespace MySql.Data.MySqlClient.Authentication
 {
@@ -46,6 +44,7 @@ namespace MySql.Data.MySqlClient.Authentication
       Plugins["sha256_password"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.Sha256AuthenticationPlugin");
       Plugins["authentication_windows_client"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.MySqlWindowsAuthenticationPlugin");
       Plugins["caching_sha2_password"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.CachingSha2AuthenticationPlugin");
+      Plugins["authentication_ldap_sasl_client"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.MySqlSASLPlugin");
 
       AuthenticationManagerCtorConfiguration();
     }
