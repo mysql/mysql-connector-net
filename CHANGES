@@ -9,6 +9,7 @@
 - Added support for configurable compression algorithms (WL14001).
 - Fixed a bug that occurred when MySqlParameter, specifically created with value zero, is mapped as MySQLDbType with a default value of null, instead of an Int32(MySQL Bug #85027, Oracle Bug #25573071 ).
 - Added support for the SASL authentication protocol using SCRAM-SHA-1 method (WL14116). 
+- Added support for the mysql_clear_password plugin (WL14002).
 
 
 8.0.21

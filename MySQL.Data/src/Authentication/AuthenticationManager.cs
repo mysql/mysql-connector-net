@@ -45,6 +45,7 @@ namespace MySql.Data.MySqlClient.Authentication
       Plugins["authentication_windows_client"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.MySqlWindowsAuthenticationPlugin");
       Plugins["caching_sha2_password"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.CachingSha2AuthenticationPlugin");
       Plugins["authentication_ldap_sasl_client"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.MySqlSASLPlugin");
+      Plugins["mysql_clear_password"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.MySqlClearPasswordPlugin");
 
       AuthenticationManagerCtorConfiguration();
     }

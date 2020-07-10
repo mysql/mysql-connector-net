@@ -30,7 +30,8 @@ using MySql.Data.MySqlClient.Authentication;
 using System;
 using System.Data;
 using NUnit.Framework;
-using System.Text;
+using MySql.Data.Common;
+using System.Reflection;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -887,6 +888,169 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     #endregion
+
+    #region mysql_clear_password Authentication plugin
+    [Test]
+    [Ignore("This test require start the mysql server commercial with the configuration specified in file Resources/my.ini")]
+    [Property("Category", "Security")]
+    public void ConnectUsingClearTextPlugin()
+    {
+      //Verify plugin is loaded
+      MySqlDataReader pluginReader = ExecuteReader("SELECT * FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME = 'authentication_ldap_simple'");
+      if (!pluginReader.HasRows)
+        throw new Exception("The authentication_ldap_simple plugin isn't available.");
+      pluginReader.Close();
+
+      // Test connection for VALID user in LDAP server with right password, expected result PASS
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(Settings.ConnectionString);
+      string userName = "test1@MYSQL.LOCAL";
+      string ldapstr = "CN=test1,CN=Users,DC=mysql,DC=local";
+      string pluginName = "authentication_ldap_simple";
+      CreateUser(userName, ldapstr, pluginName);
+      settings.UserID = userName;
+      settings.Password = "Testpw1";
+
+      using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
+      {
+        connection.Open();
+        Assert.AreEqual(ConnectionState.Open, connection.connectionState);
+        var sql = string.Format("select user,plugin from mysql.user where user like '{0}'", settings.UserID);
+        MySqlCommand command = new MySqlCommand(sql, connection);
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          StringAssert.AreEqualIgnoringCase("test1@MYSQL.LOCAL", reader.GetString(0));
+          StringAssert.AreEqualIgnoringCase("authentication_ldap_simple", reader.GetString(1));
+        }
+        //test the new user can execute sql statements FR1_1	
+        sql = "create table testinserts( id int, name varchar(50),age int)";
+        command = new MySqlCommand(sql, connection);
+        command.ExecuteNonQuery();
+        sql = @"insert into testinserts values(1,""John"",30);
+          insert into testinserts values(2,""Paul"",31);
+          insert into testinserts values(3,""George"",34);
+          insert into testinserts values(4,""Ringo"",32);";
+        command = new MySqlCommand(sql, connection);
+        command.ExecuteNonQuery();
+        sql = "select count(*) from testinserts";
+        command = new MySqlCommand(sql, connection);
+        var counter = command.ExecuteScalar();
+        Assert.AreEqual(4, counter);
+        //check ssl
+        command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          StringAssert.StartsWith("TLSv1", reader.GetString(1));
+        }
+
+      }
+
+      //Testing unix protocol
+      if (!Platform.IsWindows())
+      {
+        string unixConnectionString = $"server={UnixSocket};user={settings.UserID};password={settings.Password};protocol=unix;";
+        using (MySqlConnection conn = new MySqlConnection(unixConnectionString))
+        {
+          conn.Open();
+          Assert.AreEqual(ConnectionState.Open, conn.State);
+        }
+
+        using (MySqlConnection connection = new MySqlConnection(unixConnectionString + "sslmode=none"))
+        {
+          connection.Open();
+          Assert.AreEqual(ConnectionState.Open, connection.State);
+        }
+      }
+
+      // Test connection for VALID user in LDAP server with wrong password, expected result FAIL
+      settings = new MySqlConnectionStringBuilder(Settings.ConnectionString);
+      userName = "test1@MYSQL.LOCAL";
+      ldapstr = "CN=test1,CN=Users,DC=mysql,DC=local";
+      pluginName = "authentication_ldap_simple";
+      CreateUser(userName, ldapstr, pluginName);
+      settings.UserID = userName;
+      settings.Password = "wrongpw";
+      using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
+      {
+        Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
+        StringAssert.StartsWith("Access denied for user", ex.InnerException.Message);
+      }
+
+      // Test connection for INVALID user in LDAP server, expected result FAIL
+      settings = new MySqlConnectionStringBuilder(Settings.ConnectionString);
+      userName = "william.wallace@MYSQL.LOCAL";
+      ldapstr = "CN=william.wallace,CN=Users,DC=mysql,DC=local";
+      pluginName = "authentication_ldap_simple";
+      CreateUser(userName, ldapstr, pluginName);
+      settings.UserID = userName;
+      settings.Password = "testpw1";
+      using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
+      {
+        Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
+        StringAssert.StartsWith("Access denied for user", ex.InnerException.Message);
+      }
+
+      // Test connection for VALID user in LDAP server with SSLMode=none, expected result FAIL
+      settings = new MySqlConnectionStringBuilder(Settings.ConnectionString);
+      userName = "test1@MYSQL.LOCAL";
+      ldapstr = "CN=test1,CN=Users,DC=mysql,DC=local";
+      pluginName = "authentication_ldap_simple";
+      CreateUser(userName, ldapstr, pluginName);
+      settings.UserID = userName;
+      settings.Password = "Testpw1";
+      settings.SslMode = MySqlSslMode.None;
+      using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
+      {
+        Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
+        StringAssert.Contains("Clear-password authentication is not supported over insecure channels", ex.Message);
+      }
+
+      // Test connection for VALID user in LDAP server with different SSLMode values, expected result pass
+      string assemblyPath = TestContext.CurrentContext.TestDirectory;
+      string _sslCa = assemblyPath + "\\ca.pem";
+      string _sslCert = assemblyPath + "\\client-cert.pem";
+      string _sslKey = assemblyPath + "\\client-key.pem";
+
+      settings = new MySqlConnectionStringBuilder(Settings.ConnectionString);
+      userName = "test1@MYSQL.LOCAL";
+      ldapstr = "CN=test1,CN=Users,DC=mysql,DC=local";
+      pluginName = "authentication_ldap_simple";
+      CreateUser(userName, ldapstr, pluginName);
+      settings.UserID = userName;
+      settings.Password = "Testpw1";
+      settings.SslMode = MySqlSslMode.Required;
+      using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
+      {
+        connection.Open();
+        Assert.AreEqual(ConnectionState.Open, connection.State);
+        connection.Close();
+      }
+
+      settings.SslCa = _sslCa;
+      settings.SslMode = MySqlSslMode.VerifyCA;
+      using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
+      {
+        connection.Open();
+        Assert.AreEqual(ConnectionState.Open, connection.State);
+        connection.Close();
+      }
+
+      settings.SslCa = _sslCa;
+      settings.SslCert = _sslCert;
+      settings.SslKey = _sslKey;
+      settings.SslMode = MySqlSslMode.VerifyFull;
+      using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
+      {
+        connection.Open();
+        Assert.AreEqual(ConnectionState.Open, connection.State);
+        connection.Close();
+      }
+
+    }
+      #endregion
+
+    }
 
     #region LDAP SASL Plugin using SCRAM-SHA-1
     /// <summary>

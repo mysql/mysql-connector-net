@@ -652,6 +652,9 @@
   <data name="DeprecatedSshAlgorithm" xml:space="preserve">
     <value>The {0} algorithm being used by the server({1}) has been deprecated and will be removed in a future version. It is recommended that you configure the server to use a non-deprecated {0} algorithm.</value>
   </data>
+  <data name="ClearPasswordNotSupported" xml:space="preserve">
+    <value>Clear-password authentication is not supported over insecure channels.</value>
+  </data>
   <data name="UnsafePathForLoadLocalInfile" xml:space="preserve">
     <value>Trying to upload a file from outside the path set on 'allowloadlocalinfileinpath' is invalid.</value>
   </data>
