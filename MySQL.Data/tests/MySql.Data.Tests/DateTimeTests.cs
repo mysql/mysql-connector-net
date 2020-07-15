@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -287,12 +287,13 @@ namespace MySql.Data.MySqlClient.Tests
 
     /// <summary>
     /// Bug #28393733 TIME(N) COLUMN LOSES MICROSECONDS WITH PREPARED COMMAND
+    /// Bug #31623730	TIME(N) COLUMN DESERIALIZES MILLISECONDS INCORRECTLY WITH PREPARED COMMAND
     /// </summary>
     [Test]
     public void TimeColumnWithMicrosecondsOnPrepare()
     {
       ExecuteSQL(@"DROP TABLE IF EXISTS test_time;
-              CREATE TABLE test_time(data TIME(3) NOT NULL);");
+              CREATE TABLE test_time(data TIME(6) NOT NULL);");
       TimeSpan time = new TimeSpan(1, 2, 3, 4, 567);
       using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";IgnorePrepare=False;"))
       {
@@ -303,12 +304,28 @@ namespace MySql.Data.MySqlClient.Tests
           cmd.ExecuteNonQuery();
         }
 
-        using (var command = new MySqlCommand(@"SELECT data FROM test_time",c))
+        using (var command = new MySqlCommand(@"SELECT data FROM test_time", c))
         {
           command.Prepare();
           var result = (TimeSpan)command.ExecuteScalar();
-          Assert.True(result.ToString()== "1.02:03:04.5670000");
+          Assert.True(result.ToString() == "1.02:03:04.5670000");
         }
+
+        ExecuteSQL(@"Delete from test_time;");
+        TimeSpan time2 = new TimeSpan(1, 2, 3, 4) + TimeSpan.FromTicks(5600);
+        using (var cmd = new MySqlCommand(@"INSERT INTO test_time VALUES(@data);", c))
+        {
+          cmd.Parameters.AddWithValue("@data", time2);
+          cmd.ExecuteNonQuery();
+        }
+
+        using (var command = new MySqlCommand(@"SELECT data FROM test_time", c))
+        {
+          command.Prepare();
+          var result = (TimeSpan)command.ExecuteScalar();
+          Assert.True(result.ToString() == "1.02:03:04.0005600");
+        }
+
       }
     }
 

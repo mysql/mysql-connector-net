@@ -11,7 +11,7 @@
 - Added support for the SASL authentication protocol using SCRAM-SHA-1 method (WL14116). 
 - Added support for the mysql_clear_password plugin (WL14002).
 - Fixed the creation of corrupted sql statements by the MigrationSqlGenerator in EF (MySQL Bug #80159, Oracle Bug #22669961).
-
+- Fixed how microseconds are set in the MySqlTime class. (MySQL Bug #100218, Oracle Bug #31623730).
 
 8.0.21
 - Revised SqlNullValueException, raised when a stored procedure is executed by a user with sufficient privileges(MySQL Bug #96143, Oracle Bug #30029732).
