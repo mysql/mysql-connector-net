@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,7 +31,7 @@ using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Query.Internal
 {
-  public class MySQLQueryTranslationPostprocessorFactory : IQueryTranslationPostprocessorFactory
+  internal class MySQLQueryTranslationPostprocessorFactory : IQueryTranslationPostprocessorFactory
   {
     private readonly QueryTranslationPostprocessorDependencies _dependencies;
     private readonly RelationalQueryTranslationPostprocessorDependencies _relationalDependencies;

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,7 +34,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
   ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
   ///     directly from your code. This API may change or be removed in future releases.
   /// </summary>
-  public class MySQLExecutionStrategyFactory : RelationalExecutionStrategyFactory
+  internal class MySQLExecutionStrategyFactory : RelationalExecutionStrategyFactory
   {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -51,7 +51,7 @@ namespace MySql.Data.EntityFrameworkCore
   ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
   ///     </para>
   /// </summary>
-  internal partial class MySQLUpdateSqlGenerator : UpdateSqlGenerator, IMySQLUpdateSqlGenerator
+  internal class MySQLUpdateSqlGenerator : UpdateSqlGenerator, IMySQLUpdateSqlGenerator
   {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -179,7 +179,7 @@ namespace MySql.Data.EntityFrameworkCore
       return ResultSetMapping.LastInResultSet;
     }
 
-    public enum ResultsGrouping
+    internal enum ResultsGrouping
     {
       OneResultSet,
       OneCommandPerResultSet

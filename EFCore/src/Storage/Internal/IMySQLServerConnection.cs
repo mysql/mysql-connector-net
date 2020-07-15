@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,7 +30,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  public interface IMySQLServerConnection : IRelationalConnection
+  internal interface IMySQLServerConnection : IRelationalConnection
   {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

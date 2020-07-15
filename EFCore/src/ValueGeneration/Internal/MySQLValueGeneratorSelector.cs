@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -48,7 +48,7 @@ namespace MySql.Data.EntityFrameworkCore.ValueGeneration.Internal
   ///         The implementation does not need to be thread-safe.
   ///     </para>
   /// </summary>
-  public class MySQLValueGeneratorSelector : RelationalValueGeneratorSelector
+  internal class MySQLValueGeneratorSelector : RelationalValueGeneratorSelector
   {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

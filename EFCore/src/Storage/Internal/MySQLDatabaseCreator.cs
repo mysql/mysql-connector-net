@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -44,7 +44,7 @@ namespace MySql.Data.EntityFrameworkCore
   /// <summary>
   /// Relational Database creator implementation in MySQL
   /// </summary>
-  internal partial class MySQLDatabaseCreator : RelationalDatabaseCreator
+  internal class MySQLDatabaseCreator : RelationalDatabaseCreator
   {
     private readonly MySQLServerConnection _connection;
     private readonly IMigrationsSqlGenerator _sqlGenerator;

@@ -1,4 +1,4 @@
-﻿// Copyright © 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,7 +38,7 @@ namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
   /// <summary>
   /// Represents a charset attribute for a property.
   /// </summary>
-  public class MySqlCharsetAttributeConvention : PropertyAttributeConventionBase<MySqlCharsetAttribute>
+  internal class MySqlCharsetAttributeConvention : PropertyAttributeConventionBase<MySqlCharsetAttribute>
   {
     /// <summary>
     ///     Creates a new instance of <see cref="PropertyAttributeConventionBase{TAttribute}" />.

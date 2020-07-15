@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -35,7 +35,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  public class MySQLExecutionStrategy : IExecutionStrategy
+  internal class MySQLExecutionStrategy : IExecutionStrategy
   {
     private ExecutionStrategyDependencies Dependencies { get; }
 

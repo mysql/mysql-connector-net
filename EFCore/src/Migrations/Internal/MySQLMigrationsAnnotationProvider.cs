@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -49,7 +49,7 @@ namespace MySql.Data.EntityFrameworkCore.Migrations.Internal
   ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
   ///     </para>
   /// </summary>
-  internal partial class MySQLMigrationsAnnotationProvider : MigrationsAnnotationProvider
+  internal class MySQLMigrationsAnnotationProvider : MigrationsAnnotationProvider
   {
     /// <summary>
     ///     Initializes a new instance of this class.
