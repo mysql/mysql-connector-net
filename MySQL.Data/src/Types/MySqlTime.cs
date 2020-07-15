@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -127,8 +127,8 @@ namespace MySql.Data.Types
           var minutes = (int) packet.ReadByte();
           var seconds = (int) packet.ReadByte();
           var microseconds = (int) packet.ReadInteger(4);
-          Value = new TimeSpan(days, hours, minutes, seconds, int.Parse(microseconds.ToString().Trim('0')));
-        }
+          Value = new TimeSpan(days, hours, minutes, seconds) + TimeSpan.FromTicks(microseconds*10);
+      }
 
       if (negate == 1)
         Value = Value.Negate();
