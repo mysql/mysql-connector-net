@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2008, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2008, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,7 +38,6 @@ using System.Data.Entity.Migrations.Utilities;
 using System.Data.Entity.Core.Common;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Core.Common.CommandTrees;
-
 
 namespace MySql.Data.EntityFramework
 {
@@ -544,8 +543,12 @@ namespace MySql.Data.EntityFramework
                                 select col).Count() > 0
                          select pkOpe).Count() > 0 & op.Column.IsIdentity;
 
-      //if the column to be added is PK as well as identity we need to specify the column as unique to avoid the error: "Incorrect table definition there can be only one auto column and it must be defined as a key", since unique and PK are almost equivalent we'll be able to add the new column and later add the PK related to it, this because the "AddPrimaryKeyOperation" is executed after the column is added
-      stmt.Sql = string.Format("alter table `{0}` add column `{1}` {2} {3}", TrimSchemaPrefix(op.Table), op.Column.Name, Generate(op.Column), (uniqueAttr ? " unique " : ""));
+      // if the column to be added is PK as well as identity we need to specify the column as unique to avoid the error: 
+      // "Incorrect table definition there can be only one auto column and it must be defined as a key", 
+      // since unique and PK are almost equivalent we'll be able to add the new column and later add the PK related to it, 
+      // this because the "AddPrimaryKeyOperation" is executed after the column is added
+      stmt.Sql = EndsWithSemicolon(string.Format("alter table `{0}` add column `{1}` {2} {3}", TrimSchemaPrefix(op.Table), 
+        op.Column.Name, Generate(op.Column), (uniqueAttr ? " unique " : "")));
 
       return stmt;
     }
@@ -560,9 +563,8 @@ namespace MySql.Data.EntityFramework
       if (op == null) return null;
 
       MigrationStatement stmt = new MigrationStatement();
-      StringBuilder sb = new StringBuilder();
-      stmt.Sql = string.Format("alter table `{0}` drop column `{1}`",
-        TrimSchemaPrefix(op.Table), op.Name);
+      stmt.Sql = EndsWithSemicolon(string.Format("alter table `{0}` drop column `{1}`",
+        TrimSchemaPrefix(op.Table), op.Name));
       return stmt;
     }
 
@@ -592,7 +594,7 @@ namespace MySql.Data.EntityFramework
       // add definition
       sb.Append(Generate(column) + (uniqueAttr ? " unique " : ""));
 
-      return new MigrationStatement { Sql = sb.ToString() };
+      return new MigrationStatement { Sql = EndsWithSemicolon(sb.ToString()) };
     }
 
     /// <summary>
@@ -617,7 +619,7 @@ namespace MySql.Data.EntityFramework
       sb.Append("execute stmt;");
       sb.AppendLine();
       sb.Append("deallocate prepare stmt;");
-      return new MigrationStatement { Sql = sb.ToString() };
+      return new MigrationStatement { Sql = EndsWithSemicolon(sb.ToString()) };
 
     }
 
@@ -646,7 +648,7 @@ namespace MySql.Data.EntityFramework
         sb.Append(" on update cascade on delete cascade ");
       }
 
-      return new MigrationStatement { Sql = sb.ToString() };
+      return new MigrationStatement { Sql = EndsWithSemicolon(sb.ToString()) };
     }
 
     /// <summary>
@@ -729,7 +731,7 @@ namespace MySql.Data.EntityFramework
     {
       StringBuilder sb = new StringBuilder();
       sb = sb.AppendFormat("alter table `{0}` drop foreign key `{1}`", op.DependentTable, op.Name);
-      return new MigrationStatement { Sql = sb.ToString() };
+      return new MigrationStatement { Sql = EndsWithSemicolon(sb.ToString()) };
     }
 
     /// <summary>
@@ -771,7 +773,7 @@ namespace MySql.Data.EntityFramework
       if (Convert.ToDouble(_providerManifestToken) >= 8.0 && indexType == "HASH")
         sb.Replace(sortOrder, string.Empty);
 
-      return new MigrationStatement() { Sql = sb.ToString() };
+      return new MigrationStatement() { Sql = EndsWithSemicolon(sb.ToString()) };
     }
 
     /// <summary>
@@ -783,8 +785,8 @@ namespace MySql.Data.EntityFramework
     {
       return new MigrationStatement()
       {
-        Sql = string.Format("alter table `{0}` drop index `{1}`",
-          TrimSchemaPrefix(op.Table), op.Name)
+        Sql = EndsWithSemicolon(string.Format("alter table `{0}` drop index `{1}`",
+          TrimSchemaPrefix(op.Table), op.Name))
       };
     }
 
@@ -861,7 +863,7 @@ namespace MySql.Data.EntityFramework
       sb.Append(keyFields.Substring(0, keyFields.LastIndexOf(",")));
       sb.Append(") engine=InnoDb auto_increment=0");
 
-      return new MigrationStatement() { Sql = sb.ToString() };
+      return new MigrationStatement() { Sql = EndsWithSemicolon(sb.ToString()) };
     }
 
     /// <summary>
@@ -871,7 +873,7 @@ namespace MySql.Data.EntityFramework
     /// <returns>A migration operation to drop an existing table.</returns>
     protected virtual MigrationStatement Generate(DropTableOperation op)
     {
-      return new MigrationStatement() { Sql = "drop table " + "`" + TrimSchemaPrefix(op.Name) + "`" };
+      return new MigrationStatement() { Sql = EndsWithSemicolon("drop table " + "`" + TrimSchemaPrefix(op.Name) + "`") };
     }
 
     /// <summary>
@@ -888,7 +890,7 @@ namespace MySql.Data.EntityFramework
       if (op.Columns.Count > 0)
         sb.Append("( " + string.Join(",", op.Columns.Select(c => "`" + c + "`")) + ") ");
 
-      return new MigrationStatement { Sql = sb.ToString() };
+      return new MigrationStatement { Sql = EndsWithSemicolon(sb.ToString()) };
     }
 
     /// <summary>
@@ -913,10 +915,10 @@ namespace MySql.Data.EntityFramework
         newColumn.Name = op.Columns[0];
         var alterColumn = new AlterColumnOperation(op.Table, newColumn, false);
         var ms = Generate(alterColumn);
-        sb.Append(ms.Sql + "; ");
+        sb.Append(ms.Sql);
       }
 
-      return new MigrationStatement { Sql = sb.ToString() + " alter table `" + op.Table + "` drop primary key " };
+      return new MigrationStatement { Sql = EndsWithSemicolon(sb.ToString() + " alter table `" + op.Table + "` drop primary key ") };
     }
 
     /// <summary>
@@ -930,7 +932,7 @@ namespace MySql.Data.EntityFramework
 
       StringBuilder sb = new StringBuilder();
       sb.AppendFormat("rename table `{0}` to `{1}`", op.Name, op.NewName);
-      return new MigrationStatement { Sql = sb.ToString() };
+      return new MigrationStatement { Sql = EndsWithSemicolon(sb.ToString()) };
     }
 
     /// <summary>
@@ -940,7 +942,15 @@ namespace MySql.Data.EntityFramework
     /// <returns>NA</returns>
     protected virtual MigrationStatement Generate(MoveTableOperation op)
     {
-      return null; // TODO :check if we'll suppport this operation
+      return new MigrationStatement { Sql = "" }; // TODO :check if we'll suppport this operation
+    }
+
+    private string EndsWithSemicolon(string str)
+    {
+      //remove last linefeed or whitespace end of string 
+      string strSemiColon = str.TrimEnd(new char[] { ' ', '\r', '\n', ';' });
+      strSemiColon += ";";
+      return strSemiColon;
     }
 
     /// <summary>

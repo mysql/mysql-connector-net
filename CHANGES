@@ -1,6 +1,6 @@
 8.0.22
 - Fixed an error that occurred when trying to find the "__EFMigrationHistory" table during a migration using EF Core (MySQL Bug #85902, Oracle Bug #2501276).
-- A third-party library that was built in debug mode now is built in release mode (MySQL Bug#98955, Oracle Bug #31061034).
+- Fixed a third-party library that was built in debug mode now is built in release mode (MySQL Bug #98955, Oracle Bug #31061034).
 - Fixed and error that occurred when using the Convert.ToString method on a property of an entity in EF Core (MySQL Bug #99523, Oracle Bug #31337609).
 - Fixed a bug that sets column to "NOT NULL" when using the alter-column migration script (MySQL Bug #96913, Oracle Bug #31070175). 
 - Added support for Entity Framework 6.4 that runs over .NET Core 3.1 (WL14076).
@@ -10,6 +10,7 @@
 - Fixed a bug that occurred when MySqlParameter, specifically created with value zero, is mapped as MySQLDbType with a default value of null, instead of an Int32(MySQL Bug #85027, Oracle Bug #25573071 ).
 - Added support for the SASL authentication protocol using SCRAM-SHA-1 method (WL14116). 
 - Added support for the mysql_clear_password plugin (WL14002).
+- Fixed the creation of corrupted sql statements by the MigrationSqlGenerator in EF (MySQL Bug #80159, Oracle Bug #22669961).
 
 
 8.0.21
