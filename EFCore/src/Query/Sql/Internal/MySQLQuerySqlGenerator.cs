@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -35,7 +35,7 @@ using System.Linq.Expressions;
 
 namespace MySql.Data.EntityFrameworkCore.Query
 {
-  internal partial class MySQLQuerySqlGenerator : QuerySqlGenerator
+  internal class MySQLQuerySqlGenerator : QuerySqlGenerator
   {
     private const ulong LimitUpperBound = 18446744073709551610;
 

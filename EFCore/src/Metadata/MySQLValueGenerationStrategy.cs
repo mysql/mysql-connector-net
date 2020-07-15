@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,10 +28,23 @@
 
 namespace MySql.Data.EntityFrameworkCore.Metadata
 {
+  /// <summary>
+  ///     Defines two strategies to use across the EF Core stack when generating key values
+  ///     from MySQL Server database columns.
+  /// </summary>
   public enum MySQLValueGenerationStrategy
   {
+    /// <summary>
+    ///   No MySQL Server-specific strategy
+    /// </summary>
     None,
+    /// <summary>
+    ///   A pattern that uses a normal MySQL Server <c>Identity</c> column in the same way as EF6 and earlier.
+    /// </summary>
     IdentityColumn,
+    /// <summary>
+    ///   Values of a generated column are computed from an expression included in the column definition.
+    /// </summary>
     ComputedColumn
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -36,7 +36,7 @@ namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
   /// A convention that configures the default model <see cref="MySQLValueGenerationStrategy"/> as
   /// <see cref="MySQLValueGenerationStrategy.IdentityColumn"/>.
   /// </summary>
-  class MySQLValueGenerationStrategyConvention : IModelInitializedConvention, IModelFinalizedConvention
+  internal class MySQLValueGenerationStrategyConvention : IModelInitializedConvention, IModelFinalizedConvention
   {
     /// <summary>
     /// Parameter object containing service dependencies.

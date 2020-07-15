@@ -249,10 +249,7 @@ namespace MySql.Data.MySqlClient
 				serverVersion = new Version(v.Major + "." + v.Minor);
 
                 double version = double.Parse(c.ServerVersion.Substring(0, 3), CultureInfo.InvariantCulture);
-                if (version < 5.0) throw new NotSupportedException("Versions of MySQL prior to 5.0 are not currently supported");
-                if (version < 5.1) return "5.0";
-                if (version < 5.5) return "5.1";
-                if (version < 5.6) return "5.5";
+                if (version < 5.6) throw new NotSupportedException("Versions of MySQL prior to 5.6 are not currently supported");
                 if (version < 5.7) return "5.6";
                 if (version < 8.0) return "5.7";
                 return "8.0";

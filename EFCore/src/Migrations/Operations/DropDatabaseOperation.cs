@@ -33,7 +33,7 @@ namespace MySql.Data.EntityFrameworkCore.Migrations.Operations
   /// <summary>
   /// Drop database operation for migrations.
   /// </summary>
-  public class MySQLDropDatabaseOperation : MigrationOperation
+  internal class MySQLDropDatabaseOperation : MigrationOperation
   {
     /// <summary>
     ///     The name of the database.

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,7 +38,7 @@ namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
   ///     any release. You should only use it directly in your code with extreme caution and knowing that
   ///     doing so can result in application failures when updating to a new Entity Framework Core release.
   /// </summary>
-  public class MySQLCodeGenerator : ProviderCodeGenerator
+  internal class MySQLCodeGenerator : ProviderCodeGenerator
   {
     public MySQLCodeGenerator(
         [NotNull] ProviderCodeGeneratorDependencies dependencies)

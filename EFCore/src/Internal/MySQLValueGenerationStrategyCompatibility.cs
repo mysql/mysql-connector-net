@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,9 +33,9 @@ using System.Linq;
 
 namespace MySql.Data.EntityFrameworkCore.Internal
 {
-  public static class MySQLValueGenerationStrategyCompatibility
+  internal static class MySQLValueGenerationStrategyCompatibility
   {
-    public static MySQLValueGenerationStrategy? GetValueGenerationStrategy(IAnnotation[] annotations)
+    internal static MySQLValueGenerationStrategy? GetValueGenerationStrategy(IAnnotation[] annotations)
     {
       var valueGenerationStrategy = annotations.FirstOrDefault(a => a.Name == MySQLAnnotationNames.ValueGenerationStrategy)?.Value as MySQLValueGenerationStrategy?;
 

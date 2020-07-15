@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,7 +32,7 @@ using MySql.Data.MySqlClient;
 
 namespace MySql.Data.EntityFrameworkCore.Internal
 {
-  public class MySQLOptions : IMySQLOptions
+  internal class MySQLOptions : IMySQLOptions
   {
     public virtual CharacterSet CharSet { get; private set; }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2020 Oracle and/or its affiliates. 
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,7 +37,7 @@ namespace MySql.Data.EntityFrameworkCore.Infrastructure
   /// <summary>
   /// Represents the <see cref="RelationalDbContextOptionsBuilder{MySQLDbContextOptionsBuilder,MySQLOptionsExtension}" /> implementation for MySQL.
   /// </summary>
-  public partial class MySQLDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<MySQLDbContextOptionsBuilder, MySQLOptionsExtension>
+  public class MySQLDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<MySQLDbContextOptionsBuilder, MySQLOptionsExtension>
   {
     /// <summary>
     ///     Initializes a new instance of the <see cref="MySQLDbContextOptionsBuilder" /> class.

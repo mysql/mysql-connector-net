@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,13 +28,11 @@
 
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Data;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 {
-  internal abstract partial class MySQLTypeMapping : RelationalTypeMapping
+  internal abstract class MySQLTypeMapping : RelationalTypeMapping
   {
     public MySQLTypeMapping(
         [NotNull] string storeType,

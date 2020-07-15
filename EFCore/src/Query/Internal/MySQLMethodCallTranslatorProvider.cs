@@ -32,7 +32,7 @@ using MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Query.Internal
 {
-  public class MySQLMethodCallTranslatorProvider : RelationalMethodCallTranslatorProvider
+  internal class MySQLMethodCallTranslatorProvider : RelationalMethodCallTranslatorProvider
   {
     public MySQLMethodCallTranslatorProvider([NotNull] RelationalMethodCallTranslatorProviderDependencies dependencies)
             : base(dependencies)
