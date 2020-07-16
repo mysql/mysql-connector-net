@@ -41,8 +41,13 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
   {
     public MySQLBoolTypeMapping(
         [NotNull] string storeType,
-        DbType? dbType = null)
-        : base(storeType, dbType)
+        DbType? dbType = null,
+        int? size = null)
+        : this(new RelationalTypeMappingParameters(
+          new CoreTypeMappingParameters(typeof(bool)),
+          storeType,
+          size == null ? StoreTypePostfix.None : StoreTypePostfix.Size,
+          dbType, size: size))
     {
     }
 
