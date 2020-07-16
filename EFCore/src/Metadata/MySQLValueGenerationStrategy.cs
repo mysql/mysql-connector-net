@@ -35,11 +35,11 @@ namespace MySql.Data.EntityFrameworkCore.Metadata
   public enum MySQLValueGenerationStrategy
   {
     /// <summary>
-    ///   No MySQL Server-specific strategy
+    ///   No specific MySQL Server strategy
     /// </summary>
     None,
     /// <summary>
-    ///   A pattern that uses a normal MySQL Server <c>Identity</c> column in the same way as EF6 and earlier.
+    ///   A pattern that uses a standard MySQL Server <c>Identity</c> column in the same way as EF6 and previous frameworks.
     /// </summary>
     IdentityColumn,
     /// <summary>
