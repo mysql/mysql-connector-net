@@ -26,25 +26,49 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
 using MySql.Data.MySqlClient;
+using System;
 
 namespace MySql.Data.EntityFrameworkCore.Internal
 {
   internal class MySQLOptions : IMySQLOptions
   {
     public virtual CharacterSet CharSet { get; private set; }
+    public virtual MySqlConnectionStringBuilder ConnectionSettings { get; private set; }
+
+    public MySQLOptions()
+    {
+      ConnectionSettings = new MySqlConnectionStringBuilder();
+    }
 
     public void Initialize(IDbContextOptions options)
     {
       var mySQLOptions = options.FindExtension<MySQLOptionsExtension>() ?? new MySQLOptionsExtension();
       CharSet = mySQLOptions.CharSet ?? new CharacterSet("utf8mb4", 4);
+      ConnectionSettings = GetConnectionSettings(mySQLOptions);
     }
 
     public void Validate(IDbContextOptions options)
     {
       _ = options.FindExtension<MySQLOptionsExtension>() ?? new MySQLOptionsExtension();
+    }
+
+    private static MySqlConnectionStringBuilder GetConnectionSettings(MySQLOptionsExtension relationalOptions)
+    {
+      if (relationalOptions.Connection != null)
+      {
+        return new MySqlConnectionStringBuilder(relationalOptions.Connection.ConnectionString);
+      }
+
+      if (relationalOptions.ConnectionString != null)
+      {
+        return new MySqlConnectionStringBuilder(relationalOptions.ConnectionString);
+      }
+
+      throw new InvalidOperationException(RelationalStrings.NoConnectionOrConnectionString);
     }
   }
 }

@@ -44,6 +44,8 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using MySql.Data.EntityFrameworkCore.Properties;
+using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.Data.EntityFrameworkCore.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -56,12 +58,14 @@ namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
   internal class MySQLDatabaseModelFactory : DatabaseModelFactory
   {
     private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
+    private readonly IMySQLOptions _options;
 
-    public MySQLDatabaseModelFactory([NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger)
+    public MySQLDatabaseModelFactory([NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger, IMySQLOptions options)
     {
       Check.NotNull(logger, nameof(logger));
 
       _logger = logger;
+      _options = options;
     }
 
     /// <summary>
@@ -94,6 +98,8 @@ namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
 
       try
       {
+        SetupMySQLOptions(connection);
+
         databaseModel.DatabaseName = connection.Database;
         databaseModel.DefaultSchema = GetDefaultSchema(connection);
 
@@ -117,6 +123,17 @@ namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
         {
           connection.Close();
         }
+      }
+    }
+
+    private void SetupMySQLOptions(DbConnection connection)
+    {
+      var optionsBuilder = new DbContextOptionsBuilder();
+      optionsBuilder.UseMySQL(connection);
+
+      if (_options.ConnectionSettings.Equals(new MySQLOptions().ConnectionSettings))
+      {
+        _options.Initialize(optionsBuilder.Options);
       }
     }
 
@@ -362,7 +379,7 @@ namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
         GetPrimaryKeys(connection, tables, filter);
         GetIndexes(connection, tables, filter);
         GetConstraints(connection, tables, filter);
-        
+
         return tables;
       }
     }

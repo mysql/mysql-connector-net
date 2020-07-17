@@ -34,6 +34,9 @@ using MySql.Data.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using MySql.Data.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.Data.EntityFrameworkCore.Internal;
 
 namespace MySql.Data.EntityFrameworkCore.Design.Internal
 {
@@ -52,11 +55,15 @@ namespace MySql.Data.EntityFrameworkCore.Design.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
-      => serviceCollection
+    {
+      serviceCollection
         .AddSingleton<LoggingDefinitions, MySQLLoggingDefinitions>()
         .AddSingleton<IRelationalTypeMappingSource, MySQLTypeMapper>()
         .AddSingleton<IDatabaseModelFactory, MySQLDatabaseModelFactory>()
         .AddSingleton<IProviderConfigurationCodeGenerator, MySQLCodeGenerator>()
         .AddSingleton<IAnnotationCodeGenerator, MySQLAnnotationCodeGenerator>();
+
+      serviceCollection.TryAddSingleton<IMySQLOptions, MySQLOptions>();
+    }
   }
 }

@@ -37,5 +37,6 @@ namespace MySql.Data.EntityFrameworkCore.Infrastructure.Internal
   internal interface IMySQLOptions : ISingletonOptions
   {
     CharacterSet CharSet { get; }
+    MySqlConnectionStringBuilder ConnectionSettings { get; }
   }
 }
