@@ -233,9 +233,11 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
       {
         if (_options.ConnectionSettings.TreatTinyAsBoolean)
         {
-          if (storeTypeNameBase.Equals(_bitBool.StoreTypeNameBase, StringComparison.OrdinalIgnoreCase))
+          if (storeTypeNameBase.Equals(_bitBool.StoreTypeNameBase, StringComparison.OrdinalIgnoreCase)
+            && mappingInfo.Size == 1)
             return _bitBool;
-          else if (storeTypeNameBase.Equals(_tinyintBool.StoreTypeNameBase, StringComparison.OrdinalIgnoreCase))
+          else if (storeTypeNameBase.Equals(_tinyintBool.StoreTypeNameBase, StringComparison.OrdinalIgnoreCase)
+            && mappingInfo.Size ==  1)
             return _tinyintBool;
         }
 
