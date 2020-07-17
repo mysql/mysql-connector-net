@@ -36,6 +36,8 @@ using MySql.Data.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
+using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.Data.EntityFrameworkCore.Internal;
 
 namespace MySql.EntityFrameworkCore.Design.Tests
 {
@@ -49,6 +51,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
         => logCategory == DbLoggerCategory.Scaffolding.Name;
 
     internal static DiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
+    internal IMySQLOptions options = new MySQLOptions();
 
     public DatabaseModel CreateModel(string dbName, string sql, IEnumerable<string> tables, IEnumerable<string> schemas, bool executeScript = false)
     {
@@ -63,7 +66,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
                         new DiagnosticListener("Fake"),
                         new MySQLLoggingDefinitions());
 
-      return new MySQLDatabaseModelFactory(_logger).
+      return new MySQLDatabaseModelFactory(_logger, options).
              Create(MySQLTestStore.rootConnectionString + ";database=" + dbName + ";",
              new DatabaseModelFactoryOptions(tables, schemas));
     }
