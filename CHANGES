@@ -13,6 +13,7 @@
 - Fixed the creation of corrupted sql statements by the MigrationSqlGenerator in EF (MySQL Bug #80159, Oracle Bug #22669961).
 - Fixed how microseconds are set in the MySqlTime class. (MySQL Bug #100218, Oracle Bug #31623730).
 - Fixed the wrong mapping from TINYINT(1)/BIT(1) to BOOL using scaffolding in EF Core (MySQL Bug #99419, Oracle Bug #31304070).
+- Added a missing implementation to TCPClient (MySQL Bug #82810, Oracle Bug #26427802).
 
 
 8.0.21

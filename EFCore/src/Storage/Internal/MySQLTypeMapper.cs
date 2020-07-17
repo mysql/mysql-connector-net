@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
 using MySql.Data.EntityFrameworkCore.Properties;
 
 namespace MySql.Data.EntityFrameworkCore.Storage.Internal
@@ -78,8 +79,8 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
     private readonly MySQLBoolTypeMapping _bitBool = new MySQLBoolTypeMapping("bit", size: 1);
     private readonly MySQLBoolTypeMapping _tinyintBool = new MySQLBoolTypeMapping("tinyint", size: 1);
 
-    private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
-    private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
+    private Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
+    private Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 
     // These are disallowed only if specified without any kind of length specified in parenthesis.
     private readonly HashSet<string> _disallowedMappings = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -92,9 +93,18 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
       "nvarchar"
     };
 
+    private readonly IMySQLOptions _options;
+    private bool _initialized;
+
     public MySQLTypeMapper([NotNull] TypeMappingSourceDependencies dependencies,
-      [NotNull] RelationalTypeMappingSourceDependencies relationalDependencies)
+      [NotNull] RelationalTypeMappingSourceDependencies relationalDependencies,
+      IMySQLOptions options)
       : base(dependencies, relationalDependencies)
+    {
+      _options = options;
+    }
+
+    protected void Initialize()
     {
       _storeTypeMappings = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
       {
@@ -167,12 +177,15 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         { typeof(double), _double },
         { typeof(decimal), _decimal },
 
-        // boolean
-        { typeof(bool), _bitBool},
-
         { typeof(char), _int },
         { typeof(Types.MySqlGeometry), _geometry },
       };
+
+      // bool
+      if (_options.ConnectionSettings.TreatTinyAsBoolean)
+        _clrTypeMappings[typeof(bool)] = _tinyintBool;
+      else
+        _clrTypeMappings[typeof(bool)] = _bitBool;
     }
 
     /// <summary>
@@ -206,18 +219,25 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
 
     private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
     {
+      if (!_initialized)
+      {
+        Initialize();
+        _initialized = true;
+      }
+
       var clrType = mappingInfo.ClrType;
       var storeTypeName = mappingInfo.StoreTypeName;
       var storeTypeNameBase = mappingInfo.StoreTypeNameBase;
 
       if (storeTypeName != null)
       {
-        if (storeTypeNameBase.Equals(_bitBool.StoreTypeNameBase, StringComparison.OrdinalIgnoreCase)
-          && mappingInfo.Size == 1)
-          return _bitBool;
-        else if (storeTypeNameBase.Equals(_tinyintBool.StoreTypeNameBase, StringComparison.OrdinalIgnoreCase)
-          && mappingInfo.Size == 1)
-          return _tinyintBool;
+        if (_options.ConnectionSettings.TreatTinyAsBoolean)
+        {
+          if (storeTypeNameBase.Equals(_bitBool.StoreTypeNameBase, StringComparison.OrdinalIgnoreCase))
+            return _bitBool;
+          else if (storeTypeNameBase.Equals(_tinyintBool.StoreTypeNameBase, StringComparison.OrdinalIgnoreCase))
+            return _tinyintBool;
+        }
 
         if (_storeTypeMappings.TryGetValue(storeTypeName, out var mapping)
           || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
