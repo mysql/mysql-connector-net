@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -570,5 +570,21 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
+
+    /// <summary>
+    /// Bug #31622907	GETSCHEMA("PROCEDURES") RETURNS ROUTINE_DEFINITION OF "SYSTEM.BYTE[]"
+    /// </summary>
+    [Test]
+    public void GetSchemaProcedures()
+    {
+      using (var connection = new MySqlConnection(Connection.ConnectionString))
+      {
+        connection.Open();
+        var table = connection.GetSchema("Procedures");
+        var column = table.Rows[0]["ROUTINE_DEFINITION"];
+        StringAssert.Contains("RETURN LEFT(SUBSTRING_INDEX(SUBSTRING_INDEX", column.ToString());
+      }
+    }
+
   }
 }
