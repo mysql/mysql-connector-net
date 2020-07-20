@@ -14,6 +14,7 @@
 - Fixed how microseconds are set in the MySqlTime class. (MySQL Bug #100218, Oracle Bug #31623730).
 - Fixed the wrong mapping from TINYINT(1)/BIT(1) to BOOL using scaffolding in EF Core (MySQL Bug #99419, Oracle Bug #31304070).
 - Added a missing implementation to TCPClient (MySQL Bug #82810, Oracle Bug #26427802).
+- Fixed a bug that is present only with MySQL Server versions before than 8.0, as previous versions return a different data type while retrieving ROUTINE_DEFINITION value(MySQL Bug #100208, Oracle Bug #31622907).
 
 
 8.0.21
