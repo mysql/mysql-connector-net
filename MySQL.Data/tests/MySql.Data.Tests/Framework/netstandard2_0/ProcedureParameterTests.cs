@@ -571,20 +571,5 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    /// <summary>
-    /// Bug #31622907	GETSCHEMA("PROCEDURES") RETURNS ROUTINE_DEFINITION OF "SYSTEM.BYTE[]"
-    /// </summary>
-    [Test]
-    public void GetSchemaProcedures()
-    {
-      using (var connection = new MySqlConnection(Connection.ConnectionString))
-      {
-        connection.Open();
-        var table = connection.GetSchema("Procedures");
-        var column = table.Rows[0]["ROUTINE_DEFINITION"];
-        StringAssert.Contains("RETURN LEFT(SUBSTRING_INDEX(SUBSTRING_INDEX", column.ToString());
-      }
-    }
-
   }
 }
