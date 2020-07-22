@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -831,7 +831,7 @@ namespace MySql.Data.MySqlClient.Tests
       var bytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x01, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
       MySqlGeometry v = new MySqlGeometry(MySqlDbType.Geometry, bytes);
 #if (NETCOREAPP3_1 || NET5_0)
-      Assert.AreEqual("POINT(3.5E-323 0)", v.ToString());      
+      Assert.AreEqual("POINT(3.5E-323 0)", v.ToString());
 #else
       Assert.AreEqual("POINT(3.45845952088873E-323 0)", v.ToString());
 #endif
@@ -843,7 +843,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void CanGetMySqlGeometryFromEmptyGeometryCollection()
     {
-      if (Version.CompareTo(new Version(5,7)) == -1) return;
+      if (Version.CompareTo(new Version(5, 7)) == -1) return;
 
       ExecuteSQL("CREATE TABLE Test (v Geometry NOT NULL)");
 
@@ -894,7 +894,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         command.CommandText = "INSERT INTO geometries(data) VALUES(@data); ";
         command.Parameters.AddWithValue("@data", geometry);
-        int result=command.ExecuteNonQuery();
+        int result = command.ExecuteNonQuery();
         Assert.AreEqual(1, result);
       }
     }
@@ -1036,6 +1036,32 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
+    /// Bug #29963760 - FIRST QUERY AFTER APPLICATION RESTART ALWAYS FAILS WITH GUID ERROR
+    /// This bug was treating all the columns with length of 36 as GUID which was incorrect. 
+    /// </summary>
+    [Test]
+    public void NotGuidType()
+    {
+      ExecuteSQL("CREATE TABLE Test (id INT, val CHAR(36), guid CHAR(36))");
+      string s = "1234567890 1234567890 1234567890 123";
+      Guid g = Guid.NewGuid();
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(1, @s, @g)", Connection);
+      cmd.Parameters.AddWithValue("@s", s);
+      cmd.Parameters.AddWithValue("@g", g);
+      cmd.ExecuteNonQuery();
+
+      cmd.CommandText = "SELECT * FROM Test";
+
+      using (MySqlDataReader reader = cmd.ExecuteReader())
+      {
+        reader.Read();
+        Assert.True(reader["id"] is int);
+        Assert.True(reader["val"] is string);
+        Assert.True(reader["guid"] is Guid);
+      }
+    }
+
+    /// <summary>
     /// Bug #47928 Old Guids=true setting is lost after null value is
     /// encountered in a Binary(16) 
     /// </summary>
@@ -1113,7 +1139,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual(9999999999999999999999999999999999.99, dec.ToDouble());
         Assert.AreEqual("9999999999999999999999999999999999.99", dec.ToString());
 
-        void Value() { _ = dec.Value; } 
+        void Value() { _ = dec.Value; }
 
         Exception ex = Assert.Throws<OverflowException>(() => Value());
         Assert.AreEqual("Value was either too large or too small for a Decimal.", ex.Message);
@@ -1188,7 +1214,7 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dataTable = new DataTable();
       dataTable.Load(dr);
       int records = dataTable.Rows.Count;
-      Assert.AreEqual((int)2,records);
+      Assert.AreEqual((int)2, records);
     }
 
     /// <summary>

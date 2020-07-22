@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -101,7 +101,7 @@ namespace MySql.Data.MySqlClient
       set { charSetIndex = value; SetFieldEncoding(); }
     }
 
-    public MySqlDbType Type { get; protected set; }
+    public MySqlDbType Type { get; internal set; }
 
     public byte Precision { get; set; }
 
