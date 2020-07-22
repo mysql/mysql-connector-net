@@ -35,6 +35,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MySql.Data.MySqlClient
 {
@@ -598,6 +599,7 @@ namespace MySql.Data.MySqlClient
     {
       long length = -1;
       bool isNull;
+      Regex regex = new Regex(@"(?i)^[0-9A-F]{8}[-](?:[0-9A-F]{4}[-]){3}[0-9A-F]{12}$"); // check for GUID format
 
       if (nullMap != null)
         isNull = nullMap[index + 2];
@@ -605,6 +607,13 @@ namespace MySql.Data.MySqlClient
       {
         length = packet.ReadFieldLength();
         isNull = length == -1;
+      }
+
+      if ((valObject.MySqlDbType is MySqlDbType.Guid && !Settings.OldGuids) &&
+        !regex.IsMatch(Encoding.GetString(packet.Buffer, packet.Position, (int)length)))
+      {
+        field.Type = MySqlDbType.String;
+        valObject = field.GetValueObject();
       }
 
       packet.Encoding = field.Encoding;
