@@ -54,10 +54,6 @@
     <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
   </ItemGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <DefineConstants>$(DefineConstants);EF6</DefineConstants>
-  </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>

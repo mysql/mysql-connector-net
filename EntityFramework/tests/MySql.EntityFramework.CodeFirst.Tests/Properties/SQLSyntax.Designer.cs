@@ -97,44 +97,6 @@ namespace MySql.EntityFramework.CodeFirst.Tests.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 
-        ///SELECT
-        ///1 AS `C1`, 
-        ///`Project3`.`nCdSite`, 
-        ///`Project3`.`C1` AS `C2`
-        ///FROM (SELECT
-        ///`Extent5`.`nCdSite`, 
-        ///COUNT(DISTINCT `Extent5`.`sDsIp`) AS `C1`
-        ///FROM `pagina` AS `Extent3` INNER JOIN `visitante` AS `Extent4` ON `Extent3`.`nCdVisitante` = `Extent4`.`nCdVisitante` LEFT OUTER JOIN `visitante` AS `Extent5` ON `Extent3`.`nCdVisitante` = `Extent5`.`nCdVisitante`
-        /// GROUP BY 
-        ///`Extent5`.`nCdSite`) AS `Project3`
-        ///  .
-        /// </summary>
-        internal static string CountGroupBy2EF5 {
-            get {
-                return ResourceManager.GetString("CountGroupBy2EF5", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SELECT
-        ///1 AS `C1`, 
-        ///`Project3`.`nCdSite`, 
-        ///`Project3`.`C1` AS `C2`
-        ///FROM (SELECT
-        ///`visitante`.`nCdSite`, 
-        ///COUNT(DISTINCT `visitante`.`sDsIp`) AS `C1`
-        ///FROM `visitante`
-        /// GROUP BY 
-        ///`visitante`.`nCdSite`) AS `Project3`.
-        /// </summary>
-        internal static string CountGroupByEF5 {
-            get {
-                return ResourceManager.GetString("CountGroupByEF5", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to SELECT
         ///  `Apply1`.`customer_id`, 
         ///  `Extent5`.`country`
@@ -303,47 +265,9 @@ namespace MySql.EntityFramework.CodeFirst.Tests.Properties {
         ///`Extent1`.`Description`, 
         ///`Join3`.`Shi [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string ShipQueryMalformedDueMultipleProjecttionsCorrected {
-            get {
-                return ResourceManager.GetString("ShipQueryMalformedDueMultipleProjecttionsCorrected", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SELECT
-        ///`Project1`.`HarborId`, 
-        ///`Project1`.`Description`, 
-        ///`Project1`.`C2` AS `C1`, 
-        ///`Project1`.`ShipId`, 
-        ///`Project1`.`HarborId1`, 
-        ///`Project1`.`Description1`, 
-        ///`Project1`.`C1` AS `C2`, 
-        ///`Project1`.`CrewMemberId`, 
-        ///`Project1`.`ShipId1`, 
-        ///`Project1`.`RankId`, 
-        ///`Project1`.`ClearanceId`, 
-        ///`Project1`.`Description2`, 
-        ///`Project1`.`RankId1`, 
-        ///`Project1`.`Description3`, 
-        ///`Project1`.`ClearanceId1`, 
-        ///`Project1`.`Description4`
-        ///FROM (SELECT
-        ///`Extent1`.`HarborId`, 
-        ///`Extent1`.`Description`, 
-        ///`Join3`.`Shi [rest of string was truncated]&quot;;.
-        /// </summary>
         internal static string ShipQueryMalformedDueMultipleProjecttionsCorrectedEF6 {
             get {
                 return ResourceManager.GetString("ShipQueryMalformedDueMultipleProjecttionsCorrectedEF6", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to t1.
-        /// </summary>
-        internal static string t1 {
-            get {
-                return ResourceManager.GetString("t1", resourceCulture);
             }
         }
         
@@ -362,24 +286,6 @@ namespace MySql.EntityFramework.CodeFirst.Tests.Properties {
         internal static string TestContainsListWitConstant {
             get {
                 return ResourceManager.GetString("TestContainsListWitConstant", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SELECT
-        ///`Extent1`.`ID`, 
-        ///`Extent1`.`Title`, 
-        ///`Extent1`.`ReleaseDate`, 
-        ///`Extent1`.`Genre`, 
-        ///`Extent1`.`Price`, 
-        ///`Extent1`.`Data`, 
-        ///`Extent1`.`Director_ID`
-        ///FROM `Movies` AS `Extent1`
-        /// WHERE @gp1 = @gp2.
-        /// </summary>
-        internal static string TestContainsListWitConstantEF5 {
-            get {
-                return ResourceManager.GetString("TestContainsListWitConstantEF5", resourceCulture);
             }
         }
         
@@ -411,47 +317,11 @@ namespace MySql.EntityFramework.CodeFirst.Tests.Properties {
         ///`Extent1`.`Data`, 
         ///`Extent1`.`Director_ID`
         ///FROM `Movies` AS `Extent1`
-        /// WHERE `Extent1`.`ID` IN ( 1,2,3 ).
-        /// </summary>
-        internal static string TestContainsListWithCastEF5 {
-            get {
-                return ResourceManager.GetString("TestContainsListWithCastEF5", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SELECT
-        ///`Extent1`.`ID`, 
-        ///`Extent1`.`Title`, 
-        ///`Extent1`.`ReleaseDate`, 
-        ///`Extent1`.`Genre`, 
-        ///`Extent1`.`Price`, 
-        ///`Extent1`.`Data`, 
-        ///`Extent1`.`Director_ID`
-        ///FROM `Movies` AS `Extent1`
         /// WHERE @p__linq__0 IN ( 1,2,3 ).
         /// </summary>
         internal static string TestContainsListWithParameterReference {
             get {
                 return ResourceManager.GetString("TestContainsListWithParameterReference", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SELECT
-        ///`Extent1`.`ID`, 
-        ///`Extent1`.`Title`, 
-        ///`Extent1`.`ReleaseDate`, 
-        ///`Extent1`.`Genre`, 
-        ///`Extent1`.`Price`, 
-        ///`Extent1`.`Data`, 
-        ///`Extent1`.`Director_ID`
-        ///FROM `Movies` AS `Extent1`
-        /// WHERE ((1 = @p__linq__0) OR (2 = @p__linq__0)) OR (3 = @p__linq__0).
-        /// </summary>
-        internal static string TestContainsListWithParameterReferenceEF5 {
-            get {
-                return ResourceManager.GetString("TestContainsListWithParameterReferenceEF5", resourceCulture);
             }
         }
         

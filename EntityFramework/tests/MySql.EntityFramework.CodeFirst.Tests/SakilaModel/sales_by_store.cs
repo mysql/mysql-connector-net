@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,33 +26,24 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-#if EF6
-using System.Data.Entity.Spatial;
-#endif
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-#if EF6
-    [Table("sakila.sales_by_store")]
-#else
-    [Table("sales_by_store")]
-#endif
-    public partial class sales_by_store
-    {
-        [Key]
-        [Column(Order = 0)]
-        [StringLength(101)]
-        public string store { get; set; }
+  [Table("sales_by_store")]
+  public partial class sales_by_store
+  {
+    [Key]
+    [Column(Order = 0)]
+    [StringLength(101)]
+    public string store { get; set; }
 
-        [Key]
-        [Column(Order = 1)]
-        [StringLength(91)]
-        public string manager { get; set; }
+    [Key]
+    [Column(Order = 1)]
+    [StringLength(91)]
+    public string manager { get; set; }
 
-        public decimal? total_sales { get; set; }
-    }
+    public decimal? total_sales { get; set; }
+  }
 }

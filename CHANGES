@@ -17,6 +17,9 @@
 - Fixed a bug that is present only with MySQL Server versions before than 8.0, as previous versions return a different data type while retrieving ROUTINE_DEFINITION value(MySQL Bug #100208, Oracle Bug #31622907).
 - Fixed a bug that occurred because of a bad interpretation of every CHAR(36) column as GUID type (MySQL Bug #93399, Oracle Bug #29963760). 
 - Fixed a bug that prevented the use of EF Code First Migrations when the system decimal separator was a character other than "." (MySQL Bug #94358, Oracle Bug #30965702).
+- Fixed a bug that misinterpreted a DateTime value as a String (MySQL Bug #100159, Oracle Bug #31598178).
+- Fixed missing table schemas when using EF Code First (MySQL Bug #94343, Oracle Bug #31323788).
+
 
 8.0.21
 - Revised SqlNullValueException, raised when a stored procedure is executed by a user with sufficient privileges(MySQL Bug #96143, Oracle Bug #30029732).

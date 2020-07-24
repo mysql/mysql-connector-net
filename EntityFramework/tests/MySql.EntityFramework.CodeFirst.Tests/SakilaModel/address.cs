@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,61 +30,54 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-#if EF6
-using System.Data.Entity.Spatial;
-#endif
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-#if EF6
-    [Table("sakila.address")]
-#else
-    [Table("address")]
-#endif
-    public partial class address
+  [Table("address")]
+  public partial class address
+  {
+    public address()
     {
-        public address()
-        {
-            customers = new HashSet<customer>();
-            staffs = new HashSet<staff>();
-            stores = new HashSet<store>();
-        }
-
-        [Key]
-        [Column(TypeName = "usmallint")]
-        public int address_id { get; set; }
-
-        [Column("address")]
-        [Required]
-        [StringLength(50)]
-        public string address1 { get; set; }
-
-        [StringLength(50)]
-        public string address2 { get; set; }
-
-        [Required]
-        [StringLength(20)]
-        public string district { get; set; }
-
-        [Column(TypeName = "usmallint")]
-        public int city_id { get; set; }
-
-        [StringLength(10)]
-        public string postal_code { get; set; }
-
-        [Required]
-        [StringLength(20)]
-        public string phone { get; set; }
-
-        [Column(TypeName = "timestamp")]
-        public DateTime last_update { get; set; }
-
-        public virtual city city { get; set; }
-
-        public virtual ICollection<customer> customers { get; set; }
-
-        public virtual ICollection<staff> staffs { get; set; }
-
-        public virtual ICollection<store> stores { get; set; }
+      customers = new HashSet<customer>();
+      staffs = new HashSet<staff>();
+      stores = new HashSet<store>();
     }
+
+    [Key]
+    [Column(TypeName = "usmallint")]
+    public int address_id { get; set; }
+
+    [Column("address")]
+    [Required]
+    [StringLength(50)]
+    public string address1 { get; set; }
+
+    [StringLength(50)]
+    public string address2 { get; set; }
+
+    [Required]
+    [StringLength(20)]
+    public string district { get; set; }
+
+    [Column(TypeName = "usmallint")]
+    public int city_id { get; set; }
+
+    [StringLength(10)]
+    public string postal_code { get; set; }
+
+    [Required]
+    [StringLength(20)]
+    public string phone { get; set; }
+
+    [Column(TypeName = "timestamp")]
+    public DateTime last_update { get; set; }
+
+    public virtual city city { get; set; }
+
+    public virtual ICollection<customer> customers { get; set; }
+
+    public virtual ICollection<staff> staffs { get; set; }
+
+    public virtual ICollection<store> stores { get; set; }
+  }
 }

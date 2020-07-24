@@ -1,4 +1,4 @@
-// Copyright © 2008, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2008, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,7 +30,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data.Entity.Core.Metadata.Edm;
 
-
 namespace MySql.Data.EntityFramework
 {
   class TableFragment : InputFragment
@@ -51,7 +50,9 @@ namespace MySql.Data.EntityFramework
       if (DefiningQuery != null)
         sql.AppendFormat("({0})", DefiningQuery);
       else
-        sql.AppendFormat("{0}", QuoteIdentifier(Table));
+        sql.AppendFormat("{0}",
+          string.IsNullOrWhiteSpace(Schema) || Schema.Equals("dbo", System.StringComparison.OrdinalIgnoreCase)
+          ? QuoteIdentifier(Table) : QuoteIdentifier($"{Schema}.{Table}"));
       base.WriteSql(sql);
     }
 

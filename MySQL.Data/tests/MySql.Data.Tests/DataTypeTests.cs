@@ -26,7 +26,6 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using System;
 using NUnit.Framework;
 using System.Data;
@@ -1315,6 +1314,29 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Assert.True(reader.Read());
         Assert.True(reader.GetString(0).Equals("Berlin", StringComparison.CurrentCulture));
+      }
+    }
+
+    /// <summary>
+    /// Bug #31598178 - SQL WITH DATETIME PARAMETER RETURNS STRING VALUE
+    /// </summary>
+    [Test]
+    public void DateTimeTreatedAsVarChar()
+    {
+      string sql = "SELECT ?p0 as value";
+
+      using (MySqlCommand cmd = new MySqlCommand(sql, Connection))
+      {
+        cmd.Parameters.AddWithValue("?p0", DateTime.Now);
+
+        using (MySqlDataReader reader = cmd.ExecuteReader())
+        {
+          using (DataTable schema = reader.GetSchemaTable())
+          {
+            MySqlDbType providerType = (MySqlDbType)(int)schema.Rows[0]["ProviderType"];
+            Assert.AreEqual(MySqlDbType.DateTime, providerType);
+          }
+        }
       }
     }
   }

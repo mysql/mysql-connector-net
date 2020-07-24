@@ -32,7 +32,6 @@ using NUnit.Framework;
 using System.Data.Entity.Core.EntityClient;
 using System.Data.Entity;
 using MySql.Data.EntityFramework.Tests;
-using NUnit.Framework.Internal;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
@@ -123,6 +122,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       DeleteContext<ProductsDbContext>();
       DeleteContext<ShortDbContext>();
       DeleteContext<UsingUnionContext>();
+      DeleteContext<BlogContext>();
     }
 
     public static string GetEFConnectionString<T>(string database = null) where T : DbContext

@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,46 +30,39 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-#if EF6
-using System.Data.Entity.Spatial;
-#endif
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-#if EF6
-    [Table("sakila.store")]
-#else
-    [Table("store")]
-#endif
-    public partial class store
+  [Table("store")]
+  public partial class store
+  {
+    public store()
     {
-        public store()
-        {
-            customers = new HashSet<customer>();
-            inventories = new HashSet<inventory>();
-            staffs = new HashSet<staff>();
-        }
-
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public byte store_id { get; set; }
-
-        public byte manager_staff_id { get; set; }
-
-        [Column(TypeName = "usmallint")]
-        public int address_id { get; set; }
-
-        [Column(TypeName = "timestamp")]
-        public DateTime last_update { get; set; }
-
-        public virtual address address { get; set; }
-
-        public virtual ICollection<customer> customers { get; set; }
-
-        public virtual ICollection<inventory> inventories { get; set; }
-
-        public virtual ICollection<staff> staffs { get; set; }
-
-        public virtual staff staff { get; set; }
+      customers = new HashSet<customer>();
+      inventories = new HashSet<inventory>();
+      staffs = new HashSet<staff>();
     }
+
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public byte store_id { get; set; }
+
+    public byte manager_staff_id { get; set; }
+
+    [Column(TypeName = "usmallint")]
+    public int address_id { get; set; }
+
+    [Column(TypeName = "timestamp")]
+    public DateTime last_update { get; set; }
+
+    public virtual address address { get; set; }
+
+    public virtual ICollection<customer> customers { get; set; }
+
+    public virtual ICollection<inventory> inventories { get; set; }
+
+    public virtual ICollection<staff> staffs { get; set; }
+
+    public virtual staff staff { get; set; }
+  }
 }
