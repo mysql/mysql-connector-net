@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,58 +26,49 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-#if EF6
-using System.Data.Entity.Spatial;
-#endif
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-#if EF6
-    [Table("sakila.staff_list")]
-#else
-    [Table("staff_list")]
-#endif
-    public partial class staff_list
-    {
-        [Key]
-        [Column(Order = 0)]
-        public byte ID { get; set; }
+  [Table("staff_list")]
+  public partial class staff_list
+  {
+    [Key]
+    [Column(Order = 0)]
+    public byte ID { get; set; }
 
-        [Key]
-        [Column(Order = 1)]
-        [StringLength(91)]
-        public string name { get; set; }
+    [Key]
+    [Column(Order = 1)]
+    [StringLength(91)]
+    public string name { get; set; }
 
-        [Key]
-        [Column(Order = 2)]
-        [StringLength(50)]
-        public string address { get; set; }
+    [Key]
+    [Column(Order = 2)]
+    [StringLength(50)]
+    public string address { get; set; }
 
-        [Column("zip code")]
-        [StringLength(10)]
-        public string zip_code { get; set; }
+    [Column("zip code")]
+    [StringLength(10)]
+    public string zip_code { get; set; }
 
-        [Key]
-        [Column(Order = 3)]
-        [StringLength(20)]
-        public string phone { get; set; }
+    [Key]
+    [Column(Order = 3)]
+    [StringLength(20)]
+    public string phone { get; set; }
 
-        [Key]
-        [Column(Order = 4)]
-        [StringLength(50)]
-        public string city { get; set; }
+    [Key]
+    [Column(Order = 4)]
+    [StringLength(50)]
+    public string city { get; set; }
 
-        [Key]
-        [Column(Order = 5)]
-        [StringLength(50)]
-        public string country { get; set; }
+    [Key]
+    [Column(Order = 5)]
+    [StringLength(50)]
+    public string country { get; set; }
 
-        [Key]
-        [Column(Order = 6)]
-        public byte SID { get; set; }
-    }
+    [Key]
+    [Column(Order = 6)]
+    public byte SID { get; set; }
+  }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,33 +30,26 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-#if EF6
-using System.Data.Entity.Spatial;
-#endif
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-#if EF6
-    [Table("sakila.film_category")]
-#else
-    [Table("film_category")]
-#endif
-    public partial class film_category
-    {
-        [Key]
-        [Column(Order = 0, TypeName = "usmallint")]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int film_id { get; set; }
+  [Table("film_category")]
+  public partial class film_category
+  {
+    [Key]
+    [Column(Order = 0, TypeName = "usmallint")]
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public int film_id { get; set; }
 
-        [Key]
-        [Column(Order = 1)]
-        public byte category_id { get; set; }
+    [Key]
+    [Column(Order = 1)]
+    public byte category_id { get; set; }
 
-        [Column(TypeName = "timestamp")]
-        public DateTime last_update { get; set; }
+    [Column(TypeName = "timestamp")]
+    public DateTime last_update { get; set; }
 
-        public virtual category category { get; set; }
+    public virtual category category { get; set; }
 
-        public virtual film film { get; set; }
-    }
+    public virtual film film { get; set; }
+  }
 }

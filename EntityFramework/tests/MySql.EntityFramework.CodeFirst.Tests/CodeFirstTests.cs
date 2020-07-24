@@ -45,12 +45,6 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
   public class CodeFirstTests : CodeFirstFixture
   {
-    //private void ReInitDb()
-    //{
-    //  execSQL(string.Format("drop database if exists `{0}`", Connection.Database));
-    //  execSQL(string.Format("create database `{0}`", Connection.Database));
-    //}
-
     /// <summary>
     /// Tests for fix of http://bugs.mysql.com/bug.php?id=61230
     /// ("The provider did not return a ProviderManifestToken string.").
@@ -1702,9 +1696,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       {
         db.Database.Delete();
         db.Database.CreateIfNotExists();
-#if EF6
         db.Database.Log = (e) => Debug.WriteLine(e);
-#endif
         db.Database.ExecuteSqlCommand(@"DROP TABLE IF EXISTS `MovieReleases2`");
 
         db.Database.ExecuteSqlCommand(
@@ -1766,6 +1758,31 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
             }
           }
         }
+      }
+    }
+
+    /// <summary>
+    /// Bug #31323788 - EF6 CODE FIRST - TABLE SCHEMAS ARE LOST, BUT AUTOMATIC MIGRATIONS USES THEM
+    /// </summary>
+    [Test]
+    public void TablesWithSchema()
+    {
+      using (BlogContext context = new BlogContext())
+      {
+        var blog = new Blog { Title = "Blog_1" };
+        context.Blog.Add(blog);
+
+        blog = new Blog { Title = "Blog_2" };
+        context.Blog.Add(blog);
+
+        context.SaveChanges();
+        Assert.AreEqual(2, context.Blog.Count());
+        Assert.AreEqual(2, context.Blog.First(b => b.Title == "Blog_2").BlogId);
+
+        context.Blog.Remove(blog);
+        context.SaveChanges();
+        Assert.AreEqual(1, context.Blog.Count());
+        Assert.AreEqual("Blog_1", context.Blog.First().Title);
       }
     }
   }

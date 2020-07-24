@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,48 +30,41 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-#if EF6
-using System.Data.Entity.Spatial;
-#endif
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-#if EF6
-    [Table("sakila.rental")]
-#else
-    [Table("rental")]
-#endif
-    public partial class rental
+  [Table("rental")]
+  public partial class rental
+  {
+    public rental()
     {
-        public rental()
-        {
-            payments = new HashSet<payment>();
-        }
-
-        [Key]
-        public int rental_id { get; set; }
-
-        public DateTime rental_date { get; set; }
-
-        [Column(TypeName = "umediumint")]
-        public int inventory_id { get; set; }
-
-        [Column(TypeName = "usmallint")]
-        public int customer_id { get; set; }
-
-        public DateTime? return_date { get; set; }
-
-        public byte staff_id { get; set; }
-
-        [Column(TypeName = "timestamp")]
-        public DateTime last_update { get; set; }
-
-        public virtual customer customer { get; set; }
-
-        public virtual inventory inventory { get; set; }
-
-        public virtual ICollection<payment> payments { get; set; }
-
-        public virtual staff staff { get; set; }
+      payments = new HashSet<payment>();
     }
+
+    [Key]
+    public int rental_id { get; set; }
+
+    public DateTime rental_date { get; set; }
+
+    [Column(TypeName = "umediumint")]
+    public int inventory_id { get; set; }
+
+    [Column(TypeName = "usmallint")]
+    public int customer_id { get; set; }
+
+    public DateTime? return_date { get; set; }
+
+    public byte staff_id { get; set; }
+
+    [Column(TypeName = "timestamp")]
+    public DateTime last_update { get; set; }
+
+    public virtual customer customer { get; set; }
+
+    public virtual inventory inventory { get; set; }
+
+    public virtual ICollection<payment> payments { get; set; }
+
+    public virtual staff staff { get; set; }
+  }
 }

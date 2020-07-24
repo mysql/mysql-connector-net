@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,35 +30,28 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-#if EF6
-using System.Data.Entity.Spatial;
-#endif
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-#if EF6
-    [Table("sakila.category")]
-#else
-    [Table("category")]
-#endif
-    public partial class category
+  [Table("category")]
+  public partial class category
+  {
+    public category()
     {
-        public category()
-        {
-            film_category = new HashSet<film_category>();
-        }
-
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public byte category_id { get; set; }
-
-        [Required]
-        [StringLength(25)]
-        public string name { get; set; }
-
-        [Column(TypeName = "timestamp")]
-        public DateTime last_update { get; set; }
-
-        public virtual ICollection<film_category> film_category { get; set; }
+      film_category = new HashSet<film_category>();
     }
+
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public byte category_id { get; set; }
+
+    [Required]
+    [StringLength(25)]
+    public string name { get; set; }
+
+    [Column(TypeName = "timestamp")]
+    public DateTime last_update { get; set; }
+
+    public virtual ICollection<film_category> film_category { get; set; }
+  }
 }

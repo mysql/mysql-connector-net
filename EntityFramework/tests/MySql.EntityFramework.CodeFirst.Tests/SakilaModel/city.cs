@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,41 +30,34 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-#if EF6
-using System.Data.Entity.Spatial;
-#endif
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-#if EF6
-    [Table("sakila.city")]
-#else
-    [Table("city")]
-#endif
-    public partial class city
+  [Table("city")]
+  public partial class city
+  {
+    public city()
     {
-        public city()
-        {
-            addresses = new HashSet<address>();
-        }
-
-        [Key]
-        [Column(TypeName = "usmallint")]
-        public int city_id { get; set; }
-
-        [Column("city")]
-        [Required]
-        [StringLength(50)]
-        public string city1 { get; set; }
-
-        [Column(TypeName = "usmallint")]
-        public int country_id { get; set; }
-
-        [Column(TypeName = "timestamp")]
-        public DateTime last_update { get; set; }
-
-        public virtual ICollection<address> addresses { get; set; }
-
-        public virtual country country { get; set; }
+      addresses = new HashSet<address>();
     }
+
+    [Key]
+    [Column(TypeName = "usmallint")]
+    public int city_id { get; set; }
+
+    [Column("city")]
+    [Required]
+    [StringLength(50)]
+    public string city1 { get; set; }
+
+    [Column(TypeName = "usmallint")]
+    public int country_id { get; set; }
+
+    [Column(TypeName = "timestamp")]
+    public DateTime last_update { get; set; }
+
+    public virtual ICollection<address> addresses { get; set; }
+
+    public virtual country country { get; set; }
+  }
 }

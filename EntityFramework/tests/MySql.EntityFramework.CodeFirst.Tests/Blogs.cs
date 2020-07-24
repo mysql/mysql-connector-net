@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,36 +26,25 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
+using System.Data.Entity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-  [Table("actor")]
-  public partial class actor
+  public class BlogContext : DbContext
   {
-    public actor()
-    {
-      film_actor = new HashSet<film_actor>();
-    }
+    public BlogContext() : base(CodeFirstFixture.GetEFConnectionString<BlogContext>()) { }
 
+    public DbSet<Blog> Blog { get; set; }
+
+  }
+
+  [Table("blogtable", Schema = "blogschema")]
+  public class Blog
+  {
     [Key]
-    [Column(TypeName = "usmallint")]
-    public int actor_id { get; set; }
-
-    [Required]
-    [StringLength(45)]
-    public string first_name { get; set; }
-
-    [Required]
-    [StringLength(45)]
-    public string last_name { get; set; }
-
-    [Column(TypeName = "timestamp")]
-    public DateTime last_update { get; set; }
-
-    public virtual ICollection<film_actor> film_actor { get; set; }
+    public int BlogId { get; set; }
+    public string Title { get; set; }    
   }
 }
