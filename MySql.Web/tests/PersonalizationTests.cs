@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -226,7 +226,7 @@ namespace MySql.Web.Tests
       var p = InitPersonalizationProvider();
       int totalRecords;     
 
-      totalRecords = p.ResetUserState("~/default.aspx", DateTime.MaxValue);
+      totalRecords = p.ResetUserState("~/default.aspx", Convert.ToDateTime("2038-01-19 03:14:07.999999")); // TimeStamp MaxValue
       Assert.AreEqual(1, totalRecords);
     }
 
