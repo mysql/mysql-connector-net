@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,13 +34,11 @@ using System.Configuration;
 using System.Configuration.Provider;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Web.Hosting;
 using System.Web.Security;
 using WebMatrix.WebData;
 using System.Security.Cryptography;
 using System.Web;
-using System.Resources;
 using MySql.Web.Common;
 using System.Globalization;
 

@@ -1,4 +1,4 @@
-// Copyright © 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,9 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using System;
-using System.Configuration;
 using System.Diagnostics;
 using System.Web.Hosting;
 using System.Web.UI.WebControls.WebParts;
@@ -313,17 +311,19 @@ namespace MySql.Web.Personalization
       }
       else
       {
+        DateTime dateTime = Convert.ToDateTime("2038-01-19 03:14:07.999999"); // MySQL TimeStamp MaxValue
+
         if (!hasPaths && !hasUsers)
         {
           count = PersonalizationProviderProcedures.my_aspnet_PersonalizationAdministration_DeleteAllState(true, ApplicationId, connection);
         }
         else if (!hasUsers)
         {
-          count = ResetUserState(ResetUserStateMode.PerPaths, DateTime.MaxValue, paths, null);
+          count = ResetUserState(ResetUserStateMode.PerPaths, dateTime, paths, null);
         }
         else
         {
-          count = ResetUserState(ResetUserStateMode.PerUsers, DateTime.MaxValue, paths, usernames);
+          count = ResetUserState(ResetUserStateMode.PerUsers, dateTime, paths, usernames);
         }
       }
       return count;
