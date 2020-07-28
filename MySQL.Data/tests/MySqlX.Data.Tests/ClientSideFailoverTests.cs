@@ -1,4 +1,4 @@
-// Copyright © 2017, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2017, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -62,7 +62,7 @@ namespace MySqlX.Data.Tests
       }
 
       // Multiple hosts using synonyms for "server" connection option.
-      using (var session = MySQLX.GetSession("address=10.10.10.10, localhost;port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout))
+      using (var session = MySQLX.GetSession("host=10.10.10.10, localhost;port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
       }
@@ -141,7 +141,7 @@ namespace MySqlX.Data.Tests
       }
 
       // Multiple hosts using synonyms for "server" connection option. First attempt fails, second is succesful.
-      using (var session = MySQLX.GetSession(new { address = "10.10.10.10, localhost", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
+      using (var session = MySQLX.GetSession(new { datasource = "10.10.10.10, localhost", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
       }
