@@ -20,6 +20,7 @@
 - Fixed a bug that misinterpreted a DateTime value as a String (MySQL Bug #100159, Oracle Bug #31598178).
 - Fixed missing table schemas when using EF Code First (MySQL Bug #94343, Oracle Bug #31323788).
 - Deprecated aliases(address,addr,network address) for server option in the connection string.(Oracle Bug #31248601)
+- Fixed an error that occurred when trying to execute a procedure and the database was not specified in the connection string (MySQL Bug #100306, Oracle Bug #31669587).
 
 
 8.0.21

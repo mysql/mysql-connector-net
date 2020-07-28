@@ -36,7 +36,7 @@ namespace MySqlX.Data.Tests
   {
     private string RemoveLineEndings(string str)
     {
-      return str.Replace("\r\n", string.Empty).Replace("\r", string.Empty);
+      return str.Replace("\r\n", string.Empty).Replace("\r", string.Empty).Replace("\n", string.Empty);
     }
 
     [Test]

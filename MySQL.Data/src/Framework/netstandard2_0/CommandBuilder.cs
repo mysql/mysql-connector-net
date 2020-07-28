@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -85,9 +85,7 @@ namespace MySql.Data.MySqlClient
         throw new InvalidOperationException(Resources.CanNotDeriveParametersForTextCommands);
 
       // retrieve the proc definition from the cache.
-      string spName = command.CommandText;
-      if (spName.IndexOf(".") == -1)
-        spName = command.Connection.Database + "." + spName;
+      string spName = StoredProcedure.FixProcedureName(command.CommandText, command.Connection.Database);
 
       try
       {
@@ -104,11 +102,11 @@ namespace MySql.Data.MySqlClient
           bool real_as_float = entry.procedure.Rows[0]["SQL_MODE"].ToString().IndexOf("REAL_AS_FLOAT") != -1;
           p.MySqlDbType = MetaData.NameToType(row["DATA_TYPE"].ToString(),
             unsigned, real_as_float, command.Connection);
-          if (row["CHARACTER_MAXIMUM_LENGTH"] != null )
+          if (row["CHARACTER_MAXIMUM_LENGTH"] != null)
             p.Size = (int)row["CHARACTER_MAXIMUM_LENGTH"];
           if (row["NUMERIC_PRECISION"] != null)
             p.Precision = Convert.ToByte(row["NUMERIC_PRECISION"]);
-          if (row["NUMERIC_SCALE"] != null )
+          if (row["NUMERIC_SCALE"] != null)
             p.Scale = Convert.ToByte(row["NUMERIC_SCALE"]);
           if (p.MySqlDbType == MySqlDbType.Set || p.MySqlDbType == MySqlDbType.Enum)
             p.PossibleValues = GetPossibleValues(row);
@@ -128,7 +126,7 @@ namespace MySql.Data.MySqlClient
 
       int index = 0;
       for (; index < 2; index++)
-        if (dtdIdentifier.StartsWith(types[index], StringComparison.OrdinalIgnoreCase ))
+        if (dtdIdentifier.StartsWith(types[index], StringComparison.OrdinalIgnoreCase))
           break;
       if (index == 2) return null;
       dtdIdentifier = dtdIdentifier.Substring(types[index].Length).Trim();
