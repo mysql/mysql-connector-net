@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -159,6 +159,7 @@ namespace MySql.Data.MySqlClient
 
     /// <summary>
     /// Gets or sets the name of the server.
+    /// <para>The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.</para>
     /// </summary>
     /// <value>The server.</value>
     [Category("Connection")]

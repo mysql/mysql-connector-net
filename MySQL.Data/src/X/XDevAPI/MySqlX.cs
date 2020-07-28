@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,9 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Opens a session to the server given or to the first available server if multiple servers were specified.
     /// </summary>
-    /// <param name="connectionString">The connection string or URI string format.</param>
+    /// <param name="connectionString">The connection string or URI string format.
+    /// The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.
+    /// </param>
     /// <returns>A <see cref="Session"/> object representing the established session.</returns>
     /// <remarks>Multiple hosts can be specified as part of the <paramref name="connectionString"/> which
     /// will enable client side failover when trying to establish a connection. For additional details and syntax 
@@ -53,7 +55,9 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Opens a session to the server given.
     /// </summary>
-    /// <param name="connectionData">The connection data for the server.</param>
+    /// <param name="connectionData">The connection data for the server.
+    /// The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.
+    /// </param>
     /// <returns>A <see cref="Session"/> object representing the established session.</returns>
     public static Session GetSession(object connectionData)
     {
@@ -63,7 +67,9 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Creates a new <see cref="Client"/> instance.
     /// </summary>
-    /// <param name="connectionString">The connection string or URI string format.</param>
+    /// <param name="connectionString">The connection string or URI string format.
+    /// The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.
+    /// </param>
     /// <param name="connectionOptions">The connection options in JSON string format.</param>
     /// <returns>A <see cref="Client"/> object representing a session pool.</returns>
     public static Client GetClient(string connectionString, string connectionOptions)
@@ -74,7 +80,9 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Creates a new <see cref="Client"/> instance.
     /// </summary>
-    /// <param name="connectionString">The connection string or URI string format.</param>
+    /// <param name="connectionString">The connection string or URI string format.
+    /// The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.
+    /// </param>
     /// <param name="connectionOptions">The connection options in object format.
     /// <example>
     /// <code>
@@ -98,7 +106,9 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Creates a new <see cref="Client"/> instance.
     /// </summary>
-    /// <param name="connectionData">The connection data.</param>
+    /// <param name="connectionData">The connection data.
+    /// The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.
+    /// </param>
     /// <param name="connectionOptions">The connection options in JSON string format.</param>
     /// <returns>A <see cref="Client"/> object representing a session pool.</returns>
     public static Client GetClient(object connectionData, string connectionOptions)
@@ -109,7 +119,9 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Creates a new <see cref="Client"/> instance.
     /// </summary>
-    /// <param name="connectionData">The connection data.</param>
+    /// <param name="connectionData">The connection data.
+    /// The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.
+    /// </param>
     /// <param name="connectionOptions">The connection options in object format.
     /// <example>
     /// <code>

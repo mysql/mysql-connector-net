@@ -19,6 +19,7 @@
 - Fixed a bug that prevented the use of EF Code First Migrations when the system decimal separator was a character other than "." (MySQL Bug #94358, Oracle Bug #30965702).
 - Fixed a bug that misinterpreted a DateTime value as a String (MySQL Bug #100159, Oracle Bug #31598178).
 - Fixed missing table schemas when using EF Code First (MySQL Bug #94343, Oracle Bug #31323788).
+- Deprecated aliases(address,addr,network address) for server option in the connection string.(Oracle Bug #31248601)
 
 
 8.0.21
