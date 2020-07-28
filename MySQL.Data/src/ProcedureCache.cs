@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,8 +30,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using MySql.Data.MySqlClient;
-
 
 namespace MySql.Data.MySqlClient
 {
@@ -137,22 +135,18 @@ namespace MySql.Data.MySqlClient
 
     private static ProcedureCacheEntry GetProcData(MySqlConnection connection, string spName)
     {
+      string schema = string.Empty;
       string name = spName;
-      string currentDB = connection.CurrentDatabase();
-      string schema = string.Format("`{0}`", currentDB);
 
-      if (spName.Contains(currentDB))
+      int dotIndex = spName.IndexOf("`.`");
+      if (dotIndex != -1)
       {
-        name = spName.StartsWith("`") ? spName.Remove(0,schema.Length+1): string.Format("`{0}`", spName.Remove(0, schema.Length-1));
-      }
-      else
-      {
-        name = spName.StartsWith(".") ? spName.Remove(0, 1) : name;
-        name = (!name.StartsWith("`") && !name.EndsWith("`")) ? string.Format("`{0}`", name) : name;
+        schema = spName.Substring(1, dotIndex - 1);
+        name = spName.Substring(dotIndex + 3, spName.Length - dotIndex - 4);
       }
 
       string[] restrictions = new string[4];
-      restrictions[1] = schema.Length > 0 ? schema : currentDB;
+      restrictions[1] = schema.Length > 0 ? schema : connection.CurrentDatabase();
       restrictions[2] = name;
       MySqlSchemaCollection proc = connection.GetSchemaCollection("procedures", restrictions);
       if (proc.Rows.Count > 1)

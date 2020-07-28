@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -871,5 +871,27 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    /// <summary>
+    /// Bug #31669587	- COMMAND.PREPARE() SEND WRONG STATEMENT TO SERVER
+    /// </summary>
+    [Test]
+    public void ProcedureWithoutDbNameInConnString()
+    {
+      ExecuteSQL("CREATE PROCEDURE spTest() BEGIN SELECT 1; END");
+
+      using (MySqlConnection conn = new MySqlConnection($"server=localhost;user=root;password=;port={Connection.Settings.Port};"))
+      {
+        conn.Open();
+
+        MySqlCommand command = conn.CreateCommand();
+        command.CommandText = $"{Connection.Database}.spTest";
+        command.CommandType = CommandType.StoredProcedure;
+        Assert.AreEqual(1, command.ExecuteScalar());
+
+        command.CommandText = $"`{Connection.Database}`.`spTest`";
+        command.CommandType = CommandType.StoredProcedure;
+        Assert.AreEqual(1, command.ExecuteScalar());
+      }
+    }
   }
 }
