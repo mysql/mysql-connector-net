@@ -124,7 +124,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Buffer is not large enough.
+        ///   Looks up a localized string similar to The buffer is not large enough.
         /// </summary>
         public static string BufferNotLargeEnough {
             get {
@@ -718,71 +718,6 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ACCESSIBLE
-        ///ADD
-        ///ALL
-        ///ALTER
-        ///ANALYZE
-        ///AND
-        ///AS
-        ///ASC
-        ///ASENSITIVE
-        ///BEFORE
-        ///BEGIN
-        ///BETWEEN
-        ///BIGINT
-        ///BINARY
-        ///BLOB
-        ///BOTH
-        ///BY
-        ///CALL
-        ///CASCADE
-        ///CASE
-        ///CHANGE
-        ///CHAR
-        ///CHARACTER
-        ///CHECK
-        ///COLLATE
-        ///COLUMN
-        ///COMMIT
-        ///CONDITION
-        ///CONNECTION
-        ///CONSTRAINT
-        ///CONTINUE
-        ///CONVERT
-        ///CREATE
-        ///CROSS
-        ///CURRENT_DATE
-        ///CURRENT_TIME
-        ///CURRENT_TIMESTAMP
-        ///CURRENT_USER
-        ///CURSOR
-        ///DATABASE
-        ///DATABASES
-        ///DAY_HOUR
-        ///DAY_MICROSECOND
-        ///DAY_MINUTE
-        ///DAY_SECOND
-        ///DEC
-        ///DECIMAL
-        ///DECLARE
-        ///DEFAULT
-        ///DELAYED
-        ///DELETE
-        ///DESC
-        ///DESCRIBE
-        ///DETERMINISTIC
-        ///DISTINCT
-        ///DISTINCTROW
-        ///D [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string keywords {
-            get {
-                return ResourceManager.GetString("keywords", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Server asked for stream in response to LOAD DATA LOCAL INFILE, but the functionality is disabled by the client setting &apos;allowlocalinfile&apos; to &apos;false&apos;..
         /// </summary>
         public static string LocalInfileDisabled {
@@ -909,7 +844,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Offset cannot be negative.
+        ///   Looks up a localized string similar to The offset cannot be negative.
         /// </summary>
         public static string OffsetCannotBeNegative {
             get {
