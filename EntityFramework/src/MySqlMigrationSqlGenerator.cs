@@ -547,7 +547,7 @@ namespace MySql.Data.EntityFramework
       // "Incorrect table definition there can be only one auto column and it must be defined as a key", 
       // since unique and PK are almost equivalent we'll be able to add the new column and later add the PK related to it, 
       // this because the "AddPrimaryKeyOperation" is executed after the column is added
-      stmt.Sql = EndsWithSemicolon(string.Format("alter table `{0}` add column `{1}` {2} {3}", TrimSchemaPrefix(op.Table), 
+      stmt.Sql = EndsWithSemicolon(string.Format("alter table `{0}` add column `{1}` {2} {3}", TrimSchemaPrefix(op.Table),
         op.Column.Name, Generate(op.Column), (uniqueAttr ? " unique " : "")));
 
       return stmt;
@@ -671,7 +671,7 @@ namespace MySql.Data.EntityFramework
       if (!type.EndsWith(")", StringComparison.InvariantCulture))
       {
         if ((op.ClrType == typeof(string)) ||
-           ((op.ClrType == typeof(byte)) && (op.ClrType.IsArray)))
+           ((op.ClrType == typeof(byte) || op.ClrType == typeof(byte[])) && op.ClrType.IsArray))
         {
           if (op.MaxLength.HasValue)
           {
