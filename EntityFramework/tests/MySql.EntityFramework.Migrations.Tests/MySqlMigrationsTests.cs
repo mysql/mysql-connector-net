@@ -123,14 +123,22 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
         {
           if (conn.State == System.Data.ConnectionState.Closed) conn.Open();
           Assert.True(GenerateAndExecuteMySQLStatements(migrationOperations));
-          MySqlCommand query = new MySqlCommand("Select Column_name from information_schema.Columns where table_schema ='" + conn.Database + "' and table_name = 'Posts'", conn);
-          MySqlDataReader reader = query.ExecuteReader();
-          while (reader.Read())
+          using (MySqlCommand query = new MySqlCommand($"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA ='{conn.Database}'" +
+            $" AND TABLE_NAME = 'Posts'", conn))
           {
-            Assert.That(createTableOperation.Columns.Where(t => t.Name.Equals(reader[0].ToString())), Has.One.Items);
+            using (MySqlDataReader reader = query.ExecuteReader())
+            {
+              while (reader.Read())
+                Assert.That(createTableOperation.Columns.Where(t => t.Name.Equals(reader[0].ToString())), Has.One.Items);
+              reader.Close();
+            }
+            
+
+            query.CommandText = $"SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{conn.Database}' AND " +
+              $"TABLE_NAME = 'Posts' AND COLUMN_NAME = 'Password'";
+
+            StringAssert.AreEqualIgnoringCase("binary(10)", query.ExecuteScalar().ToString());
           }
-          reader.Close();
-          conn.Close();
         }
       }
     }
@@ -386,6 +394,20 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
 
       createTableOperation.Columns.Add(stringColumnTitle);
       createTableOperation.Columns.Add(stringColumnBody);
+
+      //Column model for binary 
+      tu = TypeUsage.CreateDefaultTypeUsage(PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Binary));
+      result = ProviderManifest.GetStoreType(tu);
+
+      var binaryColumn = new ColumnModel(PrimitiveTypeKind.Binary, result)
+      {
+        Name = "Password",
+        MaxLength = 10,
+        StoreType = "binary"
+      };
+
+      createTableOperation.Columns.Add(binaryColumn);
+
       var primaryKey = new AddPrimaryKeyOperation();
 
       primaryKey.Columns.Add("PostId");
