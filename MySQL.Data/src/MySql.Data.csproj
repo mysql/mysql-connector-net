@@ -33,7 +33,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="keywords.txt" />
     <EmbeddedResource Include="Properties\ReservedWords.txt" />
   </ItemGroup>
 
@@ -83,7 +82,7 @@
       <HintPath>..\..\Dependencies\Zstandard\NetFramework\Zstandard.Net.dll</HintPath>
     </Reference>
     <PackageReference Include="BouncyCastle" Version="1.8.3.1" />
-    <EmbeddedResource Include="keywords.txt;Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+    <EmbeddedResource Include="Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
     <EmbeddedResource Include="..\..\Dependencies\Zstandard\NetFramework\libzstd.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
