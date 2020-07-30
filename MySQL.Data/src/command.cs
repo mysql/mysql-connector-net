@@ -131,7 +131,7 @@ namespace MySql.Data.MySqlClient
       get { return useDefaultTimeout ? 30 : commandTimeout; }
       set
       {
-        if (commandTimeout < 0)
+        if (value < 0)
           Throw(new ArgumentException("Command timeout must not be negative"));
 
         // Timeout in milliseconds should not exceed maximum for 32 bit

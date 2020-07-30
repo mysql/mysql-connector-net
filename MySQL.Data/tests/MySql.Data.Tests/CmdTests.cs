@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,6 +31,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Org.BouncyCastle.Crypto.Modes;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -698,6 +699,24 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual("TEST", reader.GetString(0));
         Assert.False(reader.Read());
       }
+    }
+
+    /// <summary>
+    /// Bug #26574860 - SETTING COMMANDTIMEOUT=-1 DOESN'T THROW ARGUMENTEXCEPTION
+    /// </summary>
+    [Test]
+    public void CommandNegativeTimeout()
+    {
+      MySqlConnection conn = new MySqlConnection("server=localhost;default command timeout=10");
+      MySqlCommand cmd = new MySqlCommand("", conn);
+      Assert.AreEqual(10, cmd.CommandTimeout);
+
+      Assert.Throws<ArgumentException>(() => conn = new MySqlConnection("server=localhost;default command timeout=-1"));
+      var ex = Assert.Throws<ArgumentException>(() => cmd.CommandTimeout = -1);
+      StringAssert.AreEqualIgnoringCase("Command timeout must not be negative", ex.Message);
+
+      cmd.CommandTimeout = 15;
+      Assert.AreEqual(15, cmd.CommandTimeout);
     }
 
     #region SQL Injection
