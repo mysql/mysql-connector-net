@@ -25,6 +25,7 @@
 - Fixed a bad reading of the ReservedWords that results in an incorrect data (MySQL Bug #89639, Oracle Bug #27536342).
 - Fixed the missing length specifier for a binary column when it was provided (MySQL Bug #81179, Oracle Bug #23171349).
 - Fixed the wrong exception handling when setting the command timeout to a negative value (MySQL Bug #87316, Oracle Bug #26574860).
+- Added a FormatException exception to indicate when the data type defined in a stored procedure is a type other than MySqlParameter and the Prepare() method is used.(MySQL Bug #99793, Oracle Bug #31458774).
 
 
 8.0.21

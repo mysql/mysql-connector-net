@@ -893,5 +893,47 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual(1, command.ExecuteScalar());
       }
     }
+
+    /// <summary>
+    /// Bug #31458774	PREPARED STORED PROCEDURE COMMAND DOESN'T VERIFY PARAMETER TYPES
+    /// </summary>
+    [Test]
+    public void VerifyParametersType()
+    {
+      using (var connection = new MySqlConnection(Connection.ConnectionString+ ";IgnorePrepare =false;CheckParameters = true"))
+      {
+        connection.Open();
+        ExecuteSQL($"DROP PROCEDURE IF EXISTS out_string;");
+        ExecuteSQL($"CREATE PROCEDURE `{connection.Settings.Database}`.`out_string`(OUT value VARCHAR(100)) BEGIN SELECT 'test value' INTO value; END", true);
+
+        //call Prepare() when SP and MySqlParameter have different data types
+        var command = new MySqlCommand("out_string",connection);
+        command.CommandType = CommandType.StoredProcedure;
+        command.Parameters.Add(new MySqlParameter
+        {
+          ParameterName = "@value",
+          DbType = DbType.Int32,
+          Direction = ParameterDirection.Output
+        });
+        Exception ex = Assert.Throws<FormatException>(() => command.Prepare());
+        StringAssert.Contains("is not of the correct type", ex.Message);
+
+        //call Prepare() when SP and MySqlParameter have the same data types
+        command = new MySqlCommand("out_string", connection);
+        command.CommandType = CommandType.StoredProcedure;
+        command.Parameters.Add(new MySqlParameter
+        {
+          ParameterName = "@value",
+          DbType = DbType.String,
+          Direction = ParameterDirection.Output
+        });
+        command.Prepare();
+        command.ExecuteNonQuery(); 
+        var result=command.Parameters["@value"].Value;
+        Assert.AreEqual("test value",result);
+      }
+    }
+
+
   }
 }

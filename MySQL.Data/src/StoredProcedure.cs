@@ -128,6 +128,8 @@ namespace MySql.Data.MySqlClient
     {
       string mode = (string)param["PARAMETER_MODE"];
       string pName = (string)param["PARAMETER_NAME"];
+      string datatype = (string)param["DATA_TYPE"];
+      bool unsigned = GetFlags(param["DTD_IDENTIFIER"].ToString()).IndexOf("UNSIGNED") != -1;
 
       if (param["ORDINAL_POSITION"].Equals(0))
       {
@@ -141,10 +143,19 @@ namespace MySql.Data.MySqlClient
       MySqlParameter p = command.Parameters.GetParameterFlexible(pName, true);
       if (!p.TypeHasBeenSet)
       {
-        string datatype = (string)param["DATA_TYPE"];
-        bool unsigned = GetFlags(param["DTD_IDENTIFIER"].ToString()).IndexOf("UNSIGNED") != -1;
         p.MySqlDbType = MetaData.NameToType(datatype, unsigned, realAsFloat, Connection);
       }
+
+      var mapped_sp_type = MetaData.NameToType(datatype, unsigned, realAsFloat, Connection);
+      if (!mapped_sp_type.Equals(p.MySqlDbType) && !((MetaData.IsTextType(mapped_sp_type.ToString())&& MetaData.IsTextType(p.MySqlDbType.ToString())) || 
+           (MetaData.IsNumericType(mapped_sp_type.ToString()) && MetaData.IsNumericType(p.MySqlDbType.ToString())) ||
+           (MetaData.IsDateType(mapped_sp_type.ToString()) && MetaData.IsDateType(p.MySqlDbType.ToString())) ||
+           (MetaData.IsNumericType(mapped_sp_type.ToString()) && MetaData.IsTextType(p.MySqlDbType.ToString()) && decimal.TryParse(p.Value.ToString(), out var num))
+           ))
+      {
+        throw new FormatException(String.Format(Resources.ValueNotCorrectType, p.ParameterName));
+      }
+
       return p;
     }
 

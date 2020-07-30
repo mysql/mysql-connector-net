@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -41,9 +41,16 @@ namespace MySql.Data.Types
       switch (lowerType)
       {
         case "int":
+        case "int16":
+        case "int32":
+        case "int64":
+        case "uint16":
+        case "uint32":
+        case "uint64":
         case "integer":
         case "numeric":
         case "decimal":
+        case "newdecimal":
         case "dec":
         case "fixed":
         case "tinyint":
@@ -74,6 +81,23 @@ namespace MySql.Data.Types
         case "nvarchar":
         case "enum":
         case "set":
+        case "string":
+          return true;
+      }
+      return false;
+    }
+
+    public static bool IsDateType(string typename)
+    {
+      string lowerType = typename.ToLower(CultureInfo.InvariantCulture);
+
+      switch (lowerType)
+      {
+        case "timestamp":
+        case "datetime":
+        case "date":
+        case "year":
+        case "time":
           return true;
       }
       return false;
