@@ -73,7 +73,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void PriorityMethod()
     {
-#if NETCOREAPP3_1
+#if NETCOREAPP3_1 || NET5_0
       if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) Assert.Ignore();
 #endif
       // Multiple hosts and validate proper order assigned to hosts.
