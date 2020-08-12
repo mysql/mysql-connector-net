@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.Data.EntityFramework.Migrations.Tests</Description>
     <Copyright>Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.22</Version>
+    <Version>8.0.23</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net452;netcoreapp3.1;</TargetFrameworks>
     <AssemblyName>MySql.EntityFramework.Migrations.Tests</AssemblyName>
@@ -52,7 +52,7 @@
       <Version>4.7.0</Version>
     </PackageReference>
   </ItemGroup>
-  <Target Name="CopyCustomContent" AfterTargets="AfterBuild"  Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <Copy SourceFiles="App.config" DestinationFiles="$(OutDir)\testhost.dll.config" />
   </Target>
 </Project>
