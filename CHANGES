@@ -1,3 +1,7 @@
+8.0.23
+- Replace language in source code and files(WL14211).
+
+
 8.0.22
 - Fixed an error that occurred when trying to find the "__EFMigrationHistory" table during a migration using EF Core (MySQL Bug #85902, Oracle Bug #2501276).
 - Fixed a third-party library that was built in debug mode now is built in release mode (MySQL Bug #98955, Oracle Bug #31061034).

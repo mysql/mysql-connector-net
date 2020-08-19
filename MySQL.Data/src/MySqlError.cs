@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -636,20 +636,20 @@ namespace MySql.Data.MySqlClient
     ///<remarks>ER_DUMP_NOT_IMPLEMENTED</remarks>
     DumpNotImplemented = 1185,
     ///<summary></summary>
-    ///<remarks>ER_FLUSH_MASTER_BINLOG_CLOSED</remarks>
-    FlushMasterBinLogClosed = 1186,
+    ///<remarks>ER_FLUSH_SOURCE_BINLOG_CLOSED</remarks>
+    FlushSourceBinLogClosed = 1186,
     ///<summary></summary>
     ///<remarks>ER_INDEX_REBUILD</remarks>
     IndexRebuild = 1187,
     ///<summary></summary>
-    ///<remarks>ER_MASTER</remarks>
-    MasterError = 1188,
+    ///<remarks>ER_SOURCE</remarks>
+    SourceError = 1188,
     ///<summary></summary>
-    ///<remarks>ER_MASTER_NET_READ</remarks>
-    MasterNetRead = 1189,
+    ///<remarks>ER_SOURCE_NET_READ</remarks>
+    SourceNetRead = 1189,
     ///<summary></summary>
-    ///<remarks>ER_MASTER_NET_WRITE</remarks>
-    MasterNetWrite = 1190,
+    ///<remarks>ER_SOURCE_NET_WRITE</remarks>
+    SourceNetWrite = 1190,
     ///<summary></summary>
     ///<remarks>ER_FT_MATCHING_KEY_NOT_FOUND</remarks>
     FullTextMatchingKeyNotFound = 1191,
@@ -672,20 +672,20 @@ namespace MySql.Data.MySqlClient
     ///<remarks>ER_TRANS_CACHE_FULL</remarks>
     TransactionCacheFull = 1197,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_MUST_STOP</remarks>
-    SlaveMustStop = 1198,
+    ///<remarks>ER_REPLICA_MUST_STOP</remarks>
+    ReplicaMustStop = 1198,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_NOT_RUNNING</remarks>
-    SlaveNotRunning = 1199,
+    ///<remarks>ER_REPLICA_NOT_RUNNING</remarks>
+    ReplicaNotRunning = 1199,
     ///<summary></summary>
-    ///<remarks>ER_BAD_SLAVE</remarks>
-    BadSlave = 1200,
+    ///<remarks>ER_BAD_REPLICA</remarks>
+    BadReplica = 1200,
     ///<summary></summary>
-    ///<remarks>ER_MASTER_INFO</remarks>
-    MasterInfo = 1201,
+    ///<remarks>ER_SOURCE_INFO</remarks>
+    SourceInfo = 1201,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_THREAD</remarks>
-    SlaveThread = 1202,
+    ///<remarks>ER_REPLICA_THREAD</remarks>
+    ReplicaThread = 1202,
     ///<summary></summary>
     ///<remarks>ER_TOO_MANY_USER_CONNECTIONS</remarks>
     TooManyUserConnections = 1203,
@@ -732,11 +732,11 @@ namespace MySql.Data.MySqlClient
     ///<remarks>ER_ROW_IS_REFERENCED</remarks>
     RowIsReferenced = 1217,
     ///<summary></summary>
-    ///<remarks>ER_CONNECT_TO_MASTER</remarks>
-    ConnectToMaster = 1218,
+    ///<remarks>ER_CONNECT_TO_SOURCE</remarks>
+    ConnectToSource = 1218,
     ///<summary></summary>
-    ///<remarks>ER_QUERY_ON_MASTER</remarks>
-    QueryOnMaster = 1219,
+    ///<remarks>ER_QUERY_ON_SOURCE</remarks>
+    QueryOnSource = 1219,
     ///<summary></summary>
     ///<remarks>ER_ERROR_WHEN_EXECUTING_COMMAND</remarks>
     ErrorWhenExecutingCommand = 1220,
@@ -786,11 +786,11 @@ namespace MySql.Data.MySqlClient
     ///<remarks>ER_NOT_SUPPORTED_YET</remarks>
     NotSupportedYet = 1235,
     ///<summary></summary>
-    ///<remarks>ER_MASTER_FATAL_ERROR_READING_BINLOG</remarks>
-    MasterFatalErrorReadingBinLog = 1236,
+    ///<remarks>ER_SOURCE_FATAL_ERROR_READING_BINLOG</remarks>
+    SourceFatalErrorReadingBinLog = 1236,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_IGNORED_TABLE</remarks>
-    SlaveIgnoredTable = 1237,
+    ///<remarks>ER_REPLICA_IGNORED_TABLE</remarks>
+    ReplicaIgnoredTable = 1237,
     ///<summary></summary>
     ///<remarks>ER_INCORRECT_GLOBAL_LOCAL_VAR</remarks>
     IncorrectGlobalLocalVariable = 1238,
@@ -840,11 +840,11 @@ namespace MySql.Data.MySqlClient
     ///<remarks>ER_COLLATION_CHARSET_MISMATCH</remarks>
     CollationCharsetMismatch = 1253,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_WAS_RUNNING</remarks>
-    SlaveWasRunning = 1254,
+    ///<remarks>ER_REPLICA_WAS_RUNNING</remarks>
+    ReplicaWasRunning = 1254,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_WAS_NOT_RUNNING</remarks>
-    SlaveWasNotRunning = 1255,
+    ///<remarks>ER_REPLICA_WAS_NOT_RUNNING</remarks>
+    ReplicaWasNotRunning = 1255,
     ///<summary></summary>
     ///<remarks>ER_TOO_BIG_FOR_UNCOMPRESS</remarks>
     TooBigForUncompress = 1256,
@@ -900,8 +900,8 @@ namespace MySql.Data.MySqlClient
     ///<remarks>ER_UNKNOWN_COLLATION</remarks>
     UnknownCollation = 1273,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_IGNORED_SSL_PARAMS</remarks>
-    SlaveIgnoreSSLParameters = 1274,
+    ///<remarks>ER_REPLICA_IGNORED_SSL_PARAMS</remarks>
+    ReplicaIgnoreSSLParameters = 1274,
     ///<summary></summary>
     ///<remarks>ER_SERVER_IS_IN_SECURE_AUTH_MODE</remarks>
     ServerIsInSecureAuthMode = 1275,
@@ -909,11 +909,11 @@ namespace MySql.Data.MySqlClient
     ///<remarks>ER_WARN_FIELD_RESOLVED</remarks>
     WaningFieldResolved = 1276,
     ///<summary></summary>
-    ///<remarks>ER_BAD_SLAVE_UNTIL_COND</remarks>
-    BadSlaveUntilCondition = 1277,
+    ///<remarks>ER_BAD_REPLICA_UNTIL_COND</remarks>
+    BadReplicaUntilCondition = 1277,
     ///<summary></summary>
-    ///<remarks>ER_MISSING_SKIP_SLAVE</remarks>
-    MissingSkipSlave = 1278,
+    ///<remarks>ER_MISSING_SKIP_REPLICA</remarks>
+    MissingSkipReplica = 1278,
     ///<summary></summary>
     ///<remarks>ER_UNTIL_COND_IGNORED</remarks>
     ErrorUntilConditionIgnored = 1279,
@@ -1848,8 +1848,8 @@ namespace MySql.Data.MySqlClient
     ///<remarks>ER_EVENT_CANNOT_ALTER_IN_THE_PAST</remarks>
     EventCannotAlterInThePast = 1589,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_INCIDENT</remarks>
-    SlaveIncident = 1590,
+    ///<remarks>ER_REPLICA_INCIDENT</remarks>
+    ReplicaIncident = 1590,
     ///<summary></summary>
     ///<remarks>ER_NO_PARTITION_FOR_GIVEN_VALUE_SILENT</remarks>
     NoPartitionForGivenValueSilent = 1591,
@@ -1857,20 +1857,20 @@ namespace MySql.Data.MySqlClient
     ///<remarks>ER_BINLOG_UNSAFE_STATEMENT</remarks>
     BinLogUnsafeStatement = 1592,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_FATAL_ERROR</remarks>
-    SlaveFatalError = 1593,
+    ///<remarks>ER_REPLICA_FATAL_ERROR</remarks>
+    ReplicaFatalError = 1593,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_RELAY_LOG_READ_FAILURE</remarks>
-    SlaveRelayLogReadFailure = 1594,
+    ///<remarks>ER_REPLICA_RELAY_LOG_READ_FAILURE</remarks>
+    ReplicaRelayLogReadFailure = 1594,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_RELAY_LOG_WRITE_FAILURE</remarks>
-    SlaveRelayLogWriteFailure = 1595,
+    ///<remarks>ER_REPLICA_RELAY_LOG_WRITE_FAILURE</remarks>
+    ReplicaRelayLogWriteFailure = 1595,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_CREATE_EVENT_FAILURE</remarks>
-    SlaveCreateEventFailure = 1596,
+    ///<remarks>ER_REPLICA_CREATE_EVENT_FAILURE</remarks>
+    ReplicaCreateEventFailure = 1596,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_MASTER_COM_FAILURE</remarks>
-    SlaveMasterComFailure = 1597,
+    ///<remarks>ER_REPLICA_SOURCE_COM_FAILURE</remarks>
+    ReplicaSourceComFailure = 1597,
     ///<summary></summary>
     ///<remarks>ER_BINLOG_LOGGING_IMPOSSIBLE</remarks>
     BinLogLoggingImpossible = 1598,
@@ -1902,14 +1902,14 @@ namespace MySql.Data.MySqlClient
     ///<remarks>ER_CANT_CREATE_SROUTINE</remarks>
     CannoCreateSubRoutine = 1607,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_AMBIGOUS_EXEC_MODE</remarks>
-    SlaveAmbiguousExecMode = 1608,
+    ///<remarks>ER_REPLICA_AMBIGOUS_EXEC_MODE</remarks>
+    ReplicaAmbiguousExecMode = 1608,
     ///<summary></summary>
     ///<remarks>ER_NO_FORMAT_DESCRIPTION_EVENT_BEFORE_BINLOG_STATEMENT</remarks>
     NoFormatDescriptionEventBeforeBinLogStatement = 1609,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_CORRUPT_EVENT</remarks>
-    SlaveCorruptEvent = 1610,
+    ///<remarks>ER_REPLICA_CORRUPT_EVENT</remarks>
+    ReplicaCorruptEvent = 1610,
     ///<summary></summary>
     ///<remarks>ER_LOAD_DATA_INVALID_COLUMN</remarks>
     LoadDataInvalidColumn = 1611,
@@ -1929,8 +1929,8 @@ namespace MySql.Data.MySqlClient
     ///<remarks>ER_DELAYED_NOT_SUPPORTED</remarks>
     DelayedNotSupported = 1616,
     ///<summary></summary>
-    ///<remarks>WARN_NO_MASTER_INFO</remarks>
-    WarningNoMasterInfo = 1617,
+    ///<remarks>WARN_NO_SOURCE_INFO</remarks>
+    WarningNoSourceInfo = 1617,
     ///<summary></summary>
     ///<remarks>WARN_OPTION_IGNORED</remarks>
     WarningOptionIgnored = 1618,
@@ -1947,11 +1947,11 @@ namespace MySql.Data.MySqlClient
     ///<remarks>ER_WARN_ENGINE_TRANSACTION_ROLLBACK</remarks>
     WarningEngineTransactionRollback = 1622,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_HEARTBEAT_FAILURE</remarks>
-    SlaveHeartbeatFailure = 1623,
+    ///<remarks>ER_REPLICA_HEARTBEAT_FAILURE</remarks>
+    ReplicaHeartbeatFailure = 1623,
     ///<summary></summary>
-    ///<remarks>ER_SLAVE_HEARTBEAT_VALUE_OUT_OF_RANGE</remarks>
-    SlaveHeartbeatValueOutOfRange = 1624,
+    ///<remarks>ER_REPLICA_HEARTBEAT_VALUE_OUT_OF_RANGE</remarks>
+    ReplicaHeartbeatValueOutOfRange = 1624,
     ///<summary></summary>
     ///<remarks>ER_NDB_REPLICATION_SCHEMA_ERROR</remarks>
     NDBReplicationSchemaError = 1625,

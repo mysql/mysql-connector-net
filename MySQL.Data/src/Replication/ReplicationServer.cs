@@ -1,4 +1,4 @@
-// Copyright © 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2014, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,10 +37,10 @@ namespace MySql.Data.MySqlClient.Replication
   /// </summary>
   public class ReplicationServer
   {
-    public ReplicationServer(string name, bool isMaster, string connectionString)
+    public ReplicationServer(string name, bool isSource, string connectionString)
     {
       Name = name;
-      IsMaster = isMaster;
+      IsSource = isSource;
       ConnectionString = connectionString;
       IsAvailable = true;
     }
@@ -50,9 +50,14 @@ namespace MySql.Data.MySqlClient.Replication
     /// </summary>
     public string Name { get; private set; }
     /// <summary>
-    /// Gets a value indicating whether the server is master or slave.
+    /// Gets a value indicating whether the server is source or replica.
     /// </summary>
+    [Obsolete("This property is deprecated please use IsSource instead.")]
     public bool IsMaster { get; private set; }
+    /// <summary>
+    /// Gets a value indicating whether the server is source or replica.
+    /// </summary>
+    public bool IsSource { get; private set; }
     /// <summary>
     /// Gets the connection string used to connect to the server.
     /// </summary>

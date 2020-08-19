@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -432,11 +432,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void MoreParametersOutOfOrder()
     {
-      ExecuteSQL("CREATE TABLE `Test` (`BlackListID` int(11) NOT NULL auto_increment, " +
+      ExecuteSQL("CREATE TABLE `Test` (`BlockListID` int(11) NOT NULL auto_increment, " +
       "`SubscriberID` int(11) NOT NULL, `Phone` varchar(50) default NULL, " +
       "`ContactID` int(11) default NULL, " +
       "`AdminJunk` tinyint(1) NOT NULL default '0', " +
-      "PRIMARY KEY  (`BlackListID`), KEY `SubscriberID` (`SubscriberID`))");
+      "PRIMARY KEY  (`BlockListID`), KEY `SubscriberID` (`SubscriberID`))");
 
       IDbCommand cmd = Connection.CreateCommand();
       cmd.CommandText = "INSERT INTO `Test`(`SubscriberID`,`Phone`,`ContactID`, " +

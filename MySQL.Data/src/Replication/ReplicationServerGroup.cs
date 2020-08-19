@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -71,12 +71,12 @@ namespace MySql.Data.MySqlClient.Replication
     /// Adds a server into the group.
     /// </summary>
     /// <param name="name">The server name.</param>
-    /// <param name="isMaster">A flag indicating if the server to add is master or slave.</param>
+    /// <param name="isSource">A flag indicating if the server to add is source or replica.</param>
     /// <param name="connectionString">The connection string used by this server.</param>
     /// <returns>A <see cref="ReplicationServer"/> object representing the recently added object.</returns>
-    internal protected ReplicationServer AddServer(string name, bool isMaster, string connectionString)
+    internal protected ReplicationServer AddServer(string name, bool isSource, string connectionString)
     {
-      ReplicationServer server = new ReplicationServer(name, isMaster, connectionString);
+      ReplicationServer server = new ReplicationServer(name, isSource, connectionString);
       servers.Add(server);
       return server;
     }
@@ -108,23 +108,23 @@ namespace MySql.Data.MySqlClient.Replication
     /// <summary>
     /// Must be implemented. Defines the next server for a custom load balancing implementation.
     /// </summary>
-    /// <param name="isMaster">Defines if the server to return is a master or any.</param>
+    /// <param name="isSource">Defines if the server to return is a source or any.</param>
     /// <returns>The next server based on the load balancing implementation.
     /// Null if no available server is found.
     /// </returns>
-    internal protected abstract ReplicationServer GetServer(bool isMaster);
+    internal protected abstract ReplicationServer GetServer(bool isSource);
 
     /// <summary>
     /// Defines the next server for a custom load balancing implementation.
     /// </summary>
-    /// <param name="isMaster">Defines if the server to return is a master or any.</param>
+    /// <param name="isSource">Defines if the server to return is a source or any.</param>
     /// <param name="settings">Currently not being used.</param>
     /// <returns>The next server based on the load balancing implementation.
     /// Null if no available server is found.
     /// </returns>
-    internal protected virtual ReplicationServer GetServer(bool isMaster, MySqlConnectionStringBuilder settings)
+    internal protected virtual ReplicationServer GetServer(bool isSource, MySqlConnectionStringBuilder settings)
     {
-      return GetServer(isMaster);
+      return GetServer(isSource);
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright © 2013, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -112,14 +112,26 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets whether the replication server is configured as master.
+    /// Gets or sets whether the replication server is configured as source.
     /// </summary>
     [ConfigurationProperty("IsMaster", IsRequired = false, DefaultValue = false)]
+    [Obsolete("This property is deprecated, please use IsSource instead.")]
     public bool IsMaster
     {
       get { return (bool)this["IsMaster"]; }
       set { this["IsMaster"] = value; }
     }
+
+    /// <summary>
+    /// Gets or sets whether the replication server is configured as source.
+    /// </summary>
+    [ConfigurationProperty("IsSource", IsRequired = false, DefaultValue = false)]
+    public bool IsSource
+    {
+      get { return (bool)this["IsSource"]; }
+      set { this["IsSource"] = value; }
+    }
+
 
     /// <summary>
     /// Gets or sets the connection string associated to this replication server.

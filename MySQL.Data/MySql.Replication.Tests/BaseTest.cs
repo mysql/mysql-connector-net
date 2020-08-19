@@ -1,4 +1,4 @@
-// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,11 +40,11 @@ namespace MySql.LoadBalancing.Tests
   public class BaseTest
   {
     protected string databaseName;
-    protected int masterPort;
-    protected int slavePort;
+    protected int sourcePort;
+    protected int replicaPort;
     protected string server;
-    private MySqlConnectionStringBuilder connStringRootMaster;
-    private MySqlConnectionStringBuilder connStringSlave;
+    private MySqlConnectionStringBuilder connStringRootSource;
+    private MySqlConnectionStringBuilder connStringReplica;
 
     protected string ConnectionString
     {
@@ -62,19 +62,19 @@ namespace MySql.LoadBalancing.Tests
       }
     }
 
-    protected string ConnectionStringRootMaster
+    protected string ConnectionStringRootSource
     {
       get
       {
-        return connStringRootMaster.ConnectionString;
+        return connStringRootSource.ConnectionString;
       }
     }
 
-    protected string ConnectionStringSlave
+    protected string ConnectionStringReplica
     {
       get
       {
-        return connStringSlave.ConnectionString;
+        return connStringReplica.ConnectionString;
       }
     }
 
@@ -88,25 +88,25 @@ namespace MySql.LoadBalancing.Tests
 
     protected void LoadBaseConfiguration()
     {
-      string masterPortString = ValueIfEmpty(ConfigurationManager.AppSettings["masterPort"], "3305");
-      string slavePortString = ValueIfEmpty(ConfigurationManager.AppSettings["slavePort"], "3307");
+      string sourcePortString = ValueIfEmpty(ConfigurationManager.AppSettings["sourcePort"], "3305");
+      string replicaPortString = ValueIfEmpty(ConfigurationManager.AppSettings["replicaPort"], "3307");
       server = ValueIfEmpty(ConfigurationManager.AppSettings["server"], "Group1");
 
-      masterPort = int.Parse(masterPortString);
-      slavePort = int.Parse(slavePortString);
+      sourcePort = int.Parse(sourcePortString);
+      replicaPort = int.Parse(replicaPortString);
 
-      connStringRootMaster = new MySqlConnectionStringBuilder();
-      connStringRootMaster.UserID = ValueIfEmpty(ConfigurationManager.AppSettings["rootuser"], "root");
-      connStringRootMaster.Password = ValueIfEmpty(ConfigurationManager.AppSettings["rootpassword"], string.Empty);
-      connStringRootMaster.Server = ValueIfEmpty(ConfigurationManager.AppSettings["host"], "localhost");
-      connStringRootMaster.Port = (uint)masterPort;
+      connStringRootSource = new MySqlConnectionStringBuilder();
+      connStringRootSource.UserID = ValueIfEmpty(ConfigurationManager.AppSettings["rootuser"], "root");
+      connStringRootSource.Password = ValueIfEmpty(ConfigurationManager.AppSettings["rootpassword"], string.Empty);
+      connStringRootSource.Server = ValueIfEmpty(ConfigurationManager.AppSettings["host"], "localhost");
+      connStringRootSource.Port = (uint)sourcePort;
 
-      connStringSlave = new MySqlConnectionStringBuilder();
-      connStringSlave.UserID = ValueIfEmpty(ConfigurationManager.AppSettings["slaveUser"], "lbuser");
-      connStringSlave.Password = ValueIfEmpty(ConfigurationManager.AppSettings["slavePassword"], "lbpass");
-      connStringSlave.Server = ValueIfEmpty(ConfigurationManager.AppSettings["slaveHost"], "localhost");
-      connStringSlave.Port = (uint)slavePort;
-      connStringSlave.Database = databaseName;
+      connStringReplica = new MySqlConnectionStringBuilder();
+      connStringReplica.UserID = ValueIfEmpty(ConfigurationManager.AppSettings["replicaUser"], "lbuser");
+      connStringReplica.Password = ValueIfEmpty(ConfigurationManager.AppSettings["replicaPassword"], "lbpass");
+      connStringReplica.Server = ValueIfEmpty(ConfigurationManager.AppSettings["replicaHost"], "localhost");
+      connStringReplica.Port = (uint)replicaPort;
+      connStringReplica.Database = databaseName;
     }
 
     protected virtual void Initialize()
@@ -122,7 +122,7 @@ namespace MySql.LoadBalancing.Tests
     [SetUp]
     public void Setup()
     {
-      using (MySqlConnection connection = new MySqlConnection(ConnectionStringRootMaster))
+      using (MySqlConnection connection = new MySqlConnection(ConnectionStringRootSource))
       {
         connection.Open();
         MySqlScript script = new MySqlScript(connection);
@@ -140,7 +140,7 @@ namespace MySql.LoadBalancing.Tests
     //[TearDown]
     public void Teardown()
     {
-      using (MySqlConnection connection = new MySqlConnection(ConnectionStringRootMaster))
+      using (MySqlConnection connection = new MySqlConnection(ConnectionStringRootSource))
       {
         connection.Open();
         MySqlCommand cmd = new MySqlCommand(string.Empty, connection);
