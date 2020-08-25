@@ -901,5 +901,31 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual(3000000000, v);
       }
     }
+
+    /// <summary>
+    /// Server Bug
+    /// Bug #31667061	- INCONSISTENT BEHAVIOR OF @@SQL_SELECT_LIMIT WITH PREPARED STATEMENTS
+    /// </summary>
+    [Test]
+    public void InconsistentBehaviorForSelectLimit()
+    {
+      ExecuteSQL("CREATE TABLE Test (id INT)");
+      ExecuteSQL("INSERT INTO Test VALUES (1), (2), (3)");
+      ExecuteSQL("set @@sql_select_limit=1");
+
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test WHERE id > ?p1", Connection);
+      cmd.Parameters.AddWithValue("?p1", 0);
+      cmd.Prepare();
+
+      ExecuteSQL("set @@sql_select_limit=DEFAULT");
+
+      using (MySqlDataReader result = cmd.ExecuteReader())
+      {
+        int rows = 0;
+        while (result.Read())
+          rows += 1;
+        Assert.AreEqual(3, rows);
+      }
+    }
   }
 }

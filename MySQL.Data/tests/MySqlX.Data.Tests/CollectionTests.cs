@@ -429,5 +429,33 @@ namespace MySqlX.Data.Tests
       exreuse = Assert.Throws<MySqlException>(() => test.ModifyCollection("testnull", null));
       Assert.AreEqual(@"Arguments value used under ""validation"" must be an object with at least one field", exreuse.Message);
     }
+
+    /// <summary>
+    /// Server Bug
+    /// Bug #31667405 - INCORRECT PREPARED STATEMENT OUTCOME WITH NUMERIC STRINGS IN JSON
+    /// </summary>
+    [Test]
+    public void PreparedStatementWithNumericStrings()
+    {
+      Collection coll = CreateCollection("test");
+      object[] _docs = new[]
+      {
+      new {  _id = "1", title = "foo" },
+      new {  _id = "2", title = "bar" }
+      };
+
+      ExecuteAddStatement(coll.Add(_docs));
+
+      var stmt = coll.Find("_id=:v").Bind("v", "1");
+      var res = stmt.Execute();
+      var values = res.FetchOne();
+      Assert.AreEqual(1, Convert.ToInt32(values.values["_id"]));
+      StringAssert.AreEqualIgnoringCase("foo", values.values["title"].ToString());
+
+      res = stmt.Bind("v", "2").Execute();
+      values = res.FetchOne();
+      Assert.AreEqual(2, Convert.ToInt32(values.values["_id"]));
+      StringAssert.AreEqualIgnoringCase("bar", values.values["title"].ToString());
+    }
   }
 }
