@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -487,7 +487,7 @@ namespace MySql.Data.MySqlClient.Tests
       DateTime start = DateTime.Now;
       Assert.Throws<MySqlException>(() => c.Open());
       TimeSpan diff = DateTime.Now.Subtract(start);
-      Assert.True(diff.TotalSeconds < 10, "Timeout exceeded");
+      Assert.True(diff.TotalSeconds < 10, $"Timeout exceeded: {diff.TotalSeconds}");
     }
 
     [Test]
