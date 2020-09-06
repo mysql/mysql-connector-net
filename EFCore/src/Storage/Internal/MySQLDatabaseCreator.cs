@@ -265,7 +265,7 @@ namespace MySql.Data.EntityFrameworkCore
     public override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
       => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
         _connection,
-        async (connection, ct) => (int)await CreateHasTablesCommand()
+        async (connection, ct) => Convert.ToBoolean(await CreateHasTablesCommand()
         .ExecuteScalarAsync(
           new RelationalCommandParameterObject(
             connection,
@@ -273,8 +273,8 @@ namespace MySql.Data.EntityFrameworkCore
             null,
             Dependencies.CurrentContext.Context,
             Dependencies.CommandLogger),
-          cancellationToken: ct)
-        != 0, cancellationToken);
+          cancellationToken: ct))
+        , cancellationToken);
 
     private IRelationalCommand CreateHasTablesCommand()
     => _rawSqlCommandBuilder

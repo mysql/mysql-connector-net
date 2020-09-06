@@ -109,5 +109,17 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Database.EnsureCreated();
       }
     }
+
+    [Test]
+    // In version 8.0.21 and earlier, calling EnsureCreatedAsync twice would throw `System.InvalidCastException`
+    public async Task EnsureCreatedAsyncTwice()
+    {
+      using (var context = new MyContext())
+      {
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
+        await context.Database.EnsureCreatedAsync();
+      }
+    }
   }
 }
