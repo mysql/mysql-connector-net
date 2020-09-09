@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -229,13 +229,6 @@ namespace MySql.Data.MySqlClient
         }
       }
 
-
-#if AUTHENTICATED
-      string licenseType = serverProps["license"];
-      if (licenseType == null || licenseType.Length == 0 || 
-        licenseType != "commercial") 
-        throw new MySqlException( "This client library licensed only for use with commercially-licensed MySQL servers." );
-#endif
       // if the user has indicated that we are not to reset
       // the connection and this is not our first time through,
       // then we are done.

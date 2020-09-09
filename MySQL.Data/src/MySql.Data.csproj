@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
 
   <PropertyGroup>
@@ -81,7 +81,7 @@
     <Reference Include="Zstandard.Net">
       <HintPath>..\..\Dependencies\Zstandard\NetFramework\Zstandard.Net.dll</HintPath>
     </Reference>
-    <PackageReference Include="BouncyCastle" Version="1.8.3.1" />
+    <PackageReference Include="BouncyCastle" Version="1.8.5" />
     <EmbeddedResource Include="Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
     <EmbeddedResource Include="..\..\Dependencies\Zstandard\NetFramework\libzstd.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -93,7 +93,7 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.1" />
     <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
-    <PackageReference Include="BouncyCastle.NetCore" Version="1.8.3" />
+    <PackageReference Include="BouncyCastle.NetCore" Version="1.8.5" />
     <Reference Include="Zstandard.Net">
       <HintPath>..\..\Dependencies\Zstandard\NetCore\Zstandard.Net.dll</HintPath>
     </Reference>
