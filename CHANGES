@@ -1,5 +1,6 @@
 8.0.23
 - Added support for .NET Framework 4.8 in MySQL.Web(Oracle Bug #31799902).
+- Replace language in source code and files(WL14211).
 
 
 8.0.22

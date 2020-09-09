@@ -106,7 +106,7 @@ namespace MySql.Data.MySqlClient
     BINLOG_DUMP = 18,
     TABLE_DUMP = 19,
     CONNECT_OUT = 20,
-    REGISTER_SLAVE = 21,
+    REGISTER_REPLICA = 21,
     PREPARE = 22,
     EXECUTE = 23,
     LONG_DATA = 24,

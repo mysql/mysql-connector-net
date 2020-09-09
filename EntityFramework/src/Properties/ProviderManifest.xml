@@ -1733,14 +1733,14 @@ PROCESS
       <Parameter Name="str" Type="String" Mode="In"/>
     </Function>
 
-    <!-- Master_Pos_Wait -->
-    <Function Name="MASTER_POS_WAIT" BuiltIn="true">
+    <!-- Source_Pos_Wait -->
+    <Function Name="SOURCE_POS_WAIT" BuiltIn="true">
       <ReturnType Type="Int32" />
       <Parameter Name="log_name" Type="String" Mode="In"/>
       <Parameter Name="log_pos" Type="Int32" Mode="In"/>
     </Function>
 
-    <Function Name="MASTER_POS_WAIT" BuiltIn="true">
+    <Function Name="SOURCE_POS_WAIT" BuiltIn="true">
       <ReturnType Type="Int32" />
       <Parameter Name="log_name" Type="String" Mode="In"/>
       <Parameter Name="log_pos" Type="Int32" Mode="In"/>

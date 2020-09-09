@@ -100,9 +100,9 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     {
       using (var connection = CreateConnection(CreateOptions()))
       {
-        using (var master = connection.CreateMasterConnection())
+        using (var source = connection.CreateSourceConnection())
         {
-          var csb = new MySqlConnectionStringBuilder(master.ConnectionString);
+          var csb = new MySqlConnectionStringBuilder(source.ConnectionString);
           var csb1 = new MySqlConnectionStringBuilder(MySQLTestStore.baseConnectionString + "database=mysql");
           Assert.True(csb.Database == csb1.Database);
           Assert.True(csb.Port == csb1.Port);

@@ -1,4 +1,4 @@
-// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -49,7 +49,7 @@ namespace MySql.Replication.Tests
 
    public void Dispose()
    {
-     MySqlConnectionStringBuilder connString = new MySqlConnectionStringBuilder(st.ConnectionStringRootMaster);
+     MySqlConnectionStringBuilder connString = new MySqlConnectionStringBuilder(st.ConnectionStringRootSource);
      connString.Database = st.databaseName;
      using (MySqlConnection conn = new MySqlConnection(connString.ToString()))
      {
@@ -60,12 +60,12 @@ namespace MySql.Replication.Tests
    }
 
     /// <summary>
-    /// Validates that the slave is readonly
+    /// Validates that the replica is readonly
     /// </summary>
     [Fact]
-    public void _SlaveAsReadOnly()
+    public void _ReplicaAsReadOnly()
     {
-      using (MySqlConnection conn = new MySqlConnection(st.ConnectionStringSlave))
+      using (MySqlConnection conn = new MySqlConnection(st.ConnectionStringReplica))
       {
         conn.Open();
         MySqlException ex = Assert.Throws<MySqlException>(() => st.ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 1, 'James')"));       
@@ -77,8 +77,8 @@ namespace MySql.Replication.Tests
 
     /// <summary>
     /// Validates that each request for a connection is switched between the
-    /// master and slave; also validates that all non-read statements are sent
-    /// to the master
+    /// source and replica; also validates that all non-read statements are sent
+    /// to the source
     /// </summary>
     [Fact]
     public void RoundRobinWritting()
@@ -91,17 +91,17 @@ namespace MySql.Replication.Tests
         st.ExecuteNonQuery(conn, "INSERT INTO order_details VALUES(1, 1, 1, 0, 0)");
         st.ExecuteNonQuery(conn, "INSERT INTO order_details VALUES(1, 2, 1, 0, 0)");
 
-        Assert.Equal(st.slavePort, GetPort(conn));
-        Assert.Equal(st.masterPort, GetPort(conn));
-        Assert.Equal(st.slavePort, GetPort(conn));
-        Assert.Equal(st.masterPort, GetPort(conn));
+        Assert.Equal(st.replicaPort, GetPort(conn));
+        Assert.Equal(st.sourcePort, GetPort(conn));
+        Assert.Equal(st.replicaPort, GetPort(conn));
+        Assert.Equal(st.sourcePort, GetPort(conn));
 
         st.ExecuteNonQuery(conn, "INSERT INTO order_details VALUES(1, 3, 1, 0, 0)");
       }
     }
 
     /// <summary>
-    /// Test for a master connection failure
+    /// Test for a source connection failure
     /// </summary>
     [Fact]
     public void RoundRobinReadOnly()
@@ -124,10 +124,10 @@ namespace MySql.Replication.Tests
     }
 
     /// <summary>
-    /// Validates that data inserted in master is replicated into slave
+    /// Validates that data inserted in source is replicated into replica
     /// </summary>
     [Fact]
-    public void RoundRobinValidateSlaveData()
+    public void RoundRobinValidateReplicaData()
     {
       using (MySqlConnection conn = new MySqlConnection(st.ConnectionString))
       {
@@ -136,14 +136,14 @@ namespace MySql.Replication.Tests
         st.ExecuteNonQuery(conn, "INSERT INTO orders VALUES(null, 2, 'Bruce')");
       }
       
-      // Waits for replication on slave
+      // Waits for replication on replica
       System.Threading.Thread.Sleep(3000);
 
-      // validates data on slave
-      using (MySqlConnection slaveConn = new MySqlConnection(st.ConnectionStringSlave))
+      // validates data on replica
+      using (MySqlConnection replicaConn = new MySqlConnection(st.ConnectionStringReplica))
       {
-        slaveConn.Open();
-        MySqlDataReader dr = st.ExecuteQuery(slaveConn, "SELECT * FROM orders");
+        replicaConn.Open();
+        MySqlDataReader dr = st.ExecuteQuery(replicaConn, "SELECT * FROM orders");
         Assert.True(dr.Read());
         Assert.Equal(2, dr.GetValue(1));
         Assert.Equal("Bruce", dr.GetValue(2));
@@ -167,14 +167,14 @@ namespace MySql.Replication.Tests
         st.ExecuteNonQuery(conn, "INSERT INTO order_details VALUES(1, 2, 1, 0, 0)");
       }
 
-      // Waits for replication on slave
+      // Waits for replication on replica
       System.Threading.Thread.Sleep(3000);
 
-      // validates data on slave
-      using (MySqlConnection slaveConn = new MySqlConnection(st.ConnectionStringSlave))
+      // validates data on replica
+      using (MySqlConnection replicaConn = new MySqlConnection(st.ConnectionStringReplica))
       {
-        slaveConn.Open();
-        MySqlDataReader dr = st.ExecuteQuery(slaveConn, "SELECT * FROM orders");
+        replicaConn.Open();
+        MySqlDataReader dr = st.ExecuteQuery(replicaConn, "SELECT * FROM orders");
         Assert.True(dr.Read());
         Assert.Equal(2, dr.GetValue(1));
         Assert.Equal("Bruce", dr.GetValue(2));
@@ -208,14 +208,14 @@ namespace MySql.Replication.Tests
         tx.Commit();
       }
 
-      // Waits for replication on slave
+      // Waits for replication on replica
       System.Threading.Thread.Sleep(3000);
 
-      // validates data on slave
-      using (MySqlConnection slaveConn = new MySqlConnection(st.ConnectionStringSlave))
+      // validates data on replica
+      using (MySqlConnection replicaConn = new MySqlConnection(st.ConnectionStringReplica))
       {
-        slaveConn.Open();
-        MySqlDataReader dr = st.ExecuteQuery(slaveConn, "SELECT * FROM orders");
+        replicaConn.Open();
+        MySqlDataReader dr = st.ExecuteQuery(replicaConn, "SELECT * FROM orders");
         Assert.True(dr.Read());
         Assert.Equal(2, dr.GetValue(1));
         Assert.Equal("Bruce", dr.GetValue(2));

@@ -80,7 +80,7 @@ namespace MySql.Data.EntityFrameworkCore
 
     public override void Create()
     {
-      using (var workingConnection = _connection.CreateMasterConnection())
+      using (var workingConnection = _connection.CreateSourceConnection())
       {
         _migrationCommandExecutor.ExecuteNonQuery(CreateCreateOperations(), workingConnection);
         ClearPool();
@@ -91,7 +91,7 @@ namespace MySql.Data.EntityFrameworkCore
 
     public override async Task CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
     {
-      using (var workingConnection = _connection.CreateMasterConnection())
+      using (var workingConnection = _connection.CreateSourceConnection())
       {
         await _migrationCommandExecutor.ExecuteNonQueryAsync(CreateCreateOperations(), workingConnection, cancellationToken);
         ClearPool();
@@ -107,18 +107,18 @@ namespace MySql.Data.EntityFrameworkCore
     public override void Delete()
     {
       ClearAllPools();
-      using (var masterConnection = _connection.CreateMasterConnection())
+      using (var sourceConnection = _connection.CreateSourceConnection())
       {
-        _migrationCommandExecutor.ExecuteNonQuery(CreateDropCommands(), masterConnection);
+        _migrationCommandExecutor.ExecuteNonQuery(CreateDropCommands(), sourceConnection);
       }
     }
 
     public override async Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
     {
       ClearAllPools();
-      using (var masterConnection = _connection.CreateMasterConnection())
+      using (var sourceConnection = _connection.CreateSourceConnection())
       {
-        await _migrationCommandExecutor.ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, cancellationToken);
+        await _migrationCommandExecutor.ExecuteNonQueryAsync(CreateDropCommands(), sourceConnection, cancellationToken);
       }
     }
 

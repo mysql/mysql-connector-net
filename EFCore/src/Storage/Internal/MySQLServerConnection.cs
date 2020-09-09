@@ -33,6 +33,7 @@ using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.EntityFrameworkCore.Storage.Internal;
 using System.Reflection;
+using System;
 
 namespace MySql.Data.EntityFrameworkCore
 {
@@ -61,6 +62,7 @@ namespace MySql.Data.EntityFrameworkCore
 
     protected override DbConnection CreateDbConnection() => new MySqlConnection(ConnectionString);
 
+    [Obsolete("This method is deprecated, please use CreateSourceConnection instead.")]
     public virtual IMySQLServerConnection CreateMasterConnection()
     {
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(_cnnStr ?? ConnectionString);
@@ -72,5 +74,11 @@ namespace MySql.Data.EntityFrameworkCore
       MySQLServerConnection c = CreateConnection(optionsBuilder.Options);
       return c;
     }
+
+    public virtual IMySQLServerConnection CreateSourceConnection()
+    {
+      return CreateMasterConnection();
+    }
+
   }
 }

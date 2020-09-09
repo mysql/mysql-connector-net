@@ -1,4 +1,4 @@
-// Copyright © 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright © 2014, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -56,7 +56,7 @@ namespace MySql.Data.MySqlClient.Replication
       {
         ReplicationServerGroup g = AddGroup(group.Name, group.GroupType, group.RetryTime);
         foreach (var server in group.Servers)
-          g.AddServer(server.Name, server.IsMaster, server.ConnectionString);
+          g.AddServer(server.Name, server.IsSource, server.ConnectionString);
       }
     }
 
@@ -97,12 +97,12 @@ namespace MySql.Data.MySqlClient.Replication
     /// Gets the next server from a replication group
     /// </summary>
     /// <param name="groupName">Group name</param>
-    /// <param name="isMaster">True if the server to return must be a master</param>
+    /// <param name="isSource">True if the server to return must be a source</param>
     /// <returns>Replication Server defined by the Load Balancing plugin</returns>
-    internal static ReplicationServer GetServer(string groupName, bool isMaster)
+    internal static ReplicationServer GetServer(string groupName, bool isSource)
     {
       ReplicationServerGroup group = GetGroup(groupName);
-      return group.GetServer(isMaster);
+      return group.GetServer(isSource);
     }
 
     /// <summary>
@@ -140,9 +140,9 @@ namespace MySql.Data.MySqlClient.Replication
     /// Assigns a new server driver to the connection object
     /// </summary>
     /// <param name="groupName">Group name</param>
-    /// <param name="master">True if the server connection to assign must be a master</param>
+    /// <param name="source">True if the server connection to assign must be a source</param>
     /// <param name="connection">MySqlConnection object where the new driver will be assigned</param>
-    internal static void GetNewConnection(string groupName, bool master, MySqlConnection connection)
+    internal static void GetNewConnection(string groupName, bool source, MySqlConnection connection)
     {
       do
       {
@@ -151,7 +151,7 @@ namespace MySql.Data.MySqlClient.Replication
           if (!IsReplicationGroup(groupName)) return;
 
           ReplicationServerGroup group = GetGroup(groupName);
-          ReplicationServer server = group.GetServer(master, connection.Settings);
+          ReplicationServer server = group.GetServer(source, connection.Settings);
 
           if (server == null)
             throw new MySqlException(Resources.Replication_NoAvailableServer);

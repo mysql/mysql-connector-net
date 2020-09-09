@@ -1,4 +1,4 @@
-// Copyright © 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -39,11 +39,11 @@ namespace MySql.Replication.Tests
   public class SetUp : IDisposable
   {
     protected internal string databaseName;
-    protected internal int masterPort;
-    protected internal int slavePort;
+    protected internal int sourcePort;
+    protected internal int replicaPort;
     protected internal string groupName;
-    private MySqlConnectionStringBuilder connStringRootMaster;
-    private MySqlConnectionStringBuilder connStringSlave;
+    private MySqlConnectionStringBuilder connStringRootSource;
+    private MySqlConnectionStringBuilder connStringReplica;
 
     protected internal string ConnectionString
     {
@@ -61,19 +61,19 @@ namespace MySql.Replication.Tests
       }
     }
 
-    protected internal string ConnectionStringRootMaster
+    protected internal string ConnectionStringRootSource
     {
       get
       {
-        return connStringRootMaster.ConnectionString;
+        return connStringRootSource.ConnectionString;
       }
     }
 
-    protected internal string ConnectionStringSlave
+    protected internal string ConnectionStringReplica
     {
       get
       {
-        return connStringSlave.ConnectionString;
+        return connStringReplica.ConnectionString;
       }
     }
 
@@ -82,7 +82,7 @@ namespace MySql.Replication.Tests
       Initialize();
       LoadBaseConfiguration();
 
-      using (MySqlConnection connection = new MySqlConnection(ConnectionStringRootMaster))
+      using (MySqlConnection connection = new MySqlConnection(ConnectionStringRootSource))
       {
         connection.Open();
         MySqlScript script = new MySqlScript(connection);
@@ -100,17 +100,17 @@ namespace MySql.Replication.Tests
     protected internal void LoadBaseConfiguration()
     {
       ReplicationServerGroupConfigurationElement group1 = (ConfigurationManager.GetSection("MySQL") as MySqlConfiguration).Replication.ServerGroups.ToArray()[0];
-      ReplicationServerConfigurationElement masterConfiguration = group1.Servers.ToArray()[0];
-      ReplicationServerConfigurationElement slaveConfiguration = group1.Servers.ToArray()[1];
+      ReplicationServerConfigurationElement sourceConfiguration = group1.Servers.ToArray()[0];
+      ReplicationServerConfigurationElement replicaConfiguration = group1.Servers.ToArray()[1];
 
       groupName = group1.Name;
 
-      connStringRootMaster = new MySqlConnectionStringBuilder(masterConfiguration.ConnectionString);
-      masterPort = (int)connStringRootMaster.Port;
+      connStringRootSource = new MySqlConnectionStringBuilder(sourceConfiguration.ConnectionString);
+      sourcePort = (int)connStringRootSource.Port;
 
-      connStringSlave = new MySqlConnectionStringBuilder(slaveConfiguration.ConnectionString);
-      slavePort = (int)connStringSlave.Port;
-      connStringSlave.Database = databaseName;
+      connStringReplica = new MySqlConnectionStringBuilder(replicaConfiguration.ConnectionString);
+      replicaPort = (int)connStringReplica.Port;
+      connStringReplica.Database = databaseName;
     }
 
     protected virtual void Initialize()
@@ -126,7 +126,7 @@ namespace MySql.Replication.Tests
   
     public void Dispose()
     {
-      using (MySqlConnection connection = new MySqlConnection(ConnectionStringRootMaster))
+      using (MySqlConnection connection = new MySqlConnection(ConnectionStringRootSource))
       {
         connection.Open();
         MySqlCommand cmd = new MySqlCommand(string.Empty, connection);
