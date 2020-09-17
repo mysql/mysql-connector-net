@@ -613,7 +613,6 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("UNLOCK TABLES;");
 
       var builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
-      builder.IgnorePrepare = false;
       builder.CharacterSet = "utf8";
       builder.UseCompression = true;
       builder.TreatTinyAsBoolean = false;

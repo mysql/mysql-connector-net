@@ -152,7 +152,7 @@ namespace MySql.Data.MySqlClient
 #endif
         },
         (msb, sender) => msb.UsePerformanceMonitor));
-      Options.Add(new MySqlConnectionStringOption("ignoreprepare", "ignore prepare", typeof(bool), true, false,
+      Options.Add(new MySqlConnectionStringOption("ignoreprepare", "ignore prepare", typeof(bool), false, true,
         (msb, sender, value) => { msb.SetValue("ignoreprepare", value); }, (msb, sender) => msb.IgnorePrepare));
       Options.Add(new MySqlConnectionStringOption("respectbinaryflags", "respect binary flags", typeof(bool), true, false,
         (msb, sender, value) => { msb.SetValue("respectbinaryflags", value); }, (msb, sender) => msb.RespectBinaryFlags));
@@ -530,6 +530,7 @@ namespace MySql.Data.MySqlClient
     [Description("Instructs the provider to ignore any attempts to prepare a command.")]
     [RefreshProperties(RefreshProperties.All)]
     [DefaultValue(false)]
+    [Obsolete("Ignore Prepare option has been deprecated since version 8.0.23.")]
     public bool IgnorePrepare
     {
       get { return (bool)values["ignoreprepare"]; }

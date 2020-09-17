@@ -70,7 +70,6 @@ namespace MySql.Data.MySqlClient.Tests
       settings.PersistSecurityInfo = true;
       settings.AllowUserVariables = true;
       settings.Pooling = false;
-      settings.IgnorePrepare = false;
       settings.ConnectionTimeout = 600;
       AdjustConnectionSettings(settings);
       MaxPacketSize = 1000 * 1024;
