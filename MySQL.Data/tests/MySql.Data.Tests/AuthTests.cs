@@ -1062,7 +1062,7 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase("sadmin", "perola", "common", true, "SCRAM-SHA-256")]
     [TestCase("wrongUser", "perola", "common", false)]
     [TestCase("sadmin", "wrongPassword", "common", false)]
-    //[Ignore("This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini")]
+    [Ignore("This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini")]
     [Property("Category", "Security")]
     public void ConnectUsingMySqlSASLPluginSCRAMSHA(string userName, string password, string proxyUser, bool shouldPass, string method = "")
     {
