@@ -3,7 +3,8 @@
 - Replace language in source code and files (WL14211).
 - Deprecated the "Ignore Prepare" connection string option (Oracle Bug #31872906).
 - Added support for the SASL authentication protocol using the SCRAM-SHA-256 method (WL14255).
-- Updated the list of SSH ciphers, added validation for Host Key Algorithms(Oracle Bug #31917057).
+- Updated the list of SSH ciphers, added validation for Host Key Algorithms (Oracle Bug #31917057).
+- Fixed a bug that prevented the Certificate Thumbprint from being checked during a connection (MySQL Bug #100926, Oracle Bug #31954655).
 
 
 8.0.22

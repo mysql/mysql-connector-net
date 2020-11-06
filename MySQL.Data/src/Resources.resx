@@ -657,4 +657,7 @@
   <data name="InvalidPathForLoadLocalInfile" xml:space="preserve">
     <value>Either provide a valid path for 'allowloadlocalinfileinpath' or enable 'allowloadlocalinfile'.</value>
   </data>
+  <data name="InvalidCertificateThumbprint" xml:space="preserve">
+    <value>Certificate with Thumbprint '{0}' not found.</value>
+  </data>
 </root>

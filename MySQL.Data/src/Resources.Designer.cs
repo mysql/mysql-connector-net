@@ -565,6 +565,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Certificate with Thumbprint &apos;{0}&apos; not found..
+        /// </summary>
+        public static string InvalidCertificateThumbprint {
+            get {
+                return ResourceManager.GetString("InvalidCertificateThumbprint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You have specified an invalid column ordinal..
         /// </summary>
         public static string InvalidColumnOrdinal {
