@@ -153,7 +153,7 @@ namespace MySql.Data.Common
       catch (CryptographicException ex)
       {
         throw new MySqlException("Certificate couldn't be loaded from the CertificateStoreLocation", ex);
-      }      
+      }
     }
 
     /// <summary>
@@ -228,7 +228,7 @@ namespace MySql.Data.Common
         try
         {
           tlsProtocol = (tlsProtocol == SslProtocols.None) ? SslProtocols.Tls : tlsProtocol;
-          ss.AuthenticateAsClientAsync(_settings.Server, certs, tlsProtocol, false).Wait();
+          ss.AuthenticateAsClientAsync(_settings.Server, certs, tlsProtocol, false).Wait((int)_settings.ConnectionTimeout * 1000);
           tlsConnectionRef[connectionId] = tlsProtocol;
           tlsRetry.Remove(connectionId);
         }
