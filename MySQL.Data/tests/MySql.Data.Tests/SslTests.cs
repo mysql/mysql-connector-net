@@ -217,6 +217,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void InvalidCertificateThumbprint()
     {
+#if NETCOREAPP3_1 || NET5_0
+      if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) Assert.Ignore();
+#endif
+
       // Create a mock of certificate store
       string assemblyPath = TestContext.CurrentContext.TestDirectory;
       var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);

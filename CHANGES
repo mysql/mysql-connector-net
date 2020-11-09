@@ -5,6 +5,7 @@
 - Added support for the SASL authentication protocol using the SCRAM-SHA-256 method (WL14255).
 - Updated the list of SSH ciphers, added validation for Host Key Algorithms (Oracle Bug #31917057).
 - Fixed a bug that prevented the Certificate Thumbprint from being checked during a connection (MySQL Bug #100926, Oracle Bug #31954655).
+- Fixed a bug caused by a wrong casting when calling the EnsureCreatedAsync method, using EF Core, if the database already exists (MySQL Bug #100773, Oracle Bug #31860492).
 - Fixed bad handling of Wait() for an async execution that could cause a program to hang indefinitely hence blocking it (MySQL Bug #100692, Oracle Bug #31945397).
 
 
