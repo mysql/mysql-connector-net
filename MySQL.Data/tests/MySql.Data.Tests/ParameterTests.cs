@@ -670,5 +670,43 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(ds.Tables[0].Rows.Count,1);
     }
 
+    /// <summary >
+    /// Bug #25467610	OVERFLOW EXCEPTION - 64 BIT ENUM VALUE AS PARAMETER CAST TO INT32
+    /// </summary>
+    public enum TestEnum : ulong
+    {
+      Value = ulong.MaxValue
+    }
+
+    public enum TestEnumDefault
+    {
+      Value = int.MaxValue
+    }
+
+    public enum TestEnumByte : byte
+    {
+      Value = byte.MaxValue
+    }
+
+
+    [TestCase(TestEnum.Value,"serial")]
+    [TestCase(TestEnumDefault.Value, "int")]
+    [TestCase(TestEnumByte.Value, "TINYINT UNSIGNED")]
+    public void CastingEnum(Enum name,string typeName)
+    {
+      ExecuteSQL(@"DROP TABLE IF EXISTS `test`");
+      ExecuteSQL($"CREATE TABLE `test` (`id` {typeName})");
+      using (var conn = new MySqlConnection(ConnectionSettings.ConnectionString))
+      {
+        conn.Open();
+        string sql = "select * from test where id = @ID;";
+        MySqlCommand command = new MySqlCommand(sql, conn);
+        command.Parameters.AddWithValue("@ID", name);
+        MySqlDataReader rdr = command.ExecuteReader();
+        Assert.IsNotNull(rdr);
+      }
+    }
+   
+
   }
 }
