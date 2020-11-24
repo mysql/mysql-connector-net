@@ -665,9 +665,9 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL(@"insert into `audit` values (1,0);");
       var query = "SELECT * FROM audit t1 WHERE t1.Permanent = ?IsFalse";
       MySqlCommand cmd = new MySqlCommand(query, Connection);
-      MySqlParameter[] parameters = new[] { new MySqlParameter("IsFalse", 0)};
-      var ds=MySqlHelper.ExecuteDataset(Connection.ConnectionString, query, parameters);
-      Assert.AreEqual(ds.Tables[0].Rows.Count,1);
+      MySqlParameter[] parameters = new[] { new MySqlParameter("IsFalse", 0) };
+      var ds = MySqlHelper.ExecuteDataset(Connection.ConnectionString, query, parameters);
+      Assert.AreEqual(ds.Tables[0].Rows.Count, 1);
     }
 
     /// <summary >
@@ -689,10 +689,10 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
 
-    [TestCase(TestEnum.Value,"serial")]
+    [TestCase(TestEnum.Value, "serial")]
     [TestCase(TestEnumDefault.Value, "int")]
     [TestCase(TestEnumByte.Value, "TINYINT UNSIGNED")]
-    public void CastingEnum(Enum name,string typeName)
+    public void CastingEnum(Enum name, string typeName)
     {
       ExecuteSQL(@"DROP TABLE IF EXISTS `test`");
       ExecuteSQL($"CREATE TABLE `test` (`id` {typeName})");
@@ -706,7 +706,31 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.IsNotNull(rdr);
       }
     }
-   
 
+    /// <summary>
+    /// Bug #31754599 - MYSQLCOMMAND.PARAMETERS.INSERT(-1) SUCCEEDS BUT SHOULD FAIL
+    /// </summary>
+    [Test]
+    public void InvalidParameterIndex()
+    {
+      var cmd = new MySqlCommand();
+      cmd.Connection = Connection;
+      cmd.Parameters.Insert(0, new MySqlParameter("test0", "test0"));
+      Assert.Throws<ArgumentOutOfRangeException>(() => cmd.Parameters.Insert(-1, new MySqlParameter("test-1", "test-1")));
+      Assert.Throws<ArgumentOutOfRangeException>(() => cmd.Parameters.Insert(-2, new MySqlParameter("test-1", "test-1")));
+      cmd.Parameters.Insert(1, new MySqlParameter("test1", "test1"));
+      cmd.Parameters.Insert(0, new MySqlParameter("testNew0", "test2"));
+
+      Assert.True(cmd.Parameters.IndexOf("testNew0") == 0);
+      Assert.True(cmd.Parameters.IndexOf("test0") == 1);
+      Assert.True(cmd.Parameters.IndexOf("test1") == 2);
+
+      cmd.Parameters.AddWithValue("", "test3");
+      Assert.True(cmd.Parameters.Count == 4);
+      Assert.True(cmd.Parameters.IndexOf("Parameter4") == 3);
+
+      cmd.Parameters.Insert(1, new MySqlParameter("lastTest", "test4"));
+      Assert.True(cmd.Parameters.IndexOf("lastTest") == 1);
+    }
   }
 }
