@@ -9,7 +9,7 @@
 - Fixed bad handling of Wait() for an async execution that could cause a program to hang indefinitely hence blocking it (MySQL Bug #100692, Oracle Bug #31945397).
 - Removing aliases(address,addr,network address) for server option in the connection string.(Oracle Bug #31248601)
 - Fixed a bug caused by setting an Int32 default value to any enum parameter (MySQL Bug #84701, Oracle Bug #25467610).
-- Add Support for EF Core 5.0 (WL14214).
+- Added Support for EF Core 5.0 (WL14214).
 
 
 8.0.22
