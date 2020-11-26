@@ -30,7 +30,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
-namespace MySql.Data.EntityFrameworkCore.Metadata.Conventions
+namespace MySql.EntityFrameworkCore.Metadata.Conventions
 {
   /// <summary>
   /// A convention that configures the default model <see cref="MySQLValueGenerationStrategy"/> as

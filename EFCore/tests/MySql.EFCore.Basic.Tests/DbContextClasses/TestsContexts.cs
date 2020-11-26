@@ -28,7 +28,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using MySql.Data.EntityFrameworkCore.Extensions;
+using MySql.EntityFrameworkCore.Extensions;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 using System;
 

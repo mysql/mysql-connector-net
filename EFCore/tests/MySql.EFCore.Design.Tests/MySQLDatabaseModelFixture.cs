@@ -28,16 +28,16 @@
 
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using MySql.Data.EntityFrameworkCore.Scaffolding.Internal;
+using MySql.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using System.Diagnostics;
-using MySql.Data.EntityFrameworkCore.Diagnostics.Internal;
+using MySql.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
-using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
-using MySql.Data.EntityFrameworkCore.Internal;
+using MySql.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.EntityFrameworkCore.Internal;
 
 namespace MySql.EntityFrameworkCore.Design.Tests
 {

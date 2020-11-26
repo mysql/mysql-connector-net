@@ -28,7 +28,7 @@
 
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using MySql.Data.EntityFrameworkCore.Scaffolding.Internal;
+using MySql.EntityFrameworkCore.Scaffolding.Internal;
 using System.Linq;
 using NUnit.Framework;
 

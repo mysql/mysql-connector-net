@@ -28,7 +28,7 @@
 
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
+namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   internal abstract class TypeMapperWrapper : RelationalTypeMappingSource
   {

@@ -29,11 +29,11 @@
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using MySql.Data.EntityFrameworkCore.Utils;
+using MySql.EntityFrameworkCore.Utils;
 using System;
 using System.Linq.Expressions;
 
-namespace MySql.Data.EntityFrameworkCore.Query.Expressions.Internal
+namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
 {
   internal enum MySQLBinaryExpressionOperatorType
   {

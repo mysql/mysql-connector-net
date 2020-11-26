@@ -28,9 +28,9 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using MySql.Data.EntityFrameworkCore.Design.Internal;
-using MySql.Data.EntityFrameworkCore.Metadata.Conventions;
-using MySql.Data.EntityFrameworkCore.Metadata.Internal;
+using MySql.EntityFrameworkCore.Design.Internal;
+using MySql.EntityFrameworkCore.Metadata.Conventions;
+using MySql.EntityFrameworkCore.Metadata.Internal;
 using System.Linq;
 using NUnit.Framework;
 

@@ -31,7 +31,7 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using System;
 using System.Reflection;
 
-namespace MySql.Data.EntityFrameworkCore.Query.Internal
+namespace MySql.EntityFrameworkCore.Query.Internal
 {
   internal class MySQLStringMemberTranslator : IMemberTranslator
   {

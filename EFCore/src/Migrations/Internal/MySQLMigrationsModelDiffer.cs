@@ -35,12 +35,12 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
-using MySql.Data.EntityFrameworkCore.Internal;
-using MySql.Data.EntityFrameworkCore.Metadata;
+using MySql.EntityFrameworkCore.Internal;
+using MySql.EntityFrameworkCore.Metadata;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MySql.Data.EntityFrameworkCore.Migrations.Internal
+namespace MySql.EntityFrameworkCore.Migrations.Internal
 {
   internal class MySQLMigrationsModelDiffer : MigrationsModelDiffer
   {

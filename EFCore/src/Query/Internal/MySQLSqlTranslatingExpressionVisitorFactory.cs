@@ -29,7 +29,7 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 
-namespace MySql.Data.EntityFrameworkCore.Query.Internal
+namespace MySql.EntityFrameworkCore.Query.Internal
 {
   internal class MySQLSqlTranslatingExpressionVisitorFactory : IRelationalSqlTranslatingExpressionVisitorFactory
   {

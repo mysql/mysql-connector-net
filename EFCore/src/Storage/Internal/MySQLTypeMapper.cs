@@ -31,10 +31,11 @@ using System.Collections.Generic;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
-using MySql.Data.EntityFrameworkCore.Properties;
+using MySql.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.EntityFrameworkCore.Properties;
+using MySql.Data;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
+namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   internal class MySQLTypeMapper : RelationalTypeMappingSource
   {
@@ -178,7 +179,7 @@ namespace MySql.Data.EntityFrameworkCore.Storage.Internal
         { typeof(decimal), _decimal },
 
         { typeof(char), _int },
-        { typeof(Types.MySqlGeometry), _geometry },
+        { typeof(Data.Types.MySqlGeometry), _geometry },
       };
 
       // bool

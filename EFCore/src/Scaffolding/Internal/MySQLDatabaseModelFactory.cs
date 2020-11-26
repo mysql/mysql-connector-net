@@ -37,17 +37,17 @@ using MySql.Data.MySqlClient;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using MySql.Data.EntityFrameworkCore.Utils;
+using MySql.EntityFrameworkCore.Utils;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
-using MySql.Data.EntityFrameworkCore.Properties;
-using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
-using MySql.Data.EntityFrameworkCore.Internal;
+using MySql.EntityFrameworkCore.Properties;
+using MySql.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.EntityFrameworkCore.Internal;
 
-namespace MySql.Data.EntityFrameworkCore.Scaffolding.Internal
+namespace MySql.EntityFrameworkCore.Scaffolding.Internal
 {
   /// <summary>
   ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

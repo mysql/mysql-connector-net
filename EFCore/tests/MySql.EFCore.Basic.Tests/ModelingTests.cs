@@ -172,7 +172,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     }
 
     /// <summary>
-    /// Bug 31337609 - MYSQL.DATA.ENTITYFRAMEWORKCORE NUGET PACKAGE 8.0.20
+    /// Bug 31337609 - MySql.EntityFrameworkCore NUGET PACKAGE 8.0.20
     /// </summary>
     [Test]
     public void ConvertToType()

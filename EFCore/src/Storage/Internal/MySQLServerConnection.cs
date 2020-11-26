@@ -31,11 +31,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Storage.Internal;
+using MySql.EntityFrameworkCore.Storage.Internal;
 using System.Reflection;
 using System;
 
-namespace MySql.Data.EntityFrameworkCore
+namespace MySql.EntityFrameworkCore
 {
   internal class MySQLServerConnection : RelationalConnection, IMySQLServerConnection
   {

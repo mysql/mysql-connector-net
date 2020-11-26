@@ -29,11 +29,11 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.EntityFrameworkCore.Infrastructure.Internal;
 using System;
 using System.Linq.Expressions;
 
-namespace MySql.Data.EntityFrameworkCore.Query.Internal
+namespace MySql.EntityFrameworkCore.Query.Internal
 {
   internal class MySQLCompatibilityExpressionVisitor : ExpressionVisitor
   {

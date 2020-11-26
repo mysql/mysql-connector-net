@@ -32,7 +32,7 @@ using System.Data.Common;
 using System.Collections;
 using MySql.Data.Types;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
+namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   internal class MySQLDataReader : DbDataReader
   {

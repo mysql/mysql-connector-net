@@ -29,13 +29,13 @@
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using MySql.Data.EntityFrameworkCore.Extensions;
+using MySql.EntityFrameworkCore.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal
+namespace MySql.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
   /// <summary>
   ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

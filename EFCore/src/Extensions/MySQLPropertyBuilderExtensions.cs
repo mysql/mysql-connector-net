@@ -28,10 +28,10 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MySql.Data.EntityFrameworkCore.Metadata.Internal;
-using MySql.Data.EntityFrameworkCore.Utils;
+using MySql.EntityFrameworkCore.Metadata.Internal;
+using MySql.EntityFrameworkCore.Utils;
 
-namespace MySql.Data.EntityFrameworkCore.Extensions
+namespace MySql.EntityFrameworkCore.Extensions
 {
   /// <summary>
   /// Represents the implementation of MySQL property-builder extensions used in Fluent API.

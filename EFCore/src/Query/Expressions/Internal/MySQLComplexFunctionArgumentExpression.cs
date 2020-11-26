@@ -34,7 +34,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace MySql.Data.EntityFrameworkCore.Query.Expressions.Internal
+namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
 {
   internal class MySQLComplexFunctionArgumentExpression : SqlExpression
   {

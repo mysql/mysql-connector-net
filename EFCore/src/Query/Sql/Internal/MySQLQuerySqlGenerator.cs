@@ -28,12 +28,12 @@
 
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using MySql.Data.EntityFrameworkCore.Query.Expressions.Internal;
-using MySql.Data.EntityFrameworkCore.Utils;
+using MySql.EntityFrameworkCore.Query.Expressions.Internal;
+using MySql.EntityFrameworkCore.Utils;
 using System;
 using System.Linq.Expressions;
 
-namespace MySql.Data.EntityFrameworkCore.Query
+namespace MySql.EntityFrameworkCore.Query
 {
   internal class MySQLQuerySqlGenerator : QuerySqlGenerator
   {

@@ -31,7 +31,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using MySql.Data.EntityFrameworkCore.Extensions;
+using MySql.EntityFrameworkCore.Extensions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 
