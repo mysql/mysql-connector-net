@@ -10,6 +10,7 @@
 - Removing aliases(address,addr,network address) for server option in the connection string.(Oracle Bug #31248601)
 - Fixed a bug caused by setting an Int32 default value to any enum parameter (MySQL Bug #84701, Oracle Bug #25467610).
 - Fixed a bug that allowed the insertion of a parameter with "-1" as index (MySQL Bug #100522, Oracle Bug #31754599).
+- Fixed the COM_STMT_EXECUTE packet structure to only send new-params-bound flag when it has parameters (Oracle Bug #32208427).
 
 
 8.0.22
