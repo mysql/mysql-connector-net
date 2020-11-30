@@ -142,19 +142,7 @@ namespace MySql.Data.MySqlClient
       // make sure the parameters given to us have an appropriate type set if it's not already
       MySqlParameter p = command.Parameters.GetParameterFlexible(pName, true);
       if (!p.TypeHasBeenSet)
-      {
         p.MySqlDbType = MetaData.NameToType(datatype, unsigned, realAsFloat, Connection);
-      }
-
-      var mapped_sp_type = MetaData.NameToType(datatype, unsigned, realAsFloat, Connection);
-      if (!mapped_sp_type.Equals(p.MySqlDbType) && !((MetaData.IsTextType(mapped_sp_type.ToString())&& MetaData.IsTextType(p.MySqlDbType.ToString())) || 
-           (MetaData.IsNumericType(mapped_sp_type.ToString()) && MetaData.IsNumericType(p.MySqlDbType.ToString())) ||
-           (MetaData.IsDateType(mapped_sp_type.ToString()) && MetaData.IsDateType(p.MySqlDbType.ToString())) ||
-           (MetaData.IsNumericType(mapped_sp_type.ToString()) && MetaData.IsTextType(p.MySqlDbType.ToString()) && decimal.TryParse(p.Value.ToString(), out var num))
-           ))
-      {
-        throw new FormatException(String.Format(Resources.ValueNotCorrectType, p.ParameterName));
-      }
 
       return p;
     }

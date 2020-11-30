@@ -602,7 +602,11 @@ namespace MySql.Data.MySqlClient
       Regex regex = new Regex(@"(?i)^[0-9A-F]{8}[-](?:[0-9A-F]{4}[-]){3}[0-9A-F]{12}$"); // check for GUID format
 
       if (nullMap != null)
+      {
         isNull = nullMap[index + 2];
+        if (!MySqlField.GetIMySqlValue(field.Type).GetType().Equals(valObject.GetType()) && !field.IsUnsigned)
+          length = packet.ReadFieldLength();
+      }
       else
       {
         length = packet.ReadFieldLength();
