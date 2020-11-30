@@ -31,7 +31,7 @@ using System.Data;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Data.Common;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
+namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   /// <summary>
   ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

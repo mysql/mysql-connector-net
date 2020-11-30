@@ -31,7 +31,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace MySql.Data.EntityFrameworkCore.Internal
+namespace MySql.EntityFrameworkCore.Internal
 {
   /// <summary>
   ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

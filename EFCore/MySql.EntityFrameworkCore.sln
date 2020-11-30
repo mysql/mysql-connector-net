@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFrameworkCore.D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFrameworkCore.Migrations.Tests", "tests\MySql.EFCore.Migrations.Tests\MySql.EntityFrameworkCore.Migrations.Tests.csproj", "{AF10E1F7-EEEB-41B7-B8F8-AA6E45DF6493}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data.EntityFrameworkCore", "src\MySql.Data.EntityFrameworkCore.csproj", "{4935154D-018E-4D41-AD2D-E50FBD350EF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.EntityFrameworkCore", "src\MySql.EntityFrameworkCore.csproj", "{4935154D-018E-4D41-AD2D-E50FBD350EF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -30,7 +30,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Data;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
+namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   internal abstract class MySQLTypeMapping : RelationalTypeMapping
   {

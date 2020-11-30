@@ -32,14 +32,14 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Linq;
-using MySql.Data.EntityFrameworkCore.Migrations.Operations;
-using MySql.Data.EntityFrameworkCore.Metadata.Internal;
-using MySql.Data.EntityFrameworkCore.Utils;
+using MySql.EntityFrameworkCore.Migrations.Operations;
+using MySql.EntityFrameworkCore.Metadata.Internal;
+using MySql.EntityFrameworkCore.Utils;
 using System.Text.RegularExpressions;
-using MySql.Data.EntityFrameworkCore.Internal;
-using MySql.Data.EntityFrameworkCore.Metadata;
+using MySql.EntityFrameworkCore.Internal;
+using MySql.EntityFrameworkCore.Metadata;
 
-namespace MySql.Data.EntityFrameworkCore.Migrations
+namespace MySql.EntityFrameworkCore.Migrations
 {
   /// <summary>
   /// MigrationSqlGenerator implementation for MySQL

@@ -31,12 +31,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Update;
-using MySql.Data.EntityFrameworkCore.Extensions;
-using MySql.Data.EntityFrameworkCore.Metadata;
-using MySql.Data.EntityFrameworkCore.Update;
-using MySql.Data.EntityFrameworkCore.Utils;
+using MySql.EntityFrameworkCore.Extensions;
+using MySql.EntityFrameworkCore.Metadata;
+using MySql.EntityFrameworkCore.Update;
+using MySql.EntityFrameworkCore.Utils;
 
-namespace MySql.Data.EntityFrameworkCore
+namespace MySql.EntityFrameworkCore
 {
   /// <summary>
   ///     <para>

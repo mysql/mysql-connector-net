@@ -31,11 +31,11 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.Logging;
-using MySql.Data.EntityFrameworkCore.Diagnostics.Internal;
+using MySql.EntityFrameworkCore.Diagnostics.Internal;
 using MySql.Data.MySqlClient;
 using System.Diagnostics;
 using NUnit.Framework;
-using MySql.Data.EntityFrameworkCore;
+using MySql.EntityFrameworkCore;
 using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 

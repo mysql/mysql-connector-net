@@ -28,9 +28,9 @@
 
 using System.Text;
 using Microsoft.EntityFrameworkCore.Storage;
-using MySql.Data.EntityFrameworkCore.Utils;
+using MySql.EntityFrameworkCore.Utils;
 
-namespace MySql.Data.EntityFrameworkCore
+namespace MySql.EntityFrameworkCore
 {
   internal partial class MySQLSqlGenerationHelper : RelationalSqlGenerationHelper
   {

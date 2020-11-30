@@ -29,12 +29,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using MySql.Data.EntityFrameworkCore.Extensions;
+using MySql.EntityFrameworkCore.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace MySql.Data.EntityFrameworkCore.Query.Internal
+namespace MySql.EntityFrameworkCore.Query.Internal
 {
   internal class MySQLDateDiffFunctionsTranslator : IMethodCallTranslator
   {

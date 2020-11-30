@@ -29,10 +29,10 @@
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using MySql.Data.EntityFrameworkCore.Metadata.Internal;
-using MySql.Data.EntityFrameworkCore.Utils;
+using MySql.EntityFrameworkCore.Metadata.Internal;
+using MySql.EntityFrameworkCore.Utils;
 
-namespace MySql.Data.EntityFrameworkCore.Design.Internal
+namespace MySql.EntityFrameworkCore.Design.Internal
 {
   /// <summary>
   ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

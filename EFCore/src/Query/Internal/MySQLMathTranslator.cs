@@ -32,7 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace MySql.Data.EntityFrameworkCore.Query.Internal
+namespace MySql.EntityFrameworkCore.Query.Internal
 {
   internal class MySQLMathMethodTranslator : IMethodCallTranslator
   {

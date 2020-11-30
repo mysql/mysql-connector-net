@@ -30,7 +30,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using MySql.EntityFrameworkCore.Migrations.Tests.Utilities;
-using MySql.Data.EntityFrameworkCore.Metadata.Internal;
+using MySql.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Linq;
 using NUnit.Framework;

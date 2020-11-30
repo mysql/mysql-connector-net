@@ -31,7 +31,7 @@ using System.Data;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
+namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   internal class MySQLNumberTypeMapping : MySQLTypeMapping
   {

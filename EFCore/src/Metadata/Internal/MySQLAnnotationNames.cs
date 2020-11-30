@@ -26,7 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-namespace MySql.Data.EntityFrameworkCore.Metadata.Internal
+namespace MySql.EntityFrameworkCore.Metadata.Internal
 {
   /// <summary>
   /// Names for MySQL annotations.

@@ -30,11 +30,11 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using MySql.Data.EntityFrameworkCore.Metadata.Internal;
-using MySql.Data.EntityFrameworkCore.Extensions;
-using MySql.Data.EntityFrameworkCore.Metadata;
+using MySql.EntityFrameworkCore.Metadata.Internal;
+using MySql.EntityFrameworkCore.Extensions;
+using MySql.EntityFrameworkCore.Metadata;
 
-namespace MySql.Data.EntityFrameworkCore.Migrations.Internal
+namespace MySql.EntityFrameworkCore.Migrations.Internal
 {
   /// <summary>
   ///     <para>

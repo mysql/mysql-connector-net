@@ -35,19 +35,19 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.EntityFrameworkCore.Diagnostics.Internal;
-using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
-using MySql.Data.EntityFrameworkCore.Internal;
-using MySql.Data.EntityFrameworkCore.Metadata.Conventions;
-using MySql.Data.EntityFrameworkCore.Migrations;
-using MySql.Data.EntityFrameworkCore.Migrations.Internal;
-using MySql.Data.EntityFrameworkCore.Query;
-using MySql.Data.EntityFrameworkCore.Query.Internal;
-using MySql.Data.EntityFrameworkCore.Storage.Internal;
-using MySql.Data.EntityFrameworkCore.Update;
-using MySql.Data.EntityFrameworkCore.ValueGeneration.Internal;
+using MySql.EntityFrameworkCore.Diagnostics.Internal;
+using MySql.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.EntityFrameworkCore.Internal;
+using MySql.EntityFrameworkCore.Metadata.Conventions;
+using MySql.EntityFrameworkCore.Migrations;
+using MySql.EntityFrameworkCore.Migrations.Internal;
+using MySql.EntityFrameworkCore.Query;
+using MySql.EntityFrameworkCore.Query.Internal;
+using MySql.EntityFrameworkCore.Storage.Internal;
+using MySql.EntityFrameworkCore.Update;
+using MySql.EntityFrameworkCore.ValueGeneration.Internal;
 
-namespace MySql.Data.EntityFrameworkCore.Extensions
+namespace MySql.EntityFrameworkCore.Extensions
 {
   /// <summary>
   /// MySQL extension class for <see cref="IServiceCollection" />.

@@ -34,12 +34,12 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore.Migrations;
-using MySql.Data.EntityFrameworkCore.Migrations.Operations;
+using MySql.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore;
 using System.Transactions;
-using MySql.Data.EntityFrameworkCore.Properties;
+using MySql.EntityFrameworkCore.Properties;
 
-namespace MySql.Data.EntityFrameworkCore
+namespace MySql.EntityFrameworkCore
 {
   /// <summary>
   /// Relational Database creator implementation in MySQL
