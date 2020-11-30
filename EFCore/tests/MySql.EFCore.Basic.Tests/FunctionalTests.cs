@@ -33,7 +33,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Extensions;
+using MySql.EntityFrameworkCore.Extensions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;

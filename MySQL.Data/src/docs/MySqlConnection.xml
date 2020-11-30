@@ -108,7 +108,6 @@
     </example>
     <param name="connectionString">
       The connection properties used to open the MySQL database.
-      <para>The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.</para>
     </param>
   </Ctor1>
 
@@ -873,7 +872,6 @@
                 In Unix environment with Mono, this can be a fully qualified path to MySQL socket filename. With this configuration, the Unix socket will be used instead of TCP/IP socket.
                 Currently only a single socket name can be given so accessing MySQL in a replicated environment using Unix sockets is not currently supported.
               </para>
-              <para>The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.</para>
             </td>
           </tr>
           <tr>

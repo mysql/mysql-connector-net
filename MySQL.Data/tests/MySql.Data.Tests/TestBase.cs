@@ -141,7 +141,7 @@ namespace MySql.Data.MySqlClient.Tests
         ExecuteSQL("SET GLOBAL connect_timeout=600", root);
         ExecuteSQL("SET GLOBAL net_read_timeout=6000", root);
         ExecuteSQL("SET GLOBAL net_write_timeout=6000", root);
-
+        ExecuteSQL("SET @@global.time_zone='SYSTEM'", root);
 
         var data = Utils.FillTable("SHOW DATABASES", root);
         foreach (DataRow row in data.Rows)

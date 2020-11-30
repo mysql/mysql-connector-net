@@ -33,7 +33,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace MySql.Data.EntityFrameworkCore.Query.Expressions.Internal
+namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
 {
   /// <summary>
   ///     An expression that explicitly specifies the collation of a string value.

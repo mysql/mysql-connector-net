@@ -53,7 +53,7 @@ namespace MySql.Data.MySqlClient
     static MySqlBaseConnectionStringBuilder()
     {
       // Server options.
-      Options.Add(new MySqlConnectionStringOption("server", "host,data source,datasource,address,addr,network address", typeof(string), "" /*"localhost"*/, false));
+      Options.Add(new MySqlConnectionStringOption("server", "host,data source,datasource", typeof(string), "" /*"localhost"*/, false));
       Options.Add(new MySqlConnectionStringOption("database", "initial catalog", typeof(string), string.Empty, false));
       Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol,connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
         (SetterDelegate)((msb, sender, value) =>
@@ -159,7 +159,6 @@ namespace MySql.Data.MySqlClient
 
     /// <summary>
     /// Gets or sets the name of the server.
-    /// <para>The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.</para>
     /// </summary>
     /// <value>The server.</value>
     [Category("Connection")]

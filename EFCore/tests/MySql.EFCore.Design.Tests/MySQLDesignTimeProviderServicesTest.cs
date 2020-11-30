@@ -27,8 +27,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore.Design;
-using MySql.Data.EntityFrameworkCore;
-using MySql.Data.EntityFrameworkCore.Design.Internal;
+using MySql.EntityFrameworkCore;
+using MySql.EntityFrameworkCore.Design.Internal;
 using System;
 using System.Reflection;
 using NUnit.Framework;

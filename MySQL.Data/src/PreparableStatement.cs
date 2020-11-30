@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -89,8 +89,8 @@ namespace MySql.Data.MySqlClient
       int numNullBytes = 0;
       if (paramList != null && paramList.Length > 0)
       {
-          _nullMap = new BitArray(paramList.Length);
-          numNullBytes = (_nullMap.Length + 7) / 8;
+        _nullMap = new BitArray(paramList.Length);
+        numNullBytes = (_nullMap.Length + 7) / 8;
       }
 
       _packet = new MySqlPacket(Driver.Encoding);
@@ -99,10 +99,11 @@ namespace MySql.Data.MySqlClient
       _packet.WriteByte(0);
       _packet.WriteInteger(StatementId, 4);
       _packet.WriteByte((byte)0); // flags; always 0 for 4.1
-      _packet.WriteInteger(1, 4); // interation count; 1 for 4.1
+      _packet.WriteInteger(1, 4); // iteration count; 1 for 4.1
       _nullMapPosition = _packet.Position;
       _packet.Position += numNullBytes;  // leave room for our null map
-      _packet.WriteByte(1); // rebound flag
+      if (numNullBytes > 0) // only send new-params-bound-flag if num-params > 0
+        _packet.WriteByte(1); // new-params-bound-flag
       // write out the parameter types
       foreach (MySqlParameter p in _parametersToSend)
         _packet.WriteInteger(p.GetPSType(), 2);

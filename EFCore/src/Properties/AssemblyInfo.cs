@@ -35,11 +35,11 @@ using Microsoft.EntityFrameworkCore.Design;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("MySql.Data.EntityFrameworkCore for Entity Framework Core")]
+[assembly: AssemblyTitle("MySql.EntityFrameworkCore for Entity Framework Core")]
 [assembly: AssemblyDescription("Entity Framework Core 3.1 supported")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
-[assembly: AssemblyProduct("MySql.Data.EntityFrameworkCore")]
+[assembly: AssemblyProduct("MySql.EntityFrameworkCore")]
 [assembly: AssemblyCopyright("Copyright © 2016, 2019, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -55,4 +55,4 @@ using Microsoft.EntityFrameworkCore.Design;
 [assembly: InternalsVisibleTo("MySql.EntityFrameworkCore.Basic.Tests, PublicKey = 0024000004800000940000000602000000240000525341310004000001000100d973bda91f71752c78294126974a41a08643168271f65fc0fb3cd45f658da01fbca75ac74067d18e7afbf1467d7a519ce0248b13719717281bb4ddd4ecd71a580dfe0912dfc3690b1d24c7e1975bf7eed90e4ab14e10501eedf763bff8ac204f955c9c15c2cf4ebf6563d8320b6ea8d1ea3807623141f4b81ae30a6c886b3ee1")]
 [assembly: InternalsVisibleTo("MySql.EntityFrameworkCore.Design.Tests, PublicKey = 0024000004800000940000000602000000240000525341310004000001000100d973bda91f71752c78294126974a41a08643168271f65fc0fb3cd45f658da01fbca75ac74067d18e7afbf1467d7a519ce0248b13719717281bb4ddd4ecd71a580dfe0912dfc3690b1d24c7e1975bf7eed90e4ab14e10501eedf763bff8ac204f955c9c15c2cf4ebf6563d8320b6ea8d1ea3807623141f4b81ae30a6c886b3ee1")]
 [assembly: InternalsVisibleTo("MySql.EntityFrameworkCore.Migrations.Tests, PublicKey = 0024000004800000940000000602000000240000525341310004000001000100d973bda91f71752c78294126974a41a08643168271f65fc0fb3cd45f658da01fbca75ac74067d18e7afbf1467d7a519ce0248b13719717281bb4ddd4ecd71a580dfe0912dfc3690b1d24c7e1975bf7eed90e4ab14e10501eedf763bff8ac204f955c9c15c2cf4ebf6563d8320b6ea8d1ea3807623141f4b81ae30a6c886b3ee1")]
-[assembly: DesignTimeProviderServices("MySql.Data.EntityFrameworkCore.Design.Internal.MySQLDesignTimeServices")]
+[assembly: DesignTimeProviderServices("MySql.EntityFrameworkCore.Design.Internal.MySQLDesignTimeServices")]

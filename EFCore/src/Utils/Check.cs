@@ -32,9 +32,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using static MySql.Data.EntityFrameworkCore.Utils.CodeAnnotations;
+using static MySql.EntityFrameworkCore.Utils.CodeAnnotations;
 
-namespace MySql.Data.EntityFrameworkCore.Utils
+namespace MySql.EntityFrameworkCore.Utils
 {
   [DebuggerStepThrough]
   internal static class Check

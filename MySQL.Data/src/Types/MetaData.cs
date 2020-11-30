@@ -41,16 +41,9 @@ namespace MySql.Data.Types
       switch (lowerType)
       {
         case "int":
-        case "int16":
-        case "int32":
-        case "int64":
-        case "uint16":
-        case "uint32":
-        case "uint64":
         case "integer":
         case "numeric":
         case "decimal":
-        case "newdecimal":
         case "dec":
         case "fixed":
         case "tinyint":
@@ -81,23 +74,6 @@ namespace MySql.Data.Types
         case "nvarchar":
         case "enum":
         case "set":
-        case "string":
-          return true;
-      }
-      return false;
-    }
-
-    public static bool IsDateType(string typename)
-    {
-      string lowerType = typename.ToLower(CultureInfo.InvariantCulture);
-
-      switch (lowerType)
-      {
-        case "timestamp":
-        case "datetime":
-        case "date":
-        case "year":
-        case "time":
           return true;
       }
       return false;
@@ -142,7 +118,6 @@ namespace MySql.Data.Types
         case "SET": return MySqlDbType.Set;
         case "ENUM": return MySqlDbType.Enum;
         case "BIT": return MySqlDbType.Bit;
-
         case "TINYINT":
           return unsigned ? MySqlDbType.UByte : MySqlDbType.Byte;
         case "BOOL":
@@ -161,7 +136,7 @@ namespace MySql.Data.Types
           return unsigned ? MySqlDbType.UInt64 : MySqlDbType.Int64;
         case "FLOAT": return MySqlDbType.Float;
         case "DOUBLE": return MySqlDbType.Double;
-        case "REAL": return
+        case "REAL": return 
            realAsFloat ? MySqlDbType.Float : MySqlDbType.Double;
         case "TEXT":
           return MySqlDbType.Text;
@@ -186,6 +161,5 @@ namespace MySql.Data.Types
       }
       throw new MySqlException("Unhandled type encountered");
     }
-
   }
 }

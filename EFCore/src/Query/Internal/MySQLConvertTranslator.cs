@@ -33,7 +33,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace MySql.Data.EntityFrameworkCore.Query.Internal
+namespace MySql.EntityFrameworkCore.Query.Internal
 {
   internal class MySQLConvertTranslator : IMethodCallTranslator
   {

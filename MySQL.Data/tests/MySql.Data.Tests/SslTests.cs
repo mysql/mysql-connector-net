@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,6 +30,7 @@ using System;
 using System.Data;
 using System.Reflection;
 using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -206,6 +207,40 @@ namespace MySql.Data.MySqlClient.Tests
       {
         c.Open();
         Assert.AreEqual(ConnectionState.Open, c.State);
+      }
+    }
+
+    /// <summary>
+    /// Bug#31954655 - NET CONNECTOR - THUMBPRINT OPTION DOES NOT CHECK THUMBPRINT
+    /// </summary>
+    [Test]
+    [Property("Category", "Security")]
+    public void InvalidCertificateThumbprint()
+    {
+#if NETCOREAPP3_1 || NET5_0
+      if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) Assert.Ignore();
+#endif
+
+      // Create a mock of certificate store
+      string assemblyPath = TestContext.CurrentContext.TestDirectory;
+      var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+      store.Open(OpenFlags.ReadWrite);
+      var certificate = new X509Certificate2(assemblyPath + "\\client.pfx", "pass");
+      store.Add(certificate);
+
+      MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      csb.CertificateStoreLocation = MySqlCertificateStoreLocation.CurrentUser;
+      csb.CertificateThumbprint = "spaghetti";
+
+      // Throws an exception with and invalid/incorrect Thumbprint
+      var ex = Assert.Throws<MySqlException>(() => new MySqlConnection(csb.ConnectionString).Open());
+      Assert.That(ex.Message, Is.EqualTo(string.Format(Resources.InvalidCertificateThumbprint, csb.CertificateThumbprint)));
+
+      csb.CertificateThumbprint = certificate.Thumbprint;
+      using (var conn = new MySqlConnection(csb.ConnectionString))
+      {
+        conn.Open();
+        Assert.AreEqual(ConnectionState.Open, conn.connectionState);
       }
     }
 

@@ -381,6 +381,8 @@ namespace MySql.Data.MySqlClient
       else
       {
         Type t = _paramValue.GetType();
+        if (t.GetTypeInfo().BaseType == typeof(Enum))
+            t = t.GetTypeInfo().GetEnumUnderlyingType();
         switch (t.Name)
         {
           case "SByte": MySqlDbType = MySqlDbType.Byte; break;
@@ -399,9 +401,6 @@ namespace MySql.Data.MySqlClient
           case "Decimal": MySqlDbType = MySqlDbType.Decimal; break;
           case "Object":
           default:
-            if (t.GetTypeInfo().BaseType == typeof(Enum))
-              MySqlDbType = MySqlDbType.Int32;
-            else
               MySqlDbType = MySqlDbType.Blob;
             break;
         }

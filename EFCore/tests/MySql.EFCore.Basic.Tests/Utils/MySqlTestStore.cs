@@ -29,8 +29,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.EntityFrameworkCore.Extensions;
-using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.EntityFrameworkCore.Extensions;
+using MySql.EntityFrameworkCore.Infrastructure.Internal;
 using MySql.Data.MySqlClient;
 using System;
 

@@ -41,7 +41,6 @@ namespace MySqlX.XDevAPI
     /// Opens a session to the server given or to the first available server if multiple servers were specified.
     /// </summary>
     /// <param name="connectionString">The connection string or URI string format.
-    /// The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.
     /// </param>
     /// <returns>A <see cref="Session"/> object representing the established session.</returns>
     /// <remarks>Multiple hosts can be specified as part of the <paramref name="connectionString"/> which
@@ -56,7 +55,6 @@ namespace MySqlX.XDevAPI
     /// Opens a session to the server given.
     /// </summary>
     /// <param name="connectionData">The connection data for the server.
-    /// The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.
     /// </param>
     /// <returns>A <see cref="Session"/> object representing the established session.</returns>
     public static Session GetSession(object connectionData)
@@ -68,7 +66,6 @@ namespace MySqlX.XDevAPI
     /// Creates a new <see cref="Client"/> instance.
     /// </summary>
     /// <param name="connectionString">The connection string or URI string format.
-    /// The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.
     /// </param>
     /// <param name="connectionOptions">The connection options in JSON string format.</param>
     /// <returns>A <see cref="Client"/> object representing a session pool.</returns>
@@ -81,7 +78,6 @@ namespace MySqlX.XDevAPI
     /// Creates a new <see cref="Client"/> instance.
     /// </summary>
     /// <param name="connectionString">The connection string or URI string format.
-    /// The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.
     /// </param>
     /// <param name="connectionOptions">The connection options in object format.
     /// <example>
@@ -107,7 +103,6 @@ namespace MySqlX.XDevAPI
     /// Creates a new <see cref="Client"/> instance.
     /// </summary>
     /// <param name="connectionData">The connection data.
-    /// The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.
     /// </param>
     /// <param name="connectionOptions">The connection options in JSON string format.</param>
     /// <returns>A <see cref="Client"/> object representing a session pool.</returns>
@@ -120,7 +115,6 @@ namespace MySqlX.XDevAPI
     /// Creates a new <see cref="Client"/> instance.
     /// </summary>
     /// <param name="connectionData">The connection data.
-    /// The aliases 'address', 'addr' and 'network address' are deprecated as valid server synonyms.
     /// </param>
     /// <param name="connectionOptions">The connection options in object format.
     /// <example>

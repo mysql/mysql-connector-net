@@ -30,7 +30,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
-using MySql.Data.EntityFrameworkCore.Extensions;
+using MySql.EntityFrameworkCore.Extensions;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;

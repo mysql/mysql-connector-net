@@ -900,40 +900,162 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void VerifyParametersType()
     {
-      using (var connection = new MySqlConnection(Connection.ConnectionString+ ";IgnorePrepare =false;CheckParameters = true"))
+      ExecuteSQL($"CREATE PROCEDURE spTest(OUT value VARCHAR(100)) BEGIN SELECT 'test value' INTO value; END");
+
+      using (var connection = new MySqlConnection(Connection.ConnectionString + ";IgnorePrepare=false;"))
       {
         connection.Open();
-        ExecuteSQL($"DROP PROCEDURE IF EXISTS out_string;");
-        ExecuteSQL($"CREATE PROCEDURE `{connection.Settings.Database}`.`out_string`(OUT value VARCHAR(100)) BEGIN SELECT 'test value' INTO value; END", true);
 
-        //call Prepare() when SP and MySqlParameter have different data types
-        var command = new MySqlCommand("out_string",connection);
-        command.CommandType = CommandType.StoredProcedure;
-        command.Parameters.Add(new MySqlParameter
+        //don't call Prepare() when SP and MySqlParameter have different data types
+        var cmd = new MySqlCommand("spTest", connection);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.Add(new MySqlParameter
         {
           ParameterName = "@value",
           DbType = DbType.Int32,
           Direction = ParameterDirection.Output
         });
-        Exception ex = Assert.Throws<FormatException>(() => command.Prepare());
-        StringAssert.Contains("is not of the correct type", ex.Message);
+        Assert.Throws<FormatException>(() => cmd.ExecuteNonQuery());
 
         //call Prepare() when SP and MySqlParameter have the same data types
-        command = new MySqlCommand("out_string", connection);
-        command.CommandType = CommandType.StoredProcedure;
-        command.Parameters.Add(new MySqlParameter
+        cmd = new MySqlCommand("spTest", connection);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.Add(new MySqlParameter
         {
           ParameterName = "@value",
           DbType = DbType.String,
           Direction = ParameterDirection.Output
         });
-        command.Prepare();
-        command.ExecuteNonQuery(); 
-        var result=command.Parameters["@value"].Value;
-        Assert.AreEqual("test value",result);
+        cmd.Prepare();
+        cmd.ExecuteNonQuery();
+        var result = cmd.Parameters["@value"].Value;
+        Assert.AreEqual("test value", result);
+
+        //call Prepare() when SP and MySqlParameter have different data types
+        cmd = new MySqlCommand("spTest", connection);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.Add(new MySqlParameter
+        {
+          ParameterName = "@value",
+          DbType = DbType.Int32,
+          Direction = ParameterDirection.Output
+        });
+        cmd.Prepare();
+        Assert.Throws<FormatException>(() => cmd.ExecuteNonQuery());
       }
     }
 
+    [Test]
+    public void PassJsonParameter()
+    {
+      if (Version < new Version(5, 7, 8)) Assert.Ignore("JSON data type was included in MySQL Server from v5.7.8");
 
+      ExecuteSQL("CREATE TABLE Test(jsonValue json NOT NULL)");
+      ExecuteSQL("CREATE PROCEDURE spTest(IN p_jsonValue JSON) BEGIN INSERT INTO Test VALUES(p_jsonValue); END");
+
+      using (var conn = new MySqlConnection(Connection.ConnectionString + ";IgnorePrepare=false;"))
+      {
+        conn.Open();
+
+        var cmd = new MySqlCommand("spTest", conn);
+        cmd.CommandType = CommandType.StoredProcedure;
+        var json = "{\"prop\":[null]}";
+        cmd.Parameters.Add(new MySqlParameter { ParameterName = "p_jsonValue", Value = json });
+        cmd.Prepare();
+        cmd.ExecuteNonQuery();
+
+        cmd = new MySqlCommand("SELECT jsonValue FROM Test", conn);
+        cmd.CommandType = CommandType.Text;
+        StringAssert.AreEqualIgnoringCase(json, cmd.ExecuteScalar().ToString().Replace(" ", ""));
+      }
+    }
+
+    [Test]
+    public void PassBoolParameter()
+    {
+      ExecuteSQL("CREATE PROCEDURE spTest(success BOOL) BEGIN SELECT success; END");
+
+      using (var conn = new MySqlConnection(Connection.ConnectionString + ";"))
+      {
+        conn.Open();
+
+        var cmd = new MySqlCommand("spTest", conn);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.Add(new MySqlParameter { ParameterName = "success", Value = true, MySqlDbType = MySqlDbType.Int32 });
+        cmd.Prepare();
+        Assert.IsTrue(Convert.ToBoolean(cmd.ExecuteScalar()));
+      }
+    }
+
+    [Test]
+    public void PassDateTimeParameter()
+    {
+      ExecuteSQL($"CREATE PROCEDURE spTest(OUT value DATETIME) BEGIN SELECT '2020-11-27 12:25:59' INTO value; END");
+
+      using (var connection = new MySqlConnection(Connection.ConnectionString + ";IgnorePrepare=false;"))
+      {
+        connection.Open();
+
+        var cmd = new MySqlCommand("spTest", connection);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.Add(new MySqlParameter
+        {
+          ParameterName = "@value",
+          DbType = DbType.DateTime,
+          Direction = ParameterDirection.Output
+        });
+
+        cmd.Prepare();
+        cmd.ExecuteNonQuery();
+        var result = cmd.Parameters["@value"].Value;
+
+        DateTime dateTime = new DateTime(2020, 11, 27, 12, 25, 59);
+        Assert.AreEqual(dateTime, result);
+      }
+
+      ExecuteSQL("DROP PROCEDURE spTest");
+      ExecuteSQL("CREATE TABLE Test(DATETIME dateTime)");
+      ExecuteSQL("CREATE PROCEDURE spTest(IN p_dateTimeValue DATETIME) BEGIN INSERT INTO Test VALUES(p_dateTimeValue); END");
+
+      using (var conn = new MySqlConnection(Connection.ConnectionString))
+      {
+        conn.Open();
+
+        var cmd = new MySqlCommand("spTest", conn);
+        cmd.CommandType = CommandType.StoredProcedure;
+        DateTime dateTime = new DateTime(2020, 11, 27, 12, 25, 59);
+        cmd.Parameters.Add(new MySqlParameter { ParameterName = "p_dateTimeValue", Value = dateTime, MySqlDbType = MySqlDbType.DateTime });
+        cmd.ExecuteNonQuery();
+
+        cmd = new MySqlCommand("SELECT dateTime FROM Test", conn);
+        cmd.CommandType = CommandType.Text;
+        Assert.AreEqual(dateTime, cmd.ExecuteScalar());
+      }
+    }
+
+    public enum TestStatus
+    {
+      Pending = 1,
+      InProgress = 2,
+      Cancel = 3
+    }
+
+    /// <summary >
+    /// Bug #101424	Insert/Update enum error "Value *column name* is not of the correct type".
+    /// </summary>
+    [Test]
+    public void PassEnumParameter()
+    {
+      ExecuteSQL("CREATE PROCEDURE spTest(data ENUM('Pending','InProgress','Cancel'), ID int) BEGIN SELECT 1; END");
+      using (var connection = new MySqlConnection(ConnectionSettings.ConnectionString + ";IgnorePrepare=false"))
+      {
+        connection.Open();
+        MySqlCommand command = new MySqlCommand("spTest", connection);
+        command.CommandType = CommandType.StoredProcedure;
+        command.Parameters.Add(new MySqlParameter("data", TestStatus.InProgress));
+        command.Parameters.Add(new MySqlParameter("ID", 1));
+        command.ExecuteNonQuery();
+      }
+    }
   }
 }

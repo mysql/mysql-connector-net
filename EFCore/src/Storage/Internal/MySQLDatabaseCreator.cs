@@ -34,12 +34,12 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using MySql.Data.MySqlClient;
 using Microsoft.EntityFrameworkCore.Migrations;
-using MySql.Data.EntityFrameworkCore.Migrations.Operations;
+using MySql.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore;
 using System.Transactions;
-using MySql.Data.EntityFrameworkCore.Properties;
+using MySql.EntityFrameworkCore.Properties;
 
-namespace MySql.Data.EntityFrameworkCore
+namespace MySql.EntityFrameworkCore
 {
   /// <summary>
   /// Relational Database creator implementation in MySQL
@@ -265,7 +265,7 @@ namespace MySql.Data.EntityFrameworkCore
     public override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
       => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
         _connection,
-        async (connection, ct) => (int)await CreateHasTablesCommand()
+        async (connection, ct) => (Int64)await CreateHasTablesCommand()
         .ExecuteScalarAsync(
           new RelationalCommandParameterObject(
             connection,

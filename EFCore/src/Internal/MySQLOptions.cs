@@ -28,11 +28,11 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.EntityFrameworkCore.Infrastructure.Internal;
 using MySql.Data.MySqlClient;
 using System;
 
-namespace MySql.Data.EntityFrameworkCore.Internal
+namespace MySql.EntityFrameworkCore.Internal
 {
   internal class MySQLOptions : IMySQLOptions
   {

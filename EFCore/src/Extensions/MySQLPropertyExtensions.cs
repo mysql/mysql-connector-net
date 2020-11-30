@@ -29,13 +29,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MySql.Data.EntityFrameworkCore.Metadata;
-using MySql.Data.EntityFrameworkCore.Metadata.Internal;
-using MySql.Data.EntityFrameworkCore.Storage.Internal;
-using MySql.Data.EntityFrameworkCore.Utils;
+using MySql.EntityFrameworkCore.Metadata;
+using MySql.EntityFrameworkCore.Metadata.Internal;
+using MySql.EntityFrameworkCore.Storage.Internal;
+using MySql.EntityFrameworkCore.Utils;
 using System;
 
-namespace MySql.Data.EntityFrameworkCore.Extensions
+namespace MySql.EntityFrameworkCore.Extensions
 {
   /// <summary>
   ///     Extension methods for <see cref="IProperty" /> for MySQL Server-specific metadata.

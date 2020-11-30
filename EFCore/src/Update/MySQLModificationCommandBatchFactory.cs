@@ -28,11 +28,11 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Update;
-using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
-using MySql.Data.EntityFrameworkCore.Utils;
+using MySql.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.EntityFrameworkCore.Utils;
 using System.Linq;
 
-namespace MySql.Data.EntityFrameworkCore.Update
+namespace MySql.EntityFrameworkCore.Update
 {
   /// <summary>
   /// IModificationCommandBatchFactory implemntation for MySQL

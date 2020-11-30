@@ -28,13 +28,13 @@
 
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using MySql.Data.EntityFrameworkCore.Properties;
-using MySql.Data.EntityFrameworkCore.Query.Internal;
+using MySql.EntityFrameworkCore.Properties;
+using MySql.EntityFrameworkCore.Query.Internal;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace MySql.Data.EntityFrameworkCore.Query.Expressions.Internal
+namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
 {
   internal class MySQLStringComparisonMethodTranslator : IMethodCallTranslator
   {

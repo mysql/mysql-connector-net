@@ -34,7 +34,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
-namespace MySql.Data.EntityFrameworkCore.Update
+namespace MySql.EntityFrameworkCore.Update
 {
   /// <summary>
   /// AffectedCountModificationCommandBatch implementation for MySQL

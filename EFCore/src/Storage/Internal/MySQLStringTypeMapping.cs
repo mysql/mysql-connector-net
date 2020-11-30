@@ -31,7 +31,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 
-namespace MySql.Data.EntityFrameworkCore.Storage.Internal
+namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   /// <summary>
   ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

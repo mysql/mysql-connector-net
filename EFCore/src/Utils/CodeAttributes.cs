@@ -28,7 +28,7 @@
 
 using System;
 
-namespace MySql.Data.EntityFrameworkCore
+namespace MySql.EntityFrameworkCore
 {
   [AttributeUsage(AttributeTargets.All)]
   internal sealed class NotNullAttribute : Attribute { }

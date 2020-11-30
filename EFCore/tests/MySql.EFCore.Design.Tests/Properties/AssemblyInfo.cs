@@ -34,11 +34,11 @@ using Xunit;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MySql.Data.EntityFrameworkCore.Design.Tests")]
+[assembly: AssemblyTitle("MySql.EntityFrameworkCore.Design.Tests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
-[assembly: AssemblyProduct("MySql.Data.EntityFrameworkCore.Tests")]
+[assembly: AssemblyProduct("MySql.EntityFrameworkCore.Tests")]
 [assembly: AssemblyCopyright("Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

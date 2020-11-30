@@ -30,9 +30,9 @@ using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Storage;
-using MySql.Data.EntityFrameworkCore.Utils;
+using MySql.EntityFrameworkCore.Utils;
 
-namespace MySql.Data.EntityFrameworkCore.Migrations.Internal
+namespace MySql.EntityFrameworkCore.Migrations.Internal
 {
   /// <summary>
   ///     <para>

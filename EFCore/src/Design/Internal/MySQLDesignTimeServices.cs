@@ -28,17 +28,17 @@
 
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.EntityFrameworkCore.Storage.Internal;
+using MySql.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using MySql.Data.EntityFrameworkCore.Scaffolding.Internal;
+using MySql.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using MySql.Data.EntityFrameworkCore.Diagnostics.Internal;
+using MySql.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using MySql.Data.EntityFrameworkCore.Infrastructure.Internal;
-using MySql.Data.EntityFrameworkCore.Internal;
+using MySql.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.EntityFrameworkCore.Internal;
 
-namespace MySql.Data.EntityFrameworkCore.Design.Internal
+namespace MySql.EntityFrameworkCore.Design.Internal
 {
   /// <summary>
   ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

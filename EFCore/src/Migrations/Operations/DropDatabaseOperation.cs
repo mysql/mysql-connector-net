@@ -28,7 +28,7 @@
 
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
-namespace MySql.Data.EntityFrameworkCore.Migrations.Operations
+namespace MySql.EntityFrameworkCore.Migrations.Operations
 {
   /// <summary>
   /// Drop database operation for migrations.

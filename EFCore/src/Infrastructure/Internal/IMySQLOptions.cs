@@ -29,7 +29,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using MySql.Data.MySqlClient;
 
-namespace MySql.Data.EntityFrameworkCore.Infrastructure.Internal
+namespace MySql.EntityFrameworkCore.Infrastructure.Internal
 {
   /// <summary>
   /// Options to set on the provider.

@@ -32,7 +32,7 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using System;
 using System.Reflection;
 
-namespace MySql.Data.EntityFrameworkCore.Query.ExpressionTranslators.Internal
+namespace MySql.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 {
   internal class MySQLStringLengthTranslator : IMemberTranslator
   {

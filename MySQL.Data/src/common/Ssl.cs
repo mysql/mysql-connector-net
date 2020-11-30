@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Security;
 using System.Security.Authentication;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
@@ -118,28 +119,41 @@ namespace MySql.Data.Common
           (_settings.CertificateStoreLocation == MySqlCertificateStoreLocation.CurrentUser) ?
           StoreLocation.CurrentUser : StoreLocation.LocalMachine;
 
-      // Check for store-based certificate
-      X509Store store = new X509Store(StoreName.My, location);
-      store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
-
-
-      if (_settings.CertificateThumbprint == null)
+      try
       {
-        // Return all certificates from the store.
-        certs.AddRange(store.Certificates);
-        return certs;
+        // Check for store-based certificate
+        X509Store store = new X509Store(StoreName.My, location);
+        store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
+
+
+        if (_settings.CertificateThumbprint == null)
+        {
+          // Return all certificates from the store.
+          certs.AddRange(store.Certificates);
+
+          if (certs.Count == 0)
+            throw new MySqlException("No certificates were found in the certificate store");
+
+          return certs;
+        }
+        else
+        {
+          bool validateCert = _settings.SslMode == MySqlSslMode.VerifyCA || _settings.SslMode == MySqlSslMode.VerifyFull;
+
+          // Find certificate with given thumbprint
+          certs.AddRange(store.Certificates.Find(X509FindType.FindByThumbprint,
+                    _settings.CertificateThumbprint, validateCert));
+
+          if (certs.Count == 0)
+            throw new MySqlException(String.Format(Resources.InvalidCertificateThumbprint, _settings.CertificateThumbprint));
+
+          return certs;
+        }
       }
-
-      // Find certificate with given thumbprint
-      certs.AddRange(store.Certificates.Find(X509FindType.FindByThumbprint,
-                _settings.CertificateThumbprint, true));
-
-      if (certs.Count == 0)
+      catch (CryptographicException ex)
       {
-        throw new MySqlException("Certificate with Thumbprint " +
-           _settings.CertificateThumbprint + " not found");
+        throw new MySqlException("Certificate couldn't be loaded from the CertificateStoreLocation", ex);
       }
-      return certs;
     }
 
     /// <summary>
@@ -163,7 +177,8 @@ namespace MySql.Data.Common
       RemoteCertificateValidationCallback sslValidateCallback =
           new RemoteCertificateValidationCallback(ServerCheckValidation);
       SslStream ss = new SslStream(baseStream, false, sslValidateCallback, null);
-      X509CertificateCollection certs = _treatCertificatesAsPemFormat
+      X509CertificateCollection certs = (_treatCertificatesAsPemFormat &&
+        _settings.CertificateStoreLocation == MySqlCertificateStoreLocation.None)
         ? new X509CertificateCollection()
         : GetPFXClientCertificates();
 
@@ -207,13 +222,14 @@ namespace MySql.Data.Common
           }
           for (int i = tlsRetry[connectionId]; i < tlsProtocols.Length; i++)
           {
-            tlsProtocol  |= tlsProtocols[i];
+            tlsProtocol |= tlsProtocols[i];
           }
         }
         try
         {
           tlsProtocol = (tlsProtocol == SslProtocols.None) ? SslProtocols.Tls : tlsProtocol;
-          ss.AuthenticateAsClientAsync(_settings.Server, certs, tlsProtocol, false).Wait();
+          if (!ss.AuthenticateAsClientAsync(_settings.Server, certs, tlsProtocol, false).Wait((int)_settings.ConnectionTimeout * 1000))
+            throw new AuthenticationException($"Authentication to host '{_settings.Server}' faied.");
           tlsConnectionRef[connectionId] = tlsProtocol;
           tlsRetry.Remove(connectionId);
         }

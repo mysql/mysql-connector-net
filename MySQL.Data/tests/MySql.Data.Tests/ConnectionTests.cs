@@ -480,7 +480,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void ConnectionTimeout()
     {
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
-      connStr.Server = "bad_host";
+      connStr.Port = 3000;
       connStr.ConnectionTimeout = 5;
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
 

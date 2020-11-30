@@ -870,7 +870,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       finally
       {
-        ExecuteSQL("SET @@global.time_zone=@@session.time_zone");
+        ExecuteSQL("SET @@global.time_zone='SYSTEM'");
       }
     }
 

@@ -79,11 +79,16 @@ namespace MySql.Data.Common
       }
 
       var invalidEncryptions = new string[] {
+        "3des-cbc",
+        "blowfish-cbc",
+        "twofish-cbc",
+        "twofish192-cbc",
+        "twofish128-cbc",
+        "twofish256-cbc",
         "arcfour",
         "arcfour128",
         "arcfour256",
-        "blowfish-cbc",
-        "cast128-cbc",
+        "cast128-cbc"
       };
       foreach (var cipher in invalidEncryptions)
       {
@@ -99,6 +104,7 @@ namespace MySql.Data.Common
       }
 
       var invalidKeyExchangeAlgorithms = new string[] {
+        "diffie-hellman-group-exchange-sha1",
         "diffie-hellman-group1-sha1"
       };
       foreach (var keyExchangeAlgorithm in invalidKeyExchangeAlgorithms)
@@ -117,6 +123,9 @@ namespace MySql.Data.Common
       var invalidMACs = new string[] {
         "hmac-md5",
         "hmac-md5-96",
+        "hmac-sha1-96",
+        "hmac-ripemd160",
+        "hmac-ripemd160@openssh.com"
       };
       foreach (var mac in invalidMACs)
       {
@@ -125,6 +134,23 @@ namespace MySql.Data.Common
           client.ConnectionInfo.HmacAlgorithms.Remove(mac);
         }
       }
+
+      if (client.ConnectionInfo.HostKeyAlgorithms == null)
+      {
+        return;
+      }
+
+      var invalidHostKeyAlgorithms = new string[] {
+        "ssh-dss"
+      };
+      foreach (var hostKey in invalidHostKeyAlgorithms)
+      {
+        if (client.ConnectionInfo.HostKeyAlgorithms.ContainsKey(hostKey))
+        {
+          client.ConnectionInfo.HostKeyAlgorithms.Remove(hostKey);
+        }
+      }
+
     }
 
     /// <summary>
@@ -235,7 +261,9 @@ namespace MySql.Data.Common
       }
 
       var deprecatedEncryptions = new string[] {
-        "3des-cbc",
+        "aes128-cbc",
+        "aes192-cbc",
+        "aes256-cbc",
       };
       if (deprecatedEncryptions.Any(encryption => client.ConnectionInfo.CurrentServerEncryption == encryption))
       {
@@ -244,8 +272,7 @@ namespace MySql.Data.Common
       }
 
       var deprecatedKeyExchangeAlgorithms = new string[] {
-        "diffie-hellman-group14-sha1",
-        "diffie-hellman-group-exchange-sha1",
+        "diffie-hellman-group14-sha1"
       };
       if (deprecatedKeyExchangeAlgorithms.Any(keyExchangeAlgorithm => client.ConnectionInfo.CurrentKeyExchangeAlgorithm == keyExchangeAlgorithm))
       {
@@ -254,15 +281,23 @@ namespace MySql.Data.Common
       }
 
       var deprecatedMACs = new string[] {
-        "hmac-sha1",
-        "hmac-sha1-96",
-        "hmac-ripemd160"
+        "hmac-sha1"
       };
       if (deprecatedMACs.Any(mac => client.ConnectionInfo.CurrentServerHmacAlgorithm == mac))
       {
         MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.Warning,
             Resources.DeprecatedSshAlgorithm, "MAC", client.ConnectionInfo.CurrentServerHmacAlgorithm);
       }
+
+      var deprecatedHostKeyAlgorithms = new string[] {
+        "ssh-rsa"
+      };
+      if (deprecatedHostKeyAlgorithms.Any(hostKey => client.ConnectionInfo.CurrentHostKeyAlgorithm == hostKey))
+      {
+        MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.Warning,
+            Resources.DeprecatedSshAlgorithm, "Host Key", client.ConnectionInfo.CurrentHostKeyAlgorithm);
+      }
+
     }
   }
 }

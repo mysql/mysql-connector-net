@@ -30,7 +30,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace MySql.Data.EntityFrameworkCore.Utils
+namespace MySql.EntityFrameworkCore.Utils
 {
   [DebuggerStepThrough]
   internal static class SharedTypeExtensions

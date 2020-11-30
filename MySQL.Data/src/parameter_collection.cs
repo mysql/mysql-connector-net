@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2018, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -101,7 +101,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>The newly added <see cref="MySqlParameter"/> object.</returns>
     public MySqlParameter Add(MySqlParameter value)
     {
-      return InternalAdd(value, -1);
+      return InternalAdd(value, null);
     }
 
     /// <summary>
@@ -249,7 +249,7 @@ namespace MySql.Data.MySqlClient
       _indexHashCi.Add(newName, index);
     }
 
-    private MySqlParameter InternalAdd(MySqlParameter value, int index)
+    private MySqlParameter InternalAdd(MySqlParameter value, int? index)
     {
       if (value == null)
         throw new ArgumentException("The MySqlParameterCollection only accepts non-null MySqlParameter type objects.", "value");
@@ -274,19 +274,19 @@ namespace MySql.Data.MySqlClient
               String.Format(Resources.ParameterAlreadyDefined, value.ParameterName));
       }
 
-      if (index == -1)
+      if (index == null)
       {
         _items.Add(value);
         index = _items.Count - 1;
       }
       else
       {
-        _items.Insert(index, value);
-        AdjustHashes(index, true);
+        _items.Insert((int)index, value);
+        AdjustHashes((int)index, true);
       }
 
-      _indexHashCs.Add(value.ParameterName, index);
-      _indexHashCi.Add(value.ParameterName, index);
+      _indexHashCs.Add(value.ParameterName, (int)index);
+      _indexHashCi.Add(value.ParameterName, (int)index);
 
       value.Collection = this;
       return value;
