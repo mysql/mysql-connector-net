@@ -948,6 +948,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void PassJsonParameter()
     {
+      if (Version < new Version(5, 7, 8)) Assert.Ignore("JSON data type was included in MySQL Server from v5.7.8");
+
       ExecuteSQL("CREATE TABLE Test(jsonValue json NOT NULL)");
       ExecuteSQL("CREATE PROCEDURE spTest(IN p_jsonValue JSON) BEGIN INSERT INTO Test VALUES(p_jsonValue); END");
 
