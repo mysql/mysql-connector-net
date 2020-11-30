@@ -62,10 +62,6 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
   public class MySQLTestStore : RelationalTestStore
   {
     public static bool SslMode { get ; set; }
-    //private readonly string _scriptPath;
-    //private readonly string _databaseCharSet;
-    //private readonly string _databaseCollation;
-
     private static string SslString
     {
       get { return SslMode ? "sslmode=Required;" : string.Empty; } 
@@ -97,102 +93,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
       var port = Environment.GetEnvironmentVariable("MYSQL_PORT");
       return port == null ? "3306" : port;
     }
-    //private string GetCreateDatabaseStatement(MySqlConnection connection, string name, string charset = null, string collation = null)
-    //            => EnsureBackwardsCompatibleCollations(connection, $@"CREATE DATABASE `{name}`{(string.IsNullOrEmpty(charset) ? null : $" CHARSET {charset}")}{(string.IsNullOrEmpty(collation) ? null : $" COLLATE {collation}")};");
 
-    //protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
-    //{
-    //  if (CreateDatabase(clean))
-    //  {
-    //    if (_scriptPath != null)
-    //    {
-    //      ExecuteScript(_scriptPath);
-    //    }
-    //    else
-    //    {
-    //      using (var context = createContext())
-    //      {
-    //        context.Database.EnsureCreatedResiliently();
-    //        seed?.Invoke(context);
-    //      }
-    //    }
-    //  }
-    //}
-    //private bool CreateDatabase(Action<DbContext> clean)
-    //{
-    //  if (DatabaseExists(Name))
-    //  {
-    //    if (_scriptPath != null
-    //   )
-    //    {
-    //      return false;
-    //    }
-
-    //    using (var context = new DbContext(
-    //        AddProviderOptions(
-    //                new DbContextOptionsBuilder()
-    //                    .EnableServiceProviderCaching(false))
-    //            .Options))
-    //    {
-    //      clean?.Invoke(context);
-    //      Clean(context);
-    //      return true;
-    //    }
-
-    //    // DeleteDatabase();
-    //  }
-
-    //  using (var master = new MySqlConnection(CreateAdminConnectionString()))
-    //  {
-    //    master.Open();
-    //    ExecuteNonQuery(master, GetCreateDatabaseStatement(master, Name, _databaseCharSet, _databaseCollation));
-    //  }
-
-    //  return true;
-    //}
-    //private string EnsureBackwardsCompatibleCollations(MySqlConnection connection, string script)
-    //{
-    //  if (GetCaseSensitiveUtf8Mb4Collation((MySqlConnection)connection) != ModernCsCollation)
-    //  {
-    //    script = script.Replace(ModernCsCollation, LegacyCsCollation, StringComparison.OrdinalIgnoreCase);
-    //  }
-
-    //  if (GetCaseInsensitiveUtf8Mb4Collation((MySqlConnection)connection) != ModernCiCollation)
-    //  {
-    //    script = script.Replace(ModernCiCollation, LegacyCiCollation, StringComparison.OrdinalIgnoreCase);
-    //  }
-
-    //  return script;
-    //}
-
-    //private string GetCaseSensitiveUtf8Mb4Collation(MySqlConnection connection)
-    //{
-    //  var serverVersion = TestUtils.Version;
-    //  var modernCollationSupport = TestUtils.IsAtLeast(8,0,0);
-
-    //  return modernCollationSupport ? ModernCsCollation : LegacyCsCollation;
-    //}
-
-    //private string GetCaseInsensitiveUtf8Mb4Collation(MySqlConnection connection)
-    //{
-    //  var serverVersion = TestUtils.Version;
-    //  var modernCollationSupport = TestUtils.IsAtLeast(8, 0, 0);
-    //  return modernCollationSupport ? ModernCiCollation : LegacyCiCollation;
-    //}
-    //private static string CreateAdminConnectionString()
-    //            => CreateConnectionString(null);
-    //private const string ModernCsCollation = "utf8mb4_0900_as_cs";
-    //private const string LegacyCsCollation = "utf8mb4_bin";
-    //private const string ModernCiCollation = "utf8mb4_0900_ai_ci";
-    //private const string LegacyCiCollation = "utf8mb4_general_ci";
-
-    //private static bool DatabaseExists(string name)
-    //{
-    //  using (var master = new MySqlConnection(CreateAdminConnectionString()))
-    //    return ExecuteScalar<long>(master, $@"SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`SCHEMATA` WHERE `SCHEMA_NAME` = '{name}';") > 0;
-    //}
-    //private static T ExecuteScalar<T>(MySqlConnection connection, string sql, params object[] parameters)
-    //           => Execute(connection, command => (T)command.ExecuteScalar(), sql, false, parameters);
     public static void CreateDatabase(string databaseName, bool deleteifExists = false, string script = null)
     {
       if (script != null)
