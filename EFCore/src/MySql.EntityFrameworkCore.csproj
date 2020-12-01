@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore for Entity Framework.</Description>
-    <Copyright>Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright (c) 2016, 2021, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>3.1.10-m8.0.23</Version>
     <Authors>Oracle</Authors>
