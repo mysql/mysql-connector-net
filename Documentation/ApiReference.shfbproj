@@ -47,14 +47,13 @@
     <NamingMethod>MemberName</NamingMethod>
     <DocumentationSources>
       <DocumentationSource sourceFile="..\MySql.Data\src\bin\release\net452\MySql.Data.dll" />
-      <DocumentationSource sourceFile="..\MySql.Data\src\bin\release\net452\MySql.Data.xml" />
-      <DocumentationSource sourceFile="..\MySql.Web\src\bin\release\net452\MySql.Web.dll" />
-      <DocumentationSource sourceFile="..\MySql.Web\src\bin\release\net452\MySql.Web.xml" />
-      <DocumentationSource sourceFile="..\EntityFramework\src\bin\Release\net452\MySql.Data.EntityFramework.dll" />
-      <DocumentationSource sourceFile="..\EntityFramework\src\bin\Release\net452\MySql.Data.EntityFramework.xml" />
-      <DocumentationSource sourceFile="..\EFCore\src\bin\Release\netstandard2.0\MySql.Data.EntityFrameworkCore.dll" />
-      <DocumentationSource sourceFile="..\EFCore\src\bin\Release\netstandard2.0\MySql.Data.EntityFrameworkCore.xml" />
-    </DocumentationSources>
+<DocumentationSource sourceFile="..\MySql.Data\src\bin\release\net452\MySql.Data.xml" />
+<DocumentationSource sourceFile="..\MySql.Web\src\bin\release\net452\MySql.Web.dll" />
+<DocumentationSource sourceFile="..\MySql.Web\src\bin\release\net452\MySql.Web.xml" />
+<DocumentationSource sourceFile="..\EntityFramework\src\bin\Release\net452\MySql.Data.EntityFramework.dll" />
+<DocumentationSource sourceFile="..\EntityFramework\src\bin\Release\net452\MySql.Data.EntityFramework.xml" />
+<DocumentationSource sourceFile="..\EFCore\src\bin\Release\netstandard2.0\MySql.EntityFrameworkCore.dll" />
+<DocumentationSource sourceFile="..\EFCore\src\bin\Release\netstandard2.0\MySql.EntityFrameworkCore.xml" /></DocumentationSources>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False" xmlns="" />
       <NamespaceSummaryItem name="MySql.Data.Common" isDocumented="False" xmlns="" />
