@@ -1051,20 +1051,20 @@ namespace MySql.Data.MySqlClient.Tests
     #endregion
 
     #region LDAP SASL Plugin
-    #region SCRAM-SHA Methods
+    #region SCRAM-SHA Mechanisms
     /// <summary>
     /// WL14116 - Add support for SCRAM-SHA-1 / authentication_ldap_sasl_auth_method_name='SCRAM-SHA-1' 
     /// WL14255 - Add support for SCRAM-SHA-256 / authentication_ldap_sasl_auth_method_name='SCRAM-SHA-256'
     /// This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini
     /// It uses preconfigured LDAP servers present in the labs.
     /// </summary>
-    /// <param name="method">Should be 'SCRAM-SHA-1' or 'SCRAM-SHA-256' according to server's configuration.</param>
+    /// <param name="mechanism">Should be 'SCRAM-SHA-1' or 'SCRAM-SHA-256' according to server's configuration.</param>
     [TestCase("sadmin", "perola", "common", true, "SCRAM-SHA-256")]
     [TestCase("wrongUser", "perola", "common", false)]
     [TestCase("sadmin", "wrongPassword", "common", false)]
     [Ignore("This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini")]
     [Property("Category", "Security")]
-    public void ConnectUsingMySqlSASLPluginSCRAMSHA(string userName, string password, string proxyUser, bool shouldPass, string method = "")
+    public void ConnectUsingMySqlSASLPluginSCRAMSHA(string userName, string password, string proxyUser, bool shouldPass, string mechanism = "")
     {
       string plugin = "authentication_ldap_sasl";
 
@@ -1088,8 +1088,8 @@ namespace MySql.Data.MySqlClient.Tests
           MySqlCommand command = new MySqlCommand($"SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{userName}';", connection);
           using (MySqlDataReader reader = command.ExecuteReader())
           {
-            StringAssert.AreEqualIgnoringCase(method, MySqlSASLPlugin.method.MethodName);
-            Assert.AreEqual(ScramBase.AuthState.VALIDATE, MySqlSASLPlugin.method._state);
+            StringAssert.AreEqualIgnoringCase(mechanism, MySqlSASLPlugin.scramMechanism.MechanismName);
+            Assert.AreEqual(ScramBase.AuthState.VALIDATE, MySqlSASLPlugin.scramMechanism._state);
             Assert.True(reader.Read());
             StringAssert.AreEqualIgnoringCase(userName, reader.GetString(0));
             StringAssert.AreEqualIgnoringCase(plugin, reader.GetString(1));
@@ -1109,7 +1109,7 @@ namespace MySql.Data.MySqlClient.Tests
       string fixedNonce = "fyko+d2lbbFgONRv9qkxdawL";
       byte[] response;
 
-      ScramSha1Method scramSha1 = new ScramSha1Method("user", "pencil", "localhost");
+      ScramSha1Mechanism scramSha1 = new ScramSha1Mechanism("user", "pencil", "localhost");
       scramSha1._cnonce = fixedNonce;
       Assert.AreEqual(ScramBase.AuthState.INITIAL, scramSha1._state);
 
@@ -1135,7 +1135,7 @@ namespace MySql.Data.MySqlClient.Tests
       string fixedNonce = "rOprNGfwEbeRWgbNEkqO";
       byte[] response;
 
-      ScramSha256Method scramSha256 = new ScramSha256Method("user", "pencil", "localhost");
+      ScramSha256Mechanism scramSha256 = new ScramSha256Mechanism("user", "pencil", "localhost");
       scramSha256._cnonce = fixedNonce;
       Assert.AreEqual(ScramBase.AuthState.INITIAL, scramSha256._state);
 
@@ -1150,6 +1150,47 @@ namespace MySql.Data.MySqlClient.Tests
 
       response = Encoding.UTF8.GetBytes(challenge2);
       Assert.IsNull(scramSha256.Challenge(response));
+    }
+    #endregion
+
+    #region GSSAPI/Kerberos Mechanism
+    /// <summary>
+    /// WL14210 - [Classic] Add LDAP kerberos support (GSSAPI)
+    /// This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini
+    /// It uses preconfigured LDAP servers present in the labs.
+    /// For configuration of the server, theres a quick guide in Resources/KerberosConfig.txt to setup the environment.
+    /// </summary>
+    [TestCase("test1@MYSQL.LOCAL", "Testpw1", "authentication_ldap_sasl", true)]
+    [TestCase("invalidUser@MYSQL.LOCAL", "Testpw1", "authentication_ldap_sasl", false)]
+    [TestCase("test1@MYSQL.LOCAL", "wrongPassword", "authentication_ldap_sasl", false)]
+    [Ignore("This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini")]
+    [Property("Category", "Security")]
+    public void ConnectUsingMySqlSASLPluginGSSAPI(string userName, string password, string pluginName, bool shouldPass)
+    {
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(Settings.ConnectionString)
+      {
+        UserID = userName,
+        Password = password,
+        Database = string.Empty,
+        SslMode = MySqlSslMode.None
+      };
+
+      using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
+      {
+        if (shouldPass)
+        {
+          connection.Open();
+          MySqlCommand command = new MySqlCommand($"SELECT user();", connection);
+          using (MySqlDataReader reader = command.ExecuteReader())
+          {
+            StringAssert.AreEqualIgnoringCase("GSSAPI", MySqlSASLPlugin.gssapiMechanism.MechanismName);
+            Assert.True(reader.Read());
+            StringAssert.Contains(userName, reader.GetString(0));
+          }
+        }
+        else
+          Assert.Throws<MySqlException>(() => connection.Open());
+      }
     }
     #endregion
 

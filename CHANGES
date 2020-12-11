@@ -1,3 +1,7 @@
+8.0.24
+- Added support for the SASL authentication protocol using the GSSAPI/Kerberos method (WL14210).
+
+
 8.0.23
 - Added support for .NET Framework 4.8 in MySQL.Web (Oracle Bug #31799902).
 - Replace language in source code and files (WL14211).

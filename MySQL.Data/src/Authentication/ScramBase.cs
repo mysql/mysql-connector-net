@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -67,7 +67,7 @@ namespace MySql.Data.MySqlClient.Authentication
     /// <summary>
     /// Gets the name of the method.
     /// </summary>
-    internal abstract string MethodName
+    internal abstract string MechanismName
     {
       get;
     }
@@ -123,15 +123,15 @@ namespace MySql.Data.MySqlClient.Authentication
       var tokens = ParseServerChallenge(response);
 
       if (!tokens.TryGetValue('s', out string salt)) throw new MySqlException(string.Format(Resources.AuthenticationFailed, Host, Username,
-        MethodName, "salt is missing."));
+        MechanismName, "salt is missing."));
       if (!tokens.TryGetValue('r', out string snonce)) throw new MySqlException(string.Format(Resources.AuthenticationFailed, Host, Username,
-        MethodName, "nonce is missing."));
+        MechanismName, "nonce is missing."));
       if (!tokens.TryGetValue('i', out string iterations)) throw new MySqlException(string.Format(Resources.AuthenticationFailed, Host, Username,
-        MethodName, "iteration count is missing."));
+        MechanismName, "iteration count is missing."));
       if (!tokens['r'].StartsWith(_cnonce, StringComparison.Ordinal)) throw new MySqlException(string.Format(Resources.AuthenticationFailed, Host, Username,
-        MethodName, "invalid nonce."));
+        MechanismName, "invalid nonce."));
       if (!int.TryParse(iterations, out int count)) throw new MySqlException(string.Format(Resources.AuthenticationFailed, Host, Username,
-        MethodName, "invalid iteration count."));
+        MechanismName, "invalid iteration count."));
 
       var password = Encoding.UTF8.GetBytes(Password);
       salted = Hi(password, Convert.FromBase64String(salt), count);
@@ -155,19 +155,19 @@ namespace MySql.Data.MySqlClient.Authentication
       string response = Encoding.UTF8.GetString(data, 0, data.Length);
 
       if (!response.StartsWith("v=", StringComparison.Ordinal))
-        throw new MySqlException(string.Format(Resources.AuthenticationFailed, Host, Username, MethodName, "challenge did not start with a signature."));
+        throw new MySqlException(string.Format(Resources.AuthenticationFailed, Host, Username, MechanismName, "challenge did not start with a signature."));
 
       var signature = Convert.FromBase64String(response.Substring(2));
       var skey = HMAC(salted, Encoding.ASCII.GetBytes("Server Key"));
       var calculated = HMAC(skey, auth);
 
       if (signature.Length != calculated.Length)
-        throw new MySqlException(string.Format(Resources.AuthenticationFailed, Host, Username, MethodName, "challenge contained a signature with an invalid length."));
+        throw new MySqlException(string.Format(Resources.AuthenticationFailed, Host, Username, MechanismName, "challenge contained a signature with an invalid length."));
 
       for (int i = 0; i < signature.Length; i++)
       {
         if (signature[i] != calculated[i])
-          throw new MySqlException(string.Format(Resources.AuthenticationFailed, Host, Username, MethodName, "challenge contained an invalid signature."));
+          throw new MySqlException(string.Format(Resources.AuthenticationFailed, Host, Username, MechanismName, "challenge contained an invalid signature."));
       }
     }
 
