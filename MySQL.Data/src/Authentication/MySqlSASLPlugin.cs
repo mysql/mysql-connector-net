@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -39,26 +39,34 @@ namespace MySql.Data.MySqlClient.Authentication
   internal class MySqlSASLPlugin : MySqlAuthenticationPlugin
   {
     public override string PluginName => "mysql_ldap_sasl";
-    internal static ScramBase method;
+    string _mechanismName;
+    internal static ScramBase scramMechanism;
+    internal static GssapiMechanism gssapiMechanism;
 
     protected override void SetAuthData(byte[] data)
     {
-      string methodName = Encoding.UTF8.GetString(data);
+      _mechanismName = Encoding.UTF8.GetString(data);
 
-      switch (methodName)
+      switch (_mechanismName)
       {
         case "SCRAM-SHA-1":
-          method = new ScramSha1Method(GetUsername(), Settings.Password, Settings.Server);
+          scramMechanism = new ScramSha1Mechanism(GetUsername(), Settings.Password, Settings.Server);
           break;
         case "SCRAM-SHA-256":
-          method = new ScramSha256Method(GetUsername(), Settings.Password, Settings.Server);
+          scramMechanism = new ScramSha256Mechanism(GetUsername(), Settings.Password, Settings.Server);
+          break;
+        case "GSSAPI":
+          gssapiMechanism = new GssapiMechanism(GetUsername(), Settings.Password);
           break;
       }
     }
 
     protected override byte[] MoreData(byte[] data)
     {
-      return method.Challenge(data);
+      if (_mechanismName == "GSSAPI")
+        return gssapiMechanism.Challenge(data);
+      else
+        return scramMechanism.Challenge(data);
     }
 
     /// <summary>

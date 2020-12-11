@@ -1,0 +1,48 @@
+﻿ -------- CLIENT --------
+Linux prerequisites:
+libsasl2.4-2
+libsasl2-modules-gssapi-mit
+krb5-config
+krb5-user
+
+Windows prerequisites:
+Install MIT Kerberos
+
+-------- SERVER --------
+krb5.conf structure:
+[libdefaults]
+        default_realm = MYSQL.LOCAL
+        kdc_timesync = 1
+        ccache_type = 4
+        forwardable = true
+        proxiable = true
+        rdns = false
+        ignore_acceptor_hostname = true
+        dns_lookup_kdc = false
+
+[realms]
+  MYSQL.LOCAL = {
+        kdc = ldapauth.appad3iad.mysql2iad.oraclevcn.com
+        admin_server = ldapauth.appad3iad.mysql2iad.oraclevcn.com
+        default_domain = MYSQL.LOCAL
+  }
+
+[domain_realm]
+        .no.oracle.com = MYSQL.LOCAL
+
+
+Add following line to /etc/hosts:
+100.103.18.98   ldapauth        ldapauth.appad3iad.mysql2iad.oraclevcn.com
+
+
+In case my.ini is not working, start server as follow:
+sudo ./bin/mysqld --port=3306 --bind-address=localhost --user=mysql --basedir=/usr --datadir=/var/lib/mysql --plugin_dir=/usr/local/mysql/lib/plugin 
+--plugin-load=authentication_ldap_sasl.so  --authentication_ldap_sasl_server_host=ldapauth.appad3iad.mysql2iad.oraclevcn.com 
+--authentication_ldap_sasl_group_search_attr='cn' --authentication_ldap_sasl_auth_method_name='GSSAPI' --authentication_ldap_sasl_log_status=5  
+--log_error_verbosity=3 --authentication_ldap_sasl_bind_root_pwd="Testpw1" --authentication_ldap_sasl_bind_root_dn="CN=test2,CN=Users,DC=mysql,DC=local" 
+--authentication_ldap_sasl_bind_base_dn='CN=Users,DC=mysql,DC=local'
+
+
+Create LDAP SASL User:
+INSTALL PLUGIN authentication_ldap_sasl SONAME 'authentication_ldap_sasl.so';
+CREATE USER 'test1@MYSQL.LOCAL' IDENTIFIED WITH authentication_ldap_sasl;

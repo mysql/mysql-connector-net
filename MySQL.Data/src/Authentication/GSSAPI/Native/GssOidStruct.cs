@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -15,7 +15,6 @@
 // Without limiting anything contained in the foregoing, this file,
 // which is part of MySQL Connector/NET, is also subject to the
 // Universal FOSS Exception, version 1.0, a copy of which can be found at
-
 // http://oss.oracle.com/licenses/universal-foss-exception.
 //
 // This program is distributed in the hope that it will be useful, but
@@ -27,46 +26,28 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Security.Cryptography;
+using System;
+using System.Runtime.InteropServices;
 
-namespace MySql.Data.MySqlClient.Authentication
+namespace MySql.Data.Authentication.GSSAPI.Native
 {
-  /// <summary>
-  /// The SCRAM-SHA-256 SASL mechanism.
-  /// </summary>
-  /// <remarks>
-  /// A salted challenge/response SASL mechanism that uses the HMAC SHA-256 algorithm.
-  /// </remarks>
-  internal class ScramSha256Method : ScramBase
+  [StructLayout(LayoutKind.Sequential)]
+  internal struct GssOidDescStruct
   {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ScramSha256Method"/> class.
-    /// </summary>
-    /// <remarks>
-    /// Creates a new SCRAM-SHA-256 SASL context.
-    /// </remarks>
-    /// <param name="username">The user name.</param>
-    /// <param name="password">The password.</param>
-    /// <param name="host">The host.</param>
-    internal ScramSha256Method(string username, string password, string host) : base(username, password, host) { }
+    /// OM_uint32->gss_uint32->unsigned int
+    public uint length;
 
-    /// <summary>
-    /// Gets the name of the method.
-    /// </summary>
-    internal override string MethodName
-    {
-      get { return "SCRAM-SHA-256"; }
-    }
+    /// void*
+    public IntPtr elements;
+  }
 
-    protected override KeyedHashAlgorithm CreateHMAC(byte[] key)
-    {
-      return new HMACSHA256(key);
-    }
-
-    protected override byte[] Hash(byte[] str)
-    {
-      using (var sha256 = SHA256.Create())
-        return sha256.ComputeHash(str);
-    }
+  [StructLayout(LayoutKind.Sequential)]
+  internal struct GssOidSetStruct
+  {
+    /// OM_uint32->gss_uint32->unsigned int
+    public uint count;
+    
+    /// void*
+    public IntPtr elements;
   }
 }
