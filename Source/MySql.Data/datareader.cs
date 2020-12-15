@@ -972,7 +972,14 @@ namespace MySql.Data.MySqlClient
       }
       catch (MySqlException ex)
       {
-        if (ex.Number != (int)MySqlErrorCode.NoSuchTable) throw;
+          int[] errors =
+          {
+              (int) MySqlErrorCode.NoSuchTable, (int) MySqlErrorCode.TableAccessDenied,
+              (int) MySqlErrorCode.UnknownTable
+          };
+
+          if (Array.IndexOf(errors, (int)ex.Number) < 0)
+              throw;
       }
     }
 
