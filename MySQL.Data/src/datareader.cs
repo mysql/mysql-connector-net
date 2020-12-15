@@ -1008,12 +1008,20 @@ namespace MySql.Data.MySqlClient
 
       try
       {
-        dummyCommand.ExecuteReader(); // ExecuteReader catches the exception and returns null, which is expected.
+          dummyCommand.ExecuteReader(); // ExecuteReader catches the exception and returns null, which is expected.
       }
       catch (MySqlException ex)
       {
-        if (ex.Number != (int)MySqlErrorCode.NoSuchTable) throw;
+          int[] errors =
+          {
+              (int) MySqlErrorCode.NoSuchTable, (int) MySqlErrorCode.TableAccessDenied,
+              (int) MySqlErrorCode.UnknownTable
+          };
+
+          if (Array.IndexOf(errors, (int) ex.Number) < 0)
+              throw;
       }
+    
     }
 
     private void ProcessOutputParameters()
