@@ -27,24 +27,31 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Google.Protobuf;
+using MySql.Data.Common;
+using MySql.Data.X.Communication;
 using Mysqlx;
 using Mysqlx.Connection;
 using System;
 using System.IO;
+using System.Net.Sockets;
 
 namespace MySqlX.Communication
 {
   internal class XPacketReaderWriter
   {
     private Stream _stream;
+    private Socket _socket;
+    private XPacketProcessor _packetProcessor;
 
     /// <summary>
     /// Constructor that sets the stream used to read or write data.
     /// </summary>
     /// <param name="stream">The stream used to read or write data.</param>
-    public XPacketReaderWriter(Stream stream)
+    public XPacketReaderWriter(Stream stream, Socket socket)
     {
       _stream = stream;
+      _socket = socket;
+      _packetProcessor = new XPacketProcessor(_stream);
     }
 
     /// <summary>
@@ -52,9 +59,12 @@ namespace MySqlX.Communication
     /// </summary>
     /// <param name="stream">The stream used to read or write data.</param>
     /// <param name="compressionController">The compression controller.</param>
-    public XPacketReaderWriter(Stream stream, XCompressionController compressionController): this(stream)
+    public XPacketReaderWriter(Stream stream, XCompressionController compressionController, Socket socket)
     {
+      _stream = stream;
+      _socket = socket;
       CompressionController = compressionController;
+      _packetProcessor = new XPacketProcessor(_stream, compressionController);
     }
 
     /// <summary>
@@ -70,6 +80,7 @@ namespace MySqlX.Communication
     public void Write(int id, IMessage message)
     {
       var messageSize = message.CalculateSize();
+      _packetProcessor.ProcessPendingPackets(_socket);
       if (CompressionController != null
           && CompressionController.IsCompressionEnabled
           && messageSize > XCompressionController.COMPRESSION_THRESHOLD
@@ -122,60 +133,14 @@ namespace MySqlX.Communication
       Write((int)id, message);
     }
 
-
     /// <summary>
     /// Reads X Protocol frames incoming from the X Plugin.
     /// </summary>
     /// <returns>A <see cref="CommunicationPacket"/> instance representing the X Protocol frame that was read.</returns>
     public CommunicationPacket Read()
     {
-      var compressionEnabled = CompressionController != null
-          && CompressionController.IsCompressionEnabled;
-      if (compressionEnabled && CompressionController.LastMessageContainsMultipleMessages)
-      {
-        return CompressionController.ReadNextBufferedMessageAsCommunicationPacket();
-      }
-
-      byte[] header = new byte[5];
-      ReadFully(header, 0, 5);
-      int length = BitConverter.ToInt32(header, 0);
-      byte[] data = new byte[length - 1];
-      ReadFully(data, 0, length - 1);
-
-      // If compression is enabled and message is of type compression.
-      if (compressionEnabled
-          && header[4] == 19)
-      {
-        var packet = new CommunicationPacket(header[4], length - 1, data);
-        var message = Compression.Parser.ParseFrom(packet.Buffer);
-        var payload = message.Payload.ToByteArray();
-        var decompressedPayload = CompressionController.Decompress(payload, (int) (message.UncompressedSize));
-        data = new byte[decompressedPayload.Length - 5];
-        for (int i = 0; i < data.Length; i++)
-        {
-          data[i] = decompressedPayload[i + 5];
-        }
-
-        return new CommunicationPacket(decompressedPayload[4], BitConverter.ToInt32(decompressedPayload, 0) - 1, data);
-      }
-
-      return new CommunicationPacket(header[4], length - 1, data);
+      return _packetProcessor.GetPacketFromNetworkStream();
     }
 
-    void ReadFully(byte[] buffer, int offset, int count)
-    {
-      int numRead = 0;
-      int numToRead = count;
-      while (numToRead > 0)
-      {
-        int read = _stream.Read(buffer, offset + numRead, numToRead);
-        if (read == 0)
-        {
-          throw new EndOfStreamException();
-        }
-        numRead += read;
-        numToRead -= read;
-      }
-    }
   }
 }

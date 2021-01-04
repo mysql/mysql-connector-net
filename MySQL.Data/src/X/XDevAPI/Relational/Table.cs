@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,6 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Relational;
 
 namespace MySqlX.XDevAPI.Relational
@@ -127,8 +128,26 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>The number of rows.</returns>
     public long Count()
     {
-      ValidateOpenSession();
-      return Session.XSession.TableCount(Schema, Name, "Table");
+      long result=0;
+      try
+      {
+        ValidateOpenSession();
+        result = Session.XSession.TableCount(Schema, Name, "Table");
+      }
+      catch (MySqlException ex)
+      {
+        switch (ex.Number)
+        {
+          case (int)CloseNotification.IDLE:
+          case (int)CloseNotification.KILLED:
+          case (int)CloseNotification.SHUTDOWN:
+            XDevAPI.Session.ThrowSessionClosedByServerException(ex, Session);
+            break;
+          default:
+            throw;
+        }
+      }
+      return result;
     }
 
     /// <summary>
@@ -137,8 +156,17 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns><c>true</c> if the table exists; otherwise, <c>false</c>.</returns>
     public override bool ExistsInDatabase()
     {
-      ValidateOpenSession();
-      return Session.XSession.TableExists(Schema, Name);
+      bool result = false;
+      try
+      {
+        ValidateOpenSession();
+        return Session.XSession.TableExists(Schema, Name);
+      }
+      catch (MySqlException e)
+      {
+        XDevAPI.Session.ThrowSessionClosedByServerException(e, Session);
+      }
+      return result;
     }
   }
 }

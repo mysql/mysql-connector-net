@@ -26,8 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Common;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MySqlX.XDevAPI.Relational
 {
@@ -61,8 +64,27 @@ namespace MySqlX.XDevAPI.Relational
     /// <returns>A <see cref="SqlResult"/> object with the resultset and execution status.</returns>
     public override SqlResult Execute()
     {
-      ValidateOpenSession();
-      return GetSQLResult(this);
+      SqlResult result = null;
+      try
+      {
+        ValidateOpenSession();
+        result= GetSQLResult(this);
+      }
+      catch (MySqlException ex)
+      {
+        switch (ex.Number)
+        {
+          case (int)CloseNotification.IDLE:
+          case (int)CloseNotification.KILLED:
+          case (int)CloseNotification.SHUTDOWN:
+            XDevAPI.Session.ThrowSessionClosedByServerException(ex, Session);
+            break;
+          default:
+            throw;
+        }
+      }
+
+      return result;
     }
 
     private SqlResult GetSQLResult(SqlStatement statement)

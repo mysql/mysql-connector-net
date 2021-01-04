@@ -46,6 +46,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Collections;
 using System.Threading;
+using System.Net.Sockets;
 
 namespace MySqlX.Sessions
 {
@@ -76,6 +77,7 @@ namespace MySqlX.Sessions
     private int _stmtId = 0;
     private List<int> _preparedStatements = new List<int>();
     internal bool? sessionResetNoReauthentication = null;
+    internal MyNetworkStream _myNetworkStream;
 
     /// <summary>
     /// The used client to handle SSH connections.
@@ -113,11 +115,12 @@ namespace MySqlX.Sessions
         Settings.Keepalive,
         Settings.Port,
         isUnix);
+      _myNetworkStream = (MyNetworkStream)_stream;
       if (_stream == null)
         throw new MySqlException(ResourcesX.UnableToConnect);
 
-      _reader = new XPacketReaderWriter(_stream);
-      _writer = new XPacketReaderWriter(_stream);
+      _reader = new XPacketReaderWriter(_stream, _myNetworkStream.Socket);
+      _writer = new XPacketReaderWriter(_stream, _myNetworkStream.Socket);
       protocol = new XProtocol(_reader, _writer);
 
       Settings.CharacterSet = string.IsNullOrWhiteSpace(Settings.CharacterSet) ? "utf8mb4" : Settings.CharacterSet;
@@ -160,13 +163,13 @@ namespace MySqlX.Sessions
 
           if (_readerCompressionController != null && _readerCompressionController.IsCompressionEnabled)
           {
-            _reader = new XPacketReaderWriter(_stream, _readerCompressionController);
-            _writer = new XPacketReaderWriter(_stream, _writerCompressionController);
+            _reader = new XPacketReaderWriter(_stream, _readerCompressionController, _myNetworkStream.Socket);
+            _writer = new XPacketReaderWriter(_stream, _writerCompressionController, _myNetworkStream.Socket);
           }
           else
           {
-            _reader = new XPacketReaderWriter(_stream);
-            _writer = new XPacketReaderWriter(_stream);
+            _reader = new XPacketReaderWriter(_stream, _myNetworkStream.Socket);
+            _writer = new XPacketReaderWriter(_stream, _myNetworkStream.Socket);
           }
 
           protocol.SetXPackets(_reader, _writer);
@@ -181,8 +184,8 @@ namespace MySqlX.Sessions
       }
       else if (_readerCompressionController != null && _readerCompressionController.IsCompressionEnabled)
       {
-        _reader = new XPacketReaderWriter(_stream, _readerCompressionController);
-        _writer = new XPacketReaderWriter(_stream, _writerCompressionController);
+        _reader = new XPacketReaderWriter(_stream, _readerCompressionController, _myNetworkStream.Socket);
+        _writer = new XPacketReaderWriter(_stream, _writerCompressionController, _myNetworkStream.Socket);
         protocol.SetXPackets(_reader, _writer);
       }
 
@@ -312,8 +315,8 @@ namespace MySqlX.Sessions
               var compressionAlgorithm = compressionCapabilities.First().Value.ToString();
               _readerCompressionController = new XCompressionController((CompressionAlgorithms)Enum.Parse(typeof(CompressionAlgorithms), compressionAlgorithm), false);
               _writerCompressionController = new XCompressionController((CompressionAlgorithms)Enum.Parse(typeof(CompressionAlgorithms), compressionAlgorithm), true);
-              _reader = new XPacketReaderWriter(_stream, _readerCompressionController);
-              _writer = new XPacketReaderWriter(_stream, _writerCompressionController);
+              _reader = new XPacketReaderWriter(_stream, _readerCompressionController, _myNetworkStream.Socket);
+              _writer = new XPacketReaderWriter(_stream, _writerCompressionController, _myNetworkStream.Socket);
             }
           }
         }
@@ -334,7 +337,7 @@ namespace MySqlX.Sessions
     /// <summary>
     /// Reorder the list of algorithms retrieved from server to the preferred order
     /// </summary>
-    private void VerifyDefaultOrder (ref string[] algorithms)
+    private void VerifyDefaultOrder(ref string[] algorithms)
     {
       var clientSupportedAlgorithms = Enum.GetNames(typeof(CompressionAlgorithms));
       List<string> output = new List<string>();
@@ -362,7 +365,7 @@ namespace MySqlX.Sessions
       }
       var elements = inputString.ToLowerInvariant().Split(',');
       List<string> ret = new List<string>();
-      for (var i=0; i<elements.Length;i++)
+      for (var i = 0; i < elements.Length; i++)
       {
         switch (elements[i].ToLowerInvariant())
         {
@@ -378,7 +381,7 @@ namespace MySqlX.Sessions
           case "deflate":
           case "deflate_stream":
 #if NET452
-            if (elements.Length==1 && Settings.Compression == CompressionType.Required)
+            if (elements.Length == 1 && Settings.Compression == CompressionType.Required)
             {
               throw new NotSupportedException(string.Format(ResourcesX.CompressionForSpecificAlgorithmNotSupportedInNetFramework, elements[i]));
             }
@@ -401,11 +404,11 @@ namespace MySqlX.Sessions
     /// </summary>
     /// <param name="serverSupportedAlgorithms">An array containing the compression algorithms supported by the server.</param>
     /// <param name="clientAgainstUserAlgorithms">An array containing the compression algorithms given by user/client.</param>
-    private Dictionary<string, object> NegotiateCompression(string[] serverSupportedAlgorithms,string[] clientAgainstUserAlgorithms)
+    private Dictionary<string, object> NegotiateCompression(string[] serverSupportedAlgorithms, string[] clientAgainstUserAlgorithms)
     {
       if (serverSupportedAlgorithms == null || serverSupportedAlgorithms.Length == 0)
       {
-        if (Settings.Compression == CompressionType.Required && clientAgainstUserAlgorithms.Length>0)
+        if (Settings.Compression == CompressionType.Required && clientAgainstUserAlgorithms.Length > 0)
         {
           throw new NotSupportedException(ResourcesX.CompressionAlgorithmNegotiationFailed);
         }
@@ -416,7 +419,7 @@ namespace MySqlX.Sessions
       // or raise an exception based on the selected compression type.
       XCompressionController.LoadLibzstdLibrary();
       if (!clientAgainstUserAlgorithms.Any(element => serverSupportedAlgorithms.Contains(element)))
-        {
+      {
         if (Settings.Compression == CompressionType.Preferred)
         {
           MySqlTrace.LogWarning(-1, ResourcesX.CompressionAlgorithmNegotiationFailed);
@@ -429,9 +432,9 @@ namespace MySqlX.Sessions
       }
 
       string negotiatedAlgorithm = null;
-      for (int index = 0; index < clientAgainstUserAlgorithms.Length ; index++)
+      for (int index = 0; index < clientAgainstUserAlgorithms.Length; index++)
       {
-       if (!serverSupportedAlgorithms.Contains(clientAgainstUserAlgorithms[index]))
+        if (!serverSupportedAlgorithms.Contains(clientAgainstUserAlgorithms[index]))
         {
           continue;
         }
@@ -569,7 +572,10 @@ namespace MySqlX.Sessions
           // Deallocate all the remaining prepared statements for current session.
           foreach (int stmtId in _preparedStatements)
           {
-            DeallocatePreparedStatement(stmtId);
+            if (!_myNetworkStream.IsSocketClosed)
+            {
+              DeallocatePreparedStatement(stmtId);
+            }
             _preparedStatements.Remove(stmtId);
           }
         }
@@ -577,7 +583,11 @@ namespace MySqlX.Sessions
         {
           //TODO log exception
         }
-        protocol.SendSessionClose();
+
+        if (!_myNetworkStream.IsSocketClosed)
+        {
+          protocol.SendSessionClose();
+        }
       }
       finally
       {
@@ -629,7 +639,7 @@ namespace MySqlX.Sessions
         new KeyValuePair<string, object>("name", collectionName),
         new KeyValuePair<string, object>("reuse_existing", options.ReuseExisting),
         new KeyValuePair<string, object>("options", dictionary)
-        ) ;
+        );
     }
 
     /// <summary>
@@ -726,7 +736,7 @@ namespace MySqlX.Sessions
       }
       catch (MySqlException ex) when (ex.Code == 1146)
       {
-        throw new MySqlException(string.Format(ResourcesX.CollectionTableDoesNotExist, type.ToString(), name, schema.Name));
+        throw new MySqlException(string.Format(ResourcesX.CollectionTableDoesNotExist, type.ToString(), name, schema.Name), (int)ex.Code);
       }
     }
 
@@ -878,19 +888,27 @@ namespace MySqlX.Sessions
     public void ResetSession()
     {
       if (sessionResetNoReauthentication == null)
+      {
         try
         {
-          ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key.ExpectFieldExist, "6.1");
+          if (!_myNetworkStream.IsSocketClosed)
+          {
+            ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key.ExpectFieldExist, "6.1");
+          }
           sessionResetNoReauthentication = true;
         }
         catch
         {
           sessionResetNoReauthentication = false;
         }
+      }
 
-      protocol.SendResetSession((bool)sessionResetNoReauthentication);
-      protocol.ReadOk();
-      //return new Result(this);
+      if (!_myNetworkStream.IsSocketClosed)
+      {
+        protocol.SendResetSession((bool)sessionResetNoReauthentication);
+        protocol.ReadOk();
+      }
+
     }
 
     public int PrepareStatement<TResult>(BaseStatement<TResult> statement)

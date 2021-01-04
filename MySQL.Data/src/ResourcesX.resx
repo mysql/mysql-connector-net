@@ -321,4 +321,13 @@
   <data name="CompressionFailedToLoadLibzstdAssembly" xml:space="preserve">
     <value>Failed to load libzstd.dll. Removing zstd_stream from the client supported compression algorithms.</value>
   </data>
+  <data name="NoticeIdleConnection" xml:space="preserve">
+    <value>Connection closed. Reason: connection idle was too long</value>
+  </data>
+  <data name="NoticeKilledConnection" xml:space="preserve">
+    <value>Connection closed. Reason: connection was killed by a different session</value>
+  </data>
+  <data name="NoticeServerShutdown" xml:space="preserve">
+    <value>Connection closed. Reason: server was shutdown</value>
+  </data>
 </root>

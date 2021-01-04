@@ -528,6 +528,16 @@ namespace MySql.Data.MySqlClient
 #endif
   }
 
+  /// <summary>
+  /// The warnings that cause a connection to close.
+  /// </summary>
+  public enum CloseNotification
+  {
+    IDLE = 1810,
+    SHUTDOWN = 1053,
+    KILLED = 3169
+  }
+
   internal class MySqlConnectAttrs
   {
     static string _version;

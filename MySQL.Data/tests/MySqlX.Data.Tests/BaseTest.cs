@@ -49,6 +49,7 @@ namespace MySqlX.Data.Tests
     public static string ConnectionStringNoPassword { get; private set; }
     public static string ConnectionStringRoot { get; private set; }
     public static string ConnectionStringUriNative { get; private set; }
+    public static bool ServerIsDown { get; set; }
 
     static BaseTest()
     {
@@ -73,7 +74,7 @@ namespace MySqlX.Data.Tests
     }
 
     [SetUp]
-    public void BaseSetUp()
+    public virtual void BaseSetUp()
     {
       Assembly executingAssembly = typeof(BaseTest).GetTypeInfo().Assembly;
       Stream stream = executingAssembly.GetManifestResourceStream("MySqlX.Data.Tests.Properties.CreateUsers.sql");
