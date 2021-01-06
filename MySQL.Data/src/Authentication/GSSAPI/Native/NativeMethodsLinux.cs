@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -132,5 +132,21 @@ namespace MySql.Data.Authentication.GSSAPI.Native
       ref GssBufferDescStruct inputMessage,
       int confState,
       out GssBufferDescStruct outputMessage);
+
+    [DllImport(GssModulename, EntryPoint = "gss_inquire_cred")]
+    internal static extern uint gss_inquire_cred(
+      out uint minorStatus,
+      IntPtr credentialHandle,
+      out IntPtr name,
+      out uint lifetime,
+      out int credentialUsage,
+      out IntPtr mechs);
+
+    [DllImport(GssModulename, EntryPoint = "gss_display_name")]
+    internal static extern uint gss_display_name(
+        out uint minorStatus,
+        IntPtr inputName,
+        out GssBufferDescStruct NameBuffer,
+        out GssOidDescStruct nameType);
   }
 }

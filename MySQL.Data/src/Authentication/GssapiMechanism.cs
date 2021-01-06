@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -15,6 +15,16 @@
 // Without limiting anything contained in the foregoing, this file,
 // which is part of MySQL Connector/NET, is also subject to the
 // Universal FOSS Exception, version 1.0, a copy of which can be found at
+// http://oss.oracle.com/licenses/universal-foss-exception.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License, version 2.0, for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.Authentication.GSSAPI;
 using MySql.Data.Authentication.GSSAPI.Utility;
@@ -28,9 +38,8 @@ namespace MySql.Data.MySqlClient.Authentication
   internal class GssapiMechanism
   {
     private bool finalHandshake = false;
-    private bool complete = false;
     private GssCredentials gssCredentials = null;
-    private GssContext gssContext = null;
+    internal GssContext gssContext = null;
 
     internal string MechanismName
     {
@@ -43,20 +52,20 @@ namespace MySql.Data.MySqlClient.Authentication
     /// <param name="username">username</param>
     /// <param name="password">password</param>
     /// <param name="host">host</param>
-    public GssapiMechanism(string username, string password)
+    public GssapiMechanism(string username, string password, string krbServicePrincipal = null)
     {
       // Gets the Service Principal Name from the Kerberos configuration file.
-      string krbServicePrincipal = KerberosConfig.GetServicePrincipalName(username);
+      krbServicePrincipal = krbServicePrincipal ?? KerberosConfig.GetServicePrincipalName(username);
 
       try
       {
         // Attempt to retrieve credentials from default cache file.
         gssCredentials = new GssCredentials(username);
       }
-      catch (Exception)
+      catch (Exception ex)
       {
         if (string.IsNullOrWhiteSpace(password))
-          throw new MySqlException("Unable to retrieve stored credentials from default cache file.");
+          throw new MySqlException("Unable to retrieve stored credentials from default cache file.", ex);
 
         // Attempt to retrieve credentials using username and password.
         gssCredentials = new GssCredentials(username, password);
@@ -74,10 +83,7 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       byte[] response = null;
 
-      // if the authentication is complete, then we can pass null so the OK packet could be read from server
-      if (complete)
-        return response;
-      else if (finalHandshake)
+      if (finalHandshake)
         return DoFinalHandshake(data);
       else
       {
@@ -86,9 +92,9 @@ namespace MySql.Data.MySqlClient.Authentication
           // Initiate Security Context
           response = gssContext.InitSecContext(data);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-          throw new MySqlException("Unable to initiate Security Context.");
+          throw new MySqlException("Unable to initiate security context.", ex);
         }
 
         if (gssContext.IsEstablished)
@@ -105,12 +111,15 @@ namespace MySql.Data.MySqlClient.Authentication
     /// <returns>A non-null byte array containing the response to be sent to the server</returns>
     internal byte[] DoFinalHandshake(byte[] data)
     {
+      // if the authentication is complete, then we can pass null so the OK packet could be read from server
+      if (data.Length == 0)
+        return null;
+
       var unwrapped = gssContext.Unwrap(data);
 
       byte[] outPutMessage = new byte[4];
       outPutMessage[0] = 1;
       var response = gssContext.Wrap(outPutMessage);
-      complete = true;
 
       return response;
     }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -42,8 +42,9 @@ namespace MySql.Data.Authentication.GSSAPI
     internal const uint GSS_S_CONTINUE_NEEDED = 1U;
 
     internal const uint GSS_C_INDEFINITE = 0xFFFFFFFFU;
-
     internal static IntPtr GSS_C_NO_BUFFER = IntPtr.Zero;
+    internal static IntPtr GSS_C_NO_CREDENTIAL = IntPtr.Zero;
+    internal static IntPtr GSS_C_NO_NAME = IntPtr.Zero;
 
     internal static GssOidDescStruct GSS_C_NO_OID = default(GssOidDescStruct);
     internal static GssOidSetStruct GSS_C_NO_OID_SET = default(GssOidSetStruct);

@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -228,6 +228,28 @@ namespace MySql.Data.MySqlClient.Tests
       var builder = new MySqlConnectionStringBuilder();
       builder.TableCaching = true;
       Assert.True(builder.TableCaching);
+    }
+
+    /// <summary>
+    /// WL14429 - [Classic] Support for authentication_kerberos_client authentication plugin
+    /// Added new connection string option: DefaultAuthenticationPlugin
+    /// </summary>
+    /// <param name="method"></param>
+    [TestCase("3")]
+    [TestCase("invalidAuthenticationPlugin")]
+    public void SettingInvalidAuthenticationMethod(string method)
+    {
+      var builder = new MySqlConnectionStringBuilder();
+      builder.DefaultAuthenticationPlugin = " ";
+      var ex = Assert.Throws<MySqlException>(() => builder.DefaultAuthenticationPlugin = method);
+      StringAssert.AreEqualIgnoringCase(string.Format(Resources.AuthenticationMethodNotSupported, method), ex.Message);
+
+      var connStr = $"server=localhost;userid=root;defaultauthenticationplugin={method}";
+      ex = Assert.Throws<MySqlException>(() => new MySqlConnection(connStr));
+      StringAssert.AreEqualIgnoringCase(string.Format(Resources.AuthenticationMethodNotSupported, method), ex.Message);
+      
+      connStr = "server=localhost;userid=root;defaultauthenticationplugin=";
+      var conn = new MySqlConnection(connStr);
     }
   }
 }

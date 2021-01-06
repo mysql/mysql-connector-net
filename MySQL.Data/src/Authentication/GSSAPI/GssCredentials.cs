@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,6 +30,7 @@ using MySql.Data.Authentication.GSSAPI.Native;
 using MySql.Data.Authentication.GSSAPI.Utility;
 using MySql.Data.MySqlClient;
 using System;
+using System.Runtime.InteropServices;
 
 namespace MySql.Data.Authentication.GSSAPI
 {
@@ -47,6 +48,8 @@ namespace MySql.Data.Authentication.GSSAPI
   {
     internal IntPtr _credentials;
     private IntPtr _gssUsername;
+    
+    internal string UserName { get; set; }
 
     /// <summary>
     /// Acquires credentials for the supplied principal using the supplied password
@@ -59,6 +62,8 @@ namespace MySql.Data.Authentication.GSSAPI
     /// <returns>An object containing the credentials</returns>
     internal GssCredentials(string username, string password, CredentialUsage usage = CredentialUsage.Initiate)
     {
+      UserName = username;
+
       uint minorStatus = 0;
       uint majorStatus = 0;
 
@@ -104,6 +109,8 @@ namespace MySql.Data.Authentication.GSSAPI
     /// <returns>An object containing the credentials</returns>
     internal GssCredentials(string username, CredentialUsage usage = CredentialUsage.Initiate)
     {
+      UserName = username;
+
       // allocate a gss buffer and copy the principal name to it
       using (var gssNameBuffer = GssType.GetBufferFromString(username))
       {
@@ -135,6 +142,70 @@ namespace MySql.Data.Authentication.GSSAPI
           throw new MySqlException(ExceptionMessages.FormatGssMessage("GSSAPI: Unable acquire credentials for authentication.",
               majorStatus, minorStatus, Const.GssKrb5MechOidDesc));
       }
+    }
+
+    /// <summary>
+    /// Acquires default credentials stored in the cache
+    /// </summary>
+    /// <param name="usage">GSS_C_BOTH - Credentials may be used either to initiate or accept security contexts. 
+    /// GSS_C_INITIATE - Credentials will only be used to initiate security contexts. 
+    /// GSS_C_ACCEPT - Credentials will only be used to accept security contexts.</param>
+    /// <returns>An object containing the credentials</returns>
+    internal GssCredentials(CredentialUsage usage = CredentialUsage.Initiate)
+    {
+      uint minorStatus, lifetime = 0;
+      int credentialUsage;
+      IntPtr name, mechs;
+
+      var majorStatus = NativeMethods.gss_acquire_cred(
+          out minorStatus,
+          Const.GSS_C_NO_NAME,
+          Const.GSS_C_INDEFINITE,
+          ref Const.GssKrb5MechOidSet,
+          (int)usage,
+          ref _credentials,
+          IntPtr.Zero,
+          out var actualExpiry);
+
+      if (majorStatus != Const.GSS_S_COMPLETE)
+        throw new MySqlException(ExceptionMessages.FormatGssMessage("GSSAPI: Unable acquire credentials for authentication.",
+            majorStatus, minorStatus, Const.GssKrb5MechOidDesc));
+
+      majorStatus = NativeMethods.gss_inquire_cred(
+        out minorStatus,
+        _credentials,
+        out name,
+        out lifetime,
+        out credentialUsage,
+        out mechs);
+
+      if (majorStatus != Const.GSS_S_COMPLETE)
+        throw new MySqlException(ExceptionMessages.FormatGssMessage("GSSAPI: Unable to obtain information about the credentials provided.",
+            majorStatus, minorStatus, Const.GssKrb5MechOidDesc));
+
+      UserName = TranslateDisplayName(name);
+    }
+
+    /// <summary>
+    /// Translates a name in internal form to a textual representation.
+    /// </summary>
+    /// <param name="name">Name in internal form (GSSAPI).</param>
+    /// <returns></returns>
+    private static string TranslateDisplayName(IntPtr name)
+    {
+      string userName;
+
+      GssBufferDescStruct buffer;
+      NativeMethods.gss_display_name(out _, name, out buffer, out _);
+
+      userName = buffer.value == IntPtr.Zero ? string.Empty : Marshal.PtrToStringAnsi(buffer.value);
+
+      var majorStatus = NativeMethods.gss_release_buffer(out var minorStatus, ref buffer);
+      if (majorStatus != Const.GSS_S_COMPLETE)
+        throw new MySqlException(ExceptionMessages.FormatGssMessage("GSSAPI: An error occurred releasing a buffer.",
+                majorStatus, minorStatus, Const.GSS_C_NO_OID));
+
+      return userName;
     }
 
     public void Dispose()

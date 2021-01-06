@@ -1,4 +1,4 @@
-// Copyright (c) 2012, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2012, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -46,14 +46,14 @@ namespace MySql.Data.MySqlClient.Authentication
       Plugins["caching_sha2_password"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.CachingSha2AuthenticationPlugin");
       Plugins["authentication_ldap_sasl_client"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.MySqlSASLPlugin");
       Plugins["mysql_clear_password"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.MySqlClearPasswordPlugin");
+      Plugins["authentication_kerberos_client"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.KerberosAuthenticationPlugin");
 
       AuthenticationManagerCtorConfiguration();
     }
 
     public static MySqlAuthenticationPlugin GetPlugin(string method)
     {
-      if (!Plugins.ContainsKey(method))
-        throw new MySqlException(String.Format(Resources.AuthenticationMethodNotSupported, method));
+      ValidateAuthenticationPlugin(method);
       return CreatePlugin(method);
     }
 
@@ -71,6 +71,12 @@ namespace MySql.Data.MySqlClient.Authentication
       {
         throw new MySqlException(String.Format(Resources.UnableToCreateAuthPlugin, method), e);
       }
+    }
+
+    public static void ValidateAuthenticationPlugin(string method)
+    {
+      if (!Plugins.ContainsKey(method))
+        throw new MySqlException(String.Format(Resources.AuthenticationMethodNotSupported, method));
     }
   }
 

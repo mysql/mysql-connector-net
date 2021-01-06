@@ -1,3 +1,7 @@
+8.0.25
+- Added support for the Kerberos authentication plugin (WL14429).
+
+
 8.0.24
 - Added support for the SASL authentication protocol using the GSSAPI/Kerberos method (WL14210).
 
@@ -13,6 +17,7 @@
 - Fixed bad handling of Wait() for an async execution that could cause a program to hang indefinitely hence blocking it (MySQL Bug #100692, Oracle Bug #31945397).
 - Removing aliases(address,addr,network address) for server option in the connection string.(Oracle Bug #31248601)
 - Fixed a bug caused by setting an Int32 default value to any enum parameter (MySQL Bug #84701, Oracle Bug #25467610).
+- Fixed a bug that allowed the insertion of a parameter with "-1" as index (MySQL Bug #100522, Oracle Bug #31754599).
 - Added support for EF Core 5.0 (WL14214).
 - Fixed the COM_STMT_EXECUTE packet structure to only send new-params-bound flag when it has parameters (Oracle Bug #32208427).
 - Fixed types validation for stored procedure parameters (MySQL Bug #101302, Oracle Bug #32066024).
