@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,6 +29,7 @@
 using System;
 using NUnit.Framework;
 using System.Data;
+using System.Threading;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -68,5 +69,30 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual(1064, ex.Data["Server Error Code"]);
       }
     }
+
+    /// <summary>
+    /// WL-14393 Improve timeout error messages
+    /// </summary>
+    [Test]
+    public void TimeoutErrorMessages()
+    {
+      if (Version < new Version("8.0.24")) return;
+
+      var builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.SslMode = MySqlSslMode.None;
+      builder.AllowPublicKeyRetrieval = true;
+      builder.Database = "";
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        MySqlCommand command = new MySqlCommand("SET SESSION wait_timeout=4;", connection);
+        command.ExecuteNonQuery();
+        Thread.Sleep(6000);
+        command = new MySqlCommand("SELECT CONNECTION_ID();", connection);
+        var ex = Assert.Throws<MySqlException>(() => command.ExecuteScalar());
+        Assert.AreEqual((int)MySqlErrorCode.ErrorClientInteractionTimeout, ex.Number);
+      }
+    }
+
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -2002,6 +2002,9 @@ namespace MySql.Data.MySqlClient
     DebugSyncHitLimit = 1640,
     ///<summary></summary>
     ///<remarks>ER_ERROR_LAST</remarks>
-    ErrorLast = 1640
+    ErrorLast = 1640,
+    ///<summary></summary>
+    ///<remarks>ER_CLIENT_INTERACTION_TIMEOUT</remarks>
+    ErrorClientInteractionTimeout  = 4031
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2009, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,10 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace MySql.Data.Common
@@ -54,8 +54,33 @@ namespace MySql.Data.Common
     /// the socket to Blocking and retry the operation once again.
     /// </summary>
     private const int MaxRetryCount = 2;
-
     readonly Socket _socket;
+    public new Socket Socket => _socket;
+
+    /// <summary>
+    /// Determines whether the connection state is closed or open.
+    /// </summary>
+    /// <returns><c>true</c> if connection is closed; otherwise, <c>false</c>.</returns>
+    public bool IsSocketClosed
+    {
+      get
+      {
+        bool result = false;
+        try
+        {
+          result = Socket.Poll(1000, SelectMode.SelectRead) && Socket.Available == 0;
+        }
+        catch (Exception ex)
+        {
+          if (ex is SocketException || ex is ObjectDisposedException)
+          {
+            MySqlTrace.LogError(0, ex.Message);
+            result = true;
+          }
+        }
+        return result;
+      }
+    }
 
     public MyNetworkStream(Socket socket, bool ownsSocket)
       : base(socket, ownsSocket)
