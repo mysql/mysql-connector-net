@@ -93,7 +93,7 @@ namespace MySqlX.XDevAPI
     /// </summary>
     public static void ThrowSessionClosedByServerException(MySqlException ex, BaseSession session)
     {
-      var closeCodes = Enum.GetValues(typeof(CloseNotification)).Cast<uint>().ToList();
+      var closeCodes = ((CloseNotification[])Enum.GetValues(typeof(CloseNotification))).Select(c => (uint)c).ToList();
       if (closeCodes.Contains((uint)ex.Number))
       {
         session.Close();

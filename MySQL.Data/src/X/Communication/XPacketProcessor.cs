@@ -102,7 +102,7 @@ namespace MySql.Data.X.Communication
 
           Warning w = Warning.Parser.ParseFrom(frame.Payload.ToByteArray());
           WarningInfo warning = new WarningInfo(w.Code, w.Msg);
-          var closeCodes = Enum.GetValues(typeof(CloseNotification)).Cast<uint>().ToList();
+          var closeCodes = ((CloseNotification[])Enum.GetValues(typeof(CloseNotification))).Select(c => (uint)c).ToList();
 
           if (!closeCodes.Contains(warning.Code)) return;
 
