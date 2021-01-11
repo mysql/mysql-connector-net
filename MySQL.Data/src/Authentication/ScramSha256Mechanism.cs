@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,41 +32,41 @@ using System.Security.Cryptography;
 namespace MySql.Data.MySqlClient.Authentication
 {
   /// <summary>
-  /// The SCRAM-SHA-1 SASL mechanism.
+  /// The SCRAM-SHA-256 SASL mechanism.
   /// </summary>
   /// <remarks>
-  /// A salted challenge/response SASL mechanism that uses the HMAC SHA-1 algorithm.
+  /// A salted challenge/response SASL mechanism that uses the HMAC SHA-256 algorithm.
   /// </remarks>
-  internal class ScramSha1Method : ScramBase
+  internal class ScramSha256Mechanism : ScramBase
   {
     /// <summary>
-		/// Initializes a new instance of the <see cref="ScramSha1Method"/> class.
-		/// </summary>
-		/// <remarks>
-		/// Creates a new SCRAM-SHA-1 SASL context.
-		/// </remarks>
-		/// <param name="username">The user name.</param>
-		/// <param name="password">The password.</param>
+    /// Initializes a new instance of the <see cref="ScramSha256Mechanism"/> class.
+    /// </summary>
+    /// <remarks>
+    /// Creates a new SCRAM-SHA-256 SASL context.
+    /// </remarks>
+    /// <param name="username">The user name.</param>
+    /// <param name="password">The password.</param>
     /// <param name="host">The host.</param>
-    internal ScramSha1Method(string username, string password, string host) : base(username, password, host) { }
+    internal ScramSha256Mechanism(string username, string password, string host) : base(username, password, host) { }
 
     /// <summary>
     /// Gets the name of the method.
     /// </summary>
-    internal override string MethodName
+    internal override string MechanismName
     {
-      get { return "SCRAM-SHA-1"; }
+      get { return "SCRAM-SHA-256"; }
     }
 
     protected override KeyedHashAlgorithm CreateHMAC(byte[] key)
     {
-      return new HMACSHA1(key);
+      return new HMACSHA256(key);
     }
 
     protected override byte[] Hash(byte[] str)
     {
-      using (var sha1 = SHA1.Create())
-        return sha1.ComputeHash(str);
+      using (var sha256 = SHA256.Create())
+        return sha256.ComputeHash(str);
     }
   }
 }
