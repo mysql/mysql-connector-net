@@ -35,6 +35,7 @@ using System.Diagnostics;
 using MySql.Data;
 using System.Reflection;
 using System.IO;
+using System.Linq;
 
 namespace MySqlX.Data.Tests
 {
@@ -160,6 +161,7 @@ namespace MySqlX.Data.Tests
     [Theory]
     public void CloseWarningsWithCollections(CloseData closeData)
     {
+      if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) return;
       Session sessionCol = null;
       sessionCol = MySQLX.GetSession(BaseTest.ConnectionString);
 
@@ -205,8 +207,10 @@ namespace MySqlX.Data.Tests
     [Test]
     public void PoolTestCloseOneConnection()
     {
+      if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) return;
       int size = 3;
-      using (Client client = MySQLX.GetClient(ConnectionString + ";database=test;", new { pooling = new { maxSize = size } }))
+      int timeout = 3000;
+      using (Client client = MySQLX.GetClient(ConnectionString + ";database=test;", new { pooling = new { maxSize = size, queueTimeout = timeout } }))
       {
         //Creeate 3 sessions
         Session session1 = client.GetSession();
@@ -215,6 +219,8 @@ namespace MySqlX.Data.Tests
         int threadId1 = session1.ThreadId;
         int threadId2 = session2.ThreadId;
         int threadId3 = session3.ThreadId;
+        //Attempt 4th session
+        var overflow = Assert.Throws<TimeoutException>(() => client.GetSession());
 
         //kill session 2, exception expected
         ExecuteSqlAsRoot($"KILL {threadId2};");
@@ -248,6 +254,7 @@ namespace MySqlX.Data.Tests
     [Ignore("This test is marked as Ignore because it shutdown the local MySQL Server, comment this line to run this test manually")]
     public void PoolTestShutdown()
     {
+      if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) return;
       int size = 3;
       using (Client client = MySQLX.GetClient(ConnectionString + ";database=test;", new { pooling = new { maxSize = size } }))
       {
@@ -276,6 +283,7 @@ namespace MySqlX.Data.Tests
     [Ignore("comment this line to run this test manually")]
     public void PoolWithIdleConnections()
     {
+      if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) return;
       int size = 2;
       ExecuteSqlAsRoot("SET GLOBAL mysqlx_read_timeout = 5");
       ExecuteSqlAsRoot("SET GLOBAL mysqlx_wait_timeout = 5");
@@ -297,6 +305,56 @@ namespace MySqlX.Data.Tests
       ExecuteSqlAsRoot("SET GLOBAL mysqlx_read_timeout = 28800");
       ExecuteSqlAsRoot("SET GLOBAL mysqlx_wait_timeout = 28800");
     }
+    [Test]
+    public void STC_MySQLX_MYSQLCNET_11135_Scenario1()
+    {
+      try
+      {
+        string connectionString = "server=localhost;user=test;port=33060;password=test;ssl-mode=none;database=test;";
+        Session session = MySQLX.GetSession(connectionString);
+        var db = session.GetSchema("test1");
+        if (db.ExistsInDatabase())
+        {
+          session.DropSchema("test1");
+          db = session.CreateSchema("test1");
+        }
+        else { db = session.CreateSchema("test1"); }
+        var col = db.GetCollection("my_collection");
+        if (col.ExistsInDatabase())
+        {
+          db.DropCollection("my_collection");
+          col = db.CreateCollection("my_collection");
+        }
+        else { col = db.CreateCollection("my_collection"); }
+        col = db.GetCollection("my_collection", true);
+        session.StartTransaction();
+        //col.Add(new { name = "Sakila", age = 16 }).Execute();
+        object[] data = new object[]
+        {
+                new {  _id = 1, title = "Book 1", pages = 30 },
+                new {  _id = 2, title = "Book 2", pages = 50 },};
+        var result = col.Add(data).Execute();
+        var sp = session.SetSavepoint("SavePoint1");
+        data = new object[]
+        {
+                new {  _id = 3, title = "Book 3", pages = 30 },
+                new {  _id = 4, title = "Book 4", pages = 50 },};
+        result = col.Add(data).Execute();
+        session.RollbackTo(sp);
+        var doc = col.Find().Execute();
+        var docs = doc.FetchAll().Count();
+        session.Close();
+        session.Dispose();
+      }
+      catch (MySqlException ex)
+      {
+        throw;
+      }
+      catch (Exception ex)
+      {
+        throw;
+      }
+    }//STC_MySQLX_MYSQLCNET_11135_Scenario1()
 
     public void ShutdownServer()
     {
