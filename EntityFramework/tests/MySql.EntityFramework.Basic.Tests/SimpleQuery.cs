@@ -77,8 +77,8 @@ namespace MySql.Data.EntityFramework.Tests
     {
       ExecSQL("CREATE DATABASE `blogcontext`;" +
         "USE `blogcontext`;" +
-        "CREATE TABLE `UserTable` (`ID` INT NOT NULL, `NAME` VARCHAR(45) DEFAULT NULL, PRIMARY KEY (`ID`));" +
-        "INSERT INTO `UserTable` VALUES (1,'A'),(2,'B');");
+        "CREATE TABLE `usertable` (`ID` INT NOT NULL, `NAME` VARCHAR(45) DEFAULT NULL, PRIMARY KEY (`ID`));" +
+        "INSERT INTO `usertable` VALUES (1,'A'),(2,'B');");
 
       using (BlogContext context = new BlogContext(ConnectionString.Replace("db-simplequery", "blogcontext")))
       {
