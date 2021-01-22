@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -364,8 +364,6 @@ namespace MySqlX.Data.Tests
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "procedurecachesize=50"));
       StringAssert.StartsWith(errorMessage, ex.Message);
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "useperformancemonitor=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
-      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "ignoreprepare=false"));
       StringAssert.StartsWith(errorMessage, ex.Message);
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "respectbinaryflags=true"));
       StringAssert.StartsWith(errorMessage, ex.Message);

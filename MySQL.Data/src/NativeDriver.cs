@@ -33,7 +33,6 @@ using System;
 using System.Collections;
 using System.ComponentModel;
 using System.IO;
-using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -64,6 +63,9 @@ namespace MySql.Data.MySqlClient
 
     // Predefined username for IntegratedSecurity
     const string AuthenticationWindowsUser = "auth_windows";
+
+    // Regular expression that checks for GUID format 
+    private static Regex guidRegex = new Regex(@"(?i)^[0-9A-F]{8}[-](?:[0-9A-F]{4}[-]){3}[0-9A-F]{12}$"); 
 
     public NativeDriver(Driver owner)
     {
@@ -604,7 +606,6 @@ namespace MySql.Data.MySqlClient
     {
       long length = -1;
       bool isNull;
-      Regex regex = new Regex(@"(?i)^[0-9A-F]{8}[-](?:[0-9A-F]{4}[-]){3}[0-9A-F]{12}$"); // check for GUID format
 
       if (nullMap != null)
       {
@@ -619,7 +620,7 @@ namespace MySql.Data.MySqlClient
       }
 
       if ((valObject.MySqlDbType is MySqlDbType.Guid && !Settings.OldGuids) &&
-        !regex.IsMatch(Encoding.GetString(packet.Buffer, packet.Position, (int)length)))
+        !guidRegex.IsMatch(Encoding.GetString(packet.Buffer, packet.Position, (int)length)))
       {
         field.Type = MySqlDbType.String;
         valObject = field.GetValueObject();

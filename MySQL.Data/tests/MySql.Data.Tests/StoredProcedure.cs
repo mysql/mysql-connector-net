@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -902,7 +902,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       ExecuteSQL($"CREATE PROCEDURE spTest(OUT value VARCHAR(100)) BEGIN SELECT 'test value' INTO value; END");
 
-      using (var connection = new MySqlConnection(Connection.ConnectionString + ";IgnorePrepare=false;"))
+      using (var connection = new MySqlConnection(Connection.ConnectionString))
       {
         connection.Open();
 
@@ -953,7 +953,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("CREATE TABLE Test(jsonValue json NOT NULL)");
       ExecuteSQL("CREATE PROCEDURE spTest(IN p_jsonValue JSON) BEGIN INSERT INTO Test VALUES(p_jsonValue); END");
 
-      using (var conn = new MySqlConnection(Connection.ConnectionString + ";IgnorePrepare=false;"))
+      using (var conn = new MySqlConnection(Connection.ConnectionString))
       {
         conn.Open();
 
@@ -992,7 +992,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       ExecuteSQL($"CREATE PROCEDURE spTest(OUT value DATETIME) BEGIN SELECT '2020-11-27 12:25:59' INTO value; END");
 
-      using (var connection = new MySqlConnection(Connection.ConnectionString + ";IgnorePrepare=false;"))
+      using (var connection = new MySqlConnection(Connection.ConnectionString))
       {
         connection.Open();
 
@@ -1047,7 +1047,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void PassEnumParameter()
     {
       ExecuteSQL("CREATE PROCEDURE spTest(data ENUM('Pending','InProgress','Cancel'), ID int) BEGIN SELECT 1; END");
-      using (var connection = new MySqlConnection(ConnectionSettings.ConnectionString + ";IgnorePrepare=false"))
+      using (var connection = new MySqlConnection(ConnectionSettings.ConnectionString))
       {
         connection.Open();
         MySqlCommand command = new MySqlCommand("spTest", connection);

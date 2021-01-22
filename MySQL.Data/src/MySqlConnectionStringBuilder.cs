@@ -152,8 +152,6 @@ namespace MySql.Data.MySqlClient
 #endif
         },
         (msb, sender) => msb.UsePerformanceMonitor));
-      Options.Add(new MySqlConnectionStringOption("ignoreprepare", "ignore prepare", typeof(bool), false, true,
-        (msb, sender, value) => { msb.SetValue("ignoreprepare", value); }, (msb, sender) => msb.IgnorePrepare));
       Options.Add(new MySqlConnectionStringOption("respectbinaryflags", "respect binary flags", typeof(bool), true, false,
         (msb, sender, value) => { msb.SetValue("respectbinaryflags", value); }, (msb, sender) => msb.RespectBinaryFlags));
       Options.Add(new MySqlConnectionStringOption("treattinyasboolean", "treat tiny as boolean", typeof(bool), true, false,
@@ -519,22 +517,6 @@ namespace MySql.Data.MySqlClient
     {
       get { return (bool)values["useperformancemonitor"]; }
       set { SetValue("useperformancemonitor", value); }
-    }
-
-    /// <summary>
-    /// Gets or sets a boolean value that indicates if calls to the Prepare method should be ignored.
-    /// </summary>
-    /// <remarks>Default value is <c>false</c>.</remarks>
-    [Category("Advanced")]
-    [DisplayName("Ignore Prepare")]
-    [Description("Instructs the provider to ignore any attempts to prepare a command.")]
-    [RefreshProperties(RefreshProperties.All)]
-    [DefaultValue(false)]
-    [Obsolete("Ignore Prepare option has been deprecated since version 8.0.23.")]
-    public bool IgnorePrepare
-    {
-      get { return (bool)values["ignoreprepare"]; }
-      set { SetValue("ignoreprepare", value); }
     }
 
     /// <summary>
