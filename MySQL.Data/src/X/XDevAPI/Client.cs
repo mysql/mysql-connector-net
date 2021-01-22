@@ -249,7 +249,7 @@ namespace MySqlX.XDevAPI
             if (!session.XSession._myNetworkStream.IsSocketClosed)
             {
               session.Reset();
-              if (session.XSession.sessionResetNoReauthentication == false)
+              if (session.XSession._sessionResetNoReauthentication == false)
                 session.XSession.Authenticate();
               session.XSession.SetState(SessionState.Open, false);
             }

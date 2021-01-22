@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -36,6 +36,7 @@ using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Common;
 using System.Linq;
 using System.Net.Sockets;
+using System.Collections.Generic;
 
 namespace MySql.Data.X.Communication
 {
@@ -44,8 +45,10 @@ namespace MySql.Data.X.Communication
   /// </summary>
   internal class XPacketProcessor
   {
+    #region Constants
     private const int HEADER_SIZE = 5;
     private const int MESSAGE_TYPE = HEADER_SIZE - 1;
+    #endregion
 
     #region Fields
     /// <summary>
@@ -58,6 +61,11 @@ namespace MySql.Data.X.Communication
     /// </summary>
     private XCompressionController _compressionController;
 
+    /// <summary>
+    /// A Queue to store the pending packets removed from the <see cref="_stream"/>
+    /// </summary>
+    private Queue<CommunicationPacket> _packetQueue;
+
     #endregion Fields
 
     #region Constructors
@@ -68,6 +76,7 @@ namespace MySql.Data.X.Communication
     public XPacketProcessor(Stream stream)
     {
       _stream = stream;
+      _packetQueue = new Queue<CommunicationPacket>();
     }
 
     /// <summary>
@@ -75,16 +84,14 @@ namespace MySql.Data.X.Communication
     /// </summary>
     /// <param name="stream">The stream to be used as communication channel.</param>
     /// <param name="stream">The XCompressionController to be used for compression actions.</param>
-    public XPacketProcessor(Stream stream, XCompressionController compressionController)
+    public XPacketProcessor(Stream stream, XCompressionController compressionController) : this(stream)
     {
-      _stream = stream;
       _compressionController = compressionController;
     }
 
     #endregion Constructors
 
     #region Methods
-
 
     /// <summary>
     /// Identifies the kind of packet received over the network and execute
@@ -127,7 +134,7 @@ namespace MySql.Data.X.Communication
     /// Reads data from the network stream and create a packet of type <see cref="CommunicationPacket"/>.
     /// </summary>
     /// <returns>A <see cref="CommunicationPacket"/>.</returns>
-    public CommunicationPacket GetPacketFromNetworkStream()
+    public CommunicationPacket GetPacketFromNetworkStream(bool readFromQueue=false)
     {
       CommunicationPacket returnPacket = null;
       var compressionEnabled = _compressionController != null
@@ -137,6 +144,11 @@ namespace MySql.Data.X.Communication
         returnPacket = _compressionController.ReadNextBufferedMessageAsCommunicationPacket();
         IdentifyPacket(returnPacket);
         return returnPacket;
+      }
+
+      if (_packetQueue.Count > 0 && readFromQueue)
+      {
+        return _packetQueue.Dequeue();
       }
 
       byte[] header = new byte[HEADER_SIZE];
@@ -193,7 +205,8 @@ namespace MySql.Data.X.Communication
     {
       while (socket.Available > 0)
       {
-        GetPacketFromNetworkStream();
+        var packet = GetPacketFromNetworkStream(false);
+        _packetQueue?.Enqueue(packet);
       }
     }
     #endregion Methods

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -51,7 +51,7 @@ namespace MySqlX.Communication
     {
       _stream = stream;
       _socket = socket;
-      _packetProcessor = new XPacketProcessor(_stream);
+      _packetProcessor = new XPacketProcessor(stream);
     }
 
     /// <summary>
@@ -59,18 +59,20 @@ namespace MySqlX.Communication
     /// </summary>
     /// <param name="stream">The stream used to read or write data.</param>
     /// <param name="compressionController">The compression controller.</param>
-    public XPacketReaderWriter(Stream stream, XCompressionController compressionController, Socket socket)
+    public XPacketReaderWriter(Stream stream, XCompressionController compressionReadController, XCompressionController compressionWriteController, Socket socket)
     {
       _stream = stream;
       _socket = socket;
-      CompressionController = compressionController;
-      _packetProcessor = new XPacketProcessor(_stream, compressionController);
+      CompressionReadController = compressionReadController;
+      CompressionWriteController = compressionWriteController;
+      _packetProcessor = new XPacketProcessor(stream, CompressionReadController);
     }
 
     /// <summary>
     /// Gets or sets the compression controller uses to manage compression operations.
     /// </summary>
-    public XCompressionController CompressionController { get; private set; }
+    public XCompressionController CompressionReadController { get; private set; }
+    public XCompressionController CompressionWriteController { get; private set; }
 
     /// <summary>
     /// Writes X Protocol frames to the X Plugin.
@@ -81,10 +83,10 @@ namespace MySqlX.Communication
     {
       var messageSize = message.CalculateSize();
       _packetProcessor.ProcessPendingPackets(_socket);
-      if (CompressionController != null
-          && CompressionController.IsCompressionEnabled
+      if (CompressionWriteController != null
+          && CompressionWriteController.IsCompressionEnabled
           && messageSize > XCompressionController.COMPRESSION_THRESHOLD
-          && CompressionController.ClientSupportedCompressedMessages.Contains((ClientMessageId)id)
+          && CompressionWriteController.ClientSupportedCompressedMessages.Contains((ClientMessageId)id)
           )
       {
         // Build the compression protobuf message.
@@ -100,7 +102,7 @@ namespace MySqlX.Communication
         var compression = new Compression();
         compression.UncompressedSize = (ulong)(messageSize + messageHeader.Length);
         compression.ClientMessages = (ClientMessages.Types.Type)id;
-        compression.Payload = ByteString.CopyFrom(CompressionController.Compress(payload));
+        compression.Payload = ByteString.CopyFrom(CompressionWriteController.Compress(payload));
 
         // Build the X Protocol frame.
         _stream.Write(BitConverter.GetBytes(compression.CalculateSize() + 1), 0, 4);
@@ -139,7 +141,7 @@ namespace MySqlX.Communication
     /// <returns>A <see cref="CommunicationPacket"/> instance representing the X Protocol frame that was read.</returns>
     public CommunicationPacket Read()
     {
-      return _packetProcessor.GetPacketFromNetworkStream();
+      return _packetProcessor.GetPacketFromNetworkStream(true);
     }
 
   }
