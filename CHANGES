@@ -5,6 +5,7 @@
 - Fixed an error provoked by a duplicate schema name when using Entity Framework (MySQL Bug #101236, Oracle Bug #32358174).
 - Fixed a bug that affected driver performance by incrementing the execution time (MySQL Bug #101714, Oracle Bug #32386454).
 - Removed the "Ignore Prepare" connection string option (Oracle Bug #31872906).
+- Fixed bad handling of NULL values for GUID data type columns (MySQL Bug #101252, Oracle Bug #32049837).
 
 
 8.0.23

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -1337,6 +1337,22 @@ namespace MySql.Data.MySqlClient.Tests
             Assert.AreEqual(MySqlDbType.DateTime, providerType);
           }
         }
+      }
+    }
+
+    /// <summary>
+    /// Bug #32049837 - CAN'T QUERY CHAR(36) COLUMN CONTAINING NULL
+    /// </summary>
+    [Test]
+    public void NullGuid()
+    {
+      ExecuteSQL("CREATE TABLE `Test` (value CHAR(36)); INSERT INTO Test(value) VALUES(NULL);");
+
+      MySqlCommand cmd = new MySqlCommand("SELECT value FROM Test", Connection);
+      using var reader = cmd.ExecuteReader();
+      while (reader.Read())
+      {
+        Assert.True(reader.IsDBNull(0));
       }
     }
   }
