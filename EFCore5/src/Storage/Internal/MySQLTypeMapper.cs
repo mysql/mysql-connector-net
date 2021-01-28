@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Oracle and/or its affiliates.
+// Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -114,6 +114,8 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         { "bigint unsigned", _ubigint },
         { "int", _int },
         { "int unsigned", _uint },
+        { "integer", _int },
+        { "integer unsigned", _uint },
         { "mediumint", _int },
         { "mediumint unsigned", _uint },
         { "smallint", _smallint },
@@ -123,6 +125,9 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
         // decimals
         { "decimal", _decimal },
+        { "numeric", _decimal },
+        { "dec", _decimal },
+        { "fixed", _decimal },
         { "double", _double },
         { "float", _float },
         { "real", _real },
@@ -148,10 +153,11 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         { "date", _date },
         { "time", _time },
         { "year", _smallint },
+        { "datetime", _datetime },
 
         // bit
         { "bit", _bit },
-        
+
         // other
         { "geometry", _geometry },
         { "json", _varcharmaxUnicode }
@@ -161,13 +167,14 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       {
         // integers
         { typeof(short), _smallint },
+        { typeof(ushort), _usmallint },
         { typeof(int), _int },
+        { typeof(uint), _uint },
         { typeof(long), _bigint },
-        { typeof(byte), _tinyint },
-        { typeof(sbyte), _smallint },
-        { typeof(ushort), _int },
-        { typeof(ulong), _bigint },
-        
+        { typeof(ulong), _ubigint },
+        { typeof(byte), _utinyint },
+        { typeof(sbyte), _tinyint },
+
         // DateTime
         { typeof(DateTime), _datetime },
         { typeof(DateTimeOffset), _datetimeoffset },
