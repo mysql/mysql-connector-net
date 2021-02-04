@@ -7,6 +7,7 @@
 - Removed the "Ignore Prepare" connection string option (Oracle Bug #31872906).
 - Fixed bad handling of NULL values for GUID data type columns (MySQL Bug #101252, Oracle Bug #32049837).
 - Added missing data type mappings to Entity Framework Core projects.(MySQL Bug #102381, Oracle Bug #32424742).
+- Fixed a bug that interpreted the pound symbol in a JSON column incorrectly when using accent sensitive collation (MySQL Bug #102393, Oracle Bug #32429236).
 
 
 8.0.23

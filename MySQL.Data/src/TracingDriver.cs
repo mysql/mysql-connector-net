@@ -1,4 +1,4 @@
-// Copyright © 2009, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2009, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -99,7 +99,7 @@ namespace MySql.Data.MySqlClient
         // we got an error so we report it
         MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.Error,
             Resources.TraceOpenResultError, driverId, ex.Number, ex.Message);
-        throw ex;
+        throw;
       }
     }
 
@@ -169,7 +169,7 @@ namespace MySql.Data.MySqlClient
       {
         MySqlTrace.TraceEvent(TraceEventType.Error, MySqlTraceEventType.Error,
             Resources.TraceFetchError, driverId, ex.Number, ex.Message);
-        throw ex;
+        throw;
       }
     }
 

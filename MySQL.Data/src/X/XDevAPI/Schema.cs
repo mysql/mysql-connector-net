@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -198,7 +198,7 @@ namespace MySqlX.XDevAPI
       {
         if (ReuseExisting)
           return coll;
-        throw ex;
+        throw;
       }
       return new Collection(this, collectionName);
     }
@@ -233,11 +233,11 @@ namespace MySqlX.XDevAPI
       {
         if (options.ReuseExisting)
           return coll;
-        throw ex;
+        throw;
       }
-      catch (MySqlException ex)
+      catch (MySqlException)
       {
-        throw ex;
+        throw;
       }
       return coll;
     }
@@ -266,9 +266,9 @@ namespace MySqlX.XDevAPI
         var msg = string.Format("{0}{1}{2}", ex_1.Message, ", ", ResourcesX.SchemaCreateCollectionMsg);
         throw new MySqlException(msg);
       }
-      catch (MySqlException ex)
+      catch (MySqlException)
       {
-        throw ex;
+        throw;
       }
       return result;
     }

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -529,11 +529,11 @@ namespace MySqlX.XDevAPI
       catch (UriFormatException ex)
       {
         if (ex.Message != "Invalid URI: The hostname could not be parsed.")
-          throw ex;
+          throw;
 
         // Identify if multiple hosts were specified.
         string[] splitUri = connectionUri.Split('@', '?');
-        if (splitUri.Length == 1) throw ex;
+        if (splitUri.Length == 1) throw;
 
         hierPart = splitUri[1];
         var schema = string.Empty;
@@ -574,7 +574,7 @@ namespace MySqlX.XDevAPI
               (schema != string.Empty ? "/" + schema : string.Empty) +
               (splitUri.Length == 3 ? "?" + splitUri[2] : string.Empty);
           else
-            throw ex;
+            throw;
         }
       }
 

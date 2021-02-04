@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -245,7 +245,7 @@ namespace MySqlX.Communication
 
       return compressedData;
 #else
-      throw new NotSupportedException(string.Format(ResourcesX.CompressionForSpecificAlgorithmNotSupportedInNetFramework, "deflate_stream" ));
+      throw new NotSupportedException(string.Format(ResourcesX.CompressionForSpecificAlgorithmNotSupportedInNetFramework, "deflate_stream"));
 #endif
     }
 
@@ -280,7 +280,7 @@ namespace MySqlX.Communication
       using (var memoryStream = new MemoryStream())
       using (var compressionStream = new ZstandardStream(memoryStream, CompressionMode.Compress))
       {
-	      compressionStream.Write(input, 0, input.Length);
+        compressionStream.Write(input, 0, input.Length);
         compressionStream.Close();
         compressedData = memoryStream.ToArray();
       }
@@ -494,7 +494,7 @@ namespace MySqlX.Communication
 
           LibZstdLoaded = true;
         }
-        catch {}
+        catch { }
       }
 
       // If all attempts fail, log a warning and update the client supported compression algorithms.
