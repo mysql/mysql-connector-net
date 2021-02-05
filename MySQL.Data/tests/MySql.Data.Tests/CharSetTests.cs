@@ -525,6 +525,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void PoundSymbolInJsonColumn()
     {
+      if (Version < new Version(5, 7, 0)) Assert.Ignore("JSON data type not available in MySQL Server v5.6");
+
       ExecuteSQL("CREATE TABLE `PoundTable`(`TextColumn` VARCHAR(20) NULL, `JsonColumn` JSON);");
       ExecuteSQL("INSERT INTO `PoundTable`(`TextColumn`, `JsonColumn`) VALUES('£', JSON_OBJECT('Value', '£'));");
 
