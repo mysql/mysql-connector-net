@@ -160,7 +160,7 @@ namespace MySqlX.Communication
             _zstdDecompressStream = new ZstandardStream(_buffer, CompressionMode.Decompress);
           }
           break;
-#if !NET452
+#if !NETFRAMEWORK
         case CompressionAlgorithms.deflate_stream:
           if (_initializeForCompression)
           {
@@ -214,7 +214,7 @@ namespace MySqlX.Communication
           return CompressUsingZstdStream(input);
         case (CompressionAlgorithms.lz4_message):
           return CompressUsingLz4Message(input);
-#if !NET452
+#if !NETFRAMEWORK
         case (CompressionAlgorithms.deflate_stream):
           return CompressUsingDeflateStream(input);
 #endif
@@ -237,7 +237,7 @@ namespace MySqlX.Communication
         _buffer.WriteByte(0x9c);
       }
 
-#if !NET452
+#if !NETFRAMEWORK
       _deflateCompressStream.Write(input, 0, input.Length);
       _deflateCompressStream.Flush();
       var compressedData = _buffer.ToArray();
@@ -315,7 +315,7 @@ namespace MySqlX.Communication
         case (CompressionAlgorithms.lz4_message):
           decompressedData = DecompressUsingLz4Message(input, length);
           break;
-#if !NET452
+#if !NETFRAMEWORK
         case (CompressionAlgorithms.deflate_stream):
           decompressedData = DecompressUsingDeflateStream(input, length);
           break;
