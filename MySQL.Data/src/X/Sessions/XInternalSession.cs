@@ -374,7 +374,7 @@ namespace MySqlX.Sessions
 
           case "deflate":
           case "deflate_stream":
-#if NET452
+#if NETFRAMEWORK
             if (elements.Length == 1 && Settings.Compression == CompressionType.Required)
             {
               throw new NotSupportedException(string.Format(ResourcesX.CompressionForSpecificAlgorithmNotSupportedInNetFramework, elements[i]));
