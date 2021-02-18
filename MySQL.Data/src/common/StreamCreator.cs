@@ -96,15 +96,7 @@ namespace MySql.Data.Common
       if (addr == null)
         addr = dnsTask.Result[0];
       TcpClient client = new TcpClient(addr.AddressFamily);
-      Task task = null;
-      if (!settings.IsSshEnabled())
-        task = client.ConnectAsync(settings.Server, (int)settings.Port);
-      else
-        task = client.ConnectAsync(
-          settings.Server == "127.0.0.1" || settings.Server == "::1" 
-            ? "localhost"
-            : settings.Server,
-          3306);
+      Task task = client.ConnectAsync(settings.Server, (int)settings.Port);      
       
       if (!task.Wait(((int)settings.ConnectionTimeout * 1000)))
         throw new MySqlException(Resources.Timeout);
