@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Oracle and/or its affiliates.
+// Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -88,7 +88,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
       return MySQLTestStore.rootConnectionString + $";database={name};";
     }
 
-    private static string Port()
+    public static string Port()
     {
       var port = Environment.GetEnvironmentVariable("MYSQL_PORT");
       return port == null ? "3306" : port;

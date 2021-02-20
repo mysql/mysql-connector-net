@@ -538,6 +538,17 @@ namespace MySql.Data.MySqlClient
     KILLED = 3169
   }
 
+  public enum MySQLGuidFormat
+  {
+    Default = 0,
+    None = 1,
+    Char36 = 2,
+    Char32 = 3,
+    Binary16 = 4,
+    TimeSwapBinary16 = 5,
+    LittleEndianBinary16 = 6
+  }
+
   internal class MySqlConnectAttrs
   {
     static string _version;
