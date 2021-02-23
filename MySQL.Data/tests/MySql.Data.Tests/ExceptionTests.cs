@@ -94,5 +94,41 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    /// <summary>
+    /// Bug #32150115	RE-OPEN THE BUG #89850 THROWING EXCEPTION IF ACCESS TO GRANTED FOR TABLE
+    /// </summary>
+    [Test]
+    public void UngrantedAccessException()
+    {
+      ExecuteSQL($"CREATE USER 'buguser1'@'%' IDENTIFIED WITH mysql_native_password BY 'anypwd123';",true);
+      ExecuteSQL($"GRANT INSERT ON `{Connection.Settings.Database}`.* TO 'buguser1'@'%';",true);
+      
+      using (var connection = new MySqlConnection($"server={Connection.Settings.Server};port={Connection.Settings.Port};userid=buguser1;password= anypwd123; database = {Connection.Settings.Database};"))
+      {
+        var query = "SELECT * FROM INFORMATION_SCHEMA.tables";
+        using (var cmd = new MySqlCommand(query))
+        {
+          cmd.Connection = connection;
+          connection.Open();
+          cmd.CommandTimeout = 1800;
+          int limit = 10;
+          int count = 0;
+          using (var reader = cmd.ExecuteReader())
+          {
+            if (reader.HasRows)
+            {
+              while (reader.Read() && count < limit)
+              {
+                Console.WriteLine(reader.GetString(0));
+                count += 1;
+              }
+            }
+            cmd.Cancel();
+          }
+        }
+      }
+      Assert.Pass("Connection closed properly");
+    }
+
   }
 }
