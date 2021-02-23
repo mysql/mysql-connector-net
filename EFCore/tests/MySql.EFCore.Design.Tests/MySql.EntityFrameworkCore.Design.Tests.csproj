@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Design.Tests Class Library</Description>
-    <Copyright>Copyright (c) 2017, 2021, Oracle and/or its affiliates. All rights reserved.</Copyright>
-    <Version>3.1.12-m8.0.24</Version>
+    <Copyright>Copyright (c) 2017, 2021, Oracle and/or its affiliates.</Copyright>
+    <Version>3.1.12+MySQL8.0.24</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>netcoreapp3.1;</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Design.Tests</AssemblyName>
