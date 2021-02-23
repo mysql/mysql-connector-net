@@ -313,15 +313,6 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The {0} algorithm being used by the server({1}) has been deprecated and will be removed in a future version. It is recommended that you configure the server to use a non-deprecated {0} algorithm..
-        /// </summary>
-        public static string DeprecatedSshAlgorithm {
-            get {
-                return ResourceManager.GetString("DeprecatedSshAlgorithm", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to MySQL Connector/NET does not currently support distributed transactions..
         /// </summary>
         public static string DistributedTxnNotSupported {
@@ -1182,24 +1173,6 @@ namespace MySql.Data {
         public static string SPNotSupported {
             get {
                 return ResourceManager.GetString("SPNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The SSH Key File and/or SSH Password must be provided..
-        /// </summary>
-        public static string SshAuthenticationModeNotSet {
-            get {
-                return ResourceManager.GetString("SshAuthenticationModeNotSet", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The provided passphrase is invalid..
-        /// </summary>
-        public static string SshInvalidPassphrase {
-            get {
-                return ResourceManager.GetString("SshInvalidPassphrase", resourceCulture);
             }
         }
         

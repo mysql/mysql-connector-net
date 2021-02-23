@@ -77,32 +77,12 @@ namespace MySqlX.Sessions
     internal bool? _sessionResetNoReauthentication = null;
     internal MyNetworkStream _myNetworkStream;
 
-    /// <summary>
-    /// The used client to handle SSH connections.
-    /// </summary>
-    private Ssh _sshHandler;
-
     public XInternalSession(MySqlXConnectionStringBuilder settings) : base(settings)
     {
     }
 
     protected override void Open()
     {
-      if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
-      {
-        _sshHandler = new Ssh(
-          Settings.SshHostName,
-          Settings.SshUserName,
-          Settings.SshPassword,
-          Settings.SshKeyFile,
-          Settings.SshPassphrase,
-          Settings.SshPort,
-          Settings.Server,
-          Settings.Port,
-          true);
-        _sshHandler.StartClient();
-      }
-
       bool isUnix = Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix ||
         Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket;
       _stream = MyNetworkStream.CreateStream(
@@ -132,11 +112,6 @@ namespace MySqlX.Sessions
       }
       catch (Exception)
       {
-        if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
-        {
-          _sshHandler?.StopClient();
-        }
-
         throw;
       }
 
@@ -160,7 +135,7 @@ namespace MySqlX.Sessions
 
           if (_readerCompressionController != null && _readerCompressionController.IsCompressionEnabled)
           {
-            _packetReaderWriter = new XPacketReaderWriter(_stream, _readerCompressionController,_writerCompressionController, _myNetworkStream.Socket);
+            _packetReaderWriter = new XPacketReaderWriter(_stream, _readerCompressionController, _writerCompressionController, _myNetworkStream.Socket);
           }
           else
           {
@@ -585,11 +560,6 @@ namespace MySqlX.Sessions
       }
       finally
       {
-        if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
-        {
-          _sshHandler?.StopClient();
-        }
-
         SessionState = SessionState.Closed;
         _stream.Dispose();
       }

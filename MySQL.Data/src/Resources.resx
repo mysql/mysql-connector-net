@@ -603,12 +603,6 @@
   <data name="LocalInfileDisabled" xml:space="preserve">
     <value>Server asked for stream in response to LOAD DATA LOCAL INFILE, but the functionality is disabled by the client setting 'allowlocalinfile' to 'false'.</value>
   </data>
-  <data name="SshAuthenticationModeNotSet" xml:space="preserve">
-    <value>The SSH Key File and/or SSH Password must be provided.</value>
-  </data>
-  <data name="SshInvalidPassphrase" xml:space="preserve">
-    <value>The provided passphrase is invalid.</value>
-  </data>
   <data name="InvalidHostNameOrAddress" xml:space="preserve">
     <value>The host name or IP address is invalid.</value>
   </data>
@@ -644,9 +638,6 @@
   </data>
   <data name="ExecuteProcedureUnauthorized" xml:space="preserve">
     <value>Verify that user '{0}'@'{1}' has enough privileges to execute.</value>
-  </data>
-  <data name="DeprecatedSshAlgorithm" xml:space="preserve">
-    <value>The {0} algorithm being used by the server({1}) has been deprecated and will be removed in a future version. It is recommended that you configure the server to use a non-deprecated {0} algorithm.</value>
   </data>
   <data name="ClearPasswordNotSupported" xml:space="preserve">
     <value>Clear-password authentication is not supported over insecure channels.</value>

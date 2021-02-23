@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2020, Oracle and/or its affiliates.
+﻿// Copyright (c) 2018, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -130,14 +130,6 @@ namespace MySql.Data.MySqlClient
           msb.SetValue("tlsversion", strProtocols);
         }),
         (GetterDelegate)((msb, sender) => { return msb.TlsVersion; })));
-
-      // SSH tunneling options.
-      Options.Add(new MySqlConnectionStringOption("sshhostname", "ssh host name,ssh-host-name", typeof(string), "", false));
-      Options.Add(new MySqlConnectionStringOption("sshport", "ssh port,ssh-port", typeof(uint), (uint)22, false));
-      Options.Add(new MySqlConnectionStringOption("sshusername", "ssh user name,ssh-user-name", typeof(string), "", false));
-      Options.Add(new MySqlConnectionStringOption("sshpassword", "ssh password,ssh-password", typeof(string), "", false));
-      Options.Add(new MySqlConnectionStringOption("sshkeyfile", "ssh key file,ssh-key-file", typeof(string), "", false));
-      Options.Add(new MySqlConnectionStringOption("sshpassphrase", "ssh pass phrase,ssh-pass-phrase", typeof(string), "", false));
 
       // Other properties.
       Options.Add(new MySqlConnectionStringOption("keepalive", "keep alive", typeof(uint), (uint)0, false));
@@ -371,90 +363,6 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-    #region SSH Tunneling Properties
-
-    /// <summary>
-    /// Gets or sets the name of the SSH server.
-    /// </summary>
-    [Category("SSH")]
-    [DisplayName("SSH Host Name")]
-    [Description("The name of the SSH server.")]
-    [RefreshProperties(RefreshProperties.All)]
-    public string SshHostName
-    {
-      get { return (string)values["sshhostname"]; }
-      set { SetValue("sshhostname", value); }
-    }
-
-    /// <summary>
-    /// Gets or sets the port number to use when authenticating to the SSH server.
-    /// </summary>
-    [Category("SSH")]
-    [DisplayName("SSH Port")]
-    [Description("Port used to establish a connection using SSH tunneling.")]
-    [RefreshProperties(RefreshProperties.All)]
-    public uint SshPort
-    {
-      get { return (uint)values["sshport"]; }
-      set { SetValue("sshport", value); }
-    }
-
-    /// <summary>
-    /// Gets or sets the user name to authenticate to the SSH server.
-    /// </summary>
-    [Category("SSH")]
-    [DisplayName("SSH User Name")]
-    [Description("Indicates the user name to be used when connecting to the SSH server.")]
-    [RefreshProperties(RefreshProperties.All)]
-    public string SshUserName
-    {
-      get { return (string)values["sshusername"]; }
-      set { SetValue("sshusername", value); }
-    }
-
-    /// <summary>
-    /// Gets or sets the password to authenticate to the SSH server.
-    /// </summary>
-    [Category("SSH")]
-    [DisplayName("SSH Password")]
-    [Description("Indicates the password to be used when authenticating to the SSH server.")]
-    [RefreshProperties(RefreshProperties.All)]
-    [PasswordPropertyText(true)]
-    public string SshPassword
-    {
-      get { return (string)values["sshpassword"]; }
-      set { SetValue("sshpassword", value); }
-    }
-
-    /// <summary>
-    /// Gets or sets the SSH key file to authenticate to the SSH server.
-    /// </summary>
-    [Category("SSH")]
-    [DisplayName("SSH Key File")]
-    [Description("Indicates the path and name of the SSH key file to be used when authenticating to the SSH server.")]
-    [RefreshProperties(RefreshProperties.All)]
-    public string SshKeyFile
-    {
-      get { return (string)values["sshkeyfile"]; }
-      set { SetValue("sshkeyfile", value); }
-    }
-
-    /// <summary>
-    /// Gets or sets the passphrase of the key file to authenticate to the SSH server.
-    /// </summary>
-    [Category("SSH")]
-    [DisplayName("SSH Passphrase")]
-    [Description("Indicates the passphrase associated to the key file to be used when authenticating to the SSH server.")]
-    [RefreshProperties(RefreshProperties.All)]
-    [PasswordPropertyText(true)]
-    public string SshPassphrase
-    {
-      get { return (string)values["sshpassphrase"]; }
-      set { SetValue("sshpassphrase", value); }
-    }
-
-    #endregion
-
     #region Other Properties
 
     /// <summary>
@@ -542,7 +450,7 @@ namespace MySql.Data.MySqlClient
           continue;
 
         // SSL connection options can't be duplicated.
-        if (usedSslOptions.Contains(option.Keyword) && option.Keyword != "server" && 
+        if (usedSslOptions.Contains(option.Keyword) && option.Keyword != "server" &&
           option.Keyword != "tlsversion" && option.Keyword != "dns-srv")
           throw new ArgumentException(string.Format(Resources.DuplicatedSslConnectionOption, keyword));
         else if (usedSslOptions.Contains(option.Keyword))
@@ -597,12 +505,6 @@ namespace MySql.Data.MySqlClient
     public override int GetHashCode()
     {
       return base.GetHashCode();
-    }
-
-    internal bool IsSshEnabled()
-    {
-      return (!string.IsNullOrEmpty(SshUserName)
-               && (!string.IsNullOrEmpty(SshKeyFile) || !string.IsNullOrEmpty(SshPassword)));
     }
 
     internal void SetValue(string keyword, object value, [CallerMemberName] string callerName = "")
