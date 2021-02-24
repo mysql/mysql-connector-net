@@ -100,8 +100,21 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void UngrantedAccessException()
     {
-      ExecuteSQL($"CREATE USER 'buguser1'@'%' IDENTIFIED WITH mysql_native_password BY 'anypwd123';",true);
-      ExecuteSQL($"GRANT INSERT ON `{Connection.Settings.Database}`.* TO 'buguser1'@'%';",true);
+      using (var conn = new MySqlConnection($"server={Connection.Settings.Server};port={Connection.Settings.Port};userid=root;password=;database={Connection.Settings.Database};"))
+      {
+        conn.Open();
+        var cmd = new MySqlCommand("Select count(*) from mysql.user where user='buguser1'",conn);
+        var res=cmd.ExecuteScalar();
+        if (int.Parse(res.ToString()) > 0)
+        {
+          ExecuteSQL($"DROP USER 'buguser1'@'{Connection.Settings.Server}';", true);
+        }
+        if (Version < new Version("5.7")) 
+          ExecuteSQL($"CREATE USER 'buguser1'@'{Connection.Settings.Server}' IDENTIFIED BY 'anypwd123';", true);
+        else
+          ExecuteSQL($"CREATE USER 'buguser1'@'{Connection.Settings.Server}' IDENTIFIED WITH mysql_native_password BY 'anypwd123';", true);
+        ExecuteSQL($"GRANT INSERT ON `{Connection.Settings.Database}`.* TO 'buguser1'@'{Connection.Settings.Server}';", true);
+      }
       
       using (var connection = new MySqlConnection($"server={Connection.Settings.Server};port={Connection.Settings.Port};userid=buguser1;password= anypwd123; database = {Connection.Settings.Database};"))
       {
