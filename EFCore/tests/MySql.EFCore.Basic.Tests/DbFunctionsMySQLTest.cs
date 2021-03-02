@@ -78,7 +78,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       {
         var monthsDiff = ((DateTime.Now.Year - lastUpdate.Year) * 12) + DateTime.Now.Month - lastUpdate.Month;
         var count = context.Actor
-            .Count(a => EF.Functions.DateDiffMonth(a.LastUpdate, DateTime.Now) == monthsDiff);
+            .Count(a => EF.Functions.DateDiffMonth(a.LastUpdate, DateTime.Now) >= monthsDiff - 1);
 
         Assert.AreEqual(200, count);
       }
