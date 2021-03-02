@@ -91,7 +91,7 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Closes the current session properly after it was closed by the server.
     /// </summary>
-    public static void ThrowSessionClosedByServerException(MySqlException ex, BaseSession session)
+    internal static void ThrowSessionClosedByServerException(MySqlException ex, BaseSession session)
     {
       var closeCodes = ((CloseNotification[])Enum.GetValues(typeof(CloseNotification))).Select(c => (uint)c).ToList();
       if (closeCodes.Contains((uint)ex.Number))
