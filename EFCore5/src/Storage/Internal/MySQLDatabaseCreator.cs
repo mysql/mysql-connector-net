@@ -265,7 +265,7 @@ namespace MySql.EntityFrameworkCore
     public override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
       => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
         _connection,
-        async (connection, ct) => (int)await CreateHasTablesCommand()
+        async (connection, ct) => (Int64)await CreateHasTablesCommand()
         .ExecuteScalarAsync(
           new RelationalCommandParameterObject(
             connection,
