@@ -229,7 +229,7 @@ namespace MySql.Data.Common
         {
           tlsProtocol = (tlsProtocol == SslProtocols.None) ? SslProtocols.Tls : tlsProtocol;
           if (!ss.AuthenticateAsClientAsync(_settings.Server, certs, tlsProtocol, false).Wait((int)_settings.ConnectionTimeout * 1000))
-            throw new AuthenticationException($"Authentication to host '{_settings.Server}' faied.");
+            throw new AuthenticationException($"Authentication to host '{_settings.Server}' failed.");
           tlsConnectionRef[connectionId] = tlsProtocol;
           tlsRetry.Remove(connectionId);
         }
