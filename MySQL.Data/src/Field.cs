@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -202,7 +202,7 @@ namespace MySql.Data.MySqlClient
           if (convertBlob)
           {
             binaryOk = false;
-            Encoding = System.Text.Encoding.GetEncoding("UTF-8");
+            Encoding = Encoding.GetEncoding("UTF-8");
             charSetIndex = -1;  // lets driver know we are in charge of encoding
             MaxLength = 4;
           }
@@ -218,6 +218,14 @@ namespace MySql.Data.MySqlClient
             Type = MySqlDbType.Text;
           else if (type == MySqlDbType.LongBlob)
             Type = MySqlDbType.LongText;
+        }
+
+        if (type == MySqlDbType.JSON)
+        {
+          binaryOk = false;
+          Encoding = Encoding.GetEncoding("UTF-8");
+          charSetIndex = -1;  // lets driver know we are in charge of encoding
+          MaxLength = 4;
         }
       }
 

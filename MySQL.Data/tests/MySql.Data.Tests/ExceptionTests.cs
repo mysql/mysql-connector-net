@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,6 +29,7 @@
 using System;
 using NUnit.Framework;
 using System.Data;
+using System.Threading;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -68,5 +69,79 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual(1064, ex.Data["Server Error Code"]);
       }
     }
+
+    /// <summary>
+    /// WL-14393 Improve timeout error messages
+    /// </summary>
+    [Test]
+    public void TimeoutErrorMessages()
+    {
+      if (Version < new Version("8.0.24")) return;
+
+      var builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      builder.SslMode = MySqlSslMode.None;
+      builder.AllowPublicKeyRetrieval = true;
+      builder.Database = "";
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        MySqlCommand command = new MySqlCommand("SET SESSION wait_timeout=4;", connection);
+        command.ExecuteNonQuery();
+        Thread.Sleep(6000);
+        command = new MySqlCommand("SELECT CONNECTION_ID();", connection);
+        var ex = Assert.Throws<MySqlException>(() => command.ExecuteScalar());
+        Assert.AreEqual((int)MySqlErrorCode.ErrorClientInteractionTimeout, ex.Number);
+      }
+    }
+
+    /// <summary>
+    /// Bug #32150115	RE-OPEN THE BUG #89850 THROWING EXCEPTION IF ACCESS TO GRANTED FOR TABLE
+    /// </summary>
+    [Test]
+    public void UngrantedAccessException()
+    {
+      using (var conn = new MySqlConnection($"server={Connection.Settings.Server};port={Connection.Settings.Port};userid=root;password=;database={Connection.Settings.Database};"))
+      {
+        conn.Open();
+        var cmd = new MySqlCommand("Select count(*) from mysql.user where user='buguser1'",conn);
+        var res=cmd.ExecuteScalar();
+        if (int.Parse(res.ToString()) > 0)
+        {
+          ExecuteSQL($"DROP USER 'buguser1'@'{Connection.Settings.Server}';", true);
+        }
+        if (Version < new Version("5.7")) 
+          ExecuteSQL($"CREATE USER 'buguser1'@'{Connection.Settings.Server}' IDENTIFIED BY 'anypwd123';", true);
+        else
+          ExecuteSQL($"CREATE USER 'buguser1'@'{Connection.Settings.Server}' IDENTIFIED WITH mysql_native_password BY 'anypwd123';", true);
+        ExecuteSQL($"GRANT INSERT ON `{Connection.Settings.Database}`.* TO 'buguser1'@'{Connection.Settings.Server}';", true);
+      }
+      
+      using (var connection = new MySqlConnection($"server={Connection.Settings.Server};port={Connection.Settings.Port};userid=buguser1;password= anypwd123; database = {Connection.Settings.Database};"))
+      {
+        var query = "SELECT * FROM INFORMATION_SCHEMA.tables";
+        using (var cmd = new MySqlCommand(query))
+        {
+          cmd.Connection = connection;
+          connection.Open();
+          cmd.CommandTimeout = 1800;
+          int limit = 10;
+          int count = 0;
+          using (var reader = cmd.ExecuteReader())
+          {
+            if (reader.HasRows)
+            {
+              while (reader.Read() && count < limit)
+              {
+                Console.WriteLine(reader.GetString(0));
+                count += 1;
+              }
+            }
+            cmd.Cancel();
+          }
+        }
+      }
+      Assert.Pass("Connection closed properly");
+    }
+
   }
 }

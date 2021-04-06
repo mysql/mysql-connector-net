@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -295,7 +295,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL(@"DROP TABLE IF EXISTS test_time;
               CREATE TABLE test_time(data TIME(6) NOT NULL);");
       TimeSpan time = new TimeSpan(1, 2, 3, 4, 567);
-      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";IgnorePrepare=False;"))
+      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString))
       {
         c.Open();
         using (var cmd = new MySqlCommand(@"INSERT INTO test_time VALUES(@data);", c))
@@ -369,13 +369,13 @@ namespace MySql.Data.MySqlClient.Tests
     #endregion
 
     [Test]
-    public void CanUpdateMicrosecondsWithIgnorePrepareOnFalse()
+    public void CanUpdateMicrosecondsWithPrepare()
     {
       if (Version < new Version(5, 6)) return;
 
       MySqlCommand cmd = new MySqlCommand();
 
-      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";ignore prepare=False;"))
+      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString))
       {
         c.Open();
 
@@ -479,7 +479,7 @@ namespace MySql.Data.MySqlClient.Tests
         "t TIME(6), ts TIMESTAMP(6), PRIMARY KEY(id))");
 
 
-      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";ignore prepare=False;"))
+      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString))
       {
         c.Open();
         cmd.Connection = c;
@@ -563,7 +563,7 @@ namespace MySql.Data.MySqlClient.Tests
       DateTime dt = DateTime.Now;
       MySqlCommand cmd = new MySqlCommand();
 
-      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";ignore prepare=False;"))
+      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString))
       {
         c.Open();
 
@@ -701,7 +701,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME(3), PRIMARY KEY(id))");
 
-      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString + ";ignore prepare=False;"))
+      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString))
       {
         c.Open();
         cmd.Connection = c;

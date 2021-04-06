@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2014, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -39,15 +39,15 @@ namespace MySql.Data.EntityFramework.Tests
     public int Id { get; set; }
     public string Name { get; set; }
     public DateTime PubDate { get; set; }
-    public Author Author { get; set;  }
-    public int Pages { get; set;  }
+    public Author Author { get; set; }
+    public int Pages { get; set; }
   }
 
   public class Author
   {
     public int Id { get; set; }
     public string Name { get; set; }
-    public int Age { get; set;  }
+    public int Age { get; set; }
     public List<Book> Books { get; set; }
     public Address Address { get; set; }
   }
@@ -57,11 +57,11 @@ namespace MySql.Data.EntityFramework.Tests
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
-    public string Name { get; set;  }
+    public string Name { get; set; }
     public int MinAge { get; set; }
     public float Weight { get; set; }
     [Required, DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-    public DateTime CreatedDate { get; set;  }
+    public DateTime CreatedDate { get; set; }
   }
 
   public class Child
@@ -74,9 +74,9 @@ namespace MySql.Data.EntityFramework.Tests
 
   public class ContractAuthor
   {
-    public int Id { get; set;  }
-    public Author Author { get; set;  }
-    public DateTime StartDate { get; set;  }
+    public int Id { get; set; }
+    public Author Author { get; set; }
+    public DateTime StartDate { get; set; }
   }
 
   [ComplexType]
@@ -109,9 +109,35 @@ namespace MySql.Data.EntityFramework.Tests
 
     public DbSet<Book> Books { get; set; }
     public DbSet<Author> Authors { get; set; }
-    public DbSet<Product> Products { get; set;  }
+    public DbSet<Product> Products { get; set; }
     public DbSet<ContractAuthor> ContractAuthors { get; set; }
     public DbSet<Company> Companies { get; set; }
     public DbSet<Child> Children { get; set; }
+  }
+
+  public class BlogContext : DbContext
+  {
+    public BlogContext(string connStr) : base(connStr)
+    {
+      Database.SetInitializer<BlogContext>(null);
+    }
+
+    public virtual DbSet<User> User { get; set; }
+
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+      modelBuilder.Entity<User>()
+          .Property(e => e.Name)
+          .IsUnicode(false);
+    }
+  }
+
+  [Table("blogcontext.usertable")]
+  public class User
+  {
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    public int Id { get; set; }
+    [StringLength(45)]
+    public string Name { get; set; }
   }
 }

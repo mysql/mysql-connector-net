@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,9 +31,14 @@ using NUnit.Framework;
 
 namespace MySql.Data.EntityFramework.Tests
 {
-
   public class SimpleQuery : DefaultFixture
   {
+    [OneTimeTearDown]
+    public new void OneTimeTearDown()
+    {
+      ExecSQL($"DROP DATABASE IF EXISTS `blogcontext`;");
+    }
+
     [Test]
     public void SimpleFindAll()
     {
@@ -64,5 +69,22 @@ namespace MySql.Data.EntityFramework.Tests
       }
     }
 
+    /// <summary>
+    /// Bug #32358174 - MYSQL.DATA.MYSQLCLIENT.MYSQLEXCEPTION: TABLE 'DB.DB.DB.TABLE' DOESN'T EXIST
+    /// </summary>
+    [Test]
+    public void TablesWithSchemaWithoutUsingProperty()
+    {
+      ExecSQL("CREATE DATABASE `blogcontext`;" +
+        "USE `blogcontext`;" +
+        "CREATE TABLE `usertable` (`ID` INT NOT NULL, `NAME` VARCHAR(45) DEFAULT NULL, PRIMARY KEY (`ID`));" +
+        "INSERT INTO `usertable` VALUES (1,'A'),(2,'B');");
+
+      using (BlogContext context = new BlogContext(ConnectionString.Replace("db-simplequery", "blogcontext")))
+      {
+        var q = (from u in context.User select u).ToArray();
+        Assert.IsTrue(q.Length == 2);
+      }
+    }
   }
 }

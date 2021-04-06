@@ -10,7 +10,7 @@
 
 namespace MySql.Data {
     using System;
-    using System.Reflection;
+    
     
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
@@ -19,7 +19,7 @@ namespace MySql.Data {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class ResourcesX {
@@ -39,7 +39,7 @@ namespace MySql.Data {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.ResourcesX", typeof(ResourcesX).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MySql.Data.ResourcesX", typeof(ResourcesX).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -115,25 +115,6 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; cannot be set to false with DNS SRV lookup enabled..
-        /// </summary>
-        public static string DnsSrvConflictingOptions {
-            get {
-                return ResourceManager.GetString("DnsSrvConflictingOptions", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Scheme &apos;{0}&apos; is not valid..
-        /// </summary>
-        public static string DnsSrvInvalidScheme {
-            get {
-                return ResourceManager.GetString("DnsSrvInvalidScheme", resourceCulture);
-            }
-        }
-
-        /// <summary>
-
         ///   Looks up a localized string similar to Compression requested but the compression algorithm negotiation failed..
         /// </summary>
         public static string CompressionAlgorithmNegotiationFailed {
@@ -202,6 +183,24 @@ namespace MySql.Data {
         public static string CompressionPendingMessagesToProcess {
             get {
                 return ResourceManager.GetString("CompressionPendingMessagesToProcess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; cannot be set to false with DNS SRV lookup enabled..
+        /// </summary>
+        public static string DnsSrvConflictingOptions {
+            get {
+                return ResourceManager.GetString("DnsSrvConflictingOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scheme &apos;{0}&apos; is not valid..
+        /// </summary>
+        public static string DnsSrvInvalidScheme {
+            get {
+                return ResourceManager.GetString("DnsSrvInvalidScheme", resourceCulture);
             }
         }
         
@@ -431,7 +430,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missed required &apos;schema&apos; option..
+        ///   Looks up a localized string similar to Missed required schema option..
         /// </summary>
         public static string MissingSchemaOption {
             get {
@@ -490,6 +489,33 @@ namespace MySql.Data {
         public static string NoPlaceholders {
             get {
                 return ResourceManager.GetString("NoPlaceholders", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection closed. Reason: connection idle was too long.
+        /// </summary>
+        public static string NoticeIdleConnection {
+            get {
+                return ResourceManager.GetString("NoticeIdleConnection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection closed. Reason: connection was killed by a different session.
+        /// </summary>
+        public static string NoticeKilledConnection {
+            get {
+                return ResourceManager.GetString("NoticeKilledConnection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection closed. Reason: server was shutdown.
+        /// </summary>
+        public static string NoticeServerShutdown {
+            get {
+                return ResourceManager.GetString("NoticeServerShutdown", resourceCulture);
             }
         }
         
@@ -557,7 +583,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The server doesn&apos;t support the requested operation. Please update the MySQL Server and/or Client library.
+        ///   Looks up a localized string similar to The server doesn&apos;t support the requested operation. Please update the MySQL Server, client library, or both..
         /// </summary>
         public static string SchemaCreateCollectionMsg {
             get {

@@ -4,6 +4,18 @@
 
 8.0.24
 - Added support for the SASL authentication protocol using the GSSAPI/Kerberos method (WL14210).
+- Added a more descriptive message for when a connection is closed by server due to a timeout (WL14393).
+- Added Support for connection close notification (WL14208).
+- Fixed an error provoked by a duplicate schema name when using Entity Framework (MySQL Bug #101236, Oracle Bug #32358174).
+- Fixed a bug that affected driver performance by incrementing the execution time (MySQL Bug #101714, Oracle Bug #32386454).
+- Removed the "Ignore Prepare" connection string option (Oracle Bug #31872906).
+- Fixed bad handling of NULL values for GUID data type columns (MySQL Bug #101252, Oracle Bug #32049837).
+- Added missing data type mappings to Entity Framework Core projects.(MySQL Bug #102381, Oracle Bug #32424742).
+- Fixed a bug that interpreted the pound symbol in a JSON column incorrectly when using accent sensitive collation (MySQL Bug #102393, Oracle Bug #32429236).
+- Added .NET 4.8 to the non-supported frameworks for using deflate_stream compression algorithm (Oracle Bug #32488373).
+- Added GUID mapping to EntityFrameworkCore (MySQL Bug #93398, Oracle Bug #32173133).
+- Contribution: Added error codes to handle different types of exceptions. (MySQL Bug #101592, Oracle Bug #32150115). Thanks to Stanislav Revin for the contribution.
+- Removed the SSH tunneling feature (WL14562).
 
 
 8.0.23

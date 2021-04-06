@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -245,7 +245,6 @@ namespace MySqlX.Data.Tests
       Assert.Throws<UriFormatException>(() => CheckConnectionData("mysqlx://myuser:password@[(address=fe80::bd41:e449:45ee:2e1a%17,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060));
       CheckConnectionData("mysqlx://myuser@localhost/test", "myuser", "", "localhost", 33060, "database", "test");
       CheckConnectionData("mysqlx://myuser@localhost/test?ssl%20mode=none&connecttimeout=10", "myuser", "", "localhost", 33060, "database", "test", "ssl mode", "None", "connecttimeout", "10");
-      CheckConnectionData("mysqlx+ssh://myuser:password@localhost:33060", "myuser", "password", "localhost", 33060);
       CheckConnectionData("mysqlx://_%21%22%23%24s%26%2F%3D-%25r@localhost", "_!\"#$s&/=-%r", "", "localhost", 33060);
       CheckConnectionData("mysql://myuser@localhost", "", "", "", 33060);
       CheckConnectionData("myuser@localhost", "", "", "", 33060);
@@ -364,8 +363,6 @@ namespace MySqlX.Data.Tests
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "procedurecachesize=50"));
       StringAssert.StartsWith(errorMessage, ex.Message);
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "useperformancemonitor=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
-      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "ignoreprepare=false"));
       StringAssert.StartsWith(errorMessage, ex.Message);
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "respectbinaryflags=true"));
       StringAssert.StartsWith(errorMessage, ex.Message);

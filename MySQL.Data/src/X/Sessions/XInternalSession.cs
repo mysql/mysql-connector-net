@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -67,20 +67,15 @@ namespace MySqlX.Sessions
     /// </summary>
     private XCompressionController _writerCompressionController;
 
-    private XProtocol protocol;
-    private XPacketReaderWriter _reader;
-    private XPacketReaderWriter _writer;
-    private bool serverSupportsTls = false;
+    private XProtocol _protocol;
+    private XPacketReaderWriter _packetReaderWriter;
+    private bool _serverSupportsTls = false;
     private const string mysqlxNamespace = "mysqlx";
     internal bool _supportsPreparedStatements = true;
     private int _stmtId = 0;
     private List<int> _preparedStatements = new List<int>();
-    internal bool? sessionResetNoReauthentication = null;
-
-    /// <summary>
-    /// The used client to handle SSH connections.
-    /// </summary>
-    private Ssh _sshHandler;
+    internal bool? _sessionResetNoReauthentication = null;
+    internal MyNetworkStream _myNetworkStream;
 
     public XInternalSession(MySqlXConnectionStringBuilder settings) : base(settings)
     {
@@ -88,21 +83,6 @@ namespace MySqlX.Sessions
 
     protected override void Open()
     {
-      if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
-      {
-        _sshHandler = new Ssh(
-          Settings.SshHostName,
-          Settings.SshUserName,
-          Settings.SshPassword,
-          Settings.SshKeyFile,
-          Settings.SshPassphrase,
-          Settings.SshPort,
-          Settings.Server,
-          Settings.Port,
-          true);
-        _sshHandler.StartClient();
-      }
-
       bool isUnix = Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix ||
         Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket;
       _stream = MyNetworkStream.CreateStream(
@@ -113,12 +93,12 @@ namespace MySqlX.Sessions
         Settings.Keepalive,
         Settings.Port,
         isUnix);
+      _myNetworkStream = (MyNetworkStream)_stream;
       if (_stream == null)
         throw new MySqlException(ResourcesX.UnableToConnect);
 
-      _reader = new XPacketReaderWriter(_stream);
-      _writer = new XPacketReaderWriter(_stream);
-      protocol = new XProtocol(_reader, _writer);
+      _packetReaderWriter = new XPacketReaderWriter(_stream, _myNetworkStream.Socket);
+      _protocol = new XProtocol(_packetReaderWriter);
 
       Settings.CharacterSet = string.IsNullOrWhiteSpace(Settings.CharacterSet) ? "utf8mb4" : Settings.CharacterSet;
 
@@ -132,18 +112,13 @@ namespace MySqlX.Sessions
       }
       catch (Exception)
       {
-        if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
-        {
-          _sshHandler?.StopClient();
-        }
-
         throw;
       }
 
       // Validates use of TLS.
       if (Settings.SslMode != MySqlSslMode.None)
       {
-        if (serverSupportsTls)
+        if (_serverSupportsTls)
         {
           new Ssl(
               Settings.Server,
@@ -160,16 +135,14 @@ namespace MySqlX.Sessions
 
           if (_readerCompressionController != null && _readerCompressionController.IsCompressionEnabled)
           {
-            _reader = new XPacketReaderWriter(_stream, _readerCompressionController);
-            _writer = new XPacketReaderWriter(_stream, _writerCompressionController);
+            _packetReaderWriter = new XPacketReaderWriter(_stream, _readerCompressionController, _writerCompressionController, _myNetworkStream.Socket);
           }
           else
           {
-            _reader = new XPacketReaderWriter(_stream);
-            _writer = new XPacketReaderWriter(_stream);
+            _packetReaderWriter = new XPacketReaderWriter(_stream, _myNetworkStream.Socket);
           }
 
-          protocol.SetXPackets(_reader, _writer);
+          _protocol.SetXPackets(_packetReaderWriter);
         }
         else
         {
@@ -181,9 +154,8 @@ namespace MySqlX.Sessions
       }
       else if (_readerCompressionController != null && _readerCompressionController.IsCompressionEnabled)
       {
-        _reader = new XPacketReaderWriter(_stream, _readerCompressionController);
-        _writer = new XPacketReaderWriter(_stream, _writerCompressionController);
-        protocol.SetXPackets(_reader, _writer);
+        _packetReaderWriter = new XPacketReaderWriter(_stream, _readerCompressionController, _writerCompressionController, _myNetworkStream.Socket);
+        _protocol.SetXPackets(_packetReaderWriter);
       }
 
       Authenticate();
@@ -196,7 +168,7 @@ namespace MySqlX.Sessions
       // Default authentication
       if (Settings.Auth == MySqlAuthenticationMode.Default)
       {
-        if ((Settings.SslMode != MySqlSslMode.None && serverSupportsTls) || Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix)
+        if ((Settings.SslMode != MySqlSslMode.None && _serverSupportsTls) || Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix)
         {
           Settings.Auth = MySqlAuthenticationMode.PLAIN;
           AuthenticatePlain();
@@ -263,17 +235,17 @@ namespace MySqlX.Sessions
 
     private void GetAndSetCapabilities()
     {
-      protocol.GetServerCapabilities();
+      _protocol.GetServerCapabilities();
       var clientCapabilities = new Dictionary<string, object>();
       Mysqlx.Connection.Capability capability = null;
 
       // Validates TLS use.
       if (Settings.SslMode != MySqlSslMode.None)
       {
-        capability = protocol.Capabilities.Capabilities_.FirstOrDefault(i => i.Name.ToLowerInvariant() == "tls");
+        capability = _protocol.Capabilities.Capabilities_.FirstOrDefault(i => i.Name.ToLowerInvariant() == "tls");
         if (capability != null)
         {
-          serverSupportsTls = true;
+          _serverSupportsTls = true;
           clientCapabilities.Add("tls", "1");
         }
       }
@@ -285,7 +257,7 @@ namespace MySqlX.Sessions
       // Set compression algorithm.
       if (Settings.Compression != CompressionType.Disabled)
       {
-        capability = protocol.Capabilities.Capabilities_.FirstOrDefault(i => i.Name.ToLowerInvariant() == XCompressionController.COMPRESSION_KEY);
+        capability = _protocol.Capabilities.Capabilities_.FirstOrDefault(i => i.Name.ToLowerInvariant() == XCompressionController.COMPRESSION_KEY);
 
         // Raise error if client expects compression but server doesn't support it.
         if (Settings.Compression == CompressionType.Required && capability == null)
@@ -312,8 +284,8 @@ namespace MySqlX.Sessions
               var compressionAlgorithm = compressionCapabilities.First().Value.ToString();
               _readerCompressionController = new XCompressionController((CompressionAlgorithms)Enum.Parse(typeof(CompressionAlgorithms), compressionAlgorithm), false);
               _writerCompressionController = new XCompressionController((CompressionAlgorithms)Enum.Parse(typeof(CompressionAlgorithms), compressionAlgorithm), true);
-              _reader = new XPacketReaderWriter(_stream, _readerCompressionController);
-              _writer = new XPacketReaderWriter(_stream, _writerCompressionController);
+              _packetReaderWriter = new XPacketReaderWriter(_stream, _readerCompressionController, _writerCompressionController, _myNetworkStream.Socket);
+
             }
           }
         }
@@ -321,20 +293,20 @@ namespace MySqlX.Sessions
 
       try
       {
-        protocol.SetCapabilities(clientCapabilities);
+        _protocol.SetCapabilities(clientCapabilities);
       }
       catch (MySqlException ex)
       {
         if (ex.Message == "Capability 'session_connect_attrs' doesn't exist")
           clientCapabilities.Remove("session_connect_attrs");
-        protocol.SetCapabilities(clientCapabilities);
+        _protocol.SetCapabilities(clientCapabilities);
       }
     }
 
     /// <summary>
     /// Reorder the list of algorithms retrieved from server to the preferred order
     /// </summary>
-    private void VerifyDefaultOrder (ref string[] algorithms)
+    private void VerifyDefaultOrder(ref string[] algorithms)
     {
       var clientSupportedAlgorithms = Enum.GetNames(typeof(CompressionAlgorithms));
       List<string> output = new List<string>();
@@ -362,7 +334,7 @@ namespace MySqlX.Sessions
       }
       var elements = inputString.ToLowerInvariant().Split(',');
       List<string> ret = new List<string>();
-      for (var i=0; i<elements.Length;i++)
+      for (var i = 0; i < elements.Length; i++)
       {
         switch (elements[i].ToLowerInvariant())
         {
@@ -377,8 +349,8 @@ namespace MySqlX.Sessions
 
           case "deflate":
           case "deflate_stream":
-#if NET452
-            if (elements.Length==1 && Settings.Compression == CompressionType.Required)
+#if NETFRAMEWORK
+            if (elements.Length == 1 && Settings.Compression == CompressionType.Required)
             {
               throw new NotSupportedException(string.Format(ResourcesX.CompressionForSpecificAlgorithmNotSupportedInNetFramework, elements[i]));
             }
@@ -401,11 +373,11 @@ namespace MySqlX.Sessions
     /// </summary>
     /// <param name="serverSupportedAlgorithms">An array containing the compression algorithms supported by the server.</param>
     /// <param name="clientAgainstUserAlgorithms">An array containing the compression algorithms given by user/client.</param>
-    private Dictionary<string, object> NegotiateCompression(string[] serverSupportedAlgorithms,string[] clientAgainstUserAlgorithms)
+    private Dictionary<string, object> NegotiateCompression(string[] serverSupportedAlgorithms, string[] clientAgainstUserAlgorithms)
     {
       if (serverSupportedAlgorithms == null || serverSupportedAlgorithms.Length == 0)
       {
-        if (Settings.Compression == CompressionType.Required && clientAgainstUserAlgorithms.Length>0)
+        if (Settings.Compression == CompressionType.Required && clientAgainstUserAlgorithms.Length > 0)
         {
           throw new NotSupportedException(ResourcesX.CompressionAlgorithmNegotiationFailed);
         }
@@ -416,7 +388,7 @@ namespace MySqlX.Sessions
       // or raise an exception based on the selected compression type.
       XCompressionController.LoadLibzstdLibrary();
       if (!clientAgainstUserAlgorithms.Any(element => serverSupportedAlgorithms.Contains(element)))
-        {
+      {
         if (Settings.Compression == CompressionType.Preferred)
         {
           MySqlTrace.LogWarning(-1, ResourcesX.CompressionAlgorithmNegotiationFailed);
@@ -429,9 +401,9 @@ namespace MySqlX.Sessions
       }
 
       string negotiatedAlgorithm = null;
-      for (int index = 0; index < clientAgainstUserAlgorithms.Length ; index++)
+      for (int index = 0; index < clientAgainstUserAlgorithms.Length; index++)
       {
-       if (!serverSupportedAlgorithms.Contains(clientAgainstUserAlgorithms[index]))
+        if (!serverSupportedAlgorithms.Contains(clientAgainstUserAlgorithms[index]))
         {
           continue;
         }
@@ -502,31 +474,31 @@ namespace MySqlX.Sessions
     private void AuthenticateMySQL41()
     {
       MySQL41AuthenticationPlugin plugin = new MySQL41AuthenticationPlugin(Settings);
-      protocol.SendAuthStart(plugin.AuthName, null, null);
-      byte[] extraData = protocol.ReadAuthContinue();
-      protocol.SendAuthContinue(plugin.Continue(extraData));
-      protocol.ReadAuthOk();
+      _protocol.SendAuthStart(plugin.AuthName, null, null);
+      byte[] extraData = _protocol.ReadAuthContinue();
+      _protocol.SendAuthContinue(plugin.Continue(extraData));
+      _protocol.ReadAuthOk();
     }
 
     private void AuthenticatePlain()
     {
       PlainAuthenticationPlugin plugin = new PlainAuthenticationPlugin(Settings);
-      protocol.SendAuthStart(plugin.AuthName, plugin.GetAuthData(), null);
-      protocol.ReadAuthOk();
+      _protocol.SendAuthStart(plugin.AuthName, plugin.GetAuthData(), null);
+      _protocol.ReadAuthOk();
     }
 
     private void AuthenticateExternal()
     {
       ExternalAuthenticationPlugin plugin = new ExternalAuthenticationPlugin(Settings);
-      protocol.SendAuthStart(plugin.AuthName, Encoding.UTF8.GetBytes(""), null);
-      protocol.ReadAuthOk();
+      _protocol.SendAuthStart(plugin.AuthName, Encoding.UTF8.GetBytes(""), null);
+      _protocol.ReadAuthOk();
     }
 
     private void AuthenticateSha256Memory()
     {
       Sha256MemoryAuthenticationPlugin plugin = new Sha256MemoryAuthenticationPlugin();
-      protocol.SendAuthStart(plugin.PluginName, null, null);
-      byte[] nonce = protocol.ReadAuthContinue();
+      _protocol.SendAuthStart(plugin.PluginName, null, null);
+      byte[] nonce = _protocol.ReadAuthContinue();
 
       string data = $"{Settings.Database}\0{Settings.UserID}\0";
       byte[] byteData = Encoding.UTF8.GetBytes(data);
@@ -535,8 +507,8 @@ namespace MySqlX.Sessions
       byteData.CopyTo(authData, 0);
       clientHash.CopyTo(authData, byteData.Length);
 
-      protocol.SendAuthContinue(authData);
-      protocol.ReadAuthOk();
+      _protocol.SendAuthContinue(authData);
+      _protocol.ReadAuthOk();
     }
 
     protected internal void SetState(SessionState newState, bool broadcast)
@@ -553,7 +525,7 @@ namespace MySqlX.Sessions
 
     internal override ProtocolBase GetProtocol()
     {
-      return protocol;
+      return _protocol;
     }
 
     public override void Close()
@@ -569,7 +541,10 @@ namespace MySqlX.Sessions
           // Deallocate all the remaining prepared statements for current session.
           foreach (int stmtId in _preparedStatements)
           {
-            DeallocatePreparedStatement(stmtId);
+            if (!_myNetworkStream.IsSocketClosed)
+            {
+              DeallocatePreparedStatement(stmtId);
+            }
             _preparedStatements.Remove(stmtId);
           }
         }
@@ -577,15 +552,14 @@ namespace MySqlX.Sessions
         {
           //TODO log exception
         }
-        protocol.SendSessionClose();
+
+        if (!_myNetworkStream.IsSocketClosed)
+        {
+          _protocol.SendSessionClose();
+        }
       }
       finally
       {
-        if (Settings.ConnectionProtocol == MySqlConnectionProtocol.Tcp && Settings.IsSshEnabled())
-        {
-          _sshHandler?.StopClient();
-        }
-
         SessionState = SessionState.Closed;
         _stream.Dispose();
       }
@@ -629,7 +603,7 @@ namespace MySqlX.Sessions
         new KeyValuePair<string, object>("name", collectionName),
         new KeyValuePair<string, object>("reuse_existing", options.ReuseExisting),
         new KeyValuePair<string, object>("options", dictionary)
-        ) ;
+        );
     }
 
     /// <summary>
@@ -726,7 +700,7 @@ namespace MySqlX.Sessions
       }
       catch (MySqlException ex) when (ex.Code == 1146)
       {
-        throw new MySqlException(string.Format(ResourcesX.CollectionTableDoesNotExist, type.ToString(), name, schema.Name));
+        throw new MySqlException(string.Format(ResourcesX.CollectionTableDoesNotExist, type.ToString(), name, schema.Name), (int)ex.Code);
       }
     }
 
@@ -740,19 +714,19 @@ namespace MySqlX.Sessions
 
     private Result ExecuteCmdNonQuery(string cmd, bool throwOnFail, params KeyValuePair<string, object>[] args)
     {
-      protocol.SendExecuteStatement(mysqlxNamespace, cmd, args);
+      _protocol.SendExecuteStatement(mysqlxNamespace, cmd, args);
       return new Result(this);
     }
 
     private Result ExecuteCmdNonQueryOptions(string cmd, bool throwOnFail, params KeyValuePair<string, object>[] args)
     {
-      protocol.SendExecuteStatementOptions(mysqlxNamespace, cmd, args);
+      _protocol.SendExecuteStatementOptions(mysqlxNamespace, cmd, args);
       return new Result(this);
     }
 
     private Result ExecuteCreateCollectionIndex(string cmd, bool throwOnFail, params KeyValuePair<string, object>[] args)
     {
-      protocol.SendCreateCollectionIndexStatement(mysqlxNamespace, cmd, args);
+      _protocol.SendCreateCollectionIndexStatement(mysqlxNamespace, cmd, args);
       return new Result(this);
     }
 
@@ -806,25 +780,25 @@ namespace MySqlX.Sessions
 
     public RowResult GetRowResult(string cmd, params KeyValuePair<string, object>[] args)
     {
-      protocol.SendExecuteStatement(mysqlxNamespace, cmd, args);
+      _protocol.SendExecuteStatement(mysqlxNamespace, cmd, args);
       return new RowResult(this);
     }
 
     public Result Insert(Collection collection, DbDoc[] json, List<string> newIds, bool upsert)
     {
-      protocol.SendInsert(collection.Schema.Name, false, collection.Name, json, null, upsert);
+      _protocol.SendInsert(collection.Schema.Name, false, collection.Name, json, null, upsert);
       return new Result(this);
     }
 
     public Result DeleteDocs(RemoveStatement rs)
     {
-      protocol.SendDelete(rs.Target.Schema.Name, rs.Target.Name, false, rs.FilterData);
+      _protocol.SendDelete(rs.Target.Schema.Name, rs.Target.Name, false, rs.FilterData);
       return new Result(this);
     }
 
     public Result DeleteRows(TableDeleteStatement statement)
     {
-      protocol.SendDelete(statement.Target.Schema.Name,
+      _protocol.SendDelete(statement.Target.Schema.Name,
         statement.Target.Name, true,
         statement.FilterData);
       return new Result(this);
@@ -832,13 +806,13 @@ namespace MySqlX.Sessions
 
     public Result ModifyDocs(ModifyStatement ms)
     {
-      protocol.SendUpdate(ms.Target.Schema.Name, ms.Target.Name, false, ms.FilterData, ms.Updates);
+      _protocol.SendUpdate(ms.Target.Schema.Name, ms.Target.Name, false, ms.FilterData, ms.Updates);
       return new Result(this);
     }
 
     public Result UpdateRows(TableUpdateStatement statement)
     {
-      protocol.SendUpdate(statement.Target.Schema.Name,
+      _protocol.SendUpdate(statement.Target.Schema.Name,
         statement.Target.Name, true,
         statement.FilterData,
         statement.updates);
@@ -847,26 +821,26 @@ namespace MySqlX.Sessions
 
     public DocResult FindDocs(FindStatement fs)
     {
-      protocol.SendFind(fs.Target.Schema.Name, fs.Target.Name, false, fs.FilterData, fs.findParams);
+      _protocol.SendFind(fs.Target.Schema.Name, fs.Target.Name, false, fs.FilterData, fs.findParams);
       DocResult result = new DocResult(this);
       return result;
     }
 
     public RowResult FindRows(TableSelectStatement ss)
     {
-      protocol.SendFind(ss.Target.Schema.Name, ss.Target.Name, true, ss.FilterData, ss.findParams);
+      _protocol.SendFind(ss.Target.Schema.Name, ss.Target.Name, true, ss.FilterData, ss.findParams);
       return new RowResult(this);
     }
 
     public Result InsertRows(TableInsertStatement statement)
     {
-      protocol.SendInsert(statement.Target.Schema.Name, true, statement.Target.Name, statement.values.ToArray(), statement.fields, false);
+      _protocol.SendInsert(statement.Target.Schema.Name, true, statement.Target.Name, statement.values.ToArray(), statement.fields, false);
       return new Result(this);
     }
 
     protected Result ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key condition, object value = null)
     {
-      protocol.SendExpectOpen(condition, value);
+      _protocol.SendExpectOpen(condition, value);
       return new Result(this);
     }
 
@@ -877,20 +851,28 @@ namespace MySqlX.Sessions
 
     public void ResetSession()
     {
-      if (sessionResetNoReauthentication == null)
+      if (_sessionResetNoReauthentication == null)
+      {
         try
         {
-          ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key.ExpectFieldExist, "6.1");
-          sessionResetNoReauthentication = true;
+          if (!_myNetworkStream.IsSocketClosed)
+          {
+            ExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key.ExpectFieldExist, "6.1");
+          }
+          _sessionResetNoReauthentication = true;
         }
         catch
         {
-          sessionResetNoReauthentication = false;
+          _sessionResetNoReauthentication = false;
         }
+      }
 
-      protocol.SendResetSession((bool)sessionResetNoReauthentication);
-      protocol.ReadOk();
-      //return new Result(this);
+      if (!_myNetworkStream.IsSocketClosed)
+      {
+        _protocol.SendResetSession((bool)_sessionResetNoReauthentication);
+        _protocol.ReadOk();
+      }
+
     }
 
     public int PrepareStatement<TResult>(BaseStatement<TResult> statement)
@@ -902,7 +884,7 @@ namespace MySqlX.Sessions
         case nameof(FindStatement):
           FindStatement fs = statement as FindStatement;
           Debug.Assert(fs != null);
-          protocol.SendPrepareStatement(
+          _protocol.SendPrepareStatement(
             (uint)stmtId,
             DataAccess.PreparedStatementType.Find,
             fs.Target.Schema.Name,
@@ -915,7 +897,7 @@ namespace MySqlX.Sessions
         case nameof(TableSelectStatement):
           TableSelectStatement ss = statement as TableSelectStatement;
           Debug.Assert(ss != null);
-          protocol.SendPrepareStatement(
+          _protocol.SendPrepareStatement(
             (uint)stmtId,
             DataAccess.PreparedStatementType.Find,
             ss.Target.Schema.Name,
@@ -928,7 +910,7 @@ namespace MySqlX.Sessions
         case nameof(ModifyStatement):
           ModifyStatement ms = statement as ModifyStatement;
           Debug.Assert(ms != null);
-          protocol.SendPrepareStatement(
+          _protocol.SendPrepareStatement(
             (uint)stmtId,
             DataAccess.PreparedStatementType.Update,
             ms.Target.Schema.Name,
@@ -942,7 +924,7 @@ namespace MySqlX.Sessions
         case nameof(TableUpdateStatement):
           TableUpdateStatement us = statement as TableUpdateStatement;
           Debug.Assert(us != null);
-          protocol.SendPrepareStatement(
+          _protocol.SendPrepareStatement(
             (uint)stmtId,
             DataAccess.PreparedStatementType.Update,
             us.Target.Schema.Name,
@@ -956,7 +938,7 @@ namespace MySqlX.Sessions
         case nameof(RemoveStatement):
           RemoveStatement rs = statement as RemoveStatement;
           Debug.Assert(rs != null);
-          protocol.SendPrepareStatement(
+          _protocol.SendPrepareStatement(
             (uint)stmtId,
             DataAccess.PreparedStatementType.Delete,
             rs.Target.Schema.Name,
@@ -969,7 +951,7 @@ namespace MySqlX.Sessions
         case nameof(TableDeleteStatement):
           TableDeleteStatement ds = statement as TableDeleteStatement;
           Debug.Assert(ds != null);
-          protocol.SendPrepareStatement(
+          _protocol.SendPrepareStatement(
             (uint)stmtId,
             DataAccess.PreparedStatementType.Delete,
             ds.Target.Schema.Name,
@@ -982,7 +964,7 @@ namespace MySqlX.Sessions
         case nameof(TableInsertStatement):
           TableInsertStatement insert = statement as TableInsertStatement;
           Debug.Assert(insert != null);
-          protocol.SendPrepareStatement(
+          _protocol.SendPrepareStatement(
             (uint)stmtId,
             DataAccess.PreparedStatementType.Insert,
             insert.Target.Schema.Name,
@@ -999,7 +981,7 @@ namespace MySqlX.Sessions
         case nameof(SqlStatement):
           SqlStatement sqlStatement = statement as SqlStatement;
           Debug.Assert(sqlStatement != null);
-          protocol.SendPrepareStatement(
+          _protocol.SendPrepareStatement(
             (uint)stmtId,
             DataAccess.PreparedStatementType.SqlStatement,
             null,
@@ -1024,7 +1006,7 @@ namespace MySqlX.Sessions
     public TResult ExecutePreparedStatement<TResult>(int stmtId, IEnumerable args)
       where TResult : BaseResult
     {
-      protocol.SendExecutePreparedStatement((uint)stmtId, args);
+      _protocol.SendExecutePreparedStatement((uint)stmtId, args);
       BaseResult result = null;
       if (typeof(TResult) == typeof(DocResult))
         result = new DocResult(this);
@@ -1042,7 +1024,7 @@ namespace MySqlX.Sessions
 
     public void DeallocatePreparedStatement(int stmtId)
     {
-      protocol.SendDeallocatePreparedStatement((uint)stmtId);
+      _protocol.SendDeallocatePreparedStatement((uint)stmtId);
       _preparedStatements.Remove(stmtId);
     }
 

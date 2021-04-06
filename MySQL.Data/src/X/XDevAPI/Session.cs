@@ -28,6 +28,7 @@
 
 
 using System;
+using System.Linq;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.Sessions;
@@ -85,6 +86,19 @@ namespace MySqlX.XDevAPI
     {
       string schemaName = (string)InternalSession.ExecuteQueryAsScalar("SELECT DATABASE()");
       return schemaName == null ? null : GetSchema(schemaName);
+    }
+
+    /// <summary>
+    /// Closes the current session properly after it was closed by the server.
+    /// </summary>
+    internal static void ThrowSessionClosedByServerException(MySqlException ex, BaseSession session)
+    {
+      var closeCodes = ((CloseNotification[])Enum.GetValues(typeof(CloseNotification))).Select(c => (uint)c).ToList();
+      if (closeCodes.Contains((uint)ex.Number))
+      {
+        session.Close();
+        throw ex;
+      }
     }
   }
 }

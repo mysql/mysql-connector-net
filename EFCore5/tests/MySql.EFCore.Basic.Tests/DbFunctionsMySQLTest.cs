@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2020, 2021, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,6 +37,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 {
   public class DbFunctionsMySQLTest
   {
+    DateTime lastUpdate = new DateTime(2006, 02, 15, 04, 34, 33); // same date for all data (taken from ActorData)
+
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
@@ -62,8 +64,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     {
       using (var context = new SakilaLiteContext())
       {
-        var count = context.Actor
-            .Count(a => EF.Functions.DateDiffYear(a.LastUpdate, DateTime.Now) == 14);
+        var yearsDiff = DateTime.Now.Year - lastUpdate.Year;
+        var count = context.Actor.Count(a => EF.Functions.DateDiffYear(a.LastUpdate, DateTime.Now) == yearsDiff);
 
         Assert.AreEqual(200, count);
       }
@@ -74,10 +76,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     {
       using (var context = new SakilaLiteContext())
       {
+        var monthsDiff = ((DateTime.Now.Year - lastUpdate.Year) * 12) + DateTime.Now.Month - lastUpdate.Month;
         var count = context.Actor
-            .Count(a => EF.Functions.DateDiffMonth(a.LastUpdate, DateTime.Now) == 0);
+            .Count(a => EF.Functions.DateDiffMonth(a.LastUpdate, DateTime.Now) >= monthsDiff - 1);
 
-        Assert.AreEqual(0, count);
+        Assert.AreEqual(200, count);
       }
     }
 
@@ -86,10 +89,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     {
       using (var context = new SakilaLiteContext())
       {
+        var daysDiff = (int)(DateTime.Now - lastUpdate).TotalDays;
         var count = context.Actor
-            .Count(a => EF.Functions.DateDiffDay(a.LastUpdate, DateTime.Now) == 0);
+            .Count(a => EF.Functions.DateDiffDay(a.LastUpdate, DateTime.Now) == daysDiff);
 
-        Assert.AreEqual(0, count);
+        Assert.AreEqual(200, count, "TotalDays: " + daysDiff);
       }
     }
 
@@ -98,22 +102,24 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     {
       using (var context = new SakilaLiteContext())
       {
+        var hoursDiff = (int)(DateTime.Now - lastUpdate).TotalHours;
         var count = context.Actor
-            .Count(a => EF.Functions.DateDiffHour(a.LastUpdate, DateTime.Now) == 0);
+            .Count(a => EF.Functions.DateDiffHour(a.LastUpdate, DateTime.Now) == hoursDiff);
 
-        Assert.AreEqual(0, count);
+        Assert.AreEqual(200, count, "TotalHours: " + hoursDiff);
       }
     }
 
     [Test]
-    public void DateDiffMinute ()
+    public void DateDiffMinute()
     {
       using (var context = new SakilaLiteContext())
       {
+        var minutesDiff = (int)(DateTime.Now - lastUpdate).TotalMinutes;
         var count = context.Actor
-            .Count(a => EF.Functions.DateDiffMinute(a.LastUpdate, DateTime.Now) == 0);
+            .Count(a => EF.Functions.DateDiffMinute(a.LastUpdate, DateTime.Now) == minutesDiff);
 
-        Assert.AreEqual(0, count);
+        Assert.AreEqual(200, count, "TotalMinutes: " + minutesDiff);
       }
     }
 
@@ -122,10 +128,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     {
       using (var context = new SakilaLiteContext())
       {
+        var secondsDiff = (int)(DateTime.Now - lastUpdate).TotalSeconds;
         var count = context.Actor
-            .Count(a => EF.Functions.DateDiffSecond(a.LastUpdate, DateTime.Now) == 0);
+            .Count(a => EF.Functions.DateDiffSecond(a.LastUpdate, DateTime.Now) >= secondsDiff);
 
-        Assert.AreEqual(0, count);
+        Assert.AreEqual(200, count, "TotalSeconds: " + secondsDiff);
       }
     }
 

@@ -5,7 +5,7 @@
     <Description>MySql.Data.MySqlClient .Net Core Class Library</Description>
     <Copyright>Copyright (c) 2016, 2021, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.23</Version>
+    <Version>8.0.24</Version>
     <Authors>Oracle</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
     <TargetFrameworks>net452;net48;netstandard2.0;netstandard2.1;net5.0;</TargetFrameworks>
@@ -29,7 +29,7 @@
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
     <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
-    <NoWarn>CS1591,CS1587,CS1574,CS1570</NoWarn>
+    <NoWarn>CS1591,CS1587,CS1574,CS1570,SYSLIB0003,CA1416</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,11 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.11.4" />
+    <PackageReference Include="Google.Protobuf" Version="3.14.0" />
     <PackageReference Include="K4os.Compression.LZ4" Version="1.1.11" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.1.11" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.6" />
-    <PackageReference Include="SSH.NET" Version="2020.0.0-beta1" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
   </ItemGroup>
 
@@ -76,7 +75,6 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Management" />
-    <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Zstandard.Net">
       <HintPath>..\..\Dependencies\Zstandard\NetFramework\Zstandard.Net.dll</HintPath>

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,6 +32,7 @@ using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
 using MySql.Data;
+using System.Linq;
 
 namespace MySqlX.XDevAPI
 {
@@ -60,8 +61,26 @@ namespace MySqlX.XDevAPI
     /// <returns>A <see cref="Collection"/> list representing all found collections.</returns>
     public List<Collection> GetCollections()
     {
-      ValidateOpenSession();
-      return Session.XSession.GetObjectList<Collection>(this, "COLLECTION");
+      List<Collection> result = null;
+      try
+      {
+        ValidateOpenSession();
+        result = Session.XSession.GetObjectList<Collection>(this, "COLLECTION");
+      }
+      catch (MySqlException ex)
+      {
+        switch (ex.Number)
+        {
+          case (int)CloseNotification.IDLE:
+          case (int)CloseNotification.KILLED:
+          case (int)CloseNotification.SHUTDOWN:
+            XDevAPI.Session.ThrowSessionClosedByServerException(ex, Session);
+            break;
+          default:
+            throw;
+        }
+      }
+      return result;
     }
 
     /// <summary>
@@ -70,8 +89,26 @@ namespace MySqlX.XDevAPI
     /// <returns>A <see cref="Table"/> list representing all found tables.</returns>
     public List<Table> GetTables()
     {
-      ValidateOpenSession();
-      return Session.XSession.GetObjectList<Table>(this, "TABLE", "VIEW");
+      List<Table> result = null;
+      try
+      {
+        ValidateOpenSession();
+        result = Session.XSession.GetObjectList<Table>(this, "TABLE", "VIEW");
+      }
+      catch (MySqlException ex)
+      {
+        switch (ex.Number)
+        {
+          case (int)CloseNotification.IDLE:
+          case (int)CloseNotification.KILLED:
+          case (int)CloseNotification.SHUTDOWN:
+            XDevAPI.Session.ThrowSessionClosedByServerException(ex, Session);
+            break;
+          default:
+            throw;
+        }
+      }
+      return result;
     }
 
     #endregion
@@ -153,11 +190,15 @@ namespace MySqlX.XDevAPI
           Session.XSession.CreateCollection(Name, collectionName);
         }
       }
+      catch (MySqlException ex) when (ex.Number == (int)CloseNotification.IDLE || ex.Number == (int)CloseNotification.KILLED || ex.Number == (int)CloseNotification.SHUTDOWN)
+      {
+        XDevAPI.Session.ThrowSessionClosedByServerException(ex, Session);
+      }
       catch (MySqlException ex) when (ex.Code == 1050)
       {
         if (ReuseExisting)
           return coll;
-        throw ex;
+        throw;
       }
       return new Collection(this, collectionName);
     }
@@ -172,12 +213,16 @@ namespace MySqlX.XDevAPI
     public Collection CreateCollection(string collectionName, CreateCollectionOptions options)
     {
       ValidateOpenSession();
-      Collection coll = new Collection(this, collectionName);
+      Collection coll = null;
 
       try
       {
+        coll = new Collection(this, collectionName);
         Session.XSession.CreateCollection(Name, collectionName, options);
-        return new Collection(this, collectionName);
+      }
+      catch (MySqlException ex) when (ex.Number == (int)CloseNotification.IDLE || ex.Number == (int)CloseNotification.KILLED || ex.Number == (int)CloseNotification.SHUTDOWN)
+      {
+        XDevAPI.Session.ThrowSessionClosedByServerException(ex, Session);
       }
       catch (MySqlException ex_1) when(ex_1.Code==5015)
       {
@@ -188,12 +233,13 @@ namespace MySqlX.XDevAPI
       {
         if (options.ReuseExisting)
           return coll;
-        throw ex;
+        throw;
       }
-      catch (MySqlException ex)
+      catch (MySqlException)
       {
-        throw ex;
+        throw;
       }
+      return coll;
     }
 
     /// <summary>
@@ -205,20 +251,26 @@ namespace MySqlX.XDevAPI
     public Collection ModifyCollection(string collectionName, ModifyCollectionOptions? options)
     {
       ValidateOpenSession();
+      Collection result = null;
       try
       {
         Session.XSession.ModifyCollection(Name, collectionName, options);
-        return new Collection(this, collectionName);
+        result = new Collection(this, collectionName);
+      }
+      catch (MySqlException ex) when (ex.Number == (int)CloseNotification.IDLE || ex.Number == (int)CloseNotification.KILLED || ex.Number == (int)CloseNotification.SHUTDOWN)
+      {
+        XDevAPI.Session.ThrowSessionClosedByServerException(ex, Session);
       }
       catch (MySqlException ex_1) when (ex_1.Code == 5157)
       {
         var msg = string.Format("{0}{1}{2}", ex_1.Message, ", ", ResourcesX.SchemaCreateCollectionMsg);
         throw new MySqlException(msg);
       }
-      catch (MySqlException ex)
+      catch (MySqlException)
       {
-        throw ex;
+        throw;
       }
+      return result;
     }
 
     #endregion
@@ -231,10 +283,26 @@ namespace MySqlX.XDevAPI
     public void DropCollection(string name)
     {
       if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-      ValidateOpenSession();
-      Collection c = GetCollection(name);
-      if (!c.ExistsInDatabase()) return;
-      Session.XSession.DropCollection(Name, name);
+      try
+      {
+        ValidateOpenSession();
+        Collection c = GetCollection(name);
+        if (!c.ExistsInDatabase()) return;
+        Session.XSession.DropCollection(Name, name);
+      }
+      catch (MySqlException ex)
+      {
+        switch (ex.Number)
+        {
+          case (int)CloseNotification.IDLE:
+          case (int)CloseNotification.KILLED:
+          case (int)CloseNotification.SHUTDOWN:
+            XDevAPI.Session.ThrowSessionClosedByServerException(ex, Session);
+            break;
+          default:
+            throw;
+        }
+      }
     }
 
     #region Base Class
@@ -245,10 +313,28 @@ namespace MySqlX.XDevAPI
     /// <returns>True if exists, false otherwise.</returns>
     public override bool ExistsInDatabase()
     {
-      ValidateOpenSession();
-      string sql = String.Format("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name like '{0}'", Name);
-      long count = (long)Session.InternalSession.ExecuteQueryAsScalar(sql);
-      return count > 0;
+      bool result = false;
+      try
+      {
+        ValidateOpenSession();
+        string sql = String.Format("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name like '{0}'", Name);
+        long count = (long)Session.InternalSession.ExecuteQueryAsScalar(sql);
+        result = count > 0;
+      }
+      catch (MySqlException ex)
+      {
+        switch (ex.Number)
+        {
+          case (int)CloseNotification.IDLE:
+          case (int)CloseNotification.KILLED:
+          case (int)CloseNotification.SHUTDOWN:
+            XDevAPI.Session.ThrowSessionClosedByServerException(ex, Session);
+            break;
+          default:
+            throw;
+        }
+      }
+      return result;
     }
 
     #endregion

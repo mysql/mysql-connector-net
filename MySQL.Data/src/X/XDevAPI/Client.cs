@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,6 +37,7 @@ using System.Reflection;
 using System.Threading;
 using MySql.Data.Failover;
 using MySql.Data.Common;
+using System.Net.Sockets;
 
 namespace MySqlX.XDevAPI
 {
@@ -245,10 +246,17 @@ namespace MySqlX.XDevAPI
         {
           try
           {
-            session.Reset();
-            if (session.XSession.sessionResetNoReauthentication == false)
-              session.XSession.Authenticate();
-            session.XSession.SetState(SessionState.Open, false);
+            if (!session.XSession._myNetworkStream.IsSocketClosed)
+            {
+              session.Reset();
+              if (session.XSession._sessionResetNoReauthentication == false)
+                session.XSession.Authenticate();
+              session.XSession.SetState(SessionState.Open, false);
+            }
+            else
+            {
+              session = CreateNewSession();
+            }
           }
           catch
           {

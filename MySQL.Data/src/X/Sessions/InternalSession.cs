@@ -125,7 +125,6 @@ namespace MySqlX.Sessions
     {
       if (!session.GetServerVersion().isAtLeast(8, 0, 1)) return;
 
-      session.GetSqlRowResult("SHOW CHARSET WHERE Charset='" + charset + "'");
       RowResult result = session.GetSqlRowResult("SHOW CHARSET WHERE Charset='" + charset + "'");
       var row = result.FetchOne();
       if (row != null)

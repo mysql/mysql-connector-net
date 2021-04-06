@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -514,6 +514,29 @@ namespace MySql.Data.MySqlClient.Tests
           cmd.CommandType = CommandType.StoredProcedure;
           var result = cmd.ExecuteNonQuery();
           Assert.AreEqual(0, result);
+        }
+      }
+    }
+
+    /// <summary>
+    /// Bug #32429236 - POUND SYMBOL (£) IN JSON COLUMN USING UTF8MB4_0900_AS_CI COLLATION BUG
+    /// this scenario bug was raised when the server starts with option "--collation-server=utf8mb4_0900_as_ci"
+    /// </summary>
+    [Test]
+    public void PoundSymbolInJsonColumn()
+    {
+      if (Version < new Version(5, 7, 0)) Assert.Ignore("JSON data type not available in MySQL Server v5.6");
+
+      ExecuteSQL("CREATE TABLE `PoundTable`(`TextColumn` VARCHAR(20) NULL, `JsonColumn` JSON);");
+      ExecuteSQL("INSERT INTO `PoundTable`(`TextColumn`, `JsonColumn`) VALUES('£', JSON_OBJECT('Value', '£'));");
+
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM `PoundTable`", Connection);
+      using (var reader = cmd.ExecuteReader())
+      {
+        while (reader.Read())
+        {
+          StringAssert.AreEqualIgnoringCase("£", reader[0].ToString());
+          StringAssert.AreEqualIgnoringCase("{\"Value\": \"£\"}", reader[1].ToString());
         }
       }
     }

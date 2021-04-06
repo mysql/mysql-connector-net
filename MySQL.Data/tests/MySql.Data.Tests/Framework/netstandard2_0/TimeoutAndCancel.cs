@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -111,9 +111,12 @@ namespace MySql.Data.MySqlClient.Tests
           cmd.CommandText = "SELECT now()";
           cmd.ExecuteScalar();
         }
-        catch (Exception ex)
+        catch (MySqlException ex)
         {
-          StringAssert.StartsWith("Fatal", ex.Message);
+          if (Version < new Version("8.0.24"))
+            StringAssert.StartsWith("Fatal", ex.Message);
+          else
+            StringAssert.StartsWith("The client was disconnected", ex.Message);
         }
 
         Assert.AreEqual(1, stateChangeCount);

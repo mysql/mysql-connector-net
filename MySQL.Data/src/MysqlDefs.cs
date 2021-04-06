@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -523,9 +523,30 @@ namespace MySql.Data.MySqlClient
     zstd_stream,
     lz4_message,
     // deflate_stream is not supported in .NET Framework.
-#if !NET452
+#if !NETFRAMEWORK
     deflate_stream
 #endif
+  }
+
+  /// <summary>
+  /// The warnings that cause a connection to close.
+  /// </summary>
+  public enum CloseNotification
+  {
+    IDLE = 1810,
+    SHUTDOWN = 1053,
+    KILLED = 3169
+  }
+
+  public enum MySQLGuidFormat
+  {
+    Default = 0,
+    None = 1,
+    Char36 = 2,
+    Char32 = 3,
+    Binary16 = 4,
+    TimeSwapBinary16 = 5,
+    LittleEndianBinary16 = 6
   }
 
   internal class MySqlConnectAttrs

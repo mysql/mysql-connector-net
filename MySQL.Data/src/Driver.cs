@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -142,7 +142,7 @@ namespace MySql.Data.MySqlClient
       catch (TypeInitializationException ex)
       {
         if (!(ex.InnerException is SecurityException))
-          throw ex;
+          throw;
         //Only rethrow if InnerException is not a SecurityException. If it is a SecurityException then 
         //we couldn't initialize MySqlTrace because we don't have unmanaged code permissions. 
       }

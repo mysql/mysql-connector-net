@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,9 +28,8 @@
 
 using System;
 using System.IO;
-using System.Diagnostics;
+using System.Net.Sockets;
 using System.Text;
-using MySql.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
@@ -47,6 +46,8 @@ namespace MySql.Data.MySqlClient
     TimedStream timedStream;
     Stream inStream;
     Stream outStream;
+    Socket socket;
+    public Socket Socket { get =>socket; set=>socket=value; }
 
     internal Stream BaseStream
     {
@@ -69,7 +70,7 @@ namespace MySql.Data.MySqlClient
       packet = new MySqlPacket(encoding);
     }
 
-    public MySqlStream(Stream baseStream, Encoding encoding, bool compress)
+    public MySqlStream(Stream baseStream, Encoding encoding, bool compress, Socket pSocket=null)
       : this(encoding)
     {
       timedStream = new TimedStream(baseStream);
@@ -81,6 +82,7 @@ namespace MySql.Data.MySqlClient
 
       inStream = stream;
       outStream = stream;
+      socket = pSocket;
     }
 
     public void Close()
@@ -156,7 +158,14 @@ namespace MySql.Data.MySqlClient
           msg.Substring(1, 5);  /* state code */
           msg = msg.Substring(6);
         }
-        throw new MySqlException(msg, code);
+
+        switch (code)
+        {
+          case 4031:
+            throw new MySqlException(msg, code, true);
+          default:
+            throw new MySqlException(msg, code);
+        }
       }
       return packet;
     }
@@ -234,7 +243,10 @@ namespace MySql.Data.MySqlClient
         buffer[offset + 1] = (byte)((lenToSend >> 8) & 0xff);
         buffer[offset + 2] = (byte)((lenToSend >> 16) & 0xff);
         buffer[offset + 3] = sequenceByte++;
-
+        if (Socket != null && Socket.Available > 0)
+        {
+          ReadPacket();
+        }
         outStream.Write(buffer, offset, lenToSend + 4);
         outStream.Flush();
         length -= lenToSend;

@@ -70,23 +70,23 @@ namespace MySql.Data.Common
         Keepalive = keepalive,
         ConnectionTimeout = timeout
       };
-
-      return GetStream(settings);
+      MyNetworkStream networkStream=null;
+      return GetStream(settings,ref networkStream);
     }
 
-    public static Stream GetStream(MySqlConnectionStringBuilder settings)
+    public static Stream GetStream(MySqlConnectionStringBuilder settings,ref MyNetworkStream networkStream)
     {
       switch (settings.ConnectionProtocol)
       {
-        case MySqlConnectionProtocol.Tcp: return GetTcpStream(settings);
-        case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings);
+        case MySqlConnectionProtocol.Tcp: return GetTcpStream(settings ,ref networkStream);
+        case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings, ref networkStream);
         case MySqlConnectionProtocol.SharedMemory: return GetSharedMemoryStream(settings);
         case MySqlConnectionProtocol.NamedPipe: return GetNamedPipeStream(settings);
       }
       throw new InvalidOperationException(Resources.UnknownConnectionProtocol);
     }
 
-    private static Stream GetTcpStream(MySqlConnectionStringBuilder settings)
+    private static Stream GetTcpStream(MySqlConnectionStringBuilder settings, ref MyNetworkStream networkStream)
     {
       Task<IPAddress[]> dnsTask = Dns.GetHostAddressesAsync(settings.Server);
       dnsTask.Wait();
@@ -96,15 +96,7 @@ namespace MySql.Data.Common
       if (addr == null)
         addr = dnsTask.Result[0];
       TcpClient client = new TcpClient(addr.AddressFamily);
-      Task task = null;
-      if (!settings.IsSshEnabled())
-        task = client.ConnectAsync(settings.Server, (int)settings.Port);
-      else
-        task = client.ConnectAsync(
-          settings.Server == "127.0.0.1" || settings.Server == "::1" 
-            ? "localhost"
-            : settings.Server,
-          3306);
+      Task task = client.ConnectAsync(settings.Server, (int)settings.Port);      
       
       if (!task.Wait(((int)settings.ConnectionTimeout * 1000)))
         throw new MySqlException(Resources.Timeout);
@@ -112,18 +104,19 @@ namespace MySql.Data.Common
       {
         SetKeepAlive(client.Client, settings.Keepalive);
       }
-
+      networkStream = new MyNetworkStream(client.Client,true);
       var result = client.GetStream();
       GC.SuppressFinalize(result);
 
       return result;
     }
 
-    internal static Stream GetUnixSocketStream(MySqlConnectionStringBuilder settings)
+    internal static Stream GetUnixSocketStream(MySqlConnectionStringBuilder settings, ref MyNetworkStream networkStream)
     {
       try
       {
-        return new NetworkStream(GetUnixSocket(settings.Server, settings.ConnectionTimeout, settings.Keepalive), true);
+        networkStream = new MyNetworkStream(GetUnixSocket(settings.Server, settings.ConnectionTimeout, settings.Keepalive), true);
+        return new NetworkStream(networkStream.Socket, true);
       }
       catch (Exception)
       {

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -56,16 +56,14 @@ namespace MySqlX.Protocol
 {
   internal class XProtocol : ProtocolBase
   {
-    private CommunicationPacket pendingPacket;
-    private XPacketReaderWriter _reader;
-    private XPacketReaderWriter _writer;
+    private CommunicationPacket _pendingPacket;
+    private XPacketReaderWriter _packetReaderWriter;
 
     public Capabilities Capabilities { get; protected set; }
 
-    public XProtocol(XPacketReaderWriter reader, XPacketReaderWriter writer)
+    public XProtocol(XPacketReaderWriter packetReaderWriter)
     {
-      _reader = reader;
-      _writer = writer;
+      _packetReaderWriter = packetReaderWriter;
     }
 
     #region Authentication
@@ -76,7 +74,7 @@ namespace MySqlX.Protocol
       authStart.MechName = method;
       if (authData != null) authStart.AuthData = (ByteString.CopyFrom(authData));
       if (initialResponse != null) authStart.InitialResponse = (ByteString.CopyFrom(initialResponse));
-      _writer.Write(ClientMessageId.SESS_AUTHENTICATE_START, authStart);
+      _packetReaderWriter.Write(ClientMessageId.SESS_AUTHENTICATE_START, authStart);
     }
 
     public byte[] ReadAuthContinue()
@@ -95,7 +93,7 @@ namespace MySqlX.Protocol
       Debug.Assert(data != null);
       AuthenticateContinue authCont = new AuthenticateContinue();
       authCont.AuthData = (ByteString.CopyFrom(data));
-      _writer.Write(ClientMessageId.SESS_AUTHENTICATE_CONTINUE, authCont);
+      _packetReaderWriter.Write(ClientMessageId.SESS_AUTHENTICATE_CONTINUE, authCont);
     }
 
     public void ReadAuthOk()
@@ -125,7 +123,7 @@ namespace MySqlX.Protocol
 
     public void GetServerCapabilities()
     {
-      _writer.Write(ClientMessageId.CON_CAPABILITIES_GET, new CapabilitiesGet());
+      _packetReaderWriter.Write(ClientMessageId.CON_CAPABILITIES_GET, new CapabilitiesGet());
       CommunicationPacket packet = ReadPacket();
 
       if (packet.MessageType == (int)ServerMessageId.NOTICE)
@@ -172,7 +170,7 @@ namespace MySqlX.Protocol
       }
 
       builder.Capabilities = capabilities;
-      _writer.Write(ClientMessageId.CON_CAPABILITIES_SET, builder);
+      _packetReaderWriter.Write(ClientMessageId.CON_CAPABILITIES_SET, builder);
       ReadOk();
     }
 
@@ -214,17 +212,17 @@ namespace MySqlX.Protocol
 
     private CommunicationPacket PeekPacket()
     {
-      if (pendingPacket != null) return pendingPacket;
-      pendingPacket = _reader.Read();
-      return pendingPacket;
+      if (_pendingPacket != null) return _pendingPacket;
+      _pendingPacket = _packetReaderWriter.Read();
+      return _pendingPacket;
     }
 
     private CommunicationPacket ReadPacket()
     {
       while (true)
       {
-        CommunicationPacket p = pendingPacket != null ? pendingPacket : _reader.Read();
-        pendingPacket = null;
+        CommunicationPacket p = _pendingPacket != null ? _pendingPacket : _packetReaderWriter.Read();
+        _pendingPacket = null;
         return p;
       }
     }
@@ -305,13 +303,13 @@ namespace MySqlX.Protocol
 
     public void SendSessionClose()
     {
-      _writer.Write(ClientMessageId.SESS_CLOSE, new Mysqlx.Session.Close());
+      _packetReaderWriter.Write(ClientMessageId.SESS_CLOSE, new Mysqlx.Session.Close());
     }
 
     public void SendConnectionClose()
     {
       Mysqlx.Connection.Close connClose = new Mysqlx.Connection.Close();
-      _writer.Write(ClientMessageId.CON_CLOSE, connClose);
+      _packetReaderWriter.Write(ClientMessageId.CON_CLOSE, connClose);
     }
 
     internal StmtExecute CreateExecuteSQLStatement(string stmt, params object[] args)
@@ -332,7 +330,7 @@ namespace MySqlX.Protocol
     public void SendExecuteSQLStatement(string stmt, params object[] args)
     {
       StmtExecute stmtExecute = CreateExecuteSQLStatement(stmt, args);
-      _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
+      _packetReaderWriter.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
     }
 
     public void SendExecuteStatement(string ns, string stmt, params KeyValuePair<string, object>[] args)
@@ -360,7 +358,7 @@ namespace MySqlX.Protocol
         stmtExecute.Args.Add(any);
       }
 
-      _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
+      _packetReaderWriter.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
     }
 
     /// <summary>
@@ -417,7 +415,7 @@ namespace MySqlX.Protocol
         stmtExecute.Args.Add(any);
       }
 
-      _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
+      _packetReaderWriter.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
     }
 
     public void SendCreateCollectionIndexStatement(string ns, string stmt, params KeyValuePair<string, object>[] args)
@@ -457,7 +455,7 @@ namespace MySqlX.Protocol
         stmtExecute.Args.Add(any);
       }
 
-      _writer.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
+      _packetReaderWriter.Write(ClientMessageId.SQL_STMT_EXECUTE, stmtExecute);
     }
 
     private void DecodeAndThrowError(CommunicationPacket p)
@@ -601,7 +599,7 @@ namespace MySqlX.Protocol
     public void SendInsert(string schema, bool isRelational, string collection, object[] rows, string[] columns, bool upsert)
     {
       Insert msg = CreateInsertMessage(schema, isRelational, collection, rows, columns, upsert);
-      _writer.Write(ClientMessageId.CRUD_INSERT, msg);
+      _packetReaderWriter.Write(ClientMessageId.CRUD_INSERT, msg);
     }
 
     private void ApplyFilter(Action<Limit> setLimit, Action<Expr> setCriteria, Action<IEnumerable<Order>> setOrder, FilterParams filter, Action<IEnumerable<Scalar>> addParams)
@@ -640,7 +638,7 @@ namespace MySqlX.Protocol
     public void SendDelete(string schema, string collection, bool isRelational, FilterParams filter)
     {
       var msg = CreateDeleteMessage(schema, collection, isRelational, filter);
-      _writer.Write(ClientMessageId.CRUD_DELETE, msg);
+      _packetReaderWriter.Write(ClientMessageId.CRUD_DELETE, msg);
     }
 
     internal Update CreateUpdateMessage(string schema, string collection, bool isRelational, FilterParams filter, List<UpdateSpec> updates)
@@ -671,7 +669,7 @@ namespace MySqlX.Protocol
     public void SendUpdate(string schema, string collection, bool isRelational, FilterParams filter, List<UpdateSpec> updates)
     {
       var msg = CreateUpdateMessage(schema, collection, isRelational, filter, updates);
-      _writer.Write(ClientMessageId.CRUD_UPDATE, msg);
+      _packetReaderWriter.Write(ClientMessageId.CRUD_UPDATE, msg);
     }
 
     internal Find CreateFindMessage(string schema, string collection, bool isRelational, FilterParams filter, FindParams findParams)
@@ -702,7 +700,7 @@ namespace MySqlX.Protocol
     public void SendFind(string schema, string collection, bool isRelational, FilterParams filter, FindParams findParams)
     {
       var builder = CreateFindMessage(schema, collection, isRelational, filter, findParams);
-      _writer.Write(ClientMessageId.CRUD_FIND, builder);
+      _packetReaderWriter.Write(ClientMessageId.CRUD_FIND, builder);
     }
 
     public void SendExpectOpen(Mysqlx.Expect.Open.Types.Condition.Types.Key condition, object value = null)
@@ -712,7 +710,7 @@ namespace MySqlX.Protocol
       cond.ConditionKey = (uint)condition;
       cond.ConditionValue = value != null ? ByteString.CopyFromUtf8((string)value) : null;
       builder.Cond.Add(cond);
-      _writer.Write(ClientMessageId.EXPECT_OPEN, builder);
+      _packetReaderWriter.Write(ClientMessageId.EXPECT_OPEN, builder);
     }
 
     public void SendResetSession(bool sessionResetNoReauthentication)
@@ -720,7 +718,7 @@ namespace MySqlX.Protocol
       var builder = new Mysqlx.Session.Reset();
 
       if (sessionResetNoReauthentication) { builder.KeepOpen = sessionResetNoReauthentication; }
-      _writer.Write(ClientMessageId.SESS_RESET, builder);
+      _packetReaderWriter.Write(ClientMessageId.SESS_RESET, builder);
     }
 
     internal void ReadOkClose()
@@ -758,10 +756,9 @@ namespace MySqlX.Protocol
         throw new InvalidOperationException();
     }
 
-    internal void SetXPackets(XPacketReaderWriter reader, XPacketReaderWriter writer)
+    internal void SetXPackets(XPacketReaderWriter readerwriter)
     {
-      _reader = reader;
-      _writer = writer;
+      _packetReaderWriter = readerwriter;
     }
 
     public void SendPrepareStatement(uint stmtId,
@@ -875,7 +872,7 @@ namespace MySqlX.Protocol
           break;
       }
 
-      _writer.Write((int)ClientMessages.Types.Type.PreparePrepare, builder);
+      _packetReaderWriter.Write((int)ClientMessages.Types.Type.PreparePrepare, builder);
       ReadOk();
     }
 
@@ -885,7 +882,7 @@ namespace MySqlX.Protocol
       builder.StmtId = stmtId;
       AddArgs(builder.Args.Add, args);
 
-      _writer.Write((int)ClientMessages.Types.Type.PrepareExecute, builder);
+      _packetReaderWriter.Write((int)ClientMessages.Types.Type.PrepareExecute, builder);
     }
 
     public void AddArgs(Action<Any> addFunction, IEnumerable args)
@@ -903,7 +900,7 @@ namespace MySqlX.Protocol
     {
       var builder = new Deallocate();
       builder.StmtId = stmtId;
-      _writer.Write((int)ClientMessages.Types.Type.PrepareDeallocate, builder);
+      _packetReaderWriter.Write((int)ClientMessages.Types.Type.PrepareDeallocate, builder);
       ReadOk();
     }
   }

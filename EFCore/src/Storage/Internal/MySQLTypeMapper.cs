@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Oracle and/or its affiliates.
+// Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,6 +34,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using MySql.EntityFrameworkCore.Infrastructure.Internal;
 using MySql.EntityFrameworkCore.Properties;
 using MySql.Data;
+using MySql.Data.MySqlClient;
 
 namespace MySql.EntityFrameworkCore.Storage.Internal
 {
@@ -79,6 +80,8 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     private readonly MySQLBoolTypeMapping _bitBool = new MySQLBoolTypeMapping("bit", size: 1);
     private readonly MySQLBoolTypeMapping _tinyintBool = new MySQLBoolTypeMapping("tinyint", size: 1);
+    private GuidTypeMapping _guid;
+    private MySQLGuidFormat guidFormat = MySQLGuidFormat.Default;
 
     private Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
     private Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
@@ -107,6 +110,16 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     protected void Initialize()
     {
+      if (guidFormat == MySQLGuidFormat.Default)
+      {
+        guidFormat = _options.ConnectionSettings.OldGuids
+            ? MySQLGuidFormat.LittleEndianBinary16
+            : MySQLGuidFormat.Char36;
+      }
+
+      _guid = MySQLGuidTypeMapping.IsValidGuidFormat(guidFormat)
+                      ? new MySQLGuidTypeMapping(guidFormat)
+                      : null;
       _storeTypeMappings = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
       {
         // integers
@@ -114,6 +127,8 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         { "bigint unsigned", _ubigint },
         { "int", _int },
         { "int unsigned", _uint },
+        { "integer", _int },
+        { "integer unsigned", _uint },
         { "mediumint", _int },
         { "mediumint unsigned", _uint },
         { "smallint", _smallint },
@@ -123,6 +138,9 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
         // decimals
         { "decimal", _decimal },
+        { "numeric", _decimal },
+        { "dec", _decimal },
+        { "fixed", _decimal },
         { "double", _double },
         { "float", _float },
         { "real", _real },
@@ -148,10 +166,11 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         { "date", _date },
         { "time", _time },
         { "year", _smallint },
+        { "datetime", _datetime },
 
         // bit
         { "bit", _bit },
-        
+
         // other
         { "geometry", _geometry },
         { "json", _varcharmaxUnicode }
@@ -161,13 +180,14 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       {
         // integers
         { typeof(short), _smallint },
+        { typeof(ushort), _usmallint },
         { typeof(int), _int },
+        { typeof(uint), _uint },
         { typeof(long), _bigint },
-        { typeof(byte), _tinyint },
-        { typeof(sbyte), _smallint },
-        { typeof(ushort), _int },
-        { typeof(ulong), _bigint },
-        
+        { typeof(ulong), _ubigint },
+        { typeof(byte), _utinyint },
+        { typeof(sbyte), _tinyint },
+
         // DateTime
         { typeof(DateTime), _datetime },
         { typeof(DateTimeOffset), _datetimeoffset },
@@ -179,7 +199,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         { typeof(decimal), _decimal },
 
         { typeof(char), _int },
-        { typeof(Data.Types.MySqlGeometry), _geometry },
+        { typeof(Data.Types.MySqlGeometry), _geometry }
       };
 
       // bool
@@ -187,6 +207,14 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         _clrTypeMappings[typeof(bool)] = _tinyintBool;
       else
         _clrTypeMappings[typeof(bool)] = _bitBool;
+
+      // Guid
+      if (_options.ConnectionSettings.OldGuids)
+      {
+        _storeTypeMappings.Add(_guid.StoreType, _guid);
+        _clrTypeMappings.Add(typeof(Guid), _guid);
+      }
+
     }
 
     /// <summary>
@@ -238,7 +266,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
             && mappingInfo.Size == 1)
             return _bitBool;
           else if (storeTypeNameBase.Equals(_tinyintBool.StoreTypeNameBase, StringComparison.OrdinalIgnoreCase)
-            && mappingInfo.Size ==  1)
+            && mappingInfo.Size == 1)
             return _tinyintBool;
         }
 

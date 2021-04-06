@@ -4,7 +4,7 @@
     <Title>MySql.Data.Tests</Title>
     <Description>MySql.Data.Tests Class Library</Description>
     <Copyright>Copyright (c) 2016, 2021, Oracle and/or its affiliates. All rights reserved.</Copyright>
-    <Version>8.0.23</Version>
+    <Version>8.0.24</Version>
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
@@ -76,12 +76,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Renci.SshNet">
-      <HintPath>..\..\..\Dependencies\Renci.SshNet.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
@@ -130,9 +124,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="client.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="myKeyOpenSSH.ppk">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
