@@ -1,3 +1,7 @@
+8.0.25
+- Deprecated TLSv1.0 and TLSv1.1 (WL14554).
+
+
 8.0.24
 - Added support for the SASL authentication protocol using the GSSAPI/Kerberos method (WL14210).
 - Added a more descriptive message for when a connection is closed by server due to a timeout (WL14393).

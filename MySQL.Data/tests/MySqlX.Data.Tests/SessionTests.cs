@@ -34,6 +34,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using System.Diagnostics;
 
 namespace MySqlX.Data.Tests
 {
@@ -1178,6 +1179,52 @@ namespace MySqlX.Data.Tests
 #else
         Assert.Throws<System.ComponentModel.Win32Exception>(() => MySQLX.GetSession(builder.ConnectionString));
 #endif
+    }
+
+    [TestCase("Tlsv1.0", true)]
+    [TestCase("Tlsv1.1", true)]
+    [TestCase("Tlsv1.1, Tlsv1.0", true)]
+    [TestCase("Tlsv1.2", false)]
+    public void TlsDeprecatedVersions(string tlsVersion, bool shouldWarn)
+    {
+      var globalSession = GetSession();
+      var builder = new MySqlXConnectionStringBuilder();
+      builder.Server = globalSession.Settings.Server;
+      builder.UserID = globalSession.Settings.UserID;
+      builder.Password = globalSession.Settings.Password;
+      builder.Port = globalSession.Settings.Port;
+      builder.Database = "test";
+      builder.TlsVersion = tlsVersion;
+
+      MySqlTrace.Listeners.Clear();
+      MySqlTrace.Switch.Level = SourceLevels.Warning;
+      GenericListener listener = new GenericListener();
+      MySqlTrace.Listeners.Add(listener);
+      int indexComma = builder.TlsVersion.IndexOf(',');
+      tlsVersion = indexComma > 0 ? "Tls11" : builder.TlsVersion; //get the highest version of TLS (Tls11)
+
+      using (var logSession = MySQLX.GetSession(builder.ConnectionString))
+      {
+        if (shouldWarn)
+          StringAssert.Contains(string.Format(MySql.Data.Resources.TlsDeprecationWarning, tlsVersion), listener.Strings[0]);
+        else
+          Assert.IsEmpty(listener.Strings);
+      }
+
+      // Pooling
+      listener.Clear();
+      using (Client client = MySQLX.GetClient(builder.ConnectionString, new { pooling = new { maxSize = 10, queueTimeout = 3000 } }))
+      {
+        for (int i = 0; i < 10; i++)
+        {
+          client.GetSession();
+
+          if (shouldWarn)
+            StringAssert.Contains(string.Format(MySql.Data.Resources.TlsDeprecationWarning, tlsVersion), listener.Strings[i]);
+          else
+            Assert.IsEmpty(listener.Strings);
+        }
+      }
     }
     #endregion
   }

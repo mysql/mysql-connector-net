@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -25,7 +25,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
-
 
 using MySql.Data.common;
 using MySql.Data.MySqlClient;
@@ -61,6 +60,7 @@ namespace MySql.Data.Common
     /// Defines the supported TLS protocols.
     /// </summary>
     private static SslProtocols[] tlsProtocols = new SslProtocols[] { SslProtocols.Tls12, SslProtocols.Tls11, SslProtocols.Tls };
+    private static List<SslProtocols> deprecatedTlsProtocols = new List<SslProtocols> { SslProtocols.Tls11, SslProtocols.Tls };
     private static Dictionary<string, SslProtocols> tlsConnectionRef = new Dictionary<string, SslProtocols>();
     private static Dictionary<string, int> tlsRetry = new Dictionary<string, int>();
     private static Object thisLock = new Object();
@@ -250,6 +250,9 @@ namespace MySql.Data.Common
       }
 
       baseStream = ss;
+      if (deprecatedTlsProtocols.Contains(ss.SslProtocol))
+        MySqlTrace.LogWarning(-1, string.Format(Resources.TlsDeprecationWarning, ss.SslProtocol));
+
       MySqlStream stream = new MySqlStream(ss, encoding, false);
       stream.SequenceByte = 2;
 

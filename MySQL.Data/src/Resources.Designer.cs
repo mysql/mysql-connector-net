@@ -1276,6 +1276,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This connection is using {0}, which is now deprecated and will be removed in a future release of Connector/NET..
+        /// </summary>
+        public static string TlsDeprecationWarning {
+            get {
+                return ResourceManager.GetString("TlsDeprecationWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TLSv1.3 is supported in .NET Framework 4.8 or .NET Core 3.0..
         /// </summary>
         public static string Tlsv13NotSupported {
