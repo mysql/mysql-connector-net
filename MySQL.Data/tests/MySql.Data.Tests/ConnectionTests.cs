@@ -815,7 +815,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       using (var logConn = new MySqlConnection(builder.ConnectionString))
       {
-        logConn.Open();
+        // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+        try { logConn.Open(); }
+        catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
 
         if (shouldWarn)
           StringAssert.Contains(string.Format(Resources.TlsDeprecationWarning, tlsVersion), listener.Strings[0]);
@@ -830,7 +832,9 @@ namespace MySql.Data.MySqlClient.Tests
       for (int i = 0; i < connArray.Length; i++)
       {
         connArray[i] = new MySqlConnection(pooling);
-        connArray[i].Open();
+        // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+        try { connArray[i].Open(); }
+        catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }        
 
         if (shouldWarn)
           StringAssert.Contains(string.Format(Resources.TlsDeprecationWarning, tlsVersion), listener.Strings[i]);

@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using System.Diagnostics;
+using System.Security.Authentication;
 
 namespace MySqlX.Data.Tests
 {
@@ -1203,13 +1204,18 @@ namespace MySqlX.Data.Tests
       int indexComma = builder.TlsVersion.IndexOf(',');
       tlsVersion = indexComma > 0 ? "Tls11" : builder.TlsVersion; //get the highest version of TLS (Tls11)
 
-      using (var logSession = MySQLX.GetSession(builder.ConnectionString))
+      // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+      try
       {
-        if (shouldWarn)
-          StringAssert.Contains(string.Format(MySql.Data.Resources.TlsDeprecationWarning, tlsVersion), listener.Strings[0]);
-        else
-          Assert.IsEmpty(listener.Strings);
+        using (var logSession = MySQLX.GetSession(builder.ConnectionString))
+        {
+          if (shouldWarn)
+            StringAssert.Contains(string.Format(MySql.Data.Resources.TlsDeprecationWarning, tlsVersion), listener.Strings[0]);
+          else
+            Assert.IsEmpty(listener.Strings);
+        }
       }
+      catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
 
       // Pooling
       listener.Clear();
@@ -1217,7 +1223,9 @@ namespace MySqlX.Data.Tests
       {
         for (int i = 0; i < 10; i++)
         {
-          client.GetSession();
+          // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+          try { client.GetSession(); }
+          catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
 
           if (shouldWarn)
             StringAssert.Contains(string.Format(MySql.Data.Resources.TlsDeprecationWarning, tlsVersion), listener.Strings[i]);
