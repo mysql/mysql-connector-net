@@ -651,4 +651,7 @@
   <data name="InvalidCertificateThumbprint" xml:space="preserve">
     <value>Certificate with Thumbprint '{0}' not found.</value>
   </data>
+  <data name="TlsDeprecationWarning" xml:space="preserve">
+    <value>This connection is using {0}, which is now deprecated and will be removed in a future release of Connector/NET.</value>
+  </data>
 </root>

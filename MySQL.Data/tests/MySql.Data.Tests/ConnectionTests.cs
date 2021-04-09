@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,6 +28,7 @@
 
 using System;
 using System.Data;
+using System.Diagnostics;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -794,6 +795,58 @@ namespace MySql.Data.MySqlClient.Tests
 #else
         Assert.Throws<System.ComponentModel.Win32Exception>(() => conn.Open());
 #endif
+    }
+
+    [TestCase("Tlsv1.0", true)]
+    [TestCase("Tlsv1.1", true)]
+    [TestCase("Tlsv1.1, Tlsv1.0", true)]
+    [TestCase("Tlsv1.2", false)]
+    public void TlsDeprecatedVersions(string tlsVersion, bool shouldWarn)
+    {
+      var builder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      builder.TlsVersion = tlsVersion;
+
+      MySqlTrace.Listeners.Clear();
+      MySqlTrace.Switch.Level = SourceLevels.Warning;
+      GenericListener listener = new GenericListener();
+      MySqlTrace.Listeners.Add(listener);
+      int indexComma = builder.TlsVersion.IndexOf(',');
+      tlsVersion = indexComma > 0 ? "Tls11" : builder.TlsVersion; //get the highest version of TLS (Tls11)
+
+      using (var logConn = new MySqlConnection(builder.ConnectionString))
+      {
+        // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+        try { logConn.Open(); }
+        catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
+
+        if (shouldWarn)
+          StringAssert.Contains(string.Format(Resources.TlsDeprecationWarning, tlsVersion), listener.Strings[0]);
+        else
+          Assert.IsEmpty(listener.Strings);
+      }
+
+      // Pooling
+      listener.Clear();
+      string pooling = builder.ConnectionString + ";Min Pool Size=10";
+      MySqlConnection[] connArray = new MySqlConnection[10];
+      for (int i = 0; i < connArray.Length; i++)
+      {
+        connArray[i] = new MySqlConnection(pooling);
+        // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+        try { connArray[i].Open(); }
+        catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }        
+
+        if (shouldWarn)
+          StringAssert.Contains(string.Format(Resources.TlsDeprecationWarning, tlsVersion), listener.Strings[i]);
+        else
+          Assert.IsEmpty(listener.Strings);
+      }
+
+      for (int i = 0; i < connArray.Length; i++)
+      {
+        KillConnection(connArray[i]);
+        connArray[i].Close();
+      }
     }
 
     #endregion
