@@ -249,15 +249,18 @@ namespace MySql.Data.MySqlClient
       seedPart1.CopyTo(encryptionSeed, 0);
       seedPart2.CopyTo(encryptionSeed, seedPart1.Length);
 
-      string authenticationMethod = "";
-      if ((serverCaps & ClientFlags.PLUGIN_AUTH) != 0)
+      string authenticationMethod = Settings.DefaultAuthenticationPlugin;
+      if (string.IsNullOrWhiteSpace(authenticationMethod))
       {
-        authenticationMethod = packet.ReadString();
-      }
-      else
-      {
-        // Some MySql versions like 5.1, don't give name of plugin, default to native password.
-        authenticationMethod = "mysql_native_password";
+        if ((serverCaps & ClientFlags.PLUGIN_AUTH) != 0)
+        {
+          authenticationMethod = packet.ReadString();
+        }
+        else
+        {
+          // Some MySql versions like 5.1, don't give name of plugin, default to native password.
+          authenticationMethod = "mysql_native_password";
+        }
       }
 
       // based on our settings, set our connection flags

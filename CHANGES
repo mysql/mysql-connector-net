@@ -1,5 +1,6 @@
 8.0.25
 - Deprecated TLSv1.0 and TLSv1.1 (WL14554).
+- Added support for the Kerberos authentication plugin (WL14429).
 
 
 8.0.24

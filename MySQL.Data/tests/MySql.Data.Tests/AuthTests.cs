@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2016, 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2016, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -1175,6 +1175,8 @@ namespace MySql.Data.MySqlClient.Tests
         SslMode = MySqlSslMode.None
       };
 
+      ExecuteSQL("CREATE USER 'test1@MYSQL.LOCAL' IDENTIFIED WITH authentication_ldap_sasl; GRANT ALL ON *.* to 'test1@MYSQL.LOCAL';", true);
+
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         if (shouldPass)
@@ -1184,6 +1186,51 @@ namespace MySql.Data.MySqlClient.Tests
           using (MySqlDataReader reader = command.ExecuteReader())
           {
             StringAssert.AreEqualIgnoringCase("GSSAPI", MySqlSASLPlugin.gssapiMechanism.MechanismName);
+            Assert.True(reader.Read());
+            StringAssert.Contains(userName, reader.GetString(0));
+          }
+        }
+        else
+          Assert.Throws<MySqlException>(() => connection.Open());
+      }
+    }
+    #endregion
+
+    #region PureKerberos Mechanism
+    /// <summary>
+    /// WL14229 - [Classic] Support for authentication_kerberos_client authentication plugin
+    /// This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini
+    /// It uses preconfigured LDAP servers present in the labs.
+    /// For configuration of the server, theres a quick guide in Resources/KerberosConfig.txt to setup the environment.
+    /// </summary>
+    [TestCase("test1", "Testpw1", "", true)]
+    [TestCase("test1", "wrongPassword", "", true)] // TRUE: if there's a TGT in cache.
+    [TestCase("test1", "Testpw1", "authentication_kerberos_client", true)]
+    [TestCase("", "", "authentication_kerberos_client", true)] // TRUE: if there's a TGT in cache or the login user is in KDC.    
+    [TestCase("test1", "Testpw1", "sha256_password", true)]
+    [TestCase("invalidUser", "Testpw1", "", false)]
+    [TestCase("", "", "caching_sha2_password", false)]
+    [Ignore("This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini")]
+    [Property("Category", "Security")]
+    public void ConnectUsingMySqlSASLPluginKerberos(string userName, string password, string pluginName, bool shouldPass)
+    {
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(Settings.ConnectionString)
+      {
+        UserID = userName,
+        Password = password,
+        Database = string.Empty,
+        SslMode = MySqlSslMode.None,
+        DefaultAuthenticationPlugin = pluginName
+      };
+
+      using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
+      {
+        if (shouldPass)
+        {
+          connection.Open();
+          MySqlCommand command = new MySqlCommand($"SELECT user();", connection);
+          using (MySqlDataReader reader = command.ExecuteReader())
+          {
             Assert.True(reader.Read());
             StringAssert.Contains(userName, reader.GetString(0));
           }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,6 +28,7 @@
 
 using MySql.Data.common;
 using MySql.Data.Common;
+using MySql.Data.MySqlClient.Authentication;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -124,6 +125,13 @@ namespace MySql.Data.MySqlClient
         ));
       Options.Add(new MySqlConnectionStringOption("allowpublickeyretrieval", null, typeof(bool), false, false,
         (msb, sender, value) => { msb.SetValue("allowpublickeyretrieval", value); }, (msb, sender) => msb.AllowPublicKeyRetrieval));
+      Options.Add(new MySqlConnectionStringOption("defaultauthenticationplugin", null, typeof(string), string.Empty, false,
+        (msb, sender, value) =>
+        {
+          if (!string.IsNullOrWhiteSpace((string)value)) AuthenticationPluginManager.ValidateAuthenticationPlugin((string)value);
+          msb.SetValue("defaultauthenticationplugin", value);
+        },
+        (msb, sender) => msb.DefaultAuthenticationPlugin));
 
       // Other properties.
       Options.Add(new MySqlConnectionStringOption("autoenlist", "auto enlist", typeof(bool), true, false,
@@ -436,6 +444,24 @@ namespace MySql.Data.MySqlClient
     {
       get { return (bool)values["allowpublickeyretrieval"]; }
       set { SetValue("allowpublickeyretrieval", value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the default authentication plugin to be used. This plugin takes precedence over
+    /// the server-side default authentication plugin when a valid authentication plugin is specified.
+    /// </summary>
+    /// <remarks>
+    /// The default authentication plugin is mandatory for supporting user-less and password-less Kerberos authentications. 
+    /// If no value is set, it uses the server-side default authentication plugin.
+    /// </remarks>
+    [Category("Authentication")]
+    [DisplayName("DefaultAuthenticationPlugin")]
+    [Description("Enables the setting of an authentication plugin that takes precedence over the server-side" +
+                "default authentication plugin.")]
+    public string DefaultAuthenticationPlugin
+    {
+      get { return (string)values["defaultauthenticationplugin"]; }
+      set { SetValue("defaultauthenticationplugin", value); }
     }
 
     #endregion

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -169,6 +169,39 @@ namespace MySql.Data.Authentication.GSSAPI.Native
     }
 
     /// <summary>
+    /// Obtains information about a credential.
+    /// </summary>
+    /// <param name="minorStatus">Mechanism specific status code.</param>
+    /// <param name="credentialHandle">A handle that refers to the target credential.</param>
+    /// <param name="name">The name whose identity the credential asserts.</param>
+    /// <param name="lifetime">The number of seconds for which the credential remain valid. 
+    /// If the credential has expired, this parameter is set to zero.</param>
+    /// <param name="credentialUsage">How the credential may be used.</param>
+    /// <param name="mechs">Set of mechanisms supported by the credential.</param>
+    /// <returns>
+    /// <para>gss_init_sec_context() may return the following status codes:</para>
+    /// <para>GSS_S_COMPLETE: Successful completion.</para>
+    /// <para>GSS_S_NO_CRED: The referenced credentials could not be accessed.</para>
+    /// <para>GSS_S_DEFECTIVE_CREDENTIAL: The referenced credentials were invalid.</para>
+    /// <para>GSS_S_CREDENTIALS_EXPIRED: The referenced credentials have expired. 
+    /// If the lifetime parameter is not passed in as NULL, then its value is set to 0.</para>
+    /// </returns>
+    internal static uint gss_inquire_cred(
+      out uint minorStatus,
+      IntPtr credentialHandle,
+      out IntPtr name,
+      out uint lifetime,
+      out int credentialUsage,
+      out IntPtr mechs)
+    {
+      return IsWin
+        ? Is64
+        ? NativeMethods64.gss_inquire_cred(out minorStatus, credentialHandle, out name, out lifetime, out credentialUsage, out mechs)
+        : NativeMethods32.gss_inquire_cred(out minorStatus, credentialHandle, out name, out lifetime, out credentialUsage, out mechs)
+        : NativeMethodsLinux.gss_inquire_cred(out minorStatus, credentialHandle, out name, out lifetime, out credentialUsage, out mechs);
+    }
+
+    /// <summary>
     /// Initiates the establishment of a security context between the application and a remote peer. 
     /// Initially, the input_token parameter should be specified either as GSS_C_NO_BUFFER, or as a pointer to a gss_buffer_desc object whose length field 
     /// contains the value zero. The routine may return a output_token which should be transferred to the peer application, where the peer application will 
@@ -283,6 +316,32 @@ namespace MySql.Data.Authentication.GSSAPI.Native
                   ref statusString)
           : NativeMethodsLinux.gss_display_status(out minorStatus, status, statusType, ref mechType, ref messageContext,
               ref statusString);
+    }
+
+    /// <summary>
+    /// Allows an application to obtain a textual representation of an opaque internal-form name for display purposes.
+    /// The syntax of a printable name is defined by the GSS-API implementation.
+    /// </summary>
+    /// <param name="minorStatus">Mechanism specific status code.</param>
+    /// <param name="inputName">Name to be displayed.</param>
+    /// <param name="nameBuffer">Buffer to receive textual name string.</param>
+    /// <param name="nameType">The type of the returned name.</param>
+    /// <returns>
+    /// <para>gss_display_name() may return the following status codes:</para>
+    /// <para>GSS_S_COMPLETE: Successful completion.</para>
+    /// <para>GSS_S_BAD_NAME: input_name was ill-formed.</para>
+    /// </returns>
+    internal static uint gss_display_name(
+        out uint minorStatus,
+        IntPtr inputName,
+        out GssBufferDescStruct nameBuffer,
+        out GssOidDescStruct nameType)
+    {
+      return IsWin
+          ? Is64
+              ? NativeMethods64.gss_display_name(out minorStatus, inputName, out nameBuffer, out nameType)
+              : NativeMethods32.gss_display_name(out minorStatus, inputName, out nameBuffer, out nameType)
+          : NativeMethodsLinux.gss_display_name(out minorStatus, inputName, out nameBuffer, out nameType);
     }
 
     /// <summary>
