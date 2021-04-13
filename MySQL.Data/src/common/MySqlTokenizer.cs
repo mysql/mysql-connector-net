@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates.  All rights reserved.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -113,7 +113,11 @@ namespace MySql.Data.Common
     {
       while (FindToken())
       {
-        if ((StopIndex - StartIndex) < 2) continue;
+        if ((StopIndex - StartIndex) < 2)
+        {
+          if (IsParameter(_sql.Substring(StartIndex, 1))) return "?";
+          else continue;
+        }
         char c1 = _sql[StartIndex];
         char c2 = _sql[StartIndex + 1];
         if (c1 == '?' ||
@@ -268,7 +272,7 @@ namespace MySql.Data.Common
       return c == '`' || c == '\'' || c == '\"';
     }
 
-    private bool IsParameterMarker(char c)
+    internal bool IsParameterMarker(char c)
     {
       return c == '@' || c == '?';
     }

@@ -65,7 +65,7 @@ namespace MySql.Data.MySqlClient
     const string AuthenticationWindowsUser = "auth_windows";
 
     // Regular expression that checks for GUID format 
-    private static Regex guidRegex = new Regex(@"(?i)^[0-9A-F]{8}[-](?:[0-9A-F]{4}[-]){3}[0-9A-F]{12}$"); 
+    private static Regex guidRegex = new Regex(@"(?i)^[0-9A-F]{8}[-](?:[0-9A-F]{4}[-]){3}[0-9A-F]{12}$");
 
     public NativeDriver(Driver owner)
     {
@@ -193,7 +193,7 @@ namespace MySql.Data.MySqlClient
       // connect to one of our specified hosts
       try
       {
-        baseStream = StreamCreator.GetStream(Settings,ref networkStream);
+        baseStream = StreamCreator.GetStream(Settings, ref networkStream);
         if (Settings.IncludeSecurityAsserts)
           MySqlSecurityPermission.CreatePermissionSet(false).Assert();
       }
@@ -384,6 +384,10 @@ namespace MySql.Data.MySqlClient
       if ((serverCaps & ClientFlags.CAN_HANDLE_EXPIRED_PASSWORD) != 0)
         flags |= ClientFlags.CAN_HANDLE_EXPIRED_PASSWORD;
 
+      // if the server supports query attributes
+      if ((serverCaps & ClientFlags.CLIENT_QUERY_ATTRIBUTES) != 0)
+        flags |= ClientFlags.CLIENT_QUERY_ATTRIBUTES;
+
       connectionFlags = flags;
     }
 
@@ -415,7 +419,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Query is the method that is called to send all queries to the server
     /// </summary>
-    public void SendQuery(MySqlPacket queryPacket)
+    public void SendQuery(MySqlPacket queryPacket, int paramsPosition)
     {
       warnings = 0;
       queryPacket.SetByte(4, (byte)DBCmd.QUERY);
@@ -484,7 +488,7 @@ namespace MySql.Data.MySqlClient
     {
       try
       {
-        if (stream.Socket==null && networkStream.Socket!=null)
+        if (stream.Socket == null && networkStream.Socket != null)
         {
           stream.Socket = networkStream.Socket;
         }

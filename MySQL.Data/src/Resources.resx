@@ -660,4 +660,7 @@
   <data name="InvalidCertificateThumbprint" xml:space="preserve">
     <value>Certificate with Thumbprint '{0}' not found.</value>
   </data>
+  <data name="QueryAttributesNotSupported" xml:space="preserve">
+    <value>MySQL Server {0} dos not support query attributes.</value>
+  </data>
 </root>

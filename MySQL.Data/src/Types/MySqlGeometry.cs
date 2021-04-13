@@ -1,4 +1,4 @@
-// Copyright © 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -74,7 +74,7 @@ namespace MySql.Data.Types
     /// </summary>
     public int? SRID => _srid;
 
-    public MySqlGeometry(bool isNull):this(MySqlDbType.Geometry, isNull)
+    public MySqlGeometry(bool isNull) : this(MySqlDbType.Geometry, isNull)
     {
     }
 
@@ -103,7 +103,7 @@ namespace MySql.Data.Types
     {
       this._type = type;
       this._xValue = xValue;
-      this._yValue = yValue;      
+      this._yValue = yValue;
       this.IsNull = false;
       this._srid = srid;
       this.Value = new byte[GEOMETRY_LENGTH];
@@ -118,12 +118,12 @@ namespace MySql.Data.Types
 
       Value[4] = 1;
       Value[5] = 1;
-     
+
       for (int i = 0; i < 8; i++)
-        {
-          Value[i + 9] = (byte)(xVal & 0xff);
-          xVal >>= 8;
-        }
+      {
+        Value[i + 9] = (byte)(xVal & 0xff);
+        xVal >>= 8;
+      }
 
       for (int i = 0; i < 8; i++)
       {
@@ -135,13 +135,13 @@ namespace MySql.Data.Types
     public MySqlGeometry(MySqlDbType type, byte[] val)
     {
 
-      if (val == null) 
+      if (val == null)
         throw new ArgumentNullException(nameof(val));
 
       byte[] buffValue = new byte[val.Length];
- 
-      for (int i = 0; i < val.Length; i++)                  
-           buffValue[i] = val[i];
+
+      for (int i = 0; i < val.Length; i++)
+        buffValue[i] = val[i];
 
       var xIndex = val.Length == GEOMETRY_LENGTH ? 9 : 5;
       var yIndex = val.Length == GEOMETRY_LENGTH ? 17 : 13;
@@ -181,12 +181,12 @@ namespace MySql.Data.Types
     void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
       byte[] buffToWrite = null;
-     
+
       try
       {
-        buffToWrite = ((MySqlGeometry)val).Value;        
+        buffToWrite = ((MySqlGeometry)val).Value;
       }
-      catch 
+      catch
       {
         buffToWrite = val as Byte[];
       }
@@ -199,19 +199,24 @@ namespace MySql.Data.Types
       }
 
       byte[] result = new byte[GEOMETRY_LENGTH];
-     
+
       for (int i = 0; i < buffToWrite.Length; i++)
       {
-       if (buffToWrite.Length < GEOMETRY_LENGTH)
-         result[i + 4] = buffToWrite[i];
-       else
-        result[i] = buffToWrite[i];
+        if (buffToWrite.Length < GEOMETRY_LENGTH)
+          result[i + 4] = buffToWrite[i];
+        else
+          result[i] = buffToWrite[i];
       }
-      
+
+      if (!binary)
+      {
         packet.WriteStringNoNull("_binary ");
         packet.WriteByte((byte)'\'');
         EscapeByteArray(result, GEOMETRY_LENGTH, packet);
-        packet.WriteByte((byte)'\'');      
+        packet.WriteByte((byte)'\'');
+      }
+      else
+        packet.WriteLenString(val.ToString());
     }
 
     private static void EscapeByteArray(byte[] bytes, int length, MySqlPacket packet)
@@ -247,7 +252,7 @@ namespace MySql.Data.Types
 
         byte[] newBuff = new byte[length];
         packet.Read(newBuff, 0, (int)length);
-        g = new MySqlGeometry(_type, newBuff);        
+        g = new MySqlGeometry(_type, newBuff);
       }
       return g;
     }
@@ -267,7 +272,7 @@ namespace MySql.Data.Types
     public override string ToString()
     {
       if (!this.IsNull)
-        return _srid != 0 ? string.Format(CultureInfo.InvariantCulture.NumberFormat, "SRID={2};POINT({0} {1})", _xValue, _yValue, _srid) : string.Format(CultureInfo.InvariantCulture.NumberFormat, "POINT({0} {1})", _xValue, _yValue);      
+        return _srid != 0 ? string.Format(CultureInfo.InvariantCulture.NumberFormat, "SRID={2};POINT({0} {1})", _xValue, _yValue, _srid) : string.Format(CultureInfo.InvariantCulture.NumberFormat, "POINT({0} {1})", _xValue, _yValue);
 
       return String.Empty;
     }
@@ -285,7 +290,7 @@ namespace MySql.Data.Types
       if (!(value.Contains("SRID") || value.Contains("POINT(") || value.Contains("POINT (")))
         throw new FormatException("String does not contain a valid geometry value");
 
-      MySqlGeometry result = new MySqlGeometry(0,0);
+      MySqlGeometry result = new MySqlGeometry(0, 0);
       MySqlGeometry.TryParse(value, out result);
 
       return result;
@@ -334,13 +339,13 @@ namespace MySql.Data.Types
         }
       }
       catch
-      {  }
+      { }
 
       mySqlGeometryValue = new MySqlGeometry(true);
       return false;
     }
 
-	/// <summary>
+    /// <summary>
     /// Sets the DSInfo when GetSchema is called for the DataSourceInformation collection.
     /// </summary>
     public static void SetDSInfo(MySqlSchemaCollection dsTable)
@@ -374,10 +379,10 @@ namespace MySql.Data.Types
       row["NativeDataType"] = DBNull.Value;
     }
 
-	/// <summary>
+    /// <summary>
     /// Gets the well-known text representation of the geomtry object.
     /// </summary>
-	/// <returns>A string representation of the WKT.</returns>
+    /// <returns>A string representation of the WKT.</returns>
     public string GetWKT()
     {
       if (!this.IsNull)
@@ -385,5 +390,5 @@ namespace MySql.Data.Types
 
       return String.Empty;
     }
- }
+  }
 }

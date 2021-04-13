@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -306,7 +306,7 @@ namespace MySql.Data.MySqlClient
       else
       {
         WriteByte(254);
-        WriteInteger(length, 4);
+        WriteInteger(length, 8);
       }
     }
 
