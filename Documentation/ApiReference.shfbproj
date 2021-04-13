@@ -42,7 +42,7 @@
     <RootNamespaceTitle>Reference</RootNamespaceTitle>
     <HelpTitle>MySQL Connector/NET 8.0 API Reference</HelpTitle>
     <CopyrightHref>http://www.mysql.com</CopyrightHref>
-    <CopyrightText>Copyright &amp;#169%3b 2004, 2021, Oracle and/or its affiliates.  All rights reserved.</CopyrightText>
+    <CopyrightText>Copyright &amp;#169%3b 2004, 2021, Oracle and/or its affiliates.</CopyrightText>
     <PresentationStyle>VS2013</PresentationStyle>
     <NamingMethod>MemberName</NamingMethod>
     <DocumentationSources>
@@ -81,7 +81,7 @@
       </PlugInConfig>
     </PlugInConfigurations>
     <VendorName>Oracle</VendorName>
-    <HelpFileVersion>8.0.24.0</HelpFileVersion>
+    <HelpFileVersion>8.0.25.0</HelpFileVersion>
     <MaximumGroupParts>3</MaximumGroupParts>
     <NamespaceGrouping>False</NamespaceGrouping>
     <SyntaxFilters>C#, Visual Basic</SyntaxFilters>
