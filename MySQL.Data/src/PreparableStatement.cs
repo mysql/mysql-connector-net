@@ -92,15 +92,25 @@ namespace MySql.Data.MySqlClient
       // write out some values that do not change run to run
       _packet.WriteByte(0);
       _packet.WriteInteger(StatementId, 4);
-      _packet.WriteByte((byte)0); // flags; always 0 for 4.1
+      // flags; if server supports query attributes, then set PARAMETER_COUNT_AVAILABLE (0x08) in the flags block
+      int flags = Driver.SupportsQueryAttributes && Driver.Version.isAtLeast(8, 0, 25) ? 8 : 0;
+      _packet.WriteInteger(flags, 1);
       _packet.WriteInteger(1, 4); // iteration count; 1 for 4.1
-      if (paramList != null && paramList.Length > 0) // if num_params > 0 
+      int num_params = paramList != null ? paramList.Length : 0;
+      // we don't send QA with PS when MySQL Server is not at least 8.0.25 
+      if (!Driver.Version.isAtLeast(8, 0, 25) && Attributes.Count > 0)
       {
-        int paramCount = paramList.Length;
+        MySqlTrace.LogWarning(Connection.ServerThread, Resources.QueryAttributesNotSupportedByCnet);
+        Attributes.Clear();
+      }
+
+      if (num_params > 0 || Driver.SupportsQueryAttributes) // if num_params > 0 
+      {
+        int paramCount = num_params;
 
         if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
         {
-          paramCount = paramList.Length + Attributes.Count;
+          paramCount = num_params + Attributes.Count;
           _packet.WriteLength(paramCount);
         }
 
@@ -122,18 +132,15 @@ namespace MySql.Data.MySqlClient
             _packet.WriteLenString(p.BaseName);
         }
 
-        if (Driver.SupportsQueryAttributes)
+        // write out the attributes types and names
+        foreach (MySqlAttribute a in Attributes)
         {
-          // write out the attributes types and names
-          foreach (MySqlAttribute a in Attributes)
-          {
-            // attribute type
-            _packet.WriteInteger(a.GetPSType(), 2);
+          // attribute type
+          _packet.WriteInteger(a.GetPSType(), 2);
 
-            // attribute name
-            if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
-              _packet.WriteLenString(a.AttributeName);
-          }
+          // attribute name
+          if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
+            _packet.WriteLenString(a.AttributeName);
         }
       }
 
@@ -152,7 +159,7 @@ namespace MySql.Data.MySqlClient
       // now write out all non-null values
       _packet.Position = _dataPosition;
 
-      // // set value for each parameter
+      // set value for each parameter
       for (int i = 0; i < _parametersToSend.Count; i++)
       {
         MySqlParameter p = _parametersToSend[i];

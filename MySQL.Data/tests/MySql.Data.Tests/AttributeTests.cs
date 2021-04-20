@@ -43,8 +43,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Test]
-    public void SetAttributes()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void SetAttributesWithoutParams(bool prepare)
     {
       if (!Connection.driver.SupportsQueryAttributes) Assert.Ignore("MySQL Server version does not support query attributes.");
 
@@ -52,12 +53,14 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Connection = Connection;
       cmd.Attributes.SetAttribute("n1", "v1");
       cmd.CommandText = "SELECT mysql_query_attribute_string('n1')";
+      if (prepare) cmd.Prepare();
 
       var result = cmd.ExecuteScalar();
       StringAssert.AreEqualIgnoringCase("v1", result.ToString());
 
       cmd.Attributes.SetAttribute("n2", 123);
       cmd.CommandText = "SELECT mysql_query_attribute_string('n2')";
+      if (prepare) cmd.Prepare();
       result = cmd.ExecuteScalar();
       StringAssert.AreEqualIgnoringCase("123", result.ToString());
 
@@ -66,37 +69,7 @@ namespace MySql.Data.MySqlClient.Tests
       attr.Value = "v3";
       cmd.Attributes.SetAttribute(attr);
       cmd.CommandText = "SELECT mysql_query_attribute_string('n3')";
-      result = cmd.ExecuteScalar();
-      StringAssert.AreEqualIgnoringCase("v3", result.ToString());
-    }
-
-    [Test]
-    [Ignore("Server bug needs to be fixed. Bug#32753030 - QUERY ATTRIBUTES EXCLUDED FROM PS WITH 0 PARAMS")]
-    public void SetAttributesWithoutParamsPS()
-    {
-      if (!Connection.driver.SupportsQueryAttributes) Assert.Ignore("MySQL Server version does not support query attributes.");
-
-      using MySqlCommand cmd = new MySqlCommand();
-      cmd.Connection = Connection;
-      cmd.Attributes.SetAttribute("n1", "v1");
-      cmd.CommandText = "SELECT mysql_query_attribute_string('n1')";
-      cmd.Prepare();
-
-      var result = cmd.ExecuteScalar();
-      StringAssert.AreEqualIgnoringCase("v1", result.ToString());
-
-      cmd.Attributes.SetAttribute("n2", 123);
-      cmd.CommandText = "SELECT mysql_query_attribute_string('n2')";
-      cmd.Prepare();
-      result = cmd.ExecuteScalar();
-      StringAssert.AreEqualIgnoringCase("123", result.ToString());
-
-      MySqlAttribute attr = new MySqlAttribute();
-      attr.AttributeName = "n3";
-      attr.Value = "v3";
-      cmd.Attributes.SetAttribute(attr);
-      cmd.CommandText = "SELECT mysql_query_attribute_string('n3')";
-      cmd.Prepare();
+      if (prepare) cmd.Prepare();
       result = cmd.ExecuteScalar();
       StringAssert.AreEqualIgnoringCase("v3", result.ToString());
     }
