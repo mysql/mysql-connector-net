@@ -56,13 +56,15 @@ namespace MySql.Data.MySqlClient.Tests
       if (prepare) cmd.Prepare();
 
       var result = cmd.ExecuteScalar();
-      StringAssert.AreEqualIgnoringCase("v1", result.ToString());
+      if (Version >= new Version(8, 0, 25) || !prepare) StringAssert.AreEqualIgnoringCase("v1", result.ToString());
+      else Assert.IsEmpty(result.ToString());
 
       cmd.Attributes.SetAttribute("n2", 123);
       cmd.CommandText = "SELECT mysql_query_attribute_string('n2')";
       if (prepare) cmd.Prepare();
       result = cmd.ExecuteScalar();
-      StringAssert.AreEqualIgnoringCase("123", result.ToString());
+      if (Version >= new Version(8, 0, 25) || !prepare) StringAssert.AreEqualIgnoringCase("123", result.ToString());
+      else Assert.IsEmpty(result.ToString());
 
       MySqlAttribute attr = new MySqlAttribute();
       attr.AttributeName = "n3";
@@ -71,7 +73,8 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandText = "SELECT mysql_query_attribute_string('n3')";
       if (prepare) cmd.Prepare();
       result = cmd.ExecuteScalar();
-      StringAssert.AreEqualIgnoringCase("v3", result.ToString());
+      if (Version >= new Version(8, 0, 25) || !prepare) StringAssert.AreEqualIgnoringCase("v3", result.ToString());
+      else Assert.IsEmpty(result.ToString());
     }
 
     [TestCase("StringType", "value1")]
@@ -197,7 +200,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           StringAssert.AreEqualIgnoringCase("Hello World", reader.GetString(0));
           StringAssert.AreEqualIgnoringCase("Goodbye World", reader.GetString(1));
-          StringAssert.AreEqualIgnoringCase("bar", reader.GetString(2));
+          if (Version >= new Version(8, 0, 25) || !prepare) StringAssert.AreEqualIgnoringCase("bar", reader.GetString(2));
         }
       }
     }

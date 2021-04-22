@@ -63,6 +63,7 @@ namespace MySql.Data.MySqlClient
     CONNECT_ATTRS = (1UL << 20),    // Allows client connection attributes
     CAN_HANDLE_EXPIRED_PASSWORD = (1UL << 22),   // Support for password expiration > 5.6.6
     CLIENT_QUERY_ATTRIBUTES = (1UL << 27), // Support for query attributes
+    PARAMETER_COUNT_AVAILABLE = 8, // QA should be sent to the server
     CLIENT_SSL_VERIFY_SERVER_CERT = (1UL << 30), // Verify server certificate
     CLIENT_REMEMBER_OPTIONS = (1UL << 31) // Don't reset the options after an unsuccessful connect
   }
