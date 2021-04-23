@@ -1033,6 +1033,24 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to MySQL Server {0} dos not support query attributes..
+        /// </summary>
+        public static string QueryAttributesNotSupported {
+            get {
+                return ResourceManager.GetString("QueryAttributesNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MySQL Connector/NET does not support query attributes with prepared statements for this version of MySQL Server..
+        /// </summary>
+        public static string QueryAttributesNotSupportedByCnet {
+            get {
+                return ResourceManager.GetString("QueryAttributesNotSupportedByCnet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Packets larger than max_allowed_packet are not allowed..
         /// </summary>
         public static string QueryTooLarge {

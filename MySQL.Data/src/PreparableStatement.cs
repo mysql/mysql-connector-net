@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -75,7 +75,6 @@ namespace MySql.Data.MySqlClient
       // for the prepare
       for (int i = 0; i < parameterNames.Count; i++)
       {
-        //paramList[i].ColumnName = (string) parameter_names[i];
         string parameterName = (string)parameterNames[i];
         MySqlParameter p = Parameters.GetParameterFlexible(parameterName, false);
         if (p == null)
@@ -85,28 +84,68 @@ namespace MySql.Data.MySqlClient
         _parametersToSend.Add(p);
       }
 
-      // now prepare our null map
-      int numNullBytes = 0;
-      if (paramList != null && paramList.Length > 0)
-      {
-        _nullMap = new BitArray(paramList.Length);
-        numNullBytes = (_nullMap.Length + 7) / 8;
-      }
+      if (Attributes.Count > 0 && !Driver.SupportsQueryAttributes)
+        MySqlTrace.LogWarning(Connection.ServerThread, string.Format(Resources.QueryAttributesNotSupported, Driver.Version));
 
       _packet = new MySqlPacket(Driver.Encoding);
 
       // write out some values that do not change run to run
       _packet.WriteByte(0);
       _packet.WriteInteger(StatementId, 4);
-      _packet.WriteByte((byte)0); // flags; always 0 for 4.1
+      // flags; if server supports query attributes, then set PARAMETER_COUNT_AVAILABLE (0x08) in the flags block
+      ClientFlags flags;
+      flags = Driver.SupportsQueryAttributes && Driver.Version.isAtLeast(8, 0, 25) ? ClientFlags.PARAMETER_COUNT_AVAILABLE : 0;
+      _packet.WriteInteger((int)flags, 1);
       _packet.WriteInteger(1, 4); // iteration count; 1 for 4.1
-      _nullMapPosition = _packet.Position;
-      _packet.Position += numNullBytes;  // leave room for our null map
-      if (numNullBytes > 0) // only send new-params-bound-flag if num-params > 0
-        _packet.WriteByte(1); // new-params-bound-flag
-      // write out the parameter types
-      foreach (MySqlParameter p in _parametersToSend)
-        _packet.WriteInteger(p.GetPSType(), 2);
+      int num_params = paramList != null ? paramList.Length : 0;
+      // we don't send QA with PS when MySQL Server is not at least 8.0.25 
+      if (!Driver.Version.isAtLeast(8, 0, 25) && Attributes.Count > 0)
+      {
+        MySqlTrace.LogWarning(Connection.ServerThread, Resources.QueryAttributesNotSupportedByCnet);
+        Attributes.Clear();
+      }
+
+      if (num_params > 0 ||
+        (Driver.SupportsQueryAttributes && (flags & ClientFlags.PARAMETER_COUNT_AVAILABLE) != 0)) // if num_params > 0 
+      {
+        int paramCount = num_params;
+
+        if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
+        {
+          paramCount = num_params + Attributes.Count;
+          _packet.WriteLength(paramCount);
+        }
+
+        // now prepare our null map
+        _nullMap = new BitArray(paramCount);
+        int numNullBytes = (_nullMap.Length + 7) / 8;
+        _nullMapPosition = _packet.Position;
+        _packet.Position += numNullBytes;  // leave room for our null map
+        _packet.WriteByte(1); // new_params_bind_flag
+
+        // write out the parameter types and names
+        foreach (MySqlParameter p in _parametersToSend)
+        {
+          // parameter type
+          _packet.WriteInteger(p.GetPSType(), 2);
+
+          // parameter name
+          if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
+            _packet.WriteLenString(p.BaseName);
+        }
+
+        // write out the attributes types and names
+        foreach (MySqlAttribute a in Attributes)
+        {
+          // attribute type
+          _packet.WriteInteger(a.GetPSType(), 2);
+
+          // attribute name
+          if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
+            _packet.WriteLenString(a.AttributeName);
+        }
+      }
+
       _dataPosition = _packet.Position;
     }
 
@@ -119,27 +158,10 @@ namespace MySql.Data.MySqlClient
         return;
       }
 
-      //TODO: support long data here
-      // create our null bitmap
-
-      // we check this because Mono doesn't ignore the case where nullMapBytes
-      // is zero length.
-      //            if (nullMapBytes.Length > 0)
-      //          {
-      //            byte[] bits = packet.Buffer;
-      //          nullMap.CopyTo(bits, 
-      //        nullMap.CopyTo(nullMapBytes, 0);
-
-      // start constructing our packet
-      //            if (Parameters.Count > 0)
-      //              nullMap.CopyTo(packet.Buffer, nullMapPosition);
-      //if (parameters != null && parameters.Count > 0)
-      //else
-      //	packet.WriteByte( 0 );
-      //TODO:  only send rebound if parms change
-
       // now write out all non-null values
       _packet.Position = _dataPosition;
+
+      // set value for each parameter
       for (int i = 0; i < _parametersToSend.Count; i++)
       {
         MySqlParameter p = _parametersToSend[i];
@@ -148,6 +170,15 @@ namespace MySql.Data.MySqlClient
         if (_nullMap[i]) continue;
         _packet.Encoding = p.Encoding;
         p.Serialize(_packet, true, Connection.Settings);
+      }
+
+      // // set value for each attribute
+      for (int i = 0; i < Attributes.Count; i++)
+      {
+        MySqlAttribute attr = Attributes[i];
+        _nullMap[i] = (attr.Value == DBNull.Value || attr.Value == null);
+        if (_nullMap[i]) continue;
+        attr.Serialize(_packet, true, Connection.Settings);
       }
 
       if (_nullMap != null)
@@ -189,16 +220,21 @@ namespace MySql.Data.MySqlClient
       string sql = ResolvedCommandText;
       MySqlTokenizer tokenizer = new MySqlTokenizer(sql);
       string parameter = tokenizer.NextParameter();
+      int paramIndex = 0;
       while (parameter != null)
       {
         if (parameter.IndexOf(StoredProcedure.ParameterPrefix) == -1)
         {
           newSQL.Append(sql.Substring(startPos, tokenizer.StartIndex - startPos));
           newSQL.Append("?");
-          parameterMap.Add(parameter);
+          if (parameter.Length == 1 && tokenizer.IsParameterMarker(parameter.ToCharArray()[0]))
+            parameterMap.Add(Parameters[paramIndex].ParameterName);
+          else
+            parameterMap.Add(parameter);
           startPos = tokenizer.StopIndex;
         }
         parameter = tokenizer.NextParameter();
+        paramIndex++;
       }
       newSQL.Append(sql.Substring(startPos));
       stripped_sql = newSQL.ToString();

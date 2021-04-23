@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021 Oracle and/or its affiliates.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -58,6 +58,7 @@ namespace MySql.Data.MySqlClient
     {
       CommandType = System.Data.CommandType.Text;
       Parameters = new MySqlParameterCollection(this);
+      Attributes = new MySqlAttributeCollection(this);
       cmdText = String.Empty;
       useDefaultTimeout = true;
       UpdatedRowSource = UpdateRowSource.Both;
@@ -201,6 +202,13 @@ namespace MySql.Data.MySqlClient
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
     public new MySqlParameterCollection Parameters { get; }
 
+    /// <summary>
+    /// A collection of <see cref="MySqlAttribute"/>.
+    /// </summary>
+    [Category("Data")]
+    [Description("The attributes collection")]
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+    public MySqlAttributeCollection Attributes { get; }
 
     /// <include file='docs/mysqlcommand.xml' path='docs/Transaction/*'/>
     [Browsable(false)]

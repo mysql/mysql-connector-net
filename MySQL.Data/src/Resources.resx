@@ -654,4 +654,10 @@
   <data name="TlsDeprecationWarning" xml:space="preserve">
     <value>This connection is using {0}, which is now deprecated and will be removed in a future release of Connector/NET.</value>
   </data>
+  <data name="QueryAttributesNotSupported" xml:space="preserve">
+    <value>MySQL Server {0} dos not support query attributes.</value>
+  </data>
+  <data name="QueryAttributesNotSupportedByCnet" xml:space="preserve">
+    <value>MySQL Connector/NET does not support query attributes with prepared statements for this version of MySQL Server.</value>
+  </data>
 </root>

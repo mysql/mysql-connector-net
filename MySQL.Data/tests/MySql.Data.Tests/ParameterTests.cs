@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,19 +26,18 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using System;
 using NUnit.Framework;
 using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public partial class ParameterTests : TestBase
+  public class ParameterTests : TestBase
   {
     protected override void Cleanup()
     {
       ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
-    }
+    }   
 
     [Test]
     public void TestQuoting()
@@ -731,6 +730,34 @@ namespace MySql.Data.MySqlClient.Tests
 
       cmd.Parameters.Insert(1, new MySqlParameter("lastTest", "test4"));
       Assert.True(cmd.Parameters.IndexOf("lastTest") == 1);
+    }
+
+    /// <summary>
+    /// Bug #13276 Exception on serialize after inserting null value
+    /// </summary>
+    [Test]
+    public void InsertValueAfterNull()
+    {
+      ExecuteSQL("CREATE TABLE Test (id int auto_increment primary key, foo int)");
+
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
+      MySqlCommand c = new MySqlCommand("INSERT INTO Test (foo) values (?foo)", Connection);
+      c.Parameters.Add("?foo", MySqlDbType.Int32, 0, "foo");
+
+      da.InsertCommand = c;
+      DataTable dt = new DataTable();
+      da.Fill(dt);
+      DataRow row = dt.NewRow();
+      dt.Rows.Add(row);
+      row = dt.NewRow();
+      row["foo"] = 2;
+      dt.Rows.Add(row);
+      da.Update(dt);
+
+      dt.Clear();
+      da.Fill(dt);
+      Assert.AreEqual(2, dt.Rows.Count);
+      Assert.AreEqual(2, dt.Rows[1]["foo"]);
     }
   }
 }
