@@ -94,12 +94,12 @@ namespace MySql.Data.MySqlClient
       _packet.WriteInteger(StatementId, 4);
       // flags; if server supports query attributes, then set PARAMETER_COUNT_AVAILABLE (0x08) in the flags block
       ClientFlags flags;
-      flags = Driver.SupportsQueryAttributes && Driver.Version.isAtLeast(8, 0, 25) ? ClientFlags.PARAMETER_COUNT_AVAILABLE : 0;
+      flags = Driver.SupportsQueryAttributes && Driver.Version.isAtLeast(8, 0, 26) ? ClientFlags.PARAMETER_COUNT_AVAILABLE : 0;
       _packet.WriteInteger((int)flags, 1);
       _packet.WriteInteger(1, 4); // iteration count; 1 for 4.1
       int num_params = paramList != null ? paramList.Length : 0;
-      // we don't send QA with PS when MySQL Server is not at least 8.0.25 
-      if (!Driver.Version.isAtLeast(8, 0, 25) && Attributes.Count > 0)
+      // we don't send QA with PS when MySQL Server is not at least 8.0.26
+      if (!Driver.Version.isAtLeast(8, 0, 26) && Attributes.Count > 0)
       {
         MySqlTrace.LogWarning(Connection.ServerThread, Resources.QueryAttributesNotSupportedByCnet);
         Attributes.Clear();
