@@ -1,8 +1,11 @@
-8.0.25
+8.0.26
 - Deprecated TLSv1.0 and TLSv1.1 (WL14554).
 - Added support for the Kerberos authentication plugin (WL14429).
-
 - Added support for query attributes (WL14209).
+
+
+8.0.25
+- This release contains no functional changes and is published to align the version number with the MySQL Server 8.0.25 release.
 
 
 8.0.24

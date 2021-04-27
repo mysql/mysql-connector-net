@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore for Entity Framework.</Description>
     <Copyright>Copyright (c) 2016, 2021, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>3.1.14+MySQL8.0.25</Version>
+    <Version>3.1.14+MySQL8.0.26</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
