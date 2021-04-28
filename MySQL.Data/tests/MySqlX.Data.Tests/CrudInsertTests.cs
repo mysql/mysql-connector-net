@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,12 +26,13 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.Common;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
-using System;
 using NUnit.Framework;
+using System;
 
 namespace MySqlX.Data.Tests
 {
@@ -315,6 +316,8 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne("", docs[1]));
       Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne(string.Empty, docs[1]));
       Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne("1", null));
+      Assert.Throws<MySqlException>(() => collection.AddOrReplaceOne(4, new DbDoc("{ \"_id\": 2, \"title\": \"Book\", \"pages\": 60 }")),
+        ResourcesX.ReplaceWithNoMatchingId);
     }
   }
 }
