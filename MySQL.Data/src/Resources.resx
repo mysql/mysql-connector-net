@@ -660,4 +660,7 @@
   <data name="QueryAttributesNotSupportedByCnet" xml:space="preserve">
     <value>MySQL Connector/NET does not support query attributes with prepared statements for this version of MySQL Server.</value>
   </data>
+  <data name="SslNotAllowedForConnectionProtocol" xml:space="preserve">
+    <value>Connection protocol '{0}' does not support SSL connections.</value>
+  </data>
 </root>

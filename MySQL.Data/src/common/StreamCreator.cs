@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,15 +26,14 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
+using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient.Common;
 using System;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
-using System.Net;
-using System.Linq;
-using MySql.Data.MySqlClient.Common;
 
 namespace MySql.Data.Common
 {
@@ -70,15 +69,15 @@ namespace MySql.Data.Common
         Keepalive = keepalive,
         ConnectionTimeout = timeout
       };
-      MyNetworkStream networkStream=null;
-      return GetStream(settings,ref networkStream);
+      MyNetworkStream networkStream = null;
+      return GetStream(settings, ref networkStream);
     }
 
-    public static Stream GetStream(MySqlConnectionStringBuilder settings,ref MyNetworkStream networkStream)
+    public static Stream GetStream(MySqlConnectionStringBuilder settings, ref MyNetworkStream networkStream)
     {
       switch (settings.ConnectionProtocol)
       {
-        case MySqlConnectionProtocol.Tcp: return GetTcpStream(settings ,ref networkStream);
+        case MySqlConnectionProtocol.Tcp: return GetTcpStream(settings, ref networkStream);
         case MySqlConnectionProtocol.UnixSocket: return GetUnixSocketStream(settings, ref networkStream);
         case MySqlConnectionProtocol.SharedMemory: return GetSharedMemoryStream(settings);
         case MySqlConnectionProtocol.NamedPipe: return GetNamedPipeStream(settings);
@@ -96,15 +95,15 @@ namespace MySql.Data.Common
       if (addr == null)
         addr = dnsTask.Result[0];
       TcpClient client = new TcpClient(addr.AddressFamily);
-      Task task = client.ConnectAsync(settings.Server, (int)settings.Port);      
-      
+      Task task = client.ConnectAsync(settings.Server, (int)settings.Port);
+
       if (!task.Wait(((int)settings.ConnectionTimeout * 1000)))
         throw new MySqlException(Resources.Timeout);
       if (settings.Keepalive > 0)
       {
         SetKeepAlive(client.Client, settings.Keepalive);
       }
-      networkStream = new MyNetworkStream(client.Client,true);
+      networkStream = new MyNetworkStream(client.Client, true);
       var result = client.GetStream();
       GC.SuppressFinalize(result);
 

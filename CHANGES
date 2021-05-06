@@ -3,6 +3,7 @@
 - Added support for the Kerberos authentication plugin (WL14429).
 - Added support for query attributes (WL14209).
 - Fixed inconsistent behavior of the ReplaceOne and AddOrReplaceOne methods in the MySqlX.XDevAPI namespace (MySQL Bug #103310, Oracle Bug #32763765).
+- Fixed a bug that prevented connections using Named Pipes and Shared Memory connection protocols (Oracle Bug #32853205).
 
 
 8.0.25

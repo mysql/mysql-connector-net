@@ -51,11 +51,10 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("pipe", "pipe name,pipename", typeof(string), "MYSQL", false,
         (msb, sender, value) =>
         {
-#if !NET452
-          throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(PipeName)));
-#else
-          msb.SetValue("pipe", value);
-#endif
+          if (!Platform.IsWindows())
+            throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(PipeName)));
+          else
+            msb.SetValue("pipe", value);
         },
         (msb, sender) => msb.PipeName));
       Options.Add(new MySqlConnectionStringOption("compress", "use compression,usecompression", typeof(bool), false, false,
@@ -71,11 +70,10 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("sharedmemoryname", "shared memory name", typeof(string), "MYSQL", false,
         (msb, sender, value) =>
         {
-#if !NET452
-          throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(SharedMemoryName)));
-#else
-          msb.SetValue("sharedmemoryname", value);
-#endif
+          if (!Platform.IsWindows())
+            throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(SharedMemoryName)));
+          else
+            msb.SetValue("sharedmemoryname", value);
         },
         (msb, sender) => msb.SharedMemoryName));
       Options.Add(new MySqlConnectionStringOption("defaultcommandtimeout", "command timeout,default command timeout", typeof(uint), (uint)30, false,

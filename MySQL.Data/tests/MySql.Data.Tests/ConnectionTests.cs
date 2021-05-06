@@ -834,7 +834,7 @@ namespace MySql.Data.MySqlClient.Tests
         connArray[i] = new MySqlConnection(pooling);
         // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
         try { connArray[i].Open(); }
-        catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }        
+        catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
 
         if (shouldWarn)
           StringAssert.Contains(string.Format(Resources.TlsDeprecationWarning, tlsVersion), listener.Strings[i]);
@@ -953,6 +953,60 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    /// <summary>
+    /// Bug#32853205 - UNABLE TO CONNECT USING NAMED PIPES AND SHARED MEMORY
+    /// To be able to connect using Named Pipes, it requires to start the server supporting the protocol
+    /// mysqld --standalone --console --enable-named-pipe
+    /// </summary>    
+    [Test]
+    [Ignore("To be able to connect using Named Pipes, it requires to start the server supporting the protocol")]
+    public void ConnectUsingNamedPipes()
+    {
+      var sb = new MySqlConnectionStringBuilder()
+      {
+        Server = "localhost",
+        Pooling = false,
+        UserID = "root",
+        ConnectionProtocol = MySqlConnectionProtocol.NamedPipe,
+        SslMode = MySqlSslMode.Required
+      };
+
+      // Named Pipes connection protocol is not allowed to use SSL connections.
+      using var conn = new MySqlConnection(sb.ConnectionString);
+      var ex = Assert.Throws<MySqlException>(() => conn.Open());
+      StringAssert.AreEqualIgnoringCase(string.Format(Resources.SslNotAllowedForConnectionProtocol, sb.ConnectionProtocol), ex.Message);
+    }
+
+    /// <summary>
+    /// Bug#32853205 - UNABLE TO CONNECT USING NAMED PIPES AND SHARED MEMORY
+    /// </summary>
+    [Test]
+    [Property("Category", "Security")]
+    public void ConnectUsingSharedMemory()
+    {
+      var sb = new MySqlConnectionStringBuilder()
+      {
+        Server = "localhost",
+        Pooling = false,
+        UserID = "root",
+        ConnectionProtocol = MySqlConnectionProtocol.SharedMemory,
+        SharedMemoryName = "MySQLSocket"
+      };
+
+      using (var conn = new MySqlConnection(sb.ConnectionString))
+      {
+        conn.Open();
+        Assert.AreEqual(ConnectionState.Open, conn.State);
+      }
+
+      // Shared Memory connection protocol is not allowed to use SSL connections.
+      sb.SslMode = MySqlSslMode.Required;
+      using (var conn = new MySqlConnection(sb.ConnectionString))
+      {
+        var ex = Assert.Throws<MySqlException>(() => conn.Open());
+        StringAssert.AreEqualIgnoringCase(string.Format(Resources.SslNotAllowedForConnectionProtocol, sb.ConnectionProtocol), ex.Message);
+      }
+    }
 
 #if NET452
     /// <summary>

@@ -1231,6 +1231,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connection protocol &apos;{0}&apos; does not support SSL connections..
+        /// </summary>
+        public static string SslNotAllowedForConnectionProtocol {
+            get {
+                return ResourceManager.GetString("SslNotAllowedForConnectionProtocol", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The stream has already been closed.
         /// </summary>
         public static string StreamAlreadyClosed {

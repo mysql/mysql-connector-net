@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc. 2014, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2014, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,13 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.IO;
-using MySql.Data.MySqlClient;
-using System.Diagnostics;
-
 
 namespace MySql.Data.Common
 {
@@ -62,7 +61,7 @@ namespace MySql.Data.Common
     ~SharedMemory()
     {
       Dispose(false);
-    } 
+    }
     #endregion
 
     public IntPtr View
@@ -118,7 +117,7 @@ namespace MySql.Data.Common
     private int writeTimeout = System.Threading.Timeout.Infinite;
 
     public SharedMemoryStream(string memName)
-    {      
+    {
       memoryName = memName;
     }
 
@@ -128,7 +127,7 @@ namespace MySql.Data.Common
       {
         Debug.Assert(false, "Connection is already open");
       }
-      
+
       GetConnectNumber(timeOut);
       SetupEvents();
     }

@@ -26,17 +26,18 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.common;
+using MySql.Data.Common;
 using System;
-using System.Data.Common;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Common;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Runtime.CompilerServices;
-using MySql.Data.common;
-using static MySql.Data.common.MySqlConnectionStringOption;
 using System.Security.Authentication;
+using System.Text;
+using static MySql.Data.common.MySqlConnectionStringOption;
 
 namespace MySql.Data.MySqlClient
 {
@@ -58,11 +59,11 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("protocol", "connection protocol,connectionprotocol", typeof(MySqlConnectionProtocol), MySqlConnectionProtocol.Sockets, false,
         (SetterDelegate)((msb, sender, value) =>
         {
-#if !NET452
+#if !NETFRAMEWORK
          MySqlConnectionProtocol enumValue;
          if (Enum.TryParse<MySqlConnectionProtocol>(value.ToString(), true, out enumValue))
          {
-           if (enumValue == MySqlConnectionProtocol.Memory || enumValue == MySqlConnectionProtocol.Pipe)
+           if (!Platform.IsWindows() && (enumValue == MySqlConnectionProtocol.Memory || enumValue == MySqlConnectionProtocol.Pipe))
              throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, $"Protocol={value}"));
          }
 #endif

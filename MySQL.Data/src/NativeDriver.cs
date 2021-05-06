@@ -211,7 +211,7 @@ namespace MySql.Data.MySqlClient
             (int)MySqlErrorCode.UnableToConnectToHost);
 
       int maxSinglePacket = 255 * 255 * 255;
-      stream = new MySqlStream(baseStream, Encoding, false, networkStream.Socket);
+      stream = new MySqlStream(baseStream, Encoding, false, networkStream?.Socket);
 
       stream.ResetTimeout((int)Settings.ConnectionTimeout * 1000);
 
@@ -272,18 +272,26 @@ namespace MySql.Data.MySqlClient
       packet.WriteByte(33); //character set utf-8
       packet.Write(new byte[23]);
 
+      // Server doesn't support SSL connections and Client requires it
       if ((serverCaps & ClientFlags.SSL) == 0)
       {
         if (Settings.SslMode != MySqlSslMode.None &&
             Settings.SslMode != MySqlSslMode.Preferred)
-        {
-          // Client requires SSL connections.
-          string message = String.Format(Resources.NoServerSSLSupport,
-              Settings.Server);
-          throw new MySqlException(message);
-        }
+          throw new MySqlException(string.Format(Resources.NoServerSSLSupport,
+            Settings.Server));
       }
-      else if (Settings.SslMode != MySqlSslMode.None)
+      // Current connection doesn't support SSL connections
+      else if ((connectionFlags & ClientFlags.SSL) == 0
+        && Settings.SslMode != MySqlSslMode.None
+        && Settings.SslMode != MySqlSslMode.Prefered)
+      {
+        throw new MySqlException(string.Format(Resources.SslNotAllowedForConnectionProtocol,
+          Settings.ConnectionProtocol));
+      }
+
+      if (Settings.SslMode != MySqlSslMode.None 
+        && Settings.ConnectionProtocol != MySqlConnectionProtocol.NamedPipe
+        && Settings.ConnectionProtocol != MySqlConnectionProtocol.SharedMemory)
       {
         stream.SendPacket(packet);
         stream = new Ssl(
@@ -310,7 +318,7 @@ namespace MySql.Data.MySqlClient
       // if we are using compression, then we use our CompressedStream class
       // to hide the ugliness of managing the compression
       if ((connectionFlags & ClientFlags.COMPRESS) != 0)
-        stream = new MySqlStream(baseStream, Encoding, true, networkStream.Socket);
+        stream = new MySqlStream(baseStream, Encoding, true, networkStream?.Socket);
 
       // give our stream the server version we are connected to.  
       // We may have some fields that are read differently based 
@@ -370,7 +378,9 @@ namespace MySql.Data.MySqlClient
         flags |= ClientFlags.SECURE_CONNECTION;
 
       // if the server is capable of SSL and the user is requesting SSL
-      if ((serverCaps & ClientFlags.SSL) != 0 && Settings.SslMode != MySqlSslMode.None)
+      if ((serverCaps & ClientFlags.SSL) != 0 && Settings.SslMode != MySqlSslMode.None
+        && Settings.ConnectionProtocol != MySqlConnectionProtocol.NamedPipe
+        && Settings.ConnectionProtocol != MySqlConnectionProtocol.SharedMemory)
         flags |= ClientFlags.SSL;
 
       // if the server supports output parameters, then we do too
@@ -491,7 +501,7 @@ namespace MySql.Data.MySqlClient
     {
       try
       {
-        if (stream.Socket == null && networkStream.Socket != null)
+        if (stream.Socket == null && networkStream?.Socket != null)
         {
           stream.Socket = networkStream.Socket;
         }
