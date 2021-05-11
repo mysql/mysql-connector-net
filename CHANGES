@@ -5,6 +5,7 @@
 - Fixed inconsistent behavior of the ReplaceOne and AddOrReplaceOne methods in the MySqlX.XDevAPI namespace (MySQL Bug #103310, Oracle Bug #32763765).
 - Fixed a bug that prevented connections using Named Pipes and Shared Memory connection protocols (Oracle Bug #32853205).
 - Removed the support for Kerberos authentication on Windows (Oracle Bug #32867404).
+- Added support for the EF Core 6.0 preview release (WL14578).
 
 
 8.0.25
