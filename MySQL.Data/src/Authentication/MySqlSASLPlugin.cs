@@ -27,6 +27,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using System;
 using System.Security.Cryptography;
 using System.Text;
@@ -56,6 +57,8 @@ namespace MySql.Data.MySqlClient.Authentication
           scramMechanism = new ScramSha256Mechanism(GetUsername(), Settings.Password, Settings.Server);
           break;
         case "GSSAPI":
+          if (Platform.IsWindows())
+            throw new PlatformNotSupportedException(string.Format(Resources.AuthenticationPluginNotSupported, "GSSAPI/Kerberos"));
           gssapiMechanism = new GssapiMechanism(GetUsername(), Settings.Password);
           break;
       }

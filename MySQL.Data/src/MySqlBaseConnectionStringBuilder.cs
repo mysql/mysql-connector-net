@@ -60,12 +60,12 @@ namespace MySql.Data.MySqlClient
         (SetterDelegate)((msb, sender, value) =>
         {
 #if !NETFRAMEWORK
-         MySqlConnectionProtocol enumValue;
-         if (Enum.TryParse<MySqlConnectionProtocol>(value.ToString(), true, out enumValue))
-         {
-           if (!Platform.IsWindows() && (enumValue == MySqlConnectionProtocol.Memory || enumValue == MySqlConnectionProtocol.Pipe))
-             throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, $"Protocol={value}"));
-         }
+          MySqlConnectionProtocol enumValue;
+          if (Enum.TryParse<MySqlConnectionProtocol>(value.ToString(), true, out enumValue))
+          {
+            if (!Platform.IsWindows() && (enumValue == MySqlConnectionProtocol.Memory || enumValue == MySqlConnectionProtocol.Pipe))
+              throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, $"Protocol={value}"));
+          }
 #endif
           msb.SetValue("protocol", value);
         }),

@@ -27,6 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.Authentication.GSSAPI;
+using MySql.Data.Common;
 using System;
 using System.Text;
 
@@ -44,6 +45,12 @@ namespace MySql.Data.MySqlClient.Authentication
     private string _realm;
 
     private GssapiMechanism gssapiMechanism;
+
+    protected override void CheckConstraints()
+    {
+      if (Platform.IsWindows())
+        throw new PlatformNotSupportedException(string.Format(Resources.AuthenticationPluginNotSupported, PluginName));
+    }
 
     protected override void SetAuthData(byte[] data)
     {

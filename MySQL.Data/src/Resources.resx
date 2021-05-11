@@ -136,7 +136,7 @@
     <value>The offset cannot be negative</value>
   </data>
   <data name="CountCannotBeNegative" xml:space="preserve">
-    <value> Count cannot be negative</value>
+    <value>Count cannot be negative</value>
   </data>
   <data name="StreamNoRead" xml:space="preserve">
     <value>The stream does not support reading</value>
@@ -662,5 +662,8 @@
   </data>
   <data name="SslNotAllowedForConnectionProtocol" xml:space="preserve">
     <value>Connection protocol '{0}' does not support SSL connections.</value>
+  </data>
+  <data name="AuthenticationPluginNotSupported" xml:space="preserve">
+    <value>Authentication plugin '{0}' is currently not supported.</value>
   </data>
 </root>

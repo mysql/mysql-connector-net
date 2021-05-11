@@ -31,6 +31,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Security.Authentication;
 using System.Threading.Tasks;
+using MySql.Data.Common;
 using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -984,6 +985,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void ConnectUsingSharedMemory()
     {
+      if (!Platform.IsWindows()) Assert.Ignore("Shared Memory is only supported on Windows.");
+
       var sb = new MySqlConnectionStringBuilder()
       {
         Server = "localhost",

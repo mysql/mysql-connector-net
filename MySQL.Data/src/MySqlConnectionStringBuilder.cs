@@ -109,7 +109,7 @@ namespace MySql.Data.MySqlClient
         {
           if (!Platform.IsWindows())
             throw new MySqlException("IntegratedSecurity is supported on Windows only");
-#if !NET452
+#if !NETFRAMEWORK
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(IntegratedSecurity)));
 #else
           msb.SetValue("Integrated Security", value.ToString().Equals("SSPI", StringComparison.OrdinalIgnoreCase) ? true : value);
@@ -151,7 +151,7 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("useperformancemonitor", "use performance monitor,useperfmon,perfmon", typeof(bool), false, false,
         (msb, sender, value) =>
         {
-#if !NET452
+#if !NETFRAMEWORK
           throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(UsePerformanceMonitor)));
 #else
           msb.SetValue("useperformancemonitor", value);

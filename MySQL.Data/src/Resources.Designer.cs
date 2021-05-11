@@ -106,6 +106,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Authentication plugin &apos;{0}&apos; is currently not supported..
+        /// </summary>
+        public static string AuthenticationPluginNotSupported {
+            get {
+                return ResourceManager.GetString("AuthenticationPluginNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Version string not in acceptable format.
         /// </summary>
         public static string BadVersionFormat {
@@ -268,7 +277,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to  Count cannot be negative.
+        ///   Looks up a localized string similar to Count cannot be negative.
         /// </summary>
         public static string CountCannotBeNegative {
             get {
