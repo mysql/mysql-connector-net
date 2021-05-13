@@ -116,7 +116,6 @@
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Commercial' ">
     <DefineConstants>$(DefineConstants);TRACE;RELEASE;COMMERCIAL</DefineConstants>
-    <TargetFrameworks>net452;</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

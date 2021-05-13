@@ -1,3 +1,7 @@
+8.0.26
+- Added the Connector/NET assemblies into the MSI file and ZIP Package, target Frameworks included are .NET Framework 4.5.2, .NET Framework 4.8, .NET Standard 2.0, .NET Standard 2.1 and .NET 5.0  (WL14616).
+
+
 8.0.24
 - Added support for the SASL authentication protocol using the GSSAPI/Kerberos method (WL14210).
 - Added a more descriptive message for when a connection is closed by server due to a timeout (WL14393).
