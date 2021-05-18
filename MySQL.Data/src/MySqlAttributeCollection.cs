@@ -26,15 +26,15 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 
-namespace MySql.Data
+namespace MySql.Data.MySqlClient
 {
   /// <summary>
   /// Represents a collection of query attributes relevant to a <see cref="MySqlCommand"/>.
   /// </summary>
+  /// <include file='docs/mySqlattributecollection.xml' path='docs/ClassSummary/*'/>
   public class MySqlAttributeCollection
   {
     readonly List<MySqlAttribute> _items = new List<MySqlAttribute>();

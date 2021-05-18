@@ -26,17 +26,17 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.IO;
-using System.Data;
-using System.Data.Common;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using MySql.Data.Common;
 using MySql.Data.MySqlClient.Replication;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.Common;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading;
 
 namespace MySql.Data.MySqlClient
 {
@@ -202,9 +202,7 @@ namespace MySql.Data.MySqlClient
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
     public new MySqlParameterCollection Parameters { get; }
 
-    /// <summary>
-    /// A collection of <see cref="MySqlAttribute"/>.
-    /// </summary>
+    /// <include file='docs/mysqlcommand.xml' path='docs/Attributes/*'/>
     [Category("Data")]
     [Description("The attributes collection")]
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
