@@ -540,14 +540,40 @@ namespace MySql.Data.MySqlClient
     KILLED = 3169
   }
 
-  public enum MySQLGuidFormat
+  /// <summary>
+  ///     Controls which column type should be read as type System.Guid.
+  /// </summary>
+  public enum MySqlGuidFormat
   {
+    /// <summary>
+    ///     Same as Char36 when OldGuids equals False, otherwise, the same as LittleEndianBinary16.
+    /// </summary>
     Default = 0,
+    /// <summary>
+    ///     No column types are read or written as type Guid.
+    /// </summary>
     None = 1,
+    /// <summary>
+    ///     Char(36) columns are read or written as type Guid using lowercase hex with hyphens, which match UUID().
+    /// </summary>
     Char36 = 2,
+    /// <summary>
+    ///     Char(32) columns are read or written as type Guid using lowercase hex without hyphens.
+    /// </summary>
     Char32 = 3,
+    /// <summary>
+    ///     Binary(16) columns are read or written as type Guid using big-endian byte order, which matches UUID_TO_BIN(x).
+    /// </summary>
     Binary16 = 4,
+    /// <summary>
+    ///     Binary(16) columns are read or written as type Guid using big-endian byte order
+    ///     with time parts swapped, which matches UUID_TO_BIN(x,1).
+    /// </summary>
     TimeSwapBinary16 = 5,
+    /// <summary>
+    ///     Binary(16) columns are read or written as type Guid using little-endian byte order,
+    ///     that is, the byte order used by System.Guid.ToByteArray and System.Guid.#ctor(System.Byte[]).
+    /// </summary>
     LittleEndianBinary16 = 6
   }
 

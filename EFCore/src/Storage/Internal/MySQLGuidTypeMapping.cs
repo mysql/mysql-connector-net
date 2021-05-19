@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021 Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -35,9 +35,9 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   internal class MySQLGuidTypeMapping : GuidTypeMapping
   {
-    private readonly MySQLGuidFormat _guidFormat;
+    private readonly MySqlGuidFormat _guidFormat;
 
-    public MySQLGuidTypeMapping(MySQLGuidFormat guidFormat)
+    public MySQLGuidTypeMapping(MySqlGuidFormat guidFormat)
         : this(new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(typeof(Guid)),
                 GetStoreType(guidFormat),
@@ -50,7 +50,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     {
     }
 
-    protected MySQLGuidTypeMapping(RelationalTypeMappingParameters parameters, MySQLGuidFormat guidFormat)
+    protected MySQLGuidTypeMapping(RelationalTypeMappingParameters parameters, MySqlGuidFormat guidFormat)
         : base(parameters)
     {
       _guidFormat = guidFormat;
@@ -63,80 +63,80 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     {
       switch (_guidFormat)
       {
-        case MySQLGuidFormat.Char36:
+        case MySqlGuidFormat.Char36:
           return $"'{value:D}'";
 
-        case MySQLGuidFormat.Char32:
+        case MySqlGuidFormat.Char32:
           return $"'{value:N}'";
 
-        case MySQLGuidFormat.Binary16:
-        case MySQLGuidFormat.TimeSwapBinary16:
-        case MySQLGuidFormat.LittleEndianBinary16:
+        case MySqlGuidFormat.Binary16:
+        case MySqlGuidFormat.TimeSwapBinary16:
+        case MySqlGuidFormat.LittleEndianBinary16:
           return ByteArrayFormatter.ToHex(GetBytesFromGuid(_guidFormat, (Guid)value));
 
-        case MySQLGuidFormat.None:
-        case MySQLGuidFormat.Default:
+        case MySqlGuidFormat.None:
+        case MySqlGuidFormat.Default:
         default:
           throw new ArgumentOutOfRangeException();
       }
     }
 
-    private static string GetStoreType(MySQLGuidFormat guidFormat)
+    private static string GetStoreType(MySqlGuidFormat guidFormat)
     {
       switch (guidFormat)
       {
-        case MySQLGuidFormat.Char36:
-        case MySQLGuidFormat.Char32:
+        case MySqlGuidFormat.Char36:
+        case MySqlGuidFormat.Char32:
           return "char";
 
-        case MySQLGuidFormat.Binary16:
-        case MySQLGuidFormat.TimeSwapBinary16:
-        case MySQLGuidFormat.LittleEndianBinary16:
+        case MySqlGuidFormat.Binary16:
+        case MySqlGuidFormat.TimeSwapBinary16:
+        case MySqlGuidFormat.LittleEndianBinary16:
           return "binary";
 
-        case MySQLGuidFormat.None:
-        case MySQLGuidFormat.Default:
+        case MySqlGuidFormat.None:
+        case MySqlGuidFormat.Default:
         default:
           throw new InvalidOperationException();
       }
     }
 
-    private static int GetSize(MySQLGuidFormat guidFormat)
+    private static int GetSize(MySqlGuidFormat guidFormat)
     {
       switch (guidFormat)
       {
-        case MySQLGuidFormat.Char36:
+        case MySqlGuidFormat.Char36:
           return 36;
 
-        case MySQLGuidFormat.Char32:
+        case MySqlGuidFormat.Char32:
           return 32;
 
-        case MySQLGuidFormat.Binary16:
-        case MySQLGuidFormat.TimeSwapBinary16:
-        case MySQLGuidFormat.LittleEndianBinary16:
+        case MySqlGuidFormat.Binary16:
+        case MySqlGuidFormat.TimeSwapBinary16:
+        case MySqlGuidFormat.LittleEndianBinary16:
           return 16;
 
-        case MySQLGuidFormat.None:
-        case MySQLGuidFormat.Default:
+        case MySqlGuidFormat.None:
+        case MySqlGuidFormat.Default:
         default:
           throw new InvalidOperationException();
       }
     }
 
-    public static bool IsValidGuidFormat(MySQLGuidFormat guidFormat)
-        => guidFormat != MySQLGuidFormat.None &&
-           guidFormat != MySQLGuidFormat.Default;
+    public static bool IsValidGuidFormat(MySqlGuidFormat guidFormat)
+        => guidFormat != MySqlGuidFormat.None &&
+           guidFormat != MySqlGuidFormat.Default;
 
-    protected static byte[] GetBytesFromGuid(MySQLGuidFormat guidFormat, Guid guid)
+    protected static byte[] GetBytesFromGuid(MySqlGuidFormat guidFormat, Guid guid)
     {
       var bytes = guid.ToByteArray();
 
-      if (guidFormat == MySQLGuidFormat.Binary16)
+      if (guidFormat == MySqlGuidFormat.Binary16)
       {
         return new[] { bytes[3], bytes[2], bytes[1], bytes[0], bytes[5], bytes[4], bytes[7], bytes[6], bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15] };
       }
 
-      if (guidFormat == MySQLGuidFormat.TimeSwapBinary16)
+      if (guidFormat == MySqlGuidFormat.TimeSwapBinary16)
       {
         return new[] { bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0], bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15] };
       }
