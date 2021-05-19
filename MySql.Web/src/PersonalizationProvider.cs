@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2014, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,13 +26,13 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
+using MySql.Web.Common;
+using MySql.Web.General;
 using System;
 using System.Diagnostics;
 using System.Web.Hosting;
 using System.Web.UI.WebControls.WebParts;
-using MySql.Data.MySqlClient;
-using MySql.Web.Common;
-using MySql.Web.General;
 
 namespace MySql.Web.Personalization
 {
@@ -66,11 +66,12 @@ namespace MySql.Web.Personalization
       get { return app.Id; }
     }
 
-     private enum ResetUserStateMode {
-            PerInactiveDate,
-            PerPaths,
-            PerUsers
-        }
+    private enum ResetUserStateMode
+    {
+      PerInactiveDate,
+      PerPaths,
+      PerUsers
+    }
 
 
     /// <summary>
@@ -91,7 +92,7 @@ namespace MySql.Web.Personalization
       if (string.IsNullOrEmpty(config["description"]))
       {
         config.Remove("description");
-        config.Add("description", "MySql Personalization provider");      
+        config.Add("description", "MySql Personalization provider");
       }
 
       base.Initialize(name, config);
@@ -122,7 +123,7 @@ namespace MySql.Web.Personalization
         using (MySqlConnection conn = new MySqlConnection(connectionString))
         {
           conn.Open();
-          app.EnsureId(conn);          
+          app.EnsureId(conn);
         }
       }
       catch (Exception ex)
@@ -160,13 +161,13 @@ namespace MySql.Web.Personalization
       if (query.UsernameToMatch == null)
         throw new ArgumentNullException("query.UserToMatch");
 
-      DateTime inactiveSinceDate = query.UserInactiveSinceDate;     
+      DateTime inactiveSinceDate = query.UserInactiveSinceDate;
 
       if (scope == PersonalizationScope.User)
-      {      
-        return FindUserState(query.PathToMatch.Trim(), inactiveSinceDate, query.UsernameToMatch.Trim(), pageIndex, pageSize, out totalRecords);          
+      {
+        return FindUserState(query.PathToMatch.Trim(), inactiveSinceDate, query.UsernameToMatch.Trim(), pageIndex, pageSize, out totalRecords);
       }
-      else 
+      else
       {
         return FindSharedState(query.PathToMatch.Trim(), pageIndex, pageSize, out totalRecords);
       }
@@ -206,32 +207,32 @@ namespace MySql.Web.Personalization
     /// <remarks>Retrieves both shared and user personalization state corresponding to a specified user and a specified page.</remarks>
     protected override void LoadPersonalizationBlobs(WebPartManager webPartManager, string path, string userName, ref Byte[] sharedDataBlob, ref Byte[] userDataBlob)
     {
-       sharedDataBlob = null;
-       userDataBlob = null;
-       MySQLPersonalizationConnectionHelper connection = new MySQLPersonalizationConnectionHelper(connectionString);
-       connection.OpenConnection(true);
-       try
-       {
-         sharedDataBlob = PersonalizationProviderProcedures.my_aspnet_PersonalizationAllUsers_GetPageSettings(
-                          ApplicationId, path, connection);
-         if (!String.IsNullOrEmpty(userName))
-         {
-           userDataBlob = PersonalizationProviderProcedures.my_aspnet_PersonalizationPerUser_GetPageSettings(
-                             ApplicationId, path, userName, DateTime.UtcNow, connection);
-         }
+      sharedDataBlob = null;
+      userDataBlob = null;
+      MySQLPersonalizationConnectionHelper connection = new MySQLPersonalizationConnectionHelper(connectionString);
+      connection.OpenConnection(true);
+      try
+      {
+        sharedDataBlob = PersonalizationProviderProcedures.my_aspnet_PersonalizationAllUsers_GetPageSettings(
+                         ApplicationId, path, connection);
+        if (!String.IsNullOrEmpty(userName))
+        {
+          userDataBlob = PersonalizationProviderProcedures.my_aspnet_PersonalizationPerUser_GetPageSettings(
+                            ApplicationId, path, userName, DateTime.UtcNow, connection);
+        }
 
-         connection.CloseConnection();
-       }
-       catch (Exception ex)
-       {
-         if (writeExceptionsToEventLog)
-           WriteToEventLog(ex, "MySQLPersonalizationProvider - LoadPersonazalitionBlobs");        
-         throw;
-       }
-       finally
-       {
-         connection.CloseConnection();       
-       }
+        connection.CloseConnection();
+      }
+      catch (Exception ex)
+      {
+        if (writeExceptionsToEventLog)
+          WriteToEventLog(ex, "MySQLPersonalizationProvider - LoadPersonazalitionBlobs");
+        throw;
+      }
+      finally
+      {
+        connection.CloseConnection();
+      }
     }
 
     /// <summary>
@@ -240,31 +241,31 @@ namespace MySql.Web.Personalization
     /// <param name="webPartManager">The web part manager.</param>
     /// <param name="path">The path indicating where to save the data.</param>
     /// <param name="userName">The user name.</param>
-    protected override void ResetPersonalizationBlob(WebPartManager webPartManager, string path,  string userName) 
+    protected override void ResetPersonalizationBlob(WebPartManager webPartManager, string path, string userName)
     {
-       MySQLPersonalizationConnectionHelper connection = new MySQLPersonalizationConnectionHelper(connectionString);
-       connection.OpenConnection(true);
-       try
-       {
-         if (string.IsNullOrEmpty(userName))
-         {
-           PersonalizationProviderProcedures.my_aspnet_PersonalizationAllUsers_ResetPageSettings(ApplicationId, path, connection);
-         }
-         else
-         {
-           PersonalizationProviderProcedures.my_aspnet_PersonalizationPerUser_ResetPageSettings(ApplicationId, userName, path, DateTime.UtcNow, connection);
-         }
-       }
-       catch (Exception ex)
-       {
-         if (writeExceptionsToEventLog)
-           WriteToEventLog(ex, "MySQLPersonalizationProvider - ResetPersonalizationBlob");        
-         throw;
-       }
-       finally
-       {
-         connection.CloseConnection();       
-       }
+      MySQLPersonalizationConnectionHelper connection = new MySQLPersonalizationConnectionHelper(connectionString);
+      connection.OpenConnection(true);
+      try
+      {
+        if (string.IsNullOrEmpty(userName))
+        {
+          PersonalizationProviderProcedures.my_aspnet_PersonalizationAllUsers_ResetPageSettings(ApplicationId, path, connection);
+        }
+        else
+        {
+          PersonalizationProviderProcedures.my_aspnet_PersonalizationPerUser_ResetPageSettings(ApplicationId, userName, path, DateTime.UtcNow, connection);
+        }
+      }
+      catch (Exception ex)
+      {
+        if (writeExceptionsToEventLog)
+          WriteToEventLog(ex, "MySQLPersonalizationProvider - ResetPersonalizationBlob");
+        throw;
+      }
+      finally
+      {
+        connection.CloseConnection();
+      }
     }
 
     /// <summary>
@@ -275,8 +276,8 @@ namespace MySql.Web.Personalization
     /// <param name="usernames">The user names.</param>
     /// <returns></returns>
     public override int ResetState(PersonalizationScope scope, string[] paths, string[] usernames)
-    {      
-     
+    {
+
       bool hasPaths = !(paths == null || paths.Length == 0);
       bool hasUsers = !(usernames == null || usernames.Length == 0);
 
@@ -286,9 +287,9 @@ namespace MySql.Web.Personalization
       connection.OpenConnection(true);
 
       if (scope == PersonalizationScope.Shared)
-      {        
+      {
         try
-        {                
+        {
           if (paths == null) // reset all state
           {
             return PersonalizationProviderProcedures.my_aspnet_PersonalizationAdministration_DeleteAllState(true, ApplicationId, connection);
@@ -301,7 +302,7 @@ namespace MySql.Web.Personalization
         catch (Exception ex)
         {
           if (writeExceptionsToEventLog)
-            WriteToEventLog(ex, "MySQLPersonalizationProvider - ResetState");        
+            WriteToEventLog(ex, "MySQLPersonalizationProvider - ResetState");
           throw;
         }
         finally
@@ -341,7 +342,7 @@ namespace MySql.Web.Personalization
       if (string.IsNullOrEmpty(path))
         return 0;
 
-      string [] paths = (path == null) ? null : new string [] {path};
+      string[] paths = (path == null) ? null : new string[] { path };
       try
       {
         return ResetUserState(ResetUserStateMode.PerInactiveDate, userInactiveSinceDate, paths, null);
@@ -349,7 +350,7 @@ namespace MySql.Web.Personalization
       catch (Exception ex)
       {
         if (writeExceptionsToEventLog)
-          WriteToEventLog(ex, "MySQLPersonalizationProvider - ResetUserState");        
+          WriteToEventLog(ex, "MySQLPersonalizationProvider - ResetUserState");
         throw;
       }
     }
@@ -373,19 +374,19 @@ namespace MySql.Web.Personalization
         connection.OpenConnection(true);
         if (!string.IsNullOrEmpty(userName))
         {
-            PersonalizationProviderProcedures.my_aspnet_PersonalizationPerUser_SetPageSettings(ApplicationId, userName, path, dataBlob, DateTime.UtcNow, connection);
+          PersonalizationProviderProcedures.my_aspnet_PersonalizationPerUser_SetPageSettings(ApplicationId, userName, path, dataBlob, DateTime.UtcNow, connection);
         }
         else
-        {                     
-            PersonalizationProviderProcedures.my_aspnet_PersonalizationAllUsers_SetPageSettings(ApplicationId, path, dataBlob, DateTime.UtcNow, connection);          
+        {
+          PersonalizationProviderProcedures.my_aspnet_PersonalizationAllUsers_SetPageSettings(ApplicationId, path, dataBlob, DateTime.UtcNow, connection);
         }
       }
       catch (Exception ex)
       {
         if (writeExceptionsToEventLog)
-          WriteToEventLog(ex, "MySQLPersonalizationProvider - SavePersonalizationBlob");        
+          WriteToEventLog(ex, "MySQLPersonalizationProvider - SavePersonalizationBlob");
         throw;
-      }     
+      }
     }
 
     private PersonalizationStateInfoCollection FindSharedState(string path, int pageIndex, int pageSize, out int totalRecords)
@@ -422,7 +423,7 @@ namespace MySql.Web.Personalization
       catch (Exception ex)
       {
         if (writeExceptionsToEventLog)
-          WriteToEventLog(ex, "MySQLPersonalizationProvider - FindSharedState");        
+          WriteToEventLog(ex, "MySQLPersonalizationProvider - FindSharedState");
         throw;
       }
       finally
@@ -434,19 +435,19 @@ namespace MySql.Web.Personalization
     private PersonalizationStateInfoCollection FindUserState(string path, DateTime inactiveSinceDate, string userName, int pageIndex, int pageSize, out int totalRecords)
     {
       MySQLPersonalizationConnectionHelper connection = new MySQLPersonalizationConnectionHelper(connectionString);
-      
+
       try
       {
 
         MySqlCommand cmd = new MySqlCommand();
         connection.OpenConnection(true);
-        totalRecords = PersonalizationProviderProcedures.myaspnet_PersonalizationAdministration_FindState(false, ApplicationId, ApplicationName, pageIndex, pageSize, 
+        totalRecords = PersonalizationProviderProcedures.myaspnet_PersonalizationAdministration_FindState(false, ApplicationId, ApplicationName, pageIndex, pageSize,
                        path, userName, inactiveSinceDate, connection, ref cmd);
 
         PersonalizationStateInfoCollection stateInfoCollection = new PersonalizationStateInfoCollection();
 
-        using(var reader = cmd.ExecuteReader())
-        {          
+        using (var reader = cmd.ExecuteReader())
+        {
           while (reader.Read())
           {
             string pathQuery = reader.GetString("Path");
@@ -454,28 +455,28 @@ namespace MySql.Web.Personalization
             int size = reader.GetInt32("Size");
             string usernameQuery = reader.GetString("name");
             DateTime lastActivityDate = DateTime.SpecifyKind(reader.GetDateTime("LastActivityDate"), DateTimeKind.Utc);
-            stateInfoCollection.Add(new UserPersonalizationStateInfo(pathQuery, lastActivityDate, size, usernameQuery, lastActivityDate));        
+            stateInfoCollection.Add(new UserPersonalizationStateInfo(pathQuery, lastActivityDate, size, usernameQuery, lastActivityDate));
           }
-        }       
-        connection.CloseConnection();        
+        }
+        connection.CloseConnection();
 
         return stateInfoCollection;
       }
       catch (Exception ex)
       {
         if (writeExceptionsToEventLog)
-          WriteToEventLog(ex, "MySQLPersonalizationProvider - FindUserState");        
+          WriteToEventLog(ex, "MySQLPersonalizationProvider - FindUserState");
         throw;
       }
       finally
       {
         connection.CloseConnection();
       }
-    }  
+    }
 
     private int GetCountOfSharedState(string path)
-    {     
-      MySQLPersonalizationConnectionHelper connection = new MySQLPersonalizationConnectionHelper(connectionString);      
+    {
+      MySQLPersonalizationConnectionHelper connection = new MySQLPersonalizationConnectionHelper(connectionString);
       try
       {
         MySqlCommand cmd = new MySqlCommand();
@@ -487,18 +488,18 @@ namespace MySql.Web.Personalization
       catch (Exception ex)
       {
         if (writeExceptionsToEventLog)
-          WriteToEventLog(ex, "MySQLPersonalizationProvider - GetCountOfSharedState");        
+          WriteToEventLog(ex, "MySQLPersonalizationProvider - GetCountOfSharedState");
         throw;
       }
-      finally 
+      finally
       {
-        connection.CloseConnection();      
+        connection.CloseConnection();
       }
     }
 
     private int GetCountUserState(string path, DateTime userInactiveSinceDate, string userName)
     {
-      MySQLPersonalizationConnectionHelper connection = new MySQLPersonalizationConnectionHelper(connectionString);      
+      MySQLPersonalizationConnectionHelper connection = new MySQLPersonalizationConnectionHelper(connectionString);
       try
       {
         MySqlCommand cmd = new MySqlCommand();
@@ -510,25 +511,25 @@ namespace MySql.Web.Personalization
       catch (Exception ex)
       {
         if (writeExceptionsToEventLog)
-          WriteToEventLog(ex, "MySQLPersonalizationProvider - GetCountUserState");        
+          WriteToEventLog(ex, "MySQLPersonalizationProvider - GetCountUserState");
         throw;
       }
-      finally 
+      finally
       {
-        connection.CloseConnection();      
+        connection.CloseConnection();
       }
     }
 
-    private int ResetUserState(ResetUserStateMode mode, DateTime userInactiveSinceDate, string[] paths,  string[] usernames)
+    private int ResetUserState(ResetUserStateMode mode, DateTime userInactiveSinceDate, string[] paths, string[] usernames)
     {
       var connection = new MySQLPersonalizationConnectionHelper(connectionString);
       connection.OpenConnection(true);
-      
+
       try
       {
         if (ResetUserStateMode.PerInactiveDate == mode)
         {
-          return PersonalizationProviderProcedures.my_aspnet_PersonalizationAdministration_ResetUserState(ApplicationId, userInactiveSinceDate.ToUniversalTime(), null, null, connection);        
+          return PersonalizationProviderProcedures.my_aspnet_PersonalizationAdministration_ResetUserState(ApplicationId, userInactiveSinceDate.ToUniversalTime(), null, null, connection);
         }
         if (ResetUserStateMode.PerPaths == mode)
         {
@@ -536,18 +537,18 @@ namespace MySql.Web.Personalization
         }
         else
         {
-          return PersonalizationProviderProcedures.my_aspnet_PersonalizationAdministration_ResetUserState(ApplicationId, userInactiveSinceDate, usernames, paths, connection);        
+          return PersonalizationProviderProcedures.my_aspnet_PersonalizationAdministration_ResetUserState(ApplicationId, userInactiveSinceDate, usernames, paths, connection);
         }
       }
       catch (Exception ex)
       {
         if (writeExceptionsToEventLog)
-          WriteToEventLog(ex, "MySQLPersonalizationProvider - ResetUserState");  
+          WriteToEventLog(ex, "MySQLPersonalizationProvider - ResetUserState");
         throw;
       }
       finally
       {
-        connection.CloseConnection(); 
+        connection.CloseConnection();
       }
     }
 

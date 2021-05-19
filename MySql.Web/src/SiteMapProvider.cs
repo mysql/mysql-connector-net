@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,18 +26,15 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Configuration.Provider;
-using System.Data;
-using System.Diagnostics;
-using System.Text;
-using System.Web;
 using MySql.Data.MySqlClient;
 using MySql.Web.Common;
 using MySql.Web.Properties;
-
+using System;
+using System.Collections.Generic;
+using System.Configuration.Provider;
+using System.Data;
+using System.Diagnostics;
+using System.Web;
 
 namespace MySql.Web.SiteMap
 {
@@ -65,7 +62,7 @@ namespace MySql.Web.SiteMap
         throw new ArgumentException(Resources.SiteMapConnectionStringMissing);
 
       _connStr = ConfigUtility.GetConnectionString(config);
-      if (string.IsNullOrEmpty(_connStr)) 
+      if (string.IsNullOrEmpty(_connStr))
         throw new ArgumentException(Resources.SiteMapConnectionStringMissing);
 
       writeExceptionsToEventLog = false;
@@ -111,7 +108,7 @@ namespace MySql.Web.SiteMap
               LoadValue<string>(r, DescFld, out DescVal);
               LoadValue<string>(r, UrlFld, out UrlVal);
               LoadValue<string>(r, RolesFld, out RolesVal);
-              LoadValue<int>(r, ParentIdFld, out  ParentIdVal);
+              LoadValue<int>(r, ParentIdFld, out ParentIdVal);
 
               SiteMapNode node = new SiteMapNode(this, IdVal.ToString(), UrlVal, TitleVal, DescVal);
               _nodes.Add(IdVal, node);
@@ -131,9 +128,12 @@ namespace MySql.Web.SiteMap
             }
           }
         }
-        catch (MySqlException ex) {
+        catch (MySqlException ex)
+        {
           HandleMySqlException(ex, "BuildSiteMap");
-        } finally {
+        }
+        finally
+        {
           if ((conn.State & ConnectionState.Open) != 0) conn.Close();
         }
         return _rootNode;
@@ -192,7 +192,7 @@ namespace MySql.Web.SiteMap
     {
       if (_rootNode == null)
         BuildSiteMap();
-        
+
       return _rootNode;
     }
   }

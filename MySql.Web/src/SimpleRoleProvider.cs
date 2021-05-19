@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2014, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,7 +34,6 @@ using System.Collections.Generic;
 using System.Configuration.Provider;
 using System.Globalization;
 using System.Linq;
-using System.Resources;
 using System.Web.Hosting;
 using System.Web.Security;
 using WebMatrix.WebData;
@@ -390,7 +389,7 @@ namespace MySql.Web.Security
     /// <summary>
     /// Gets or sets the connection string.
     /// </summary>
-    public string ConnectionString { get; set;  }
+    public string ConnectionString { get; set; }
 
     /// <summary>
     /// Gets or sets the name associated to the connection string when stored in the configuration manager.

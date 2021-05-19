@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2014, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,12 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
+using MySql.Web.Personalization;
+using NUnit.Framework;
 using System;
 using System.Collections.Specialized;
 using System.Web.UI.WebControls.WebParts;
-using NUnit.Framework;
-using MySql.Data.MySqlClient;
-using MySql.Web.Personalization;
 
 namespace MySql.Web.Tests
 {
@@ -58,7 +58,7 @@ namespace MySql.Web.Tests
       cmd.Connection = Connection;
       cmd.ExecuteNonQuery();
 
-      
+
       // personalization all users      
       byte[] settings = CreateBlob(1000);
 
@@ -74,11 +74,11 @@ namespace MySql.Web.Tests
 
     public static byte[] CreateBlob(int size)
     {
-        byte[] buf = new byte[size];
+      byte[] buf = new byte[size];
 
-        Random r = new Random();
-        r.NextBytes(buf);
-        return buf;
+      Random r = new Random();
+      r.NextBytes(buf);
+      return buf;
     }
 
 
@@ -94,13 +94,13 @@ namespace MySql.Web.Tests
       cmd.ExecuteNonQuery();
       applicationId = cmd.LastInsertedId;
 
-     // Add my_aspnet_paths
+      // Add my_aspnet_paths
       var pathId = new Guid();
       cmd.CommandText = @"insert into my_aspnet_paths(applicationId, pathid, path, loweredpath) values(" + applicationId +
                           ",'" + pathId.ToString() + @"', '~/default.aspx', '~/default.aspx')";
       cmd.Connection = Connection;
       cmd.ExecuteNonQuery();
-      
+
       // add user
       cmd.CommandText = @"insert into my_aspnet_users(applicationId, name, isAnonymous, lastActivityDate) values(" + applicationId +
                         @",'GabPC\\Gab', 0, @LastActivityDate)";
@@ -108,11 +108,11 @@ namespace MySql.Web.Tests
       cmd.Parameters.AddWithValue("@LastActivityDate", DateTime.UtcNow);
       cmd.ExecuteNonQuery();
       var userId = cmd.LastInsertedId;
-      
+
       // personalization per user      
       byte[] settings = CreateBlob(1000);
-      
-      cmd.CommandText = @"insert into my_aspnet_personalizationperuser(applicationId, pathid, userId, pagesettings, lastUpdatedDate) values(" + 
+
+      cmd.CommandText = @"insert into my_aspnet_personalizationperuser(applicationId, pathid, userId, pagesettings, lastUpdatedDate) values(" +
                         applicationId + ", '" + pathId.ToString() + "', " + userId + ", @pageSettings, @LastUpdatedDate)";
       cmd.Parameters.AddWithValue("@pageSettings", settings);
       cmd.Parameters.AddWithValue("@LastUpdatedDate", DateTime.UtcNow);
@@ -167,11 +167,11 @@ namespace MySql.Web.Tests
       CreateDataForSharedScope();
       var p = InitPersonalizationProvider();
       int totalRecords;
-      var psq = new PersonalizationStateQuery();      
+      var psq = new PersonalizationStateQuery();
       psq.PathToMatch = "~/default.aspx";
       psq.UserInactiveSinceDate = DateTime.UtcNow;
       totalRecords = p.GetCountOfState(PersonalizationScope.Shared, psq);
-      Assert.AreEqual(1, totalRecords);    
+      Assert.AreEqual(1, totalRecords);
     }
 
     [Test]
@@ -224,7 +224,7 @@ namespace MySql.Web.Tests
     {
       CreateDataForUserScope();
       var p = InitPersonalizationProvider();
-      int totalRecords;     
+      int totalRecords;
 
       totalRecords = p.ResetUserState("~/default.aspx", Convert.ToDateTime("2038-01-19 03:14:07.999999")); // TimeStamp MaxValue
       Assert.AreEqual(1, totalRecords);

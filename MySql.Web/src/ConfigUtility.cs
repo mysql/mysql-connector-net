@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2017, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,10 +30,10 @@
 //  The copyright was assigned and transferred under the terms of
 //  the MySQL Contributor License Agreement (CLA)
 
+using MySql.Web.Properties;
 using System;
 using System.Collections.Specialized;
 using System.Configuration;
-using MySql.Web.Properties;
 
 namespace MySql.Web
 {
@@ -52,7 +52,7 @@ namespace MySql.Web
 
       var connectionStringSettings = ConfigurationManager.ConnectionStrings[name];
       if (connectionStringSettings == null) return null;
-       return connectionStringSettings.ConnectionString.Trim();
+      return connectionStringSettings.ConnectionString.Trim();
     }
   }
 }

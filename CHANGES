@@ -7,6 +7,7 @@
 - Removed the support for Kerberos authentication on Windows (Oracle Bug #32867404).
 - Added support for the EF Core 6.0 preview release (WL14578).
 - Added descriptions and renamed the MySqlGuidFormat enumeration (was MySQLGuidFormat) (Oracle Bug #32651245).
+- Removed unnecessary references in the MySql.Web project (MySQL Bug #103433, Oracle Bug #32805002).
 
 
 8.0.25

@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2014, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,21 +26,21 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Web.Common;
 using MySql.Web.General;
 using MySql.Web.Properties;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Configuration.Provider;
+using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
+using System.Web;
 using System.Web.Hosting;
 using System.Web.Security;
 using WebMatrix.WebData;
-using System.Security.Cryptography;
-using System.Web;
-using MySql.Web.Common;
-using System.Globalization;
 
 namespace MySql.Web.Security
 {
@@ -87,7 +87,7 @@ namespace MySql.Web.Security
       _prevProvider = previousProvider;
       if (_prevProvider != null)
       {
-        _prevProvider.ValidatingPassword += delegate(object sender, ValidatePasswordEventArgs args) { this.OnValidatingPassword(args); };
+        _prevProvider.ValidatingPassword += delegate (object sender, ValidatePasswordEventArgs args) { this.OnValidatingPassword(args); };
       }
     }
 
@@ -350,7 +350,7 @@ namespace MySql.Web.Security
         if (deleteAllRelatedData)
         {
           return dbConn.ExecuteInTransaction(
-              new List<Tuple<string, object[]>>() 
+              new List<Tuple<string, object[]>>()
                     {
                         new Tuple<string, object[]>(string.Format("delete from {0} where {1}=?;", UserTableName, UserIdColumn), new object [] { userid }),
                         new Tuple<string, object[]>(string.Format("delete from {0} where userid=?;", _oauthMembershipTable), new object [] { userid }),
@@ -860,7 +860,7 @@ namespace MySql.Web.Security
       }
       internal set
       {
-        _userTableName =value;
+        _userTableName = value;
       }
     }
 

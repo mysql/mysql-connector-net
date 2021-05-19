@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,15 +26,15 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
+using MySql.Web.Common;
+using MySql.Web.Security;
+using NUnit.Framework;
 using System;
 using System.Collections.Specialized;
 using System.Configuration.Provider;
 using System.Data;
 using System.Web.Security;
-using NUnit.Framework;
-using MySql.Data.MySqlClient;
-using MySql.Web.Common;
-using MySql.Web.Security;
 
 namespace MySql.Web.Tests
 {
@@ -144,7 +144,7 @@ namespace MySql.Web.Tests
         Assert.AreNotEqual(-1, index);
       }
 
-        execSQL(@" ALTER TABLE mysql_Membership 
+      execSQL(@" ALTER TABLE mysql_Membership 
             CHANGE Email Email VARCHAR(128), COMMENT='2';");
       cmd = new MySqlCommand("SHOW CREATE TABLE mysql_membership", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())

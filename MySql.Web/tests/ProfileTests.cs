@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,18 +26,18 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using NUnit.Framework;
 using MySql.Web.Profile;
+using NUnit.Framework;
+using System;
 using System.Collections.Specialized;
-using System.Reflection;
 using System.Configuration;
 using System.Data;
+using System.Reflection;
 using System.Web.Profile;
 
 namespace MySql.Web.Tests
 {
-  public class ProfileTests : WebTestBase 
+  public class ProfileTests : WebTestBase
   {
     private MySQLProfileProvider InitProfileProvider()
     {
@@ -79,7 +79,7 @@ namespace MySql.Web.Tests
 
       DataTable dt = FillTable("SELECT * FROM my_aspnet_applications");
       Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_applications is not 1");
-      
+
       dt = FillTable("SELECT * FROM my_aspnet_users");
       Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_users is not 1");
 
@@ -118,10 +118,10 @@ namespace MySql.Web.Tests
 
       provider.SetPropertyValues(ctx, values);
 
-      DataTable dt = FillTable("SELECT * FROM my_aspnet_applications");      
+      DataTable dt = FillTable("SELECT * FROM my_aspnet_applications");
       Assert.True(0 == dt.Rows.Count, "Table my_aspnet_applications Rows is not 0");
 
-      dt = FillTable("SELECT * FROM my_aspnet_users");      
+      dt = FillTable("SELECT * FROM my_aspnet_users");
       Assert.True(0 == dt.Rows.Count, "Table my_aspnet_users Rows is not 0");
 
       dt = FillTable("SELECT * FROM my_aspnet_profiles");
@@ -215,7 +215,7 @@ namespace MySql.Web.Tests
       pi.SetValue(appObject, -1, null);
     }
 
-    [Test,Order(4)]
+    [Test, Order(4)]
     public void AuthenticatedStringProperty()
     {
       ProfileBase profile = ProfileBase.Create("foo", true);
