@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <Description>MySql.Web.Tests</Description>
-    <Copyright>Copyright (c) 2016, 2021, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright (c) 2016, 2021, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.25</Version>
+    <Version>8.0.26</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net452;net48;</TargetFrameworks>
     <AssemblyName>MySql.Web.Tests</AssemblyName>
@@ -33,53 +33,27 @@
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
-    <PackageReference Include="System.Net.Http" Version="4.3.3" />
-    <PackageReference Include="Microsoft.AspNet.Razor" Version="3.2.7" />
-    <PackageReference Include="Microsoft.AspNet.WebPages" Version="3.2.7" />
-    <PackageReference Include="Microsoft.AspNet.WebPages.Data" Version="3.2.7" />
-    <PackageReference Include="Microsoft.AspNet.WebPages.WebData" Version="3.2.7" />
-    <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0" />
-    <PackageReference Include="WebMatrix.WebData" Version="2.0.30506" />
     <ProjectReference Include="..\..\MySQL.Data\src\MySql.Data.csproj" />
     <ProjectReference Include="..\src\MySql.Web.csproj" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration.Install" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Security" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.ApplicationServices" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="SessionLocking\InitSessionLocking.aspx.cs">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
+    <Compile Update="SessionLocking\InitSessionLocking.aspx.cs" />
     <Compile Update="SessionLocking\InitSessionLocking.aspx.designer.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Update="SessionLocking\read.aspx.cs">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
+    <Compile Update="SessionLocking\read.aspx.cs" />
     <Compile Update="SessionLocking\read.aspx.designer.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Update="SessionLocking\write.aspx.cs">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
+    <Compile Update="SessionLocking\write.aspx.cs" />
     <Compile Update="SessionLocking\write.aspx.designer.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Update="SessionLocking\write2.aspx.cs">
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
+    <Compile Update="SessionLocking\write2.aspx.cs" />
     <Compile Update="SessionLocking\write2.aspx.designer.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>

@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,23 +26,21 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
-using System;
-using System.Configuration;
-using System.Collections.Specialized;
-using System.Web.Hosting;
 using MySql.Data.MySqlClient;
-using System.Configuration.Provider;
-using System.IO;
 using MySql.Web.Common;
 using MySql.Web.General;
-using System.Web.SessionState;
-using System.Web.Configuration;
-using System.Web;
+using System;
+using System.Collections.Specialized;
+using System.Configuration;
+using System.Configuration.Provider;
 using System.Diagnostics;
-using System.Threading;
+using System.IO;
 using System.Security;
-
+using System.Threading;
+using System.Web;
+using System.Web.Configuration;
+using System.Web.Hosting;
+using System.Web.SessionState;
 
 namespace MySql.Web.SessionState
 {
@@ -54,7 +52,7 @@ namespace MySql.Web.SessionState
   public class MySqlSessionStateStore : SessionStateStoreProviderBase
   {
     string connectionString;
-//    ConnectionStringSettings connectionStringSettings;
+    //    ConnectionStringSettings connectionStringSettings;
     string eventSource = "MySQLSessionStateStore";
     string eventLog = "Application";
     string exceptionMessage = "An exception occurred. Please check the event log.";
@@ -216,7 +214,7 @@ namespace MySql.Web.SessionState
       }
       catch (MySqlException e)
       {
-        HandleMySqlException(e, "Initialize");      
+        HandleMySqlException(e, "Initialize");
       }
 
       // Setup the cleanup timer
@@ -284,7 +282,7 @@ namespace MySql.Web.SessionState
       }
       catch (MySqlException e)
       {
-        HandleMySqlException(e, "CreateUninitializedItem");      
+        HandleMySqlException(e, "CreateUninitializedItem");
       }
     }
 
@@ -373,9 +371,9 @@ namespace MySql.Web.SessionState
           cmd.ExecuteNonQuery();
         }
       }
-      catch(MySqlException e)
+      catch (MySqlException e)
       {
-        HandleMySqlException(e, "ReleaseItemExclusive");      
+        HandleMySqlException(e, "ReleaseItemExclusive");
       }
     }
 
@@ -389,7 +387,7 @@ namespace MySql.Web.SessionState
     public override void RemoveItem(System.Web.HttpContext context, string id, object lockId, SessionStateStoreData item)
     {
       bool sessionDeleted;
-      
+
       try
       {
         using (MySqlConnection conn = new MySqlConnection(connectionString))
@@ -401,8 +399,8 @@ namespace MySql.Web.SessionState
           cmd.Parameters.AddWithValue("@SessionId", id);
           cmd.Parameters.AddWithValue("@ApplicationId", ApplicationId);
           cmd.Parameters.AddWithValue("@LockId", lockId);
-          conn.Open();      
-          sessionDeleted = cmd.ExecuteNonQuery() > 0;          
+          conn.Open();
+          sessionDeleted = cmd.ExecuteNonQuery() > 0;
         }
         if (sessionDeleted && this.enableExpireCallback)
         {
@@ -411,8 +409,8 @@ namespace MySql.Web.SessionState
       }
       catch (MySqlException ex)
       {
-        HandleMySqlException(ex, "RemoveItem Error: " + ex.Message);          
-      }      
+        HandleMySqlException(ex, "RemoveItem Error: " + ex.Message);
+      }
     }
 
 
@@ -422,7 +420,7 @@ namespace MySql.Web.SessionState
     /// <param name="context">The HttpContext object for the current request.</param>
     /// <param name="id">The session ID for the current request.</param>
     public override void ResetItemTimeout(System.Web.HttpContext context, string id)
-    {     
+    {
       try
       {
         using (MySqlConnection conn = new MySqlConnection(connectionString))
@@ -439,9 +437,9 @@ namespace MySql.Web.SessionState
         }
       }
       catch (MySqlException e)
-      {        
+      {
         HandleMySqlException(e, "ResetItemTimeout");
-      }      
+      }
     }
 
     /// <summary>
@@ -457,7 +455,7 @@ namespace MySql.Web.SessionState
     /// A false value indicates an existing item.
     /// </param>
     public override void SetAndReleaseItemExclusive(System.Web.HttpContext context, string id, SessionStateStoreData item, object lockId, bool newItem)
-    {            
+    {
       try
       {
         using (MySqlConnection conn = new MySqlConnection(connectionString))
@@ -503,14 +501,14 @@ namespace MySql.Web.SessionState
             cmd.Parameters.AddWithValue("@ApplicationId", ApplicationId);
             cmd.Parameters.AddWithValue("@LockId", lockId);
           }
-          conn.Open();          
-          cmd.ExecuteNonQuery();          
+          conn.Open();
+          cmd.ExecuteNonQuery();
         }
       }
       catch (MySqlException e)
-      {       
+      {
         HandleMySqlException(e, "SetAndReleaseItemExclusive");
-      }      
+      }
     }
 
 
@@ -657,7 +655,7 @@ namespace MySql.Web.SessionState
           }
         }
       }
-      catch(MySqlException e)
+      catch (MySqlException e)
       {
         HandleMySqlException(e, "GetSessionStoreItem");
       }
@@ -721,7 +719,7 @@ namespace MySql.Web.SessionState
           timeout);
     }
 
-    
+
     private SessionStateItemCollection DeserializeSessionItems(byte[] serializedItems)
     {
       SessionStateItemCollection sessionItems = new SessionStateItemCollection();
@@ -739,39 +737,39 @@ namespace MySql.Web.SessionState
 
 
     private void CleanupOldSessions(object o)
-    {      
-     
-      lock(this)
+    {
+
+      lock (this)
       {
         if (cleanupRunning)
           return;
 
         cleanupRunning = true;
-      }    
+      }
       try
       {
         using (MySqlConnection con = new MySqlConnection(connectionString))
         {
-          con.Open();          
+          con.Open();
           MySqlCommand cmd = new MySqlCommand(
               "UPDATE my_aspnet_sessioncleanup SET LastRun=NOW() WHERE" +
               " LastRun + INTERVAL IntervalMinutes MINUTE < NOW() AND ApplicationId = @ApplicationId", con);
           cmd.Parameters.AddWithValue("@ApplicationId", ApplicationId);
-          int updatedSessions = cmd.ExecuteNonQuery();          
-          if (updatedSessions > 0)                     
-            DeleteTimedOutSessions();          
+          int updatedSessions = cmd.ExecuteNonQuery();
+          if (updatedSessions > 0)
+            DeleteTimedOutSessions();
         }
       }
       catch (MySqlException e)
       {
-        HandleMySqlException(e, "CleanupOldSessions");        
+        HandleMySqlException(e, "CleanupOldSessions");
       }
       finally
       {
         lock (this)
         {
           cleanupRunning = false;
-        }        
+        }
       }
     }
 
@@ -845,67 +843,67 @@ namespace MySql.Web.SessionState
     }
 
     private void DeleteTimedOutSessionsWithoutCallback()
-    {     
+    {
       try
       {
         using (MySqlConnection con = new MySqlConnection(connectionString))
         {
-          con.Open();     
-          MySqlCommand cmd = new MySqlCommand("DELETE FROM my_aspnet_sessions WHERE Expires < NOW() AND ApplicationId = @ApplicationId", con);          
+          con.Open();
+          MySqlCommand cmd = new MySqlCommand("DELETE FROM my_aspnet_sessions WHERE Expires < NOW() AND ApplicationId = @ApplicationId", con);
           cmd.Parameters.AddWithValue("@ApplicationId", ApplicationId);
-          cmd.ExecuteNonQuery();          
+          cmd.ExecuteNonQuery();
         }
       }
       catch (Exception e)
-      {        
+      {
         Trace.Write("Got exception in Delete Timed Out Sessions With Out Callback " + e);
         throw;
-      }      
+      }
     }
 
     private void DeleteTimedOutSessionsWithCallback()
     {
       using (MySqlConnection con = new MySqlConnection(connectionString))
+      {
+        con.Open();
+        MySqlCommand cmd = new MySqlCommand("SELECT SessionID, SessionItems FROM my_aspnet_sessions WHERE Expires < NOW() AND ApplicationId = @ApplicationId", con);
+        cmd.Parameters.AddWithValue("@ApplicationId", ApplicationId);
+
+        using (MySqlDataReader reader = cmd.ExecuteReader())
         {
-          con.Open();
-          MySqlCommand cmd = new MySqlCommand("SELECT SessionID, SessionItems FROM my_aspnet_sessions WHERE Expires < NOW() AND ApplicationId = @ApplicationId", con);          
-          cmd.Parameters.AddWithValue("@ApplicationId", ApplicationId);
-
-          using (MySqlDataReader reader = cmd.ExecuteReader())
+          while (reader.Read())
           {
-            while (reader.Read())
+            string sid = reader.GetString(0);
+            object items = reader.GetValue(1);
+            byte[] rawSessionItems = (items is DBNull) ? null : (byte[])items;
+
+            SessionStateItemCollection sessionItems = this.DeserializeSessionItems(rawSessionItems);
+            SessionStateStoreData ssd = new SessionStateStoreData(sessionItems, new HttpStaticObjectsCollection(), 0);
+
+            try
             {
-              string sid = reader.GetString(0);
-              object items = reader.GetValue(1);
-              byte[] rawSessionItems = (items is DBNull) ? null : (byte[])items;              
+              if (this.expireCallback != null) this.expireCallback.Invoke(sid, ssd);
 
-              SessionStateItemCollection sessionItems = this.DeserializeSessionItems(rawSessionItems);
-              SessionStateStoreData ssd = new SessionStateStoreData(sessionItems, new HttpStaticObjectsCollection(), 0);
-              
-              try
+              using (MySqlConnection con2 = new MySqlConnection(connectionString))
               {
-                if (this.expireCallback != null)  this.expireCallback.Invoke(sid, ssd);
-
-                using (MySqlConnection con2 = new MySqlConnection(connectionString))
-                {                 
-                  MySqlCommand cmd2 = new MySqlCommand("DELETE FROM my_aspnet_sessions" +
-                      " WHERE SessionId = @SessionId" +
-                      " AND ApplicationId = @ApplicationId", con2);
-                  cmd2.Parameters.AddWithValue("@SessionId", sid);
-                  cmd2.Parameters.AddWithValue("@ApplicationId", ApplicationId);
-                  con2.Open();      
-                  cmd2.ExecuteNonQuery();                  
-                }
-               
+                MySqlCommand cmd2 = new MySqlCommand("DELETE FROM my_aspnet_sessions" +
+                    " WHERE SessionId = @SessionId" +
+                    " AND ApplicationId = @ApplicationId", con2);
+                cmd2.Parameters.AddWithValue("@SessionId", sid);
+                cmd2.Parameters.AddWithValue("@ApplicationId", ApplicationId);
+                con2.Open();
+                cmd2.ExecuteNonQuery();
               }
-              catch(Exception e)
-              {                                
-                Trace.Write("Got exception in Delete Timed Out Sessions With Callback " + e);
-                throw;
-              }                            
+
+            }
+            catch (Exception e)
+            {
+              Trace.Write("Got exception in Delete Timed Out Sessions With Callback " + e);
+              throw;
             }
           }
-       }     
+        }
+      }
     }
   }
 }

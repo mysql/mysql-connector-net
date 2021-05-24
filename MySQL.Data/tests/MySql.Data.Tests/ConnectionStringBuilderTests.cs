@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2021, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,9 +28,9 @@
 
 using MySql.Data.Common;
 using MySqlX.XDevAPI;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -53,7 +53,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(33, Convert.ToInt32(sb.MinimumPoolSize));
       Assert.AreEqual(66, Convert.ToInt32(sb.MaximumPoolSize));
       Assert.AreEqual(1, Convert.ToInt32(sb.Keepalive));
-      Exception  ex = Assert.Throws<ArgumentException>(()=> sb.ConnectionString = "server=localhost;badkey=badvalue");
+      Exception ex = Assert.Throws<ArgumentException>(() => sb.ConnectionString = "server=localhost;badkey=badvalue");
 #if !(NETCOREAPP3_1 || NET5_0)
       Assert.AreEqual($"Option not supported.{Environment.NewLine}Parameter name: badkey", ex.Message);        
 #else
@@ -158,22 +158,44 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Null(obj);
     }
 
-#if NETCOREAPP3_1
+#if !NETFRAMEWORK
     [Test]
     public void DotnetCoreNotCurrentlySupported()
     {
+      List<string> options = new List<string>(new string[] { "useperformancemonitor", });
+      if (Platform.IsWindows())
+        options.Add("integratedsecurity");
+
+      foreach (string option in options)
+      {
+        PlatformNotSupportedException ex = Assert.Throws<PlatformNotSupportedException>(() =>
+        {
+          MySqlConnectionStringBuilder connString = new MySqlConnectionStringBuilder($"server=localhost;user=root;password=;{option}=dummy");
+        });
+      }
+
+      MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder();
+      if (Platform.IsWindows())
+        Assert.Throws<PlatformNotSupportedException>(() => csb.IntegratedSecurity = true);
+      Assert.Throws<PlatformNotSupportedException>(() => csb.UsePerformanceMonitor = true);
+    }
+#endif
+
+#if !NETFRAMEWORK
+    [Test]
+    public void NonWindowsOSNotCurrentlySupported()
+    {
+      if (Platform.IsWindows()) Assert.Ignore("This test is for non Windows OS only.");
+
       List<string> options = new List<string>(new string[]
       {
         "sharedmemoryname",
         "pipe",
-        "useperformancemonitor",
       });
-      if (Platform.IsWindows())
-        options.Add("integratedsecurity");
 
-      foreach(string option in options)
+      foreach (string option in options)
       {
-        PlatformNotSupportedException ex = Assert.Throws<PlatformNotSupportedException>(() => 
+        PlatformNotSupportedException ex = Assert.Throws<PlatformNotSupportedException>(() =>
         {
           MySqlConnectionStringBuilder connString = new MySqlConnectionStringBuilder($"server=localhost;user=root;password=;{option}=dummy");
         });
@@ -181,10 +203,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder();
       Assert.Throws<PlatformNotSupportedException>(() => csb.SharedMemoryName = "dummy");
-      if (Platform.IsWindows())
-        Assert.Throws<PlatformNotSupportedException>(() => csb.IntegratedSecurity = true);
       Assert.Throws<PlatformNotSupportedException>(() => csb.PipeName = "dummy");
-      Assert.Throws<PlatformNotSupportedException>(() => csb.UsePerformanceMonitor = true);
       csb.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
       Assert.Throws<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory);
       Assert.Throws<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe);
@@ -247,7 +266,7 @@ namespace MySql.Data.MySqlClient.Tests
       var connStr = $"server=localhost;userid=root;defaultauthenticationplugin={method}";
       ex = Assert.Throws<MySqlException>(() => new MySqlConnection(connStr));
       StringAssert.AreEqualIgnoringCase(string.Format(Resources.AuthenticationMethodNotSupported, method), ex.Message);
-      
+
       connStr = "server=localhost;userid=root;defaultauthenticationplugin=";
       var conn = new MySqlConnection(connStr);
     }

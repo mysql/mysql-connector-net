@@ -583,6 +583,16 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Replacement document has an &apos;_id&apos; that is
+        ///different from the matched document..
+        /// </summary>
+        public static string ReplaceWithNoMatchingId {
+            get {
+                return ResourceManager.GetString("ReplaceWithNoMatchingId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The server doesn&apos;t support the requested operation. Please update the MySQL Server, client library, or both..
         /// </summary>
         public static string SchemaCreateCollectionMsg {

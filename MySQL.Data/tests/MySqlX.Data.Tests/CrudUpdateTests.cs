@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.//
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates. All rights reserved.//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
 // published by the Free Software Foundation.
@@ -25,13 +25,14 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 
 namespace MySqlX.Data.Tests
 {
@@ -251,13 +252,18 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentNullException>(() => collection.ReplaceOne("", docs[1]));
       Assert.Throws<ArgumentNullException>(() => collection.ReplaceOne(string.Empty, docs[1]));
       Assert.Throws<ArgumentNullException>(() => collection.ReplaceOne("1", null));
+      // Replace using no matching id
+      Assert.Throws<MySqlException>(() => collection.ReplaceOne(3, new DbDoc("{ \"_id\": 2, \"name\": \"John\", \"lastName\": \"Smith\" }")),
+        ResourcesX.ReplaceWithNoMatchingId);
+
+      var newDoc = new { _id = 1, title = "Book 11", pages = 311 };
 
       // Replace using a numeric identifier.
-      Assert.AreEqual(1, collection.ReplaceOne(1, docs[1]).AffectedItemsCount);
+      Assert.AreEqual(1, collection.ReplaceOne(1, newDoc).AffectedItemsCount);
       DbDoc document = collection.GetOne(1);
       Assert.AreEqual(1, Convert.ToInt32(document.Id));
-      Assert.AreEqual("Book 2", document["title"]);
-      Assert.AreEqual(30, Convert.ToInt32(document["pages"]));
+      Assert.AreEqual("Book 11", document["title"]);
+      Assert.AreEqual(311, Convert.ToInt32(document["pages"]));
 
       // Replace using a string identifier.
       Assert.AreEqual(1, collection.ReplaceOne("2", new DbDoc("{ \"name\": \"John\", \"lastName\": \"Smith\" }")).AffectedItemsCount);

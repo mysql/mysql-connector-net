@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2014, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,9 +26,9 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using System;
 using System.Globalization;
-using MySql.Data.MySqlClient;
 
 namespace MySql.Web.Personalization
 {
@@ -38,7 +38,7 @@ namespace MySql.Web.Personalization
     /// <summary>
     /// Retrieves profile data from my_aspnet_PersonalizationAllUsers or my_aspnet_PersonalizationPerUser meeting several input criteria.
     /// </summary>
-    internal static int myaspnet_PersonalizationAdministration_FindState(bool allUsersScope, long applicationId, string applicationName, int pageIndex, int pageSize, string path, string userName, 
+    internal static int myaspnet_PersonalizationAdministration_FindState(bool allUsersScope, long applicationId, string applicationName, int pageIndex, int pageSize, string path, string userName,
                                                                         DateTime inactiveSinceDate, MySQLPersonalizationConnectionHelper connection, ref MySqlCommand findStateCommand)
     {
       // create memory table to store results
@@ -95,7 +95,7 @@ namespace MySql.Web.Personalization
         cmd.CommandText = "SELECT Count(PathId) FROM pageIndexResults";
         cmd.Connection = connection.Connection;
         int totalRecords = (int)cmd.ExecuteScalar();
-      
+
         query = "SELECT my_aspnet_Paths.Path, " +
                     "SharedDataPerPath.LastUpdatedDate, " +
                     "SharedDataPerPath.SharedDataLength, " +
@@ -142,7 +142,7 @@ namespace MySql.Web.Personalization
                    "AND (@UserName IS NULL OR my_aspnet_users.name LIKE @UserName) " +
                    "AND (@InactiveSinceDate IS NULL OR my_aspnet_users.LastActivityDate <= @InactiveSinceDate) " +
                    "ORDER BY my_aspnet_paths.Path ASC, my_aspnet_users.name ASC )";
-        
+
         cmd.CommandText = query;
         cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
         cmd.Parameters.AddWithValue("@Path", path);
@@ -178,9 +178,9 @@ namespace MySql.Web.Personalization
       if (applicationId <= 0)
         return 0;
 
-       if (!connection.Opened)
+      if (!connection.Opened)
         throw new Exception("Error: Connection should be open");
-      
+
       if (allUsersScope)
       {
 
@@ -195,12 +195,13 @@ namespace MySql.Web.Personalization
         var count = cmd.ExecuteScalar().ToString();
         return int.Parse(count, CultureInfo.InvariantCulture);
       }
-      else {
-        MySqlCommand cmd = new MySqlCommand("Select count(*) from my_aspnet_personalizationperuser as peruser, my_aspnet_users as users, "+
+      else
+      {
+        MySqlCommand cmd = new MySqlCommand("Select count(*) from my_aspnet_personalizationperuser as peruser, my_aspnet_users as users, " +
                                         "my_aspnet_paths as paths " +
                                         "where paths.applicationId = @ApplicationId and " +
                                         "peruser.userid = users.id and " +
-                                        "peruser.pathId = paths.pathId and " +                                         
+                                        "peruser.pathId = paths.pathId and " +
                                         "(@Path is null or paths.loweredpath like lower(@Path) and " +
                                         "(@UserName is null or users.name like lower(@UserName))) and " +
                                         "(@InactiveSinceDate is null or users.lastactivitydate <= @InactiveSinceDate) ", connection.Connection);
@@ -212,7 +213,7 @@ namespace MySql.Web.Personalization
         cmd.Connection = connection.Connection;
         var count = cmd.ExecuteScalar().ToString();
         return int.Parse(count, CultureInfo.InvariantCulture);
-      }    
+      }
     }
 
 
@@ -248,7 +249,7 @@ namespace MySql.Web.Personalization
       if (int.Parse(userId, CultureInfo.InvariantCulture) == 0)
         return null;
 
-      UpdateUserLastActiveDate(connection.Connection, int.Parse(userId, CultureInfo.InvariantCulture), currentTimeUtc);      
+      UpdateUserLastActiveDate(connection.Connection, int.Parse(userId, CultureInfo.InvariantCulture), currentTimeUtc);
 
       cmd = new MySqlCommand("select pagesettings from my_aspnet_personalizationperuser as peruser where peruser.pathid = @PathId and peruser.userid = @UserId");
       cmd.Connection = connection.Connection;
@@ -259,13 +260,13 @@ namespace MySql.Web.Personalization
 
       byte[] settings = null;
       while (reader.Read())
-      {        
+      {
         int size = (int)reader.GetBytes(0, 0, null, 0, 0);
         settings = new byte[size];
-        reader.GetBytes(0, 0, settings, 0, size);                
+        reader.GetBytes(0, 0, settings, 0, size);
       }
       reader.Close();
-      return settings;          
+      return settings;
     }
 
 
@@ -297,7 +298,7 @@ namespace MySql.Web.Personalization
           reader.GetBytes(0, 0, settings, 0, size);
         }
         reader.Close();
-        return settings;          
+        return settings;
       }
 
       return null;
@@ -306,7 +307,7 @@ namespace MySql.Web.Personalization
 
     internal static void my_aspnet_PersonalizationPerUser_ResetPageSettings(long applicationId, string userName, string path, DateTime currentTimeUtc, MySQLPersonalizationConnectionHelper connection)
     {
-      
+
       if (applicationId <= 0)
         return;
 
@@ -328,17 +329,17 @@ namespace MySql.Web.Personalization
         var userId = (int)cmd.ExecuteScalar();
         if (userId != 0)
         {
-          var rows = UpdateUserLastActiveDate(connection.Connection, userId, currentTimeUtc);          
+          var rows = UpdateUserLastActiveDate(connection.Connection, userId, currentTimeUtc);
           if (rows != 0)
           {
             cmd = new MySqlCommand("delete from my_aspnet_personalizationperuser WHERE pathId = @PathId AND userId = @UserId");
             cmd.Connection = connection.Connection;
             cmd.Parameters.AddWithValue("@PathId", pathId);
             cmd.Parameters.AddWithValue("@UserId", userId);
-            cmd.ExecuteNonQuery();          
+            cmd.ExecuteNonQuery();
           }
         }
-      }    
+      }
     }
 
     internal static void my_aspnet_PersonalizationAllUsers_ResetPageSettings(long applicationId, string path, MySQLPersonalizationConnectionHelper connection)
@@ -359,8 +360,8 @@ namespace MySql.Web.Personalization
       {
         cmd = new MySqlCommand("delete my_aspnet_personalizationallusers.* from my_aspnet_personalizationallusers WHERE pathId = @PathId");
         cmd.Connection = connection.Connection;
-        cmd.Parameters.AddWithValue("@PathId", pathId);        
-        cmd.ExecuteNonQuery();          
+        cmd.Parameters.AddWithValue("@PathId", pathId);
+        cmd.ExecuteNonQuery();
       }
 
     }
@@ -371,7 +372,7 @@ namespace MySql.Web.Personalization
       MySqlTransaction trans;
       trans = cnn.BeginTransaction();
       try
-      {        
+      {
         var cmd = new MySqlCommand("update my_aspnet_users set lastactivitydate = @CurrentTimeUtc where id = @UserId");
         cmd.Connection = cnn;
         cmd.Transaction = trans;
@@ -389,7 +390,7 @@ namespace MySql.Web.Personalization
     }
 
 
-    internal static int my_aspnet_PersonalizationAdministration_ResetUserState(long applicationId, DateTime inactiveSinceDate,string[] usernames, string[] paths, MySQLPersonalizationConnectionHelper connection)
+    internal static int my_aspnet_PersonalizationAdministration_ResetUserState(long applicationId, DateTime inactiveSinceDate, string[] usernames, string[] paths, MySQLPersonalizationConnectionHelper connection)
     {
       if (applicationId <= 0)
         return 0;
@@ -400,7 +401,7 @@ namespace MySql.Web.Personalization
       var rows = 0;
       var cmd = new MySqlCommand();
       if (usernames == null) usernames = new string[1] { "" };
-      if (paths == null ) paths = new string[1] { "" };
+      if (paths == null) paths = new string[1] { "" };
 
       foreach (var username in usernames)
       {
@@ -414,7 +415,7 @@ namespace MySql.Web.Personalization
                             "paths.pathid = peruser.pathid AND " +
                             "(@InactiveSinceDate is null OR users.lastactivitydate <= @InactiveSinceDate) ";
           query = string.IsNullOrEmpty(username) ? query : query += " AND (@UserName is null OR users.name = @UserName)  ";
-          query = string.IsNullOrEmpty(path) ? query : query +=  " AND (@Path is null OR paths.loweredpath = LOWER(@Path))";          
+          query = string.IsNullOrEmpty(path) ? query : query += " AND (@Path is null OR paths.loweredpath = LOWER(@Path))";
           cmd.CommandText = query;
           cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
           cmd.Parameters.AddWithValue("@InactiveSinceDate", inactiveSinceDate);
@@ -424,7 +425,7 @@ namespace MySql.Web.Personalization
           rows += cmd.ExecuteNonQuery();
         }
       }
-      
+
       return rows;
     }
 
@@ -445,14 +446,14 @@ namespace MySql.Web.Personalization
         cmd.CommandText = "DELETE FROM my_aspnet_personalizationallusers " +
                           "WHERE PathId IN (SELECT Paths.PathId FROM my_aspnet_paths as paths " +
                           "WHERE paths.ApplicationId = @ApplicationId)";
-        cmd.Parameters.AddWithValue("@ApplicationId", applicationId);        
+        cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
       }
       else
       {
         cmd.CommandText = "DELETE FROM my_aspnet_personalizationperuser " +
                           "WHERE PathId IN (SELECT Paths.PathId FROM my_aspnet_paths as paths " +
                           "WHERE paths.ApplicationId = @ApplicationId)";
-        cmd.Parameters.AddWithValue("@ApplicationId", applicationId);        
+        cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
       }
 
       var rows = cmd.ExecuteNonQuery();
@@ -461,7 +462,7 @@ namespace MySql.Web.Personalization
 
     internal static int my_aspnet_PersonalizationAdministration_ResetSharedState(long applicationId, string[] paths, MySQLPersonalizationConnectionHelper connection)
     {
-     if (applicationId <= 0)
+      if (applicationId <= 0)
         return 0;
 
       if (!connection.Opened)
@@ -482,10 +483,10 @@ namespace MySql.Web.Personalization
                            "((paths.ApplicationId = @ApplicationId AND " +
                            "my_aspnet_personalizationallusers.PathId = paths.PathId) AND " +
                            "paths.loweredpath = LOWER(@Path))";
-                           
+
         cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
         cmd.Parameters.AddWithValue("@Path", path);
-        rows += cmd.ExecuteNonQuery();       
+        rows += cmd.ExecuteNonQuery();
       }
 
       return rows;
@@ -499,7 +500,7 @@ namespace MySql.Web.Personalization
 
       if (!connection.Opened)
         throw new Exception("Error: Connection should be open");
-      
+
       var cmd = new MySqlCommand();
       cmd.Connection = connection.Connection;
 
@@ -509,14 +510,14 @@ namespace MySql.Web.Personalization
         cmd.CommandText = "DELETE FROM my_aspnet_personalizationallusers " +
                           "WHERE PathId IN " +
                           "(SELECT paths.PathId FROM my_aspnet_paths as paths " +
-                            "WHERE paths.ApplicationId = @ApplicationId)";        
+                            "WHERE paths.ApplicationId = @ApplicationId)";
       }
       else
-      { 
+      {
         cmd.CommandText = "DELETE FROM my_aspnet_personalizationperuser " +
                           "WHERE PathId IN " +
                           "(SELECT Paths.PathId FROM my_aspnet_paths Paths " +
-                          "WHERE Paths.ApplicationId = @ApplicationId)";     
+                          "WHERE Paths.ApplicationId = @ApplicationId)";
       }
       cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
       var rows = cmd.ExecuteNonQuery();
@@ -552,7 +553,7 @@ namespace MySql.Web.Personalization
         trans = connection.Connection.BeginTransaction();
 
         try
-        {                    
+        {
           cmd.Transaction = trans;
           cmd.CommandText = "INSERT INTO my_aspnet_paths (applicationId, pathId, path, loweredpath) values (@ApplicationId, @PathId, @Path, LOWER(@Path))";
           cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
@@ -600,12 +601,12 @@ namespace MySql.Web.Personalization
           throw;
         }
 
-          cmd.Parameters.Clear();
-          cmd.CommandText = "SELECT Id from my_aspnet_users where applicationId = @ApplicationId and name = @UserName)";
-          cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
-          cmd.Parameters.AddWithValue("@UserName", userName);
-          userId = (string)cmd.ExecuteScalar();
-   
+        cmd.Parameters.Clear();
+        cmd.CommandText = "SELECT Id from my_aspnet_users where applicationId = @ApplicationId and name = @UserName)";
+        cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
+        cmd.Parameters.AddWithValue("@UserName", userName);
+        userId = (string)cmd.ExecuteScalar();
+
       }
       var rows = UpdateUserLastActiveDate(connection.Connection, int.Parse(userId, CultureInfo.InvariantCulture), DateTime.UtcNow);
       if (rows == 0)
@@ -626,7 +627,8 @@ namespace MySql.Web.Personalization
         cmd.Parameters.AddWithValue("@CurrentTimeUtc", DateTime.UtcNow);
         cmd.ExecuteNonQuery();
       }
-      else {
+      else
+      {
         cmd.Parameters.Clear();
         cmd.CommandText = "INSERT INTO my_aspnet_personalizationperuser(applicationId, pathId, userId, pageSettings, lastUpdatedDate) VALUES(@applicationId, @PathId, @userId, @PageSettings, @LastUpdatedDate)";
         cmd.Parameters.AddWithValue("@applicationId", applicationId);
@@ -634,11 +636,11 @@ namespace MySql.Web.Personalization
         cmd.Parameters.AddWithValue("@PathId", pathId);
         cmd.Parameters.AddWithValue("@PageSettings", settings);
         cmd.Parameters.AddWithValue("@LastUpdatedDate", DateTime.UtcNow);
-        rows = cmd.ExecuteNonQuery();      
+        rows = cmd.ExecuteNonQuery();
       }
       return rows;
     }
-    
+
     /// <summary>
     /// Saves shared state for the specified page in the aspnet_PersonalizationAllUsers table
     /// </summary>
@@ -667,7 +669,7 @@ namespace MySql.Web.Personalization
         trans = connection.Connection.BeginTransaction();
 
         try
-        {          
+        {
           cmd.Transaction = trans;
           cmd.CommandText = "INSERT INTO my_aspnet_paths (applicationId, pathId, path, loweredpath) values (@ApplicationId, @PathId, @Path, LOWER(@Path))";
           cmd.Parameters.AddWithValue("@ApplicationId", applicationId);
@@ -682,7 +684,7 @@ namespace MySql.Web.Personalization
           throw;
         }
       }
-      
+
       cmd.CommandText = "INSERT INTO my_aspnet_personalizationallusers(PathId, PageSettings, LastUpdatedDate) VALUES (@PathId, @PageSettings, @CurrentTimeUtc)";
       cmd.CommandText += " ON DUPLICATE KEY UPDATE PageSettings=Values(PageSettings), LastUpdatedDate=Values(LastUpdatedDate)";
       cmd.Parameters.Clear();

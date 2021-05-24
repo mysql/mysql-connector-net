@@ -81,7 +81,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     private readonly MySQLBoolTypeMapping _bitBool = new MySQLBoolTypeMapping("bit", size: 1);
     private readonly MySQLBoolTypeMapping _tinyintBool = new MySQLBoolTypeMapping("tinyint", size: 1);
     private GuidTypeMapping _guid;
-    private MySQLGuidFormat guidFormat= MySQLGuidFormat.Default;
+    private MySqlGuidFormat guidFormat= MySqlGuidFormat.Default;
 
     private Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
     private Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
@@ -110,11 +110,11 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     protected void Initialize()
     {
-      if (guidFormat == MySQLGuidFormat.Default)
+      if (guidFormat == MySqlGuidFormat.Default)
       {
         guidFormat = _options.ConnectionSettings.OldGuids
-            ? MySQLGuidFormat.LittleEndianBinary16
-            : MySQLGuidFormat.Char36;
+            ? MySqlGuidFormat.LittleEndianBinary16
+            : MySqlGuidFormat.Char36;
       }
 
       _guid = MySQLGuidTypeMapping.IsValidGuidFormat(guidFormat)

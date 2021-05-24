@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,11 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using MySqlX.XDevAPI.CRUD;
-using MySqlX.XDevAPI.Common;
 using MySql.Data;
 using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI.Common;
+using MySqlX.XDevAPI.CRUD;
+using System;
 
 namespace MySqlX.XDevAPI
 {
@@ -149,11 +149,14 @@ namespace MySqlX.XDevAPI
 
       DbDoc currentDocument = GetOne(id);
       var modify = Modify("_id = :id").Bind("id", stringId);
-      //if (currentDocument == null) return modify.Execute();
       DbDoc newDocument = doc is DbDoc ? doc as DbDoc : new DbDoc(doc);
 
       if (currentDocument != null)
       {
+        // check for not matching id's
+        if (newDocument.HasId && !newDocument.Id.Equals(currentDocument.Id))
+          throw new MySqlException(ResourcesX.ReplaceWithNoMatchingId);
+
         // Unset all properties
         foreach (var dictionary in currentDocument.values)
           if (dictionary.Key != "_id") modify.Unset(dictionary.Key);
@@ -193,7 +196,14 @@ namespace MySqlX.XDevAPI
       if (doc == null)
         throw new ArgumentNullException(nameof(doc));
 
+      DbDoc currentDocument = GetOne(id);
       DbDoc newDocument = doc is DbDoc ? doc as DbDoc : new DbDoc(doc);
+
+      // check for not matching id's
+      if (currentDocument != null && newDocument.HasId
+        && !newDocument.Id.Equals(currentDocument.Id))
+        throw new MySqlException(ResourcesX.ReplaceWithNoMatchingId);
+
       newDocument.Id = id;
       AddStatement stmt = Add(newDocument);
       stmt.upsert = true;

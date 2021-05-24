@@ -106,6 +106,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Authentication plugin &apos;{0}&apos; is currently not supported..
+        /// </summary>
+        public static string AuthenticationPluginNotSupported {
+            get {
+                return ResourceManager.GetString("AuthenticationPluginNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Version string not in acceptable format.
         /// </summary>
         public static string BadVersionFormat {
@@ -268,7 +277,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to  Count cannot be negative.
+        ///   Looks up a localized string similar to Count cannot be negative.
         /// </summary>
         public static string CountCannotBeNegative {
             get {
@@ -1033,6 +1042,24 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to MySQL Server {0} dos not support query attributes..
+        /// </summary>
+        public static string QueryAttributesNotSupported {
+            get {
+                return ResourceManager.GetString("QueryAttributesNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MySQL Connector/NET does not support query attributes with prepared statements for this version of MySQL Server..
+        /// </summary>
+        public static string QueryAttributesNotSupportedByCnet {
+            get {
+                return ResourceManager.GetString("QueryAttributesNotSupportedByCnet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Packets larger than max_allowed_packet are not allowed..
         /// </summary>
         public static string QueryTooLarge {
@@ -1209,6 +1236,15 @@ namespace MySql.Data {
         public static string SslConnectionError {
             get {
                 return ResourceManager.GetString("SslConnectionError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection protocol &apos;{0}&apos; does not support SSL connections..
+        /// </summary>
+        public static string SslNotAllowedForConnectionProtocol {
+            get {
+                return ResourceManager.GetString("SslNotAllowedForConnectionProtocol", resourceCulture);
             }
         }
         

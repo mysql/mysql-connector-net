@@ -1,6 +1,18 @@
-8.0.25
+8.0.26
 - Deprecated TLSv1.0 and TLSv1.1 (WL14554).
 - Added support for the Kerberos authentication plugin (WL14429).
+- Added support for query attributes (WL14209).
+- Fixed inconsistent behavior of the ReplaceOne and AddOrReplaceOne methods in the MySqlX.XDevAPI namespace (MySQL Bug #103310, Oracle Bug #32763765).
+- Fixed a bug that prevented connections using Named Pipes and Shared Memory connection protocols (Oracle Bug #32853205).
+- Removed the support for Kerberos authentication on Windows (Oracle Bug #32867404).
+- Added support for the EF Core 6.0 preview release (WL14578).
+- Added descriptions and renamed the MySqlGuidFormat enumeration (was MySQLGuidFormat) (Oracle Bug #32651245).
+- Removed unnecessary references in the MySql.Web project (MySQL Bug #103433, Oracle Bug #32805002).
+- Added the Connector/NET assemblies into the MSI file and ZIP Package, target Frameworks included are .NET Framework 4.5.2, .NET Framework 4.8, .NET Standard 2.0, .NET Standard 2.1 and .NET 5.0  (WL14616).
+
+
+8.0.25
+- This release contains no functional changes and is published to align the version number with the MySQL Server 8.0.25 release.
 
 
 8.0.24
@@ -11,11 +23,11 @@
 - Fixed a bug that affected driver performance by incrementing the execution time (MySQL Bug #101714, Oracle Bug #32386454).
 - Removed the "Ignore Prepare" connection string option (Oracle Bug #31872906).
 - Fixed bad handling of NULL values for GUID data type columns (MySQL Bug #101252, Oracle Bug #32049837).
-- Added missing data type mappings to Entity Framework Core projects.(MySQL Bug #102381, Oracle Bug #32424742).
+- Added missing data type mappings to Entity Framework Core projects (MySQL Bug #102381, Oracle Bug #32424742).
 - Fixed a bug that interpreted the pound symbol in a JSON column incorrectly when using accent sensitive collation (MySQL Bug #102393, Oracle Bug #32429236).
 - Added .NET 4.8 to the non-supported frameworks for using deflate_stream compression algorithm (Oracle Bug #32488373).
 - Added GUID mapping to EntityFrameworkCore (MySQL Bug #93398, Oracle Bug #32173133).
-- Contribution: Added error codes to handle different types of exceptions. (MySQL Bug #101592, Oracle Bug #32150115). Thanks to Stanislav Revin for the contribution.
+- Contribution: Added error codes to handle different types of exceptions (MySQL Bug #101592, Oracle Bug #32150115). Thanks to Stanislav Revin for the contribution.
 - Removed the SSH tunneling feature (WL14562).
 
 

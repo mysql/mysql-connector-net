@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,11 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Web.Security;
+using NUnit.Framework;
 using System;
 using System.Collections.Specialized;
 using System.Web.Security;
-using NUnit.Framework;
-using MySql.Web.Security;
 
 namespace MySql.Web.Tests
 {
@@ -145,7 +145,7 @@ namespace MySql.Web.Tests
         "question", "answer", true, null, out status);
       Assert.AreEqual(MembershipCreateStatus.Success, status);
 
-      roleProvider.AddUsersToRoles(new string[] { "eve"}, new string[] { "Administrator"});
+      roleProvider.AddUsersToRoles(new string[] { "eve" }, new string[] { "Administrator" });
       Assert.True(roleProvider.IsUserInRole("eve", "Administrator"));
 
       //Cleanup
@@ -196,7 +196,7 @@ namespace MySql.Web.Tests
       Assert.AreEqual(0, roleProvider.GetAllRoles().Length);
 
       //Cleanup
-      provider.DeleteUser("foo",true);
+      provider.DeleteUser("foo", true);
 
     }
 

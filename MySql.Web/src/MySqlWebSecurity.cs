@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2014, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,16 +26,16 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Web.Properties;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Web;
-using System.Web.Security;
-using System.Web.Routing;
-using System.Web.WebPages;
 using System.Collections.Specialized;
+using System.Configuration;
 using System.Net;
-using MySql.Web.Properties;
+using System.Web;
+using System.Web.Routing;
+using System.Web.Security;
+using System.Web.WebPages;
 
 namespace MySql.Web.Security
 {
@@ -44,7 +44,7 @@ namespace MySql.Web.Security
   /// </summary>
   public static class MySqlWebSecurity
   {
-	/// <summary>
+    /// <summary>
     /// Name of the key required to enable simple membership.
     /// </summary>
     public static readonly string EnableSimpleMembershipKey = "enableSimpleMembership";

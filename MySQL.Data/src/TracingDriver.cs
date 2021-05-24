@@ -62,10 +62,10 @@ namespace MySql.Data.MySqlClient
           Resources.TraceCloseConnection, driverId);
     }
 
-    public override void SendQuery(MySqlPacket p)
+    public override void SendQuery(MySqlPacket p, int paramsPosition)
     {
       rowSizeInBytes = 0;
-      string cmdText = Encoding.GetString(p.Buffer, 5, p.Length - 5);
+      string cmdText = Encoding.GetString(p.Buffer, paramsPosition, p.Length - paramsPosition);
       string normalizedQuery = null;
 
       if (cmdText.Length > 300)
@@ -75,7 +75,7 @@ namespace MySql.Data.MySqlClient
         cmdText = cmdText.Substring(0, 300);
       }
 
-      base.SendQuery(p);
+      base.SendQuery(p, paramsPosition);
 
       MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.QueryOpened,
           Resources.TraceQueryOpened, driverId, ThreadID, cmdText);

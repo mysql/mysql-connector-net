@@ -40,8 +40,8 @@ namespace MySql.Data.MySqlClient
   [Flags]
   internal enum ClientFlags : ulong
   {
-    LONG_PASSWORD = 1, // new more secure passwords
-    FOUND_ROWS = 2, // found instead of affected rows
+    LONG_PASSWORD = 1, // New more secure passwords
+    FOUND_ROWS = 2, // Found instead of affected rows
     LONG_FLAG = 4, // Get all column flags
     CONNECT_WITH_DB = 8, // One can specify db on connect
     NO_SCHEMA = 16, // Don't allow db.table.column
@@ -54,16 +54,18 @@ namespace MySql.Data.MySqlClient
     SSL = 2048, // Switch to SSL after handshake
     IGNORE_SIGPIPE = 4096, // IGNORE sigpipes
     TRANSACTIONS = 8192, // Client knows about transactions
-    RESERVED = 16384,               // old 4.1 protocol flag
-    SECURE_CONNECTION = 32768,      // new 4.1 authentication
+    RESERVED = 16384,               // Old 4.1 protocol flag
+    SECURE_CONNECTION = 32768,      // New 4.1 authentication
     MULTI_STATEMENTS = 65536,       // Allow multi-stmt support
     MULTI_RESULTS = 131072,         // Allow multiple resultsets
-    PS_MULTI_RESULTS = 1UL << 18,    // allow multi results using PS protocol
-    PLUGIN_AUTH = (1UL << 19), //Client supports plugin authentication
+    PS_MULTI_RESULTS = 1UL << 18,    // Allow multi results using PS protocol
+    PLUGIN_AUTH = (1UL << 19), // Client supports plugin authentication
     CONNECT_ATTRS = (1UL << 20),    // Allows client connection attributes
     CAN_HANDLE_EXPIRED_PASSWORD = (1UL << 22),   // Support for password expiration > 5.6.6
-    CLIENT_SSL_VERIFY_SERVER_CERT = (1UL << 30),
-    CLIENT_REMEMBER_OPTIONS = (1UL << 31)
+    CLIENT_QUERY_ATTRIBUTES = (1UL << 27), // Support for query attributes
+    PARAMETER_COUNT_AVAILABLE = 8, // QA should be sent to the server
+    CLIENT_SSL_VERIFY_SERVER_CERT = (1UL << 30), // Verify server certificate
+    CLIENT_REMEMBER_OPTIONS = (1UL << 31) // Don't reset the options after an unsuccessful connect
   }
 
   [Flags]
@@ -538,14 +540,40 @@ namespace MySql.Data.MySqlClient
     KILLED = 3169
   }
 
-  public enum MySQLGuidFormat
+  /// <summary>
+  ///     Controls which column type should be read as type System.Guid.
+  /// </summary>
+  public enum MySqlGuidFormat
   {
+    /// <summary>
+    ///     Same as Char36 when OldGuids equals False, otherwise, the same as LittleEndianBinary16.
+    /// </summary>
     Default = 0,
+    /// <summary>
+    ///     No column types are read or written as type Guid.
+    /// </summary>
     None = 1,
+    /// <summary>
+    ///     Char(36) columns are read or written as type Guid using lowercase hex with hyphens, which match UUID().
+    /// </summary>
     Char36 = 2,
+    /// <summary>
+    ///     Char(32) columns are read or written as type Guid using lowercase hex without hyphens.
+    /// </summary>
     Char32 = 3,
+    /// <summary>
+    ///     Binary(16) columns are read or written as type Guid using big-endian byte order, which matches UUID_TO_BIN(x).
+    /// </summary>
     Binary16 = 4,
+    /// <summary>
+    ///     Binary(16) columns are read or written as type Guid using big-endian byte order
+    ///     with time parts swapped, which matches UUID_TO_BIN(x,1).
+    /// </summary>
     TimeSwapBinary16 = 5,
+    /// <summary>
+    ///     Binary(16) columns are read or written as type Guid using little-endian byte order,
+    ///     that is, the byte order used by System.Guid.ToByteArray and System.Guid.#ctor(System.Byte[]).
+    /// </summary>
     LittleEndianBinary16 = 6
   }
 

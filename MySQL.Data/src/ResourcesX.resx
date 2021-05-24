@@ -330,4 +330,8 @@
   <data name="NoticeServerShutdown" xml:space="preserve">
     <value>Connection closed. Reason: server was shutdown</value>
   </data>
+  <data name="ReplaceWithNoMatchingId" xml:space="preserve">
+    <value>Replacement document has an '_id' that is
+different from the matched document.</value>
+  </data>
 </root>

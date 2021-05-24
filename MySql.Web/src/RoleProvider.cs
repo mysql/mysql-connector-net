@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,16 +30,16 @@
 //  The copyright was assigned and transferred under the terms of
 //  the MySQL Contributor License Agreement (CLA)
 
+using MySql.Data.MySqlClient;
+using MySql.Web.Common;
+using MySql.Web.General;
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration.Provider;
 using System.Diagnostics;
 using System.Web.Hosting;
 using System.Web.Security;
-using MySql.Data.MySqlClient;
-using System.Collections.Generic;
-using MySql.Web.Common;
-using MySql.Web.General;
 
 namespace MySql.Web.Security
 {

@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2021, Oracle and/or its affiliates. 
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,39 +26,28 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using NUnit.Framework;
-using System.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using MySql.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.Data.MySqlClient;
 
-namespace MySql.Data.MySqlClient.Tests
+namespace MySql.EntityFrameworkCore.Infrastructure
 {
-  public partial class ParameterTests 
+  /// <summary>
+  /// Represents the <see cref="RelationalDbContextOptionsBuilder{MySQLDbContextOptionsBuilder,MySQLOptionsExtension}" /> implementation for MySQL.
+  /// </summary>
+  public class MySQLDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<MySQLDbContextOptionsBuilder, MySQLOptionsExtension>
   {
     /// <summary>
-    /// Bug #13276  	Exception on serialize after inserting null value
+    ///     Initializes a new instance of the <see cref="MySQLDbContextOptionsBuilder" /> class.
     /// </summary>
-    [Test]
-    public void InsertValueAfterNull()
+    /// <param name="optionsBuilder"> The options builder. </param>
+    public MySQLDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
+        : base(optionsBuilder)
     {
-      ExecuteSQL("CREATE TABLE Test (id int auto_increment primary key, foo int)");
-
-      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
-      MySqlCommand c = new MySqlCommand("INSERT INTO Test (foo) values (?foo)", Connection);
-      c.Parameters.Add("?foo", MySqlDbType.Int32, 0, "foo");
-
-      da.InsertCommand = c;
-      DataTable dt = new DataTable();
-      da.Fill(dt);
-      DataRow row = dt.NewRow();
-      dt.Rows.Add(row);
-      row = dt.NewRow();
-      row["foo"] = 2;
-      dt.Rows.Add(row);
-      da.Update(dt);
-
-      dt.Clear();
-      da.Fill(dt);
-      Assert.AreEqual(2, dt.Rows.Count);
-      Assert.AreEqual(2, dt.Rows[1]["foo"]);
     }
+
+    internal virtual MySQLDbContextOptionsBuilder CharSet(CharacterSet charSet)
+        => WithOption(e => e.WithCharSet(charSet));
   }
 }

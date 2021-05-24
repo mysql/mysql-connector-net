@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,18 +26,18 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Web.Security;
-using System.Collections.Specialized;
-using System.Data;
-using System.Configuration.Provider;
-using NUnit.Framework;
-using MySql.Web.Security;
 using MySql.Data.MySqlClient;
+using MySql.Web.Security;
+using NUnit.Framework;
+using System;
+using System.Collections.Specialized;
+using System.Configuration.Provider;
+using System.Data;
+using System.Web.Security;
 
 namespace MySql.Web.Tests
 {
-  public class UserManagement : WebTestBase 
+  public class UserManagement : WebTestBase
   {
     private MySQLMembershipProvider provider { get; set; }
 
@@ -423,7 +423,7 @@ namespace MySql.Web.Tests
       provider.Initialize(null, config);
 
       provider.CreateUser("foo", "barbar!", "foo@bar.com", "color", "blue", true, null, out status);
-     
+
       string password = string.Empty;
       if (!enablePasswordRetrieval)
       {
@@ -441,7 +441,7 @@ namespace MySql.Web.Tests
       {
         if (requireQA && answer != null)
         {
-          provider.GetPassword("foo", answer);        
+          provider.GetPassword("foo", answer);
         }
         else if (requireQA && answer == null)
         {
@@ -492,7 +492,7 @@ namespace MySql.Web.Tests
       config2.Add("enablePasswordRetrieval", "true");
       config2.Add("passwordFormat", "Encrypted");
       config2.Add("applicationName", "/");
-      provider2.Initialize(null, config2);     
+      provider2.Initialize(null, config2);
       Assert.Throws<MembershipPasswordException>(() => provider2.GetPassword("foo", "wrong"));
 
       //Cleanup
@@ -579,7 +579,7 @@ namespace MySql.Web.Tests
       config.Add("passwordFormat", "clear");
       config.Add("applicationName", "/");
       provider.Initialize(null, config);
-     
+
       Exception ex = Assert.Throws<ArgumentException>(() => provider.CreateUser("foo", "barbar!", "foo@bar.com", "color", null, true, null, out status));
       Assert.True(ex.Message.StartsWith("Password answer supplied is invalid", StringComparison.OrdinalIgnoreCase));
 
@@ -752,7 +752,7 @@ namespace MySql.Web.Tests
       //Cleanup
       //provider.DeleteUser("foo2", true);
       //provider.DeleteUser("foo", true);
-      
+
       //Cleanup
       MySqlHelper.ExecuteScalar(Connection, "DELETE FROM my_aspnet_users");
       MySqlHelper.ExecuteScalar(Connection, "DELETE FROM my_aspnet_membership");
