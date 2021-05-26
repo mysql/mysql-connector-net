@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2008, 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2008, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,18 +26,18 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Common;
+using System.Data.Entity.Core.Common.CommandTrees;
+using System.Data.Entity.Core.Metadata.Edm;
+using System.Data.Entity.Migrations.Design;
+using System.Data.Entity.Migrations.Model;
+using System.Data.Entity.Migrations.Sql;
+using System.Data.Entity.Migrations.Utilities;
 using System.Linq;
 using System.Text;
-using System.Data.Entity.Migrations.Sql;
-using System.Data.Entity.Migrations.Model;
-using MySql.Data.MySqlClient;
-using System.Data.Entity.Migrations.Design;
-using System.Data.Entity.Migrations.Utilities;
-using System.Data.Entity.Core.Common;
-using System.Data.Entity.Core.Metadata.Edm;
-using System.Data.Entity.Core.Common.CommandTrees;
 
 namespace MySql.Data.EntityFramework
 {
@@ -415,7 +415,7 @@ namespace MySql.Data.EntityFramework
         cmdStr = generator.GenerateSQL(commandTree);
 
         ReplaceParemeters(ref cmdStr, generator.Parameters);
-        stmt.Sql += cmdStr.Replace("dbo", "") + ";";
+        stmt.Sql += cmdStr.Replace("dbo.", "") + ";";
       }
       return stmt;
     }

@@ -9,6 +9,7 @@
 - Added descriptions and renamed the MySqlGuidFormat enumeration (was MySQLGuidFormat) (Oracle Bug #32651245).
 - Removed unnecessary references in the MySql.Web project (MySQL Bug #103433, Oracle Bug #32805002).
 - Added the Connector/NET assemblies into the MSI file and ZIP Package, target Frameworks included are .NET Framework 4.5.2, .NET Framework 4.8, .NET Standard 2.0, .NET Standard 2.1 and .NET 5.0  (WL14616).
+- Fixed an error provoked by a duplicate schema name when using Entity Framework (MySQL Bug #101236, Oracle Bug #32358174).
 
 
 8.0.25
@@ -19,7 +20,6 @@
 - Added support for the SASL authentication protocol using the GSSAPI/Kerberos method (WL14210).
 - Added a more descriptive message for when a connection is closed by server due to a timeout (WL14393).
 - Added Support for connection close notification (WL14208).
-- Fixed an error provoked by a duplicate schema name when using Entity Framework (MySQL Bug #101236, Oracle Bug #32358174).
 - Fixed a bug that affected driver performance by incrementing the execution time (MySQL Bug #101714, Oracle Bug #32386454).
 - Removed the "Ignore Prepare" connection string option (Oracle Bug #31872906).
 - Fixed bad handling of NULL values for GUID data type columns (MySQL Bug #101252, Oracle Bug #32049837).

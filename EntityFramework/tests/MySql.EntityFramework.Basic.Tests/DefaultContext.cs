@@ -132,7 +132,7 @@ namespace MySql.Data.EntityFramework.Tests
     }
   }
 
-  [Table("blogcontext.usertable")]
+  [Table("usertable", Schema = "blogcontext")]
   public class User
   {
     [DatabaseGenerated(DatabaseGeneratedOption.None)]

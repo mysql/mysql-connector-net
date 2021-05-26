@@ -1,4 +1,4 @@
-// Copyright © 2008, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (C) 2008, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,12 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Collections.Generic;
-using System.Text;
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Metadata.Edm;
+using System.Diagnostics;
+using System.Text;
 
 
 namespace MySql.Data.EntityFramework
@@ -76,7 +76,7 @@ namespace MySql.Data.EntityFramework
     {
       if (IsWrapped)
         sql.Append("(");
-      sql.Append("SELECT");
+      sql.Append("SELECT ");
       if (IsDistinct)
         sql.Append(" DISTINCT ");
 
@@ -84,7 +84,7 @@ namespace MySql.Data.EntityFramework
 
       if (From != null)
       {
-        sql.Append("\r\nFROM ");
+        sql.Append("\r\n FROM ");
         From.WriteSql(sql);
       }
       if (Where != null)
@@ -187,7 +187,7 @@ namespace MySql.Data.EntityFramework
       }
       else
       {
-        if( !string.IsNullOrEmpty(column.ColumnAlias) )
+        if (!string.IsNullOrEmpty(column.ColumnAlias))
           columnHash.Add(column.ColumnAlias.ToUpper(), column);
         else
           columnHash.Add(column.ColumnName.ToUpper(), column);
@@ -229,7 +229,7 @@ namespace MySql.Data.EntityFramework
           ColumnFragment newColumn = new ColumnFragment(cf.TableName,
               string.IsNullOrEmpty(cf.ColumnAlias) ? cf.ActualColumnName : cf.ColumnAlias
               );
-          if ( generator.GetTopOp() == OpType.Join )
+          if (generator.GetTopOp() == OpType.Join)
           {
             newColumn.ColumnAlias = cf.ColumnAlias;
             newColumn.PushInput(cf.ColumnName);
@@ -255,7 +255,7 @@ namespace MySql.Data.EntityFramework
       if (!String.IsNullOrEmpty(input.Name) && input.Name != From.Name)
         foreach (ColumnFragment c in columns)
         {
-            c.PushInput(input.Name);
+          c.PushInput(input.Name);
         }
       return columns;
     }
@@ -289,7 +289,7 @@ namespace MySql.Data.EntityFramework
 
     public bool HasDifferentNameForColumn(ColumnFragment column)
     {
-      if (!hasRenamedColumns) return false;      
+      if (!hasRenamedColumns) return false;
       foreach (ColumnFragment c in Columns)
       {
         if (!c.Equals(column)) continue;
