@@ -26,10 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Data.Common;
-using System.Data;
 using MySql.Data.MySqlClient;
+using System;
+using System.Data;
+using System.Data.Common;
 using System.Data.Entity.Core.Metadata.Edm;
 
 namespace MySql.Data.EntityFramework
@@ -114,7 +114,6 @@ namespace MySql.Data.EntityFramework
 
     protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
     {
-      command.CommandText = command.CommandText.Replace($"{command.Connection.Database}.", string.Empty);
       return new EFMySqlDataReader(this, command.ExecuteReader(behavior));
     }
 
@@ -178,6 +177,5 @@ namespace MySql.Data.EntityFramework
     //  }
     //  return result.Task;
     //}
-    
   }
 }

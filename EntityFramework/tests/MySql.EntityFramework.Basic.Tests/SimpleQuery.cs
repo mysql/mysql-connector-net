@@ -75,13 +75,14 @@ namespace MySql.Data.EntityFramework.Tests
     [Test]
     public void TablesWithSchemaWithoutUsingProperty()
     {
-      ExecSQL("CREATE DATABASE `blogcontext`;" +
-        "USE `blogcontext`;" +
-        "CREATE TABLE `usertable` (`ID` INT NOT NULL, `NAME` VARCHAR(45) DEFAULT NULL, PRIMARY KEY (`ID`));" +
-        "INSERT INTO `usertable` VALUES (1,'A'),(2,'B');");
-
       using (BlogContext context = new BlogContext(ConnectionString.Replace("db-simplequery", "blogcontext")))
       {
+        context.Database.CreateIfNotExists();
+
+        context.User.Add(new User { Id = 1, Name = "foo" });
+        context.User.Add(new User { Id = 2, Name = "bar" });
+        context.SaveChanges();
+
         var q = (from u in context.User select u).ToArray();
         Assert.IsTrue(q.Length == 2);
       }

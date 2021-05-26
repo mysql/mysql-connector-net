@@ -1,4 +1,4 @@
-// Copyright © 2008, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2008, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,12 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Diagnostics;
-using System.Collections.Generic;
 using MySql.Data.MySqlClient;
+using System;
+using System.Collections.Generic;
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Metadata.Edm;
+using System.Diagnostics;
 
 
 namespace MySql.Data.EntityFramework
@@ -50,7 +50,7 @@ namespace MySql.Data.EntityFramework
       Parameters = new List<MySqlParameter>();
     }
 
-    protected internal OpType GetTopOp() 
+    protected internal OpType GetTopOp()
     {
       if (Ops.Count == 0)
         return OpType.Join;
@@ -101,7 +101,7 @@ namespace MySql.Data.EntityFramework
         column.TableName = input.Name;
 
       // now we need to check if our column name was possibly renamed
-      if (input is TableFragment )
+      if (input is TableFragment)
       {
         if (!string.IsNullOrEmpty(input.Name))
         {
@@ -128,7 +128,7 @@ namespace MySql.Data.EntityFramework
       SelectStatement select = input as SelectStatement;
       UnionFragment union = input as UnionFragment;
 
-      if (select != null)      
+      if (select != null)
         select.HasDifferentNameForColumn(column);
       else if (union != null)
         union.HasDifferentNameForColumn(column);
@@ -146,18 +146,20 @@ namespace MySql.Data.EntityFramework
       bool propExists = target.MetadataProperties.TryGetValue("DefiningQuery", true, out property);
       if (propExists && property.Value != null)
       {
-        
+
         MetadataProperty prop2;
 
-        if( target.MetadataProperties.TryGetValue( "http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator:Type", true, out prop2 ) && ( prop2.Value as string == "Views" ))
+        if (target.MetadataProperties.TryGetValue("http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator:Type", true, out prop2) && (prop2.Value as string == "Views"))
 
         {
-          
+
           // avoid storing view query as DefiningQuery because that hurts query fusing.
           fragment.Schema = target.MetadataProperties.GetValue("http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator:Schema", true).Value as string;
           fragment.Table = target.Name;
-       
-        } else {
+
+        }
+        else
+        {
           fragment.DefiningQuery = new LiteralFragment(property.Value as string);
 
         }
@@ -171,7 +173,12 @@ namespace MySql.Data.EntityFramework
 
         propExists = target.MetadataProperties.TryGetValue("Schema", true, out property);
         if (propExists && property.Value != null)
-          fragment.Schema = property.Value as string;
+        {
+          if (target.Table != null)
+            fragment.Schema = property.Value as string;
+          else
+            fragment.Schema = "dbo";
+        }
         propExists = target.MetadataProperties.TryGetValue("Table", true, out property);
         if (propExists && property.Value != null)
           fragment.Table = property.Value as string;
@@ -231,7 +238,7 @@ namespace MySql.Data.EntityFramework
     {
       return VisitBinaryExpression(expression.Left, expression.Right,
           Metadata.GetOperator(expression.ExpressionKind));
-    }    
+    }
 
     public override SqlFragment Visit(DbAndExpression expression)
     {
@@ -254,10 +261,10 @@ namespace MySql.Data.EntityFramework
       SqlFragment sf = expression.Item.Accept(this);
       InFragment inf = new InFragment();
       inf.Argument = sf;
-      for( int i = 0; i < expression.List.Count; i++ )
+      for (int i = 0; i < expression.List.Count; i++)
       {
-        LiteralFragment lf = Visit( expression.List[ i ] as DbConstantExpression ) as LiteralFragment;
-        inf.InList.Add( lf );
+        LiteralFragment lf = Visit(expression.List[i] as DbConstantExpression) as LiteralFragment;
+        inf.InList.Add(lf);
       }
       return inf;
     }
@@ -272,7 +279,7 @@ namespace MySql.Data.EntityFramework
       LikeFragment f = new LikeFragment();
 
       f.Argument = expression.Argument.Accept(this);
-      f.Pattern = expression.Pattern.Accept(this);      
+      f.Pattern = expression.Pattern.Accept(this);
 
       return f;
     }
@@ -567,14 +574,14 @@ namespace MySql.Data.EntityFramework
       SelectStatement innerSelect = null;
       if (select == null || select.Columns.Count != 0) return false;
       innerSelect = select.From as SelectStatement;
-      if ((innerSelect == null) || !( innerSelect.From is TableFragment )) return false;
+      if ((innerSelect == null) || !(innerSelect.From is TableFragment)) return false;
       // Cannot fuse, unless construction is semantically compatible
       // ie. Where's can be combined, Group by's no.
       if ((select.Limit == null || innerSelect.Limit == null) &&
           (select.GroupBy == null || innerSelect.GroupBy == null) &&
           (select.OrderBy == null || innerSelect.OrderBy == null) &&
-          (select.Skip == null || innerSelect.Skip == null) && 
-          ( select.IsDistinct == innerSelect.IsDistinct ) )
+          (select.Skip == null || innerSelect.Skip == null) &&
+          (select.IsDistinct == innerSelect.IsDistinct))
       {
         List<ColumnFragment> cols = innerSelect.Columns;
         for (int i = 0; i < cols.Count; i++)
@@ -588,7 +595,7 @@ namespace MySql.Data.EntityFramework
       }
     }
 
-    protected internal void VisitAndReplaceTableName(SqlFragment sf, string oldTable, string newTable, 
+    protected internal void VisitAndReplaceTableName(SqlFragment sf, string oldTable, string newTable,
       Dictionary<string, ColumnFragment> dicColumns)
     {
       if (sf == null) return;
@@ -601,7 +608,7 @@ namespace MySql.Data.EntityFramework
     protected InputFragment VisitInputExpression(DbExpression e, string name, TypeUsage type)
     {
       SqlFragment f = e.Accept(this);
-      Debug.Assert(f is InputFragment);      
+      Debug.Assert(f is InputFragment);
 
       InputFragment inputFragment = f as InputFragment;
       inputFragment.Name = name;
@@ -618,7 +625,7 @@ namespace MySql.Data.EntityFramework
 
       if (name != null)
         scope.Add(name, inputFragment);
-      
+
       return inputFragment;
     }
 
@@ -631,7 +638,7 @@ namespace MySql.Data.EntityFramework
 
       select.From = (InputFragment)tree.Target.Expression.Accept(this);
 
-      ListFragment where = new ListFragment();      
+      ListFragment where = new ListFragment();
       select.Where = where;
       return select;
     }
@@ -650,7 +657,7 @@ namespace MySql.Data.EntityFramework
     {
       DbFunctionExpression fl = left as DbFunctionExpression;
       if ((fl != null) && (right is DbConstantExpression))
-      {        
+      {
         LikeFragment like = new LikeFragment();
         if (fl.Function.FullName == "Edm.IndexOf")
         {
@@ -666,7 +673,7 @@ namespace MySql.Data.EntityFramework
             {
               // Case LIKE 'pattern%'
               DbConstantExpression c = (DbConstantExpression)fl.Arguments[0];
-              like.Pattern = new LiteralFragment(string.Format("'{0}%'", c.Value.ToString().Replace( "'", "''" ) ));
+              like.Pattern = new LiteralFragment(string.Format("'{0}%'", c.Value.ToString().Replace("'", "''")));
               return like;
             }
             else if ((fl.Arguments.Count == 2) &&
@@ -679,42 +686,42 @@ namespace MySql.Data.EntityFramework
               if (fr1.Arguments[0] is DbConstantExpression)
               {
                 DbConstantExpression c = (DbConstantExpression)fr1.Arguments[0];
-                like.Pattern = new LiteralFragment(string.Format("'%{0}'", c.Value.ToString().Replace("'", "''") ));                
+                like.Pattern = new LiteralFragment(string.Format("'%{0}'", c.Value.ToString().Replace("'", "''")));
                 like.Argument = fr2.Arguments[0].Accept(this);
                 return like;
-              } 
-              else if( /* For EF6 */
-                (( par = fr1.Arguments[0] as DbParameterReferenceExpression  ) != null ) &&
-                (( prop = fr2.Arguments[0] as DbPropertyExpression) != null ))
+              }
+              else if ( /* For EF6 */
+                ((par = fr1.Arguments[0] as DbParameterReferenceExpression) != null) &&
+                ((prop = fr2.Arguments[0] as DbPropertyExpression) != null))
               {
                 // Pattern LIKE "%..." in EF6              
-                like.Pattern = par.Accept(this);                                
+                like.Pattern = par.Accept(this);
                 like.Argument = prop.Accept(this);
                 return like;
               }
             }
-            else if( ( fl.Arguments.Count == 2) &&
-              (( par = fl.Arguments[0] as DbParameterReferenceExpression ) != null ) && 
-              (( prop = fl.Arguments[1] as DbPropertyExpression ) != null ) )
+            else if ((fl.Arguments.Count == 2) &&
+              ((par = fl.Arguments[0] as DbParameterReferenceExpression) != null) &&
+              ((prop = fl.Arguments[1] as DbPropertyExpression) != null))
             {
               // Case LIKE "pattern%" in EF6              
-              like.Pattern = par.Accept(this);              
+              like.Pattern = par.Accept(this);
               like.Argument = prop.Accept(this);
               return like;
             }
           }
           else if (value == 0)
           {
-            if ( op == ">") 
+            if (op == ">")
             {
               if (fl.Arguments[0] is DbConstantExpression)
               {
                 // Case LIKE '%pattern%'
                 DbConstantExpression c = (DbConstantExpression)fl.Arguments[0];
-                like.Pattern = new LiteralFragment(string.Format("%{0}%", c.Value.ToString()));                
+                like.Pattern = new LiteralFragment(string.Format("%{0}%", c.Value.ToString()));
                 return like;
-              } 
-              else if ((par = fl.Arguments[0] as DbParameterReferenceExpression) != null) 
+              }
+              else if ((par = fl.Arguments[0] as DbParameterReferenceExpression) != null)
               {
                 // Case LIKE "%pattern%" in EF6                
                 like.Pattern = fl.Arguments[0].Accept(this);
@@ -734,7 +741,7 @@ namespace MySql.Data.EntityFramework
             if (c1.Value == c2.Value)
             {
               like.Argument = fl.Arguments[0].Accept(this);
-              like.Pattern = new LiteralFragment(string.Format("'%{0}'", c1.Value.ToString().Replace("'", "''") ));
+              like.Pattern = new LiteralFragment(string.Format("'%{0}'", c1.Value.ToString().Replace("'", "''")));
               return like;
             }
           }
@@ -766,14 +773,14 @@ namespace MySql.Data.EntityFramework
     {
       // TODO: Remember Morgan's theorem
       // Only try to merge if they are OR'ed.
-      if ((bf.Operator == "OR") )
+      if ((bf.Operator == "OR"))
       {
         InFragment inf = bf.Left as InFragment;
         InFragment inf2 = bf.Right as InFragment;
         if (inf == null)
         {
           BinaryFragment bfLeft = bf.Left as BinaryFragment;
-          if( bfLeft == null ) 
+          if (bfLeft == null)
             return bf;
           if (inf2 == null)
           {
@@ -809,7 +816,7 @@ namespace MySql.Data.EntityFramework
         else
         {
           // try to merge both InFragments
-          SqlFragment sf = TryMergeTwoInFragments( inf, inf2 );
+          SqlFragment sf = TryMergeTwoInFragments(inf, inf2);
           if (sf != null)
             return sf;
         }
@@ -819,8 +826,8 @@ namespace MySql.Data.EntityFramework
 
     protected InFragment TryMergeTwoInFragments(InFragment infLeft, InFragment infRight)
     {
-      if (infLeft.Argument.Equals(infRight.Argument) && 
-        ( infLeft.IsNegated == infRight.IsNegated ) && ( !infLeft.IsNegated ) )
+      if (infLeft.Argument.Equals(infRight.Argument) &&
+        (infLeft.IsNegated == infRight.IsNegated) && (!infLeft.IsNegated))
       {
         infLeft.InList.AddRange(infRight.InList);
         return infLeft;
@@ -830,8 +837,8 @@ namespace MySql.Data.EntityFramework
 
     protected InFragment TryMergeTwoBinaryFragments(BinaryFragment left, BinaryFragment right)
     {
-      if( ( left.IsNegated == right.IsNegated ) && ( ! left.IsNegated ) &&
-        ( left.Operator == "=" ) && ( right.Operator == "=" ) )
+      if ((left.IsNegated == right.IsNegated) && (!left.IsNegated) &&
+        (left.Operator == "=") && (right.Operator == "="))
       {
         ColumnFragment cf;
         LiteralFragment lf;
@@ -840,8 +847,8 @@ namespace MySql.Data.EntityFramework
         {
           ColumnFragment cf2;
           LiteralFragment lf2;
-          GetBinaryFragmentPartsForIn(right, out lf2, out cf2);          
-          if ( (lf2 != null) && (cf2 != null) && cf.Equals(cf2))
+          GetBinaryFragmentPartsForIn(right, out lf2, out cf2);
+          if ((lf2 != null) && (cf2 != null) && cf.Equals(cf2))
           {
             InFragment inf = new InFragment();
             inf.Argument = cf;
@@ -852,11 +859,11 @@ namespace MySql.Data.EntityFramework
         }
       }
       return null;
-    }    
+    }
 
     protected InFragment TryMergeBinaryFragmentAndInFragment(BinaryFragment bf, InFragment inf)
     {
-      if( !bf.IsNegated && ( bf.Operator == "=" ))
+      if (!bf.IsNegated && (bf.Operator == "="))
       {
         ColumnFragment cf;
         LiteralFragment lf;
