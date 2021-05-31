@@ -31,6 +31,10 @@ using System.Data.Entity.Migrations.History;
 
 namespace MySql.Data.EntityFramework
 {
+  /// <summary>
+  /// This class is used by Code First Migrations to read and write migration history
+  /// from the database.
+  /// </summary>
   public class MySqlHistoryContext : HistoryContext
   {
     public MySqlHistoryContext(DbConnection existingConnection, string defaultSchema)
