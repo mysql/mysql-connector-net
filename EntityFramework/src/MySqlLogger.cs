@@ -33,6 +33,9 @@ using System.IO;
 
 namespace MySql.Data.EntityFramework
 {
+  /// <summary>
+  /// Provides the capability to write a log.
+  /// </summary>  
   public class MySqlLogger : TextWriter
   {
     private readonly Action<string> _action;

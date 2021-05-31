@@ -1,4 +1,4 @@
-// Copyright © 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,14 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace MySql.Data.MySqlClient.X.XDevAPI.Common
 {
+  /// <summary>
+  /// Defines the type of the column.
+  /// </summary>
   public enum ColumnType
   {
     Bit = 1,
