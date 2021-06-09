@@ -1654,6 +1654,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to MySQL user &apos;{0}&apos; does not equal the logged-in Windows user &apos;{1}&apos;..
+        /// </summary>
+        public static string UnmatchedWinUserAndMySqlUser {
+            get {
+                return ResourceManager.GetString("UnmatchedWinUserAndMySqlUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Trying to upload a file from outside the path set on &apos;allowloadlocalinfileinpath&apos; is invalid..
         /// </summary>
         public static string UnsafePathForLoadLocalInfile {

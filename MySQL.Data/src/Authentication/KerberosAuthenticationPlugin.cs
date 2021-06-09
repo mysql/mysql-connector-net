@@ -27,6 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.Authentication.GSSAPI;
+using MySql.Data.Authentication.SSPI;
 using MySql.Data.Common;
 using System;
 using System.Text;
@@ -44,24 +45,21 @@ namespace MySql.Data.MySqlClient.Authentication
     private string _servicePrincipal;
     private string _realm;
 
-    private GssapiMechanism gssapiMechanism;
+    private const string PACKAGE = "Kerberos";
 
-    protected override void CheckConstraints()
-    {
-      if (Platform.IsWindows())
-        throw new PlatformNotSupportedException(string.Format(Resources.AuthenticationPluginNotSupported, PluginName));
-    }
+    private GssapiMechanism _gssapiMechanism;
+    private SspiSecurityContext _sspiSecurityContext;
 
     protected override void SetAuthData(byte[] data)
     {
       Username = GetUsername();
       Password = Settings.Password;
 
-      //  //Protocol::AuthSwitchRequest plugin data contains:
-      //  // int<2 > SPN string length
-      //  // string<VAR> SPN string
-      //  // int< 2 > User Principal Name realm string length
-      //  // string<VAR> User Principal Name realm string
+      //Protocol::AuthSwitchRequest plugin data contains:
+      // int<2> SPN string length
+      // string<VAR> SPN string
+      // int<2> User Principal Name realm string length
+      // string<VAR> User Principal Name realm string
       Int16 servicePrincipalNameLength = BitConverter.ToInt16(data, 0);
       if (servicePrincipalNameLength > data.Length) return; // not an AuthSwitchRequest
       _servicePrincipal = Encoding.GetString(data, 2, servicePrincipalNameLength);
@@ -73,6 +71,10 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       Username = string.IsNullOrWhiteSpace(Username) ? base.GetUsername() : Username;
 
+      // If no password is provided, MySQL user and Windows logged-in user should match
+      if (Platform.IsWindows() && !string.IsNullOrWhiteSpace(Username) && string.IsNullOrWhiteSpace(Password) && Username != Environment.UserName)
+        throw new MySqlException(string.Format(Resources.UnmatchedWinUserAndMySqlUser, Username, Environment.UserName));
+
       if (string.IsNullOrWhiteSpace(Username))
       {
         try
@@ -80,7 +82,7 @@ namespace MySql.Data.MySqlClient.Authentication
           // Try to obtain the user name from a cached TGT
           Username = new GssCredentials().UserName.Trim();
         }
-        catch (MySqlException)
+        catch (Exception)
         {
           // Fall-back to system login user
           Username = Environment.UserName;
@@ -94,18 +96,37 @@ namespace MySql.Data.MySqlClient.Authentication
 
     protected override byte[] MoreData(byte[] data)
     {
-      if (gssapiMechanism == null)
+      if (Platform.IsWindows())
       {
-        Username = $"{Username}@{_realm}";
-        gssapiMechanism = new GssapiMechanism(Username, Password, _servicePrincipal);
+        if (_sspiSecurityContext == null)
+        {
+          Username = $"{Username}@{_realm}";
+          var sspiCreds = string.IsNullOrWhiteSpace(Password) ? new SspiCredentials(PACKAGE) : new SspiCredentials(_servicePrincipal, Username, Password, _realm, PACKAGE);
+          _sspiSecurityContext = new SspiSecurityContext(sspiCreds);
+        }
+
+        var status = _sspiSecurityContext.InitializeSecurityContext(out byte[] clientBlob, data, _servicePrincipal);
+
+        if (clientBlob.Length == 0 && status == ContextStatus.Accepted)
+          return null;
+        else
+          return clientBlob;
       }
-
-      var response = gssapiMechanism.Challenge(data);
-
-      if (response.Length == 0 && gssapiMechanism.gssContext.IsEstablished)
-        return null;
       else
-        return response;
+      {
+        if (_gssapiMechanism == null)
+        {
+          Username = $"{Username}@{_realm}";
+          _gssapiMechanism = new GssapiMechanism(Username, Password, _servicePrincipal);
+        }
+
+        var response = _gssapiMechanism.Challenge(data);
+
+        if (response.Length == 0 && _gssapiMechanism.gssContext.IsEstablished)
+          return null;
+        else
+          return response;
+      }
     }
   }
 }
