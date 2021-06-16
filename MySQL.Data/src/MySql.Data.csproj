@@ -100,10 +100,6 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
-    <DefineConstants>$(DefineConstants);NET5_0</DefineConstants>
-  </PropertyGroup>
-
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
     <PreserveCompilationContext>true</PreserveCompilationContext>

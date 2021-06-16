@@ -54,14 +54,15 @@ namespace MySql.Data.MySqlClient
     SSL = 2048, // Switch to SSL after handshake
     IGNORE_SIGPIPE = 4096, // IGNORE sigpipes
     TRANSACTIONS = 8192, // Client knows about transactions
-    RESERVED = 16384,               // Old 4.1 protocol flag
-    SECURE_CONNECTION = 32768,      // New 4.1 authentication
-    MULTI_STATEMENTS = 65536,       // Allow multi-stmt support
-    MULTI_RESULTS = 131072,         // Allow multiple resultsets
-    PS_MULTI_RESULTS = 1UL << 18,    // Allow multi results using PS protocol
+    RESERVED = 16384, // Old 4.1 protocol flag
+    SECURE_CONNECTION = 32768, // New 4.1 authentication
+    MULTI_STATEMENTS = 65536, // Allow multi-stmt support
+    MULTI_RESULTS = 131072, // Allow multiple resultsets
+    PS_MULTI_RESULTS = 1UL << 18, // Allow multi results using PS protocol
     PLUGIN_AUTH = (1UL << 19), // Client supports plugin authentication
-    CONNECT_ATTRS = (1UL << 20),    // Allows client connection attributes
-    CAN_HANDLE_EXPIRED_PASSWORD = (1UL << 22),   // Support for password expiration > 5.6.6
+    CONNECT_ATTRS = (1UL << 20), // Allows client connection attributes
+    CAN_HANDLE_EXPIRED_PASSWORD = (1UL << 22), // Support for password expiration > 5.6.6
+    CLIENT_SESSION_TRACK = (1UL << 23), // Support fo sending session tracker vars
     CLIENT_QUERY_ATTRIBUTES = (1UL << 27), // Support for query attributes
     PARAMETER_COUNT_AVAILABLE = 8, // QA should be sent to the server
     CLIENT_SSL_VERIFY_SERVER_CERT = (1UL << 30), // Verify server certificate
@@ -79,7 +80,23 @@ namespace MySql.Data.MySqlClient
     NoIndex = 32,
     CursorExists = 64,
     LastRowSent = 128,
-    OutputParameters = 4096
+    DbDropped = 256,
+    NoBackslashEscapes = 512,
+    MetadataChanged = 1024,
+    WasSlow = 2048,
+    OutputParameters = 4096,
+    InTransactionReadOnly = 8192, // In a read-only transaction
+    SessionStateChanged = 16384 // Connection state information has changed
+  }
+
+  internal enum SessionTrackType
+  {
+    SystemVariables = 0,
+    Schema = 1,
+    StateChange = 2,
+    GTIDS = 3,
+    TransactionCharacteristics = 4,
+    TransactionState = 5
   }
 
   /// <summary>

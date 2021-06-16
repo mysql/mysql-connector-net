@@ -1,3 +1,7 @@
+8.0.27
+- Added support for reading and processing session trackers (WL14678).
+
+
 8.0.26
 - Deprecated TLSv1.0 and TLSv1.1 (WL14554).
 - Added support for the Kerberos authentication plugin (WL14429).
