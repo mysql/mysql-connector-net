@@ -141,23 +141,15 @@ namespace MySql.Data.MySqlClient
       {
         if (read)
           packet = stream.ReadPacket();
+
         byte marker = (byte)packet.ReadByte();
         if (marker != 0)
         {
           throw new MySqlException("Out of sync with server", true, null);
         }
 
-        packet.ReadFieldLength(); /* affected rows */
-        packet.ReadFieldLength(); /* last insert id */
-        if (packet.HasMoreData)
-        {
-          serverStatus = (ServerStatusFlags)packet.ReadInteger(2);
-          packet.ReadInteger(2);  /* warning count */
-          if (packet.HasMoreData)
-          {
-            packet.ReadLenString();  /* message */
-          }
-        }
+        OkPacket okPacket = new OkPacket(packet);
+        serverStatus = okPacket.ServerStatusFlags;
       }
       catch (MySqlException ex)
       {
@@ -289,7 +281,7 @@ namespace MySql.Data.MySqlClient
           Settings.ConnectionProtocol));
       }
 
-      if (Settings.SslMode != MySqlSslMode.None 
+      if (Settings.SslMode != MySqlSslMode.None
         && Settings.ConnectionProtocol != MySqlConnectionProtocol.NamedPipe
         && Settings.ConnectionProtocol != MySqlConnectionProtocol.SharedMemory)
       {
@@ -400,6 +392,9 @@ namespace MySql.Data.MySqlClient
       // if the server supports query attributes
       if ((serverCaps & ClientFlags.CLIENT_QUERY_ATTRIBUTES) != 0)
         flags |= ClientFlags.CLIENT_QUERY_ATTRIBUTES;
+
+      // need this to get server session trackers
+      flags |= ClientFlags.CLIENT_SESSION_TRACK;
 
       connectionFlags = flags;
     }
@@ -549,16 +544,14 @@ namespace MySql.Data.MySqlClient
         // again if necessary.
         serverStatus &= ~(ServerStatusFlags.AnotherQuery |
                           ServerStatusFlags.MoreResults);
-        affectedRow = (int)packet.ReadFieldLength();
-        insertedId = (long)packet.ReadFieldLength();
 
-        serverStatus = (ServerStatusFlags)packet.ReadInteger(2);
-        warnings += packet.ReadInteger(2);
-        if (packet.HasMoreData)
-        {
-          packet.ReadLenString(); //TODO: server message
-        }
+        OkPacket okPacket = new OkPacket(packet);
+        affectedRow = (int)okPacket.AffectedRows;
+        insertedId = okPacket.LastInsertId;
+        serverStatus = okPacket.ServerStatusFlags;
+        warnings += okPacket.WarningCount;
       }
+
       return fieldCount;
     }
 
