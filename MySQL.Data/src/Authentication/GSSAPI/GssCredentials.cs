@@ -31,6 +31,7 @@ using MySql.Data.Authentication.GSSAPI.Utility;
 using MySql.Data.MySqlClient;
 using System;
 using System.Runtime.InteropServices;
+using static MySql.Data.Authentication.GSSAPI.Native.NativeMethods;
 
 namespace MySql.Data.Authentication.GSSAPI
 {
@@ -157,7 +158,7 @@ namespace MySql.Data.Authentication.GSSAPI
       int credentialUsage;
       IntPtr name, mechs;
 
-      var majorStatus = NativeMethods.gss_acquire_cred(
+      var majorStatus = gss_acquire_cred(
           out minorStatus,
           Const.GSS_C_NO_NAME,
           Const.GSS_C_INDEFINITE,
@@ -171,7 +172,7 @@ namespace MySql.Data.Authentication.GSSAPI
         throw new MySqlException(ExceptionMessages.FormatGssMessage("GSSAPI: Unable acquire credentials for authentication.",
             majorStatus, minorStatus, Const.GssKrb5MechOidDesc));
 
-      majorStatus = NativeMethods.gss_inquire_cred(
+      majorStatus = gss_inquire_cred(
         out minorStatus,
         _credentials,
         out name,
@@ -196,11 +197,11 @@ namespace MySql.Data.Authentication.GSSAPI
       string userName;
 
       GssBufferDescStruct buffer;
-      NativeMethods.gss_display_name(out _, name, out buffer, out _);
+      gss_display_name(out _, name, out buffer, out _);
 
       userName = buffer.value == IntPtr.Zero ? string.Empty : Marshal.PtrToStringAnsi(buffer.value);
 
-      var majorStatus = NativeMethods.gss_release_buffer(out var minorStatus, ref buffer);
+      var majorStatus = gss_release_buffer(out var minorStatus, ref buffer);
       if (majorStatus != Const.GSS_S_COMPLETE)
         throw new MySqlException(ExceptionMessages.FormatGssMessage("GSSAPI: An error occurred releasing a buffer.",
                 majorStatus, minorStatus, Const.GSS_C_NO_OID));
@@ -213,12 +214,12 @@ namespace MySql.Data.Authentication.GSSAPI
       uint minorStatus = 0;
       uint majorStatus = 0;
 
-      majorStatus = NativeMethods.gss_release_name(out minorStatus, ref _gssUsername);
+      majorStatus = gss_release_name(out minorStatus, ref _gssUsername);
       if (majorStatus != Const.GSS_S_COMPLETE)
         throw new MySqlException(ExceptionMessages.FormatGssMessage("GSSAPI: Unable to release the user name handle.",
           majorStatus, minorStatus, Const.GssNtHostBasedService));
 
-      majorStatus = NativeMethods.gss_release_cred(out minorStatus, ref _credentials);
+      majorStatus = gss_release_cred(out minorStatus, ref _credentials);
       if (majorStatus != Const.GSS_S_COMPLETE)
         throw new MySqlException(ExceptionMessages.FormatGssMessage("GSSAPI: Unable to release the credential handle.",
           majorStatus, minorStatus, Const.GssNtHostBasedService));

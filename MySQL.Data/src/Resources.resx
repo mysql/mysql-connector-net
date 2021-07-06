@@ -666,4 +666,7 @@
   <data name="AuthenticationPluginNotSupported" xml:space="preserve">
     <value>Authentication plugin '{0}' is currently not supported.</value>
   </data>
+  <data name="UnmatchedWinUserAndMySqlUser" xml:space="preserve">
+    <value>MySQL user '{0}' does not equal the logged-in Windows user '{1}'.</value>
+  </data>
 </root>

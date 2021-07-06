@@ -39,7 +39,6 @@ namespace MySql.Data.Authentication.GSSAPI.Utility
   /// </summary>
   internal class KerberosConfig
   {
-    private const string KRBCONFIG_WIN = @"C:\ProgramData\MIT\Kerberos5\krb5.ini";
     private const string KRBCONFIG_LINUX = @"/etc/krb5.conf";
 
     private const char COMMENT_HASH = '#';
@@ -63,14 +62,10 @@ namespace MySql.Data.Authentication.GSSAPI.Utility
 
       // Tries to get Kerberos configuration file path from environment variables, otherwise
       // set the default path.
-      bool IsWin = Environment.OSVersion.Platform.ToString().StartsWith("Win");
       string krbConfigPath = Environment.GetEnvironmentVariable("KRB5_CONFIG");
 
       if (string.IsNullOrEmpty(krbConfigPath))
-        if (IsWin)
-          krbConfigPath = KRBCONFIG_WIN;
-        else
-          krbConfigPath = KRBCONFIG_LINUX;
+        krbConfigPath = KRBCONFIG_LINUX;
 
       if (File.Exists(krbConfigPath))
       {

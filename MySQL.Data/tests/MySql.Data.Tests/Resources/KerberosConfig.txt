@@ -6,7 +6,8 @@ krb5-config
 krb5-user
 
 Windows prerequisites:
-Install MIT Kerberos
+There's a quick guide to follow: https://confluence.oraclecorp.com/confluence/display/MYSQL/MySQL+windows+client+support+for+kerberos
+Step 3 is really important for this to work.
 
 -------- SERVER --------
 krb5.conf structure:

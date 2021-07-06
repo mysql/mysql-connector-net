@@ -1,5 +1,6 @@
 8.0.27
 - Added support for reading and processing session trackers (WL14678).
+- Added client-side Kerberos authentication plugin support for Windows (WL14654).
 
 
 8.0.26
@@ -137,7 +138,7 @@
 - MySqlX: Added support for utf8mb4 binary no-pad collation (WL13099).
 - MySqlX: Removed a limitation preventing the creation of an index on document fields that contains arrays (WL12176).
 - Fix to correct wrong TimeZone returned when using MySqlDataReader['columnName'] to get DateTime type values (Oracle Bug #28156187).
-- Contribution added: Add CreateCommandBuilder and CreateDataAdapter to MySqlClientFactory (MySQL Bug #92206, Oracle Bug #28560189). Thanks to Cédric Luthi for the contribution.
+- Contribution added: Add CreateCommandBuilder and CreateDataAdapter to MySqlClientFactory (MySQL Bug #92206, Oracle Bug #28560189). Thanks to CÃ©dric Luthi for the contribution.
 - Fix null DbDataAdapter and DbCommandBuilder objects when using CreateDataAdapter and CreateCommandBuilder respectively (MySQL Bug #88660, Oracle Bug #27292344).
 
 
@@ -181,7 +182,7 @@
 - MySqlX: Fixed bug that throws an exception when using Set and Unset for an alphanumeric field (Oracle Bug #28094094).
 - MySqlX: Added support for session pooling (WL-11841).
 - Fix to correct wrong TimeZone returned when using MySqlDataReader['columnName'] to get DateTime type values (Oracle Bug #28156187).
-- Contribution added: Add CreateCommandBuilder and CreateDataAdapter to MySqlClientFactory (MySQL Bug #92206, Oracle Bug #28560189). Thanks to Cédric Luthi for the contribution.
+- Contribution added: Add CreateCommandBuilder and CreateDataAdapter to MySqlClientFactory (MySQL Bug #92206, Oracle Bug #28560189). Thanks to CÃ©dric Luthi for the contribution.
 - Fix null DbDataAdapter and DbCommandBuilder objects when using CreateDataAdapter and CreateCommandBuilder respectively (MySQL Bug #88660, Oracle Bug #27292344).
 - Re-introduced the Preferred SSL Mode as the default value for the classic protocol (MySQL Bug#92533, Oracle Bug #28687769).
 
@@ -218,7 +219,7 @@
 - Fix to correct unexpected ColummSize and IsLong values returned by MySqlDataReader.GetSchemaTable when using LongText and LongBlob data types. (MySQL Bug #87876, Oracle Bug #26876592)
 - Fix to correct the wrong NumericPrecision value returned by MySqlDataReader.GetSchemaTable when NumericScale is 0 for Decimal data types. (MySQL Bug #88058, Oracle Bug #26954812)
 - Added support for MySQL 8 server features (WL11326).
-- Fix to avoid raising an exception during the DbContext setup. Thanks to Cédric Luthi for his contribution. (MySQL Bug #89134, Oracle Bug #25185319)
+- Fix to avoid raising an exception during the DbContext setup. Thanks to CÃ©dric Luthi for his contribution. (MySQL Bug #89134, Oracle Bug #25185319)
 - Fixed a problem in which NuGet packages could not be installed from within Visual Studio 2015 (MySQL Bug #88838, Oracle Bug #27251839).
 - Fix for bug: could not load file or assembly MySql.ConnectorInstaller when using web providers (MySQL Bug #88544, Oracle Bug #27457398).
 - Fix to enable the creation of an Entity Framework model from a database, also called the database-first approach (MySQL Bug 79163, Oracle Bug #22173048).
