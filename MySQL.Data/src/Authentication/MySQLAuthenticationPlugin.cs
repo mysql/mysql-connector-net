@@ -1,4 +1,4 @@
-// Copyright (c) 2012, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2012, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,6 +40,11 @@ namespace MySql.Data.MySqlClient.Authentication
     private NativeDriver _driver;
 
     /// <summary>
+    /// Handles the iteration of the multifactor authentication
+    /// </summary>
+    private int _mfaIteration = 1;
+
+    /// <summary>
     /// Gets or sets the authentication data returned by the server.
     /// </summary>
     protected byte[] AuthenticationData;
@@ -51,7 +56,7 @@ namespace MySql.Data.MySqlClient.Authentication
     /// <param name="driver"></param>
     /// <param name="authData"></param>
     /// <returns></returns>
-    internal static MySqlAuthenticationPlugin GetPlugin(string method, NativeDriver driver, byte[] authData)
+    internal static MySqlAuthenticationPlugin GetPlugin(string method, NativeDriver driver, byte[] authData, int mfaIteration = 1)
     {
       if (method == "mysql_old_password")
       {
@@ -63,6 +68,7 @@ namespace MySql.Data.MySqlClient.Authentication
         throw new MySqlException(String.Format(Resources.UnknownAuthenticationMethod, method));
 
       plugin._driver = driver;
+      plugin._mfaIteration = mfaIteration;
       plugin.SetAuthData(authData);
       return plugin;
     }
@@ -174,14 +180,25 @@ namespace MySql.Data.MySqlClient.Authentication
         if (packet.IsLastPacket)
         {
           _driver.Close(true);
-          throw new MySqlException( Resources.OldPasswordsNotSupported );
+          throw new MySqlException(Resources.OldPasswordsNotSupported);
         }
         else
         {
           HandleAuthChange(packet);
         }
       }
-      _driver.ReadOk(false);
+
+      OkPacket okPacket = _driver.ReadOk(false);
+
+      // multifactor authentication
+      while (okPacket.SessionTrackers.Exists(s => s.TrackType == SessionTrackType.ClientPluginInfo))
+      {
+        _mfaIteration++;
+        string pluginName = okPacket.SessionTrackers.Find(s => s.TrackType == SessionTrackType.ClientPluginInfo).Name;
+        HandleMFA(packet, pluginName);
+        okPacket = _driver.ReadOk(false);
+      }
+
       AuthenticationSuccessful();
     }
 
@@ -216,6 +233,15 @@ namespace MySql.Data.MySqlClient.Authentication
         AuthenticationFailed(ex);
         return null;
       }
+    }
+
+    private void HandleMFA(MySqlPacket packet, string authMethod)
+    {
+      byte[] authData = new byte[packet.Length - packet.Position];
+      Array.Copy(packet.Buffer, packet.Position, authData, 0, authData.Length);
+
+      MySqlAuthenticationPlugin plugin = GetPlugin(authMethod, _driver, authData, _mfaIteration);
+      plugin.ContinueAuthentication();
     }
 
     private void HandleAuthChange(MySqlPacket packet)
@@ -255,6 +281,24 @@ namespace MySql.Data.MySqlClient.Authentication
       }
       // We get here if MoreData returned null but the last packet read was a more data packet.
       ReadPacket();
+    }
+
+    /// <summary>
+    /// Gets the password for the iteration of the multifactor authentication 
+    /// </summary>
+    /// <returns>A password</returns>
+    protected string GetMFAPassword()
+    {
+      switch (_mfaIteration)
+      {
+        case 1:
+        default:
+          return Settings.Password;
+        case 2:
+          return Settings.Password2;
+        case 3:
+          return Settings.Password3;
+      }
     }
 
     /// <summary>

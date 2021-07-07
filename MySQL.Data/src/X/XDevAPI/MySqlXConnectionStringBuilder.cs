@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,12 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.ComponentModel;
-using MySql.Data.MySqlClient;
 using MySql.Data;
-using MySql.Data.common;
+using MySql.Data.Common;
+using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace MySqlX.XDevAPI
 {
@@ -73,7 +73,7 @@ namespace MySqlX.XDevAPI
         (msb, sender, value) => { msb.SetValue("compression", value); }, (msb, sender) => msb.Compression));
       Options.Add(new MySqlConnectionStringOption("compression-algorithms", "compressionalgorithms", typeof(string), string.Empty, false,
               (msb, sender, value) => { msb.SetValue("compression-algorithms", value); }, (msb, sender) => msb.CompressionAlgorithm));
-      
+
       // Authentication options.
       Options.Add(new MySqlConnectionStringOption("auth", null, typeof(MySqlAuthenticationMode), MySqlAuthenticationMode.Default, false,
         (msb, sender, value) => { msb.SetValue("auth", value); }, (msb, sender) => msb.Auth));

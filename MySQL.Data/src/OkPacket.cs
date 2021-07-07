@@ -65,28 +65,39 @@ namespace MySql.Data.MySqlClient
         while (totalLen > 0 && end > start)
         {
           SessionTrackType type = (SessionTrackType)packet.ReadByte();
+          int mandatoryFlag = (int)packet.ReadByte();
           int dataLength = (int)packet.ReadByte();
+          string name, value;
 
           // for specification of the packet structure, see WL#4797
           switch (type)
           {
             case SessionTrackType.SystemVariables:
-              AddTracker(type, packet.ReadString(packet.ReadByte()), packet.ReadString(packet.ReadByte()));
+              name = packet.ReadString(packet.ReadByte());
+              value = packet.ReadString(packet.ReadByte());
+              AddTracker(type, mandatoryFlag, name, value);
               break;
             case SessionTrackType.GTIDS:
               packet.ReadByte(); // skip the byte reserved for the encoding specification, see WL#6128 
-              AddTracker(type, packet.ReadString(packet.ReadByte()), null);
+              name = packet.ReadString(packet.ReadByte());
+              AddTracker(type, mandatoryFlag, name, null);
               break;
             case SessionTrackType.Schema:
             case SessionTrackType.TransactionCharacteristics:
             case SessionTrackType.TransactionState:
-              AddTracker(type, packet.ReadString(packet.ReadByte()), null);
+              name = packet.ReadString(packet.ReadByte());
+              AddTracker(type, mandatoryFlag, name, null);
               break;
             case SessionTrackType.StateChange:
+            case SessionTrackType.ClientPluginInfo:
+              name = packet.ReadString(packet.ReadByte());
+              AddTracker(type, mandatoryFlag, name, null);
+              break;
             default:
-              AddTracker(type, packet.ReadString(), null);
+              if (mandatoryFlag == 1) throw new MySqlException("Malformed packet error.");
               break;
           }
+
           start = packet.Position;
         }
       }
@@ -98,20 +109,22 @@ namespace MySql.Data.MySqlClient
     /// <param name="type">Type of the session tracker</param>
     /// <param name="name">Name of the element changed</param>
     /// <param name="value">Value of the changed system variable (only for SessionTrackType.SystemVariables; otherwise, null)</param>
-    private void AddTracker(SessionTrackType type, string name, string value)
+    private void AddTracker(SessionTrackType type, int flag, string name, string value)
     {
       SessionTracker tracker;
-      tracker._trackType = type;
-      tracker._name = name;
-      tracker._value = value;
+      tracker.TrackType = type;
+      tracker.Mandatory = flag;
+      tracker.Name = name;
+      tracker.Value = value;
       SessionTrackers.Add(tracker);
     }
   }
 
   internal struct SessionTracker
   {
-    internal SessionTrackType _trackType;
-    internal string _name;
-    internal string _value;
+    internal SessionTrackType TrackType;
+    internal int Mandatory;
+    internal string Name;
+    internal string Value;
   }
 }

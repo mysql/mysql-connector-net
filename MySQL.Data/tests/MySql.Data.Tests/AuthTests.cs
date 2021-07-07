@@ -893,7 +893,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     [Ignore("This test require start the mysql server commercial with the configuration specified in file Resources/my.ini")]
     [Property("Category", "Security")]
-    public void ConnectUsingClearTextPlugin()
+    public void ConnectUsingClearPasswordPlugin()
     {
       //Verify plugin is loaded
       MySqlDataReader pluginReader = ExecuteReader("SELECT * FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME = 'authentication_ldap_simple'");
@@ -1314,6 +1314,98 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Throws<ArgumentException>(() => MySqlSASLPlugin.SaslPrep("\uDB40\uDC7Fmy,0TEXT"));
       Assert.Throws<ArgumentException>(() => MySqlSASLPlugin.SaslPrep("my,0\uDB40\uDC21TEXT"));
       Assert.Throws<ArgumentException>(() => MySqlSASLPlugin.SaslPrep("my,0TEXT\uDB40\uDC01"));
+    }
+    #endregion
+
+    #region Multi Factor Authentication (MFA)
+    /// <summary>
+    /// WL14653 - Support for MFA (multi factor authentication) authentication
+    /// </summary>
+    [Test]
+    [Ignore("This test requires the plugin module 'auth_test_plugin' loaded. See WL14653 LLD.")]
+    [Property("Category", "Security")]
+    public void ConnectUsing1FAuth()
+    {
+      ExecuteSQL("CREATE USER IF NOT EXISTS user_1f IDENTIFIED WITH cleartext_plugin_server BY 'password1'", true);
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = "user_1f",
+        Password = "password1",
+        Password2 = "otherPassword",
+        Password3 = "thirdPassword",
+        Server = Settings.Server,
+        Port = Settings.Port
+      };
+
+      using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
+      conn.Open();
+      Assert.AreEqual(ConnectionState.Open, conn.State);
+    }
+
+    [TestCase("user_2f", "password1", "password2", true)]
+    [TestCase("user_2f", "wrong", "password2", false)]
+    [TestCase("user_2f", "password1", "wrong", false)]
+    [TestCase("user_2f", "password1", "", false)]
+    [Ignore("This test requires the plugin module 'auth_test_plugin' loaded. See WL14653 LLD.")]
+    [Property("Category", "Security")]
+    public void ConnectUsing2FAuth(string user, string pwd, string pwd2, bool shouldPass)
+    {
+      ExecuteSQL("CREATE USER IF NOT EXISTS user_2f IDENTIFIED WITH cleartext_plugin_server BY 'password1'" +
+        "AND IDENTIFIED WITH cleartext_plugin_server BY 'password2'", true);
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = user,
+        Password = pwd,
+        Password2 = pwd2,
+        Server = Settings.Server,
+        Port = Settings.Port
+      };
+
+      using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
+
+      if (!shouldPass)
+        Assert.Throws<MySqlException>(() => conn.Open());
+      else
+      {
+        conn.Open();
+        Assert.AreEqual(ConnectionState.Open, conn.State);
+      }
+    }
+
+    [TestCase("user_3f", "password1", "password2", "password3", true)]
+    [TestCase("user_3f", "wrong", "password2", "password3", false)]
+    [TestCase("user_3f", "password1", "wrong", "password3", false)]
+    [TestCase("user_3f", "password1", "password2", "wrong", false)]
+    [TestCase("user_3f", "password1", "", "password3", false)]
+    [Ignore("This test requires the plugin module 'auth_test_plugin' loaded. See WL14653 LLD.")]
+    [Property("Category", "Security")]
+    public void ConnectUsing3FAuth(string user, string pwd, string pwd2, string pwd3, bool shouldPass)
+    {
+      ExecuteSQL("CREATE USER IF NOT EXISTS user_3f IDENTIFIED WITH cleartext_plugin_server BY 'password1'" +
+        "AND IDENTIFIED WITH cleartext_plugin_server BY 'password2'" +
+        "AND IDENTIFIED WITH cleartext_plugin_server BY 'password3'", true);
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = user,
+        Password = pwd,
+        Password2 = pwd2,
+        Password3 = pwd3,
+        Server = Settings.Server,
+        Port = Settings.Port
+      };
+
+      using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
+
+      if (!shouldPass)
+        Assert.Throws<MySqlException>(() => conn.Open());
+      else
+      {
+        conn.Open();
+        Assert.AreEqual(ConnectionState.Open, conn.State);
+      }
     }
     #endregion
   }

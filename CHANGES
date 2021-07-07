@@ -1,5 +1,6 @@
 8.0.27
 - Added support for reading and processing session trackers (WL14678).
+- Added support for multifactor authentication (WL14653).
 
 
 8.0.26

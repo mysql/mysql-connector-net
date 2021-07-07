@@ -26,7 +26,6 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.common;
 using MySql.Data.Common;
 using System;
 using System.Collections.Generic;
@@ -37,7 +36,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Authentication;
 using System.Text;
-using static MySql.Data.common.MySqlConnectionStringOption;
+using static MySql.Data.Common.MySqlConnectionStringOption;
 
 namespace MySql.Data.MySqlClient
 {
@@ -75,7 +74,9 @@ namespace MySql.Data.MySqlClient
 
       // Authentication options.
       Options.Add(new MySqlConnectionStringOption("user id", "uid,username,user name,user,userid", typeof(string), "", false));
-      Options.Add(new MySqlConnectionStringOption("password", "pwd", typeof(string), "", false));
+      Options.Add(new MySqlConnectionStringOption("password", "pwd,password1,pwd1", typeof(string), "", false));
+      Options.Add(new MySqlConnectionStringOption("password2", "pwd2", typeof(string), "", false));
+      Options.Add(new MySqlConnectionStringOption("password3", "pwd3", typeof(string), "", false));
       Options.Add(new MySqlConnectionStringOption("certificatefile", "certificate file", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("certificatepassword", "certificate password,ssl-ca-pwd", typeof(string), null, false));
       Options.Add(new MySqlConnectionStringOption("certificatestorelocation", "certificate store location", typeof(MySqlCertificateStoreLocation), MySqlCertificateStoreLocation.None, false));
@@ -244,6 +245,32 @@ namespace MySql.Data.MySqlClient
     {
       get { return (string)values["password"]; }
       set { SetValue("password", value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the password for a second authentication that should be used to make a connection.
+    /// </summary>
+    [Category("Security")]
+    [Description("Indicates the password for a second authentication to be used when connecting to the data source.")]
+    [RefreshProperties(RefreshProperties.All)]
+    [PasswordPropertyText(true)]
+    public string Password2
+    {
+      get { return (string)values["password2"]; }
+      set { SetValue("password2", value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the password for a third authentication that should be used to make a connection.
+    /// </summary>
+    [Category("Security")]
+    [Description("Indicates the password for a third authentication to be used when connecting to the data source.")]
+    [RefreshProperties(RefreshProperties.All)]
+    [PasswordPropertyText(true)]
+    public string Password3
+    {
+      get { return (string)values["password3"]; }
+      set { SetValue("password3", value); }
     }
 
     /// <summary>

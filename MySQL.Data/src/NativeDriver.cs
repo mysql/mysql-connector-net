@@ -135,7 +135,7 @@ namespace MySql.Data.MySqlClient
       return packet = stream.ReadPacket();
     }
 
-    internal void ReadOk(bool read)
+    internal OkPacket ReadOk(bool read)
     {
       try
       {
@@ -150,6 +150,8 @@ namespace MySql.Data.MySqlClient
 
         OkPacket okPacket = new OkPacket(packet);
         serverStatus = okPacket.ServerStatusFlags;
+
+        return okPacket;
       }
       catch (MySqlException ex)
       {
@@ -395,6 +397,9 @@ namespace MySql.Data.MySqlClient
 
       // need this to get server session trackers
       flags |= ClientFlags.CLIENT_SESSION_TRACK;
+
+      // adding support for MFA
+      flags |= ClientFlags.CLIENT_MANDATORY_SESSION_TRACK;
 
       connectionFlags = flags;
     }
