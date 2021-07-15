@@ -1344,6 +1344,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [TestCase("user_2f", "password1", "password2", true)]
+    [TestCase("sadmin", "perola1", "perola", true)] // using authentication_ldap_sasl as 2f auth (requires LDAP setup)
     [TestCase("user_2f", "wrong", "password2", false)]
     [TestCase("user_2f", "password1", "wrong", false)]
     [TestCase("user_2f", "password1", "", false)]
@@ -1351,7 +1352,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void ConnectUsing2FAuth(string user, string pwd, string pwd2, bool shouldPass)
     {
-      ExecuteSQL("CREATE USER IF NOT EXISTS user_2f IDENTIFIED WITH cleartext_plugin_server BY 'password1'" +
+      // Requires LDAP setup
+      //ExecuteSQL("CREATE USER sadmin IDENTIFIED BY 'perola1' AND IDENTIFIED WITH authentication_ldap_sasl;");
+      ExecuteSQL($"CREATE USER IF NOT EXISTS {user} IDENTIFIED WITH cleartext_plugin_server BY 'password1'" +
         "AND IDENTIFIED WITH cleartext_plugin_server BY 'password2'", true);
 
       var connStringBuilder = new MySqlConnectionStringBuilder()

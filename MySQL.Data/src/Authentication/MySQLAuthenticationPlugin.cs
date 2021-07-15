@@ -195,7 +195,7 @@ namespace MySql.Data.MySqlClient.Authentication
       {
         _mfaIteration++;
         string pluginName = okPacket.SessionTrackers.Find(s => s.TrackType == SessionTrackType.ClientPluginInfo).Name;
-        HandleMFA(packet, pluginName);
+        HandleMFA(pluginName);
         okPacket = _driver.ReadOk(false);
       }
 
@@ -220,7 +220,7 @@ namespace MySql.Data.MySqlClient.Authentication
       else throw new MySqlException("Unexpected password format: " + password.GetType());
     }
 
-    private MySqlPacket ReadPacket()
+    internal MySqlPacket ReadPacket()
     {
       try
       {
@@ -235,12 +235,9 @@ namespace MySql.Data.MySqlClient.Authentication
       }
     }
 
-    private void HandleMFA(MySqlPacket packet, string authMethod)
+    private void HandleMFA(string authMethod)
     {
-      byte[] authData = new byte[packet.Length - packet.Position];
-      Array.Copy(packet.Buffer, packet.Position, authData, 0, authData.Length);
-
-      MySqlAuthenticationPlugin plugin = GetPlugin(authMethod, _driver, authData, _mfaIteration);
+      MySqlAuthenticationPlugin plugin = GetPlugin(authMethod, _driver, null, _mfaIteration);
       plugin.ContinueAuthentication();
     }
 

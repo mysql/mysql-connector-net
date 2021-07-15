@@ -46,6 +46,14 @@ namespace MySql.Data.MySqlClient.Authentication
 
     protected override void SetAuthData(byte[] data)
     {
+      if (data == null)
+      {
+        var packet = ReadPacket();
+        packet.ReadByte();
+        data = new byte[packet.Length - packet.Position];
+        Array.Copy(packet.Buffer, packet.Position, data, 0, data.Length);
+      }       
+
       _mechanismName = Encoding.UTF8.GetString(data);
 
       switch (_mechanismName)
