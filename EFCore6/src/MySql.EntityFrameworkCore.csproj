@@ -4,7 +4,7 @@
     <Description>MySql.EntityFrameworkCore for Entity Framework.</Description>
     <Copyright>Copyright (c) 2021, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>6.0.0-preview3+MySQL8.0.26</Version>
+    <Version>6.0.0-preview3.1+MySQL8.0.27</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net5.0</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>

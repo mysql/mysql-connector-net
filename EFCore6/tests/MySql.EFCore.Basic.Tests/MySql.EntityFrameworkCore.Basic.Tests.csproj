@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Basic.Tests Class Library</Description>
     <Copyright>Copyright (c) 2016, 2021, Oracle and/or its affiliates.</Copyright>
-    <Version>6.0.0-preview3+MySQL8.0.26</Version>
+    <Version>6.0.0-preview3.1+MySQL8.0.27</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net6.0;</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Basic.Tests</AssemblyName>
