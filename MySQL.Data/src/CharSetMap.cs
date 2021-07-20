@@ -155,6 +155,7 @@ namespace MySql.Data.MySqlClient
       _mapping.Add("latvian1", new CharacterSet("iso-8859-13", 1));
       _mapping.Add("estonia", new CharacterSet("iso-8859-13", 1));
       _mapping.Add("dos", new CharacterSet("ibm437", 1));
+      _mapping.Add("utf8mb3", new CharacterSet("utf-8", 3));
       _mapping.Add("utf8mb4", new CharacterSet("utf-8", 4));
       _mapping.Add("utf16", new CharacterSet("utf-16BE", 2));
       _mapping.Add("utf16le", new CharacterSet("utf-16", 2));
