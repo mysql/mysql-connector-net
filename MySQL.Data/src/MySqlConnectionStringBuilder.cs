@@ -99,7 +99,7 @@ namespace MySql.Data.MySqlClient
         (msb, sender) => (uint)msb.values["connectiontimeout"]
         ));
       Options.Add(new MySqlConnectionStringOption("allowloadlocalinfile", "allow load local infile", typeof(bool), false, false));
-      Options.Add(new MySqlConnectionStringOption("allowloadlocalinfileinpath", "allow load local infile in path", typeof(string), "", false));
+      Options.Add(new MySqlConnectionStringOption("allowloadlocalinfileinpath", "allow load local infile in path", typeof(string), string.Empty, false));
 
       // Authentication options.
       Options.Add(new MySqlConnectionStringOption("persistsecurityinfo", "persist security info", typeof(bool), false, false,
@@ -130,6 +130,7 @@ namespace MySql.Data.MySqlClient
           msb.SetValue("defaultauthenticationplugin", value);
         },
         (msb, sender) => msb.DefaultAuthenticationPlugin));
+      Options.Add(new MySqlConnectionStringOption("ociconfigfile", null, typeof(string), string.Empty, false));
 
       // Other properties.
       Options.Add(new MySqlConnectionStringOption("autoenlist", "auto enlist", typeof(bool), true, false,
@@ -460,6 +461,22 @@ namespace MySql.Data.MySqlClient
     {
       get { return (string)values["defaultauthenticationplugin"]; }
       set { SetValue("defaultauthenticationplugin", value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the OCI config file location.
+    /// </summary>
+    /// <remarks>
+    /// The default values vary depending on the OS. On Windows systems the value is '%HOMEDRIVE%%HOMEPATH%\.oci\config' 
+    /// and for Linux/MacOS systems it is '~/.oci/config'.
+    /// </remarks>
+    [Category("Authentication")]
+    [DisplayName("OciConfigFile")]
+    [Description("Specifies the OCI configuration file location.")]
+    public string OciConfigFile
+    {
+      get { return (string)values["ociconfigfile"]; }
+      set { SetValue("ociconfigfile", value); }
     }
 
     #endregion

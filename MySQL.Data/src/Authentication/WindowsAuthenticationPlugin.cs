@@ -57,7 +57,7 @@ namespace MySql.Data.MySqlClient.Authentication
 
     public override string GetUsername()
     {
-      string username = base.GetUsername();
+      string username = Settings.UserID;
       if (String.IsNullOrEmpty(username))
         return "auth_windows";
       return username;

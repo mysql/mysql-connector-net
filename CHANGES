@@ -1,6 +1,7 @@
 8.0.27
 - Added support for reading and processing session trackers (WL14678).
 - Added client-side Kerberos authentication plugin support for Windows (WL14654).
+- Added support for the OCI IAM authentication plugin (WL14708).
 
 
 8.0.26

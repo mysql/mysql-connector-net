@@ -1,4 +1,4 @@
-// Copyright (c) 2012, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2012, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -174,7 +174,7 @@ namespace MySql.Data.MySqlClient.Authentication
         if (packet.IsLastPacket)
         {
           _driver.Close(true);
-          throw new MySqlException( Resources.OldPasswordsNotSupported );
+          throw new MySqlException(Resources.OldPasswordsNotSupported);
         }
         else
         {
@@ -228,6 +228,7 @@ namespace MySql.Data.MySqlClient.Authentication
       Array.Copy(packet.Buffer, packet.Position, authData, 0, authData.Length);
 
       MySqlAuthenticationPlugin plugin = GetPlugin(method, _driver, authData);
+      plugin.CheckConstraints();
       plugin.ContinueAuthentication();
     }
 
@@ -268,7 +269,7 @@ namespace MySql.Data.MySqlClient.Authentication
     /// <returns>The user name associated to the connection settings.</returns>
     public virtual string GetUsername()
     {
-      return Settings.UserID;
+      return !string.IsNullOrWhiteSpace(Settings.UserID) ? Settings.UserID : Environment.UserName;
     }
 
     /// <summary>

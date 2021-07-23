@@ -853,6 +853,51 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to OCI configuration file could not be read..
+        /// </summary>
+        public static string OciConfigFileNotFound {
+            get {
+                return ResourceManager.GetString("OciConfigFileNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OCI configuration file does not contain a &apos;fingerprint&apos; or &apos;key_file&apos; entry..
+        /// </summary>
+        public static string OciEntryNotFound {
+            get {
+                return ResourceManager.GetString("OciEntryNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OCI configuration entry &apos;key_file&apos; does not reference a valid key file..
+        /// </summary>
+        public static string OciInvalidKeyFile {
+            get {
+                return ResourceManager.GetString("OciInvalidKeyFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Private key could not be found at location given by OCI configuration entry &apos;key_file&apos;..
+        /// </summary>
+        public static string OciKeyFileDoesNotExists {
+            get {
+                return ResourceManager.GetString("OciKeyFileDoesNotExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The OCI SDK cannot be found or is not installed..
+        /// </summary>
+        public static string OciSDKNotFound {
+            get {
+                return ResourceManager.GetString("OciSDKNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The offset cannot be negative.
         /// </summary>
         public static string OffsetCannotBeNegative {

@@ -669,4 +669,19 @@
   <data name="UnmatchedWinUserAndMySqlUser" xml:space="preserve">
     <value>MySQL user '{0}' does not equal the logged-in Windows user '{1}'.</value>
   </data>
+  <data name="OciSDKNotFound" xml:space="preserve">
+    <value>The OCI SDK cannot be found or is not installed.</value>
+  </data>
+  <data name="OciConfigFileNotFound" xml:space="preserve">
+    <value>OCI configuration file could not be read.</value>
+  </data>
+  <data name="OciEntryNotFound" xml:space="preserve">
+    <value>OCI configuration file does not contain a 'fingerprint' or 'key_file' entry.</value>
+  </data>
+  <data name="OciInvalidKeyFile" xml:space="preserve">
+    <value>OCI configuration entry 'key_file' does not reference a valid key file.</value>
+  </data>
+  <data name="OciKeyFileDoesNotExists" xml:space="preserve">
+    <value>Private key could not be found at location given by OCI configuration entry 'key_file'.</value>
+  </data>
 </root>

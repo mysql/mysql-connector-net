@@ -69,7 +69,7 @@ namespace MySql.Data.MySqlClient.Authentication
 
     public override string GetUsername()
     {
-      Username = string.IsNullOrWhiteSpace(Username) ? base.GetUsername() : Username;
+      Username = string.IsNullOrWhiteSpace(Username) ? Settings.UserID : Username;
 
       // If no password is provided, MySQL user and Windows logged-in user should match
       if (Platform.IsWindows() && !string.IsNullOrWhiteSpace(Username) && string.IsNullOrWhiteSpace(Password) && Username != Environment.UserName)
@@ -85,7 +85,7 @@ namespace MySql.Data.MySqlClient.Authentication
         catch (Exception)
         {
           // Fall-back to system login user
-          Username = Environment.UserName;
+          Username = base.GetUsername();
         }
       }
 

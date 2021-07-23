@@ -26,11 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.MySqlClient.Authentication;
-using System;
-using System.Data;
-using NUnit.Framework;
 using MySql.Data.Common;
+using MySql.Data.MySqlClient.Authentication;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Text;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -1320,6 +1321,173 @@ namespace MySql.Data.MySqlClient.Tests
         }
         else
           Assert.Throws<MySqlException>(() => connection.Open());
+      }
+    }
+    #endregion
+
+    #region OCI IAM Authentication
+    /// <summary>
+    /// WL14708 - Support OCI IAM authentication
+    /// This test require to have a server running in the OCI and have at least one user configured with 
+    /// the authentication_oci authentication plugin (see server WL11102 for further details)
+    /// </summary>
+    [TestCase("cnetuser1", "", Description = "By not setting a custom path, it takes the default value from the OCI SDK for .NET")]
+    [TestCase("cnetuser1", "C:\\config", Description = "Uses a custom path for the config file")]
+    [TestCase("", "", Description = "Uses OS logged in user")]
+    [TestCase("", "C:\\config", Description = "Uses OS logged in user and custom path for the config file")]
+    [Ignore("This test require a server running in the OCI.")]
+    public void ConnectUsingOciIamAuthentication(string userName, string configFilePath)
+    {
+      string host = "100.101.74.201";
+      uint port = 3307;
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = userName,
+        Server = host,
+        Port = port,
+        OciConfigFile = configFilePath
+      };
+
+      using (var conn = new MySqlConnection(connStringBuilder.ConnectionString))
+      {
+        conn.Open();
+        MySqlCommand command = new MySqlCommand($"SELECT user();", conn);
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          userName = string.IsNullOrEmpty(userName) ? Environment.UserName : userName;
+          StringAssert.Contains(userName, reader.GetString(0));
+        }
+      }
+    }
+
+    [Test]
+    public void NonExistingKeyFile()
+    {
+      OciAuthenticationPlugin plugin = new OciAuthenticationPlugin();
+      string keyFileInvalidPath = "C:\\invalid\\Path";
+      string exMsg = Assert.Throws<MySqlException>(() => plugin.SignData(new byte[0], keyFileInvalidPath, "")).Message;
+      StringAssert.AreEqualIgnoringCase(Resources.OciKeyFileDoesNotExists, exMsg);
+    }
+
+    public struct Profiles
+    {
+      public Dictionary<string, Dictionary<string, string>> profiles { get; set; }
+      public bool missingEntry { get; set; }
+    }
+
+    [DatapointSource]
+    public Profiles[] profiles = new Profiles[]
+    {
+      // does not contain key_file entry
+      new Profiles{
+        profiles = new Dictionary<string, Dictionary<string, string>>() {
+          { "DEFAULT", new Dictionary<string, string>(){ { "fingerprint", "11:22:33:44:55:66:77" } } },
+          { "TEST", new Dictionary<string, string>(){ { "key_file", "keyFilePath" } } }
+        },
+        missingEntry = true
+      },
+            // does not contain fingerprint entry
+      new Profiles{
+        profiles = new Dictionary<string, Dictionary<string, string>>() {
+          { "DEFAULT", new Dictionary<string, string>(){ { "key_file", "keyFilePath" } } },
+          { "TEST", new Dictionary<string, string>(){ { "fingerprint", "11:22:33:44:55:66:77" } } }
+        },
+        missingEntry = true
+      },
+      // points to a invalid private key file
+      new Profiles{
+        profiles = new Dictionary<string, Dictionary<string, string>>() {
+          { "DEFAULT", new Dictionary<string, string>(){ { "key_file", System.IO.Path.Combine(TestContext.CurrentContext.TestDirectory.Substring(0, TestContext.CurrentContext.TestDirectory.LastIndexOf("bin")), "Resources", "my.ini") }, { "fingerprint", "11:22:33:44:55:66:77" } } }
+        }
+      }
+    };
+
+    [Theory]
+    public void ValidatesEntries(Profiles profiles)
+    {
+      OciAuthenticationPlugin plugin = new OciAuthenticationPlugin();
+      string exMsg;
+
+      if (profiles.missingEntry)
+      {
+        exMsg = Assert.Throws<MySqlException>(() => plugin.GetValues(profiles.profiles, out string keyFile, out string fingerprint)).Message;
+        StringAssert.AreEqualIgnoringCase(Resources.OciEntryNotFound, exMsg);
+      }
+      else
+      {
+        plugin.GetValues(profiles.profiles, out string keyFile, out string fingerprint);
+        exMsg = Assert.Throws<MySqlException>(() => plugin.SignData(new byte[0], keyFile, fingerprint)).Message;
+        StringAssert.AreEqualIgnoringCase(Resources.OciInvalidKeyFile, exMsg);
+      }
+    }
+
+    [Test]
+    public void OtherThanDefaultProfile()
+    {
+      Dictionary<string, Dictionary<string, string>> profiles = new();
+      Dictionary<string, string> valuesDefault = new() { { "fingerprint", "11:22:33:44:55:66" } };
+      Dictionary<string, string> valuesTest = new() { { "key_file", "keyFilePath" }, { "fingerprint", "66:55:44:33:22:11" } };
+      profiles.Add("DEFAULT", valuesDefault);
+      profiles.Add("TEST", valuesTest);
+
+      OciAuthenticationPlugin plugin = new OciAuthenticationPlugin();
+      plugin.GetValues(profiles, out string keyFilePath, out string fingerprint);
+
+      StringAssert.AreEqualIgnoringCase("keyFilePath", keyFilePath);
+      StringAssert.AreEqualIgnoringCase("66:55:44:33:22:11", fingerprint);
+    }
+
+    [DatapointSource]
+    public string[] invalidPaths = new string[]
+    {
+      "\\invalid\\Path//Bad",
+      System.IO.Path.Combine(TestContext.CurrentContext.WorkDirectory, "config")
+    };
+
+    [Theory]
+    [Ignore("This test requires the OCI SDK for .NET")]
+    public void NonExistingConfigFile(string invalidPath)
+    {
+      string userName = "cnetuser1";
+      string host = "100.101.74.201";
+      uint port = 3307;
+      string configFilePath = invalidPath;
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = userName,
+        Server = host,
+        Port = port,
+        OciConfigFile = configFilePath
+      };
+
+      using (var conn = new MySqlConnection(connStringBuilder.ConnectionString))
+      {
+        string exMsg = Assert.Throws<MySqlException>(() => conn.Open()).Message;
+        StringAssert.AreEqualIgnoringCase(Resources.OciConfigFileNotFound, exMsg);
+      }
+    }
+
+    [Test]
+    public void OciSdkNotInstalled()
+    {
+      string userName = "cnetuser1";
+      string host = "100.101.74.201";
+      uint port = 3307;
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = userName,
+        Server = host,
+        Port = port,
+      };
+
+      using (var conn = new MySqlConnection(connStringBuilder.ConnectionString))
+      {
+        string exMsg = Assert.Throws<MySqlException>(() => conn.Open()).Message;
+        StringAssert.AreEqualIgnoringCase(Resources.OciSDKNotFound, exMsg);
       }
     }
     #endregion
