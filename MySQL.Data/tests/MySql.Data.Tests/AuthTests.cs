@@ -1473,22 +1473,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void OciSdkNotInstalled()
     {
-      string userName = "cnetuser1";
-      string host = "100.101.74.201";
-      uint port = 3307;
+      OciAuthenticationPlugin plugin = new OciAuthenticationPlugin();
 
-      var connStringBuilder = new MySqlConnectionStringBuilder()
-      {
-        UserID = userName,
-        Server = host,
-        Port = port,
-      };
-
-      using (var conn = new MySqlConnection(connStringBuilder.ConnectionString))
-      {
-        string exMsg = Assert.Throws<MySqlException>(() => conn.Open()).Message;
-        StringAssert.AreEqualIgnoringCase(Resources.OciSDKNotFound, exMsg);
-      }
+      string exMsg = Assert.Throws<MySqlException>(() => plugin.Authenticate(false)).Message;
+      StringAssert.AreEqualIgnoringCase(Resources.OciSDKNotFound, exMsg);
     }
     #endregion
   }
