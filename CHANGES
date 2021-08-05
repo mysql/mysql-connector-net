@@ -2,6 +2,7 @@
 - Added support for reading and processing session trackers (WL14678).
 - Added client-side Kerberos authentication plugin support for Windows (WL14654).
 - Added support for the OCI IAM authentication plugin (WL14708).
+- Fixed a bug that prevented connections using "Preferred" SSL mode when the server did not support secure connections (MySQL Bug #104541, OracleBug Bug #33191344).
 
 
 8.0.26

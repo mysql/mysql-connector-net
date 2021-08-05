@@ -264,26 +264,26 @@ namespace MySql.Data.MySqlClient
       packet.WriteByte(33); //character set utf-8
       packet.Write(new byte[23]);
 
-      // Server doesn't support SSL connections and Client requires it
+      // Server doesn't support SSL connections
       if ((serverCaps & ClientFlags.SSL) == 0)
       {
-        if (Settings.SslMode != MySqlSslMode.None &&
-            Settings.SslMode != MySqlSslMode.Preferred)
+        if (Settings.SslMode != MySqlSslMode.None && Settings.SslMode != MySqlSslMode.Prefered)
+        {
           throw new MySqlException(string.Format(Resources.NoServerSSLSupport,
             Settings.Server));
+        }
       }
       // Current connection doesn't support SSL connections
-      else if ((connectionFlags & ClientFlags.SSL) == 0
-        && Settings.SslMode != MySqlSslMode.None
-        && Settings.SslMode != MySqlSslMode.Prefered)
+      else if ((connectionFlags & ClientFlags.SSL) == 0)
       {
-        throw new MySqlException(string.Format(Resources.SslNotAllowedForConnectionProtocol,
-          Settings.ConnectionProtocol));
+        if (Settings.SslMode != MySqlSslMode.None && Settings.SslMode != MySqlSslMode.Prefered)
+        {
+          throw new MySqlException(string.Format(Resources.SslNotAllowedForConnectionProtocol,
+            Settings.ConnectionProtocol));
+        }
       }
-
-      if (Settings.SslMode != MySqlSslMode.None
-        && Settings.ConnectionProtocol != MySqlConnectionProtocol.NamedPipe
-        && Settings.ConnectionProtocol != MySqlConnectionProtocol.SharedMemory)
+      // Server and connection supports SSL connections and Client are requisting a secure connection
+      else
       {
         stream.SendPacket(packet);
         stream = new Ssl(
