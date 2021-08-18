@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,6 +29,7 @@
 using System;
 using System.Data;
 using System.Linq;
+using MySql.Data.Common;
 using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -629,6 +630,19 @@ namespace MySql.Data.MySqlClient.Tests
 
       schemaCollection = schema.GetUsers(restrictions);
       Assert.True(schemaCollection.AsDataTable().Columns.Contains("USERNAME"));
+
+      using (var conn = new MySqlConnection(Connection.ConnectionString))
+      {
+        conn.Open();
+        var table = conn.GetSchema();
+        foreach (DataRow row in table.Rows)
+          foreach (DataColumn col in table.Columns)
+          {
+            Assert.IsNotNull(col.ColumnName);
+            Assert.IsNotNull(row[col]);
+          }
+      }
+
     }
 
     /// <summary> 
@@ -663,54 +677,49 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug #26876592 Unexpected ColumnSize, IsLong in GetSChemaTable for LongText and LongBlob column.
     /// Added validation when ColumnLenght equals -1 that is when lenght exceeds Int max size.
     /// </summary>
-    //[Test]
-    //public void IsLongProperty()
-    //{
-    //  st.execSQL("DROP TABLE IF EXISTS test;");
-    //  st.execSQL("CREATE TABLE test(`longtext` longtext, `longblob` longblob, `tinytext` tinytext, `tinyblob` tinyblob, `text` text, `blob` blob);");
-
-    //  using (MySqlDataReader reader = ExecuteReader("SELECT * FROM test;"))
-    //  {
-    //    DataTable schemaTable = reader.GetSchemaTable();
-
-    //    Assert.AreEqual(-1, schemaTable.Rows[0]["ColumnSize"]);
-    //    Assert.True((bool)schemaTable.Rows[0]["IsLong"]);
-    //    Assert.AreEqual(-1, schemaTable.Rows[1]["ColumnSize"]);
-    //    Assert.True((bool)schemaTable.Rows[1]["IsLong"]);
-    //    Assert.AreEqual(255, schemaTable.Rows[2]["ColumnSize"]);
-    //    Assert.False((bool)schemaTable.Rows[2]["IsLong"]);
-    //    Assert.AreEqual(255, schemaTable.Rows[3]["ColumnSize"]);
-    //    Assert.False((bool)schemaTable.Rows[3]["IsLong"]);
-    //    Assert.AreEqual(65535, schemaTable.Rows[4]["ColumnSize"]);
-    //    Assert.True((bool)schemaTable.Rows[4]["IsLong"]);
-    //    Assert.AreEqual(65535, schemaTable.Rows[5]["ColumnSize"]);
-    //    Assert.True((bool)schemaTable.Rows[5]["IsLong"]);
-    //  }
-    //}
+    [Test]
+    public void IsLongProperty()
+    {
+      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only.");
+      if (Version < new Version(5, 7, 6)) Assert.Ignore("This test is for MySql 5.7.6 or higher");
+      ExecuteSQL("Drop table if exists datatypes1");
+      ExecuteSQL("create table datatypes1(`longtext` longtext,`longblob` longblob)");
+      ExecuteSQL("insert into datatypes1 values('test', _binary'test')");
+      using (var cmd = Connection.CreateCommand())
+      {
+        cmd.CommandText = "SELECT * FROM datatypes1;";
+        using (var reader = cmd.ExecuteReader())
+        {
+          var schemaTable = reader.GetSchemaTable();
+          Assert.AreEqual("-1", schemaTable.Rows[0]["ColumnSize"].ToString(), "Matching the Column Size");
+          Assert.AreEqual("True", schemaTable.Rows[0]["IsLong"].ToString(), "Matching the Column Size");
+          Assert.AreEqual("-1", schemaTable.Rows[1]["ColumnSize"].ToString(), "Matching the Column Size");
+          Assert.AreEqual("True", schemaTable.Rows[1]["IsLong"].ToString(), "Matching the Column Size");
+        }
+      }
+    }
 
     /// <summary> 
     /// Bug #26954812 Decimal with numericScale of 0 has wrong numericPrecision in GetSchemaTable.
     /// </summary>
-    //[Test]
-    //public void NumericPrecisionProperty()
-    //{
-    //  st.execSQL("DROP TABLE IF EXISTS test;");
-    //  st.execSQL("CREATE TABLE test(decimal0 decimal(8,0), decimal1 decimal(8), decimal2 decimal(8,2), decimal3 decimal(8,1) UNSIGNED);");
-
-    //  using (MySqlDataReader reader = st.execReader("SELECT * FROM test;"))
-    //  {
-    //    DataTable schemaTable = reader.GetSchemaTable();
-
-    //    Assert.AreEqual(8, schemaTable.Rows[0]["NumericPrecision"]);
-    //    Assert.AreEqual(0, schemaTable.Rows[0]["NumericScale"]);
-    //    Assert.AreEqual(8, schemaTable.Rows[1]["NumericPrecision"]);
-    //    Assert.AreEqual(0, schemaTable.Rows[1]["NumericScale"]);
-    //    Assert.AreEqual(8, schemaTable.Rows[2]["NumericPrecision"]);
-    //    Assert.AreEqual(2, schemaTable.Rows[2]["NumericScale"]);
-    //    Assert.AreEqual(8, schemaTable.Rows[3]["NumericPrecision"]);
-    //    Assert.AreEqual(1, schemaTable.Rows[3]["NumericScale"]);
-    //  }
-    //}
+    [Test]
+    public void NumericPrecisionProperty()
+    {
+      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only.");
+      if (Version < new Version(5, 7, 6)) Assert.Ignore();
+      ExecuteSQL("Drop table if exists datatypes2");
+      ExecuteSQL("create table datatypes2(decimal0 decimal(8, 0))");
+      using (var cmd = Connection.CreateCommand())
+      {
+        cmd.CommandText = "SELECT * FROM datatypes2;";
+        using (var reader = cmd.ExecuteReader())
+        {
+          var schemaTable = reader.GetSchemaTable();
+          Assert.AreEqual(8, schemaTable.Rows[0]["NumericPrecision"]);
+          Assert.AreEqual(0, schemaTable.Rows[0]["NumericScale"]);
+        }
+      }
+    }
 
     /// <summary>
     /// Bug #29536344 MYSQLCONNECTION.GETSCHEMA RETURNS WRONG ORDER OF RECORDS FOR COLUMNS INFORMATION
@@ -730,5 +739,48 @@ namespace MySql.Data.MySqlClient.Tests
       for (int i = 0; i < rows.Count; i++)
         Assert.AreEqual(rows[i]["COLUMN_NAME"], expected[i]);
     }
+
+    #region WL14389
+    [Test, Description("Test to verify different variations in Generated Coloumns")]
+    public void GeneratedColumnsVariations()
+    {
+      if (Version < new Version(5, 7)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      ExecuteSQL("create table Test(c1 int,c2 double GENERATED ALWAYS AS (c1*101/102) Stored COMMENT 'First Gen Col',c3 Json GENERATED ALWAYS AS (concat('{\"F1\":',c1,'}')) VIRTUAL COMMENT 'Second Gen /**/Col', c4 bigint GENERATED ALWAYS as (c1*10000) VIRTUAL UNIQUE KEY Comment '3rd Col' NOT NULL)");
+
+      var cmd = new MySqlCommand("insert into Test(c1) values(1000)", Connection);
+      cmd.ExecuteNonQuery();
+
+      cmd = new MySqlCommand("select * from Test", Connection);
+      cmd.ExecuteNonQuery();
+
+      using (var reader = cmd.ExecuteReader())
+      {
+        Assert.AreEqual(true, reader.Read(), "Matching the values");
+        Assert.AreEqual(true,
+            reader.GetString(0).Equals("1000", StringComparison.CurrentCulture), "Matching the values");
+        Assert.AreEqual(true,
+            reader.GetString(1).Equals("990.196078431", StringComparison.CurrentCulture), "Matching the values");
+        Assert.AreEqual(true,
+            reader.GetString(2).Equals("{\"F1\": 1000}", StringComparison.CurrentCulture), "Matching the values");
+        Assert.AreEqual(true,
+            reader.GetString(3).Equals("10000000", StringComparison.CurrentCulture), "Matching the values");
+      }
+
+      var dt = Connection.GetSchema("Columns", new[] { null, null, "test", null });
+      Assert.AreEqual(4, dt.Rows.Count, "Matching the values");
+      Assert.AreEqual("Columns", dt.TableName, "Matching the values");
+      Assert.AreEqual("int", dt.Rows[0]["DATA_TYPE"].ToString(), "Matching the values");
+      Assert.AreEqual("double", dt.Rows[1]["DATA_TYPE"].ToString(), "Matching the values");
+      Assert.AreEqual("json", dt.Rows[2]["DATA_TYPE"].ToString(), "Matching the values");
+      Assert.AreEqual("bigint", dt.Rows[3]["DATA_TYPE"].ToString(), "Matching the values");
+      Assert.AreEqual("", dt.Rows[0]["GENERATION_EXPRESSION"].ToString(), "Matching the values");
+      Assert.AreEqual("", dt.Rows[0]["EXTRA"].ToString(), "Matching the values");
+      Assert.AreEqual("STORED GENERATED", dt.Rows[1]["EXTRA"].ToString(), "Matching the values");
+      Assert.AreEqual("VIRTUAL GENERATED", dt.Rows[2]["EXTRA"].ToString(), "Matching the values");
+      Assert.AreEqual("VIRTUAL GENERATED", dt.Rows[3]["EXTRA"].ToString(), "Matching the values");
+    }
+
+    #endregion WL14389
+
   }
 }

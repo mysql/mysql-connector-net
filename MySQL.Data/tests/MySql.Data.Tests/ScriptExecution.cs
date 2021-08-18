@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -71,7 +71,6 @@ namespace MySql.Data.MySqlClient.Tests
       string stmt = String.Format(statementTemplate1, statementCount++, null);
       Assert.AreEqual(stmt, e.StatementText);
     }
-
 
     private string statementTemplate2 = @"INSERT INTO Test (id, name) VALUES ({0}, 'a "" na;me'){1}";
 
@@ -219,7 +218,6 @@ namespace MySql.Data.MySqlClient.Tests
       script.Execute();
     }
 
-
     /// <summary>
     /// Bug #50344	MySqlScript.Execute() throws InvalidOperationException
     /// </summary>
@@ -238,7 +236,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void DelimiterCommandDoesNotThrow()
     {
       MySqlScript script = new MySqlScript(Connection, "DELIMITER ;");
-      script.Execute(); 
+      script.Execute();
     }
 
     #region Async
@@ -265,7 +263,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(10, count);
 
       MySqlCommand cmd = new MySqlCommand(
-        String.Format(@"SELECT COUNT(*) FROM information_schema.routines WHERE routine_schema = '{0}' AND routine_name LIKE 'SEScriptWithProceduresAsyncSpTest%'", 
+        String.Format(@"SELECT COUNT(*) FROM information_schema.routines WHERE routine_schema = '{0}' AND routine_name LIKE 'SEScriptWithProceduresAsyncSpTest%'",
         Connection.Database), Connection);
       Assert.AreEqual(10, Convert.ToInt32(cmd.ExecuteScalar()));
     }
@@ -295,5 +293,49 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(10, Convert.ToInt32(cmd.ExecuteScalar()));
     }
     #endregion
+
+    #region WL14389
+
+    [Test,Description("MySQL Delimiter ran with Automation")]
+    public void ScriptDelimiter()
+    {
+      var sql = "DROP PROCEDURE IF EXISTS test_routine??" +
+                "CREATE PROCEDURE test_routine() " +
+                "BEGIN " +
+                "SELECT 1;" +
+                "END??" +
+                "CALL test_routine()??";
+      using (var conn = new MySqlConnection(Connection.ConnectionString))
+      {
+        conn.Open();
+        var script = new MySqlScript(conn);
+        script.Query = sql;
+        script.Delimiter = "??";
+        var count = script.Execute();
+        Assert.AreEqual(3, count);
+      }
+    }
+
+    [Test, Description("Test Script Async")]
+    public async Task ScriptDelimiterAsync()
+    {
+      using (var conn = new MySqlConnection(Connection.ConnectionString))
+      {
+        conn.Open();
+        var sql = "DROP PROCEDURE IF EXISTS test_routine??" +
+                  "CREATE PROCEDURE test_routine() " +
+                  "BEGIN " +
+                  "SELECT 1;" +
+                  "END??" +
+                  "CALL test_routine()";
+        var script = new MySqlScript(conn);
+        script.Query = sql;
+        script.Delimiter = "??";
+        var count = await script.ExecuteAsync();
+      }
+    }
+
+    #endregion WL14389
+
   }
 }

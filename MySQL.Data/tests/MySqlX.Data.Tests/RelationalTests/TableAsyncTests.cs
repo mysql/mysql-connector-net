@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,7 +28,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using NUnit.Framework;
@@ -43,6 +46,10 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test.test(id INT, age INT)");
     }
 
+
+    [TearDown]
+    public void TearDown() => ExecuteSQL("DROP TABLE IF EXISTS test");
+
     [Test]
     public void MultipleTableInsertAsync()
     {
@@ -51,7 +58,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       for (int i = 1; i <= 200; i++)
       {
-        tasksList.Add(table.Insert().Values(i, i%250).ExecuteAsync());
+        tasksList.Add(table.Insert().Values(i, i % 250).ExecuteAsync());
       }
 
       Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
@@ -66,7 +73,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       var insert = table.Insert();
       HashSet<int> validator = new HashSet<int>();
 
-      for(int i = 1; i <= rows; i++)
+      for (int i = 1; i <= rows; i++)
       {
         insert.Values(i, i);
       }
@@ -74,7 +81,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       List<Task<RowResult>> tasksList = new List<Task<RowResult>>();
 
-      for(int i = 1; i <= rows; i++)
+      for (int i = 1; i <= rows; i++)
       {
         tasksList.Add(table.Select().Where("age = :age").Bind("aGe", i).ExecuteAsync());
       }
@@ -90,5 +97,72 @@ namespace MySqlX.Data.Tests.RelationalTests
       }
       Assert.AreEqual(rows, validator.Count);
     }
+    #region WL14389
+    [Test, Description("Table.Select() with shared lock and Table.Update() ")]
+    public async Task TableSelectAndUpdateAsync()
+    {
+      int t1 = await SubProcess1();
+      int t2 = await SubProcess2();
+    }
+
+    private async Task<int> SubProcess1()
+    {
+      if (!session.Version.isAtLeast(8, 0, 3)) return 0;
+      session.SQL("SET autocommit = 0").Execute();
+      using (var session2 = MySQLX.GetSession(ConnectionString))
+      {
+        session2.SQL("SET autocommit = 0").Execute();
+        var table = session.Schema.GetTable("test");
+        try
+        {
+          session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)").Execute();
+        }
+        catch (MySqlException ex)
+        {
+          Assert.True(ex.Message.Contains("Duplicate"));
+        }
+
+        var table2 = session2.GetSchema("test").GetTable("test");
+        session2.SQL("START TRANSACTION").Execute();
+        for (var i = 0; i < 1000; i++)
+        {
+          var result = table2.Update().Where("id = 1").Set("age", 2).Execute();
+          Assert.IsNotNull(result);
+        }
+      }
+
+      session.SQL("SET autocommit = 1").Execute();
+      return 0;
+    }
+
+
+    private async Task<int> SubProcess2()
+    {
+      Thread.Sleep(1000);
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return 0;
+      session.SQL("SET autocommit = 0").Execute();
+
+      using (var session2 = MySQLX.GetSession(ConnectionString))
+      {
+        session2.SQL("SET autocommit = 0").Execute();
+        var table = session.Schema.GetTable("test");
+        try
+        {
+          session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)").Execute();
+        }
+        catch (MySqlException ex)
+        {
+          Assert.True(ex.Message.Contains("Duplicate"));
+        }
+
+        var table2 = session2.GetSchema("test").GetTable("test");
+        session.SQL("START TRANSACTION").Execute();
+        var rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
+      }
+
+      session.SQL("SET autocommit = 0").Execute();
+      return 0;
+    }
+    #endregion WL14389
   }
 }

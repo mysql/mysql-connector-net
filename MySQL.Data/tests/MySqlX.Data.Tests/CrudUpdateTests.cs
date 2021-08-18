@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates. All rights reserved.//
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
 // published by the Free Software Foundation.
@@ -26,6 +26,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data;
+using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
@@ -211,7 +212,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void ModifyWithInOperator()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       var docs = new[]
@@ -359,6 +360,26 @@ namespace MySqlX.Data.Tests
       // Not specifying an index raises an error.
       var ex2 = Assert.Throws<MySqlException>(() => ExecuteModifyStatement(collection.Modify("true").ArrayInsert("dates", "5/1/2018")));
       Assert.AreEqual("A path expression is not a path to a cell in an array.", ex2.Message);
+
+      var col = CreateCollection("my_collection");
+      var t1 = "{\"_id\": \"1001\", \"ARR\":[1,2,3], \"ARR1\":[\"name1\",\"name2\", \"name3\"]}";
+      col.Add(t1).Execute();
+      col.Modify("true").ArrayInsert("ARR[0]", 4).Execute();
+      col.Modify("true").ArrayInsert("ARR1[0]", "name4").Execute();
+      col.Modify("true").ArrayInsert("ARR[0]", "name5").Execute();
+      col.Modify("true").ArrayInsert("ARR1[0]", 5).Execute();
+      col.Modify("true").ArrayInsert("ARR[0]", 6).ArrayInsert("ARR1[0]", "name6").ArrayInsert("ARR[0]", 7).ArrayInsert("ARR[0]", 8).Execute();
+      col.Modify("true").ArrayInsert("ARR1[0]", null).Execute();
+      col.Modify("true").ArrayInsert("ARR1[0]", " ").Execute();
+      col.Modify("true").ArrayInsert("ARR1[0]", "****").Execute();
+      result = ExecuteFindStatement(col.Find());
+      document = result.FetchOne();
+      var x2 = (object[])document.values["ARR"];
+      Assert.AreEqual(8, x2.Length);
+      Assert.AreEqual(8, (int)x2[0]);
+      x2 = (object[])document.values["ARR1"];
+      Assert.AreEqual("****", x2[0]);
+      Assert.AreEqual("name3", x2[8]);
     }
 
     [Test]
@@ -442,6 +463,17 @@ namespace MySqlX.Data.Tests
       StringAssert.Contains("String can't be empty.", ex.Message);
       ex = Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(collection.Modify("true").ArrayAppend("x", string.Empty)));
       StringAssert.Contains("String can't be empty.", ex.Message);
+
+      var col = CreateCollection("my_collection");
+      var t1 = "{\"_id\": \"1001\", \"ARR\":[1,2,3], \"ARR1\":[\"name1\",\"name2\", \"name3\"]}";
+      col.Add(t1).Execute();
+      col.Modify("true").ArrayAppend("ARR", 4).Execute();
+      col.Modify("true").ArrayAppend("ARR1", "name4").Execute();
+      col.Modify("true").ArrayAppend("ARR", "name5").Execute();
+      col.Modify("true").ArrayAppend("ARR1", 5).Execute();
+      col.Modify("true").ArrayAppend("ARR", 6).ArrayAppend("ARR1", "name6").ArrayAppend("ARR", 7).ArrayAppend("ARR", 8).Execute();
+
+      Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(col.Modify("true").ArrayAppend("ARR1", "")));
     }
 
     [Test]
@@ -502,29 +534,39 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual("6/1/2018", dates[2]);
     }
 
-    //[Test]
-    //public void Alphanumeric()
-    //{
-    //  Collection collection = CreateCollection("test");
-    //  var document = new DbDoc();
+    [Test]
+    public void Alphanumeric()
+    {
+      Collection collection = CreateCollection("test");
+      var document = new DbDoc();
 
-    //  for (int i = 0; i < 30; i++)
-    //  {
-    //    document.SetValue("_id", i);
-    //    document.SetValue("books", "test" + i);
-    //    document.SetValue("pages", i + 10);
-    //    document.SetValue("reviewers", "reviewers" + i);
-    //    document.SetValue("person", new
-    //    {
-    //      name = "Fred" + i,
-    //      age = i
-    //    });
-    //    document.SetValue("1address", "street" + i);
-    //    collection.Add(document));
-    //  }
+      for (int i = 0; i < 30; i++)
+      {
+        document.SetValue("_id", i);
+        document.SetValue("books", "test" + i);
+        document.SetValue("pages", i + 10);
+        document.SetValue("reviewers", "reviewers" + i);
+        document.SetValue("person", new
+        {
+          name = "Fred" + i,
+          age = i
+        });
+        document.SetValue("1address", "street" + i);
+        ExecuteAddStatement(collection.Add(document));
+      }
 
-    //  Result result = collection.Modify("_id = 21").Unset("1address"));
-    //}
+      var crudresult = collection.Find("pages=10").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count should be 1 before Unset of pages for _id=0.");
+      var result = collection.Modify("_id = 0").Unset("pages").Execute();
+      Assert.AreEqual(1, result.AffectedItemsCount, "Affected Items Count when modify unset is used");
+      crudresult = collection.Find("pages=10").Execute().FetchAll();
+      Assert.AreEqual(0, crudresult.Count, "Count should be 0 after Unset of pages for _id=0");
+      crudresult = collection.Find("books='test0'").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count should be 0 after Unset of pages for _id=0");
+
+      result = collection.Modify("_id = 21").Unset("1address").Execute();
+      Assert.AreEqual(1, result.AffectedItemsCount, "Affected Items Count when modify unset(multiple docs) is used");
+    }
 
     [Test]
     public void UnsetVariations()
@@ -552,5 +594,700 @@ namespace MySqlX.Data.Tests
       ex = Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(collection.Modify("_id = 1").Unset("pages*data")));
       Assert.AreEqual("Invalid document path.", ex.Message);
     }
+
+    #region WL14389
+
+    [Test, Description("Collection.Modify(condition).Unset() to accept a list of elements instead of just one.")]
+    public void CollectionModifyUnset()
+    {
+      List<string> idStringList = new List<string>();
+      var col = CreateCollection("my_collection");
+      var d1 = new DbDoc();
+      for (int i = 0; i < 30; i++)
+      {
+        d1.SetValue("_id", i);
+        d1.SetValue("books", "test" + i);
+        d1.SetValue("pages", i + 10);
+        d1.SetValue("reviewers", "reviewers" + i);
+        d1.SetValue("person", new { name = "Fred" + i, age = i });
+        d1.SetValue("1address", "street" + i);
+        col.Add(d1).Execute();
+      }
+
+      var crudresult = col.Find("pages=10").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count should be 1 before Unset of pages for _id=0.");
+      var result = col.Modify("_id = 0").Unset("pages").Execute();
+      Assert.AreEqual(1, result.AffectedItemsCount, "Affected Items Count when modify unset is used");
+      crudresult = col.Find("pages=10").Execute().FetchAll();
+      Assert.AreEqual(0, crudresult.Count, "Count should be 0 after Unset of pages for _id=0");
+      crudresult = col.Find("books='test0'").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count should be 0 after Unset of pages for _id=0");
+
+      crudresult = col.Find("pages=11").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count of pages=11 should be 1 before Unset of pages for _id=1.");
+      crudresult = col.Find("reviewers='reviewers1'").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count of reviewers1 should be 1 before Unset of pages for _id=1.");
+      result = col.Modify("_id = 1").Unset("pages").Unset("reviewers").Execute();
+      Assert.AreEqual(1, result.AffectedItemsCount, "Affected Items Count when modify multiple unset is used");
+      crudresult = col.Find("pages=11").Execute().FetchAll();
+      Assert.AreEqual(0, crudresult.Count, "Count should be 0 after Unset of pages for _id=1");
+      crudresult = col.Find("reviewers='reviewers1'").Execute().FetchAll();
+      Assert.AreEqual(0, crudresult.Count, "Count should be 0 after Unset of pages for _id=1");
+
+      crudresult = col.Find("pages=21").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count of pages=21 should be 1 before Unset of pages for _id=11.");
+      crudresult = col.Find("reviewers='reviewers11'").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count of reviewers11 should be 1 before Unset of pages for _id=11.");
+      result = col.Modify("_id = 11").Unset(new string[] { "pages", "reviewers" }).Execute();
+      Assert.AreEqual(1, result.AffectedItemsCount, "Affected Items Count when modify unset(multiple docs) is used");
+      crudresult = col.Find("pages=21").Execute().FetchAll();
+      Assert.AreEqual(0, crudresult.Count, "Count should be 0 after Unset of pages for _id=11");
+      crudresult = col.Find("reviewers='reviewers11'").Execute().FetchAll();
+      Assert.AreEqual(0, crudresult.Count, "Count should be 0 after Unset of pages for _id=11");
+
+      crudresult = col.Find("pages=31").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count of pages=31 should be 1 before Unset of pages for _id=21.");
+      crudresult = col.Find("reviewers='reviewers21'").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count of reviewers21 should be 1 before Unset of pages for _id=21.");
+
+      result = col.Modify("_id = 21").Unset(" pages ").Execute();
+      Assert.AreEqual(1, result.AffectedItemsCount, "Affected Items Count when modify unset(multiple docs) is used");
+      //Should have failed when unset is used for fields with special characters
+      Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(col.Modify("_id = 22").Unset("pages*")));
+      //Should have failed when unset is used for non-existent fields
+      Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(col.Modify("_id = 21").Unset("1")));
+      //Should have failed when unset is used for special characters
+      Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(col.Modify("_id = 21").Unset("@*%#^)(-+!~<>?/")));
+      //Should have failed when unset is used for special characters
+      Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(col.Modify("_id = 21").Unset("*******")));
+
+      crudresult = col.Find("pages=31").Execute().FetchAll();
+      Assert.AreEqual(0, crudresult.Count, "Count should be 0 after Unset of pages for _id=21");
+
+      result = col.Modify("_id = 12").Unset(new string[] { " pages1", "reviewers1" }).Execute();
+      Assert.AreEqual(0, result.AffectedItemsCount, "Affected Items Count when modify unset(invalid docs) is used");
+      crudresult = col.Find("pages=22").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count should be 1 after Unset with invalid  of pages for _id=12");
+      crudresult = col.Find("reviewers='reviewers12'").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count should be 1 after Unset with invalid of pages for _id=12");
+      //Testcase should have failed when unset is used with null
+      Assert.Throws<MySqlException>(() => ExecuteModifyStatement(col.Modify("_id = 12").Unset(null)));
+
+      crudresult = col.Find("pages=22").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count should be 1 after Unset with null  of pages for _id=12");
+      crudresult = col.Find("reviewers='reviewers12'").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count should be 1 after Unset with null of pages for _id=12");
+
+      Assert.Throws<MySqlException>(() => ExecuteModifyStatement(col.Modify("_id = 12").Unset("")));
+
+      crudresult = col.Find("pages=22").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count should be 1 after Unset with blank  of pages for _id=12");
+      crudresult = col.Find("reviewers='reviewers12'").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count should be 1 after Unset with blank of pages for _id=12");
+
+      //Testcase should have failed when unset is used with blank and space
+      Assert.Throws<MySqlException>(() => ExecuteModifyStatement(col.Modify("_id = 12").Unset("")));
+
+      crudresult = col.Find("pages=22").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count should be 1 after Unset with blank with space  of pages for _id=12");
+      crudresult = col.Find("reviewers='reviewers12'").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count, "Count should be 1 after Unset with blank with space  of pages for _id=12");
+
+      //Testcase should have failed when unset is used with blank and space
+      Assert.Throws<MySqlException>(() => ExecuteModifyStatement(col.Modify("_id = 12").Unset(new string[] { "", " ", "pages" })));
+
+      crudresult = col.Find("pages=22").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count);
+      crudresult = col.Find("reviewers='reviewers12'").Execute().FetchAll();
+      Assert.AreEqual(1, crudresult.Count);
+    }
+
+    [Test, Description("All Bug Fixes")]
+    public void ValidateValuesAfterAppendAndInserts()
+    {
+      DbDoc document = null;
+      Collection collection = CreateCollection("test");
+      Result r = collection.Add("{ \"_id\": \"123\", \"email\": [\"alice@ora.com\"], " +
+          "\"dates\": \"4/1/2017\" }").Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+
+      collection.Modify("true").ArrayAppend("dates", "5/1/2018").Execute();
+      document = collection.GetOne("123");
+      object[] dates = document["dates"] as object[];
+      Assert.AreEqual(2, dates.Length);
+      Assert.AreEqual("4/1/2017", dates[0], "Existing Date");
+      Assert.AreEqual("5/1/2018", dates[1], "Appended Date");
+      collection.Modify("true").ArrayInsert("dates[0]", "5/1/2059").Execute();
+      document = collection.GetOne("123");
+      dates = document["dates"] as object[];
+      Assert.AreEqual("5/1/2059", dates[0], "Inserted  Date");
+
+      collection = CreateCollection("test");
+      r = collection.Add("{ \"_id\": \"123\", \"email\": [\"alice@ora.com\"], " +
+         "\"dates\": [\"4/1/2017\"] }").Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+
+      collection = CreateCollection("test");
+      r = collection.Add("{ \"_id\": \"123\", \"email\": [\"alice@ora.com\"], " +
+          "\"dates\": \"4/1/2017\" }").Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+      collection.Modify("true").ArrayAppend("dates", "1").Execute();
+      collection.Modify("true").ArrayAppend("dates", 1).Execute();
+      collection.Modify("true").ArrayAppend("dates", "3.1").Execute();
+      collection.Modify("true").ArrayAppend("dates", 3.1).Execute();
+      document = collection.GetOne("123");
+      dates = document["dates"] as object[];
+      Assert.AreEqual(5, dates.Length);
+      Assert.AreEqual("4/1/2017", dates[0], "Existing Date");
+      Assert.AreEqual("1", dates[1], "Appended Date");
+      Assert.AreEqual(1, dates[2], "Appended Date");
+      Assert.AreEqual("3.1", dates[3], "Appended Date");
+      Assert.AreEqual(3.1, dates[4], "Appended Date");
+
+      collection.Modify("true").ArrayInsert("dates[0]", "10").Execute();
+      collection.Modify("true").ArrayInsert("dates[0]", 1000).Execute();
+      collection.Modify("true").ArrayInsert("dates[0]", "3.1").Execute();
+      collection.Modify("true").ArrayInsert("dates[0]", 22.7).Execute();
+      document = collection.GetOne("123");
+      dates = document["dates"] as object[];
+      Assert.AreEqual("10", dates[3], "Inserted Date");
+      Assert.AreEqual(1000, dates[2], "Inserted Date");
+      Assert.AreEqual("3.1", dates[1], "Inserted Date");
+      Assert.AreEqual(22.7, dates[0], "Inserted Date");
+
+      var d1 = new DbDoc();
+      for (int i = 0; i < 30; i++)
+      {
+        d1.SetValue("_id", i);
+        d1.SetValue("books", "test" + i);
+        d1.SetValue("pages", i + 10);
+        d1.SetValue("reviewers", "reviewers" + i);
+        d1.SetValue("person", new
+        {
+          name = "Fred" + i,
+          age = i
+        });
+        d1.SetValue("1address", "street" + i);
+        collection.Add(d1).Execute();
+      }
+      Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(collection.Modify("_id = 21").Unset("pages*")));
+
+      var docs = new[]
+      {
+        new {  _id = 100, title = "Book 1", pages = 20 },
+        new {  _id = 200, title = "Book 2", pages = 30 },
+        new {  _id = 300, title = "Book 3", pages = 40 },
+        new {  _id = 400, title = "Book 4", pages = 50 },
+      };
+      r = collection.Add(docs).Execute();
+      Assert.AreEqual(4, r.AffectedItemsCount, "Matching the records affected");
+      var test1 = collection.Find("pages = :Pages").Bind("pAges", 90).Fields("{\"_id\":100,\"pages\": 20 }").Execute();
+      Assert.IsNotNull(test1);
+    }
+
+    [Test, Description("Collection.modify(condition).arrayAppend(CollectionField, ExprOrLiteral)")]
+    public void CollectionModifyArrayAppend()
+    {
+
+      string currentYear = DateTime.Now.Year.ToString();
+      DbDoc document = null;
+      string t1 = "{\"_id\": \"1\", \"name\": \"Alice\" }";
+      var collection = CreateCollection("test");
+      Result r = collection.Add(t1).Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+      object[] expressions1 = new object[] { "YEAR('2000-01-01')", "MONTH('2008-02-03')", "WEEK('2008-02-20')", "DAY('2008-02-20')", "HOUR('10:05:03')",
+                "MINUTE('2008-02-03 10:05:03')","SECOND('10:05:03')","MICROSECOND('12:00:00.123456')","QUARTER('2008-04-01')","TIME('2003-12-31 01:02:03')","DATE('2003-12-31 01:02:03')",
+                "Year(CURDATE())"};
+
+      object[] expressions2 = new object[] { "5/1/2018",2012,"2012",-22.7,22.7,"22.7", "'large'",
+                    "'838:59:59'" ,true,-100000000,"-10000000000","6/6/2018","9999-12-31 23:59:59","0000-00-00 00:00:00","[a,b,c]","[]"};
+      object[] compare_expressions1 = new object[] { 2000, 2, 7, 20, 10, 5, 3, 123456, 2, "01:02:03.000000", "2003-12-31", currentYear };
+      object[] compare_expressions2 = new object[] { "5/1/2018",2012, "2012", -22.7, 22.7, "22.7",
+                     "'large'", "'838:59:59'", true, -100000000, "-10000000000","6/6/2018" ,"9999-12-31 23:59:59","0000-00-00 00:00:00","[a,b,c]","[]"};
+      for (int k = 0; k < expressions1.Length; k++)
+      {
+        collection.Modify("true").ArrayAppend("name", "{ \"dateAndTimeValue\":  " + expressions1[k] + " }").Execute();
+      }
+      for (int k = 0; k < expressions2.Length; k++)
+      {
+        collection.Modify("true").ArrayAppend("name", "{ \"dateAndTimeValue\":  \"" + expressions2[k] + "\" }").Execute();
+      }
+      object[] actors = null;
+      object test = null;
+      Dictionary<string, object> actor0 = null;
+      int l = 1;
+      for (int k = 0; k < compare_expressions1.Length; k++)
+      {
+
+        document = collection.GetOne("1");
+        actors = document["name"] as object[];
+        actor0 = actors[l] as Dictionary<string, object>;
+        test = actor0["dateAndTimeValue"];
+        Assert.AreEqual(compare_expressions1[k].ToString(), test.ToString());
+        l++;
+      }
+      for (int k = 0; k < compare_expressions2.Length; k++)
+      {
+
+        document = collection.GetOne("1");
+        actors = document["name"] as object[];
+        actor0 = actors[l] as Dictionary<string, object>;
+        test = actor0["dateAndTimeValue"];
+        Assert.AreEqual(compare_expressions2[k].ToString(), test.ToString());
+        l++;
+      }
+
+      collection = CreateCollection("test");
+      r = collection.Add("{ \"_id\": \"123\", \"email\": [\"alice@ora.com\"], " +
+         "\"dates\": [\"4/1/2017\"] }").Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+      var reg_expression = new
+      {
+        test1 = new MySqlExpression("UPPER($.email)"),
+        test2 = new MySqlExpression("LOWER($.email)"),
+        test3 = new MySqlExpression("CONCAT('No', 'S', 'QL')"),
+        test4 = new MySqlExpression("CHAR(77, 121, 83, 81, '76')"),
+        test5 = new MySqlExpression("CONCAT('My', NULL, 'QL')"),
+        test6 = new MySqlExpression("ELT(4, 'ej', 'Heja', 'hej', 'foo')"),
+        test7 = new MySqlExpression("REPEAT('MySQL', 3)"),
+        test8 = new MySqlExpression("REVERSE('abc')"),
+        test9 = new MySqlExpression("RIGHT('foobarbar', 4)"),
+        test10 = new MySqlExpression("REPLACE('www.mysql.com', 'w', 'Ww')"),
+        test11 = new MySqlExpression(" HEX('abc')"),
+        test12 = new MySqlExpression(" BIN(12)"),
+      };
+      object[] compare_expressions = null;
+      if (session.Version.isAtLeast(8, 0, 0))
+      {
+        compare_expressions = new object[] { "[\\\"ALICE@ORA.COM\\\"]", "[\\\"alice@ora.com\\\", \\\"[\\\\\\\"alice@ora.com\\\\\\\"]\\\"]",
+                    "NoSQL","base64:type253:TXlTUUw=",null,"foo","MySQLMySQLMySQL","cba","rbar","WwWwWw.mysql.com","616263","1100" };
+      }
+      else
+      {
+        compare_expressions = new object[] { "[\\\"ALICE@ORA.COM\\\"]", "[\\\"alice@ora.com\\\", \\\"[\\\\\\\"alice@ora.com\\\\\\\"]\\\"]",
+                    "NoSQL","base64:type15:TXlTUUw=",null,"foo","MySQLMySQLMySQL","cba","rbar","WwWwWw.mysql.com","616263","1100" };
+      }
+
+      var items = new List<object>();
+      items.Add(reg_expression.test1);
+      items.Add(reg_expression.test2);
+      items.Add(reg_expression.test3);
+      items.Add(reg_expression.test4);
+      items.Add(reg_expression.test5);
+      items.Add(reg_expression.test6);
+      items.Add(reg_expression.test7);
+      items.Add(reg_expression.test8);
+      items.Add(reg_expression.test9);
+      items.Add(reg_expression.test10);
+      items.Add(reg_expression.test11);
+      items.Add(reg_expression.test12);
+      int m = 1, n = 0;
+      foreach (var obj in items)
+      {
+        collection.Modify("true").ArrayAppend("email", obj).Execute();
+        document = collection.GetOne("123");
+        actors = document["email"] as object[];
+        if (n == 3)
+        { }
+        else
+        {
+          Assert.AreEqual(actors[m], compare_expressions[n]);
+        }
+
+        m++; n++;
+      }
+
+      string json = "";
+      int i = 0, j = 0, maxField = 40;
+      collection = CreateCollection("test");
+      int maxDepth = 2;
+      json = "{\"_id\":\"1002\",\"XYZ\":1111";
+      for (j = 0; j < maxField; j++)
+      {
+        json = json + ",\"ARR" + j + "\":[";
+        for (i = 0; i < maxDepth; i++)
+        {
+          json = json + i + ",[";
+        }
+        json = json + i;
+        for (i = maxDepth - 1; i >= 0; i--)
+        {
+          json = json + "]," + i;
+        }
+        json = json + "]";
+      }
+      json = json + "}";
+
+      collection.Add(json).Execute();
+      r = collection.Modify("true").ArrayAppend("ARR10", 1).ArrayAppend("ARR20", 2).ArrayAppend("ARR30", 3).Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+      r = collection.Modify("true").ArrayAppend("ARR0", null).Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+      r = collection.Modify("true").ArrayAppend("ARR39", null).Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+
+    }
+
+    [Test, Description("MySQLX CNET Forbid modify() with no condition-Scenario-1")]
+    public void ForbidModifyWithNoCondition_S1()
+    {
+
+      Collection collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new {  _id = 1, title = "Book 1", pages = 20 },
+        new {  _id = 2, title = "Book 2", pages = 30 },
+        new {  _id = 3, title = "Book 3", pages = 40 },
+        new {  _id = 4, title = "Book 4", pages = 50 },
+      };
+      Result result = collection.Add(docs).Execute();
+      Assert.AreEqual(4, result.AffectedItemsCount);
+
+      // Condition can't be null or empty.
+      Assert.Throws<ArgumentNullException>(() => ExecuteModifyStatement(collection.Modify(string.Empty)));
+      Assert.Throws<ArgumentNullException>(() => ExecuteRemoveStatement(collection.Remove("")));
+      Assert.Throws<ArgumentNullException>(() => ExecuteModifyStatement(collection.Modify(null)));
+
+      // Sending an expression that evaluates to true applies changes on all documents.
+      result = collection.Modify("true").Set("pages", "10").Execute();
+      Assert.AreEqual(4, result.AffectedItemsCount);
+
+    }
+
+    [Test, Description("MySQLX CNET Forbid modify() with no condition-Scenario-2")]
+    public void ForbidModifyWithNoCondition_S2()
+    {
+
+      Collection collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new {  _id = 1, title = "Book 1", pages = 20 },
+        new {  _id = 2, title = "Book 2", pages = 30 },
+        new {  _id = 3, title = "Book 3", pages = 40 },
+        new {  _id = 4, title = "Book 4", pages = 50 },
+      };
+      Result result = collection.Add(docs).Execute();
+      Assert.AreEqual(4, result.AffectedItemsCount);
+
+      // Sending an expression that evaluates to true applies changes on all documents.
+      //Deprecated Modify().Where() in 8.0.17
+      result = collection.Modify("true").Where("false").Set("pages", "10").Execute();
+      Assert.AreEqual(0, result.AffectedItemsCount);
+
+      result = collection.Modify("true").Where("true").Set("pages", "10").Execute();
+      Assert.AreEqual(4, result.AffectedItemsCount);
+      result = collection.Modify("false").Where("true").Set("pages", "40").Execute();
+      Assert.AreEqual(4, result.AffectedItemsCount);
+      result = collection.Modify("false").Where("false").Set("pages", "40").Execute();
+      Assert.AreEqual(0, result.AffectedItemsCount);
+
+      // Condition can't be null or empty.
+      Assert.Throws<ArgumentNullException>(() => ExecuteModifyStatement(collection.Modify(" ")));
+    }
+
+    [Test, Description("Test valid modify.patch to change element at Depth n for multiple arrays#Bug))")]
+    public void ModifyPatchNDepth()
+    {
+      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      string json = "";
+      int i = 0, j = 0, maxField = 100;
+      var collection = CreateCollection("test");
+      int maxDepth = 46;
+      json = "{\"_id\":\"1002\",\"XYZ\":1111";
+      for (j = 0; j < maxField; j++)
+      {
+        json = json + ",\"ARR" + j + "\":[";
+        for (i = 0; i < maxDepth; i++)
+        {
+          json = json + i + ",[";
+        }
+        json = json + i;
+        for (i = maxDepth - 1; i >= 0; i--)
+        {
+          json = json + "]," + i;
+        }
+        json = json + "]";
+      }
+      json = json + "}";
+
+      var r = collection.Modify("age = :age").Patch(json).
+          Bind("age", "18").Execute();
+      Assert.IsNotNull(r);
+    }
+
+    [Test, Description("Test valid modify.patch with condition/limit/OrderBy")]
+    public void ModifyPatchWithWhere()
+    {
+      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      var collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new {_id = 1, title = "Book 1", pages = 20, age = 12},
+        new {_id = 2, title = "Book 2", pages = 30,age = 18},
+        new {_id = 3, title = "Book 3", pages = 40,age = 34},
+        new {_id = 4, title = "Book 4", pages = 50,age = 15}
+      };
+      var r = collection.Add(docs).Execute();
+      Assert.AreEqual(4, (int)r.AffectedItemsCount, "Matching the updated record count");
+
+      //Deprecated Modify().Where() in 8.0.17
+      var jsonParams = new { title = "Book 100" };
+      var foundDocs = collection.Modify("age = :age").Patch(jsonParams).Where("age==18").Execute();
+      Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the record count");
+
+      var document = collection.GetOne("2");
+      Assert.AreEqual("Book 100", document["title"]);
+
+      jsonParams = new { title = "Book 300" };
+      r = collection.Modify("age = :age").Patch(jsonParams).Where("age<18").Limit(1).Execute();
+      Assert.AreEqual(1, (int)r.AffectedItemsCount, "Matching the record count");
+
+      document = collection.GetOne(1);
+      Assert.AreEqual("Book 300", document["title"]);
+
+      //Deprecated Modify().Where() in 8.0.17
+      var jsonParams1 = new { title = "Book 10", pages = 1000 };
+      r = collection.Modify("age = :age").Patch(jsonParams1).Where("age>30").
+          Sort("age ASC").Execute();
+      Assert.AreEqual(1, (int)r.AffectedItemsCount, "Matching the record count");
+
+    }
+
+    [Test, Description("Test valid modify.patch with set/unset")]
+    public void ModifyPatchWithSetUnset()
+    {
+      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      var collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new {_id = 1, title = "Book 1", pages = 20, age = "12"},
+        new {_id = 2, title = "Book 2", pages = 30,age = "18"},
+        new {_id = 3, title = "Book 3", pages = 40,age = "34"},
+        new {_id = 4, title = "Book 4", pages = 50,age = "12"}
+      };
+      Result r = collection.Add(docs).Execute();
+      Assert.AreEqual(4, r.AffectedItemsCount);
+
+      var jsonParams = new { title = "Book 500" };
+      r = collection.Modify("age = :age").Patch(jsonParams).Bind("age", "18").
+          Set("pages", "5000").Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+
+      var document = collection.GetOne("2");
+      Assert.AreEqual("5000", document["pages"].ToString());
+      Assert.AreEqual("Book 500", document["title"].ToString());
+
+      var jsonParams1 = new { title = "Book 50000", pages = 5000 };
+      r = collection.Modify("age = :age").Patch(jsonParams1).Bind("age", "18").
+          Unset("pages").Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount, "Match being done");
+      document = collection.GetOne("2");
+      DbDoc test = null;
+      Assert.Throws<InvalidOperationException>(() => test = (DbDoc)document["pages"]);
+      Assert.AreEqual("Book 50000", document["title"]);
+    }
+
+    [Test, Description("Test invalid modify.patch to attempt to change _id using modify.patch")]
+    public void ModifyPatchChangeId()
+    {
+      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      var collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new {_id = 1, title = "Book 1", pages = 20, age = 12},
+        new {_id = 2, title = "Book 2", pages = 30,age = 18},
+        new {_id = 3, title = "Book 3", pages = 40,age = 34},
+        new {_id = 4, title = "Book 4", pages = 50,age = 12}
+      };
+      Result r = collection.Add(docs).Execute();
+      Assert.AreEqual(4, r.AffectedItemsCount);
+      var document = collection.GetOne("1");
+      var jsonParams = new { _id = 123 };
+
+      r = collection.Modify("age = :age").Patch(jsonParams).
+          Bind("age", 18).Execute();
+      Assert.AreEqual(0, r.AffectedItemsCount);
+
+      var jsonParams2 = new { _id = 123, title = "Book 4000" };
+
+      r = collection.Modify("age = :age").Patch(jsonParams2).
+          Bind("age", 18).Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+
+      string jsonParams1 = "{ \"_id\": \"123\"}";
+      r = collection.Modify("age = :age").Patch(jsonParams1).
+          Bind("age", 18).Execute();
+      Assert.AreEqual(0, r.AffectedItemsCount);
+
+      jsonParams1 = "{ \"_id\": \"123\",\"title\": \"Book 400\"}";
+      r = collection.Modify("age = :age").Patch(jsonParams1).
+          Bind("age", 18).Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+    }
+
+    [Test, Description("Test modify.patch where the key to be modified has array, dbDoc and normal constant value and condition is matched for all.")]
+    public void ModifyPatchKeyWithArray()
+    {
+      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      var collection = CreateCollection("test");
+      var docs1 = new[]
+      {
+         new {_id = 1, title = "Book 1", pages = 20, age = 12,name = "Morgan"},
+      };
+      var docs2 =
+          "{\"_id\": \"2\",\"age\": 12,\"name\": \"Alice\", " +
+          "\"address\": {\"zip\": \"12345\", \"city\": \"Los Angeles\", \"street\": \"32 Main str\"}}";
+
+      var docs3 = "{\"_id\": \"3\", \"age\": 12,\"name\":[\"Cynthia\"], \"ARR1\":[\"name1\",\"name2\", \"name3\"]}";
+      Result r = collection.Add(docs1).Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+      r = collection.Add(docs2).Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+      r = collection.Add(docs3).Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+      var jsonParams = new { name = "Changed" };
+      r = collection.Modify("age = :age").Patch(jsonParams).Bind("age", 12).Execute();
+      Assert.AreEqual(3, r.AffectedItemsCount);
+    }
+
+    [Test, Description("Test that documents not matching conditions are not modified.")]
+    public void ModifyPatchNotMatchingConditions()
+    {
+      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      var collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new {_id = 1, title = "Book 1", pages = 20, age = 12},
+        new {_id = 2, title = "Book 2", pages = 30,age = 18},
+        new {_id = 3, title = "Book 3", pages = 40,age = 34},
+        new {_id = 4, title = "Book 4", pages = 50,age = 12}
+      };
+      Result r = collection.Add(docs).Execute();
+      Assert.AreEqual(4, r.AffectedItemsCount);
+      var document = collection.GetOne("1");
+      var jsonParams = new { title = "Book 100" };
+      r = collection.Modify("age = :age").Patch(jsonParams).Bind("age", "19").Execute();
+      Assert.AreEqual(0, r.AffectedItemsCount);
+      string jsonParams1 = "{ \"title\": \"Book 100\"}";
+      r = collection.Modify("age = :age").Patch(jsonParams1).Bind("age", "28").Execute();
+      Assert.AreEqual(0, r.AffectedItemsCount);
+      jsonParams1 = "{ \"unknownvalues\": null}";
+      r = collection.Modify("age = :age").Patch(jsonParams1).Bind("age", "28").Execute();
+      Assert.AreEqual(0, r.AffectedItemsCount);
+    }
+
+    [Test, Description("Test modify.patch with different types of records(anonymous object,Json String,DbDoc) with same key and try to replace using a patch")]
+    public void ModifyPatchDifferentTypesSameKey()
+    {
+      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      var collection = CreateCollection("test");
+      var docs1 = new[]
+      {
+        new {_id = 1, title = "Book 1", pages = 20, age = 12,name = "Morgan"},
+      };
+      var docs2 =
+          "{\"_id\": \"2\",\"age\": \"12\",\"name\": \"Alice\", " +
+          "\"address\": {\"zip\": \"12345\", \"city\": \"Los Angeles\", \"street\": \"32 Main str\"}}";
+
+      var docs3 = new DbDoc(@"{ ""_id"": 3, ""pages"": 20, ""age"":12,""name"":""Cynthiaa"",
+                          ""books"": [
+                            {""_id"" : 10, ""title"" : ""Book 10""},
+                            { ""_id"" : 20, ""title"" : ""Book 20"" }
+                          ]
+                      }");
+      Result r = collection.Add(docs1).Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+      r = collection.Add(docs2).Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+      r = collection.Add(docs3).Execute();
+      Assert.AreEqual(1, r.AffectedItemsCount);
+      var jsonParams = new { name = "Changed" };
+      r = collection.Modify("age = :age").Patch(jsonParams).
+              Bind("age", 12).Execute();
+      Assert.AreEqual(2, r.AffectedItemsCount);//docs2 age is the string
+    }
+
+    [Test, Description("GetOne with ExistingID and NewID with doc(Verify the Immutable feature also))")]
+    public void GetOneAndRemoveOne()
+    {
+      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      var coll = CreateCollection("test");
+      var docs = new[]
+      {
+        new {_id = 1, title = "Book 1", pages = 20},
+        new {_id = 2, title = "Book 2", pages = 30},
+        new {_id = 3, title = "Book 3", pages = 40},
+        new {_id = 4, title = "Book 4", pages = 50}
+      };
+      var r = coll.Add(docs).Execute();
+      Assert.AreEqual(4, r.AffectedItemsCount);
+
+      // Expected exceptions.
+      Assert.Throws<ArgumentNullException>(() => coll.GetOne(null));
+      Assert.Throws<ArgumentNullException>(() => coll.GetOne(""));
+      Assert.Throws<ArgumentNullException>(() => coll.GetOne(string.Empty));
+      Assert.Throws<ArgumentNullException>(() => coll.GetOne(" "));
+
+      // Get document using numeric parameter.
+      var document = coll.GetOne(1);
+      Assert.AreEqual(1, document.Id);
+      Assert.AreEqual("Book 1", document["title"]);
+      Assert.AreEqual(20, Convert.ToInt32(document["pages"]));
+
+      // Get document using string parameter.
+      document = coll.GetOne("3");
+      Assert.AreEqual(3, document.Id);
+      Assert.AreEqual("Book 3", document["title"]);
+      Assert.AreEqual(40, Convert.ToInt32(document["pages"]));
+
+      // Get a non-existing document.
+      document = coll.GetOne(5);
+      Assert.AreEqual(null, document);
+
+      coll.Add(new { title = "Book 5", pages = 60 }).Execute();
+      Assert.AreEqual(5, coll.Find().Execute().FetchAll().Count);
+      // Remove sending numeric parameter.
+      //WL11843-Core API v1 alignment Changes
+      Assert.AreEqual(1, coll.RemoveOne(1).AffectedItemsCount);
+      Assert.AreEqual(4, coll.Find().Execute().FetchAll().Count);
+
+      // Remove sending string parameter.
+      Assert.AreEqual(1, coll.RemoveOne("3").AffectedItemsCount);
+      Assert.AreEqual(3, coll.Find().Execute().FetchAll().Count);
+
+      // Remove an auto-generated id.
+      document = coll.Find("pages = 60").Execute().FetchOne();
+      Assert.AreEqual(1, coll.RemoveOne(document.Id).AffectedItemsCount);
+      Assert.AreEqual(2, coll.Find().Execute().FetchAll().Count);
+
+      // Remove a non-existing document.
+      Assert.AreEqual(0, coll.RemoveOne(5).AffectedItemsCount);
+      Assert.AreEqual(2, coll.Find().Execute().FetchAll().Count);
+
+    }
+
+    [Test, Description("AddReplaceOne with unique id generated by SQL")]
+    public void AddReplaceOneUniqueId()
+    {
+      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      var collection = CreateCollection("test");
+      var docs = new[]
+      {
+        new {_id = 1, name = "foo"},
+        new {_id = 2, name = "bar"}
+      };
+      var result = collection.Add(docs).Execute();
+      Assert.AreEqual(2, result.AffectedItemsCount);
+
+      // Add unique index.
+      session.SQL(
+              "ALTER TABLE test.test ADD COLUMN name VARCHAR(3) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$.name'))) VIRTUAL UNIQUE KEY NOT NULL")
+          .Execute();
+      Assert.Throws<MySqlException>(()=>collection.AddOrReplaceOne(1, new { name = "bar" }));
+      Assert.Throws<MySqlException>(() => collection.AddOrReplaceOne(1, new { _id = 3, name = "bar", age = "55" }));
+    }
+
+    #endregion WL14389
+
   }
 }

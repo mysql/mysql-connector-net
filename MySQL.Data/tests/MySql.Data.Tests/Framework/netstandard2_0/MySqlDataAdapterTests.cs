@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2013, 2021 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -418,7 +418,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("CREATE TABLE Test (id INT, PRIMARY KEY(id))");
       ExecuteSQL("INSERT INTO Test VALUES(1)");
 
-      using (MySqlConnection c = new MySqlConnection(ConnectionSettings.ConnectionString))
+      using (MySqlConnection c = new MySqlConnection(Settings.ConnectionString))
       {
         MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", c);
         MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
@@ -723,7 +723,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void FunctionsReturnString()
     {
-      string connStr = ConnectionSettings.ConnectionString + ";functions return string=yes";
+      string connStr = Settings.ConnectionString + ";functions return string=yes";
 
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
@@ -749,7 +749,7 @@ namespace MySql.Data.MySqlClient.Tests
         PRIMARY KEY(id)) ENGINE=InnoDB DEFAULT CHARSET=latin1");
       ExecuteSQL("INSERT INTO Test VALUES (1, 'name', 23.2)");
 
-      using (MySqlConnection c = new MySqlConnection(ConnectionSettings.ConnectionString))
+      using (MySqlConnection c = new MySqlConnection(Settings.ConnectionString))
       {
         string sql = "SELECT * FROM Test";
         MySqlDataAdapter da = new MySqlDataAdapter(sql, c);
@@ -825,7 +825,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       ExecuteSQL("CREATE TABLE Test (id INT, name VARCHAR(20), PRIMARY KEY(id))");
 
-      string connStr = ConnectionSettings.ConnectionString;
+      string connStr = Settings.ConnectionString;
       MySqlConnection c = new MySqlConnection(connStr);
       MySqlConnection c2 = new MySqlConnection(connStr);
       MySqlConnection c3 = new MySqlConnection(connStr);
@@ -964,7 +964,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       ExecuteSQL("CREATE PROCEDURE SimpleSelect() BEGIN SELECT 'ADummyVal' as DummyVal; END");
 
-      MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       cb.Pooling = true;
 
       using (MySqlConnection connection = new MySqlConnection(cb.ConnectionString))
@@ -991,7 +991,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("CREATE PROCEDURE SimpleSelect1() BEGIN SELECT 'ADummyVal' as DummyVal; END");
       ExecuteSQL("CREATE PROCEDURE SimpleSelect2() BEGIN SELECT 'ADummyVal' as DummyVal; END");
 
-      MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      MySqlConnectionStringBuilder cb = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       cb.Pooling = true;
 
       using (MySqlConnection connection = new MySqlConnection(cb.ConnectionString))
@@ -1292,5 +1292,49 @@ namespace MySql.Data.MySqlClient.Tests
       cb.Dispose();
     }
     #endregion
+
+    #region WL14389
+    [Test, Description("CommandBuilder Async ")]
+    public async Task CommandBuilderAsync()
+    {
+      ExecuteSQL("CREATE TABLE DAActor (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(100),PRIMARY KEY(id))");
+      ExecuteSQL("INSERT INTO DAActor (name) VALUES ('Name 1')");
+      ExecuteSQL("INSERT INTO DAActor (name) VALUES ('Name 2')");
+      using (var conn = new MySqlConnection(Settings.ConnectionString))
+      {
+        await conn.OpenAsync();
+        var da = new MySqlDataAdapter("SELECT * FROM DAActor", conn);
+        var cb = new MySqlCommandBuilder(da);
+        var dt = new DataTable();
+        dt.Clear();
+        await da.FillAsync(dt); // asynchronous
+
+        dt.Rows[0][1] = "my changed value 1";
+        var changes = dt.GetChanges();
+        var count = da.Update(changes);
+        dt.AcceptChanges();
+        Assert.True(count == 1, "checking update count");
+        await conn.CloseAsync();
+      }
+
+      using (var conn = new MySqlConnection(Settings.ConnectionString))
+      {
+        await conn.OpenAsync();
+        var da = new MySqlDataAdapter("SELECT * FROM DAActor", conn);
+        var cb = new MySqlCommandBuilder(da);
+        var dt = new DataTable();
+        await da.FillAsync(dt);
+        await da.UpdateAsync(dt); // asynchronous
+
+        dt.Rows[0][1] = "my changed value 2";
+        var changes = dt.GetChanges();
+        var count = da.Update(changes);
+        dt.AcceptChanges();
+        Assert.True(count == 1, "checking update count");
+        await conn.CloseAsync();
+      }
+    }
+    #endregion WL14389
+
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,7 +28,7 @@
 
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Reflection;
 using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -713,7 +713,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         var ex = Assert.Throws<MySqlException>(() => loader.Load());
         if (allowLoadLocalInfileInPath == " " || allowLoadLocalInfileInPath is null)
-          if (Version > new Version(8,0))
+          if (Version > new Version(8, 0))
             Assert.AreEqual("Loading local data is disabled; this must be enabled on both the client and server sides", ex.Message);
           else
             Assert.AreEqual("The used command is not allowed with this MySQL version", ex.Message);
@@ -725,5 +725,44 @@ namespace MySql.Data.MySqlClient.Tests
       Directory.Delete("tmp", true);
       Directory.Delete("otherPath");
     }
+
+    #region WL14389
+
+    [Test, Description("MySQL Bulk Loader ran with Automation")]
+    public void InsertFilesInDatabase()
+    {
+      var cPath = Assembly.GetExecutingAssembly().Location.Replace(String.Format("{0}.dll",
+             Assembly.GetExecutingAssembly().GetName().Name), string.Empty);
+      string imageFile = cPath + "image1.jpg";
+      var fs = new FileStream(imageFile, FileMode.Open, FileAccess.Read);
+      long fileSize = fs.Length;
+      byte[] rawData = new byte[fs.Length];
+      fs.Read(rawData, 0, (int)fs.Length);
+      fs.Close();
+
+      using (var conn = new MySqlConnection(Connection.ConnectionString))
+      {
+        var cmd = new MySqlCommand();
+        conn.Open();
+        cmd.Connection = conn;
+        cmd.CommandText = "DROP TABLE IF EXISTS file";
+        cmd.ExecuteNonQuery();
+        cmd.CommandText = " CREATE TABLE file(file_id SMALLINT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY," +
+                          "file_name VARCHAR(64) NOT NULL, file_size MEDIUMINT UNSIGNED NOT NULL,file MEDIUMBLOB NOT NULL);";
+        cmd.ExecuteNonQuery();
+        cmd.CommandText = "INSERT INTO file VALUES(NULL, @FileName, @FileSize, @File)";
+        cmd.Parameters.AddWithValue("@FileName", "image1.jpg");
+        cmd.Parameters.AddWithValue("@FileSize", fileSize);
+        cmd.Parameters.AddWithValue("@File", rawData);
+        var result = cmd.ExecuteNonQuery();
+        Assert.IsNotNull(result);
+        cmd.CommandText = "select count(*) from file;";
+        var count=cmd.ExecuteScalar();
+        Assert.AreEqual(1,count);
+      }
+    }
+
+    #endregion WL14389
+
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,11 +33,14 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using System.Linq;
 using System;
+using MySql.Data.MySqlClient;
 
 namespace MySqlX.Data.Tests
 {
   public class SchemaTests : BaseTest
   {
+    [TearDown]
+    public void TearDown() => ExecuteSQL("DROP TABLE IF EXISTS test");
     [Test]
     public void GetSchemas()
     {
@@ -45,6 +48,11 @@ namespace MySqlX.Data.Tests
       List<Schema> schemas = session.GetSchemas();
 
       Assert.True(schemas.Exists(s => s.Name == base.testSchema.Name));
+
+      Schema schema = session.GetSchema(schemaName);
+      Assert.AreEqual(schemaName, schema.Name);
+      schema = session.GetSchema(null);
+      Assert.IsNull(schema.Name);
     }
 
     [Test]
@@ -123,5 +131,167 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentNullException>(() => session.DropSchema("  "));
       Assert.Throws<ArgumentNullException>(() => session.DropSchema(null));
     }
+
+    #region WL14389
+
+    [Test, Description("Test MySQLX plugin Exception Handling Scenario 1")]
+    public void ExceptionHandlingSchema()
+    {
+      Session sessionPlain = MySQLX.GetSession(ConnectionString);
+      sessionPlain.DropSchema("test1");
+      var db = sessionPlain.CreateSchema("test1");
+      db = sessionPlain.GetSchema("test1");
+      if (db.ExistsInDatabase())
+      {
+        sessionPlain.DropSchema("test1");
+        db = sessionPlain.CreateSchema("test1");
+        db.DropCollection("test");
+        var coll = db.CreateCollection("test");
+        var res = coll.Add("{\"_id\":null,\"FLD1\":\"nulldata\"}").Execute();
+        var docIds = res.GeneratedIds.Count;
+
+        var docs = coll.Find("$.FLD1 == 'nulldata'").Execute();
+        while (docs.Next())
+        {
+          Assert.Throws<NullReferenceException>(() => docs.Current["_id"].ToString());
+        }
+      }
+      else { db = sessionPlain.CreateSchema("test1"); }
+      Assert.Throws<MySqlException>(() => sessionPlain.CreateSchema("test1"));
+      sessionPlain.SQL(@"drop database if exists test1;").Execute();
+
+      sessionPlain.SQL(@"drop database if exists `test\84`;").Execute();
+      db = sessionPlain.CreateSchema("test\\84");
+
+      sessionPlain.SQL(@"drop database if exists `test\84`;").Execute();
+      db = sessionPlain.CreateSchema(@"test\84");
+
+      sessionPlain.SQL(@"drop database if exists `test\84`;").Execute();
+    }
+
+    [Test, Description("Test MySQLX plugin Exception Handling Scenario 2")]
+    public void ExceptionHandlingCollection()
+    {
+      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+
+      Session sessionPlain = MySQLX.GetSession(ConnectionString);
+
+      if (sessionPlain.GetSchema("test_collection_123456789").ExistsInDatabase())
+      {
+        sessionPlain.DropSchema("test_collection_123456789");
+      }
+      var db = sessionPlain.CreateSchema("test_collection_123456789");
+      if (db.GetCollection("my_collection_123456789").ExistsInDatabase())
+      {
+        db.DropCollection("my_collection_123456789");
+      }
+      db.CreateCollection("my_collection_123456789");
+      Assert.Throws<MySqlException>(() => db.CreateCollection("my_collection_123456789"));
+
+      sessionPlain.DropSchema("test_collection_123456789");
+    }
+
+    [Test, Description("GetSession Create Schema Valid Name(Session and Session)")]
+    public void CreateValidSchema()
+    {
+      Schema db = session.GetSchema("test_123456789");
+      if (db.ExistsInDatabase())
+      {
+        session.DropSchema("test_123456789");
+        db = session.CreateSchema("test_123456789");
+      }
+      else { db = session.CreateSchema("test_123456789"); }
+      Assert.True(db.ExistsInDatabase());
+      Assert.Throws<MySqlException>(() => session.CreateSchema("test_123456789"));
+      session.DropSchema("test_123456789");
+      Assert.Throws<MySqlException>(() => session.CreateSchema("test_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789"));
+      Assert.Throws<MySqlException>(() => session.CreateSchema(null));
+    }
+
+    [Test, Description("Set Node Schema")]
+    public void SessionSetSchema()
+    {
+      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      if (!session.GetSchema("test1").ExistsInDatabase())
+        session.CreateSchema("test1");
+      Assert.DoesNotThrow(() => session.SetCurrentSchema("test1"));
+      Assert.AreEqual("test1", session.Schema.Name);
+      // Retry the same schema
+      Assert.DoesNotThrow(() => session.SetCurrentSchema("test1"));
+      Assert.AreEqual("test1", session.Schema.Name);
+      session.Schema.CreateCollection("my_collection_123456789");
+      session.Schema.DropCollection("my_collection_123456789");
+      //Exceptions
+      Assert.Throws<MySqlException>(() => session.SQL("USE nonExistingSchema").Execute());
+      Assert.Throws<MySqlException>(() => session.SetCurrentSchema("nonExistingSchema"));
+      Assert.Throws<MySqlException>(() => session.SetCurrentSchema(null));
+      session.DropSchema("test1");
+      //No Active Schema
+      using (Session sessionPlain = MySQLX.GetSession(ConnectionString))
+      {
+        Assert.IsNull(sessionPlain.GetCurrentSchema());
+      }
+    }
+
+    [Test, Description("Session Status before Execution - Negative")]
+    public void SessionClosedBeforeExecution()
+    {
+      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Schema schema = null;
+      Session sessionPlain = MySQLX.GetSession(ConnectionString);
+      schema = sessionPlain.GetSchema(schemaName);
+      schema.CreateCollection("test123");
+      schema.DropCollection("test123");
+      sessionPlain.Close();
+      Assert.Throws<MySqlException>(() => schema.CreateCollection("test123"));
+      sessionPlain.Dispose();
+    }
+
+    [Test, Description("Session Switch-SetCurrentSchema(Same and Different Session)")]
+    public void SessionChangeCurrentSchema()
+    {
+      Session sessionPlain = MySQLX.GetSession(ConnectionString);
+      sessionPlain.SQL("DROP DATABASE IF EXISTS dbname1").Execute();
+      sessionPlain.SQL("CREATE DATABASE dbname1").Execute();
+      sessionPlain.SQL("USE dbname1").Execute();
+      Assert.AreEqual("dbname1", sessionPlain.GetCurrentSchema().Name);
+      sessionPlain.SQL("CREATE TABLE address1" +
+                  "(address_number  INT NOT NULL AUTO_INCREMENT, " +
+                  "building_name  VARCHAR(100) NOT NULL, " +
+                  "district VARCHAR(100) NOT NULL, PRIMARY KEY (address_number)" + ");").Execute();
+      sessionPlain.SQL("INSERT INTO address1" +
+                  "(address_number,building_name,district)" +
+                  " VALUES " +
+                  "(1,'MySQL1','BGL1');").Execute();
+
+      sessionPlain.SQL("DROP DATABASE IF EXISTS dbname2").Execute();
+      sessionPlain.SQL("CREATE DATABASE dbname2").Execute();
+      sessionPlain.SQL("USE dbname2").Execute();
+      Assert.AreEqual("dbname2", sessionPlain.GetCurrentSchema().Name);
+      sessionPlain.SQL("CREATE TABLE address2" +
+                  "(address_number  INT NOT NULL AUTO_INCREMENT, " +
+                  "building_name  VARCHAR(100) NOT NULL, " +
+                  "district VARCHAR(100) NOT NULL, PRIMARY KEY (address_number)" + ");").Execute();
+      sessionPlain.SQL("INSERT INTO address2" +
+                  "(address_number,building_name,district)" +
+                  " VALUES " +
+                  "(2,'MySQL2','BGL2');").Execute();
+      sessionPlain.SetCurrentSchema("dbname1");
+      Assert.AreEqual("dbname1", sessionPlain.Schema.Name);
+      sessionPlain.SQL("SELECT * FROM address1").Execute();
+      sessionPlain.SQL("DROP TABLE address1").Execute();
+      sessionPlain.SetCurrentSchema("dbName2");
+      Assert.AreEqual("dbName2", sessionPlain.Schema.Name);
+      sessionPlain.SQL("SELECT * FROM address2").Execute();
+      sessionPlain.SQL("DROP TABLE address2").Execute();
+      sessionPlain.SQL("DROP DATABASE DBName1").Execute();
+      sessionPlain.SQL("DROP DATABASE DBName2").Execute();
+      sessionPlain.Close();
+      sessionPlain.Dispose();
+
+    }
+
+    #endregion WL14389
+
   }
 }

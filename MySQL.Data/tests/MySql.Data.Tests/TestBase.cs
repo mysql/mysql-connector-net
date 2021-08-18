@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2016, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,51 +26,59 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using NUnit.Framework;
 using System;
 using System.Data;
 using System.Diagnostics;
-using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class TestBase
   {
-    protected string Namespace { get; set; }
-    public MySqlConnectionStringBuilder Settings { get; set; }
-    public MySqlConnectionStringBuilder RootSettings { get; set; }
-    protected string BaseDBName { get; set; }
-    protected string BaseUserName { get; set; }
-    public Version Version { get; set; }
+    #region Properties
+    public MySqlConnectionStringBuilder Settings { get; private set; }
+    public MySqlConnectionStringBuilder RootSettings { get; private set; }
+    public static string UnixSocket { get; private set; } = Environment.GetEnvironmentVariable("MYSQL_SOCKET") ?? "/tmp/mysql.sock";
+    public static string Host { get; private set; } = Environment.GetEnvironmentVariable("MYSQL_HOST") ?? "localhost";
+    public static string Port { get; private set; } = Environment.GetEnvironmentVariable("MYSQL_PORT") ?? "3306";
+    public static string RootUser { get; private set; } = Environment.GetEnvironmentVariable("MYSQL_ROOT_USER") ?? "root";
+    public static string RootPassword { get; private set; } = Environment.GetEnvironmentVariable("MYSQL_ROOT_PASSWORD") ?? string.Empty;
+    public static string MemName { get; private set; } = Environment.GetEnvironmentVariable("MYSQL_MEM") ?? "MySQLSocket";
+    public static string PipeName { get; private set; } = Environment.GetEnvironmentVariable("MYSQL_PIPE") ?? "MySQLSocket";
+    public string BaseDBName { get; private set; }
+    public string BaseUserName { get; private set; }
+    public Version Version { get; private set; }
     public int MaxPacketSize { get; set; }
-    public string UnixSocket { get; private set; } = Environment.GetEnvironmentVariable("MYSQL_SOCKET") ?? "/tmp/mysql.sock";
+    public MySqlConnection Connection { get; set; }
+    public MySqlConnection Root { get; private set; }
+    #endregion
 
-    protected MySqlConnection Connection { get; set; }
-    protected MySqlConnection Root { get; set; }
-
+    #region Setup
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-      Namespace = this.GetType().Name.ToLower();
-      string ns = Namespace.Length > 10 ? Namespace.Substring(0, 10) : Namespace;
+      string _namespace = this.GetType().Name.ToLower();
+      string ns = _namespace.Length > 10 ? _namespace.Substring(0, 10) : _namespace;
       BaseDBName = "db-" + ns + "-";
       BaseUserName = "u-" + ns + "-";
 
       var settings = new MySqlConnectionStringBuilder();
-      settings.Server = "localhost";
-      var port = Environment.GetEnvironmentVariable("MYSQL_PORT");
-      settings.Port = port == null ? 3306 : UInt32.Parse(port);
-      settings.UserID = "root";
-      settings.Password = null;
-#if NET452
-      var memName = Environment.GetEnvironmentVariable("MYSQL_MEM");
-      settings.SharedMemoryName = memName == null ? "MySQLSocket" : memName;
-      var pipeName = Environment.GetEnvironmentVariable("MYSQL_PIPE");
-      settings.PipeName = pipeName == null ? "MySQLSocket" : pipeName;
-#endif
+      settings.Server = Host;
+      settings.Port = UInt32.Parse(Port);
+      settings.UserID = RootUser;
+      settings.Password = RootPassword;
       settings.PersistSecurityInfo = true;
       settings.AllowUserVariables = true;
       settings.Pooling = false;
       settings.ConnectionTimeout = 600;
+
+      if (Platform.IsWindows())
+      {
+        settings.SharedMemoryName = MemName;
+        settings.PipeName = PipeName;
+      }
+
       AdjustConnectionSettings(settings);
       MaxPacketSize = 1000 * 1024;
 
@@ -83,7 +91,9 @@ namespace MySql.Data.MySqlClient.Tests
       Connection = GetConnection(false);
       Root = GetConnection(true);
     }
+    #endregion
 
+    #region TearDown
     [OneTimeTearDown]
     public void OneTimeTearDownAttribute()
     {
@@ -91,9 +101,9 @@ namespace MySql.Data.MySqlClient.Tests
       CleanupDatabase();
 
       if (Connection != null && Connection.State == ConnectionState.Open)
-        Connection.Close();
+        Connection.Dispose();
       if (Root != null && Root.State == ConnectionState.Open)
-        Root.Close();
+        Root.Dispose();
     }
 
     [TearDown]
@@ -101,7 +111,9 @@ namespace MySql.Data.MySqlClient.Tests
     {
       Cleanup();
     }
+    #endregion
 
+    #region Private Methods
     private Version GetVersion()
     {
       using (var root = GetConnection(true))
@@ -116,14 +128,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    public MySqlConnection GetConnection(bool asRoot = false)
-    {
-      var s = asRoot ? RootSettings : Settings;
-      var conn = new MySqlConnection(s.GetConnectionString(true));
-      conn.Open();
-      return conn;
-    }
-
     private void InitializeDatabase()
     {
       CleanupDatabase();
@@ -132,7 +136,7 @@ namespace MySql.Data.MySqlClient.Tests
       Settings.Password = "pwd";
     }
 
-    protected void CleanupDatabase()
+    private void CleanupDatabase()
     {
       using (var root = GetConnection(true))
       {
@@ -146,12 +150,11 @@ namespace MySql.Data.MySqlClient.Tests
         var data = Utils.FillTable("SHOW DATABASES", root);
         foreach (DataRow row in data.Rows)
         {
-
           string name = row[0].ToString();
           if (!name.StartsWith(BaseDBName)) continue;
           ExecuteSQL(String.Format("DROP DATABASE IF EXISTS `{0}`", name), root);
         }
-        data = Utils.FillTable(String.Format("SELECT user,host FROM mysql.user WHERE user LIKE '{0}%'", BaseUserName), root);
+        data = Utils.FillTable(String.Format("SELECT user,host FROM mysql.user WHERE user LIKE '{0}%' OR user LIKE 'test%' OR user LIKE 'expired%'", BaseUserName), root);
         foreach (DataRow row in data.Rows)
         {
           if (Version >= new Version("5.7"))
@@ -161,6 +164,29 @@ namespace MySql.Data.MySqlClient.Tests
         }
         ExecuteSQL("FLUSH PRIVILEGES", root);
       }
+    }
+
+    private void ExecuteSQL(string sql, MySqlConnection connection)
+    {
+      var cmd = connection.CreateCommand();
+      cmd.CommandText = sql;
+      cmd.ExecuteNonQuery();
+    }
+    #endregion
+
+    #region Virtual Methods
+    internal virtual void AdjustConnectionSettings(MySqlConnectionStringBuilder settings) { }
+
+    protected virtual void Cleanup() { }
+    #endregion
+
+    #region Public Methods
+    public MySqlConnection GetConnection(bool asRoot = false)
+    {
+      var s = asRoot ? RootSettings : Settings;
+      var conn = new MySqlConnection(s.GetConnectionString(true));
+      conn.Open();
+      return conn;
     }
 
     public string CreateDatabase(string postfix)
@@ -175,43 +201,29 @@ namespace MySql.Data.MySqlClient.Tests
 
     public string CreateUser(string postfix, string password)
     {
+      string host = Host == "localhost" ? Host : "%";
       using (var connection = GetConnection(true))
       {
         string userName = String.Format("{0}{1}", BaseUserName, postfix);
-        if (Version >= new Version("5.7"))
-          ExecuteSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED WITH mysql_native_password BY '{1}'", userName, password), connection);
-        else
-          ExecuteSQL(String.Format("CREATE USER '{0}'@'localhost' IDENTIFIED BY '{1}'", userName, password), connection);
-        ExecuteSQL(String.Format("GRANT ALL ON *.* TO '{0}'@'localhost'", userName), connection);
+
+        ExecuteSQL($"CREATE USER '{userName}'@'{host}' IDENTIFIED WITH mysql_native_password BY '{password}'", connection);
+        ExecuteSQL($"GRANT ALL ON *.* TO '{userName}'@'{host}'", connection);
         ExecuteSQL("FLUSH PRIVILEGES", connection);
         return userName;
       }
     }
 
-    public string CreateUser(string userName, string password, string plugin, string host = "localhost")
+    public string CreateUser(string userName, string password, string plugin)
     {
+      string host = Host == "localhost" ? Host : "%";
       using (var connection = GetConnection(true))
       {
-        if (Version >= new Version("5.7"))
-        {
-          ExecuteSQL(String.Format("DROP USER IF EXISTS '{0}'@'{1}';", userName, host), connection);
-          ExecuteSQL(
+        ExecuteSQL(String.Format("DROP USER IF EXISTS '{0}'@'{1}';", userName, host), connection);
+        ExecuteSQL(
           String.Format(
-            "CREATE USER '{0}'@'{1}' IDENTIFIED {2} BY '{3}'",
-            userName, host,
+            "CREATE USER '{0}'@'{1}' IDENTIFIED {2} BY '{3}'", userName, host,
             (plugin == null ? string.Empty : String.Format("WITH '{0}' ", plugin)), password),
           connection);
-        }
-        else
-        {
-          var cmd = connection.CreateCommand();
-          cmd.CommandText = String.Format("SELECT count(*) FROM mysql.user WHERE user LIKE '{0}%'", userName);
-          if ((long)cmd.ExecuteScalar() > 0)
-            ExecuteSQL(String.Format("DROP USER '{0}'@'{1}';", userName, host), connection);
-          ExecuteSQL(String.Format("CREATE USER '{0}'@'{1}' IDENTIFIED WITH '{2}'", userName, host, plugin), connection);
-          if (plugin == "sha256_password") ExecuteSQL("SET old_passwords = 2", connection);
-          ExecuteSQL(String.Format("SET PASSWORD FOR '{0}'@'{1}' = PASSWORD('{2}')", userName, host, password), connection);
-        }
 
         ExecuteSQL(String.Format("GRANT ALL ON *.* TO '{0}'@'{1}'", userName, host), connection);
         ExecuteSQL("FLUSH PRIVILEGES", connection);
@@ -219,33 +231,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    public MySqlConnectionStringBuilder ConnectionSettings
-    {
-      get { return Settings; }
-    }
-
-    internal virtual void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
-    {
-    }
-
-    protected virtual void AdjustConnections()
-    {
-    }
-
-    protected virtual void Cleanup()
-    {
-    }
-
-    protected void ExecuteSQL(string sql, bool asRoot = false)
+    public void ExecuteSQL(string sql, bool asRoot = false)
     {
       var connection = asRoot ? Root : Connection;
-      var cmd = connection.CreateCommand();
-      cmd.CommandText = sql;
-      cmd.ExecuteNonQuery();
-    }
-
-    private void ExecuteSQL(string sql, MySqlConnection connection)
-    {
       var cmd = connection.CreateCommand();
       cmd.CommandText = sql;
       cmd.ExecuteNonQuery();
@@ -258,32 +246,17 @@ namespace MySql.Data.MySqlClient.Tests
       return cmd.ExecuteReader();
     }
 
-    public DataTable FillTable(string sql)
-    {
-      DataTable dt = new DataTable();
-      MySqlDataAdapter da = new MySqlDataAdapter(sql, Connection);
-      da.Fill(dt);
-      return dt;
-    }
-
-    public bool TableExists(string tableName)
-    {
-      MySqlCommand cmd = new MySqlCommand($"SELECT * FROM {tableName} LIMIT 0", Connection);
-      try
-      {
-        cmd.ExecuteScalar();
-        return true;
-      }
-      catch (Exception)
-      {
-        return false;
-      }
-    }
-
-    internal protected void KillConnection(MySqlConnection c)
+    public void KillConnection(MySqlConnection c,bool useCompression=false)
     {
       int threadId = c.ServerThread;
-      var root = GetConnection(true);
+
+      var sb = new MySqlConnectionStringBuilder(RootSettings.ConnectionString);
+      if (useCompression)
+      {
+        sb.UseCompression = useCompression;
+      }
+      var root = new MySqlConnection(sb.GetConnectionString(true));
+      root.Open();
       MySqlCommand cmd = new MySqlCommand("KILL " + threadId, root);
       cmd.ExecuteNonQuery();
 
@@ -314,11 +287,12 @@ namespace MySql.Data.MySqlClient.Tests
       root.Close();
     }
 
-    internal protected void KillPooledConnection(string connStr)
+    public void KillPooledConnection(string connStr)
     {
       MySqlConnection c = new MySqlConnection(connStr);
       c.Open();
       KillConnection(c);
     }
+    #endregion
   }
 }

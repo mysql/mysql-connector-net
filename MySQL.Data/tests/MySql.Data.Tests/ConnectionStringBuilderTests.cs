@@ -31,11 +31,27 @@ using MySqlX.XDevAPI;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Reflection;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class ConnectionStringBuilderTests : TestBase
   {
+    private string _sslCa;
+    private string _sslCert;
+    private string _sslKey;
+
+    public ConnectionStringBuilderTests()
+    {
+      string cPath = string.Empty;
+      cPath = Assembly.GetExecutingAssembly().Location.Replace(String.Format("{0}.dll", Assembly.GetExecutingAssembly().GetName().Name), string.Empty);
+
+      _sslCa = cPath + "ca.pem";
+      _sslCert = cPath + "client-cert.pem";
+      _sslKey = cPath + "client-key.pem";
+    }
+
     [Test]
     public void Simple()
     {
@@ -270,5 +286,136 @@ namespace MySql.Data.MySqlClient.Tests
       connStr = "server=localhost;userid=root;defaultauthenticationplugin=";
       var conn = new MySqlConnection(connStr);
     }
+
+    #region WL14389
+
+    [Test, Description("Session BaseString/MySQLConnectionString Builder")]
+    public void ConnectionStringBuilderClassicTests()
+    {
+      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only.");
+
+      MySqlConnectionStringBuilder mysql = new MySqlConnectionStringBuilder(Settings.ConnectionString);
+
+      mysql.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
+      mysql.CharacterSet = "utf8mb4";
+      mysql.SslMode = MySqlSslMode.Required;
+      mysql.ConnectionTimeout = 10;
+      mysql.Keepalive = 10;
+      mysql.CertificateFile = _sslCa;
+      mysql.CertificatePassword = "pass";
+      mysql.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
+      mysql.CertificateThumbprint = "";
+
+      using (var conn = new MySqlConnection(mysql.ConnectionString))
+      {
+        conn.Open();
+        Assert.AreEqual(ConnectionState.Open, conn.connectionState);
+      }
+
+      mysql = new MySqlConnectionStringBuilder(Settings.ConnectionString);
+      mysql.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
+      mysql.CharacterSet = "utf8mb4";
+      mysql.SslMode = MySqlSslMode.VerifyCA;
+      mysql.ConnectionTimeout = 10;
+      mysql.Keepalive = 10;
+      mysql.CertificateFile = _sslCa;
+      mysql.CertificatePassword = "pass";
+      mysql.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
+      mysql.CertificateThumbprint = "";
+
+      using (var conn = new MySqlConnection(mysql.ConnectionString))
+      {
+        conn.Open();
+        Assert.AreEqual(ConnectionState.Open, conn.connectionState);
+      }
+
+      mysql = new MySqlConnectionStringBuilder(Settings.ConnectionString);
+      mysql.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
+      mysql.CharacterSet = "utf8mb4";
+      mysql.SslMode = MySqlSslMode.Required;
+      mysql.ConnectionTimeout = 10;
+      mysql.Keepalive = 10;
+
+      using (var conn = new MySqlConnection(mysql.ConnectionString))
+      {
+        conn.Open();
+        Assert.AreEqual(ConnectionState.Open, conn.connectionState);
+      }
+
+      ////Scenario-2
+      ////MySQL Connection
+      mysql = new MySqlConnectionStringBuilder(Settings.ConnectionString);
+      mysql.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
+      mysql.CharacterSet = "utf8mb4";
+      mysql.SslMode = MySqlSslMode.Required;
+      mysql.ConnectionTimeout = 10;
+      mysql.Keepalive = 10;
+      mysql.CertificateFile = _sslCa;
+      mysql.CertificatePassword = "pass";
+      mysql.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
+      mysql.CertificateThumbprint = "";
+      mysql.AllowPublicKeyRetrieval = true;
+      mysql.UseCompression = true;
+      mysql.AllowBatch = true;
+      mysql.Logging = true;
+      mysql.DefaultCommandTimeout = 10;
+      mysql.UseDefaultCommandTimeoutForEF = true;
+      mysql.PersistSecurityInfo = true;
+      mysql.AutoEnlist = true;
+      mysql.IncludeSecurityAsserts = true;
+      mysql.AllowZeroDateTime = true;
+      mysql.ConvertZeroDateTime = true;
+      mysql.UseUsageAdvisor = true;
+      mysql.ProcedureCacheSize = 20;
+      mysql.RespectBinaryFlags = true;
+      mysql.TreatTinyAsBoolean = true;
+      mysql.AllowUserVariables = true;
+      mysql.InteractiveSession = true;
+      mysql.FunctionsReturnString = true;
+      mysql.UseAffectedRows = true;
+      mysql.OldGuids = true;
+      mysql.SqlServerMode = true;
+      mysql.DefaultTableCacheAge = 20;
+      mysql.CheckParameters = true;
+      mysql.Replication = true;
+      mysql.ConnectionLifeTime = 10;
+      mysql.Pooling = true;
+      mysql.MinimumPoolSize = 5;
+      mysql.MaximumPoolSize = 100;
+      mysql.ConnectionReset = true;
+      mysql.CacheServerProperties = true;
+      mysql.TreatBlobsAsUTF8 = true;
+      mysql.BlobAsUTF8IncludePattern = "BLOBI";
+      mysql.BlobAsUTF8ExcludePattern = "BLOBE";
+      mysql.TableCaching = false;
+
+      using (var conn = new MySqlConnection(mysql.ConnectionString))
+      {
+        conn.Open();
+        Assert.AreEqual(ConnectionState.Open, conn.connectionState);
+      }
+
+      mysql.SslCa = _sslCa;
+
+      using (var conn = new MySqlConnection(mysql.ConnectionString))
+      {
+        conn.Open();
+        Assert.AreEqual(ConnectionState.Open, conn.connectionState);
+      }
+
+      ////Basic Scenarios
+      string connectionstr = "server = " + mysql.Server + "; database = " + mysql.Database + "; protocol = Socket; port = "
+          + mysql.Port + "; user id = " + mysql.UserID + "; password = " + mysql.Password +
+          "; characterset = utf8mb4; sslmode = Required; connectiontimeout = 10; keepalive = 10; certificatefile = "
+          + _sslCa + "; certificatepassword = pass; certificatestorelocation = LocalMachine; certificatethumbprint = ";
+      using (var conn = new MySqlConnection(mysql.ConnectionString))
+      {
+        conn.Open();
+        Assert.AreEqual(ConnectionState.Open, conn.connectionState);
+      }
+    }
+
+    #endregion WL14389
+
   }
 }
