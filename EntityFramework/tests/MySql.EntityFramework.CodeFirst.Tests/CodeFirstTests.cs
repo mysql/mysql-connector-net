@@ -41,7 +41,6 @@ using System.Data.Entity.Spatial;
 using MySql.Data.EntityFramework.Tests;
 using MySql.EntityFramework.CodeFirst.Tests.Properties;
 using MySql.EntityFramework.CodeFirst.Tests;
-using Microsoft.SqlServer.Types;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
@@ -1189,7 +1188,9 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       }
     }
 
+
     [Test]
+    [Ignore("This test needs MicrosoftSqlServer.Types which is not available for all the target frameworks.")]
     public void SpatialSupportTest()
     {
       using (var dbCtx = new JourneyContext())
