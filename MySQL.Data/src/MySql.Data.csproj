@@ -127,11 +127,11 @@
 
   <ItemGroup>
     <EmbeddedResource Update="Resources.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
+      <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="ResourcesX.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
+      <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ResourcesX.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>

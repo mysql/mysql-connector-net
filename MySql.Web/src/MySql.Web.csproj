@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.Web</Description>
@@ -57,10 +57,6 @@
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>MySql.Web.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

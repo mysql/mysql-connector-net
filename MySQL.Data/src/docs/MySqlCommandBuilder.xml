@@ -71,45 +71,45 @@
 
       <code lang="vbnet">
         Public Shared Function SelectRows(myConnection As String, mySelectQuery As String, myTableName As String) As DataSet
-        Dim myConn As New MySqlConnection(myConnection)
-        Dim myDataAdapter As New MySqlDataAdapter()
-        myDataAdapter.SelectCommand = New MySqlCommand(mySelectQuery, myConn)
-        Dim cb As SqlCommandBuilder = New MySqlCommandBuilder(myDataAdapter)
+          Dim myConn As New MySqlConnection(myConnection)
+          Dim myDataAdapter As New MySqlDataAdapter()
+          myDataAdapter.SelectCommand = New MySqlCommand(mySelectQuery, myConn)
+          Dim cb As SqlCommandBuilder = New MySqlCommandBuilder(myDataAdapter)
 
-        myConn.Open()
+          myConn.Open()
 
-        Dim ds As DataSet = New DataSet
-        myDataAdapter.Fill(ds, myTableName)
+          Dim ds As DataSet = New DataSet
+          myDataAdapter.Fill(ds, myTableName)
 
-        ' Code to modify data in DataSet here
+          ' Code to modify data in DataSet here
 
-        ' Without the MySqlCommandBuilder this line would fail.
-        myDataAdapter.Update(ds, myTableName)
+          ' Without the MySqlCommandBuilder this line would fail.
+          myDataAdapter.Update(ds, myTableName)
 
-        myConn.Close()
+          myConn.Close()
         End Function 'SelectRows
       </code>
       <code lang="C#">
         public static DataSet SelectRows(string myConnection, string mySelectQuery, string myTableName)
         {
-        MySqlConnection myConn = new MySqlConnection(myConnection);
-        MySqlDataAdapter myDataAdapter = new MySqlDataAdapter();
-        myDataAdapter.SelectCommand = new MySqlCommand(mySelectQuery, myConn);
-        MySqlCommandBuilder cb = new MySqlCommandBuilder(myDataAdapter);
+          MySqlConnection myConn = new MySqlConnection(myConnection);
+          MySqlDataAdapter myDataAdapter = new MySqlDataAdapter();
+          myDataAdapter.SelectCommand = new MySqlCommand(mySelectQuery, myConn);
+          MySqlCommandBuilder cb = new MySqlCommandBuilder(myDataAdapter);
 
-        myConn.Open();
+          myConn.Open();
 
-        DataSet ds = new DataSet();
-        myDataAdapter.Fill(ds, myTableName);
+          DataSet ds = new DataSet();
+          myDataAdapter.Fill(ds, myTableName);
 
-        //code to modify data in DataSet here
+          //code to modify data in DataSet here
 
-        //Without the MySqlCommandBuilder this line would fail
-        myDataAdapter.Update(ds, myTableName);
+          //Without the MySqlCommandBuilder this line would fail
+          myDataAdapter.Update(ds, myTableName);
 
-        myConn.Close();
+          myConn.Close();
 
-        return ds;
+          return ds;
         }
 
       </code>

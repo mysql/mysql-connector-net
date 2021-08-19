@@ -7,7 +7,6 @@
       When a new instance of <see cref="MySqlConnection"/> is created, the read/write
       properties are set to the following initial values unless they are specifically
       set using their associated keywords in the <see cref="ConnectionString"/> property.
-      <para/>
       <list type="table">
         <listheader>
           <term>Properties</term>
@@ -44,16 +43,8 @@
           <term>empty string ("")</term>
         </item>
       </list>
-      <para/>
       You can change the value for these properties only by using the <B>ConnectionString</B> property.
     </remarks>
-    <example>
-    </example>
-    <overloads>
-      <summary>
-        Initializes a new instance of the <see cref="MySqlConnection"/> class.
-      </summary>
-    </overloads>
   </DefaultCtor>
 
   <Ctor1>
@@ -127,21 +118,21 @@
 
       <code lang="vbnet">
         Public Sub CreateMySqlConnection(myConnString As String)
-        Dim myConnection As New MySqlConnection(myConnString)
-        myConnection.Open()
-        MessageBox.Show("ServerVersion: " + myConnection.ServerVersion _
-        + ControlChars.Cr + "State: " + myConnection.State.ToString())
-        myConnection.Close()
+          Dim myConnection As New MySqlConnection(myConnString)
+          myConnection.Open()
+          MessageBox.Show("ServerVersion: " + myConnection.ServerVersion _
+          + ControlChars.Cr + "State: " + myConnection.State.ToString())
+          myConnection.Close()
         End Sub
       </code>
       <code lang="C#">
         public void CreateMySqlConnection(string myConnString)
         {
-        MySqlConnection myConnection = new MySqlConnection(myConnString);
-        myConnection.Open();
-        MessageBox.Show("ServerVersion: " + myConnection.ServerVersion +
-        "\nState: " + myConnection.State.ToString());
-        myConnection.Close();
+          MySqlConnection myConnection = new MySqlConnection(myConnString);
+          myConnection.Open();
+          MessageBox.Show("ServerVersion: " + myConnection.ServerVersion +
+          "\nState: " + myConnection.State.ToString());
+          myConnection.Close();
         }
       </code>
     </example>
@@ -164,32 +155,32 @@
 
       <code lang="vbnet">
         Public Sub CreateMySqlConnection()
-        Dim myConnString As String = _
-        "Persist Security Info=False;database=test;server=localhost;user id=joeuser;pwd=pass"
-        Dim myConnection As New MySqlConnection( myConnString )
-        myConnection.Open()
-        MessageBox.Show( "Server Version: " + myConnection.ServerVersion _
-        + ControlChars.NewLine + "Database: " + myConnection.Database )
-        myConnection.ChangeDatabase( "test2" )
-        MessageBox.Show( "ServerVersion: " + myConnection.ServerVersion _
-        + ControlChars.NewLine + "Database: " + myConnection.Database )
-        myConnection.Close()
+          Dim myConnString As String = _
+          "Persist Security Info=False;database=test;server=localhost;user id=joeuser;pwd=pass"
+          Dim myConnection As New MySqlConnection( myConnString )
+          myConnection.Open()
+          MessageBox.Show( "Server Version: " + myConnection.ServerVersion _
+          + ControlChars.NewLine + "Database: " + myConnection.Database )
+          myConnection.ChangeDatabase( "test2" )
+          MessageBox.Show( "ServerVersion: " + myConnection.ServerVersion _
+          + ControlChars.NewLine + "Database: " + myConnection.Database )
+          myConnection.Close()
         End Sub
       </code>
 
       <code lang="C#">
         public void CreateMySqlConnection()
         {
-        string myConnString =
-        "Persist Security Info=False;database=test;server=localhost;user id=joeuser;pwd=pass";
-        MySqlConnection myConnection = new MySqlConnection( myConnString );
-        myConnection.Open();
-        MessageBox.Show( "Server Version: " + myConnection.ServerVersion
-        + "\nDatabase: " + myConnection.Database );
-        myConnection.ChangeDatabase( "test2" );
-        MessageBox.Show( "ServerVersion: " + myConnection.ServerVersion
-        + "\nDatabase: " + myConnection.Database );
-        myConnection.Close();
+          string myConnString =
+          "Persist Security Info=False;database=test;server=localhost;user id=joeuser;pwd=pass";
+          MySqlConnection myConnection = new MySqlConnection( myConnString );
+          myConnection.Open();
+          MessageBox.Show( "Server Version: " + myConnection.ServerVersion
+          + "\nDatabase: " + myConnection.Database );
+          myConnection.ChangeDatabase( "test2" );
+          MessageBox.Show( "ServerVersion: " + myConnection.ServerVersion
+          + "\nDatabase: " + myConnection.Database );
+          myConnection.Close();
         }
       </code>
     </example>
@@ -217,21 +208,21 @@
 
       <code lang="vbnet">
         Public Sub CreateMySqlConnection(myConnString As String)
-        Dim myConnection As New MySqlConnection(myConnString)
-        myConnection.Open()
-        MessageBox.Show("ServerVersion: " + myConnection.ServerVersion _
-        + ControlChars.Cr + "State: " + myConnection.State.ToString())
-        myConnection.Close()
+          Dim myConnection As New MySqlConnection(myConnString)
+          myConnection.Open()
+          MessageBox.Show("ServerVersion: " + myConnection.ServerVersion _
+          + ControlChars.Cr + "State: " + myConnection.State.ToString())
+          myConnection.Close()
         End Sub
       </code>
       <code lang="C#">
         public void CreateMySqlConnection(string myConnString)
         {
-        MySqlConnection myConnection = new MySqlConnection(myConnString);
-        myConnection.Open();
-        MessageBox.Show("ServerVersion: " + myConnection.ServerVersion +
-        "\nState: " + myConnection.State.ToString());
-        myConnection.Close();
+          MySqlConnection myConnection = new MySqlConnection(myConnString);
+          myConnection.Open();
+          MessageBox.Show("ServerVersion: " + myConnection.ServerVersion +
+          "\nState: " + myConnection.State.ToString());
+          myConnection.Close();
         }
       </code>
     </example>
@@ -247,21 +238,21 @@
 
       <code lang="vbnet">
         Public Sub CreateMySqlConnection(myConnString As String)
-        Dim myConnection As New MySqlConnection(myConnString)
-        myConnection.Open()
-        MessageBox.Show("ServerVersion: " + myConnection.ServerVersion _
-        + ControlChars.Cr + "State: " + myConnection.State.ToString())
-        myConnection.Close()
+          Dim myConnection As New MySqlConnection(myConnString)
+          myConnection.Open()
+          MessageBox.Show("ServerVersion: " + myConnection.ServerVersion _
+          + ControlChars.Cr + "State: " + myConnection.State.ToString())
+          myConnection.Close()
         End Sub
       </code>
       <code lang="C#">
         public void CreateMySqlConnection(string myConnString)
         {
-        MySqlConnection myConnection = new MySqlConnection(myConnString);
-        myConnection.Open();
-        MessageBox.Show("ServerVersion: " + myConnection.ServerVersion +
-        "\nState: " + myConnection.State.ToString());
-        myConnection.Close();
+          MySqlConnection myConnection = new MySqlConnection(myConnString);
+          myConnection.Open();
+          MessageBox.Show("ServerVersion: " + myConnection.ServerVersion +
+          "\nState: " + myConnection.State.ToString());
+          myConnection.Close();
         }
       </code>
     </example>
@@ -286,21 +277,21 @@
 
       <code lang="vbnet">
         Public Sub CreateMySqlConnection(myConnString As String)
-        Dim myConnection As New MySqlConnection(myConnString)
-        myConnection.Open()
-        MessageBox.Show("ServerVersion: " + myConnection.ServerVersion _
-        + ControlChars.Cr + "State: " + myConnection.State.ToString())
-        myConnection.Close()
+          Dim myConnection As New MySqlConnection(myConnString)
+          myConnection.Open()
+          MessageBox.Show("ServerVersion: " + myConnection.ServerVersion _
+          + ControlChars.Cr + "State: " + myConnection.State.ToString())
+          myConnection.Close()
         End Sub
       </code>
       <code lang="C#">
         public void CreateMySqlConnection(string myConnString)
         {
-        MySqlConnection myConnection = new MySqlConnection(myConnString);
-        myConnection.Open();
-        MessageBox.Show("ServerVersion: " + myConnection.ServerVersion +
-        "\nState: " + myConnection.State.ToString());
-        myConnection.Close();
+          MySqlConnection myConnection = new MySqlConnection(myConnString);
+          myConnection.Open();
+          MessageBox.Show("ServerVersion: " + myConnection.ServerVersion +
+          "\nState: " + myConnection.State.ToString());
+          myConnection.Close();
         }
       </code>
     </example>
@@ -338,92 +329,92 @@
       <see cref="MySqlTransaction.Commit"/>, and <see cref="MySqlTransaction.Rollback"/> methods.
       <code lang="vbnet">
         Public Sub RunTransaction(myConnString As String)
-        Dim myConnection As New MySqlConnection(myConnString)
-        myConnection.Open()
+          Dim myConnection As New MySqlConnection(myConnString)
+          myConnection.Open()
 
-        Dim myCommand As MySqlCommand = myConnection.CreateCommand()
-        Dim myTrans As MySqlTransaction
+          Dim myCommand As MySqlCommand = myConnection.CreateCommand()
+          Dim myTrans As MySqlTransaction
 
-        ' Start a local transaction
-        myTrans = myConnection.BeginTransaction()
-        ' Must assign both transaction object and connection
-        ' to Command object for a pending local transaction
-        myCommand.Connection = myConnection
-        myCommand.Transaction = myTrans
+          ' Start a local transaction
+          myTrans = myConnection.BeginTransaction()
+          ' Must assign both transaction object and connection
+          ' to Command object for a pending local transaction
+          myCommand.Connection = myConnection
+          myCommand.Transaction = myTrans
 
-        Try
-        myCommand.CommandText = "Insert into Test (id, desc) VALUES (100, 'Description')"
-        myCommand.ExecuteNonQuery()
-        myCommand.CommandText = "Insert into Test (id, desc) VALUES (101, 'Description')"
-        myCommand.ExecuteNonQuery()
-        myTrans.Commit()
-        Console.WriteLine("Both records are written to database.")
-        Catch e As Exception
-        Try
-        myTrans.Rollback()
-        Catch ex As MySqlException
-        If Not myTrans.Connection Is Nothing Then
-        Console.WriteLine("An exception of type " + ex.GetType().ToString() + _
-        " was encountered while attempting to roll back the transaction.")
-        End If
-        End Try
+          Try
+            myCommand.CommandText = "Insert into Test (id, desc) VALUES (100, 'Description')"
+            myCommand.ExecuteNonQuery()
+            myCommand.CommandText = "Insert into Test (id, desc) VALUES (101, 'Description')"
+            myCommand.ExecuteNonQuery()
+            myTrans.Commit()
+            Console.WriteLine("Both records are written to database.")
+          Catch e As Exception
+            Try
+              myTrans.Rollback()
+              Catch ex As MySqlException
+              If Not myTrans.Connection Is Nothing Then
+                Console.WriteLine("An exception of type " + ex.GetType().ToString() + _
+                " was encountered while attempting to roll back the transaction.")
+              End If
+            End Try
 
-        Console.WriteLine("An exception of type " + e.GetType().ToString() + _
-        "was encountered while inserting the data.")
-        Console.WriteLine("Neither record was written to database.")
-        Finally
-        myConnection.Close()
-        End Try
+            Console.WriteLine("An exception of type " + e.GetType().ToString() + _
+            "was encountered while inserting the data.")
+            Console.WriteLine("Neither record was written to database.")
+          Finally
+            myConnection.Close()
+          End Try
         End Sub
       </code>
       <code lang="C#">
         public void RunTransaction(string myConnString)
         {
-        MySqlConnection myConnection = new MySqlConnection(myConnString);
-        myConnection.Open();
+          MySqlConnection myConnection = new MySqlConnection(myConnString);
+          myConnection.Open();
 
-        MySqlCommand myCommand = myConnection.CreateCommand();
-        MySqlTransaction myTrans;
+          MySqlCommand myCommand = myConnection.CreateCommand();
+          MySqlTransaction myTrans;
 
-        // Start a local transaction
-        myTrans = myConnection.BeginTransaction();
-        // Must assign both transaction object and connection
-        // to Command object for a pending local transaction
-        myCommand.Connection = myConnection;
-        myCommand.Transaction = myTrans;
+          // Start a local transaction
+          myTrans = myConnection.BeginTransaction();
+          // Must assign both transaction object and connection
+          // to Command object for a pending local transaction
+          myCommand.Connection = myConnection;
+          myCommand.Transaction = myTrans;
 
-        try
-        {
-        myCommand.CommandText = "insert into Test (id, desc) VALUES (100, 'Description')";
-        myCommand.ExecuteNonQuery();
-        myCommand.CommandText = "insert into Test (id, desc) VALUES (101, 'Description')";
-        myCommand.ExecuteNonQuery();
-        myTrans.Commit();
-        Console.WriteLine("Both records are written to database.");
-        }
-        catch(Exception e)
-        {
-        try
-        {
-        myTrans.Rollback();
-        }
-        catch (SqlException ex)
-        {
-        if (myTrans.Connection != null)
-        {
-        Console.WriteLine("An exception of type " + ex.GetType() +
-        " was encountered while attempting to roll back the transaction.");
-        }
-        }
+          try
+          {
+            myCommand.CommandText = "insert into Test (id, desc) VALUES (100, 'Description')";
+            myCommand.ExecuteNonQuery();
+            myCommand.CommandText = "insert into Test (id, desc) VALUES (101, 'Description')";
+            myCommand.ExecuteNonQuery();
+            myTrans.Commit();
+            Console.WriteLine("Both records are written to database.");
+          }
+          catch(Exception e)
+          {
+            try
+            {
+              myTrans.Rollback();
+            }
+            catch (SqlException ex)
+            {
+              if (myTrans.Connection != null)
+              {
+                Console.WriteLine("An exception of type " + ex.GetType() +
+                " was encountered while attempting to roll back the transaction.");
+              }
+            }
 
-        Console.WriteLine("An exception of type " + e.GetType() +
-        " was encountered while inserting the data.");
-        Console.WriteLine("Neither record was written to database.");
-        }
-        finally
-        {
-        myConnection.Close();
-        }
+            Console.WriteLine("An exception of type " + e.GetType() +
+            " was encountered while inserting the data.");
+            Console.WriteLine("Neither record was written to database.");
+          }
+          finally
+          {
+            myConnection.Close();
+          }
         }
       </code>
     </example>
@@ -454,92 +445,92 @@
       <see cref="MySqlTransaction.Commit"/>, and <see cref="MySqlTransaction.Rollback"/> methods.
       <code lang="vbnet">
         Public Sub RunTransaction(myConnString As String)
-        Dim myConnection As New MySqlConnection(myConnString)
-        myConnection.Open()
+          Dim myConnection As New MySqlConnection(myConnString)
+          myConnection.Open()
 
-        Dim myCommand As MySqlCommand = myConnection.CreateCommand()
-        Dim myTrans As MySqlTransaction
+          Dim myCommand As MySqlCommand = myConnection.CreateCommand()
+          Dim myTrans As MySqlTransaction
 
-        ' Start a local transaction
-        myTrans = myConnection.BeginTransaction()
-        ' Must assign both transaction object and connection
-        ' to Command object for a pending local transaction
-        myCommand.Connection = myConnection
-        myCommand.Transaction = myTrans
+          ' Start a local transaction
+          myTrans = myConnection.BeginTransaction()
+          ' Must assign both transaction object and connection
+          ' to Command object for a pending local transaction
+          myCommand.Connection = myConnection
+          myCommand.Transaction = myTrans
 
-        Try
-        myCommand.CommandText = "Insert into Test (id, desc) VALUES (100, 'Description')"
-        myCommand.ExecuteNonQuery()
-        myCommand.CommandText = "Insert into Test (id, desc) VALUES (101, 'Description')"
-        myCommand.ExecuteNonQuery()
-        myTrans.Commit()
-        Console.WriteLine("Both records are written to database.")
-        Catch e As Exception
-        Try
-        myTrans.Rollback()
-        Catch ex As MySqlException
-        If Not myTrans.Connection Is Nothing Then
-        Console.WriteLine("An exception of type " + ex.GetType().ToString() + _
-        " was encountered while attempting to roll back the transaction.")
-        End If
-        End Try
+          Try
+            myCommand.CommandText = "Insert into Test (id, desc) VALUES (100, 'Description')"
+            myCommand.ExecuteNonQuery()
+            myCommand.CommandText = "Insert into Test (id, desc) VALUES (101, 'Description')"
+            myCommand.ExecuteNonQuery()
+            myTrans.Commit()
+            Console.WriteLine("Both records are written to database.")
+          Catch e As Exception
+            Try
+            myTrans.Rollback()
+            Catch ex As MySqlException
+              If Not myTrans.Connection Is Nothing Then
+                Console.WriteLine("An exception of type " + ex.GetType().ToString() + _
+                " was encountered while attempting to roll back the transaction.")
+              End If
+            End Try
 
-        Console.WriteLine("An exception of type " + e.GetType().ToString() + _
-        "was encountered while inserting the data.")
-        Console.WriteLine("Neither record was written to database.")
-        Finally
-        myConnection.Close()
-        End Try
+            Console.WriteLine("An exception of type " + e.GetType().ToString() + _
+            "was encountered while inserting the data.")
+            Console.WriteLine("Neither record was written to database.")
+          Finally
+            myConnection.Close()
+          End Try
         End Sub
       </code>
       <code lang="C#">
         public void RunTransaction(string myConnString)
         {
-        MySqlConnection myConnection = new MySqlConnection(myConnString);
-        myConnection.Open();
+          MySqlConnection myConnection = new MySqlConnection(myConnString);
+          myConnection.Open();
 
-        MySqlCommand myCommand = myConnection.CreateCommand();
-        MySqlTransaction myTrans;
+          MySqlCommand myCommand = myConnection.CreateCommand();
+          MySqlTransaction myTrans;
 
-        // Start a local transaction
-        myTrans = myConnection.BeginTransaction();
-        // Must assign both transaction object and connection
-        // to Command object for a pending local transaction
-        myCommand.Connection = myConnection;
-        myCommand.Transaction = myTrans;
+          // Start a local transaction
+          myTrans = myConnection.BeginTransaction();
+          // Must assign both transaction object and connection
+          // to Command object for a pending local transaction
+          myCommand.Connection = myConnection;
+          myCommand.Transaction = myTrans;
 
-        try
-        {
-        myCommand.CommandText = "insert into Test (id, desc) VALUES (100, 'Description')";
-        myCommand.ExecuteNonQuery();
-        myCommand.CommandText = "insert into Test (id, desc) VALUES (101, 'Description')";
-        myCommand.ExecuteNonQuery();
-        myTrans.Commit();
-        Console.WriteLine("Both records are written to database.");
-        }
-        catch(Exception e)
-        {
-        try
-        {
-        myTrans.Rollback();
-        }
-        catch (SqlException ex)
-        {
-        if (myTrans.Connection != null)
-        {
-        Console.WriteLine("An exception of type " + ex.GetType() +
-        " was encountered while attempting to roll back the transaction.");
-        }
-        }
+          try
+          {
+            myCommand.CommandText = "insert into Test (id, desc) VALUES (100, 'Description')";
+            myCommand.ExecuteNonQuery();
+            myCommand.CommandText = "insert into Test (id, desc) VALUES (101, 'Description')";
+            myCommand.ExecuteNonQuery();
+            myTrans.Commit();
+            Console.WriteLine("Both records are written to database.");
+          }
+          catch(Exception e)
+          {
+            try
+            {
+              myTrans.Rollback();
+            }
+            catch (SqlException ex)
+            {
+              if (myTrans.Connection != null)
+              {
+                Console.WriteLine("An exception of type " + ex.GetType() +
+                " was encountered while attempting to roll back the transaction.");
+              }
+            }
 
-        Console.WriteLine("An exception of type " + e.GetType() +
-        " was encountered while inserting the data.");
-        Console.WriteLine("Neither record was written to database.");
-        }
-        finally
-        {
-        myConnection.Close();
-        }
+            Console.WriteLine("An exception of type " + e.GetType() +
+            " was encountered while inserting the data.");
+            Console.WriteLine("Neither record was written to database.");
+          }
+          finally
+          {
+            myConnection.Close();
+          }
         }
       </code>
     </example>
@@ -571,32 +562,32 @@
 
       <code lang="vbnet">
         Public Sub CreateMySqlConnection()
-        Dim myConnString As String = _
-        "Persist Security Info=False;database=test;server=localhost;user id=joeuser;pwd=pass"
-        Dim myConnection As New MySqlConnection( myConnString )
-        myConnection.Open()
-        MessageBox.Show( "Server Version: " + myConnection.ServerVersion _
-        + ControlChars.NewLine + "Database: " + myConnection.Database )
-        myConnection.ChangeDatabase( "test2" )
-        MessageBox.Show( "ServerVersion: " + myConnection.ServerVersion _
-        + ControlChars.NewLine + "Database: " + myConnection.Database )
-        myConnection.Close()
+          Dim myConnString As String = _
+          "Persist Security Info=False;database=test;server=localhost;user id=joeuser;pwd=pass"
+          Dim myConnection As New MySqlConnection( myConnString )
+          myConnection.Open()
+          MessageBox.Show( "Server Version: " + myConnection.ServerVersion _
+          + ControlChars.NewLine + "Database: " + myConnection.Database )
+          myConnection.ChangeDatabase( "test2" )
+          MessageBox.Show( "ServerVersion: " + myConnection.ServerVersion _
+          + ControlChars.NewLine + "Database: " + myConnection.Database )
+          myConnection.Close()
         End Sub
       </code>
 
       <code lang="C#">
         public void CreateMySqlConnection()
         {
-        string myConnString =
-        "Persist Security Info=False;database=test;server=localhost;user id=joeuser;pwd=pass";
-        MySqlConnection myConnection = new MySqlConnection( myConnString );
-        myConnection.Open();
-        MessageBox.Show( "Server Version: " + myConnection.ServerVersion
-        + "\nDatabase: " + myConnection.Database );
-        myConnection.ChangeDatabase( "test2" );
-        MessageBox.Show( "ServerVersion: " + myConnection.ServerVersion
-        + "\nDatabase: " + myConnection.Database );
-        myConnection.Close();
+          string myConnString =
+          "Persist Security Info=False;database=test;server=localhost;user id=joeuser;pwd=pass";
+          MySqlConnection myConnection = new MySqlConnection( myConnString );
+          myConnection.Open();
+          MessageBox.Show( "Server Version: " + myConnection.ServerVersion
+          + "\nDatabase: " + myConnection.Database );
+          myConnection.ChangeDatabase( "test2" );
+          MessageBox.Show( "ServerVersion: " + myConnection.ServerVersion
+          + "\nDatabase: " + myConnection.Database );
+          myConnection.Close();
         }
       </code>
     </example>
@@ -690,17 +681,17 @@
       <code lang="vbnet">
         <c>
           Public Sub InsertRow(myConnectionString As String)
-          ' If the connection string is null, use a default.
-          If myConnectionString = "" Then
-          myConnectionString = "Database=Test;Data Source=localhost;User Id=username;Password=pass"
-          End If
-          Dim myConnection As New MySqlConnection(myConnectionString)
-          Dim myInsertQuery As String = "INSERT INTO Orders (id, customerId, amount) Values(1001, 23, 30.66)"
-          Dim myCommand As New MySqlCommand(myInsertQuery)
-          myCommand.Connection = myConnection
-          myConnection.Open()
-          myCommand.ExecuteNonQuery()
-          myCommand.Connection.Close()
+            ' If the connection string is null, use a default.
+            If myConnectionString = "" Then
+              myConnectionString = "Database=Test;Data Source=localhost;User Id=username;Password=pass"
+            End If
+            Dim myConnection As New MySqlConnection(myConnectionString)
+            Dim myInsertQuery As String = "INSERT INTO Orders (id, customerId, amount) Values(1001, 23, 30.66)"
+            Dim myCommand As New MySqlCommand(myInsertQuery)
+            myCommand.Connection = myConnection
+            myConnection.Open()
+            myCommand.ExecuteNonQuery()
+            myCommand.Connection.Close()
           End Sub
         </c>
       </code>
@@ -708,18 +699,18 @@
         <c>
           public void InsertRow(string myConnectionString)
           {
-          // If the connection string is null, use a default.
-          if(myConnectionString == "")
-          {
-          myConnectionString = "Database=Test;Data Source=localhost;User Id=username;Password=pass";
-          }
-          MySqlConnection myConnection = new MySqlConnection(myConnectionString);
-          string myInsertQuery = "INSERT INTO Orders (id, customerId, amount) Values(1001, 23, 30.66)";
-          MySqlCommand myCommand = new MySqlCommand(myInsertQuery);
-          myCommand.Connection = myConnection;
-          myConnection.Open();
-          myCommand.ExecuteNonQuery();
-          myCommand.Connection.Close();
+            // If the connection string is null, use a default.
+            if(myConnectionString == "")
+            {
+              myConnectionString = "Database=Test;Data Source=localhost;User Id=username;Password=pass";
+            }
+            MySqlConnection myConnection = new MySqlConnection(myConnectionString);
+            string myInsertQuery = "INSERT INTO Orders (id, customerId, amount) Values(1001, 23, 30.66)";
+            MySqlCommand myCommand = new MySqlCommand(myInsertQuery);
+            myCommand.Connection = myConnection;
+            myConnection.Open();
+            myCommand.ExecuteNonQuery();
+            myCommand.Connection.Close();
           }
         </c>
       </code>
@@ -741,17 +732,17 @@
       and sets some of its properties in the connection string.
       <code lang="vbnet">
         Public Sub CreateSqlConnection()
-        Dim myConnection As New MySqlConnection()
-        myConnection.ConnectionString = "Persist Security Info=False;Username=user;Password=pass;database=test1;server=localhost;Connect Timeout=30"
-        myConnection.Open()
+          Dim myConnection As New MySqlConnection()
+          myConnection.ConnectionString = "Persist Security Info=False;Username=user;Password=pass;database=test1;server=localhost;Connect Timeout=30"
+          myConnection.Open()
         End Sub
       </code>
       <code lang="C#">
         public void CreateSqlConnection()
         {
-        MySqlConnection myConnection = new MySqlConnection();
-        myConnection.ConnectionString = "Persist Security Info=False;Username=user;Password=pass;database=test1;server=localhost;Connect Timeout=30";
-        myConnection.Open();
+          MySqlConnection myConnection = new MySqlConnection();
+          myConnection.ConnectionString = "Persist Security Info=False;Username=user;Password=pass;database=test1;server=localhost;Connect Timeout=30";
+          myConnection.Open();
         }
       </code>
     </example>
@@ -1178,17 +1169,17 @@
       The following example creates a <see cref="MySqlConnection"/> and sets some of its properties
       <code lang="vbnet">
         Public Sub CreateConnection()
-        Dim myConnection As New MySqlConnection()
-        myConnection.ConnectionString = "Persist Security Info=False;database=myDB;server=myHost;Connect Timeout=30;user id=myUser; pwd=myPass"
-        myConnection.Open()
+          Dim myConnection As New MySqlConnection()
+          myConnection.ConnectionString = "Persist Security Info=False;database=myDB;server=myHost;Connect Timeout=30;user id=myUser; pwd=myPass"
+          myConnection.Open()
         End Sub 'CreateConnection
       </code>
       <code lang="C#">
         public void CreateConnection()
         {
-        MySqlConnection myConnection = new MySqlConnection();
-        myConnection.ConnectionString = "Persist Security Info=False;database=myDB;server=myHost;Connect Timeout=30;user id=myUser; pwd=myPass";
-        myConnection.Open();
+          MySqlConnection myConnection = new MySqlConnection();
+          myConnection.ConnectionString = "Persist Security Info=False;database=myDB;server=myHost;Connect Timeout=30;user id=myUser; pwd=myPass";
+          myConnection.Open();
         }
       </code>
     </example>
@@ -1196,17 +1187,17 @@
       The following example creates a <see cref="MySqlConnection"/> in Unix environment with Mono installed. MySQL socket filename used in this example is "/var/lib/mysql/mysql.sock". The actual filename depends on your MySQL configuration.
       <code lang="vbnet">
         Public Sub CreateConnection()
-        Dim myConnection As New MySqlConnection()
-        myConnection.ConnectionString = "database=myDB;server=/var/lib/mysql/mysql.sock;user id=myUser; pwd=myPass"
-        myConnection.Open()
+          Dim myConnection As New MySqlConnection()
+          myConnection.ConnectionString = "database=myDB;server=/var/lib/mysql/mysql.sock;user id=myUser; pwd=myPass"
+          myConnection.Open()
         End Sub 'CreateConnection
       </code>
       <code lang="C#">
         public void CreateConnection()
         {
-        MySqlConnection myConnection = new MySqlConnection();
-        myConnection.ConnectionString = "database=myDB;server=/var/lib/mysql/mysql.sock;user id=myUser; pwd=myPass";
-        myConnection.Open();
+          MySqlConnection myConnection = new MySqlConnection();
+          myConnection.ConnectionString = "database=myDB;server=/var/lib/mysql/mysql.sock;user id=myUser; pwd=myPass";
+          myConnection.Open();
         }
       </code>
     </example>

@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -108,7 +108,19 @@ namespace MySql.Web.Security
     /// </summary>
     /// <value>The name of the application to store and retrieve role information for.</value>
     /// <example>
-    /// <code source="CodeExamples\RoleCodeExample1.xml"/>
+    /// <code>
+    /// roleManager defaultProvider = "MySqlProvider"
+    ///     enabled="true">
+    ///   providers>
+    ///     add
+    ///       name = "MySqlProvider"
+    ///       type="MySql.Web.Security.MySQLRoleProvider"
+    ///       connectionStringName="LocalMySqlServices"
+    ///       writeExceptionsToEventLog="false" 
+    ///       applicationName="MyApplication" />
+    ///   /providers>
+    /// roleManager>
+    /// </code>
     /// </example>
     public override string ApplicationName
     {
@@ -123,7 +135,19 @@ namespace MySql.Web.Security
     /// <c>true</c> if exceptions should be written to the event log; otherwise, <c>false</c>.
     /// </value>
     /// <example>
-    /// <code source="CodeExamples\RoleCodeExample1.xml"/>
+    /// <code>
+    /// roleManager defaultProvider = "MySqlProvider"
+    ///     enabled="true">
+    ///   providers>
+    ///     add
+    ///       name = "MySqlProvider"
+    ///       type="MySql.Web.Security.MySQLRoleProvider"
+    ///       connectionStringName="LocalMySqlServices"
+    ///       writeExceptionsToEventLog="false" 
+    ///       applicationName="MyApplication" />
+    ///   /providers>
+    /// roleManager>
+    /// </code>
     /// </example>
     public bool WriteExceptionsToEventLog
     {
