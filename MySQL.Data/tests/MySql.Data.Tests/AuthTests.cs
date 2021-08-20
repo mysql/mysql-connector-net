@@ -1505,7 +1505,7 @@ namespace MySql.Data.MySqlClient.Tests
       string _sslCa = assemblyPath + "\\ca.pem";
       string _sslCert = assemblyPath + "\\client-cert.pem";
       string _sslKey = assemblyPath + "\\client-key.pem";
-      string _sslWrongCert = assemblyPath + "\\client-incorrect.pfx";
+      string _sslWrongCert = "client-incorrect.pfx";
 
       string pluginName = "sha256_password";
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder();

@@ -1271,6 +1271,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Verify Compression in classic protocol where default connection string is used without any option")]
     public void CompressionValidationInClassicProtocol()
     {
+      if (Version < new Version(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
       string[] compressionAlgorithms = new string[] { "zlib", "zstd", "uncompressed", "uncompressed,zlib", "uncompressed,zstd", "zstd,zlib", "zstd,zlib,uncompressed" };
       for (int k = 0; k < compressionAlgorithms.Length; k++)
       {

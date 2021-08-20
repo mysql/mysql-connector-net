@@ -900,7 +900,7 @@ namespace MySql.Data.MySqlClient.Tests
             conn.Open();
             MySqlCommand cmd = new MySqlCommand("SELECT variable_value FROM performance_schema.session_status WHERE VARIABLE_NAME='Ssl_version'", conn);
             object result = cmd.ExecuteScalar();
-            Assert.AreEqual(ver1Tls[i], result);
+            Assert.True(result.ToString().StartsWith("TLSv1"));
           }
         }
       }
