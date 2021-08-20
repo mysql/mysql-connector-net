@@ -56,7 +56,7 @@ namespace MySqlX.Data.Tests
       {
         Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
         var result = session1.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.AreEqual("TLSv1", result[0][1].ToString().Substring(0, 5).Trim());
+        Assert.True(result[0][1].ToString().Contains("TLSv1"));
       }
 
       connectionString = connectionString + "; ssl-mode=none";
@@ -78,7 +78,7 @@ namespace MySqlX.Data.Tests
       {
         Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
         var result = session1.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.AreEqual("TLSv1", result[0][1].ToString().Substring(0, 5).Trim());
+        Assert.True(result[0][1].ToString().Contains("TLSv1"));
       }
 
       connectionStringUri = connectionStringUri + "?sslmode=none";
@@ -90,7 +90,7 @@ namespace MySqlX.Data.Tests
       {
         Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
         var result = session1.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.AreEqual("TLSv1", result[0][1].ToString().Substring(0, 5).Trim());
+        Assert.True(result[0][1].ToString().Contains("TLSv1"));
       }
 
       using (var session1 = MySQLX.GetSession(
@@ -382,7 +382,7 @@ namespace MySqlX.Data.Tests
       {
         Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
         var result = session.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.AreEqual("TLSv1", result[0][1].ToString().Substring(0, 5).Trim());
+        Assert.True(result[0][1].ToString().Contains("TLSv1"));
       }
 
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";auth=PLAIN;ssl-mode=none"));
@@ -420,7 +420,7 @@ namespace MySqlX.Data.Tests
       {
         Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
         var result = session.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.AreEqual("TLSv1", result[0][1].ToString().Substring(0, 5).Trim());
+        Assert.True(result[0][1].ToString().Contains("TLSv1"));
       }
 
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionStringUriNative + "?auth=EXTERNAL"));
@@ -523,7 +523,7 @@ namespace MySqlX.Data.Tests
       {
         Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
         var result = session1.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.AreEqual("TLSv1", result[0][1].ToString().Substring(0, 5).Trim());
+        Assert.True(result[0][1].ToString().Contains("TLSv1"));
       }
 
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(new

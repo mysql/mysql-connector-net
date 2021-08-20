@@ -32,6 +32,7 @@ using System;
 using NUnit.Framework;
 using MySql.Data.Common;
 using System.Collections.Generic;
+using System.Security.Authentication;
 
 namespace MySqlX.Data.Tests
 {
@@ -629,12 +630,17 @@ namespace MySqlX.Data.Tests
       if (result[1].ToString() != "YES") return;
 
       var connStr = ConnectionString + $";sslmode=Required;tls-version={tlsVersion}";
-      using (var c = MySQLX.GetSession(connStr))
+      // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+      try
       {
-        Assert.AreEqual(SessionState.Open, c.InternalSession.SessionState);
-        var res = c.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        StringAssert.AreEqualIgnoringCase(tlsVersion, res[0][1].ToString());
+        using (var c = MySQLX.GetSession(connStr))
+        {
+          Assert.AreEqual(SessionState.Open, c.InternalSession.SessionState);
+          var res = c.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
+          StringAssert.AreEqualIgnoringCase(tlsVersion, res[0][1].ToString());
+        }
       }
+      catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
     }
 
 
@@ -1242,24 +1248,29 @@ namespace MySqlX.Data.Tests
       foreach (MySqlSslMode mode in modes)
       {
         string[] version = new string[] { "TLSv1", "TLSv1.1", "TLSv1.2" };
-        foreach (string tlsVersion in version)
+        // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+        try
         {
-          using (Session session1 = MySQLX.GetSession(conStr + ";ssl-mode=" + mode + ";tls-version=" + tlsVersion))
+          foreach (string tlsVersion in version)
           {
-            var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
-            Assert.AreEqual(tlsVersion, sess);
+            using (Session session1 = MySQLX.GetSession(conStr + ";ssl-mode=" + mode + ";tls-version=" + tlsVersion))
+            {
+              var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
+              Assert.AreEqual(tlsVersion, sess);
+            }
+          }
+          version = new string[] { "[TLSv1,TLSv1.1]", "[TLSv1.1,TLSv1.2]", "[TLSv1,TLSv1.2]" };
+          var ver1Tls = new string[] { "TLSv1.1", "TLSv1.2", "TLSv1.2" };
+          for (int i = 0; i < 3; i++)
+          {
+            using (Session session1 = MySQLX.GetSession(conStr + ";ssl-mode=" + mode + ";tls-version=" + version[i]))
+            {
+              var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
+              Assert.AreEqual(ver1Tls[i], sess);
+            }
           }
         }
-        version = new string[] { "[TLSv1,TLSv1.1]", "[TLSv1.1,TLSv1.2]", "[TLSv1,TLSv1.2]" };
-        var ver1Tls = new string[] { "TLSv1.1", "TLSv1.2", "TLSv1.2" };
-        for (int i = 0; i < 3; i++)
-        {
-          using (Session session1 = MySQLX.GetSession(conStr + ";ssl-mode=" + mode + ";tls-version=" + version[i]))
-          {
-            var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
-            Assert.AreEqual(ver1Tls[i], sess);
-          }
-        }
+        catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
       }
     }
 
@@ -1309,24 +1320,29 @@ namespace MySqlX.Data.Tests
       foreach (MySqlSslMode mode in modes)
       {
         version = new string[] { "TLSv1", "TLSv1.1", "TLSv1.2" };
-        foreach (string tlsVersion in version)
+        // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+        try
         {
-          using (Session session1 = MySQLX.GetSession(conStrX + $";ssl-mode={mode};tls-version={tlsVersion}"))
+          foreach (string tlsVersion in version)
           {
-            var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
-            Assert.AreEqual(tlsVersion, sess);
+            using (Session session1 = MySQLX.GetSession(conStrX + $";ssl-mode={mode};tls-version={tlsVersion}"))
+            {
+              var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
+              Assert.AreEqual(tlsVersion, sess);
+            }
+          }
+          version = new string[] { "[TLSv1,TLSv1.1]", "[TLSv1.1,TLSv1.2]", "[TLSv1,TLSv1.2]" };
+          ver1Tls = new string[] { "TLSv1.1", "TLSv1.2", "TLSv1.2" };
+          for (int i = 0; i < 3; i++)
+          {
+            using (Session session1 = MySQLX.GetSession(conStrX + ";ssl-mode=" + mode + ";tls-version=" + version[i]))
+            {
+              var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
+              Assert.AreEqual(ver1Tls[i], sess);
+            }
           }
         }
-        version = new string[] { "[TLSv1,TLSv1.1]", "[TLSv1.1,TLSv1.2]", "[TLSv1,TLSv1.2]" };
-        ver1Tls = new string[] { "TLSv1.1", "TLSv1.2", "TLSv1.2" };
-        for (int i = 0; i < 3; i++)
-        {
-          using (Session session1 = MySQLX.GetSession(conStrX + ";ssl-mode=" + mode + ";tls-version=" + version[i]))
-          {
-            var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
-            Assert.AreEqual(ver1Tls[i], sess);
-          }
-        }
+        catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
       }
     }
 
@@ -1358,7 +1374,6 @@ namespace MySqlX.Data.Tests
 
 
     [Test, Description("checking TLSv1.3 in Linux")]
-    [Ignore("TLSv1.3")]
     public void Tlsv13Linux()
     {
       if (Platform.IsWindows()) Assert.Ignore("This test is for Linux OS only");
@@ -1379,17 +1394,21 @@ namespace MySqlX.Data.Tests
         string[] ver1Tls = new string[] { "TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.2", "TLSv1.2" };
         for (int i = 0; i < 5; i++)
         {
-          using (var session1 = MySQLX.GetSession(conStr + ";ssl-mode=" + mode + ";tls-version=" + version[i]))
+          // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+          try
           {
-            var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
-            Assert.AreEqual(ver1Tls[i], sess.ToString());
+            using (var session1 = MySQLX.GetSession(conStr + ";ssl-mode=" + mode + ";tls-version=" + version[i]))
+            {
+              var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
+              Assert.True(sess.ToString().Contains("TLSv1"));
+            }
           }
+          catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
 
           conn = new MySqlConnection(conStr + ";ssl-mode=" + mode + ";tls-version=" + version[i]);
           Assert.Catch(() => conn.Open());
         }
       }
-
     }
 
     private void AssertTlsConnection(string inputString)

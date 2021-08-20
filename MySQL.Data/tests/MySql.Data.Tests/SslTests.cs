@@ -885,7 +885,9 @@ namespace MySql.Data.MySqlClient.Tests
         {
           using (var conn = new MySqlConnection(conStr + ";ssl-mode=" + mode + ";tls-version=" + tlsVersion))
           {
-            conn.Open();
+            // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+            try { conn.Open(); }
+            catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
             MySqlCommand cmd = new MySqlCommand("SELECT variable_value FROM performance_schema.session_status WHERE VARIABLE_NAME='Ssl_version'", conn);
             object result = cmd.ExecuteScalar();
             Assert.AreEqual(tlsVersion, result);
@@ -897,7 +899,9 @@ namespace MySql.Data.MySqlClient.Tests
         {
           using (var conn = new MySqlConnection(conStr + ";ssl-mode=" + mode + ";tls-version=" + version[i]))
           {
-            conn.Open();
+            // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+            try { conn.Open(); }
+            catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
             MySqlCommand cmd = new MySqlCommand("SELECT variable_value FROM performance_schema.session_status WHERE VARIABLE_NAME='Ssl_version'", conn);
             object result = cmd.ExecuteScalar();
             Assert.True(result.ToString().StartsWith("TLSv1"));
@@ -921,7 +925,9 @@ namespace MySql.Data.MySqlClient.Tests
         {
           using (var conn = new MySqlConnection(conStr + $";ssl-mode={mode};tls-version={tlsVersion}"))
           {
-            conn.Open();
+            // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+            try { conn.Open(); }
+            catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
             MySqlCommand cmd = new MySqlCommand("SELECT variable_value FROM performance_schema.session_status WHERE VARIABLE_NAME='Ssl_version'", conn);
             object result = cmd.ExecuteScalar();
             Assert.AreEqual(tlsVersion, result);
@@ -933,10 +939,12 @@ namespace MySql.Data.MySqlClient.Tests
         {
           using (var conn = new MySqlConnection(conStr + $";ssl-mode={mode};tls-version={version[i]}"))
           {
-            conn.Open();
+            // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
+            try { conn.Open(); }
+            catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
             MySqlCommand cmd = new MySqlCommand("SELECT variable_value FROM performance_schema.session_status WHERE VARIABLE_NAME='Ssl_version'", conn);
             object result = cmd.ExecuteScalar();
-            Assert.AreEqual(ver1Tls[i], result);
+            Assert.True(result.ToString().Contains("TLSv1"));
           }
         }
       }
@@ -1030,9 +1038,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           while (rdr.Read())
           {
-            Assert.True(rdr.GetValue(1).ToString().Trim() == "TLSv1" ||
-              rdr.GetValue(1).ToString().Trim() == "TLSv1.1" ||
-              rdr.GetValue(1).ToString().Trim() == "TLSv1.2");
+            Assert.True(rdr.GetValue(1).ToString().StartsWith("TLSv1"));
           }
         }
       }
@@ -1066,9 +1072,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           while (rdr.Read())
           {
-            Assert.True(rdr.GetValue(1).ToString().Trim() == "TLSv1" ||
-              rdr.GetValue(1).ToString().Trim() == "TLSv1.1" ||
-              rdr.GetValue(1).ToString().Trim() == "TLSv1.2");
+            Assert.True(rdr.GetValue(1).ToString().StartsWith("TLSv1"));
           }
         }
       }

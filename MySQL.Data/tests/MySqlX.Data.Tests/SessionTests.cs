@@ -874,7 +874,7 @@ namespace MySqlX.Data.Tests
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session.Settings.Auth);
         var result = session.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.AreEqual("TLSv1", result[0][1].ToString().Substring(0, 5).Trim());
+        Assert.True(result[0][1].ToString().Contains("TLSv1"));
       }
 
       using (var session = MySQLX.GetSession(ConnectionStringUri + "?auth=SHA256_MEMORY&sslmode=none"))
