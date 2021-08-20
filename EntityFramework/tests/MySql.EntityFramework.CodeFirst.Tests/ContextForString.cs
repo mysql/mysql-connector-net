@@ -109,6 +109,7 @@ namespace MySql.EntityFramework.CodeFirst.Tests
   }
 
   //EducationContext
+  [Table("passports")]
   public class Passport
   {
     [Key]

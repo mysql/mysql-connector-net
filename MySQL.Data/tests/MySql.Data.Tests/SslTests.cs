@@ -706,6 +706,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void CorrectSslcaWrongSslkeySslcertRequiredMode()
     {
       if (!Platform.IsWindows()) Assert.Ignore("This test is only for Windows OS");
+      if (Version <= new Version(8, 0, 16)) Assert.Ignore("This test for MySql server 8.0.16 or higher");
       string[] sslcertlist = new string[] { "", " ", null, "file", "file.pem" };
       string[] sslkeylist = new string[] { "", " ", null, "file", "file.pem" };
       for (int i = 0; i < sslcertlist.Length; i++)
@@ -790,6 +791,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void CorrectSslcaNoSslkeyorCertRequiredMode()
     {
       if (!Platform.IsWindows()) Assert.Ignore("This test is only for Windows OS");
+      if (Version <= new Version(8, 0, 16)) Assert.Ignore("This test for MySql server 8.0.16 or higher");
       var connClassic = new MySqlConnectionStringBuilder();
       connClassic.Server = Host;
       connClassic.Port = Convert.ToUInt32(Port);
@@ -870,6 +872,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("checking different versions of TLS versions")]
     public void SecurityTlsCheck()
     {
+      if (Version <= new Version(8, 0, 16)) Assert.Ignore("This test for MySql server 8.0.16 or higher");
+      if (!ServerHaveSsl()) Assert.Ignore("Server doesn't have Ssl support");
+
       MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA, MySqlSslMode.VerifyFull };
       String[] version, ver1Tls;
       var conStr = $"server={Host};port={Port};userid={Settings.UserID};password={Settings.Password};SslCa={_sslCa};SslCert={_sslCert};SslKey={_sslKey};ssl-ca-pwd=pass";
@@ -904,6 +909,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("checking different versions of TLS versions in old server")]
     public void ServerTlsVersionTest()
     {
+      if (Version <= new Version(8, 0, 16)) Assert.Ignore("This test for MySql server 8.0.16 or higher");
+      if (!ServerHaveSsl()) Assert.Ignore("Server doesn't have Ssl support");
+
       MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA, MySqlSslMode.VerifyFull };
       var conStr = $"server={Host};port={Port};userid={Settings.UserID};password={Settings.Password};SslCa={_sslCa};SslCert={_sslCert};SslKey={_sslKey};ssl-ca-pwd=pass";
       foreach (MySqlSslMode mode in modes)
@@ -937,6 +945,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("checking errors when invalid values are used ")]
     public void InvalidTlsversionValues()
     {
+      if (Version <= new Version(8, 0, 16)) Assert.Ignore("This test for MySql server 8.0.16 or higher");
+      if (!ServerHaveSsl()) Assert.Ignore("Server doesn't have Ssl support");
+
       string[] version = new string[] { "null", "v1", "[ ]", "[TLSv1.9]", "[TLSv1.1,TLSv1.7]", "ui9" };//blank space is considered as default value
       var conStr = $"server={Host};port={Port};userid={Settings.UserID};password={Settings.Password};SslCa={_sslCa};SslCert={_sslCert};SslKey={_sslKey};ssl-ca-pwd=pass";
       MySqlConnection conn;
@@ -963,15 +974,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Default SSL user with SSL but without SSL Parameters")]
     public void SslUserWithoutSslParams()
     {
-      var cmd = new MySqlCommand();
-      cmd.Connection = Connection;
-      cmd.CommandText = "show variables like 'have_ssl'";
-      using (MySqlDataReader reader = cmd.ExecuteReader())
-      {
-        Assert.True(reader.Read());
-        StringAssert.AreEqualIgnoringCase("YES", reader.GetString(1));
-      }
-
+      if (!ServerHaveSsl()) Assert.Ignore("Server doesn't have Ssl support");
+      MySqlCommand cmd = new MySqlCommand();
       string connstr = $"server={Host};user={Settings.UserID};port={Port};password={Settings.Password};sslmode={MySqlSslMode.None}";
       using (var c = new MySqlConnection(connstr))
       {
@@ -994,13 +998,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void PositiveSslConnectionWithCertificates()
     {
-      if (Version < new Version(5, 7, 0)) Assert.Ignore("This test is for MySql Server 5.7");
-      var cmd = new MySqlCommand("show variables like 'have_ssl';", Connection);
-      using (MySqlDataReader reader = cmd.ExecuteReader())
-      {
-        Assert.True(reader.Read());
-        StringAssert.AreEqualIgnoringCase("YES", reader.GetString(1));
-      }
+      if (Version < new Version(5, 7, 0)) Assert.Ignore("This test is for MySql Server 5.7 or higher");
+      if (!ServerHaveSsl()) Assert.Ignore("Server doesn't have Ssl support");
+      MySqlCommand cmd = new MySqlCommand();
 
       var connStr = $"server={Host};port={Port};user={Settings.UserID};password={Settings.Password};CertificateFile={_sslCa};CertificatePassword=pass;SSL Mode=Required;";
       using (var c = new MySqlConnection(connStr))
@@ -1075,6 +1075,28 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     #endregion WL14389
+
+    #region Methods
+    public bool ServerHaveSsl()
+    {
+      Dictionary<string, string> strValues = new();
+      
+      var commandList = new string[]{ "show variables like 'have_ssl'", "show  status like '%Ssl_version'", "show variables like 'tls_version'" };
+      foreach (var item in commandList)
+      {
+        var cmd = Connection.CreateCommand();
+        cmd.CommandText = item;
+        using (var rdr = cmd.ExecuteReader())
+        {
+          while (rdr.Read())
+          {
+            strValues[rdr.GetString(0)] = rdr.GetString(1);
+          }
+        }
+      }
+      return (strValues["have_ssl"] == "YES" && strValues["Ssl_version"].StartsWith("TLS") && !string.IsNullOrEmpty(strValues["tls_version"]))  ? true : false;
+    }
+    #endregion Methods
 
   }
 }

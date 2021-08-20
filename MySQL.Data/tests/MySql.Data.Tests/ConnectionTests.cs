@@ -1183,6 +1183,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Verify Compression in classic protocol where default connection string is used without any option")]
     public void CompressionUnit()
     {
+      if (Version < new Version(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
       using (var dbConn = new MySqlConnection(Connection.ConnectionString + ";UseCompression=True"))
       {
         var cmd = new MySqlCommand();

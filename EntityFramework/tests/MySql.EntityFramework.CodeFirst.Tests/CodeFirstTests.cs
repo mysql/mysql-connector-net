@@ -2202,18 +2202,15 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         context.Database.Create();
         context.Passports.Add(new Passport { Key = 1 });
         context.SaveChanges();
+        context.Database.ExecuteSqlCommand("ALTER TABLE `passports` CHANGE `Key` `Key1` int NOT NULL AUTO_INCREMENT UNIQUE");
+        context.Database.ExecuteSqlCommand("ALTER TABLE `passports` DROP PRIMARY KEY");
       }
-      var cmd = new MySqlCommand("USE educationcontext", Connection);
-      cmd.ExecuteNonQuery();
-      cmd.CommandText = "ALTER TABLE `passports` CHANGE `Key` `Key1` int NOT NULL AUTO_INCREMENT UNIQUE";
-      cmd.ExecuteNonQuery();
-      cmd.CommandText = "ALTER TABLE `passports` DROP PRIMARY KEY";
-      cmd.ExecuteNonQuery();
 
       using (var context = new EducationContext())
       {
         context.Passports.Add(new Passport { Key = 1 });
         Exception ex = Assert.Catch(() => context.SaveChanges());
+        context.Database.Delete();
       }
     }
 

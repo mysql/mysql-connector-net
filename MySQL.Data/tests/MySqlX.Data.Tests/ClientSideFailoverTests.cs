@@ -447,7 +447,6 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 8)) Assert.Ignore("This test is for MySql 8.0.8 or higher");
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       string ipV6Address = GetIPV6Address();
-      string localAddress = GetLocalIPAddress();
 
       //IP Address,IP Address:[xpluginport] with space in the connection string
       string connectionString = $"mysqlx://{sb.UserID}:{sb.Password}@[ {localServerIpv4},{localServerIpv4}:{sb.Port}]";
@@ -481,7 +480,7 @@ namespace MySqlX.Data.Tests
       }
 
       ////Multiple Addresses which contains localhost:[xpluginport],[::1]:[xpluginport],IPV6 Adddress:[xpluginport]  in the connection string
-      connectionString = $"mysqlx://{sb.UserID}:{sb.Password}@[{sb.Server}:{sb.Port},[{localServerIpv6}]:{sb.Port},{ipV6Address}:{sb.Port}]?ssl-mode=required&database=test";
+      connectionString = $"mysqlx://{sb.UserID}:{sb.Password}@[{Host}:{sb.Port},[{localServerIpv6}]:{sb.Port},{ipV6Address}:{sb.Port}]?ssl-mode=required&database=test";
       using (Session session1 = MySQLX.GetSession(connectionString))
       {
         var schema1 = session1.GetSchemas();
@@ -489,7 +488,7 @@ namespace MySqlX.Data.Tests
       }
 
       ////Multiple Addresses which contains localhost:[xpluginport],localaddress:[33070],IPV6 Adddress:[xpluginport]  in the connection string with connection Timeout
-      connectionString = $"mysqlx://{sb.UserID}:{sb.Password}@[{sb.Server}:{sb.Port},{localAddress}:{sb.Port},{ipV6Address}:{sb.Port}]?ssl-mode=required&database=test";
+      connectionString = $"mysqlx://{sb.UserID}:{sb.Password}@[{sb.Server}:{sb.Port},{localServerIpv4}:{sb.Port},{ipV6Address}:{sb.Port}]?ssl-mode=required&database=test";
       using (Session session1 = MySQLX.GetSession(connectionString))
       {
         var schema1 = session1.GetSchemas();
