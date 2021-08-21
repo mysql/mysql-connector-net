@@ -137,7 +137,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       for (var i = 0; i < 1000; i++)
       {
-        using (var dbConn = new MySqlConnection(Settings.ConnectionString))
+        using (var dbConn = new MySqlConnection($"server={Host};user={Settings.UserID};database={Settings.Database};port={Port};password={Settings.Password};sslmode=none"))
         using (var cmd = new MySqlCommand("DROP DATABASE IF EXISTS code_first_2", dbConn))
         {
           await dbConn.OpenAsync();
