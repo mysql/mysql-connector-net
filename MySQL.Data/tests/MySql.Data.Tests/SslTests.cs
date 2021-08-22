@@ -656,7 +656,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       ExecuteSQL("SET GLOBAL max_connections = 151", true);
     }
-
+/*
     [Test, Description("CONNECTOR/NET DOESN'T NEED TO RUN SHOW VARIABLES")]
     public void ShowVariablesRemoved()
     {
@@ -1077,7 +1077,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-
+*/
     #endregion WL14389
 
     #region Methods
