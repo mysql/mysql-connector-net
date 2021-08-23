@@ -656,7 +656,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       ExecuteSQL("SET GLOBAL max_connections = 151", true);
     }
-/*
+
     [Test, Description("CONNECTOR/NET DOESN'T NEED TO RUN SHOW VARIABLES")]
     public void ShowVariablesRemoved()
     {
@@ -668,6 +668,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Test]
+    [Ignore("Fix")]
     public void ConnectUsingCertificateFileAndTlsVersion()
     {
       if (Version <= new Version(8, 0, 16)) Assert.Ignore("This test for MySql server 8.0.16 or higher");
@@ -870,6 +871,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Test, Description("checking different versions of TLS versions")]
+    [Ignore("Fix")]
     public void SecurityTlsCheck()
     {
       if (Version <= new Version(8, 0, 16)) Assert.Ignore("This test for MySql server 8.0.16 or higher");
@@ -1004,6 +1006,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Test]
+    [Ignore("Fix")]
     public void PositiveSslConnectionWithCertificates()
     {
       if (Version < new Version(5, 7, 0)) Assert.Ignore("This test is for MySql Server 5.7 or higher");
@@ -1077,7 +1080,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-*/
+
     #endregion WL14389
 
     #region Methods
