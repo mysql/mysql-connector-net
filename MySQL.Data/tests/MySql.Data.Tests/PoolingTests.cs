@@ -34,6 +34,7 @@ using System.Threading;
 using System.Data;
 using System.Timers;
 using System.Net.NetworkInformation;
+using MySql.Data.Common;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -658,6 +659,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Verify the connection is not in CLOSE_WAIT state after failed connection due to Connection Limit")]
     public void CloseWaitScenario1()
     {
+      if (!Platform.IsWindows()) Assert.Ignore("This test is only for Windows OS");
       var poolSize = 5;
       var connectionString = $"server={Host};user={Settings.UserID};database={Settings.Database};port={Port};password={Settings.Password};Pooling=true;Max Pool Size={poolSize};SSL Mode=None;ConnectionTimeout=5";
       List<MySqlConnection> connectionList = new();
