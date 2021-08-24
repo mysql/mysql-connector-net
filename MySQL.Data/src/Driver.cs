@@ -283,7 +283,7 @@ namespace MySql.Data.MySqlClient
       // load server properties
       Dictionary<string, string> hash = new Dictionary<string, string>();
       MySqlCommand cmd = new MySqlCommand(@"SELECT @@max_allowed_packet, @@character_set_client, 
-        @@character_set_connection, @@license, @@sql_mode, @@lower_case_table_names;", connection);
+        @@character_set_connection, @@license, @@sql_mode, @@lower_case_table_names, @@autocommit;", connection);
       try
       {
         using (MySqlDataReader reader = cmd.ExecuteReader())
@@ -326,6 +326,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     private void LoadCharacterSets(MySqlConnection connection)
     {
+      serverProps.TryGetValue("autocommit", out var serverAutocommit);
       MySqlCommand cmd = new MySqlCommand("SHOW COLLATION", connection);
 
       // now we load all the currently active collations
@@ -339,6 +340,12 @@ namespace MySql.Data.MySqlClient
             CharacterSets[Convert.ToInt32(reader["id"], NumberFormatInfo.InvariantInfo)] =
               reader.GetString(reader.GetOrdinal("charset"));
           }
+        }
+
+        if (Convert.ToInt32(serverAutocommit) == 0 && Version.isAtLeast(8, 0, 0))
+        {
+          cmd = new MySqlCommand("commit", connection);
+          cmd.ExecuteNonQuery();
         }
       }
       catch (Exception ex)

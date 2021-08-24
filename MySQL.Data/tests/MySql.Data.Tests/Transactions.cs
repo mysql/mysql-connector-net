@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -829,6 +829,35 @@ namespace MySql.Data.MySqlClient.Tests
           trx.Dispose();
         }
       }
+    }
+
+    /// <summary>
+    /// Bug #33123597	IF AUTOCOMMIT=0, "SHOW COLLATION" VIA OPEN() WILL CAUSE BEGINTRANSACTION() TO FAIL
+    /// </summary>
+    [Test]
+    public void TransactionWithAutoCommit()
+    {
+      ExecuteSQL("DROP TABLE IF EXISTS Test");
+      ExecuteSQL("create table Test(id int)");
+      ExecuteSQL("set autocommit = 0;");
+
+      MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(Settings.ConnectionString);
+      sb.PersistSecurityInfo = true;
+      sb.Pooling = true;
+      sb.SslMode = MySqlSslMode.None;
+
+      using (var connection = new MySqlConnection(sb.ConnectionString))
+      {
+        connection.Open();
+        var transaction = connection.BeginTransaction();
+        Assert.IsNotNull(transaction);
+        var myCommand = connection.CreateCommand();
+        myCommand.CommandText = "INSERT INTO `Test` VALUES (1);";
+        var result = myCommand.ExecuteNonQuery();
+        transaction.Commit();
+      }
+
+      ExecuteSQL("set autocommit = 1;");
     }
 
   }
