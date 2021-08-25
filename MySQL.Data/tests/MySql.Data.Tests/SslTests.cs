@@ -870,9 +870,9 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Test, Description("checking different versions of TLS versions")]
-    [Ignore("Fix")]
     public void SecurityTlsCheck()
     {
+      if (!Platform.IsWindows()) Assert.Ignore("This test is only for Windows OS");
       if (Version <= new Version(8, 0, 16)) Assert.Ignore("This test for MySql server 8.0.16 or higher");
       if (!ServerHaveSsl()) Assert.Ignore("Server doesn't have Ssl support");
 
@@ -911,47 +911,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [Test, Description("checking different versions of TLS versions in old server")]
-    [Ignore("Fix")]
-    public void ServerTlsVersionTest()
-    {
-      if (Version <= new Version(8, 0, 16)) Assert.Ignore("This test for MySql server 8.0.16 or higher");
-      if (!ServerHaveSsl()) Assert.Ignore("Server doesn't have Ssl support");
-
-      MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA, MySqlSslMode.VerifyFull };
-      var conStr = $"server={Host};port={Port};userid={Settings.UserID};password={Settings.Password};SslCa={_sslCa};SslCert={_sslCert};SslKey={_sslKey};ssl-ca-pwd=pass";
-      foreach (MySqlSslMode mode in modes)
-      {
-        string[] version = new string[] { "TLSv1", "TLSv1.1", "TLSv1.2" };
-        foreach (string tlsVersion in version)
-        {
-          using (var conn = new MySqlConnection(conStr + $";ssl-mode={mode};tls-version={tlsVersion}"))
-          {
-            // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
-            try { conn.Open(); }
-            catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
-            MySqlCommand cmd = new MySqlCommand("SELECT variable_value FROM performance_schema.session_status WHERE VARIABLE_NAME='Ssl_version'", conn);
-            object result = cmd.ExecuteScalar();
-            Assert.AreEqual(tlsVersion, result);
-          }
-        }
-        version = new string[] { "[TLSv1,TLSv1.1]", "[TLSv1.1,TLSv1.2]", "[TLSv1,TLSv1.2]" };
-        var ver1Tls = new string[] { "TLSv1.1", "TLSv1.2", "TLSv1.2" };
-        for (int i = 0; i < 3; i++)
-        {
-          using (var conn = new MySqlConnection(conStr + $";ssl-mode={mode};tls-version={version[i]}"))
-          {
-            // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
-            try { conn.Open(); }
-            catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
-            MySqlCommand cmd = new MySqlCommand("SELECT variable_value FROM performance_schema.session_status WHERE VARIABLE_NAME='Ssl_version'", conn);
-            object result = cmd.ExecuteScalar();
-            Assert.True(result.ToString().Contains("TLSv1"));
-          }
-        }
-      }
-    }
-
     [Test, Description("checking errors when invalid values are used ")]
     public void InvalidTlsversionValues()
     {
@@ -982,7 +941,6 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Test, Description("Default SSL user with SSL but without SSL Parameters")]
-    [Ignore("Fix")]
     public void SslUserWithoutSslParams()
     {
       if (!ServerHaveSsl()) Assert.Ignore("Server doesn't have Ssl support");
@@ -996,7 +954,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
         var rdr1 = cmd.ExecuteReader();
         while (rdr1.Read())
-          Assert.IsNotNull(rdr1.GetValue(1));
+          Assert.True(rdr1.GetValue(1).ToString().Trim() == "");
       }
 
       connstr = $"server={Host};user={Settings.UserID};port={Port};password=;sslmode={MySqlSslMode.None}";
