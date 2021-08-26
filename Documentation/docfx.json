@@ -1,0 +1,104 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": ["MySql.Data.dll"],
+          "src": "../MySQL.Data/src/bin/Release/netstandard2.1/"
+        }
+      ],
+      "dest": "api/data_api",
+      "shouldSkipMarkup": false,
+      "disableGitFeatures": false,
+      "disableDefaultFilter": false,
+      "properties": { "TargetFramework": "netstandard2.1" }
+    },
+    {
+      "src": [
+        {
+          "files": ["MySql.EntityFrameworkCore.dll"],
+          "src": "../EFCore6/src/bin/Release/net5.0/"
+        }
+      ],
+      "dest": "api/efcore_api",
+      "shouldSkipMarkup": false,
+      "disableGitFeatures": false,
+      "disableDefaultFilter": false,
+      "properties": { "TargetFramework": "net5.0" }
+    },
+    {
+      "src": [
+        {
+          "files": ["MySql.Data.EntityFramework.dll"],
+          "src": "../EntityFramework/src/bin/Release/netstandard2.1/"
+        }
+      ],
+      "dest": "api/ef_api",
+      "shouldSkipMarkup": false,
+      "disableGitFeatures": false,
+      "disableDefaultFilter": false,
+      "properties": { "TargetFramework": "netstandard2.1" }
+    },
+    {
+      "src": [
+        {
+          "files": ["MySql.Web.dll"],
+          "src": "../MySql.Web/src/bin/Release/net48/"
+        }
+      ],
+      "dest": "api/web_api",
+      "shouldSkipMarkup": false,
+      "disableGitFeatures": false,
+      "disableDefaultFilter": false,
+      "properties": { "TargetFramework": "net48" }
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "**/*.yml",
+          "index.md"],
+        "src": "api/data_api",
+        "dest": "api/data_api"
+      },
+      {
+        "files": [
+          "**/*.yml",
+          "index.md"],
+        "src": "api/efcore_api",
+        "dest": "api/efcore_api"
+      },
+      {
+        "files": [
+          "**/*.yml",
+          "index.md"],
+        "src": "api/ef_api",
+        "dest": "api/ef_api"
+      },
+      {
+        "files": [
+          "**/*.yml",
+          "index.md"],
+        "src": "api/web_api",
+        "dest": "api/web_api"
+      },
+      {
+        "files": ["index.md","toc.yml"]
+      }
+    ],
+    "resource": [
+      {
+        "files": "images/**"
+      }
+    ],
+    "globalMetadata": {
+      "_appFooter": "Copyright © 2021, Oracle and/or its affiliates.",
+      "_appLogoPath": "/images/logo-mysql.png",
+      "_appFaviconPath": "/images/logo-mysql.png"
+    },
+    "dest": "Output",
+    "markdownEngineName": "markdig",
+    "xrefService": [ "https://xref.docs.microsoft.com/query?uid={uid}" ]
+  }
+}

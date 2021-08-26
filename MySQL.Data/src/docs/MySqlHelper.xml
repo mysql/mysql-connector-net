@@ -17,33 +17,33 @@
 
       <code lang="vbnet">
         Public Sub ShowException()
-        Dim mySelectQuery As String = "SELECT column1 FROM table1"
-        Dim myConnection As New MySqlConnection ("Data Source=localhost;Database=Sample;")
-        Dim myCommand As New MySqlCommand(mySelectQuery, myConnection)
+          Dim mySelectQuery As String = "SELECT column1 FROM table1"
+          Dim myConnection As New MySqlConnection ("Data Source=localhost;Database=Sample;")
+          Dim myCommand As New MySqlCommand(mySelectQuery, myConnection)
 
-        Try
-        myCommand.Connection.Open()
-        Catch e As MySqlException
-        MessageBox.Show( e.Message )
-        End Try
+          Try
+            myCommand.Connection.Open()
+            Catch e As MySqlException
+            MessageBox.Show( e.Message )
+          End Try
         End Sub
       </code>
       <code lang="C#">
         public void ShowException()
         {
-        string mySelectQuery = "SELECT column1 FROM table1";
-        MySqlConnection myConnection =
-        new MySqlConnection("Data Source=localhost;Database=Sample;");
-        MySqlCommand myCommand = new MySqlCommand(mySelectQuery,myConnection);
+          string mySelectQuery = "SELECT column1 FROM table1";
+          MySqlConnection myConnection =
+          new MySqlConnection("Data Source=localhost;Database=Sample;");
+          MySqlCommand myCommand = new MySqlCommand(mySelectQuery,myConnection);
 
-        try
-        {
-        myCommand.Connection.Open();
-        }
-        catch (MySqlException e)
-        {
-        MessageBox.Show( e.Message );
-        }
+          try
+          {
+            myCommand.Connection.Open();
+          }
+          catch (MySqlException e)
+          {
+            MessageBox.Show( e.Message );
+          }
         }
       </code>
     </example>

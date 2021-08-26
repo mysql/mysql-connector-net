@@ -37,38 +37,38 @@
       <B>MySqlConnection</B>.
       <code lang="vbnet">
         Public Sub ReadMyData(myConnString As String)
-        Dim mySelectQuery As String = "SELECT OrderID, CustomerID FROM Orders"
-        Dim myConnection As New MySqlConnection(myConnString)
-        Dim myCommand As New MySqlCommand(mySelectQuery, myConnection)
-        myConnection.Open()
-        Dim myReader As MySqlDataReader
-        myReader = myCommand.ExecuteReader()
-        ' Always call Read before accessing data.
-        While myReader.Read()
-        Console.WriteLine((myReader.GetInt32(0) &amp; ", " &amp; myReader.GetString(1)))
-        End While
-        ' always call Close when done reading.
-        myReader.Close()
-        ' Close the connection when done with it.
-        myConnection.Close()
+          Dim mySelectQuery As String = "SELECT OrderID, CustomerID FROM Orders"
+          Dim myConnection As New MySqlConnection(myConnString)
+          Dim myCommand As New MySqlCommand(mySelectQuery, myConnection)
+          myConnection.Open()
+          Dim myReader As MySqlDataReader
+          myReader = myCommand.ExecuteReader()
+          ' Always call Read before accessing data.
+          While myReader.Read()
+          Console.WriteLine((myReader.GetInt32(0) &amp; ", " &amp; myReader.GetString(1)))
+          End While
+          ' always call Close when done reading.
+          myReader.Close()
+          ' Close the connection when done with it.
+          myConnection.Close()
         End Sub 'ReadMyData
       </code>
       <code lang="C#">
         public void ReadMyData(string myConnString) {
-        string mySelectQuery = "SELECT OrderID, CustomerID FROM Orders";
-        MySqlConnection myConnection = new MySqlConnection(myConnString);
-        MySqlCommand myCommand = new MySqlCommand(mySelectQuery,myConnection);
-        myConnection.Open();
-        MySqlDataReader myReader;
-        myReader = myCommand.ExecuteReader();
-        // Always call Read before accessing data.
-        while (myReader.Read()) {
-        Console.WriteLine(myReader.GetInt32(0) + ", " + myReader.GetString(1));
-        }
-        // always call Close when done reading.
-        myReader.Close();
-        // Close the connection when done with it.
-        myConnection.Close();
+          string mySelectQuery = "SELECT OrderID, CustomerID FROM Orders";
+          MySqlConnection myConnection = new MySqlConnection(myConnString);
+          MySqlCommand myCommand = new MySqlCommand(mySelectQuery,myConnection);
+          myConnection.Open();
+          MySqlDataReader myReader;
+          myReader = myCommand.ExecuteReader();
+          // Always call Read before accessing data.
+          while (myReader.Read()) {
+          Console.WriteLine(myReader.GetInt32(0) + ", " + myReader.GetString(1));
+          }
+          // always call Close when done reading.
+          myReader.Close();
+          // Close the connection when done with it.
+          myConnection.Close();
         }
       </code>
     </example>

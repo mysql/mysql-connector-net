@@ -4,6 +4,7 @@
 - Added support for the OCI IAM authentication plugin (WL14708).
 - Fixed a bug that prevented connections using "Preferred" SSL mode when the server did not support secure connections (MySQL Bug #104541, OracleBug Bug #33191344).
 - Fixed a bug that ocurred when a new connection is opened and a new transaction is initiated using a server with autocommit equals to zero (Oracle Bug #33123597).
+- Changed the API docs generator tool from Sandcastle to DocFX (WL14117).
 
 
 8.0.26

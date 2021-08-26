@@ -15,26 +15,25 @@
       with the appropriate schema, commands, and connection.
       <code lang="vbnet">
         Public Sub AddParameters()
-        ' ...
-        ' create myDataSet and myDataAdapter
-        ' ...
-        myDataAdapter.SelectCommand.Parameters.Add("@CategoryName", MySqlDbType.VarChar, 80).Value = "toasters"
-        myDataAdapter.SelectCommand.Parameters.Add("@SerialNum", MySqlDbType.Long).Value = 239
+          ' ...
+          ' create myDataSet and myDataAdapter
+          ' ...
+          myDataAdapter.SelectCommand.Parameters.Add("@CategoryName", MySqlDbType.VarChar, 80).Value = "toasters"
+          myDataAdapter.SelectCommand.Parameters.Add("@SerialNum", MySqlDbType.Long).Value = 239
 
-        myDataAdapter.Fill(myDataSet)
+          myDataAdapter.Fill(myDataSet)
         End Sub 'AddSqlParameters
       </code>
       <code lang="C#">
         public void AddSqlParameters()
         {
-        // ...
-        // create myDataSet and myDataAdapter
-        // ...
+          // ...
+          // create myDataSet and myDataAdapter
+          // ...
 
-        myDataAdapter.SelectCommand.Parameters.Add("@CategoryName", MySqlDbType.VarChar, 80).Value = "toasters";
-        myDataAdapter.SelectCommand.Parameters.Add("@SerialNum", MySqlDbType.Long).Value = 239;
-        myDataAdapter.Fill(myDataSet);
-
+          myDataAdapter.SelectCommand.Parameters.Add("@CategoryName", MySqlDbType.VarChar, 80).Value = "toasters";
+          myDataAdapter.SelectCommand.Parameters.Add("@SerialNum", MySqlDbType.Long).Value = 239;
+          myDataAdapter.Fill(myDataSet);
         }
       </code>
     </example>
