@@ -1037,12 +1037,14 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("INSERT INTO TEST(name,id,sports) VALUES ('Federer',1,'Tennis')");
       ExecuteSQL("INSERT INTO TEST(name,id,sports) VALUES ('Ronaldo',2,'Soccer')");
       ExecuteSQL("INSERT INTO TEST(name,id,sports) VALUES ('Messi',3,'Soccer')");
-      SqlResult result = ExecuteSQLStatement(GetSession(true).SQL("SELECT name FROM TEST;"));
       var expecteddataValue = new List<string> { "Federer", "Ronaldo", "Messi" };
-      while (result.Next())
-      { 
-        Assert.That(result.Rows, Has.Exactly(3).Items);
-        Assert.True(expecteddataValue.Contains(result[0].ToString()));
+      using (SqlResult result = ExecuteSQLStatement(session.SQL("SELECT name FROM TEST;")))
+      {
+        while (result.Next())
+        {
+          Assert.That(result.Rows, Has.Exactly(3).Items);
+          Assert.True(expecteddataValue.Contains(result[0].ToString()));
+        }
       }
     }
 

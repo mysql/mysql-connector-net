@@ -78,20 +78,20 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void CountClosedSession()
     {
-      using (Session nodeSession = MySQLX.GetSession(ConnectionString))
+      Session nodeSession = MySQLX.GetSession(ConnectionString);
+      int sessions = ExecuteSQLStatement(nodeSession.SQL("show processlist")).FetchAll().Count;
+
+      for (int i = 0; i < 20; i++)
       {
-        int sessions = ExecuteSQLStatement(nodeSession.SQL("show processlist")).FetchAll().Count;
-        for (int i = 0; i < 20; i++)
-        {
-          Session session1 = MySQLX.GetSession(ConnectionString);
-          Assert.True(session1.InternalSession.SessionState == SessionState.Open);
-          session1.Close();
-          Assert.AreEqual(session1.InternalSession.SessionState, SessionState.Closed);
-        }
-        int newSessions = ExecuteSQLStatement(nodeSession.SQL("show processlist")).FetchAll().Count;
-        Assert.AreEqual(sessions, newSessions);
-        nodeSession.Close();
+        Session session = MySQLX.GetSession(ConnectionString);
+        Assert.True(session.InternalSession.SessionState == SessionState.Open);
+        session.Close();
+        Assert.AreEqual(session.InternalSession.SessionState, SessionState.Closed);
       }
+
+      int newSessions = ExecuteSQLStatement(nodeSession.SQL("show processlist")).FetchAll().Count;
+      nodeSession.Close();
+      Assert.AreEqual(sessions, newSessions - 1);
     }
 
     [Test]

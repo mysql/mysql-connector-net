@@ -1001,7 +1001,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test queueTimeout with different values")]
     public void QueueTimeoutOptionTests(string inputType)
     {
-      int timeoutMS = 5000;
+      int timeoutMS = 3000;
       string[] connectionpooling = { "{ \"pooling\": { \"maxSize\": 2,\"queueTimeout\": " + timeoutMS + " } }", "{ \"pooling\": { \"queueTimeout\": true} }", "{ \"pooling\": { \"queueTimeout\": 'true'} }", "{ \"pooling\": { \"queueTimeout\": -1} }", "{ \"pooling\": { \"queueTimeout\": 84584759345 } }", "{ \"pooling\": { \"queueTimeout\": } }" };
       object[] connectionpoolingObject = { new { pooling = new { maxSize = 2, queueTimeout = timeoutMS } }, new { pooling = new { queueTimeout = true } }, new { pooling = new { queueTimeout = "true" } }, new { pooling = new { queueTimeout = -1 } }, new { pooling = new { queueTimeout = 84584759345 } }, new { pooling = new { queueTimeout = "" } } };
       for (int i = 0; i < (inputType == "string" ? connectionpooling : connectionpoolingObject).Length; i++)
@@ -1018,6 +1018,7 @@ namespace MySqlX.Data.Tests
             stopwatch.Stop();
             Assert.True(stopwatch.ElapsedMilliseconds >= timeoutMS);
           }
+
           //Uri
           using (var client1 = MySQLX.GetClient(ConnectionStringUri, (inputType == "string" ? connectionpooling : connectionpoolingObject)[i]))
           {
@@ -1027,8 +1028,8 @@ namespace MySqlX.Data.Tests
             Assert.Catch(() => client1.GetSession());
             stopwatch.Stop();
             Assert.True(stopwatch.ElapsedMilliseconds >= timeoutMS);
-
           }
+
           //Anonymous Object
           using (var client1 = MySQLX.GetClient(connObject, (inputType == "string" ? connectionpooling : connectionpoolingObject)[i]))
           {
