@@ -46,8 +46,8 @@ namespace MySqlX.Data.Tests
     public void LocalSetUp()
     {
       //get the local MySql server Ip address, like 127.0.0.1 or ::1
-      localServerIpv4= GetMySqlServerIp();
-      localServerIpv6 = GetMySqlServerIp(true);
+      localServerIpv4 = "127.0.0.1";
+      localServerIpv6 = "::1";
     }
 
     [Test]
@@ -449,8 +449,8 @@ namespace MySqlX.Data.Tests
       string ipV6Address = GetIPV6Address();
 
       //IP Address,IP Address:[xpluginport] with space in the connection string
-      string connectionString = $"mysqlx://{sb.UserID}:{sb.Password}@[ {localServerIpv4},{localServerIpv4}:{sb.Port}]";
-      using (Session session1 = MySQLX.GetSession(connectionString + "/?ssl-mode=required"))
+      string connectionString = $"mysqlx://{sb.UserID}:{sb.Password}@[{localServerIpv4},{localServerIpv4}:{sb.Port}]";
+      using (Session session1 = MySQLX.GetSession(connectionString + "?ssl-mode=required"))
       {
         var schema1 = session1.GetSchemas();
         Assert.IsNotNull(schema1);
@@ -458,14 +458,14 @@ namespace MySqlX.Data.Tests
 
       //IP Address,IP Address:[xpluginport] without space in the connection string
       connectionString = $"mysqlx://{sb.UserID}:{sb.Password}@[127.9.9.1,{localServerIpv4}:{sb.Port}]";
-      using (Session session1 = MySQLX.GetSession(connectionString + "/?ssl-mode=required"))
+      using (Session session1 = MySQLX.GetSession(connectionString + "?ssl-mode=required"))
       {
         var schema1 = session1.GetSchemas();
         Assert.IsNotNull(schema1);
       }
 
       connectionString = $"mysqlx://{sb.UserID}:{sb.Password}@[143.24.20.36,{localServerIpv4}:{sb.Port}]";
-      using (Session session1 = MySQLX.GetSession(connectionString + "/?ssl-mode=required"))
+      using (Session session1 = MySQLX.GetSession(connectionString + "?ssl-mode=required"))
       {
         var schema1 = session1.GetSchemas();
         Assert.IsNotNull(schema1);
@@ -520,7 +520,7 @@ namespace MySqlX.Data.Tests
       string ipV6Address = GetIPV6Address();
       string connectionString = "mysqlx://" + sb.UserID + ":" + sb.Password
           + "@[" + sb.Server + "," + localServerIpv4 + "," + ipV6Address + ":"
-          + sb.Port + "]" + "/?implicit-failover";
+          + sb.Port + "]" + "?implicit-failover";
       Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "&ssl-mode=required"));
     }
 
@@ -739,14 +739,14 @@ namespace MySqlX.Data.Tests
         }
 
         hostList[i] = "(address=" + localServerIpv4 + ":" + XPort + ",priority=" + (priority != 0 ? priority-- : 0) + ")";
-        var connStr = "mysqlx://test:test@[" + hostList[i] + "]/?ssl-mode=Required";
+        var connStr = "mysqlx://test:test@[" + hostList[i] + "]?ssl-mode=Required";
         using (var session1 = MySQLX.GetSession(connStr))
         {
           Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
         }
 
         hostListPort[i] = $"(address={Host}:{XPort},priority={(priority != 0 ? priority-- : 0)})";
-        connStr = "mysqlx://test:test@[" + hostList[i] + "]/?ssl-mode=Required";
+        connStr = "mysqlx://test:test@[" + hostList[i] + "]?ssl-mode=Required";
         using (var session1 = MySQLX.GetSession(connStr))
         {
           Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
@@ -878,6 +878,12 @@ namespace MySqlX.Data.Tests
       }
     }
 
+    [Test]
+    public void AssertIps()
+    {
+      Assert.AreEqual("127.0.0.1",localServerIpv4,$"expected 127.0.0.1 returned IP={localServerIpv4}");
+      Assert.AreEqual("::1", localServerIpv6, $"expected ::1 returned IP={localServerIpv6}");
+    }
     #endregion
 
   }

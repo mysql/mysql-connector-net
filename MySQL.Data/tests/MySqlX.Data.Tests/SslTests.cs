@@ -614,7 +614,7 @@ namespace MySqlX.Data.Tests
         StringAssert.Contains("TLSv1", result[1].ToString());
 
         result = session1.SQL("show status like 'Mysqlx_ssl_cipher'").Execute().FetchOne();
-        StringAssert.Contains("AES", result[1].ToString());
+        Assert.True(result[1].ToString().Trim().Length > 0);
 
         result = session1.SQL("show status like 'Mysqlx_ssl_version'").Execute().FetchOne();
         StringAssert.AreEqualIgnoringCase("TLSv1.2", result[1].ToString());
@@ -625,24 +625,19 @@ namespace MySqlX.Data.Tests
     [TestCase("TLSv1.2")]
     public void TlsVersionInConnectionStringXplugin(string tlsVersion)
     {
+      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
       if (!session.Version.isAtLeast(8, 0, 16)) Assert.Ignore("This test is for MySql 8.0.16 or higher.");
       var result = session.SQL("show variables like '%ave_ssl%'").Execute().FetchOne();
       if (result[1].ToString() != "YES") return;
 
       var connStr = ConnectionString + $";sslmode=Required;tls-version={tlsVersion}";
-      // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
-      try
+      using (var c = MySQLX.GetSession(connStr))
       {
-        using (var c = MySQLX.GetSession(connStr))
-        {
-          Assert.AreEqual(SessionState.Open, c.InternalSession.SessionState);
-          var res = c.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-          StringAssert.AreEqualIgnoringCase(tlsVersion, res[0][1].ToString());
-        }
+        Assert.AreEqual(SessionState.Open, c.InternalSession.SessionState);
+        var res = c.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
+        StringAssert.AreEqualIgnoringCase(tlsVersion, res[0][1].ToString());
       }
-      catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
     }
-
 
     [Test, Description("Verify PEM options (SslCa,SslCert,SslKey) with different SSL modes")]
     public void PemCertDifferentSSLmodes()
@@ -1238,42 +1233,6 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Test, Description("checking different versions of TLS versions in old server")]
-
-    public void ServerTlsVersionTest()
-    {
-      if (!session.Version.isAtLeast(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
-      MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA, MySqlSslMode.VerifyFull };
-      var conStr = $"{ConnectionString};SslCa={_sslCa};SslCert={_sslCert};SslKey={_sslKey};ssl-ca-pwd={sslCertificatePassword}";
-      foreach (MySqlSslMode mode in modes)
-      {
-        string[] version = new string[] { "TLSv1", "TLSv1.1", "TLSv1.2" };
-        // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
-        try
-        {
-          foreach (string tlsVersion in version)
-          {
-            using (Session session1 = MySQLX.GetSession(conStr + ";ssl-mode=" + mode + ";tls-version=" + tlsVersion))
-            {
-              var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
-              Assert.AreEqual(tlsVersion, sess);
-            }
-          }
-          version = new string[] { "[TLSv1,TLSv1.1]", "[TLSv1.1,TLSv1.2]", "[TLSv1,TLSv1.2]" };
-          var ver1Tls = new string[] { "TLSv1.1", "TLSv1.2", "TLSv1.2" };
-          for (int i = 0; i < 3; i++)
-          {
-            using (Session session1 = MySQLX.GetSession(conStr + ";ssl-mode=" + mode + ";tls-version=" + version[i]))
-            {
-              var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
-              Assert.AreEqual(ver1Tls[i], sess);
-            }
-          }
-        }
-        catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
-      }
-    }
-
     [Test, Description("checking errors when invalid values are used ")]
     public void InvalidTlsversionValues()
     {
@@ -1311,38 +1270,33 @@ namespace MySqlX.Data.Tests
     }
 
     [Test, Description("checking different versions of TLS versions")]
-
     public void SecurityTlsCheck()
     {
+      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
       MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA, MySqlSslMode.VerifyFull };
       String[] version, ver1Tls;
       var conStrX = $"{ConnectionString};SslCa={sslCa};SslCert={sslCert};SslKey={sslKey};ssl-ca-pwd={sslCertificatePassword}";
       foreach (MySqlSslMode mode in modes)
       {
         version = new string[] { "TLSv1", "TLSv1.1", "TLSv1.2" };
-        // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
-        try
+        foreach (string tlsVersion in version)
         {
-          foreach (string tlsVersion in version)
+          using (Session session1 = MySQLX.GetSession(conStrX + $";ssl-mode={mode};tls-version={tlsVersion}"))
           {
-            using (Session session1 = MySQLX.GetSession(conStrX + $";ssl-mode={mode};tls-version={tlsVersion}"))
-            {
-              var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
-              Assert.AreEqual(tlsVersion, sess);
-            }
-          }
-          version = new string[] { "[TLSv1,TLSv1.1]", "[TLSv1.1,TLSv1.2]", "[TLSv1,TLSv1.2]" };
-          ver1Tls = new string[] { "TLSv1.1", "TLSv1.2", "TLSv1.2" };
-          for (int i = 0; i < 3; i++)
-          {
-            using (Session session1 = MySQLX.GetSession(conStrX + ";ssl-mode=" + mode + ";tls-version=" + version[i]))
-            {
-              var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
-              Assert.AreEqual(ver1Tls[i], sess);
-            }
+            var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
+            Assert.AreEqual(tlsVersion, sess);
           }
         }
-        catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
+        version = new string[] { "[TLSv1,TLSv1.1]", "[TLSv1.1,TLSv1.2]", "[TLSv1,TLSv1.2]" };
+        ver1Tls = new string[] { "TLSv1.1", "TLSv1.2", "TLSv1.2" };
+        for (int i = 0; i < 3; i++)
+        {
+          using (Session session1 = MySQLX.GetSession(conStrX + ";ssl-mode=" + mode + ";tls-version=" + version[i]))
+          {
+            var sess = session1.SQL("select variable_value from performance_schema.session_status where variable_name='mysqlx_ssl_version'").Execute().FetchOne()[0];
+            Assert.AreEqual(ver1Tls[i], sess);
+          }
+        }
       }
     }
 
@@ -1371,7 +1325,6 @@ namespace MySqlX.Data.Tests
         Assert.AreEqual("TLSv1.3", sess1);
       }
     }
-
 
     [Test, Description("checking TLSv1.3 in Linux")]
     public void Tlsv13Linux()
