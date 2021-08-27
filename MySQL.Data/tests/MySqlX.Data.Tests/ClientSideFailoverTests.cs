@@ -46,8 +46,8 @@ namespace MySqlX.Data.Tests
     public void LocalSetUp()
     {
       //get the local MySql server Ip address, like 127.0.0.1 or ::1
-      localServerIpv4 = "127.0.0.1";
-      localServerIpv6 = "::1";
+      localServerIpv4 = GetMySqlServerIp();
+      localServerIpv6 = GetMySqlServerIp(true);
     }
 
     [Test]
@@ -451,6 +451,8 @@ namespace MySqlX.Data.Tests
 
       //IP Address,IP Address:[xpluginport] with space in the connection string
       string connectionString = $"mysqlx://test:test@[{localServerIpv4},{localServerIpv4}:{sb.Port}]?connecttimeout=1000";
+      isValidUri(connectionString);
+
       using (Session session1 = MySQLX.GetSession(connectionString))
       {
         var schema1 = session1.GetSchemas();
@@ -458,14 +460,14 @@ namespace MySqlX.Data.Tests
       }
 
       //IP Address,IP Address:[xpluginport] without space in the connection string
-      connectionString = $"mysqlx://test:test@[127.9.9.1,{localServerIpv4}:{sb.Port}]?connecttimeout=1000";
+      connectionString = $"mysqlx://test:test@[127.9.9.1,{localServerIpv4}:{sb.Port}]?ssl-mode=required";
       using (Session session1 = MySQLX.GetSession(connectionString))
       {
         var schema1 = session1.GetSchemas();
         Assert.IsNotNull(schema1);
       }
 
-      connectionString = $"mysqlx://test:test@[143.24.20.36,{localServerIpv4}:{sb.Port}]?connecttimeout=1000";
+      connectionString = $"mysqlx://test:test@[143.24.20.36,{localServerIpv4}:{sb.Port}]?ssl-mode=required";
       using (Session session1 = MySQLX.GetSession(connectionString))
       {
         var schema1 = session1.GetSchemas();
@@ -473,7 +475,7 @@ namespace MySqlX.Data.Tests
       }
 
       ////Single IP Address in an array in the connection string
-      connectionString = $"mysqlx://test:test@[{sb.Server}:{sb.Port}]/test?connecttimeout=1000";
+      connectionString = $"mysqlx://test:test@[{sb.Server}:{sb.Port}]/test?ssl-mode=required";
       using (Session session1 = MySQLX.GetSession(connectionString))
       {
         var schema1 = session1.GetSchemas();
@@ -481,7 +483,7 @@ namespace MySqlX.Data.Tests
       }
 
       ////Multiple Addresses which contains localhost:[xpluginport],[::1]:[xpluginport],IPV6 Adddress:[xpluginport]  in the connection string
-      connectionString = $"mysqlx://test:test@[{Host}:{sb.Port},[{localServerIpv6}]:{sb.Port},{ipV6Address}:{sb.Port}]/test?connecttimeout=1000";
+      connectionString = $"mysqlx://test:test@[{Host}:{sb.Port},[{localServerIpv6}]:{sb.Port},{ipV6Address}:{sb.Port}]/test?ssl-mode=required";
       using (Session session1 = MySQLX.GetSession(connectionString))
       {
         var schema1 = session1.GetSchemas();
@@ -489,7 +491,7 @@ namespace MySqlX.Data.Tests
       }
 
       ////Multiple Addresses which contains localhost:[xpluginport],localaddress:[33070],IPV6 Adddress:[xpluginport]  in the connection string with connection Timeout
-      connectionString = $"mysqlx://test:test@[{sb.Server}:{sb.Port},{localServerIpv4}:{sb.Port},{ipV6Address}:{sb.Port}]/test?connecttimeout=1000";
+      connectionString = $"mysqlx://test:test@[{sb.Server}:{sb.Port},{localServerIpv4}:{sb.Port},{ipV6Address}:{sb.Port}]/test?ssl-mode=required";
       using (Session session1 = MySQLX.GetSession(connectionString))
       {
         var schema1 = session1.GetSchemas();
@@ -497,7 +499,7 @@ namespace MySqlX.Data.Tests
       }
 
       ////Multiple Addresses which contains invalidservername:[invalidport],localhost:[xpluginport]  in the connection string with connection Timeout
-      connectionString = $"mysqlx://test:test@[invalidservername:9999,{sb.Server}:{sb.Port}]/test?connecttimeout=1000";
+      connectionString = $"mysqlx://test:test@[invalidservername:9999,{sb.Server}:{sb.Port}]/test?ssl-mode=required";
       using (Session session1 = MySQLX.GetSession(connectionString))
       {
         var schema1 = session1.GetSchemas();
@@ -506,7 +508,7 @@ namespace MySqlX.Data.Tests
 
       ////Multiple Addresses which contains localhost:[invalidport],invalidlocaladdress:[xpluginport],localhost:[xpluginport]  in the connection string with connection Timeout
       connectionString = $"mysqlx://test:test@[{sb.Server}:9999,invalidlocaladdress:{sb.Port}]?ssl-mode=required&database=test";
-      Assert.Throws<MySqlException>(() => MySQLX.GetSession(connectionString));
+      Assert.Catch(() => MySQLX.GetSession(connectionString));
     }
 
     /// <summary>
@@ -878,6 +880,22 @@ namespace MySqlX.Data.Tests
     }
 
     #endregion
+
+    #region Methods
+    internal void isValidUri(string inputUri)
+    {
+      try
+      {
+        using (var s1= MySQLX.GetSession(inputUri))
+        {
+        }
+      }
+      catch (Exception ex)
+      {
+        Assert.Fail($"localServerIpv4={localServerIpv4},localServerIpv6={localServerIpv6},cs={inputUri} " + ex.Message);
+      }
+    }
+    #endregion Methods
 
   }
 }
