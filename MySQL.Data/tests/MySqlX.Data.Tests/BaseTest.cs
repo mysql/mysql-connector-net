@@ -270,10 +270,24 @@ namespace MySqlX.Data.Tests
     /// <returns>Return the ip address as string</returns>
     public string GetMySqlServerIp(bool isIpV6 = false)
     {
-      string hostname = string.Empty;
-      hostname = session.SQL("Select SUBSTRING_INDEX(host, ':', 1) as 'ip' From information_schema.processlist WHERE ID = connection_id()").Execute().FetchOne()[0].ToString();
-      hostname = Dns.GetHostEntry(hostname).AddressList[isIpV6 ? 1 : 0].ToString(); 
-      return hostname;
+      var hostname = session.SQL("Select SUBSTRING_INDEX(host, ':', 1) as 'ip' From information_schema.processlist WHERE ID = connection_id()").Execute().FetchOne()[0].ToString();
+      string ipv4 = string.Empty;
+      string ipv6 = string.Empty;
+
+      foreach (var item in Dns.GetHostEntry(hostname).AddressList)
+      {
+        switch (item.AddressFamily)
+        {
+          case AddressFamily.InterNetwork:
+            ipv4 = item.ToString();
+            break;
+          case AddressFamily.InterNetworkV6:
+            ipv6 = item.ToString();
+            break;
+        }
+      }
+
+      return isIpV6 ? ipv6 : ipv4;
     }
 
     #endregion
