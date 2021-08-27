@@ -46,8 +46,8 @@ namespace MySqlX.Data.Tests
     public void LocalSetUp()
     {
       //get the local MySql server Ip address, like 127.0.0.1 or ::1
-      localServerIpv4 = GetMySqlServerIp();
-      localServerIpv6 = GetMySqlServerIp(true);
+      localServerIpv4 = "127.0.0.1";
+      localServerIpv6 = "::1";
     }
 
     [Test]
@@ -520,7 +520,7 @@ namespace MySqlX.Data.Tests
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       string ipV6Address = GetIPV6Address();
       string connectionString = $"mysqlx://test:test@[{sb.Server},{localServerIpv4},{ipV6Address}:{sb.Port}]?implicit-failover";
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "&ssl-mode=required"));
+      Assert.Catch(() => MySQLX.GetSession(connectionString + "&ssl-mode=required"));
     }
 
     [Test, Description("Provide three hosts to connection with one with priority and other two without priority")]
