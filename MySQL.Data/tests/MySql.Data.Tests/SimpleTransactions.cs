@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,7 +33,7 @@ using System.Reflection;
 
 namespace MySql.Data.MySqlClient.Tests
 {
-  public class SimpleTransactions  : TestBase
+  public class SimpleTransactions : TestBase
   {
     protected override void Cleanup()
     {
@@ -78,20 +78,11 @@ namespace MySql.Data.MySqlClient.Tests
     public void NestedTransactions()
     {
       MySqlTransaction t1 = Connection.BeginTransaction();
-      //try
-      //{
-        Exception ex = Assert.Throws<InvalidOperationException>(() => { Connection.BeginTransaction(); });
-        Assert.AreEqual("Nested transactions are not supported.", ex.Message);
-        ////Assert.Fail("Exception should have been thrown");
-        //t2.Rollback();
-      //}
-      //catch (InvalidOperationException)
-      //{
-      //}
-      //finally
-      //{
-        t1.Rollback();
-      //}
+
+      Exception ex = Assert.Throws<InvalidOperationException>(() => { Connection.BeginTransaction(); });
+      Assert.AreEqual("Nested transactions are not supported.", ex.Message);
+
+      t1.Rollback();
     }
 
     [Test]
@@ -176,5 +167,40 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (Exception) { }
     }
+
+    #region WL14389
+
+    [Test, Description("Transaction Scope")]
+    public void TransactionScope()
+    {
+      using (var myConn = new MySqlConnection(Connection.ConnectionString))
+      {
+        myConn.Open();
+        var cmdtoexec = myConn.CreateCommand();
+        var myTransaction = myConn.BeginTransaction();
+        cmdtoexec.Transaction = myTransaction;
+
+        cmdtoexec.CommandText = "SET autocommit = 0";
+        cmdtoexec.ExecuteNonQuery();
+
+        cmdtoexec.CommandText = "DROP TABLE IF EXISTS transactiontable;";
+        cmdtoexec.ExecuteNonQuery();
+
+        cmdtoexec.CommandText =
+            "CREATE TABLE  transactiontable(Id int(10) unsigned NOT NULL default '0', PRIMARY KEY  (Id))ENGINE=InnoDB";
+        cmdtoexec.ExecuteNonQuery();
+
+        for (var i = 0; i < 50; i++)
+          MySqlHelper.ExecuteNonQuery(myConn, string.Format("INSERT INTO transactiontable VALUES({0})", i));
+
+        myTransaction.Rollback(); // to rollback actions
+        cmdtoexec.CommandText = "select count(*) from transactiontable";
+        var count = cmdtoexec.ExecuteScalar();
+        Assert.AreEqual(0,count);
+      }
+    }
+
+    #endregion WL14389
+
   }
 }

@@ -114,10 +114,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-
-
-
-
     [Test]
     public void TestZeroDateTimeException()
     {
@@ -512,9 +508,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-#endregion
+    #endregion
 
-#region TimeStampTests
+    #region TimeStampTests
     [Test]
     public void CanUpdateMillisecondsUsingTimeStampType()
     {
@@ -596,7 +592,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-#endregion
+    #endregion
 
     /// <summary>
     /// Bug #63812	MySqlDateTime.GetDateTime() does not specify Timezone for TIMESTAMP fields
@@ -902,5 +898,62 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Close();
       }
     }
+
+    #region WL14389
+    /// <summary>
+    ///   Bug 17924388
+    /// </summary>
+    [Test, Description("MySQL Datetime Milliseconds ")]
+    public void MilisecondsWithTimeColumn()
+    {
+
+      using (var conn = new MySqlConnection(Settings.ConnectionString))
+      {
+        var cmd = new MySqlCommand();
+        var timeValue = "00:01:32.123456789";
+        conn.Open();
+        cmd.Connection = conn;
+        cmd.CommandText = "DROP TABLE IF EXISTS T";
+        cmd.ExecuteNonQuery();
+
+        cmd.CommandText = "CREATE TABLE T (dt TIME(6));";
+        cmd.ExecuteNonQuery();
+
+        cmd.CommandText = $"INSERT INTO T (dt) VALUES('{timeValue}');";
+        cmd.ExecuteNonQuery();
+
+        cmd.CommandText = "SELECT dt FROM T;";
+        cmd.ExecuteNonQuery();
+
+        using (var reader = cmd.ExecuteReader())
+        {
+          reader.Read();
+          var val = reader.GetValue(0);
+          StringAssert.StartsWith(timeValue.Substring(0,14), val.ToString());
+        }
+
+        cmd.CommandText = "DROP TABLE IF EXISTS T";
+        cmd.ExecuteNonQuery();
+
+        cmd.CommandText = "CREATE TABLE T (dt TIME(3));";
+        cmd.ExecuteNonQuery();
+
+        cmd.CommandText = $"INSERT INTO T (dt) VALUES('{timeValue}');";
+        cmd.ExecuteNonQuery();
+
+        cmd.CommandText = "SELECT dt FROM T;";
+        cmd.ExecuteNonQuery();
+
+        using (var reader = cmd.ExecuteReader())
+        {
+          reader.Read();
+          var val = reader.GetTimeSpan(0);
+          StringAssert.StartsWith(timeValue.Substring(0, 12), val.ToString());
+        }
+      }
+    }
+
+    #endregion WL14389
+
   }
 }

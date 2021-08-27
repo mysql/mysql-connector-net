@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,6 +32,7 @@ using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using MySqlX.XDevAPI;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {
@@ -40,7 +41,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     Table table;
 
     [SetUp]
-    public void SetUp ()
+    public void SetUp()
     {
       ExecuteSQL("CREATE TABLE test.test(id INT, name VARCHAR(40), age INT)");
 
@@ -54,6 +55,9 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteInsertStatement(insertStatement);
       Assert.AreEqual(rowsToInsert, CountRows());
     }
+
+    [TearDown]
+    public void TearDown() => ExecuteSQL("DROP TABLE IF EXISTS test");
 
     private int CountRows()
     {
@@ -153,5 +157,211 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.AreEqual(1, ExecuteUpdateStatement(table.Update().Where("age IN (3)").Set("id", 0)).AffectedItemsCount);
       Assert.AreEqual(3, ExecuteSelectStatement(table.Select().Where("id = 0")).FetchAll().Count);
     }
+
+    #region WL14389
+
+    [Test, Description("Collection.Find(condition).GroupBy(SearchExprStr)")]
+    public void TableSelectGroupBy()
+    {
+      ExecuteSQLStatement(session.SQL("set sql_mode = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';"));
+      session.SQL("delete from test").Execute();
+      Table table = testSchema.GetTable("test");
+      var result1 = table.Insert("id", "name", "age")
+          .Values(1, "jonh doe", 38)
+          .Values(2, "milton greenh", 45)
+          .Values(3, "larry smith", 24)
+          .Values(4, "mary weinstein", 24)
+          .Values(5, "jerry pratt", 45)
+          .Values(6, "hugh jackman", 20)
+          .Values(7, "elizabeth olsen", 31)
+        .Execute();
+      RowResult result = table.Select().OrderBy("age desc").Execute();
+      Assert.Throws<MySqlException>(() => table.Delete().Limit(1).Offset(3).Execute());
+
+      var t2 = table.Delete().Limit(1).Offset(0).Execute();
+      result1 = table.Insert("id", "name", "age")
+          .Values(1, "jonh doe", 38)
+        .Execute();
+
+      Assert.Throws<MySqlException>(() => table.Update().Set("name", "updated").Limit(1).Offset(3).Execute());
+
+      t2 = table.Update().Set("name", "updated").Limit(1).Offset(0).Execute();
+      var t = table.Select().Limit(1).Offset(3).Execute();
+      t = table.Select().Limit(10).Offset(3).Execute();
+      Assert.Throws<ArgumentOutOfRangeException>(() => ExecuteSelectStatement(table.Select().Limit(-1).Offset(3)));
+
+      t = table.Select().Limit(100000000).Offset(3).Execute();
+      t = table.Select().Limit(2).Offset(-1).Execute();
+      t = table.Select().Limit(2).Offset(1000000).Execute();
+
+      result = table.Select().GroupBy("age").Execute();
+      Assert.AreEqual(5, result.FetchAll().Count);
+
+      // GroupBy with null.
+      result = table.Select("id as ID", "name as Name", "age as Age").GroupBy(null).Execute();
+      Assert.AreEqual(7, result.FetchAll().Count);
+
+      result = table.Select("id as ID", "name as Name", "age as Age").GroupBy(null, null).Execute();
+      Assert.AreEqual(7, result.FetchAll().Count);
+
+      result = table.Select("id as ID", "name as Name", "age as Age").GroupBy(null, "age").Execute();
+      Assert.AreEqual(5, result.FetchAll().Count);
+
+      // Having operation.
+      // Having reduces the original 5 rows to 3 since 2 rows have a cnt=2, due to the repeated names.
+      result = table.Select("id", "count(name) as cnt", "age").GroupBy("age").Having("cnt = 1").Execute();
+      Assert.AreEqual(3, result.FetchAll().Count);
+
+      // Having with null.
+      result = table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(null).Execute();
+      Assert.AreEqual(5, result.FetchAll().Count);
+
+      // GroupBy with invalid field name.
+      Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy("Required")));
+      Assert.AreEqual("Unknown column 'Required' in 'group statement'", ex.Message);
+
+      ex = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy("")));
+      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex.Message);
+
+      ex = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy(" ")));
+      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex.Message);
+
+      ex = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy(string.Empty)));
+      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex.Message);
+
+      ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("Required = 1")));
+      Assert.AreEqual("Unknown column 'Required' in 'having clause'", ex.Message);
+
+      ex = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("")));
+      Assert.AreEqual("Unable to parse query ''", ex.Message);
+      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex.InnerException.Message);
+
+      Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(" ")));
+      Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(string.Empty)));
+    }
+
+    [Test, Description("Reading exclusively locked document in a table using lock_shared with DEFAULT waiting option.")]
+    public void ExclusiveLockBeforeSharedLockDefaultWaiting()
+    {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+
+      session.SQL("DROP TABLE IF EXISTS test.test").Execute();
+      session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
+      var table1 = testSchema.GetTable("test");
+      table1.Insert("id", "a").Values(1, 1).Values(2, 2).Values(3, 3).Execute();
+      using (var session2 = MySQLX.GetSession(ConnectionString))
+      {
+        var table = session.Schema.GetTable("test");
+        session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)").Execute();
+        var table2 = session2.GetSchema("test").GetTable("test");
+
+        session.SQL("START TRANSACTION").Execute();
+        var rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
+        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+
+        session2.SQL("START TRANSACTION").Execute();
+        // Should return immediately since document isn't locked.
+        rowResult = table2.Select().Where("id = 2").LockShared(LockContention.Default).Execute();
+        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+
+        // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
+        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
+        Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockShared(LockContention.Default)));
+
+        // Session2 blocks due to to LockExclusive() not allowing to modify locked documents.
+        Result result1;
+        Assert.Throws<MySqlException>(() => result1 = table2.Update().Where("id = 1").Set("a", 2).Execute());
+
+        // Session2 returns immediately as session is committed.
+        session.Commit();
+        var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
+        Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the deleted record count");
+
+        session.SQL("ROLLBACK").Execute();
+        session2.SQL("ROLLBACK").Execute();
+      }
+    }
+
+    [Test, Description("Reading locked document(lock_shared) in a table using lock_shared with DEFAULT waiting option.")]
+    public void SharedLockDefaultWaiting()
+    {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+
+      session.SQL("DROP TABLE IF EXISTS test.test").Execute();
+      session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
+      var table1 = testSchema.GetTable("test");
+      table1.Insert("id", "a").Values(1, 1).Values(2, 2).Values(3, 3).Execute();
+      using (var session2 = MySQLX.GetSession(ConnectionString))
+      {
+        var table = session.Schema.GetTable("test");
+        var table2 = session2.GetSchema("test").GetTable("test");
+
+        session.SQL("START TRANSACTION").Execute();
+        var rowResult = table.Select().Where("id = 1").LockShared().Execute();
+        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+
+        session2.SQL("START TRANSACTION").Execute();
+        // Should return immediately since document isn't locked.
+        rowResult = table2.Select().Where("id = 2").LockShared(LockContention.Default).Execute();
+        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+
+        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
+        rowResult = table2.Select().Where("id = 1").LockShared(LockContention.Default).Execute();
+        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        // Session2 blocks due to to LockShared() not allowing to modify locked documents.
+        Result result1;
+        Assert.Throws<MySqlException>(() => result1 = table2.Update().Where("id = 1").Set("a", 2).Execute());
+
+        // Session2 returns immediately as session is committed.
+        session.Commit();
+        var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
+
+        session.SQL("ROLLBACK").Execute();
+        session2.SQL("ROLLBACK").Execute();
+      }
+    }
+
+    [Test,Description("Reading exclusively locked document in a table using lock_exclusive with DEFAULT waiting option ")]
+    public void OnlyExclusiveLocksWithDefaultWaiting()
+    {
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+
+      session.SQL("DROP TABLE IF EXISTS test.test").Execute();
+      session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
+      var table1 = testSchema.GetTable("test");
+      table1.Insert("id", "a").Values(1, 1).Values(2, 2).Values(3, 3).Execute();
+      using (var session2 = MySQLX.GetSession(ConnectionString))
+      {
+        var table = session.Schema.GetTable("test");
+        session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)").Execute();
+        var table2 = session2.GetSchema("test").GetTable("test");
+
+        session.SQL("START TRANSACTION").Execute();
+        var rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
+        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+
+        session2.SQL("START TRANSACTION").Execute();
+        // Should return immediately since document isn't locked.
+        rowResult = table2.Select().Where("id = 2").LockExclusive(LockContention.Default).Execute();
+        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+
+        // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
+        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
+        Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive(LockContention.Default)));
+
+        // Session2 blocks due to to LockExclusive() not allowing to modify locked documents.
+        Result result1;
+        Assert.Throws<MySqlException>(() => result1 = table2.Update().Where("id = 1").Set("a", 2).Execute());
+
+        // Session2 returns immediately as session is committed.
+        session.Commit();
+        var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
+        session.SQL("ROLLBACK").Execute();
+        session2.SQL("ROLLBACK").Execute();
+      }
+    }
+
+    #endregion WL14389
+
   }
 }

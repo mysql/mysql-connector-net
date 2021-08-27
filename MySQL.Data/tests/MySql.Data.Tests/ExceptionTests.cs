@@ -78,7 +78,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (Version < new Version("8.0.24")) return;
 
-      var builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      var builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslMode = MySqlSslMode.None;
       builder.AllowPublicKeyRetrieval = true;
       builder.Database = "";

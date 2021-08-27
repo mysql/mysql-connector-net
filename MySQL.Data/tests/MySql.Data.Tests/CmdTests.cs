@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -123,26 +123,26 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void UpdateTest()
     {
-      ExecuteSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
-      ExecuteSQL("INSERT INTO Test (id,name) VALUES(10, 'Test')");
-      ExecuteSQL("INSERT INTO Test (id,name) VALUES(11, 'Test2')");
+      ExecuteSQL("CREATE TABLE test (id int NOT NULL, name VARCHAR(100))");
+      ExecuteSQL("INSERT INTO test (id,name) VALUES(10, 'Test')");
+      ExecuteSQL("INSERT INTO test (id,name) VALUES(11, 'Test2')");
 
       // do the update
-      MySqlCommand cmd = new MySqlCommand("UPDATE Test SET name='Test3' WHERE id=10 OR id=11", Connection);
+      MySqlCommand cmd = new MySqlCommand("UPDATE test SET name='Test3' WHERE id=10 OR id=11", Connection);
       int cnt = cmd.ExecuteNonQuery();
       Assert.AreEqual(2, cnt);
 
       // make sure we get the right value back out
-      cmd.CommandText = "SELECT name FROM Test WHERE id=10";
+      cmd.CommandText = "SELECT name FROM test WHERE id=10";
       string name = (string)cmd.ExecuteScalar();
       Assert.AreEqual("Test3", name);
 
-      cmd.CommandText = "SELECT name FROM Test WHERE id=11";
+      cmd.CommandText = "SELECT name FROM test WHERE id=11";
       name = (string)cmd.ExecuteScalar();
       Assert.AreEqual("Test3", name);
 
       // now do the update with parameters
-      cmd.CommandText = "UPDATE Test SET name=?name WHERE id=?id";
+      cmd.CommandText = "UPDATE test SET name=?name WHERE id=?id";
       cmd.Parameters.Add(new MySqlParameter("?id", 11));
       cmd.Parameters.Add(new MySqlParameter("?name", "Test5"));
       cnt = cmd.ExecuteNonQuery();
@@ -150,9 +150,10 @@ namespace MySql.Data.MySqlClient.Tests
 
       // make sure we get the right value back out
       cmd.Parameters.Clear();
-      cmd.CommandText = "SELECT name FROM Test WHERE id=11";
+      cmd.CommandText = "SELECT name FROM test WHERE id=11";
       name = (string)cmd.ExecuteScalar();
       Assert.AreEqual("Test5", name);
+
     }
 
     [Test]
@@ -744,5 +745,112 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     #endregion
+
+    #region WL14389
+    [Test, Description("Timeout using Big Table ")]
+    public void TimeoutBigTable()
+    {
+      var txt = @"
+      CREATE TABLE `inventory` (
+     `inventory_id` mediumint unsigned NOT NULL AUTO_INCREMENT,
+     `film_id` int unsigned NOT NULL,
+     `store_id` tinyint unsigned NOT NULL,
+     `last_update` timestamp NOT NULL,   
+      PRIMARY KEY (`inventory_id`)
+      )";
+      ExecuteSQL(txt);
+      Random rnd = new Random();
+      for (int i = 0; i < 5000; i++)
+      {
+        var film = rnd.Next(1, 100);
+        var store = rnd.Next(2);
+        ExecuteSQL($"insert into inventory(film_id,store_id,last_update) values({film},{store},'2006-02-15 05:09:17'); ");
+      }
+      using (var conn = new MySqlConnection(Connection.ConnectionString))
+      {
+        conn.Open();
+        var cmd = new MySqlCommand();
+        cmd.Connection = conn;
+        cmd.CommandTimeout = 999999;
+        cmd.CommandText = "SELECT * FROM inventory;";
+        cmd.ExecuteNonQuery();
+
+        using (var reader = cmd.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            Assert.AreEqual(999999, cmd.CommandTimeout);
+            Assert.IsNotEmpty(reader.GetValue(0).ToString());
+            Assert.IsNotEmpty(reader.GetValue(1).ToString());
+            Assert.IsNotEmpty(reader.GetValue(2).ToString());
+            Assert.IsNotEmpty(reader.GetValue(3).ToString());
+          }
+        }
+      }
+      ExecuteSQL("drop table if exists inventory");
+    }
+
+    [Test, Description("MySQL Reserved Word used")]
+    public void ReservedWordUse()
+    {
+      var connStr = $"server={Host};user={Settings.UserID};database={Settings.Database};port={Port};password={Settings.Password};logging=true;sslmode=none";
+      using (var conn = new MySqlConnection(connStr))
+      {
+        var cmd = new MySqlCommand();
+        conn.Open();
+        cmd.Connection = conn;
+        cmd.CommandText = "DROP TABLE IF EXISTS mitabla";
+        cmd.ExecuteNonQuery();
+        cmd.CommandText =
+            "CREATE TABLE mitabla ( value VARCHAR(45) NOT NULL, unknown VARCHAR(45) NOT NULL, status VARCHAR(45) NOT NULL)";
+        cmd.ExecuteNonQuery();
+        cmd.CommandText =
+            "insert into mitabla values('1','test','status')";
+        cmd.ExecuteNonQuery();
+        cmd.CommandText = "select value, unknown, status from mitabla;";
+        using (var rdr = cmd.ExecuteReader())
+        {
+          while (rdr.Read())
+          {
+            Assert.AreEqual("1", rdr[0]);
+            Assert.AreEqual("test", rdr[1]);
+            Assert.AreEqual("status", rdr[2]);
+          }
+        }
+      }
+    }
+
+    /// <summary>
+    /// Bug 19474480
+    /// </summary>
+    [Test, Description("Memory Leak Orabug 19474480")]
+    [Ignore("This test needs to be executed individually as it makes too much iterations")]
+    public void MemoryLeak()
+    {
+      var sql = "SELECT 1";
+      const int TestIterationCount = 100000;
+
+      for (var i = 0; i < TestIterationCount; i++)
+        using (var conn = new MySqlConnection(Settings.ConnectionString))
+        using (var comm = new MySqlCommand(sql, conn))
+        {
+          conn.Open();
+          comm.ExecuteNonQuery();
+        }
+
+      for (var i = 0; i < TestIterationCount; i++)
+      {
+        var conn = new MySqlConnection(Settings.ConnectionString);
+        var comm = new MySqlCommand(sql, conn);
+        {
+          conn.Open();
+          comm.ExecuteNonQuery();
+          conn.Close();
+          conn.Dispose();
+        }
+      }
+    }
+
+    #endregion WL14389
   }
 }

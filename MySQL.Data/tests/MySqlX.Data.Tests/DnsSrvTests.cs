@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, 2020, Oracle and/or its affiliates.
+﻿// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -120,6 +120,7 @@ namespace MySqlX.Data.Tests
     [TestCase("mysqlx+srv://test:test@[localhost]")]
     [TestCase("mysqlx+srv://test:test@[(address=localhost,priority=100)]")]
     [TestCase("mysqlx+srv://test:test@localhost?dns-srv=true;")]
+    [TestCase("server=www.google.com;user=test;password=test;dns-srv=true;")]
     public void DnsResolverNoHosts(string connString)
     {
       var ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(connString));

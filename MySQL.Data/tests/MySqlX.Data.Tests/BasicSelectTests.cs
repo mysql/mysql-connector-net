@@ -46,6 +46,10 @@ namespace MySqlX.Data.Tests
       var rows = result.FetchAll();
       Assert.True(result.Columns.Count == 2);
       Assert.True(rows.Count == 2);
+
+      var result2 = session.SQL("Select* from test.books").Execute();
+      var row2 = result2.FetchOne();
+      Assert.True(result2.Columns.Count == 3);
     }
 
     [Test]

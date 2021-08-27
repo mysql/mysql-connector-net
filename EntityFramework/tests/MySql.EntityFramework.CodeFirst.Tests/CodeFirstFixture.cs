@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -32,6 +32,7 @@ using NUnit.Framework;
 using System.Data.Entity.Core.EntityClient;
 using System.Data.Entity;
 using MySql.Data.EntityFramework.Tests;
+using MySql.EntityFramework.CodeFirst.Tests;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
@@ -123,6 +124,11 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       DeleteContext<ShortDbContext>();
       DeleteContext<UsingUnionContext>();
       DeleteContext<BlogContext>();
+      DeleteContext<ContextForString>();
+      DeleteContext<ContextForNormalFk>();
+      DeleteContext<ContextForLongFk>();
+      DeleteContext<ContextForTinyPk>();
+      DeleteContext<ContextForBigIntPk>();
     }
 
     public static string GetEFConnectionString<T>(string database = null) where T : DbContext
