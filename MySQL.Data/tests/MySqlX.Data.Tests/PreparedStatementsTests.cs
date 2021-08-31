@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,6 +32,9 @@ using MySqlX.XDevAPI.CRUD;
 using MySqlX.XDevAPI.Relational;
 using System;
 using NUnit.Framework;
+using MySql.Data.MySqlClient;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MySqlX.Data.Tests
 {
@@ -63,6 +66,7 @@ namespace MySqlX.Data.Tests
 
     public void InitTable()
     {
+      ExecuteSQL($"DROP TABLE IF EXISTS {_tableName}");
       ExecuteSQL($"CREATE TABLE {_tableName} (id INT, name VARCHAR(45), age INT)");
       TableInsertStatement stmt = testSchema.GetTable(_tableName).Insert();
       for (int i = 0; i < _allRows.Length; i++)
@@ -108,6 +112,8 @@ namespace MySqlX.Data.Tests
       .GetSchema(schemaName)
       .GetTable(_tableName);
 
+    [SetUp]
+    public void SetUp() => session.Reset();
 
     [Test]
     public void Find()
@@ -514,5 +520,427 @@ namespace MySqlX.Data.Tests
       ValidatePreparedStatements(1, 3,
         $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$.pages') >= ?) AND (JSON_EXTRACT(doc,'$.pages') <= ?)) LIMIT ?, ?");
     }
+
+    #region WL14389
+
+    [Test, Description("Validate prepared statements for connection pooling")]
+    public void ConnectionPoolingTest()
+    {
+      string connectionID1 = null;
+      Session session1, session2 = null;
+      Client client1 = null;
+      using (client1 = MySQLX.GetClient(ConnectionStringUri, new { pooling = new { maxSize = 1, queueTimeout = 2000 } }))
+      {
+        session1 = client1.GetSession();
+        session1.DropSchema(schemaName);
+        session1.CreateSchema(schemaName);
+        InitCollection();
+        var s = session1.GetSchema(schemaName);
+        var col = GetCollection();
+
+        var res0 = session1.SQL("SELECT CONNECTION_ID()").Execute();
+        if (res0.HasData)
+        {
+          var row = res0.FetchOne();
+          connectionID1 = row[0].ToString();
+          Assert.IsNotEmpty(connectionID1);
+        }
+        var findStmt = col.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
+        DocResult doc = ExecuteFindStatement(findStmt);
+        Assert.AreEqual("Book 1", doc.FetchAll()[0]["title"].ToString());
+        ValidatePreparedStatements(0, 0, null);
+        for (int i = 1; i < _docs.Length; i++)
+        {
+          doc = ExecuteFindStatement(findStmt.Bind("id", i).Bind("pages", i * 10 + 10).Limit(1));
+          Assert.AreEqual($"Book {i}", doc.FetchAll()[0]["title"].ToString());
+        }
+        ValidatePreparedStatements(1, 3,
+          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?");
+        session1.Close();
+
+        session2 = client1.GetSession();
+        res0 = session2.SQL("SELECT CONNECTION_ID()").Execute();
+        if (res0.HasData)
+        {
+          var row = res0.FetchOne();
+          connectionID1 = row[0].ToString();
+          Assert.IsNotEmpty(connectionID1);
+        }
+        s = session2.GetSchema(schemaName);
+        col = s.GetCollection(_collectionName);
+        findStmt = col.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
+        doc = ExecuteFindStatement(findStmt);
+        Assert.AreEqual("Book 1", doc.FetchAll()[0]["title"].ToString());
+        ValidatePreparedStatements(0, 0, null, connectionID1);
+        for (int i = 1; i < _docs.Length; i++)
+        {
+          doc = ExecuteFindStatement(findStmt.Bind("id", i).Bind("pages", i * 10 + 10).Limit(1));
+          Assert.AreEqual($"Book {i}", doc.FetchAll()[0]["title"].ToString());
+        }
+        ValidatePreparedStatements(1, 3,
+          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?");
+        session2.Close();
+        Assert.Throws<MySqlException>(() => doc = ExecuteFindStatement(findStmt));
+        session2 = client1.GetSession();
+        res0 = session2.SQL("SELECT CONNECTION_ID()").Execute();
+        if (res0.HasData)
+        {
+          var row = res0.FetchOne();
+          connectionID1 = row[0].ToString();
+          Assert.IsNotEmpty(connectionID1);
+        }
+        s = session2.GetSchema(schemaName);
+        col = s.GetCollection(_collectionName);
+        findStmt = col.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
+        doc = ExecuteFindStatement(findStmt);
+        Assert.AreEqual("Book 1", doc.FetchAll()[0]["title"].ToString());
+        ValidatePreparedStatements(0, 0, null, connectionID1);
+        for (int i = 1; i < _docs.Length; i++)
+        {
+          doc = ExecuteFindStatement(findStmt.Bind("id", i).Bind("pages", i * 10 + 10).Limit(1));
+          Assert.AreEqual($"Book {i}", doc.FetchAll()[0]["title"].ToString());
+        }
+        ValidatePreparedStatements(1, 3,
+          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?");
+        session2.Close();
+        Assert.Throws<MySqlException>(() => doc = ExecuteFindStatement(findStmt));
+      }
+    }
+
+    [Test, Description("Deallocate PreparedStatments When Closing Session Load-100 times")]
+    public void DeallocatePreparedStatmentsWhenClosingSessionLoad()
+    {
+      InitCollection();
+      string threadId;
+      for (int k = 0; k < 100; k++)
+      {
+        using (Session mySession = MySQLX.GetSession(ConnectionString))
+        {
+          mySession.SetCurrentSchema(schemaName);
+          threadId = mySession.SQL("SELECT THREAD_ID FROM performance_schema.threads " +
+              "WHERE PROCESSLIST_ID=CONNECTION_ID()").Execute().FetchOne()[0].ToString();
+          Collection coll = mySession.GetSchema(schemaName).GetCollection(_collectionName);
+          var findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
+          DocResult doc = ExecuteFindStatement(findStmt);
+          Assert.AreEqual("Book 1", doc.FetchAll()[0]["title"].ToString());
+          ValidatePreparedStatements(0, 0, null, threadId);
+
+          for (int i = 1; i <= _docs.Length; i++)
+          {
+            doc = ExecuteFindStatement(findStmt.Bind("id", i).Bind("pages", i * 10 + 10).Limit(1));
+            Assert.AreEqual($"Book {i}", doc.FetchAll()[0]["title"].ToString());
+          }
+          ValidatePreparedStatements(1, 4,
+            $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?", threadId);
+          mySession.Close();
+          ValidatePreparedStatements(0, 0, null, threadId);
+        }
+      }
+    }
+
+    [Test, Description("Deallocate PreparedStatments When Closing Session Parallel")]
+    public void DeallocatePreparedStatmentsWhenClosingSessionParallel()
+    {
+      InitCollection();
+      string threadId1, threadId2;
+
+      Session mySession1 = MySQLX.GetSession(ConnectionString);
+      Session mySession2 = MySQLX.GetSession(ConnectionString);
+      mySession1.SetCurrentSchema(schemaName);
+      mySession2.SetCurrentSchema(schemaName);
+      threadId1 = mySession1.SQL("SELECT THREAD_ID FROM performance_schema.threads " +
+          "WHERE PROCESSLIST_ID=CONNECTION_ID()").Execute().FetchOne()[0].ToString();
+      threadId2 = mySession2.SQL("SELECT THREAD_ID FROM performance_schema.threads " +
+          "WHERE PROCESSLIST_ID=CONNECTION_ID()").Execute().FetchOne()[0].ToString();
+      Collection coll1 = mySession1.GetSchema(schemaName).GetCollection(_collectionName);
+      Collection coll2 = mySession2.GetSchema(schemaName).GetCollection(_collectionName);
+      var findStmt1 = coll1.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
+      var findStmt2 = coll2.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
+      DocResult doc1 = ExecuteFindStatement(findStmt1);
+      Assert.AreEqual("Book 1", doc1.FetchAll()[0]["title"].ToString());
+      ValidatePreparedStatements(0, 0, null, threadId1);
+
+      DocResult doc2 = ExecuteFindStatement(findStmt2);
+      Assert.AreEqual("Book 1", doc2.FetchAll()[0]["title"].ToString());
+      ValidatePreparedStatements(0, 0, null, threadId2);
+
+      for (int i = 1; i <= _docs.Length; i++)
+      {
+        doc1 = ExecuteFindStatement(findStmt1.Bind("id", i).Bind("pages", i * 10 + 10).Limit(1));
+        Assert.AreEqual($"Book {i}", doc1.FetchAll()[0]["title"].ToString());
+      }
+
+      for (int i = 1; i <= _docs.Length; i++)
+      {
+        doc2 = ExecuteFindStatement(findStmt2.Bind("id", i).Bind("pages", i * 10 + 10).Limit(1));
+        Assert.AreEqual($"Book {i}", doc2.FetchAll()[0]["title"].ToString());
+      }
+
+      ValidatePreparedStatements(1, 4,
+          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?", threadId1);
+      ValidatePreparedStatements(1, 4,
+          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?", threadId2);
+
+      mySession1.Close();
+      mySession2.Close();
+      ValidatePreparedStatements(0, 0, null, threadId1);
+      ValidatePreparedStatements(0, 0, null, threadId2);
+    }
+
+    [Test, Description("Max PreparedStatment Count set to one")]
+    public void MaxPreparedStmtCountAsOne()
+    {
+      Collection coll = CreateCollection("testGlobal");
+      Result r = ExecuteAddStatement(coll.Add(_docs));
+      Assert.AreEqual(4, r.AffectedItemsCount);
+
+      try
+      {
+        ((Session)coll.Session).SQL("SET GLOBAL max_prepared_stmt_count=1").Execute();
+        var findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
+        DocResult doc = ExecuteFindStatement(findStmt);
+        Assert.AreEqual("Book 1", doc.FetchAll()[0]["title"].ToString());
+
+        ValidatePreparedStatements(0, 0, null);
+
+        for (int i = 1; i <= _docs.Length; i++)
+        {
+          doc = ExecuteFindStatement(findStmt.Bind("id", i).Bind("pages", i * 10 + 10).Limit(1));
+          Assert.AreEqual($"Book {i}", doc.FetchAll()[0]["title"].ToString());
+        }
+        ValidatePreparedStatements(1, 4,
+            $"SELECT doc FROM `{schemaName}`.`testGlobal` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?");
+
+        findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
+        ExecuteFindStatement(findStmt).FetchAll();
+        ExecuteFindStatement(findStmt).FetchAll();
+        ValidatePreparedStatements(0, 0, null);
+      }
+      finally
+      {
+        ((Session)coll.Session).SQL("SET GLOBAL max_prepared_stmt_count=16382").Execute();
+      }
+    }
+
+    [Test, Description("PS with Async")]
+    public void PSMultipleFindAsync()
+    {
+      var coll = CreateCollection("test");
+      int docs = 100;
+      HashSet<string> validator = new HashSet<string>();
+      var addStatement = coll.Add(new { id = 1, age = 1, _id = 1 });
+
+      for (int i = 2; i <= docs; i++)
+      {
+        addStatement.Add(new
+        {
+          id = i,
+          age = i,
+          _id = i
+        });
+      }
+      var result = ExecuteAddStatement(addStatement);
+
+      List<Task> tasksList = new List<Task>();
+      var findStmt = coll.Find("age = 1");
+      tasksList.Add(findStmt.ExecuteAsync().ContinueWith((findResult) =>
+      {
+        Assert.AreEqual(1, findResult.Result.FetchAll()[0]["age"]);
+      }));
+      tasksList.Add(findStmt.ExecuteAsync().ContinueWith((findResult) =>
+      {
+        Assert.AreEqual(1, findResult.Result.FetchAll()[0]["age"]);
+      }));
+      Assert.AreEqual(true, Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
+      ValidatePreparedStatements(1, 1, $"SELECT doc FROM `test`.`test` WHERE (JSON_EXTRACT(doc,'$.age') = 1)");
+
+    }
+
+    /// <summary>
+    ///   Bug 29304767
+    /// </summary>
+    [Test, Description("BIND WITH FIND/REMOVE DOESN'T WORK WHEN STRING IS PASSED-WL#12174")]
+    public void FindRemoveWithString()
+    {
+      InitCollection();
+      Collection coll = GetCollection();
+      Assert.AreEqual(4, coll.Count());
+      var findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", "1").Bind("pages", 20);
+      DocResult doc = ExecuteFindStatement(findStmt);
+      findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", "2").Bind("pages", 30);
+      doc = ExecuteFindStatement(findStmt);
+      var remStatement = coll.Remove("True").Sort().Limit(2).Where("$._id == :id");
+      for (int i = 1; i < 4; i++)
+      {
+        var r1 = remStatement.Bind("id", i.ToString()).Execute();
+      }
+      findStmt = coll.Find("_id = :id").Bind("id", "4");
+      var docCount = ExecuteFindStatement(findStmt).FetchAll();
+      Assert.AreEqual(1, docCount.Count, "There should be a record");
+      Assert.AreEqual("Book 4", docCount[0]["title"].ToString());
+      findStmt = coll.Find("_id = :id").Bind("id", "1");
+      docCount = ExecuteFindStatement(findStmt).FetchAll();
+      Assert.AreEqual(0, docCount.Count, "There should not be any records");
+    }
+
+    /// <summary>
+    ///   Bug 29311658
+    /// </summary>
+    [Test, Description("STATEMENT WITH OFFSET FAILS WHEN EXECUTED FOR THE SECOND TIME-WL#12174")]
+    public void StatementWithOffset()
+    {
+
+      var coll = CreateCollection("test");
+      ExecuteSQLStatement(session.SQL("SET sql_mode='';"));
+      var docs1 = new[]
+      {
+        new { _id = 11, name = "jonh doe", age =38,profit = 100 },
+        new { _id = 12, name = "milton green", age =45,profit = 200 },
+        new { _id = 13, name = "larry smith", age =24,profit = 300},
+        new { _id = 14, name = "mary weinstein", age= 24 ,profit = 100},
+        new { _id = 15, name = "jerry pratt", age =45 ,profit = 400 },
+        new { _id = 16, name = "hugh jackman", age =20,profit = 500},
+        new { _id = 117, name = "elizabeth olsen",age = 31,profit = 300 },
+        new { _id = 8, name = "tommy h", age =31,profit = 3000}
+      };
+      var r = coll.Add(docs1).Execute();
+      Assert.AreEqual((ulong)8, r.AffectedItemsCount);
+      var findStmt = coll.Find().Fields("_id as ID", "name as Name",
+          "age as Age", "profit as Profit").GroupBy("age").
+          GroupBy("profit").Sort("profit ASC").Limit(3);
+      ExecuteFindStatement(findStmt).FetchAll();
+      ValidatePreparedStatements(0, 0, null);
+      ExecuteFindStatement(findStmt).FetchAll();
+      ExecuteFindStatement(findStmt).FetchAll();
+      ValidatePreparedStatements(1, 2, "SELECT JSON_OBJECT('ID', `_DERIVED_TABLE_`.`ID`,'Name', `_DERIVED_TABLE_`.`Name`,'Age', `_DERIVED_TABLE_`.`Age`," +
+          "'Profit', `_DERIVED_TABLE_`.`Profit`) AS doc FROM (SELECT JSON_EXTRACT(doc,'$._id') AS `ID`,JSON_EXTRACT(doc,'$.name') " +
+          "AS `Name`,JSON_EXTRACT(doc,'$.age') AS `Age`,JSON_EXTRACT(doc,'$.profit') AS `Profit` FROM `test`.`Books` GROUP BY `profit` " +
+          "ORDER BY JSON_EXTRACT(doc,'$.profit') LIMIT ?, ?) AS `_DERIVED_TABLE_`");
+
+      findStmt = coll.Find().Fields("_id as ID", "name as Name",
+          "age as Age", "profit as Profit").GroupBy("age").
+          GroupBy("profit").Sort("profit ASC").Offset(0);
+      ExecuteFindStatement(findStmt).FetchAll();
+      ValidatePreparedStatements(0, 0, null);
+      ExecuteFindStatement(findStmt).FetchAll();
+      ExecuteFindStatement(findStmt).FetchAll();
+      ValidatePreparedStatements(1, 2, "SELECT JSON_OBJECT('ID', `_DERIVED_TABLE_`.`ID`,'Name', `_DERIVED_TABLE_`.`Name`,'Age', `_DERIVED_TABLE_`.`Age`," +
+          "'Profit', `_DERIVED_TABLE_`.`Profit`) AS doc FROM (SELECT JSON_EXTRACT(doc,'$._id') AS `ID`,JSON_EXTRACT(doc,'$.name') " +
+          "AS `Name`,JSON_EXTRACT(doc,'$.age') AS `Age`,JSON_EXTRACT(doc,'$.profit') AS `Profit` FROM `test`.`Books` GROUP BY `profit` " +
+          "ORDER BY JSON_EXTRACT(doc,'$.profit')) AS `_DERIVED_TABLE_`");
+
+
+      findStmt = coll.Find().Fields("_id as ID", "name as Name",
+          "age as Age", "profit as Profit").GroupBy("age").
+          GroupBy("profit").Sort("profit ASC").Limit(3).Offset(2);
+      ExecuteFindStatement(findStmt).FetchAll();
+      ValidatePreparedStatements(0, 0, null);
+
+      ExecuteFindStatement(findStmt).FetchAll();
+      ExecuteFindStatement(findStmt.Offset(0)).FetchAll();
+      ValidatePreparedStatements(1, 2, "SELECT JSON_OBJECT('ID', `_DERIVED_TABLE_`.`ID`,'Name', `_DERIVED_TABLE_`.`Name`,'Age', " +
+          "`_DERIVED_TABLE_`.`Age`,'Profit', `_DERIVED_TABLE_`.`Profit`) AS doc FROM (SELECT JSON_EXTRACT(doc,'$._id') AS `ID`," +
+          "JSON_EXTRACT(doc,'$.name') AS `Name`,JSON_EXTRACT(doc,'$.age') " +
+          "AS `Age`,JSON_EXTRACT(doc,'$.profit') AS `Profit` FROM `test`.`Books` GROUP BY `profit` ORDER BY JSON_EXTRACT(doc,'$.profit') LIMIT ?, ?) AS `_DERIVED_TABLE_`");
+
+      ExecuteSQLStatement(session.SQL("set sql_mode='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';"));
+
+    }
+
+    /// <summary>
+    ///  Bug 29249857
+    /// </summary>
+    [Test, Description("SESSION.SQL STATEMENT EXECUTION FAILS WHEN EXECUTED FOR SECOND TIME WITH BIND-WL#12174")]
+    public void SessionSqlStatementFail()
+    {
+      InitTable();
+      var sqlStmt = session.SQL(@"INSERT INTO test.BookTable VALUES(8, 'name 8', 40)");
+      for (int i = 0; i < 100; i++)
+      {
+        sqlStmt.Execute();
+      }
+      ValidatePreparedStatements(0, 0, null);
+      ExecuteSQL("DROP TABLE if EXISTS test.BookTable");
+      InitTable();
+      sqlStmt = session.SQL(@"INSERT INTO test.BookTable VALUES(8, 'name 8', 40)");
+      sqlStmt.Execute();
+      sqlStmt.Execute();
+      ExecuteSQL("DROP TABLE if EXISTS test.test1");
+      ExecuteSQL("CREATE TABLE test.test1(id INT, letter varchar(1))");
+      var statment = session.SQL("INSERT INTO test.test1 VALUES(1, ?), (2, 'B');").Bind(1);
+      statment.Execute();
+      sqlStmt.Execute();
+      ValidatePreparedStatements(0, 0, null);
+    }
+
+    /// <summary>
+    ///   Bug 29347028
+    /// </summary>
+    [Test, Description("DELETE WHERE THROWS PARSE EXCEPTION WITH IN OPERATOR FOR ARRAY")]
+    public void DeleteParseException()
+    {
+      if (!session.Version.isAtLeast(8, 0, 16)) Assert.Ignore("This test is for MySql 8.0.16 or higher.");
+      var tableName = "newtable";
+      Session session1 = null;
+      Client client1 = null;
+      using (client1 = MySQLX.GetClient(ConnectionStringUri, new { pooling = new { maxSize = 1, queueTimeout = 2000 } }))
+      {
+        session1 = client1.GetSession();
+        session1.DropSchema(schemaName);
+        session1.CreateSchema(schemaName);
+        var s = session1.GetSchema(schemaName);
+
+        session1.SQL($"create table `{schemaName}`.`{tableName}`(id JSON, n JSON, a JSON, info JSON)").Execute();
+        Table tabNew = s.GetTable(tableName);
+        tabNew.Insert().
+            Values("{\"_id\":101}", "{\"name\":\"joy\"}", "{\"age\":21}", "{\"additionalinfo\":{\"company\":\"xyz\",\"vehicle\":\"bike\",\"hobbies\":\"reading\"}}").
+            Values("{\"_id\":102}", "{\"name\":\"happy\"}", "{\"age\":24}", "{\"additionalinfo\":{\"company\":\"abc\",\"vehicle\":\"car\",\"hobbies\":[\"playing\",\"painting\",\"boxing\"]}}").
+            Execute();
+
+        var tDelete = tabNew.Delete().Where("[\"playing\", \"painting\",\"boxing\"] IN info->$.additionalinfo.hobbies");
+        tDelete.Execute();
+
+        tableName = "newtable1";
+        session1.SQL($"create table `{schemaName}`.`{tableName}`(c1 varchar(256), c2 JSON)").Execute();
+        tabNew = s.GetTable(tableName);
+        tabNew.Insert("c1", "c2").Values("12345", "{ \"name\": \"abc\", \"age\": 1 , \"misc\": 1.2}").Execute();
+        tabNew.Insert("c1", "c2").Values("123456", "{ \"name\": \"abc\", \"age\": 2 , \"misc\": 1.3}").Execute();
+        tabNew.Insert("c1", "c2").Values("1234567", "{ \"name\": \"abc\", \"age\": 3 , \"misc\": 1.4}").Execute();
+
+        tDelete = tabNew.Delete().Where(":C2 in c2->$.name and :C1 = c1");
+        tDelete.Bind("C1", "123456");
+        tDelete.Bind("C2", "abc");
+        tDelete.Execute();
+        session1.Close();
+      }
+
+    }
+
+    /// <summary>
+    ///  Bug 29346856
+    /// </summary>
+    [Test, Description("SECOND FIND/SELECT FAILS WITH IN OPERATOR-WL#12174-TS1")]
+    public void SecondFindFails()
+    {
+      var collectionName = "newcollection";
+      var t1 = "{\"_id\": \"1001\", \"ARR\":[1,2,3], \"ARR1\":[\"name1\",\"name2\", \"name3\"]}";
+      var t2 = "{\"_id\": \"1002\", \"ARR\":[1,1,2], \"ARR1\":[\"name1\",\"name2\", \"name3\"]}";
+      var t3 = "{\"_id\": \"1003\", \"ARR\":[1,4,5], \"ARR1\":[\"name1\",\"name2\", \"name3\"]}";
+      var testCollection = CreateCollection(collectionName);
+      testCollection.Add(t1).Execute();
+      testCollection.Add(t2).Execute();
+      testCollection.Add(t3).Execute();
+      var findStatement = testCollection.Find("(1+2) in (1, 2, 3)");
+      findStatement.Execute().FetchAll();
+      findStatement.Execute().FetchAll();
+
+      var table1 = testSchema.GetCollectionAsTable(collectionName);
+      var selectStatement = table1.Select().Where("(1+2) in (1, 2, 3)");
+      selectStatement.Execute().FetchAll();
+      selectStatement.Execute().FetchAll();
+    }
+
+    #endregion
+
   }
 }

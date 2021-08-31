@@ -500,7 +500,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void DatabaseCaseSentitive()
     {
-      if (Version >= new Version(8, 0, 0) || !Platform.IsWindows() ) return;
+      if (Version >= new Version(8, 0, 0) || !Platform.IsWindows()) Assert.Ignore("This test is only for Windows OS and MySql higher than 8.0.");
 
       ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
       ExecuteSQL(@"CREATE PROCEDURE spTest () BEGIN SELECT ""test""; END");
@@ -540,5 +540,90 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
+
+    #region WL14389
+    /// <summary>
+    ///       //Bug23257011
+    /// </summary>
+    [Test, Description("CharacterVariablesByAssigned")]
+    public void CharacterVariablesByDefaultServerDefault()
+    {
+
+      var connStr = $"server={Host};port={Port};user={Settings.UserID};password={Settings.Password};database={Settings.Database};SSL Mode={MySqlSslMode.None};";
+      var rootSb = new MySqlConnectionStringBuilder(connStr);
+      rootSb.CharacterSet = string.Empty;
+      using (var rootConnection = new MySqlConnection(rootSb.ToString()))
+      {
+        rootConnection.Open();
+        var cmd = rootConnection.CreateCommand();
+        cmd.CommandText = "SELECT @@character_set_server";
+        var characterSet = cmd.ExecuteScalar().ToString();
+        Assert.AreEqual(false, string.IsNullOrWhiteSpace(characterSet));
+
+        cmd.CommandText = "SHOW VARIABLES LIKE 'character_set_c%'";
+        using (var dr = cmd.ExecuteReader())
+        {
+          Assert.AreEqual(true, dr.HasRows);
+          while (dr.Read())
+            switch (dr.GetString(0).ToLowerInvariant())
+            {
+              case "character_set_client":
+                Assert.AreEqual(characterSet, dr.GetString(1));
+                break;
+              case "character_set_connection":
+                Assert.AreEqual(characterSet, dr.GetString(1));
+                break;
+            }
+        }
+
+        cmd.CommandText = "SELECT @@character_set_results";
+        Assert.AreEqual(DBNull.Value, cmd.ExecuteScalar());
+      }
+    }
+
+    /// <summary>
+    ///   Bug23257011
+    /// </summary>
+    [Test, Description("CharacterVariablesByAssigned")]
+    public void CharacterVariablesByAssignedServerDefault()
+    {
+
+      var connStr = $"server={Host};port={Port};user={Settings.UserID};password={Settings.Password};database={Settings.Database};SSL Mode={MySqlSslMode.None};";
+      var rootSb = new MySqlConnectionStringBuilder(connStr);
+      var expectedCharSet = "utf8";
+      rootSb.CharacterSet = "utf8";
+      using (var rootConnection = new MySqlConnection(rootSb.ToString()))
+      {
+        rootConnection.Open();
+        var cmd = rootConnection.CreateCommand();
+        cmd.CommandText = "SELECT @@character_set_server";
+        var characterSet = cmd.ExecuteScalar().ToString();
+        Assert.AreEqual(false, string.IsNullOrWhiteSpace(characterSet));
+
+        cmd.CommandText = "SHOW VARIABLES LIKE 'character_set_c%'";
+        using (var dr = cmd.ExecuteReader())
+        {
+          Assert.AreEqual(true, dr.HasRows);
+          while (dr.Read())
+            switch (dr.GetString(0).ToLowerInvariant())
+            {
+              case "character_set_client":
+                StringAssert.StartsWith(expectedCharSet, dr.GetString(1));
+                break;
+              case "character_set_connection":
+                StringAssert.StartsWith(expectedCharSet, dr.GetString(1));
+                break;
+              default:
+                Assert.Fail($"Variable {dr.GetString(0)} not expected."); break;
+            }
+        }
+
+        cmd.CommandText = "SELECT @@character_set_results";
+        Assert.AreEqual(DBNull.Value, cmd.ExecuteScalar());
+      }
+    }
+
+    #endregion WL14389
+
   }
 }

@@ -31,6 +31,9 @@ using MySqlX.XDevAPI;
 using System;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.IO;
+using System.Diagnostics;
+using System.Text;
 
 namespace MySqlX.Data.Tests
 {
@@ -40,6 +43,9 @@ namespace MySqlX.Data.Tests
   public class CompressionTests : BaseTest
   {
     private const string DEFLATE_STREAM = "DEFLATE_STREAM";
+    public Client client = null;
+    [TearDown]
+    public void TearDown() => ExecuteSQL("drop database if exists compression");
     [Test]
     public void ConnectionOptionIsValidUsingBuilder()
     {
@@ -626,5 +632,338 @@ namespace MySqlX.Data.Tests
         Assert.True(success);
       }
     }
+
+    #region WL14389
+
+    public static Session session1 = null;
+    public static Session session2 = null;
+    public static Session session3 = null;
+    public static Session session4 = null;
+    public CompressionType[] compressValue = { CompressionType.Required, CompressionType.Preferred, CompressionType.Disabled };
+    public MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA, MySqlSslMode.VerifyFull, MySqlSslMode.Preferred };
+    public static object connObject = new { server = Host, port = XPort, user = "test", password = "test" };
+
+    [Test,Description("Connection Compression tests to verify the values of compress option with connection string, uri, anonymous object, string builder")]
+    public void ConnectionStringCombinations()
+    {
+      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+
+      MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
+      sb.SslCa = sslCa;
+      sb.SslCert = sslCert;
+      sb.SslKey = sslKey;
+      for (int j = 0; j < 3; j++)
+      {
+        for (int i = 0; i < 3; i++)
+        {
+            //ConnectionString
+            session1 = MySQLX.GetSession(ConnectionStringUserWithSSLPEM + " ;Auth=AUTO;sslmode=" + modes[j] + ";compression=" + compressValue[i]);
+            Assert.AreEqual(SessionState.Open, session1.XSession.SessionState);
+            session1.Close();
+
+            //Uri
+            session2 = MySQLX.GetSession(connSSLURI + "&sslmode=" + modes[j] + "&compression=" + compressValue[i]);
+            Assert.AreEqual(SessionState.Open, session2.XSession.SessionState);
+            session2.Close();
+
+            //Anonymous Object
+            session3 = MySQLX.GetSession(new { server = sb.Server, user = sb.UserID, port = sb.Port, password = sb.Password, SslCa = sslCa, SslCert = sslCert, SslKey = sslKey, Auth = MySqlAuthenticationMode.AUTO, sslmode = modes[j], compression = compressValue[i] });
+            Assert.AreEqual(SessionState.Open, session3.XSession.SessionState);
+            session3.Close();
+
+            //MySqlXConnectionStringBuilder
+            sb.SslMode = modes[j];
+            sb.Auth = MySqlAuthenticationMode.AUTO;
+            sb.Compression = compressValue[i];
+            session4 = MySQLX.GetSession(sb.ConnectionString);
+            Assert.AreEqual(SessionState.Open, session4.XSession.SessionState);
+            session4.Close();
+        }
+      }
+
+      sb = new MySqlXConnectionStringBuilder(ConnectionString);
+      for (int i = 0; i < 3; i++)
+      {
+          session1 = MySQLX.GetSession(ConnectionString + ";auth=AUTO;compression=" + compressValue[i]);
+          Assert.AreEqual(SessionState.Open, session1.XSession.SessionState);
+          session1.Close();
+
+          session2 = MySQLX.GetSession(ConnectionStringUri + "?compression=" + compressValue[i]);
+          Assert.AreEqual(SessionState.Open, session2.XSession.SessionState);
+          session2.Close();
+
+          session3 = MySQLX.GetSession(new { server = sb.Server, user = sb.UserID, port = sb.Port, password = sb.Password, compression = compressValue[i] });
+          Assert.AreEqual(SessionState.Open, session3.XSession.SessionState);
+          session3.Close();
+
+          sb.Compression = compressValue[i];
+          session4 = MySQLX.GetSession(sb.ConnectionString);
+          Assert.AreEqual(SessionState.Open, session4.XSession.SessionState);
+          session4.Close();
+      }
+    }
+
+
+    [Test,Description("Verifying the connection pooling with compression option")]
+    public void CompressionWithPolling()
+    {
+      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      for (int i = 0; i < 3; i++)
+      {
+        client = MySQLX.GetClient(ConnectionString + ";compression=" + compressValue[i], new { pooling = new { maxSize = 2, queueTimeout = 2000 } });
+        
+          session1 = client.GetSession();
+          Assert.AreEqual(SessionState.Open, session1.XSession.SessionState);
+          session1.Close();
+   
+          session2 = client.GetSession();
+          Assert.AreEqual(SessionState.Open, session2.XSession.SessionState);
+          session2.Close();
+
+          session1 = client.GetSession();
+          Assert.AreEqual(SessionState.Open, session1.XSession.SessionState);
+          session2 = client.GetSession();
+          Assert.AreEqual(SessionState.Open, session2.XSession.SessionState);
+
+          Assert.Throws<TimeoutException>(()=> client.GetSession());
+          session1.Close();
+          session2.Close();
+      }
+    }
+
+    [Test,Description("Verify if data sent is compressed")]
+    public void VerifyDataSentCompression()
+    {
+      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      int BYTESIZE = 20000;
+      string[] compressValue1 = new string[] { "preferred", "required", "required" };
+      string[] compressValue2 = new string[] { "disabled", "disabled", "preferred" };
+      for (int i = 0; i < 3; i++)
+      {
+        session1 = MySQLX.GetSession(ConnectionString + ";compression=" + compressValue1[i]);
+        session1.SQL("DROP database if exists compression").Execute();
+        session1.SQL("create database compression").Execute();
+        session1.SQL("use compression").Execute();
+        Schema schema = session1.GetSchema("compression");
+        var collection = schema.CreateCollection("compressed");
+
+        string text = GenerateDummyText("Wiki Loves Monuments ", BYTESIZE);
+        var doc = new[] { new { _id = 1, summary = text } };
+        collection.Add(doc).Execute();
+        schema.GetCollection("compressed");
+
+        session2 = MySQLX.GetSession(ConnectionString + ";compression=" + compressValue2[i]);
+        session2.SQL("use compression").Execute();
+        schema = session2.GetSchema("compression");
+        
+        schema.GetCollection("compressed");
+        var reader = session2.SQL("Select count(*) from compressed").Execute().FetchOne()[0];
+        var reader2 = session2.SQL("Select * from compressed").Execute().FetchAll();
+        Assert.AreEqual("1", reader.ToString());
+
+        // Results of compression when its value for session1 is: compressValue1[i] and for session2 is: compressValue2[i]
+        var result1 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_uncompressed_frame' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result1);
+        var result2 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_uncompressed_frame' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result2);
+        var result3 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_compressed_payload' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result3); 
+        var result4 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_compressed_payload' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result4);
+        if (Convert.ToInt32(result4) == 0 || Convert.ToInt32(result2) == 0)
+        {
+          Assert.Fail("Compression failed");
+        }
+
+        // Results of compression when its value for session2 is: compressValue1[i] and for session2 is: compressValue2[i]
+        var result21 = session2.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_uncompressed_frame' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result21);
+        var result22 = session2.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_uncompressed_frame' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result22);
+        var result23 = session2.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_compressed_payload' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result23);
+        var result24 = session2.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_compressed_payload' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result24);
+        session1.Close();
+        session2.Close();
+      }
+    }
+
+    [Test,Description("Verify if data read is compressed")]
+    public void VerifyDataReadCompression()
+    {
+      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      const int BYTESIZE = 20000;
+      string[] compressValue1 = new string[] { "preferred", "required" };
+      for (int i = 0; i < 2; i++)
+      {
+        session1 = MySQLX.GetSession(ConnectionString + ";compression=disabled");
+        session1.SQL("DROP database if exists compression").Execute();
+        session1.SQL("create database compression").Execute();
+        session1.SQL("use compression").Execute();
+        Schema schema = session1.GetSchema("compression");
+        var collection = schema.CreateCollection("compressed");
+        string text = GenerateDummyText("Wiki Loves Monuments ", BYTESIZE);
+        var doc = new[] { new { _id = 1, summary = text } };
+        collection.Add(doc).Execute();
+        schema.GetCollection("compressed");
+
+        session2 = MySQLX.GetSession(ConnectionString + ";compression=" + compressValue1[i]);
+        session2.SQL("use compression").Execute();
+        schema = session2.GetSchema("compression");
+
+        schema.GetCollection("compressed");
+        var reader = session2.SQL("Select count(*) from compressed").Execute().FetchOne()[0];
+        var reader2 = session2.SQL("Select * from compressed").Execute().FetchAll();
+        Assert.AreEqual("1", reader.ToString());
+
+        var result1 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_uncompressed_frame' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result1);
+        var result2 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_uncompressed_frame' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result2);
+        var result3 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_compressed_payload' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result3);
+        var result4 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_compressed_payload' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result4);
+
+        var result21 = session2.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_uncompressed_frame' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result21);
+        var result22 = session2.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_uncompressed_frame' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result22);
+        var result23 = session2.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_compressed_payload' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result23);
+        var result24 = session2.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_compressed_payload' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result24);
+        session1.Close();
+        session2.Close();
+      }
+    }
+
+
+    [Test,Description("Verifying the threshold for compression")]
+    public void CompressionThreshold()
+    {
+      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      using (session1 = MySQLX.GetSession(ConnectionString + ";compression=required"))
+      {
+        session1.SQL("DROP database if exists compression").Execute();
+        session1.SQL("create database compression").Execute();
+        session1.SQL("use compression").Execute();
+        Schema schema = session1.GetSchema("compression");
+        var collection = schema.CreateCollection("compressed");
+        string text1 = GenerateDummyText("Wiki Loves Monuments ", 47).Substring(0, 917);
+        var doc1 = new[] { new { _id = 1, summary = text1 } };
+
+        collection.Add(doc1).Execute();
+        var result1 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_uncompressed_frame' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result1);
+        var result2 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_uncompressed_frame' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result2);
+        var result3 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_compressed_payload' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result3);
+        var result4 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_compressed_payload' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result4);
+        if (Convert.ToInt32(result2) != 0 || Convert.ToInt32(result4) != 0)
+        {
+          Assert.Fail("Compression failed");
+        }
+
+        var collection2 = schema.CreateCollection("compressed2");
+        string text2 = GenerateDummyText("Wiki Loves Monuments ", 48).Substring(0, 1000);
+        var doc2 = new[] { new { _id = 1, summary = text2 } };
+
+        collection2.Add(doc2).Execute();
+        var result1b = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_uncompressed_frame' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result1b);
+        var result2b = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_uncompressed_frame' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result2b);
+        var result3b = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_compressed_payload' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result3b);
+        var result4b = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_compressed_payload' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result4b);
+        if (Convert.ToInt32(result4b) == 0 || Convert.ToInt32(result2b) == 0)
+        {
+          Assert.Fail("Compression failed");
+        }
+
+        var collection3 = schema.CreateCollection("compressed3");
+        string text3 = GenerateDummyText("Wiki Loves Monuments ", 48).Substring(0, 1002);
+        var doc3 = new[] { new { _id = 1, summary = text3 } };
+
+        collection3.Add(doc3).Execute();
+        var result1c = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_uncompressed_frame' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result1c);
+        var result2c = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_uncompressed_frame' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result2c);
+        var result3c = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_compressed_payload' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result3c);
+        var result4c = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_compressed_payload' ").Execute().FetchOne()[1];
+        Assert.IsNotNull(result4c);
+        if (Convert.ToInt32(result4c) == 0 || Convert.ToInt32(result2c) == 0)
+        {
+          Assert.Fail("Compression failed");
+        }
+      }
+    }
+
+    [Test,Description("Checking the network latency")]
+    public void NetworkLatency()
+    {
+      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      const int BYTESIZE = 20000;
+      Stopwatch watch1 = new Stopwatch();
+      session1 = MySQLX.GetSession(ConnectionString + ";compression=required");
+      session1.SQL("DROP database if exists compression").Execute();
+      session1.SQL("create database compression").Execute();
+      session1.SQL("use compression").Execute();
+      Schema schema = session1.GetSchema("compression");
+      var collection = schema.CreateCollection("compressed");
+      string text = GenerateDummyText("Wiki Loves Monuments ", BYTESIZE);
+      var doc = new[] { new { _id = 1, summary = text } };
+
+      watch1.Start();
+      collection.Add(doc).Execute();
+      schema.GetCollection("compressed");
+      watch1.Stop();
+
+      var watchTime1 = watch1.ElapsedMilliseconds;
+      session1.Close();
+
+      Stopwatch watch2 = new Stopwatch();
+      session2 = MySQLX.GetSession(ConnectionString + ";compression=disabled");
+      session2.SQL("drop database if exists compression").Execute();
+      session2.SQL("create database compression").Execute();
+      session2.SQL("use compression").Execute();
+      Schema schema2 = session2.GetSchema("compression");
+      collection = schema2.CreateCollection("compressed2");
+      text = GenerateDummyText("Wiki Loves Monuments ", BYTESIZE);
+      doc = new[] { new { _id = 1, summary = text } };
+
+      watch2.Start();
+      collection.Add(doc).Execute();
+      schema2.GetCollection("compressed2");
+      watch2.Stop();
+
+      var watchTime2 = watch2.ElapsedMilliseconds;
+      session2.Close();
+      Assert.True(watchTime1 != watchTime2);
+    }
+    #endregion
+
+    #region Methods
+    /// <summary>
+    /// Repeat the string <paramref name="textToRepeat"/> an specific number of times <paramref name="timesToRepeat"/>
+    /// </summary>
+    /// <param name="textToRepeat"></param>
+    /// <param name="timesToRepeat"></param>
+    /// <returns></returns>
+    protected string GenerateDummyText(string textToRepeat, int timesToRepeat)
+    {
+      if (string.IsNullOrEmpty(textToRepeat) || timesToRepeat <= 0) return string.Empty;
+
+      return new StringBuilder(textToRepeat.Length * timesToRepeat).Insert(0, textToRepeat, timesToRepeat).ToString();
+    }
+    #endregion Methods
+
   }
 }

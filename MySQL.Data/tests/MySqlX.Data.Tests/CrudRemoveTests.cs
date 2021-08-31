@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -132,7 +132,8 @@ namespace MySqlX.Data.Tests
       Exception ex = Assert.Throws<KeyNotFoundException>(() => ExecuteRemoveStatement(coll.Remove("_id = :id").Bind("id", doc.Id)));
     }
 
-    [Test]    public void RemoveBind()
+    [Test]
+    public void RemoveBind()
     {
       Collection coll = CreateCollection("test");
       var docs = new[]
@@ -147,6 +148,14 @@ namespace MySqlX.Data.Tests
 
       r = ExecuteRemoveStatement(coll.Remove("pages = :Pages").Bind("pAges", 50));
       Assert.AreEqual(1, r.AffectedItemsCount);
+
+      var jsonParams = new { pages1 = 30, pages2 = 40 };
+      var res = coll.Remove("pages = :Pages1 || pages = :Pages2").Bind(jsonParams).Execute();
+      Assert.AreEqual(2, res.AffectedItemsCount);
+
+      DbDoc docParams = new DbDoc(new { pages1 = 10, pages2 = 20 });
+      coll.Remove("pages = :Pages1 || pages = :Pages2").Bind(docParams).Execute();
+      Assert.True(res.AffectedItemsCount > 0);
     }
 
     [Test]
@@ -187,7 +196,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void RemoveWithInOperator()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8,0,3)) return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       var docs = new[]
@@ -248,5 +257,127 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentNullException>(() => collection.RemoveOne(""));
       Assert.Throws<ArgumentNullException>(() => collection.RemoveOne(string.Empty));
     }
+
+    #region WL14389
+
+    [Test, Description("MySQLX CNET Forbid remove() with no condition-Scenario-2")]
+    public void ForbidRemoveWithNoCondition()
+    {
+      Collection collection = CreateCollection("test");
+      var docs = new[]
+      {
+                    new {  _id = 1, title = "Book 1", pages = 20 },
+                    new {  _id = 2, title = "Book 2", pages = 30 },
+                    new {  _id = 3, title = "Book 3", pages = 40 },
+                    new {  _id = 4, title = "Book 4", pages = 50 },
+                    };
+      Result result = collection.Add(docs).Execute();
+      Assert.AreEqual(4, result.AffectedItemsCount);
+
+      string errorMessage = "Parameter can't be null or empty.\r\nParameter name: condition";
+      result = collection.Remove("true").Where("_id = 1").Execute();
+      Assert.AreEqual(1, result.AffectedItemsCount);
+
+      result = collection.Remove("true").Where("_id = 10").Execute();
+      Assert.AreEqual(0, result.AffectedItemsCount);
+      result = collection.Remove("false").Where("_id = 2").Execute();
+      Assert.AreEqual(1, result.AffectedItemsCount);
+      result = collection.Remove("false").Where("_id = 10").Execute();
+      Assert.AreEqual(0, result.AffectedItemsCount);
+      Assert.Throws<ArgumentNullException>(() => collection.Remove(""));
+    }
+
+    [Test, Description("Test MySQLX plugin MySQL Net 846 - Collection Unset Multiple")]
+    public void CollectionUnsetMultiple()
+    {
+      Collection col = CreateCollection("my_collection_1");
+      Collection col1 = CreateCollection("my_collection_2");
+
+      var d1 = new DbDoc();
+      d1.SetValue("_id", 1);
+      d1.SetValue("books", "test1");
+      d1.SetValue("count", 10);
+
+      var d2 = new DbDoc();
+      d2.SetValue("_id", 2);
+      d2.SetValue("books", "test2");
+      d2.SetValue("count", 20);
+
+      var d3 = new DbDoc();
+      d3.SetValue("_id", 3);
+      d3.SetValue("books", "test3");
+      d3.SetValue("count", 30);
+
+      var d4 = new DbDoc();
+      d4.SetValue("_id", 4);
+      d4.SetValue("books", "test4");
+      d4.SetValue("count", 40);
+
+      var d5 = new DbDoc();
+      d5.SetValue("_id", 5);
+      d5.SetValue("books", "test5");
+      d5.SetValue("count", 50);
+
+      var d6 = new DbDoc();
+      d6.SetValue("_id", 6);
+      d6.SetValue("books", "test6");
+      d6.SetValue("count", 0);
+
+      var d7 = new DbDoc();
+      d7.SetValue("_id", 0);
+      d7.SetValue("books", "test7");
+      d7.SetValue("count", 60);
+
+      var final = col.Add(d1, d2).Add(d3).Execute();
+
+      var res1 = col.Find().Fields("{\"_id\":\"1\",\"books\": \"test1\" }").Fields("{\"_id\":\"2\",\"books\": \"test2\" }").Fields("{\"_id\":\"3\",\"books\": \"test3\" }").Execute().FetchAll();
+      res1 = col.Find().Fields(new string[] { "_id", "books", "count" }).Execute().FetchAll();
+      Assert.AreEqual(3, res1.Count, "Matching the find count");
+      Assert.AreEqual(d1.ToString(), res1[0].ToString(), "Matching the doc string 1");
+      Assert.AreEqual(d2.ToString(), res1[1].ToString(), "Matching the doc string 2");
+      Assert.AreEqual(d3.ToString(), res1[2].ToString(), "Matching the doc string 3");
+      final = col.Add(new DbDoc[] { d4, d5 }).Execute();
+      var res2 = col.Find().Fields("$._id as _id,$.books as books, $.count as count").Execute().FetchAll();
+      Assert.AreEqual(5, res2.Count, "Matching the find count");
+      Assert.AreEqual(d1.ToString(), res2[0].ToString(), "Matching the doc string 1");
+      Assert.AreEqual(d2.ToString(), res2[1].ToString(), "Matching the doc string 2");
+      Assert.AreEqual(d3.ToString(), res2[2].ToString(), "Matching the doc string 3");
+      Assert.AreEqual(d4.ToString(), res2[3].ToString(), "Matching the doc string 4");
+      Assert.AreEqual(d5.ToString(), res2[4].ToString(), "Matching the doc string 5");
+      final = col.Add(d6, d7).Execute();
+      var res3 = col.Find().Sort("count ASC").Execute().FetchAll();
+      Assert.AreEqual(d6.ToString(), res3[0].ToString(), "Matching the doc string 7");
+      Assert.AreEqual(d1.ToString(), res3[1].ToString(), "Matching the doc string 1");
+      Assert.AreEqual(d2.ToString(), res3[2].ToString(), "Matching the doc string 2");
+      Assert.AreEqual(d3.ToString(), res3[3].ToString(), "Matching the doc string 3");
+      Assert.AreEqual(d4.ToString(), res3[4].ToString(), "Matching the doc string 4");
+      Assert.AreEqual(d5.ToString(), res3[5].ToString(), "Matching the doc string 5");
+      Assert.AreEqual(d7.ToString(), res3[6].ToString(), "Matching the doc string 6");
+      var res4 = col.Find().Sort("count DESC").Execute().FetchAll();
+      Assert.AreEqual(d7.ToString(), res4[0].ToString(), "Matching the doc string 6");
+      Assert.AreEqual(d5.ToString(), res4[1].ToString(), "Matching the doc string 1");
+      Assert.AreEqual(d4.ToString(), res4[2].ToString(), "Matching the doc string 2");
+      Assert.AreEqual(d3.ToString(), res4[3].ToString(), "Matching the doc string 3");
+      Assert.AreEqual(d2.ToString(), res4[4].ToString(), "Matching the doc string 4");
+      Assert.AreEqual(d1.ToString(), res4[5].ToString(), "Matching the doc string 5");
+      Assert.AreEqual(d6.ToString(), res4[6].ToString(), "Matching the doc string 7");
+      //Unset with multiple variables not supported
+      col.Modify("_id = 1").Unset(new string[] { "count", "books" }).Execute();
+      col.Modify("_id = 1").Set("count", 10).Set("books", "test1").Execute();
+
+    }
+
+    [Test, Description("Test MySQLX plugin RemovingItemUsingDbDoc")]
+    public void RemovingItemUsingDbDoc()
+    {
+      Collection coll = CreateCollection("test");
+      DbDoc doc = new DbDoc(new { _id = 1, title = "Book 1", pages = 20 });
+      Result r = coll.Add(doc).Execute();
+      Assert.AreEqual(1, (int)r.AffectedItemsCount, "Match being done");
+      r = coll.Remove("_id=1").Execute();
+      Assert.AreEqual(1, (int)r.AffectedItemsCount, "Match being done");
+    }
+
+    #endregion WL14389
   }
 }

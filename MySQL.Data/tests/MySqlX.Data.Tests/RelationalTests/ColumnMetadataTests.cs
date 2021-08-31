@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2016, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -35,6 +35,8 @@ namespace MySqlX.Data.Tests.RelationalTests
 {
   public class ColumnMetadataTests : BaseTest
   {
+    [TearDown]
+    public void TearDown() => ExecuteSQL("DROP TABLE IF EXISTS test");
     [Test]
     public void ColumnMetadata()
     {
@@ -137,6 +139,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test]
     public void TableDefaultCharset()
     {
+      ExecuteSQL("Drop Table if exists test");
       ExecuteSQL("CREATE TABLE test(b VARCHAR(255)) CHARSET greek");
       ExecuteSQL("INSERT INTO test VALUES('Δ')");
 

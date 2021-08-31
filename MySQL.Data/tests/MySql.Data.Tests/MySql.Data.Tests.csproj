@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Title>MySql.Data.Tests</Title>
@@ -115,6 +115,14 @@
     <ContentWithTargetPath Include="certificates\server-key.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <TargetPath>server-key.pem</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="certificates\client-incorrect.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>client-incorrect.pfx</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\image1.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>image1.jpg</TargetPath>
     </ContentWithTargetPath>
     <None Update="certificates\ca_dummy.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

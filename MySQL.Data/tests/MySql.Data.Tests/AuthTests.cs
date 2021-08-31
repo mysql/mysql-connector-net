@@ -32,6 +32,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Reflection;
 using System.Text;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -878,7 +879,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void CheckAllowPublicKeyRetrievalOptionIsAvailable()
     {
-      string connectionString = ConnectionSettings.ConnectionString;
+      string connectionString = Settings.ConnectionString;
       connectionString += ";allowpublickeyretrieval=true";
       using (MySqlConnection connection = new MySqlConnection(connectionString))
       {
@@ -1076,8 +1077,8 @@ namespace MySql.Data.MySqlClient.Tests
         Database = string.Empty
       };
 
-      CreateUser(userName, password, plugin, "%");
-      CreateUser(proxyUser, "", null, "%");
+      ExecuteSQL($"CREATE USER '{userName}'@'%' IDENTIFIED WITH '{plugin}' BY '{password}'", true);
+      ExecuteSQL($"CREATE USER '{proxyUser}'@'%' IDENTIFIED BY ''", true);
       ExecuteSQL($@"GRANT ALL ON *.* TO '{proxyUser}';
         GRANT PROXY on '{proxyUser}' TO '{userName}';", true);
 
@@ -1479,5 +1480,294 @@ namespace MySql.Data.MySqlClient.Tests
       StringAssert.AreEqualIgnoringCase(Resources.OciSDKNotFound, exMsg);
     }
     #endregion
+
+    #region WL14389
+
+    [Test, Description("Test User Authentication Fails with classic protocol")]
+    public void AuthPlainAndMySql41()
+    {
+      if (Version <= new Version("5.7")) return;
+      MySqlConnection connection = null;
+      var connectionString = $"server={Settings.Server};user={Settings.UserID};port={Port};password={Settings.Password};auth=PLAIN";
+      Assert.Throws<ArgumentException>(() => connection = new MySqlConnection(connectionString));
+
+      connectionString = $"server={Settings.Server};user={Settings.UserID};port={Port};password={Settings.Password};auth=MySQL41";
+      Assert.Throws<ArgumentException>(() => connection = new MySqlConnection(connectionString));
+    }
+
+    [Test, Description("Test caching_sha2_password feature in the client(auth plugin=sha2_password and native password) in the server(>=8.0.4) " +
+                  "with secure connections(classic connection).Server started with mysql native password plugin")]
+    [Ignore("Fix this")]
+    public void Sha256AndNativeWithCertificates()
+    {
+      if (Version <= new Version("8.0.4")) Assert.Ignore("This test is for MySql 8.0.4 or higher");
+
+      using (var rdr = ExecuteReader("SELECT * FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME = 'caching_sha2_password'"))
+      {
+        if (!rdr.HasRows) Assert.Ignore("This test needs plugin caching_sha2_password");
+      }
+
+      // Test connection for VALID user in LDAP server with different SSLMode values, expected result pass
+      string assemblyPath = Assembly.GetExecutingAssembly().Location.Replace(String.Format("{0}.dll",
+              Assembly.GetExecutingAssembly().GetName().Name), string.Empty);
+
+      string _sslCa = _sslCa = assemblyPath + "ca.pem";
+      string _sslWrongCert = assemblyPath + "client-incorrect.pfx";
+
+      FileAssert.Exists(_sslCa);
+      FileAssert.Exists(_sslWrongCert);
+
+      string pluginName = "sha256_password";
+      MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder();
+      builder.Server = Host;
+      builder.Port = Convert.ToUInt32(Port);
+      builder.UserID = "testCachingSha2";
+      builder.Password = "test";
+      CreateUser(builder.UserID, builder.Password, pluginName);
+
+      // Authentication using RSA keys. Only available in servers compiled with OpenSSL (E.g. Commercial).
+      bool serverCompiledUsingOpenSsl = false;
+      builder.Password = "test";
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Rsa_public_key';", connection);
+
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          if (reader.HasRows)
+          {
+            reader.Read();
+            if (!string.IsNullOrEmpty(reader.GetString(1))) serverCompiledUsingOpenSsl = true;
+          }
+        }
+      }
+
+      // Authentication success with full authentication - TLS connection.
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      // Authentication fails with full authentication - TLS connection.SSL Mode default disabled
+      builder.SslMode = MySqlSslMode.None;
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        Assert.Throws<MySqlException>(() => connection.Open());
+      }
+
+      string connStr = null;
+      connStr = $"server={Host};port={Port};user={builder.UserID};password={builder.Password};";
+      connStr += $";SSL Mode=Required;CertificateFile={_sslCa};CertificatePassword=pass;";
+      using (MySqlConnection connection = new MySqlConnection(connStr))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      connStr = string.Empty;
+      connStr = $"server={Host};port={Port};user={builder.UserID};password={builder.Password};";
+      connStr += $";SSL Mode=VerifyCA;CertificateFile={_sslCa};CertificatePassword=pass;";
+      using (MySqlConnection connection = new MySqlConnection(connStr))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      connStr = string.Empty;
+      connStr = $"server={Host};port={Port};user={builder.UserID};password={builder.Password};";
+      connStr += $";SSL Mode=Required;CertificateFile={_sslCa};CertificatePassword=wrongpass;";
+      using (MySqlConnection connection = new MySqlConnection(connStr))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      connStr = string.Empty;
+      connStr = $"server={Host};port={Port};user={builder.UserID};password={builder.Password};";
+      connStr += $";SSL Mode=VerifyCA;CertificateFile={_sslCa};CertificatePassword=wrongpass;";
+      using (MySqlConnection connection = new MySqlConnection(connStr))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      connStr = string.Empty;
+      connStr = $"server={Host};port={Port};user={builder.UserID};password={builder.Password};";
+      connStr += $";SSL Mode=Required;CertificateFile={_sslWrongCert};CertificatePassword=pass;";
+      using (MySqlConnection connection = new MySqlConnection(connStr))
+      {
+        Assert.Catch(() => connection.Open());
+      }
+
+      // Flush privileges clears the cache.
+      ExecuteSQL("flush privileges");
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString + ";pooling=false"))
+      {
+        Assert.Throws<MySqlException>(() => connection.Open());
+      }
+
+      if (serverCompiledUsingOpenSsl)
+      {
+        builder.SslMode = MySqlSslMode.None;
+        using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString + ";AllowPublicKeyRetrieval=false;pooling=false"))
+        {
+          Assert.Throws<MySqlException>(() => connection.Open());
+        }
+
+        using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString + ";AllowPublicKeyRetrieval=true;pooling=false"))
+        {
+          connection.Open();
+        }
+      }
+
+      // Authentication - TLS connection.
+      builder.UserID = "testCachingSha2";
+      builder.Password = "test";
+      builder.SslMode = MySqlSslMode.Preferred;
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      builder.UserID = "testCachingSha2";
+      builder.Password = "test";
+      builder.SslMode = MySqlSslMode.Required;
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      // Flush privileges clears the cache.
+      ExecuteSQL("flush privileges");
+      builder.Password = "incorrectPassword";
+      Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
+
+      // Authentication success with empty password – Any connection.
+      builder = new MySqlConnectionStringBuilder();
+      builder.Server = Host;
+      builder.Port = Convert.ToUInt32(Port);
+      builder.UserID = "testCachingSha2NoPassword";
+      builder.Password = "";
+      CreateUser(builder.UserID, builder.Password, pluginName);
+
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      builder.SslMode = MySqlSslMode.None;
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      builder.UserID = "testCachingSha2";
+      builder.SslMode = MySqlSslMode.Required;
+      Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
+
+      builder.SslMode = MySqlSslMode.None;
+      Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
+
+      pluginName = "mysql_native_password";
+      builder = new MySqlConnectionStringBuilder(RootSettings.ConnectionString);
+      builder.UserID = "testNative";
+      builder.Password = "test";
+      CreateUser(builder.UserID, builder.Password, pluginName);
+
+      // TLS enabled.
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+
+      builder.SslMode = MySqlSslMode.None;
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      builder.SslMode = MySqlSslMode.Required;
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      ExecuteSQL("flush privileges");
+      builder.SslMode = MySqlSslMode.None;
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      connStr = string.Empty;
+      connStr = $"server={Host};port={Port};user={builder.UserID};password={builder.Password};";
+      connStr += $";SSL Mode=Required;CertificateFile={_sslCa};CertificatePassword=pass;";
+      using (MySqlConnection connection = new MySqlConnection(connStr))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      pluginName = "mysql_native_password";
+      builder = new MySqlConnectionStringBuilder();
+      builder.Server = Host;
+      builder.Port = Convert.ToUInt32(Port);
+      builder.UserID = "testNativeBlankPassword";
+      builder.Password = "";
+      CreateUser(builder.UserID, builder.Password, pluginName);
+
+      // TLS enabled.
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      // TLS not enabled.
+      builder.SslMode = MySqlSslMode.None;
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      builder.SslMode = MySqlSslMode.Required;
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      ExecuteSQL("flush privileges");
+      builder.SslMode = MySqlSslMode.None;
+      using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
+      {
+        connection.Open();
+        connection.Close();
+      }
+
+      connStr = string.Empty;
+      connStr = $"server={Host};port={Port};user={builder.UserID};password={builder.Password};";
+      connStr += $";SSL Mode=Required;CertificateFile={_sslCa};CertificatePassword=pass;";
+      using (MySqlConnection connection = new MySqlConnection(connStr))
+      {
+        connection.Open();
+        connection.Close();
+      }
+    }
+
+    #endregion WL14389
+
   }
 }

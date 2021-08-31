@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2014, 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2014, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,6 +40,7 @@ using NUnit.Framework;
 using System.Data.Entity.Spatial;
 using MySql.Data.EntityFramework.Tests;
 using MySql.EntityFramework.CodeFirst.Tests.Properties;
+using MySql.EntityFramework.CodeFirst.Tests;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
@@ -1187,8 +1188,9 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       }
     }
 
+
     [Test]
-    [Ignore("Fix this")]
+    [Ignore("This test needs MicrosoftSqlServer.Types which is not available for all the target frameworks.")]
     public void SpatialSupportTest()
     {
       using (var dbCtx = new JourneyContext())
@@ -1198,6 +1200,21 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         {
           name = "JFK INTERNATIONAL AIRPORT OF NEW YORK",
           location = DbGeometry.FromText("POINT(40.644047 -73.782291)"),
+        });
+        dbCtx.MyPlaces.Add(new MyPlace
+        {
+          name = "ALLEY POND PARK",
+          location = DbGeometry.FromText("POINT(40.745696 -73.742638)")
+        });
+        dbCtx.MyPlaces.Add(new MyPlace
+        {
+          name = "CUNNINGHAM PARK",
+          location = DbGeometry.FromText("POINT(40.735031 -73.768387)")
+        });
+        dbCtx.MyPlaces.Add(new MyPlace
+        {
+          name = "QUEENS VILLAGE STATION",
+          location = DbGeometry.FromText("POINT(40.717957 -73.736501)")
         });
         dbCtx.SaveChanges();
 
@@ -1212,10 +1229,64 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         Assert.AreNotEqual(null, place);
         Assert.AreEqual(8.6944880240295852D, distance.Value);
 
-        var distanceDB = from p in dbCtx.MyPlaces
-                         select p.location.Distance(point);
+        var points = from p in dbCtx.MyPlaces
+                     select new { name = p.name, location = p.location };
+        foreach (var item in points)
+        {
+          var distanceX = DbGeometry.FromText("POINT(40.717957 -73.736501)").Distance(item.location) * 100;
+          Assert.IsNotNull(distanceX);
+        }
 
-        Assert.AreEqual(0.086944880240295852D, distanceDB.FirstOrDefault());
+        foreach (MyPlace p in dbCtx.MyPlaces)
+          dbCtx.MyPlaces.Remove(p);
+        dbCtx.SaveChanges();
+
+        dbCtx.MyPlaces.Add(new MyPlace
+        {
+          name = "AGraphic Design Institute",
+          location = DbGeometry.FromText(string.Format("POINT({0} {1})", -122.336106, 47.605049), 101)
+        });
+
+        dbCtx.MyPlaces.Add(new MyPlace
+        {
+          name = "AGraphic Design Institute",
+          location = DbGeometry.FromText("POINT(-123.336106 47.605049)", 102)
+        });
+
+        dbCtx.MyPlaces.Add(new MyPlace
+        {
+          name = "BGraphic Design Institute",
+          location = DbGeometry.FromText("POINT(-113.336106 47.605049)", 103)
+        });
+
+        dbCtx.MyPlaces.Add(new MyPlace
+        {
+          name = "Graphic Design Institute",
+          location = DbGeometry.FromText(string.Format("POINT({0} {1})", 51.5, -1.28), 4326)
+        });
+        dbCtx.SaveChanges();
+
+        var result = (from u in dbCtx.MyPlaces select u.location.CoordinateSystemId).ToList();
+        foreach (var item in result)
+          Assert.IsNotNull(item);
+        var res = dbCtx.MyPlaces.OrderBy(q => q.name.Take(1).Skip(1).ToList());
+        Assert.IsNotNull(res);
+
+        var pointA1 = DbGeometry.FromText(string.Format("POINT(40.644047 -73.782291)"));
+        var pointB1 = DbGeometry.FromText("POINT(40.717957 -73.736501)");
+        var distance1 = pointA1.Distance(pointB1);
+
+        var pointA2 = DbGeometry.FromText("POINT(2.5 2.5)");
+        var pointB2 = DbGeometry.FromText("POINT(4 0.8)");
+        var distance2 = pointA2.Distance(pointB2);
+
+        var pointA3 = DbGeometry.FromText("POINT(3 -4)");
+        var pointB3 = DbGeometry.FromText("POINT(-1 3)");
+        var distance3 = pointA3.Distance(pointB3);
+
+        Assert.True(distance1.Value == 0.086944880240295855 && distance2.Value == 2.2671568097509267 &&
+             distance3.Value == 8.06225774829855);
+
       }
     }
 
@@ -1785,5 +1856,364 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         Assert.AreEqual("Blog_1", context.Blog.First().Title);
       }
     }
+    #region WL14389
+    [Test, Description("UNION SYNTAX MISSING REQUIRED PARENTHESIS")]
+    public void UnionSyntax()
+    {
+      using (var context = new ContextForString())
+      {
+        context.Database.Delete();
+        context.Database.Create();
+        context.StringUsers.Add(new StringUser
+        {
+          StringUserId = 1,
+          Name50 = "Juan",
+          Name100 = "100",
+          Name200 = "200",
+          Name300 = "300"
+        });
+        context.StringUsers.Add(new StringUser
+        {
+          StringUserId = 2,
+          Name50 = "Pedro",
+          Name100 = "cien",
+          Name200 = "doscientos",
+          Name300 = "trescientos"
+        });
+        context.StringUsers.Add(new StringUser
+        {
+          StringUserId = 3,
+          Name50 = "Lupe",
+          Name100 = "101",
+          Name200 = "cxvbx",
+          Name300 = "301"
+        });
+        context.StringUsers.Add(new StringUser
+        {
+          StringUserId = 4,
+          Name50 = "Luis",
+          Name100 = "asdf",
+          Name200 = "wrwe",
+          Name300 = "xcvb"
+        });
+        context.StringUsers.Add(new StringUser
+        {
+          StringUserId = 5,
+          Name50 = "Pepe",
+          Name100 = "asdf",
+          Name200 = "zxvz",
+          Name300 = "fgsd"
+        });
+        context.SaveChanges();
+
+        var query1 = context.StringUsers;
+        var query2 = query1.Take(0).Concat(query1);
+        var query3 = query1.Concat(query1.Take(0));
+        Assert.True((query1.Count() == 5) & (query2.Count() == 5) & (query3.Count() == 5));
+      }
+    }
+
+    [Test, Description("FK name ,longer than 64 chars are named to FK_<guid>")]
+    public void NormalForeignKey()
+    {
+      using (var context = new ContextForNormalFk())
+      {
+        context.Database.Initialize(true);
+        using (MySqlConnection conn = new MySqlConnection(context.Database.Connection.ConnectionString))
+        {
+          conn.Open();
+          var cmd = new MySqlCommand();
+          var entityName = (context.Permisos.GetType().FullName.Split(',')[0]).Substring(66).ToLowerInvariant();
+          var contextName = context.GetType().Name.ToLowerInvariant();
+          cmd.Connection = conn;
+          cmd.CommandText =
+              $"SELECT CONSTRAINT_NAME FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_SCHEMA = '{contextName}' and TABLE_NAME = '{entityName}';";
+          cmd.ExecuteNonQuery();
+
+          using (var reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              var val = reader.GetValue(0);
+              Assert.True(val.ToString().Contains("FK_"));
+            }
+          }
+        }
+      }
+    }
+
+    [Test, Description("FK name ,longer than 64 chars are named to FK_<guid>")]
+    public void LongForeignKey()
+    {
+      using (var context = new ContextForLongFk())
+      {
+        context.Database.Initialize(true);
+        var entityName = (context.Permisos.GetType().FullName.Split(',')[0]).Substring(66).ToLowerInvariant();
+        var contextName = context.GetType().Name.ToLowerInvariant();
+        using (MySqlConnection conn = new MySqlConnection(context.Database.Connection.ConnectionString))
+        {
+          conn.Open();
+          var cmd = new MySqlCommand();
+          cmd.Connection = conn;
+          cmd.CommandText =
+              $"SELECT CONSTRAINT_NAME FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_SCHEMA = '{contextName}' and TABLE_NAME = '{entityName}';";
+          cmd.ExecuteNonQuery();
+
+          using (var reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              var val = reader.GetValue(0);
+              Assert.True(val.ToString().Contains("FK_"));
+            }
+          }
+        }
+      }
+    }
+
+    [Test, Description("Verify that Null Reference Exception is not thrown when try to save entity with TINYINT AS PK ")]
+    public void SaveTinyIntAsPK()
+    {
+      using (var context = new ContextForTinyPk())
+      {
+        context.Database.Delete();
+        context.Database.Create();
+        context.TinyPkUseRs.Add(new TinyPkUser
+        {
+          StringUserId = 1,
+          Name50 = "Juan",
+          Name100 = "100",
+          Name200 = "200",
+          Name300 = "300"
+        });
+
+        context.TinyPkUseRs.Add(new TinyPkUser
+        {
+          StringUserId = 2,
+          Name50 = "Pedro",
+          Name100 = "cien",
+          Name200 = "doscientos",
+          Name300 = "trescientos"
+        });
+
+        context.TinyPkUseRs.Add(new TinyPkUser
+        {
+          StringUserId = 3,
+          Name50 = "Lupe",
+          Name100 = "101",
+          Name200 = "cxvbx",
+          Name300 = "301"
+        });
+
+        context.TinyPkUseRs.Add(new TinyPkUser
+        {
+          StringUserId = 4,
+          Name50 = "Luis",
+          Name100 = "asdf",
+          Name200 = "wrwe",
+          Name300 = "xcvb"
+        });
+
+        context.TinyPkUseRs.Add(new TinyPkUser
+        {
+          StringUserId = 5,
+          Name50 = "Pepe",
+          Name100 = "asdf",
+          Name200 = "zxvz",
+          Name300 = "fgsd"
+        });
+        context.SaveChanges();
+        var query1 = context.TinyPkUseRs;
+        var query2 = query1.Take(0).Concat(query1);
+        var query3 = query1.Concat(query1.Take(0));
+        Assert.True((query1.Count() == 5) & (query2.Count() == 5) & (query3.Count() == 5));
+      }
+    }
+
+    [Test, Description("Verify that Null Reference Exception is not thrown when try to save entity with BIGINT AS PK ")]
+    public void SaveBigIntAsPK()
+    {
+      using (var context = new ContextForBigIntPk())
+      {
+        context.Database.Delete();
+        context.Database.Create();
+        context.BigIntPkUseRs.Add(new BigIntPkUser
+        {
+          StringUserId = 934157136952,
+          Name50 = "Juan",
+          Name100 = "100",
+          Name200 = "200",
+          Name300 = "300"
+        });
+
+        context.BigIntPkUseRs.Add(new BigIntPkUser
+        {
+          StringUserId = 934157136953,
+          Name50 = "Pedro",
+          Name100 = "cien",
+          Name200 = "doscientos",
+          Name300 = "trescientos"
+        });
+
+        context.BigIntPkUseRs.Add(new BigIntPkUser
+        {
+          StringUserId = 9223372036854775807,
+          Name50 = "Lupe",
+          Name100 = "101",
+          Name200 = "cxvbx",
+          Name300 = "301"
+        });
+
+        context.BigIntPkUseRs.Add(new BigIntPkUser
+        {
+          StringUserId = 0,
+          Name50 = "Luis",
+          Name100 = "asdf",
+          Name200 = "wrwe",
+          Name300 = "xcvb"
+        });
+
+        context.BigIntPkUseRs.Add(new BigIntPkUser
+        {
+          StringUserId = -9223372036854775808,
+          Name50 = "Pepe",
+          Name100 = "asdf",
+          Name200 = "zxvz",
+          Name300 = "fgsd"
+        });
+        context.SaveChanges();
+        var query1 = context.BigIntPkUseRs;
+        var query2 = query1.Take(0).Concat(query1);
+        var query3 = query1.Concat(query1.Take(0));
+        Assert.True((query1.Count() == 5) & (query2.Count() == 5) & (query3.Count() == 5));
+      }
+    }
+
+    [Test, Description("TRANSACTION AFTER A FAILED TRANSACTION((USING BeginTransaction)) Commit")]
+    public void BeginTransNested()
+    {
+      using (var context = new EnumTestSupportContext())
+      {
+        using (var trans = context.Database.BeginTransaction())
+        {
+          Thread.Sleep(5000);
+          Assert.Catch(() => context.Database.ExecuteSqlCommand("update table schoolschedule"));
+          trans.Commit();
+        }
+        using (var trans = context.Database.BeginTransaction())
+        {
+          context.SchoolSchedules.Add(new SchoolSchedule
+          {
+            TeacherName = "Ruben",
+            Subject = SchoolSubject.History
+          });
+          ;
+
+          context.SchoolSchedules.Add(new SchoolSchedule
+          {
+            TeacherName = "Peter",
+            Subject = SchoolSubject.Chemistry
+          });
+          ;
+
+          context.SchoolSchedules.Add(new SchoolSchedule
+          {
+            TeacherName = "Juan",
+            Subject = SchoolSubject.Math
+          });
+          ;
+          context.SaveChanges();
+          trans.Commit();
+        }
+        var count = context.SchoolSchedules.Count();
+        Assert.AreEqual(3, count);
+        //Rollback
+        using (var trans = context.Database.BeginTransaction())
+        {
+          Assert.Catch(() => context.Database.ExecuteSqlCommand("update table schoolschedule"));
+          trans.Rollback();
+        }
+        using (var trans = context.Database.BeginTransaction())
+        {
+          context.SchoolSchedules.Add(new SchoolSchedule
+          {
+            TeacherName = "Andrew",
+            Subject = SchoolSubject.History
+          }); ;
+          ;
+          context.SaveChanges();
+          trans.Commit();
+        }
+        count = context.SchoolSchedules.Count();
+        Assert.AreEqual(4, count);
+      }
+
+    }
+
+    [Test, Description("TRANSACTION AFTER A FAILED TRANSACTION((USING BeginTransaction)) Stress Test")]
+    public void TransactionAfterFailStressTest()
+    {
+      for (var i = 0; i < 100; i++)
+      {
+        using (var context = new EnumTestSupportContext())
+        {
+          using (var trans = context.Database.BeginTransaction())
+          {
+            Assert.Catch(() => context.Database.ExecuteSqlCommand("update table schoolschedule"));
+            trans.Commit();
+          }
+          using (var trans = context.Database.BeginTransaction())
+          {
+            context.SchoolSchedules.Add(new SchoolSchedule
+            {
+              TeacherName = "Ruben",
+              Subject = SchoolSubject.History
+            });
+            ;
+
+            context.SchoolSchedules.Add(new SchoolSchedule
+            {
+              TeacherName = "Peter",
+              Subject = SchoolSubject.Chemistry
+            });
+            ;
+
+            context.SchoolSchedules.Add(new SchoolSchedule
+            {
+              TeacherName = "Juan",
+              Subject = SchoolSubject.Math
+            });
+            context.SaveChanges();
+            trans.Commit();
+            var count = context.SchoolSchedules.Count();
+            Assert.True(count > 0);
+          }
+        }
+      }
+    }
+
+
+    [Test, Description("Wrong SQL Statement to set primary key ")]
+    public void WrongSQLStatementPK()
+    {
+      using (var context = new EducationContext())
+      {
+        context.Database.Delete();
+        context.Database.Create();
+        context.Passports.Add(new Passport { Key = 1 });
+        context.SaveChanges();
+        context.Database.ExecuteSqlCommand("ALTER TABLE `passports` CHANGE `Key` `Key1` int NOT NULL AUTO_INCREMENT UNIQUE");
+        context.Database.ExecuteSqlCommand("ALTER TABLE `passports` DROP PRIMARY KEY");
+      }
+
+      using (var context = new EducationContext())
+      {
+        context.Passports.Add(new Passport { Key = 1 });
+        Exception ex = Assert.Catch(() => context.SaveChanges());
+        context.Database.Delete();
+      }
+    }
+
+    #endregion WL14389
   }
 }

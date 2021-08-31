@@ -584,7 +584,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("CREATE TABLE testbool (id INT (10) UNSIGNED NOT NULL AUTO_INCREMENT, testcol TINYINT(1) DEFAULT NULL, PRIMARY KEY(id))");
       ExecuteSQL("INSERT INTO testbool(testcol) VALUES(0),(1),(1),(NULL),(0),(0),(1)");
 
-      using (var conn = new MySqlConnection(ConnectionSettings.ConnectionString))
+      using (var conn = new MySqlConnection(Settings.ConnectionString))
       {
         conn.Open();
         MySqlCommand cmd = conn.CreateCommand();
@@ -611,7 +611,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("INSERT INTO `mysql_bug_test` VALUES ('mykey',0);");
       ExecuteSQL("UNLOCK TABLES;");
 
-      var builder = new MySqlConnectionStringBuilder(ConnectionSettings.ConnectionString);
+      var builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.CharacterSet = "utf8";
       builder.UseCompression = true;
       builder.TreatTinyAsBoolean = false;
@@ -695,7 +695,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       ExecuteSQL(@"DROP TABLE IF EXISTS `test`");
       ExecuteSQL($"CREATE TABLE `test` (`id` {typeName})");
-      using (var conn = new MySqlConnection(ConnectionSettings.ConnectionString))
+      using (var conn = new MySqlConnection(Settings.ConnectionString))
       {
         conn.Open();
         string sql = "select * from test where id = @ID;";

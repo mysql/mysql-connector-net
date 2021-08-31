@@ -17,92 +17,92 @@
       <see cref="MySqlTransaction.Commit"/>, and <see cref="MySqlTransaction.Rollback"/> methods.
       <code lang="vbnet">
         Public Sub RunTransaction(myConnString As String)
-        Dim myConnection As New MySqlConnection(myConnString)
-        myConnection.Open()
+          Dim myConnection As New MySqlConnection(myConnString)
+          myConnection.Open()
 
-        Dim myCommand As MySqlCommand = myConnection.CreateCommand()
-        Dim myTrans As MySqlTransaction
+          Dim myCommand As MySqlCommand = myConnection.CreateCommand()
+          Dim myTrans As MySqlTransaction
 
-        ' Start a local transaction
-        myTrans = myConnection.BeginTransaction()
-        ' Must assign both transaction object and connection
-        ' to Command object for a pending local transaction
-        myCommand.Connection = myConnection
-        myCommand.Transaction = myTrans
+          ' Start a local transaction
+          myTrans = myConnection.BeginTransaction()
+          ' Must assign both transaction object and connection
+          ' to Command object for a pending local transaction
+          myCommand.Connection = myConnection
+          myCommand.Transaction = myTrans
 
-        Try
-        myCommand.CommandText = "Insert into Region (RegionID, RegionDescription) VALUES (100, 'Description')"
-        myCommand.ExecuteNonQuery()
-        myCommand.CommandText = "Insert into Region (RegionID, RegionDescription) VALUES (101, 'Description')"
-        myCommand.ExecuteNonQuery()
-        myTrans.Commit()
-        Console.WriteLine("Both records are written to database.")
-        Catch e As Exception
-        Try
-        myTrans.Rollback()
-        Catch ex As MySqlException
-        If Not myTrans.Connection Is Nothing Then
-        Console.WriteLine("An exception of type " &amp; ex.GetType().ToString() &amp; _
-        " was encountered while attempting to roll back the transaction.")
-        End If
-        End Try
+          Try
+            myCommand.CommandText = "Insert into Region (RegionID, RegionDescription) VALUES (100, 'Description')"
+            myCommand.ExecuteNonQuery()
+            myCommand.CommandText = "Insert into Region (RegionID, RegionDescription) VALUES (101, 'Description')"
+            myCommand.ExecuteNonQuery()
+            myTrans.Commit()
+            Console.WriteLine("Both records are written to database.")
+          Catch e As Exception
+            Try
+              myTrans.Rollback()
+            Catch ex As MySqlException
+              If Not myTrans.Connection Is Nothing Then
+                Console.WriteLine("An exception of type " &amp; ex.GetType().ToString() &amp; _
+                " was encountered while attempting to roll back the transaction.")
+              End If
+            End Try
 
-        Console.WriteLine("An exception of type " &amp; e.GetType().ToString() &amp; _
-        "was encountered while inserting the data.")
-        Console.WriteLine("Neither record was written to database.")
-        Finally
-        myConnection.Close()
-        End Try
+            Console.WriteLine("An exception of type " &amp; e.GetType().ToString() &amp; _
+            "was encountered while inserting the data.")
+            Console.WriteLine("Neither record was written to database.")
+          Finally
+            myConnection.Close()
+          End Try
         End Sub 'RunTransaction
       </code>
       <code lang="C#">
         public void RunTransaction(string myConnString)
         {
-        MySqlConnection myConnection = new MySqlConnection(myConnString);
-        myConnection.Open();
+          MySqlConnection myConnection = new MySqlConnection(myConnString);
+          myConnection.Open();
 
-        MySqlCommand myCommand = myConnection.CreateCommand();
-        MySqlTransaction myTrans;
+          MySqlCommand myCommand = myConnection.CreateCommand();
+          MySqlTransaction myTrans;
 
-        // Start a local transaction
-        myTrans = myConnection.BeginTransaction();
-        // Must assign both transaction object and connection
-        // to Command object for a pending local transaction
-        myCommand.Connection = myConnection;
-        myCommand.Transaction = myTrans;
+          // Start a local transaction
+          myTrans = myConnection.BeginTransaction();
+          // Must assign both transaction object and connection
+          // to Command object for a pending local transaction
+          myCommand.Connection = myConnection;
+          myCommand.Transaction = myTrans;
 
-        try
-        {
-        myCommand.CommandText = "Insert into Region (RegionID, RegionDescription) VALUES (100, 'Description')";
-        myCommand.ExecuteNonQuery();
-        myCommand.CommandText = "Insert into Region (RegionID, RegionDescription) VALUES (101, 'Description')";
-        myCommand.ExecuteNonQuery();
-        myTrans.Commit();
-        Console.WriteLine("Both records are written to database.");
-        }
-        catch(Exception e)
-        {
-        try
-        {
-        myTrans.Rollback();
-        }
-        catch (MySqlException ex)
-        {
-        if (myTrans.Connection != null)
-        {
-        Console.WriteLine("An exception of type " + ex.GetType() +
-        " was encountered while attempting to roll back the transaction.");
-        }
-        }
+          try
+          {
+            myCommand.CommandText = "Insert into Region (RegionID, RegionDescription) VALUES (100, 'Description')";
+            myCommand.ExecuteNonQuery();
+            myCommand.CommandText = "Insert into Region (RegionID, RegionDescription) VALUES (101, 'Description')";
+            myCommand.ExecuteNonQuery();
+            myTrans.Commit();
+            Console.WriteLine("Both records are written to database.");
+          }
+          catch(Exception e)
+          {
+            try
+            {
+              myTrans.Rollback();
+            }
+            catch (MySqlException ex)
+            {
+              if (myTrans.Connection != null)
+              {
+                Console.WriteLine("An exception of type " + ex.GetType() +
+                " was encountered while attempting to roll back the transaction.");
+              }
+            }
 
-        Console.WriteLine("An exception of type " + e.GetType() +
-        " was encountered while inserting the data.");
-        Console.WriteLine("Neither record was written to database.");
-        }
-        finally
-        {
-        myConnection.Close();
-        }
+            Console.WriteLine("An exception of type " + e.GetType() +
+            " was encountered while inserting the data.");
+            Console.WriteLine("Neither record was written to database.");
+          }
+          finally
+          {
+            myConnection.Close();
+          }
         }
       </code>
     </example>
@@ -127,93 +127,93 @@
       methods.
       <code lang="vbnet">
         Public Sub RunSqlTransaction(myConnString As String)
-        Dim myConnection As New MySqlConnection(myConnString)
-        myConnection.Open()
+          Dim myConnection As New MySqlConnection(myConnString)
+          myConnection.Open()
 
-        Dim myCommand As MySqlCommand = myConnection.CreateCommand()
-        Dim myTrans As MySqlTransaction
+          Dim myCommand As MySqlCommand = myConnection.CreateCommand()
+          Dim myTrans As MySqlTransaction
 
-        ' Start a local transaction
-        myTrans = myConnection.BeginTransaction()
+          ' Start a local transaction
+          myTrans = myConnection.BeginTransaction()
 
-        ' Must assign both transaction object and connection
-        ' to Command object for a pending local transaction
-        myCommand.Connection = myConnection
-        myCommand.Transaction = myTrans
+          ' Must assign both transaction object and connection
+          ' to Command object for a pending local transaction
+          myCommand.Connection = myConnection
+          myCommand.Transaction = myTrans
 
-        Try
-        myCommand.CommandText = "Insert into mytable (id, desc) VALUES (100, 'Description')"
-        myCommand.ExecuteNonQuery()
-        myCommand.CommandText = "Insert into mytable (id, desc) VALUES (101, 'Description')"
-        myCommand.ExecuteNonQuery()
-        myTrans.Commit()
-        Console.WriteLine("Success.")
-        Catch e As Exception
-        Try
-        myTrans.Rollback()
-        Catch ex As MySqlException
-        If Not myTrans.Connection Is Nothing Then
-        Console.WriteLine("An exception of type " &amp; ex.GetType().ToString() &amp; _
-        " was encountered while attempting to roll back the transaction.")
-        End If
-        End Try
+          Try
+            myCommand.CommandText = "Insert into mytable (id, desc) VALUES (100, 'Description')"
+            myCommand.ExecuteNonQuery()
+            myCommand.CommandText = "Insert into mytable (id, desc) VALUES (101, 'Description')"
+            myCommand.ExecuteNonQuery()
+            myTrans.Commit()
+            Console.WriteLine("Success.")
+          Catch e As Exception
+            Try
+              myTrans.Rollback()
+            Catch ex As MySqlException
+              If Not myTrans.Connection Is Nothing Then
+                Console.WriteLine("An exception of type " &amp; ex.GetType().ToString() &amp; _
+                " was encountered while attempting to roll back the transaction.")
+              End If
+            End Try
 
-        Console.WriteLine("An exception of type " &amp; e.GetType().ToString() &amp; _
-        "was encountered while inserting the data.")
-        Console.WriteLine("Neither record was written to database.")
-        Finally
-        myConnection.Close()
-        End Try
+            Console.WriteLine("An exception of type " &amp; e.GetType().ToString() &amp; _
+            "was encountered while inserting the data.")
+            Console.WriteLine("Neither record was written to database.")
+          Finally
+            myConnection.Close()
+          End Try
         End Sub
       </code>
       <code lang="C#">
         public void RunSqlTransaction(string myConnString)
         {
-        MySqlConnection myConnection = new MySqlConnection(myConnString);
-        myConnection.Open();
+          MySqlConnection myConnection = new MySqlConnection(myConnString);
+          myConnection.Open();
 
-        MySqlCommand myCommand = myConnection.CreateCommand();
-        MySqlTransaction myTrans;
+          MySqlCommand myCommand = myConnection.CreateCommand();
+          MySqlTransaction myTrans;
 
-        // Start a local transaction
-        myTrans = myConnection.BeginTransaction();
-        // Must assign both transaction object and connection
-        // to Command object for a pending local transaction
-        myCommand.Connection = myConnection;
-        myCommand.Transaction = myTrans;
+          // Start a local transaction
+          myTrans = myConnection.BeginTransaction();
+          // Must assign both transaction object and connection
+          // to Command object for a pending local transaction
+          myCommand.Connection = myConnection;
+          myCommand.Transaction = myTrans;
 
-        try
-        {
-        myCommand.CommandText = "Insert into mytable (id, desc) VALUES (100, 'Description')";
-        myCommand.ExecuteNonQuery();
-        myCommand.CommandText = "Insert into mytable (id, desc) VALUES (101, 'Description')";
-        myCommand.ExecuteNonQuery();
-        myTrans.Commit();
-        Console.WriteLine("Both records are written to database.");
-        }
-        catch(Exception e)
-        {
-        try
-        {
-        myTrans.Rollback();
-        }
-        catch (MySqlException ex)
-        {
-        if (myTrans.Connection != null)
-        {
-        Console.WriteLine("An exception of type " + ex.GetType() +
-        " was encountered while attempting to roll back the transaction.");
-        }
-        }
+          try
+          {
+            myCommand.CommandText = "Insert into mytable (id, desc) VALUES (100, 'Description')";
+            myCommand.ExecuteNonQuery();
+            myCommand.CommandText = "Insert into mytable (id, desc) VALUES (101, 'Description')";
+            myCommand.ExecuteNonQuery();
+            myTrans.Commit();
+            Console.WriteLine("Both records are written to database.");
+          }
+          catch(Exception e)
+          {
+            try
+            {
+              myTrans.Rollback();
+            }
+            catch (MySqlException ex)
+            {
+              if (myTrans.Connection != null)
+              {
+                Console.WriteLine("An exception of type " + ex.GetType() +
+                " was encountered while attempting to roll back the transaction.");
+              }
+            }
 
-        Console.WriteLine("An exception of type " + e.GetType() +
-        " was encountered while inserting the data.");
-        Console.WriteLine("Neither record was written to database.");
-        }
-        finally
-        {
-        myConnection.Close();
-        }
+            Console.WriteLine("An exception of type " + e.GetType() +
+            " was encountered while inserting the data.");
+            Console.WriteLine("Neither record was written to database.");
+          }
+          finally
+          {
+            myConnection.Close();
+          }
         }
       </code>
     </example>
@@ -234,93 +234,93 @@
       methods.
       <code lang="vbnet">
         Public Sub RunSqlTransaction(myConnString As String)
-        Dim myConnection As New MySqlConnection(myConnString)
-        myConnection.Open()
+          Dim myConnection As New MySqlConnection(myConnString)
+          myConnection.Open()
 
-        Dim myCommand As MySqlCommand = myConnection.CreateCommand()
-        Dim myTrans As MySqlTransaction
+          Dim myCommand As MySqlCommand = myConnection.CreateCommand()
+          Dim myTrans As MySqlTransaction
 
-        ' Start a local transaction
-        myTrans = myConnection.BeginTransaction()
+          ' Start a local transaction
+          myTrans = myConnection.BeginTransaction()
 
-        ' Must assign both transaction object and connection
-        ' to Command object for a pending local transaction
-        myCommand.Connection = myConnection
-        myCommand.Transaction = myTrans
+          ' Must assign both transaction object and connection
+          ' to Command object for a pending local transaction
+          myCommand.Connection = myConnection
+          myCommand.Transaction = myTrans
 
-        Try
-        myCommand.CommandText = "Insert into mytable (id, desc) VALUES (100, 'Description')"
-        myCommand.ExecuteNonQuery()
-        myCommand.CommandText = "Insert into mytable (id, desc) VALUES (101, 'Description')"
-        myCommand.ExecuteNonQuery()
-        myTrans.Commit()
-        Console.WriteLine("Success.")
-        Catch e As Exception
-        Try
-        myTrans.Rollback()
-        Catch ex As MySqlException
-        If Not myTrans.Connection Is Nothing Then
-        Console.WriteLine("An exception of type " &amp; ex.GetType().ToString() &amp; _
-        " was encountered while attempting to roll back the transaction.")
-        End If
-        End Try
+          Try
+            myCommand.CommandText = "Insert into mytable (id, desc) VALUES (100, 'Description')"
+            myCommand.ExecuteNonQuery()
+            myCommand.CommandText = "Insert into mytable (id, desc) VALUES (101, 'Description')"
+            myCommand.ExecuteNonQuery()
+            myTrans.Commit()
+            Console.WriteLine("Success.")
+          Catch e As Exception
+            Try
+              myTrans.Rollback()
+            Catch ex As MySqlException
+              If Not myTrans.Connection Is Nothing Then
+                Console.WriteLine("An exception of type " &amp; ex.GetType().ToString() &amp; _
+                " was encountered while attempting to roll back the transaction.")
+              End If
+            End Try
 
-        Console.WriteLine("An exception of type " &amp; e.GetType().ToString() &amp; _
-        "was encountered while inserting the data.")
-        Console.WriteLine("Neither record was written to database.")
-        Finally
-        myConnection.Close()
-        End Try
+            Console.WriteLine("An exception of type " &amp; e.GetType().ToString() &amp; _
+            "was encountered while inserting the data.")
+            Console.WriteLine("Neither record was written to database.")
+          Finally
+            myConnection.Close()
+          End Try
         End Sub
       </code>
       <code lang="C#">
         public void RunSqlTransaction(string myConnString)
         {
-        MySqlConnection myConnection = new MySqlConnection(myConnString);
-        myConnection.Open();
+          MySqlConnection myConnection = new MySqlConnection(myConnString);
+          myConnection.Open();
 
-        MySqlCommand myCommand = myConnection.CreateCommand();
-        MySqlTransaction myTrans;
+          MySqlCommand myCommand = myConnection.CreateCommand();
+          MySqlTransaction myTrans;
 
-        // Start a local transaction
-        myTrans = myConnection.BeginTransaction();
-        // Must assign both transaction object and connection
-        // to Command object for a pending local transaction
-        myCommand.Connection = myConnection;
-        myCommand.Transaction = myTrans;
+          // Start a local transaction
+          myTrans = myConnection.BeginTransaction();
+          // Must assign both transaction object and connection
+          // to Command object for a pending local transaction
+          myCommand.Connection = myConnection;
+          myCommand.Transaction = myTrans;
 
-        try
-        {
-        myCommand.CommandText = "Insert into mytable (id, desc) VALUES (100, 'Description')";
-        myCommand.ExecuteNonQuery();
-        myCommand.CommandText = "Insert into mytable (id, desc) VALUES (101, 'Description')";
-        myCommand.ExecuteNonQuery();
-        myTrans.Commit();
-        Console.WriteLine("Both records are written to database.");
-        }
-        catch(Exception e)
-        {
-        try
-        {
-        myTrans.Rollback();
-        }
-        catch (MySqlException ex)
-        {
-        if (myTrans.Connection != null)
-        {
-        Console.WriteLine("An exception of type " + ex.GetType() +
-        " was encountered while attempting to roll back the transaction.");
-        }
-        }
+          try
+          {
+            myCommand.CommandText = "Insert into mytable (id, desc) VALUES (100, 'Description')";
+            myCommand.ExecuteNonQuery();
+            myCommand.CommandText = "Insert into mytable (id, desc) VALUES (101, 'Description')";
+            myCommand.ExecuteNonQuery();
+            myTrans.Commit();
+            Console.WriteLine("Both records are written to database.");
+          }
+          catch(Exception e)
+          {
+            try
+            {
+              myTrans.Rollback();
+            }
+            catch (MySqlException ex)
+            {
+              if (myTrans.Connection != null)
+              {
+                Console.WriteLine("An exception of type " + ex.GetType() +
+                " was encountered while attempting to roll back the transaction.");
+              }
+            }
 
-        Console.WriteLine("An exception of type " + e.GetType() +
-        " was encountered while inserting the data.");
-        Console.WriteLine("Neither record was written to database.");
-        }
-        finally
-        {
-        myConnection.Close();
-        }
+            Console.WriteLine("An exception of type " + e.GetType() +
+            " was encountered while inserting the data.");
+            Console.WriteLine("Neither record was written to database.");
+          }
+          finally
+          {
+          myConnection.Close();
+          }
         }
       </code>
     </example>

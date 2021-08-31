@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,6 +33,8 @@ using System.Reflection;
 using System.Threading;
 using System.Data;
 using System.Timers;
+using System.Net.NetworkInformation;
+using MySql.Data.Common;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -47,7 +49,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void BasicConnection()
     {
 
-      MySqlConnection c = new MySqlConnection(ConnectionSettings.ConnectionString);
+      MySqlConnection c = new MySqlConnection(Settings.ConnectionString);
       c.Open();
       int serverThread = c.ServerThread;
       c.Close();
@@ -55,7 +57,7 @@ namespace MySql.Data.MySqlClient.Tests
       // first test that only a single connection get's used
       for (int i = 0; i < 10; i++)
       {
-        c = new MySqlConnection(ConnectionSettings.ConnectionString);
+        c = new MySqlConnection(Settings.ConnectionString);
         c.Open();
         Assert.AreEqual(serverThread, c.ServerThread);
         c.Close();
@@ -65,7 +67,7 @@ namespace MySql.Data.MySqlClient.Tests
       KillConnection(c);
       c.Close();
 
-      string poolingCS = ConnectionSettings.ConnectionString + ";Min Pool Size=10";
+      string poolingCS = Settings.ConnectionString + ";Min Pool Size=10";
       MySqlConnection[] connArray = new MySqlConnection[10];
       for (int i = 0; i < connArray.Length; i++)
       {
@@ -93,7 +95,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void OpenKilled()
     {
-      string connStr = ConnectionSettings.ConnectionString + ";min pool size=1; max pool size=1";
+      string connStr = Settings.ConnectionString + ";min pool size=1; max pool size=1";
       MySqlConnection c = new MySqlConnection(connStr);
       c.Open();
       int threadId = c.ServerThread;
@@ -115,7 +117,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void ReclaimBrokenConnection()
     {
       // now create a new connection string only allowing 1 connection in the pool
-      string connStr = ConnectionSettings.ConnectionString + ";connect timeout=1;max pool size=1";
+      string connStr = Settings.ConnectionString + ";connect timeout=1;max pool size=1";
 
       // now use up that connection
       MySqlConnection c = new MySqlConnection(connStr);
@@ -144,7 +146,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void TestUserReset()
     {
-      string connStr = ConnectionSettings.ConnectionString + ";connection reset=true;";
+      string connStr = Settings.ConnectionString + ";connection reset=true;";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -167,7 +169,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void TestAbort()
     {
-      string connStr = ConnectionSettings.ConnectionString;
+      string connStr = Settings.ConnectionString;
       int threadId;
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
@@ -199,7 +201,7 @@ namespace MySql.Data.MySqlClient.Tests
         "value varchar(100) NOT NULL, PRIMARY KEY  (`id`) " +
         ") ENGINE=MyISAM DEFAULT CHARSET=utf8");
 
-      string connStr = ConnectionSettings.ConnectionString + ";charset=utf8";
+      string connStr = Settings.ConnectionString + ";charset=utf8";
       using (MySqlConnection con = new MySqlConnection(connStr))
       {
         con.Open();
@@ -238,7 +240,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void MultipleThreads()
     {
-      string connStr = ConnectionSettings.ConnectionString + ";max pool size=1";
+      string connStr = Settings.ConnectionString + ";max pool size=1";
       MySqlConnection c = new MySqlConnection(connStr);
       c.Open();
 
@@ -265,7 +267,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("INSERT INTO Test VALUES (3, 'Third')");
       ExecuteSQL("INSERT INTO Test VALUES (4, 'Fourth')");
 
-      string connStr = ConnectionSettings.ConnectionString;
+      string connStr = Settings.ConnectionString;
 
       for (int i = 1; i < 5; i++)
       {
@@ -490,7 +492,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void OpenSecondPooledConnectionWithoutDatabase()
     {
-      string connectionString = ConnectionSettings.ConnectionString;
+      string connectionString = Settings.ConnectionString;
 
       using (MySqlConnection c1 = new MySqlConnection(connectionString))
       {
@@ -514,7 +516,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("CREATE TABLE test (id INT, name VARCHAR(20) CHARSET UCS2)");
       ExecuteSQL("INSERT INTO test VALUES (1, 'test')");
 
-      string connStr = ConnectionSettings.ConnectionString + ";connection reset=true;min pool size=1; max pool size=1";
+      string connStr = Settings.ConnectionString + ";connection reset=true;min pool size=1; max pool size=1";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
@@ -538,7 +540,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     private void CacheServerPropertiesInternal(bool cache)
     {
-      string connStr = ConnectionSettings.ConnectionString +
+      string connStr = Settings.ConnectionString +
         String.Format(";logging=true;cache server properties={0}", cache);
 
       GenericListener listener = new GenericListener();
@@ -566,8 +568,6 @@ namespace MySql.Data.MySqlClient.Tests
       //CacheServerPropertiesInternal(false);
     }
 
-
-
     /// <summary>
     /// Bug #66578
     /// CacheServerProperties can cause 'Packet too large' error
@@ -583,7 +583,7 @@ namespace MySql.Data.MySqlClient.Tests
       InsertSmallBlobInTestTableUsingPoolingConnection();
       InsertSmallBlobInTestTableUsingPoolingConnection();
 
-      using (MySqlConnection c1 = new MySqlConnection(ConnectionSettings.ConnectionString + ";logging=true;cache server properties=true"))
+      using (MySqlConnection c1 = new MySqlConnection(Settings.ConnectionString + ";logging=true;cache server properties=true"))
       {
         c1.Open();
         MySqlCommand cmd = new MySqlCommand("SELECT Count(*) from test", c1);
@@ -594,13 +594,12 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("DROP TABLE test ");
     }
 
-
     /// <summary>
     /// Util method for CacheServerPropertiesCausePacketTooLarge Test Method
     /// </summary>
     void InsertSmallBlobInTestTableUsingPoolingConnection()
     {
-      string connStr = ConnectionSettings.ConnectionString +
+      string connStr = Settings.ConnectionString +
       String.Format(";logging=true;cache server properties=true;");
 
       using (MySqlConnection c1 = new MySqlConnection(connStr))
@@ -612,5 +611,82 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
       }
     }
+
+    #region WL14389
+
+    [Test, Description("Check Pooling Connection works correctly")]
+    public void MultipleConnectionWithPooling()
+    {
+      var connectionString = $"server={Host};user={Settings.UserID};password={Settings.Password};port={Port};Max Pool Size=4;Min Pool Size=0;sslmode=none;connectiontimeout=5;";
+      var myConnection1 = new MySqlConnection(connectionString);
+      var myConnection2 = new MySqlConnection(connectionString);
+      var myConnection3 = new MySqlConnection(connectionString);
+      var myConnection4 = new MySqlConnection(connectionString);
+      var myConnection5 = new MySqlConnection(connectionString);
+
+      // Get a connection out of the pool.
+      myConnection1.Open();
+      Assert.AreEqual(ConnectionState.Open, myConnection1.State);
+      // Get a second connection out of the pool.
+      myConnection2.Open();
+      Assert.AreEqual(ConnectionState.Open, myConnection2.State);
+      // Open a third connection.
+      myConnection3.Open();
+      Assert.AreEqual(ConnectionState.Open, myConnection3.State);
+      // Return the all connections to the pool.
+      myConnection1.Close();
+      myConnection2.Close();
+      myConnection3.Close();
+
+      // Open five connections.
+      myConnection1.Open();
+      myConnection2.Open();
+      myConnection3.Open();
+      myConnection4.Open();
+      Exception ex=Assert.Throws<MySqlException>(()=> myConnection5.Open());
+      StringAssert.Contains("Timeout",ex.Message);
+
+      myConnection1.Close();
+      myConnection2.Close();
+      myConnection3.Close();
+      myConnection4.Close();
+
+    }
+
+    /// <summary>
+    /// Bug 18665388
+    /// </summary>
+    [Test, Description("Verify the connection is not in CLOSE_WAIT state after failed connection due to Connection Limit")]
+    public void CloseWaitScenario1()
+    {
+      if (!Platform.IsWindows()) Assert.Ignore("This test is only for Windows OS");
+      var poolSize = 5;
+      var connectionString = $"server={Host};user={Settings.UserID};database={Settings.Database};port={Port};password={Settings.Password};Pooling=true;Max Pool Size={poolSize};SSL Mode=None;ConnectionTimeout=5";
+      List<MySqlConnection> connectionList = new();
+      using (var con = new MySqlConnection(connectionString))
+      {
+        while (connectionList.Count<poolSize)
+        {
+          var newConn= new MySqlConnection(connectionString);
+          newConn.Open();
+          connectionList.Add(newConn);
+        }
+        Assert.Throws<MySqlException>(() => con.Open());
+        var ipProperties = IPGlobalProperties.GetIPGlobalProperties();
+        var endPoints = ipProperties.GetActiveTcpListeners();
+        var tcpConnections = ipProperties.GetActiveTcpConnections();
+        foreach (var info in tcpConnections)
+          if (info.LocalEndPoint.Address.ToString() == "127.0.0.1" && info.LocalEndPoint.Port.ToString() == Port.ToString())
+            Assert.True(info.State.ToString() != "CLOSE_WAIT");
+      }
+      foreach (var item in connectionList)
+      {
+        item.Close();
+        item.Dispose();
+      }
+    }
+
+    #endregion WL14389
+
   }
 }
