@@ -94,8 +94,8 @@
     ],
     "globalMetadata": {
       "_appFooter": "Copyright © 2021, Oracle and/or its affiliates.",
-      "_appLogoPath": "/images/logo-mysql.png",
-      "_appFaviconPath": "/images/logo-mysql.png"
+      "_appLogoPath": "/images/logo.svg",
+      "_appFaviconPath": "/images/favicon.ico"
     },
     "dest": "Output",
     "markdownEngineName": "markdig",
