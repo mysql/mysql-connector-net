@@ -842,7 +842,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection rootConnection = new MySqlConnection($"server=localhost;port={Connection.Settings.Port};user id=root;password=;persistsecurityinfo=True;allowuservariables=True;database=dotnet3.1;"))
       {
         rootConnection.Open();
-        using (MySqlCommand cmd = new MySqlCommand("sp_normalname.1", rootConnection))
+        using (MySqlCommand cmd = new MySqlCommand("`sp_normalname.1`", rootConnection))
         {
           cmd.Parameters.AddWithValue("?p", 3);
           cmd.CommandType = CommandType.StoredProcedure;
@@ -1094,7 +1094,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         while (rdr.Read())
         {
-          if (rdr.GetString(0).ToString().Contains($"CALL `{Settings.Database}`.`{spName}`()"))
+          if (rdr.GetString(0).ToString().Contains($"CALL `{spName}`()"))
           {
             testResult = true;
           }
@@ -1110,5 +1110,29 @@ namespace MySql.Data.MySqlClient.Tests
 
     #endregion WL14389
 
+
+    /// <summary>
+    /// Bug #33097912	- FULLY QUALIFIED PROCEDURE OR FUNCTION NAMES FAIL
+    /// </summary>
+    [Test]
+    public void FullyQualifiedProcedures()
+    {
+      ExecuteSQL("DROP SCHEMA IF EXISTS Test; CREATE SCHEMA Test");
+      ExecuteSQL("CREATE PROCEDURE `Test`.`spTest` () BEGIN SELECT 1; END");
+
+      using (MySqlConnection conn = new MySqlConnection(Connection.ConnectionString))
+      {
+        conn.Open();
+
+        MySqlCommand command = conn.CreateCommand();
+        command.CommandText = $"`Test`.`spTest`";
+        command.CommandType = CommandType.StoredProcedure;
+        Assert.AreEqual(1, command.ExecuteScalar());
+
+        command.CommandText = $"Test.spTest";
+        command.CommandType = CommandType.StoredProcedure;
+        Assert.AreEqual(1, command.ExecuteScalar());
+      }
+    }
   }
 }

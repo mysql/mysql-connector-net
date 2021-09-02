@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -102,26 +102,19 @@ namespace MySql.Data.MySqlClient
 
     internal static string FixProcedureName(string spName, string db)
     {
-      string spNameWithoutQuotes = spName.Replace("`", string.Empty);
+      string spFixedName = string.Empty;
+      string[] parts = spName.Split('.');
 
-      if (!string.IsNullOrEmpty(db))
-      {
-        if (spNameWithoutQuotes.Contains(db + "."))
-          spNameWithoutQuotes = spNameWithoutQuotes.Remove(0, db.Length + 1);
-      }
+      if (spName.StartsWith("`") && spName.EndsWith("`"))
+        spFixedName = spName;
+      else if (!string.IsNullOrEmpty(db) && spName.Contains(db) && parts.Length > 1)
+        spFixedName = string.Format("`{0}`.`{1}`", db, spName.Replace("`", string.Empty).Replace($"{db}.", string.Empty));
+      else if (parts.Length == 2)
+        spFixedName = string.Format("`{0}`.`{1}`", parts[0], parts[1]);
       else
-      {
-        string[] parts = spNameWithoutQuotes.Split('.');
-        if (parts.Length == 2)
-        {
-          db = parts[0];
-          spNameWithoutQuotes = parts[1];
-        }
-      }
+        spFixedName = $"`{spName.Replace("`", string.Empty)}`";
 
-      return string.IsNullOrEmpty(db)
-        ? spName
-        : string.Format("`{0}`.`{1}`", db, spNameWithoutQuotes);
+      return spFixedName;
     }
 
     private MySqlParameter GetAndFixParameter(string spName, MySqlSchemaRow param, bool realAsFloat, MySqlParameter returnParameter)

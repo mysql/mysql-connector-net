@@ -280,7 +280,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?p_kiosk", 2);
       cmd.Parameters.AddWithValue("?p_user", 4);
       Exception ex = Assert.Throws<InvalidOperationException>(() => { if (prepare) cmd.Prepare(); cmd.ExecuteNonQuery(); });
-      Assert.AreEqual(ex.Message, "Attempt to call stored function '`" + (Connection.Database) + "`.`fnTest`' without specifying a return parameter");
+      Assert.AreEqual(ex.Message, "Attempt to call stored function '`fnTest`' without specifying a return parameter");
     }
 
     /// <summary>
