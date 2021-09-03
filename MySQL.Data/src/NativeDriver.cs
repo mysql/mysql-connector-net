@@ -630,7 +630,7 @@ namespace MySql.Data.MySqlClient
       }
 
       if (!isNull && (valObject.MySqlDbType is MySqlDbType.Guid && !Settings.OldGuids) &&
-        !guidRegex.IsMatch(Encoding.GetString(packet.Buffer, packet.Position, (int)length)))
+        (length > 0 && !guidRegex.IsMatch(Encoding.GetString(packet.Buffer, packet.Position, (int)length))))
       {
         field.Type = MySqlDbType.String;
         valObject = field.GetValueObject();

@@ -1447,6 +1447,24 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    /// <summary>
+    /// Bug #32938630 - CAN'T READ CHAR(36) COLUMN IF MYSQLCOMMAND IS PREPARED
+    /// </summary>
+    [Test]
+    public void ReadChar36ColumnPrepared()
+    {
+      string guid = "3e22b63e-8077-43ab-8cee-17aa1db80861";
+      ExecuteSQL($"CREATE TABLE `Test` (value CHAR(36)); INSERT INTO Test(value) VALUES('{guid}');");
+
+      MySqlCommand cmd = new MySqlCommand("SELECT value FROM Test", Connection);
+      cmd.Prepare();
+      using var reader = cmd.ExecuteReader();
+      while (reader.Read())
+      {
+        StringAssert.AreEqualIgnoringCase(guid, reader.GetGuid(0).ToString());
+      }
+    }
+
     #region WL143889
     /// <summary>
     /// Bug 26876582 UNEXPECTED COLUMNSIZE FOR CHAR(36) AND BLOB COLUMNS IN GETSCHEMATABLE
@@ -1544,6 +1562,5 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     #endregion  WL143889
-
   }
 }

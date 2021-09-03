@@ -3,9 +3,11 @@
 - Added client-side Kerberos authentication plugin support for Windows (WL14654).
 - Added support for the OCI IAM authentication plugin (WL14708).
 - Fixed a bug that prevented connections using "Preferred" SSL mode when the server did not support secure connections (MySQL Bug #104541, OracleBug Bug #33191344).
-- Fixed a bug that ocurred when a new connection is opened and a new transaction is initiated using a server with autocommit equals to zero (Oracle Bug #33123597).
+- Fixed a bug that occurred when creating a connection and a new transaction is initiated using a server with variable autocommit set globally to zero (Oracle Bug #33123597).
 - Changed the API docs generator tool from Sandcastle to DocFX (WL14117).
 - Migrated the current QA test suite to the main repository (WL14389).
+- Fixed a bug that prevented querying CHAR(36) data type columns when using prepared commands (MySQL Bug #103390, Oracle Bug #32938630).
+- Fixed a bug that prevented the use of fully qualified procedures or functions names (MySQL Bug #104244, Oracle Bug #33097912).
 
 
 8.0.26
