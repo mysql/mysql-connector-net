@@ -38,7 +38,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
   /// <summary>
   ///     An expression that explicitly specifies the collation of a string value.
   /// </summary>
-  internal class MySQLCollateExpression : SqlExpression
+  internal class MySQLCollateExpression : SqlConstantExpression
   {
     private readonly SqlExpression _valueExpression;
     private readonly string _charset;
@@ -49,7 +49,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
         [NotNull] string charset,
         [NotNull] string collation,
         RelationalTypeMapping typeMapping)
-        : base(typeof(string), typeMapping)
+        : base(Constant($"{valueExpression} COLLATE {collation}", typeof(string)), typeMapping)
     {
       _valueExpression = valueExpression;
       _charset = charset;
