@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2021, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -35,7 +35,7 @@ namespace MySqlX.Data.Tests.ResultTests
 {
   public class CrudGCTests : BaseTest
   {
-#if !(NETCOREAPP3_1 || NET5_0)
+#if !(NETCOREAPP3_1 || NET5_0 || NET6_0)
     [Test]
     public void FetchAllNoReference()
     {

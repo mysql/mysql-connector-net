@@ -168,7 +168,7 @@ namespace MySqlX.Data.Tests
 
       // Condition can't be null or empty.
       string errorMessage = string.Empty;
-#if (NETCOREAPP3_1 || NET5_0)
+#if (NETCOREAPP3_1 || NET5_0 || NET6_0)
       errorMessage = "Parameter can't be null or empty. (Parameter 'condition')";
 #else
       errorMessage = "Parameter can't be null or empty.\r\nParameter name: condition";

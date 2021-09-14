@@ -828,7 +828,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       var bytes = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x01, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
       MySqlGeometry v = new MySqlGeometry(MySqlDbType.Geometry, bytes);
-#if (NETCOREAPP3_1 || NET5_0)
+#if (NETCOREAPP3_1 || NET5_0 || NET6_0)
       Assert.AreEqual("POINT(3.5E-323 0)", v.ToString());
 #else
       Assert.AreEqual("POINT(3.45845952088873E-323 0)", v.ToString());
@@ -866,7 +866,7 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         var val = reader.GetMySqlGeometry(0);
         var valWithName = reader.GetMySqlGeometry("v");
-#if (NETCOREAPP3_1 || NET5_0)
+#if (NETCOREAPP3_1 || NET5_0 || NET6_0)
         Assert.AreEqual("POINT(3.5E-323 0)", val.ToString());
         Assert.AreEqual("POINT(3.5E-323 0)", valWithName.ToString());
 #else

@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2019, 2021, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -73,7 +73,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void PriorityMethod()
     {
-#if NETCOREAPP3_1 || NET5_0
+#if NETCOREAPP3_1 || NET5_0 || NET6_0
       if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) Assert.Ignore();
 #endif
       // Multiple hosts and validate proper order assigned to hosts.

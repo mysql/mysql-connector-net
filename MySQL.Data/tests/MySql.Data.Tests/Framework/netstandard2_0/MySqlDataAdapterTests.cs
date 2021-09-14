@@ -819,7 +819,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #38411, using closed connection with data adapter.
     /// </summary>
-#if !(NETCOREAPP3_1 || NET5_0)
+#if !(NETCOREAPP3_1 || NET5_0 || NET6_0)
     [Test]
     public void BatchingConnectionClosed()
     {
