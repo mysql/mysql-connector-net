@@ -650,7 +650,7 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
 
-      var connStr = $"mysqlx://test:test@[ (address={localServerIpv4}:{sb.Password}, priority=0,address={Host}:{sb.Port}, priority=100)]?ssl-mode=Required";
+      var connStr = $"mysqlx://test:test@[ (address={localServerIpv4}:{XPort}, priority=0,address={Host}:{XPort}, priority=100)]?ssl-mode=Required";
       using (var sessionTest = MySQLX.GetSession(connStr))
       {
         Assert.AreEqual(SessionState.Open, sessionTest.InternalSession.SessionState);
@@ -658,7 +658,7 @@ namespace MySqlX.Data.Tests
 
       var address_priority = $"(address = {localServerIpv4}, priority = 0),(address={Host}, priority=100)";
 
-      connStr = "server=" + address_priority + ";port=" + sb.Port + ";uid=" + sb.UserID +
+      connStr = "server=" + address_priority + ";port=" + XPort + ";uid=" + sb.UserID +
                 ";password=" + sb.Password + ";ssl-mode=Required";
       using (var sessionTest = MySQLX.GetSession(connStr))
       {
@@ -668,7 +668,7 @@ namespace MySqlX.Data.Tests
       using (var sessionTest = MySQLX.GetSession(new
       {
         server = address_priority,
-        port = sb.Port,
+        port = XPort,
         user = sb.UserID,
         password = sb.Password,
         sslmode = MySqlSslMode.None

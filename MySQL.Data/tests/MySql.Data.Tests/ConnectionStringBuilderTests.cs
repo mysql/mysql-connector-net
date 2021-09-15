@@ -70,8 +70,8 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(66, Convert.ToInt32(sb.MaximumPoolSize));
       Assert.AreEqual(1, Convert.ToInt32(sb.Keepalive));
       Exception ex = Assert.Throws<ArgumentException>(() => sb.ConnectionString = "server=localhost;badkey=badvalue");
-#if !(NETCOREAPP3_1 || NET5_0)
-      Assert.AreEqual($"Option not supported.{Environment.NewLine}Parameter name: badkey", ex.Message);        
+#if !(NETCOREAPP3_1 || NET5_0 || NET6_0)
+      Assert.AreEqual($"Option not supported.{Environment.NewLine}Parameter name: badkey", ex.Message);
 #else
       Assert.AreEqual("Option not supported. (Parameter 'badkey')", ex.Message);
 #endif

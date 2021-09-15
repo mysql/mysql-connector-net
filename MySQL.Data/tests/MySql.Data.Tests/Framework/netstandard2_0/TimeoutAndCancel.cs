@@ -52,13 +52,13 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.Null(o);
     }
 
-#if !(NETCOREAPP3_1 || NET5_0)
+#if !(NETCOREAPP3_1 || NET5_0 || NET6_0)
     [Test]
     public void CancelSingleQuery()
     {
       // first we need a routine that will run for a bit
-      ExecuteSQL(@"CREATE PROCEDURE CancelSingleQuery(duration INT) 
-        BEGIN 
+      ExecuteSQL(@"CREATE PROCEDURE CancelSingleQuery(duration INT)
+        BEGIN
           SELECT SLEEP(duration);
         END");
 
