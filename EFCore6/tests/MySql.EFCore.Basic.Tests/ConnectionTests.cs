@@ -66,11 +66,13 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
               new LoggingOptions(),
               new DiagnosticListener("FakeDiagnosticListener"),
               new MySQLLoggingDefinitions(), null),
-          new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
-              new LoggerFactory(),
-              new LoggingOptions(),
-              new DiagnosticListener("FakeDiagnosticListener"),
-              new MySQLLoggingDefinitions(), null),
+          new RelationalConnectionDiagnosticsLogger(
+                        new LoggerFactory(),
+                        new LoggingOptions(),
+                        new DiagnosticListener("FakeDiagnosticListener"),
+                        new TestRelationalLoggingDefinitions(),
+                        new NullDbContextLogger(),
+                        CreateOptions()),
           new NamedConnectionStringResolver(options),
           new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies(
             new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()))),

@@ -33,6 +33,7 @@ using MySql.EntityFrameworkCore.Metadata.Internal;
 using MySql.EntityFrameworkCore.Extensions;
 using MySql.EntityFrameworkCore.Metadata;
 using System.Linq;
+using System;
 
 namespace MySql.EntityFrameworkCore.Migrations.Internal
 {
@@ -55,20 +56,26 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
     }
 
     /// <inheritdoc/>
-    public override IEnumerable<IAnnotation> For(IRelationalModel model)
+    public override IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
     {
-      return base.For(model);
+      if (!designTime) return Array.Empty<IAnnotation>();
+
+      return base.For(model, designTime);
     }
 
     /// <inheritdoc/>
-    public override IEnumerable<IAnnotation> For(ITable table)
+    public override IEnumerable<IAnnotation> For(ITable table, bool designTime)
     {
-      return base.For(table);
+      if (!designTime) yield break;
+
+      yield return (IAnnotation)base.For(table, designTime);
     }
 
     /// <inheritdoc/>
-    public override IEnumerable<IAnnotation> For(ITableIndex index)
+    public override IEnumerable<IAnnotation> For(ITableIndex index, bool designTime)
     {
+      if (!designTime) yield break;
+
       var modelIndex = index.MappedIndexes.First();
       var isFullText = modelIndex.IsFullText();
       if (isFullText.HasValue)
@@ -87,8 +94,9 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
       }
     }
 
-    public override IEnumerable<IAnnotation> For(IColumn column)
+    public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)
     {
+      if (!designTime) yield break;
       var property = column.PropertyMappings.Select(m => m.Property).ToArray().FirstOrDefault();
 
       if (property?.GetValueGenerationStrategy() == MySQLValueGenerationStrategy.IdentityColumn)

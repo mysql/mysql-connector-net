@@ -66,7 +66,7 @@ namespace MySql.EntityFrameworkCore.Update
 
     protected new virtual IMySQLUpdateSqlGenerator UpdateSqlGenerator => (IMySQLUpdateSqlGenerator)base.UpdateSqlGenerator;
 
-    protected override bool CanAddCommand(ModificationCommand modificationCommand)
+    protected override bool CanAddCommand(IReadOnlyModificationCommand modificationCommand)
     {
       if (ModificationCommands.Count >= _maxBatchSize)
       {
@@ -83,8 +83,25 @@ namespace MySql.EntityFrameworkCore.Update
       _parameterCount += additionalParameterCount;
       return true;
     }
+    //protected override bool CanAddCommand(ModificationCommand modificationCommand)
+    //{
+    //  if (ModificationCommands.Count >= _maxBatchSize)
+    //  {
+    //    return false;
+    //  }
 
-    private static int CountParameters(ModificationCommand modificationCommand)
+    //  var additionalParameterCount = CountParameters(modificationCommand);
+
+    //  if (_parameterCount + additionalParameterCount >= MaxParameterCount)
+    //  {
+    //    return false;
+    //  }
+
+    //  _parameterCount += additionalParameterCount;
+    //  return true;
+    //}
+
+    private static int CountParameters(IReadOnlyModificationCommand modificationCommand)
     {
       var parameterCount = 0;
 
@@ -165,17 +182,16 @@ namespace MySql.EntityFrameworkCore.Update
     protected override void UpdateCachedCommandText(int commandPosition)
     {
       var newModificationCommand = ModificationCommands[commandPosition];
-
       if (newModificationCommand.EntityState == EntityState.Added)
       {
         if (_bulkInsertCommands.Count > 0
-            && !CanBeInsertedInSameStatement(_bulkInsertCommands[0], newModificationCommand))
+            && !CanBeInsertedInSameStatement(_bulkInsertCommands[0], (ModificationCommand)newModificationCommand))
         {
           CachedCommandText.Append(GetBulkInsertCommandText(commandPosition));
           _bulkInsertCommands.Clear();
         }
 
-        _bulkInsertCommands.Add(newModificationCommand);
+        _bulkInsertCommands.Add((ModificationCommand)newModificationCommand);
 
         LastCachedCommandIndex = commandPosition;
       }
@@ -195,5 +211,6 @@ namespace MySql.EntityFrameworkCore.Update
            secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
        && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
            secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
+
   }
 }

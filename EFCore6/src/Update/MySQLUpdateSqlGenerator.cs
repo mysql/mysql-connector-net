@@ -52,7 +52,7 @@ namespace MySql.EntityFrameworkCore
     {
     }
 
-    public ResultSetMapping AppendBulkInsertOperation(
+    public virtual ResultSetMapping AppendBulkInsertOperation(
       StringBuilder commandStringBuilder,
       IReadOnlyList<ModificationCommand> modificationCommands,
       int commandPosition)
@@ -93,7 +93,7 @@ namespace MySql.EntityFrameworkCore
 
         if (nonIdentityOperations.Count > 1)
         {
-          nonIdentityOperations = new List<ColumnModification> { nonIdentityOperations.First() };
+          nonIdentityOperations = new List<IColumnModification> { nonIdentityOperations.First() };
         }
       }
 
@@ -113,7 +113,7 @@ namespace MySql.EntityFrameworkCore
     private ResultSetMapping AppendBulkInsertWithoutServerValues(
     StringBuilder commandStringBuilder,
     IReadOnlyList<ModificationCommand> modificationCommands,
-    List<ColumnModification> writeOperations)
+    List<IColumnModification> writeOperations)
     {
       Debug.Assert(writeOperations.Count > 0);
 
@@ -133,13 +133,12 @@ namespace MySql.EntityFrameworkCore
       return ResultSetMapping.NoResultSet;
     }
 
-    protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
+    protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, IColumnModification columnModification)
     {
       Check.NotNull(columnModification, "columnModification");
       Check.NotNull(commandStringBuilder, "commandStringBuilder");
       commandStringBuilder.AppendFormat("{0}=LAST_INSERT_ID()", SqlGenerationHelper.DelimitIdentifier(columnModification.ColumnName));
     }
-
 
     protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
     {
@@ -162,6 +161,7 @@ namespace MySql.EntityFrameworkCore
 
       return ResultSetMapping.LastInResultSet;
     }
+
 
     internal enum ResultsGrouping
     {
