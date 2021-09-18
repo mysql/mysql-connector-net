@@ -104,5 +104,23 @@ namespace MySql.EntityFrameworkCore.Properties {
                 return ResourceManager.GetString("UnqualifiedDataType", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The specified type is invalid for computed value generation  (&apos;{0}&apos;  &apos;{1}&apos;  &apos;{2}&apos;). The expected types are DateTime, and DateTimeOffset..
+        /// </summary>
+        internal static string WrongComputedType {
+            get {
+                return ResourceManager.GetString("WrongComputedType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The specified type is invalid for identity value generation  (&apos;{0}&apos;  &apos;{1}&apos;  &apos;{2}&apos;). The expected types are int, DateTime, and DateTimeOffset..
+        /// </summary>
+        internal static string WrongIdentityType {
+            get {
+                return ResourceManager.GetString("WrongIdentityType", resourceCulture);
+            }
+        }
     }
 }

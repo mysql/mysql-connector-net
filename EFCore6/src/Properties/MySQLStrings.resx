@@ -132,4 +132,10 @@
   <data name="UnqualifiedDataType" xml:space="preserve">
     <value>Missing length for data type '{0}'.</value>
   </data>
+  <data name="WrongComputedType" xml:space="preserve">
+    <value>The specified type is invalid for computed value generation  ('{0}'  '{1}'  '{2}'). The expected types are DateTime, and DateTimeOffset.</value>
+  </data>
+  <data name="WrongIdentityType" xml:space="preserve">
+    <value>The specified type is invalid for identity value generation  ('{0}'  '{1}'  '{2}'). The expected types are int, DateTime, and DateTimeOffset.</value>
+  </data>
 </root>

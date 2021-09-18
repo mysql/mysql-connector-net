@@ -7,7 +7,7 @@
 - Changed access modifier from public to internal for Resources file in EF and Web projects (Oracle Bug #33513545).
 - Improved the test suite configuration (WL14662).
 - Fixed wrong type classification in the API documentation (Oracle Bug #33509644).
-
+- Added Support for Entity Framework Core 6 (WL14735).
 
 8.0.27
 - Added support for reading and processing session trackers (WL14678).

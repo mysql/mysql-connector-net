@@ -27,13 +27,16 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MySql.EntityFrameworkCore.Metadata;
 using MySql.EntityFrameworkCore.Metadata.Internal;
+using MySql.EntityFrameworkCore.Properties;
 using MySql.EntityFrameworkCore.Storage.Internal;
 using MySql.EntityFrameworkCore.Utils;
 using System;
+using System.Linq;
 
 namespace MySql.EntityFrameworkCore.Extensions
 {
@@ -51,7 +54,7 @@ namespace MySql.EntityFrameworkCore.Extensions
     ///     </para>
     /// </summary>
     /// <returns> The strategy, or <see cref="SqlServerValueGenerationStrategy.None" /> if none was set. </returns>
-    public static MySQLValueGenerationStrategy? GetValueGenerationStrategy([NotNull] this IProperty property, StoreObjectIdentifier storeObject = default)
+    public static MySQLValueGenerationStrategy? GetValueGenerationStrategy([NotNull] this IReadOnlyProperty property, StoreObjectIdentifier storeObject = default)
     {
       var annotation = property[MySQLAnnotationNames.ValueGenerationStrategy];
       if (annotation != null)
@@ -59,9 +62,10 @@ namespace MySql.EntityFrameworkCore.Extensions
         return (MySQLValueGenerationStrategy)annotation;
       }
 
-      if (property.GetDefaultValue() != null
-        || property.GetDefaultValueSql() != null
-        || property.GetComputedColumnSql() != null)
+      if (property.GetContainingForeignKeys().Any(fk => !fk.IsBaseLinking()) ||
+          property.TryGetDefaultValue(storeObject, out _) ||
+          property.GetDefaultValueSql() != null ||
+          property.GetComputedColumnSql() != null)
       {
         return null;
       }
@@ -91,15 +95,34 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// </summary>
     /// <param name="property"> The property. </param>
     /// <returns><see langword="true"/> if compatible; otherwise, <see langword="false"/>.</returns>
-    public static bool IsCompatibleIdentityColumn(IProperty property)
-    {
-      var type = property.ClrType;
+    public static bool IsCompatibleIdentityColumn(IReadOnlyProperty property)
+            => IsCompatibleAutoIncrementColumn(property) ||
+               IsCompatibleCurrentTimestampColumn(property);
 
-      return (type.IsInteger()
-                  || type == typeof(decimal)
-                  || type == typeof(DateTime)
-                  || type == typeof(DateTimeOffset))
-             && !HasConverter(property);
+    /// <summary>
+    ///     Returns a value indicating whether the property is compatible with an `AUTO_INCREMENT` column.
+    /// </summary>
+    /// <param name="property"> The property. </param>
+    /// <returns> <see langword="true"/> if compatible. </returns>
+    public static bool IsCompatibleAutoIncrementColumn(IReadOnlyProperty property)
+    {
+      var valueConverter = GetConverter(property);
+      var type = (valueConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
+      return type.IsInteger() ||
+             type == typeof(decimal);
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the property is compatible with a `CURRENT_TIMESTAMP` column default.
+    /// </summary>
+    /// <param name="property"> The property. </param>
+    /// <returns> <see langword="true"/> if compatible. </returns>
+    public static bool IsCompatibleCurrentTimestampColumn(IReadOnlyProperty property)
+    {
+      var valueConverter = GetConverter(property);
+      var type = (valueConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
+      return type == typeof(DateTime) ||
+             type == typeof(DateTimeOffset);
     }
 
     /// <summary>
@@ -107,7 +130,7 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// </summary>
     /// <param name="property"> The property. </param>
     /// <returns><see langword="true"/> if compatible; otherwise, <see langword="false"/>.</returns>
-    public static bool IsCompatibleComputedColumn(IProperty property)
+    public static bool IsCompatibleComputedColumn(IReadOnlyProperty property)
     {
       var type = property.ClrType;
 
@@ -116,20 +139,46 @@ namespace MySql.EntityFrameworkCore.Extensions
              || type == typeof(byte[]) && !HasExternalConverter(property);
     }
 
-    private static bool HasConverter(IProperty property)
+    private static bool HasConverter(IReadOnlyProperty property)
     => GetConverter(property) != null;
 
-    private static bool HasExternalConverter(IProperty property)
+    private static bool HasExternalConverter(IReadOnlyProperty property)
     {
       var converter = GetConverter(property);
       return converter != null && !(converter is BytesToDateTimeConverter);
     }
 
-    private static ValueConverter? GetConverter(IProperty property)
+    private static ValueConverter? GetConverter(IReadOnlyProperty property)
         => property.FindTypeMapping()?.Converter ?? property.GetValueConverter();
 
     public static void SetCharSet([NotNull] this IMutableProperty property, string charSet)
         => property.SetOrRemoveAnnotation(MySQLAnnotationNames.Charset, charSet);
 
+    public static void SetValueGenerationStrategy([NotNull] this IMutableProperty property, MySQLValueGenerationStrategy? value)
+    {
+      CheckValueGenerationStrategy(property, value);
+
+      property.SetOrRemoveAnnotation(MySQLAnnotationNames.ValueGenerationStrategy, value);
+    }
+
+    private static void CheckValueGenerationStrategy(IReadOnlyProperty property, MySQLValueGenerationStrategy? value)
+    {
+      if (value != null)
+      {
+        var propertyType = property.ClrType;
+
+        if (value == MySQLValueGenerationStrategy.IdentityColumn && !IsCompatibleIdentityColumn(property))
+        {
+          throw new ArgumentException(string.Format(MySQLStrings.WrongIdentityType,
+          property.DeclaringEntityType.DisplayName(), property.Name, propertyType.ShortDisplayName()));
+        }
+
+        if (value == MySQLValueGenerationStrategy.ComputedColumn && !IsCompatibleComputedColumn(property))
+        {
+          throw new ArgumentException(string.Format(MySQLStrings.WrongComputedType,
+          property.DeclaringEntityType.DisplayName(), property.Name, propertyType.ShortDisplayName()));
+        }
+      }
+    }
   }
 }
