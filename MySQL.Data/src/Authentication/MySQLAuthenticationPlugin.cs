@@ -188,16 +188,14 @@ namespace MySql.Data.MySqlClient.Authentication
         }
       }
 
-      OkPacket okPacket = _driver.ReadOk(false);
-
-      // multifactor authentication
-      while (okPacket.SessionTrackers.Exists(s => s.TrackType == SessionTrackType.ClientPluginInfo))
+      // Auth request Protocol::AuthNextFactor.
+      while (packet.Buffer[0] == 0x02)
       {
-        _mfaIteration++;
-        string pluginName = okPacket.SessionTrackers.Find(s => s.TrackType == SessionTrackType.ClientPluginInfo).Name;
-        HandleMFA(pluginName);
-        okPacket = _driver.ReadOk(false);
+        ++_mfaIteration;
+        HandleMFA(packet);
       }
+
+      _driver.ReadOk(false);
 
       AuthenticationSuccessful();
     }
@@ -235,10 +233,12 @@ namespace MySql.Data.MySqlClient.Authentication
       }
     }
 
-    private void HandleMFA(string authMethod)
+    private void HandleMFA(MySqlPacket packet)
     {
-      MySqlAuthenticationPlugin plugin = GetPlugin(authMethod, _driver, null, _mfaIteration);
-      plugin.ContinueAuthentication();
+      byte b = packet.ReadByte();
+      Debug.Assert(b == 0x02);
+
+      NextPlugin(packet).ContinueAuthentication();
     }
 
     private void HandleAuthChange(MySqlPacket packet)
@@ -246,12 +246,17 @@ namespace MySql.Data.MySqlClient.Authentication
       byte b = packet.ReadByte();
       Debug.Assert(b == 0xfe);
 
+      NextPlugin(packet).ContinueAuthentication();
+    }
+
+    private MySqlAuthenticationPlugin NextPlugin(MySqlPacket packet)
+    {
       string method = packet.ReadString();
       byte[] authData = new byte[packet.Length - packet.Position];
       Array.Copy(packet.Buffer, packet.Position, authData, 0, authData.Length);
 
-      MySqlAuthenticationPlugin plugin = GetPlugin(method, _driver, authData);
-      plugin.ContinueAuthentication();
+      MySqlAuthenticationPlugin plugin = GetPlugin(method, _driver, authData, _mfaIteration);
+      return plugin;
     }
 
     private void ContinueAuthentication(byte[] data = null)

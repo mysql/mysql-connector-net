@@ -142,8 +142,8 @@ namespace MySql.Data.MySqlClient
         if (read)
           packet = stream.ReadPacket();
 
-        byte marker = (byte)packet.ReadByte();
-        if (marker != 0)
+        byte header = packet.ReadByte();
+        if (header != 0)
         {
           throw new MySqlException("Out of sync with server", true, null);
         }
@@ -395,11 +395,12 @@ namespace MySql.Data.MySqlClient
       if ((serverCaps & ClientFlags.CLIENT_QUERY_ATTRIBUTES) != 0)
         flags |= ClientFlags.CLIENT_QUERY_ATTRIBUTES;
 
+      // if the server supports MFA
+      if ((serverCaps & ClientFlags.MULTI_FACTOR_AUTHENTICATION) != 0)
+        flags |= ClientFlags.MULTI_FACTOR_AUTHENTICATION;
+
       // need this to get server session trackers
       flags |= ClientFlags.CLIENT_SESSION_TRACK;
-
-      // adding support for MFA
-      flags |= ClientFlags.CLIENT_MANDATORY_SESSION_TRACK;
 
       connectionFlags = flags;
     }

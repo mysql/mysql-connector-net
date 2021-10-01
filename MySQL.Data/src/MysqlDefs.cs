@@ -66,7 +66,7 @@ namespace MySql.Data.MySqlClient
     CLIENT_QUERY_ATTRIBUTES = (1UL << 27), // Support for query attributes
     CLIENT_SSL_VERIFY_SERVER_CERT = (1UL << 30), // Verify server certificate
     CLIENT_REMEMBER_OPTIONS = (1UL << 31), // Don't reset the options after an unsuccessful connect
-    CLIENT_MANDATORY_SESSION_TRACK = (1UL << 28) // Support for Multi Factor Authentication (MFA)
+    MULTI_FACTOR_AUTHENTICATION = (1UL << 28) // Support for Multi Factor Authentication (MFA)
   }
 
   [Flags]
@@ -96,8 +96,7 @@ namespace MySql.Data.MySqlClient
     StateChange = 2,
     GTIDS = 3,
     TransactionCharacteristics = 4,
-    TransactionState = 5,
-    ClientPluginInfo = 6
+    TransactionState = 5
   }
 
   /// <summary>
