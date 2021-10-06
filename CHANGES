@@ -1,5 +1,6 @@
 8.0.28
 - Added Support for .NET 6.0 (WL14734).
+- Removed support for the TLSv1.0 and TLSv1.1 protocols (WL14811).
 
 
 8.0.27

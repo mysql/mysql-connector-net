@@ -682,24 +682,6 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Option &quot;tls-version&quot; can not be specified when SSL connections are disabled..
-        /// </summary>
-        internal static string InvalidTlsVersionAndSslModeOption {
-            get {
-                return ResourceManager.GetString("InvalidTlsVersionAndSslModeOption", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.1, TLSv1.2{1})..
-        /// </summary>
-        internal static string InvalidTlsVersionOption {
-            get {
-                return ResourceManager.GetString("InvalidTlsVersionOption", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; is an illegal value for a boolean option..
         /// </summary>
         internal static string InvalidValueForBoolean {
@@ -1357,16 +1339,25 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This connection is using {0}, which is now deprecated and will be removed in a future release of Connector/NET..
+        ///   Looks up a localized string similar to Specified list of TLS versions only contains non valid TLS protocols. Accepted values are TLSv1.2 and TLSv1.3.
         /// </summary>
-        internal static string TlsDeprecationWarning {
+        internal static string TlsNonValidProtocols {
             get {
-                return ResourceManager.GetString("TlsDeprecationWarning", resourceCulture);
+                return ResourceManager.GetString("TlsNonValidProtocols", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TLSv1.3 is supported in .NET Framework 4.8 or .NET Core 3.0..
+        ///   Looks up a localized string similar to TLS protocols TLSv1 and TLSv1.1 are no longer supported. Accepted values are TLSv1.2 and TLSv1.3.
+        /// </summary>
+        internal static string TlsUnsupportedVersions {
+            get {
+                return ResourceManager.GetString("TlsUnsupportedVersions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TLSv1.3 is not supported by this framework..
         /// </summary>
         internal static string Tlsv13NotSupported {
             get {
@@ -1375,11 +1366,11 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No supported TLS protocol version found in the &apos;tls-versions&apos; list..
+        ///   Looks up a localized string similar to Specified list of TLS versions is empty. Accepted values are TLSv1.2 and TLSv1.3.
         /// </summary>
-        internal static string TlsVersionNotSupported {
+        internal static string TlsVersionsEmpty {
             get {
-                return ResourceManager.GetString("TlsVersionNotSupported", resourceCulture);
+                return ResourceManager.GetString("TlsVersionsEmpty", resourceCulture);
             }
         }
         

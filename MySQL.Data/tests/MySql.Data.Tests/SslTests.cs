@@ -170,6 +170,128 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(Resources.InvalidOptionWhenSslDisabled, exception.Message);
     }
 
+    [Test]
+    [Property("Category", "Security")]
+    public void SslPreferredByDefault()
+    {
+      MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", Connection);
+      using (MySqlDataReader reader = command.ExecuteReader())
+      {
+        Assert.True(reader.Read());
+        StringAssert.StartsWith("TLSv1", reader.GetString(1));
+      }
+    }
+
+    [Test]
+    [Property("Category", "Security")]
+    public void SslOverrided()
+    {
+      var cstrBuilder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      cstrBuilder.SslMode = MySqlSslMode.None;
+      cstrBuilder.AllowPublicKeyRetrieval = true;
+      cstrBuilder.Database = "";
+      using (MySqlConnection connection = new MySqlConnection(cstrBuilder.ConnectionString))
+      {
+        connection.Open();
+        MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
+        using (MySqlDataReader reader = command.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          Assert.AreEqual(string.Empty, reader.GetString(1));
+        }
+      }
+    }
+
+    /// <summary>
+    /// WL14811 - Remove support for TLS 1.0 and 1.1
+    /// </summary>
+    [TestCase("[]", 1)]
+    [TestCase("Tlsv1, Tlsv1.1", 2)]
+    [TestCase("Tlsv1, foo", 2)]
+    [TestCase("foo, bar", 3)]
+    [TestCase("Tlsv1.0, Tlsv1.2", 0)]
+    [TestCase("foo, Tlsv1.2", 0)]
+    //#if NET48 || NETCOREAPP3_1 || NET5_0 || NET6_0
+    //    [TestCase("Tlsv1.3", "Tlsv1.3")]
+    //    [TestCase("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.3")]
+    //#endif
+#if NET452
+    [TestCase("Tlsv1.3", 4)]
+    [TestCase("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", 0)]
+#endif
+    [Property("Category", "Security")]
+    public void TlsVersionTest(string tlsVersion, int error)
+    {
+      var builder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      void SetTlsVersion() { builder.TlsVersion = tlsVersion; }
+      string ex;
+      string tls = "TLSv1.2";
+
+      switch (error)
+      {
+        case 1:
+          ex = Assert.Throws<ArgumentException>(SetTlsVersion).Message;
+          StringAssert.AreEqualIgnoringCase(Resources.TlsVersionsEmpty, ex);
+          break;
+        case 2:
+          ex = Assert.Throws<ArgumentException>(SetTlsVersion).Message;
+          StringAssert.AreEqualIgnoringCase(Resources.TlsUnsupportedVersions, ex);
+          break;
+        case 3:
+          ex = Assert.Throws<ArgumentException>(SetTlsVersion).Message;
+          StringAssert.AreEqualIgnoringCase(Resources.TlsNonValidProtocols, ex);
+          break;
+        case 4:
+          SetTlsVersion();
+          Assert.Throws<NotSupportedException>(() => new MySqlConnection(builder.ConnectionString).Open());
+          break;
+        default:
+          SetTlsVersion();
+          var conn = new MySqlConnection(builder.ConnectionString);
+
+          using (conn)
+          {
+            conn.Open();
+            Assert.AreEqual(ConnectionState.Open, conn.State);
+
+            MySqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = "SHOW SESSION STATUS LIKE 'ssl_version'";
+
+            using MySqlDataReader dr = cmd.ExecuteReader();
+            Assert.True(dr.Read());
+            StringAssert.AreEqualIgnoringCase(tls, dr[1].ToString());
+          }
+
+          break;
+      }
+    }
+
+    /// <summary>
+    /// WL14811 - Remove support for TLS 1.0 and 1.1
+    /// </summary>
+    [TestCase("Tlsv1.0, Tlsv1.2")]
+    [TestCase("foo, Tlsv1.2")]
+    public void TlsVersionNoSslTest(string tlsVersion)
+    {
+      var builder = new MySqlConnectionStringBuilder(Connection.ConnectionString)
+      {
+        TlsVersion = tlsVersion,
+        SslMode = MySqlSslMode.None
+      };
+
+      using (var conn = new MySqlConnection(builder.ConnectionString))
+      {
+        conn.Open();
+        Assert.AreEqual(ConnectionState.Open, conn.State);
+
+        MySqlCommand cmd = conn.CreateCommand();
+        cmd.CommandText = "SHOW SESSION STATUS LIKE 'ssl_version'";
+
+        using MySqlDataReader dr = cmd.ExecuteReader();
+        Assert.True(dr.Read());
+        Assert.IsEmpty(dr[1].ToString());
+      }
+    }
     #endregion
 
     #region PFX
@@ -186,7 +308,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void CanConnectUsingFileBasedCertificate()
     {
-      string connstr = Settings.ConnectionString;
+      string connstr = Connection.ConnectionString;
       connstr += ";CertificateFile=client.pfx;CertificatePassword=pass;SSL Mode=Required;";
       using (MySqlConnection c = new MySqlConnection(connstr))
       {
@@ -197,20 +319,6 @@ namespace MySql.Data.MySqlClient.Tests
         {
           Assert.True(reader.Read());
           StringAssert.StartsWith("TLSv1", reader.GetString(1));
-        }
-
-        command = new MySqlCommand("show variables like 'have_ssl';", c);
-        using (MySqlDataReader reader = command.ExecuteReader())
-        {
-          Assert.True(reader.Read());
-          StringAssert.AreEqualIgnoringCase("YES", reader.GetString(1));
-        }
-
-        command = new MySqlCommand("show variables like 'tls_version'", c);
-        using (MySqlDataReader reader = command.ExecuteReader())
-        {
-          Assert.True(reader.Read());
-          StringAssert.Contains("TLS", reader.GetString(1));
         }
       }
     }
@@ -615,10 +723,10 @@ namespace MySql.Data.MySqlClient.Tests
       var connStr = $"server={Settings.Server};user={Settings.UserID};port={Settings.Port};password={Settings.Password};ssl-mode=required;ConnectionTimeout=5";
       var maxIterations = 7;
       ExecuteSQL("SET GLOBAL max_connections = 10;");
-      List<MySqlConnection> connectionList= new();
+      List<MySqlConnection> connectionList = new();
       using (var conn = new MySqlConnection(connStr))
       {
-        while (connectionList.Count()< maxIterations)
+        while (connectionList.Count() < maxIterations)
         {
           var c1 = new MySqlConnection(connStr);
           c1.Open();
@@ -877,26 +985,25 @@ namespace MySql.Data.MySqlClient.Tests
       if (!ServerHaveSsl()) Assert.Ignore("Server doesn't have Ssl support");
 
       MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA, MySqlSslMode.VerifyFull };
-      String[] version, ver1Tls;
+      String[] version;
       var conStr = $"server={Host};port={Port};userid={Settings.UserID};password={Settings.Password};SslCa={_sslCa};SslCert={_sslCert};SslKey={_sslKey};ssl-ca-pwd=pass";
+
       foreach (MySqlSslMode mode in modes)
       {
-        version = new string[] { "TLSv1", "TLSv1.1", "TLSv1.2" };
+        version = new string[] { "TLSv1.2"};
         foreach (string tlsVersion in version)
         {
           using (var conn = new MySqlConnection(conStr + ";ssl-mode=" + mode + ";tls-version=" + tlsVersion))
           {
-            // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
-            try { conn.Open(); }
-            catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
+            conn.Open();
             MySqlCommand cmd = new MySqlCommand("SELECT variable_value FROM performance_schema.session_status WHERE VARIABLE_NAME='Ssl_version'", conn);
             object result = cmd.ExecuteScalar();
             Assert.AreEqual(tlsVersion, result);
           }
         }
-        version = new string[] { "[TLSv1,TLSv1.1]", "[TLSv1.1,TLSv1.2]", "[TLSv1,TLSv1.2]" };
-        ver1Tls = new string[] { "TLSv1.1", "TLSv1.2", "TLSv1.2" };
-        for (int i = 0; i < 3; i++)
+
+        version = new string[] { "[TLSv1.1,TLSv1.2]", "[TLSv1,TLSv1.2]" };
+        for (int i = 0; i < 2; i++)
         {
           using (var conn = new MySqlConnection(conStr + ";ssl-mode=" + mode + ";tls-version=" + version[i]))
           {
@@ -927,17 +1034,6 @@ namespace MySql.Data.MySqlClient.Tests
 
       Assert.Throws<ArgumentException>(() => conn = new MySqlConnection(conStr + $";ssl-mode={MySqlSslMode.Required};tls-version=[TLSv1];tls-version=[TLSv1]"));
       Assert.Throws<ArgumentException>(() => conn = new MySqlConnection(conStr + $";ssl-mode={MySqlSslMode.Required};tls-version=[TLSv1.1,TLSv1.2];tls-version=[TLSv1.1,TLSv1.2]"));
-
-      version = new string[] { "[TLSv1]", "[TLSv1.1]", "[TLSv1.2]" };
-      string[] version1 = new string[] { "[TLSv1, TLSv1.1]", "[TLSv1, TLSv1.2]", "[TLSv1.1, TLSv1.2]", "[TLSv1, TLSv1.1, TLSv1.2]", "[TLSv1.2, TLSv1.1]" };
-      foreach (string tlsVersion in version)
-      {
-        Assert.Throws<ArgumentException>(() => conn = new MySqlConnection(conStr + $";ssl-mode={MySqlSslMode.None};tls-version={tlsVersion}"));
-      }
-      foreach (string tlsVersion in version1)
-      {
-        Assert.Throws<ArgumentException>(() => conn = new MySqlConnection(conStr + $";ssl-mode={MySqlSslMode.None};tls-version={tlsVersion}"));
-      }
     }
 
     [Test, Description("Default SSL user with SSL but without SSL Parameters")]
@@ -1045,8 +1141,8 @@ namespace MySql.Data.MySqlClient.Tests
     public bool ServerHaveSsl()
     {
       Dictionary<string, string> strValues = new();
-      
-      var commandList = new string[]{ "show variables like 'have_ssl'", "show  status like '%Ssl_version'", "show variables like 'tls_version'" };
+
+      var commandList = new string[] { "show variables like 'have_ssl'", "show  status like '%Ssl_version'", "show variables like 'tls_version'" };
       foreach (var item in commandList)
       {
         var cmd = Connection.CreateCommand();
@@ -1059,7 +1155,7 @@ namespace MySql.Data.MySqlClient.Tests
           }
         }
       }
-      return (strValues["have_ssl"] == "YES" && strValues["Ssl_version"].StartsWith("TLS") && !string.IsNullOrEmpty(strValues["tls_version"]))  ? true : false;
+      return (strValues["have_ssl"] == "YES" && strValues["Ssl_version"].StartsWith("TLS") && !string.IsNullOrEmpty(strValues["tls_version"])) ? true : false;
     }
     #endregion Methods
 
