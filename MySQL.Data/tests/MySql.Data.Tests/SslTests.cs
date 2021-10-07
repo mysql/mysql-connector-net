@@ -208,6 +208,8 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase("[]", 1)]
     [TestCase("Tlsv1, Tlsv1.1", 2)]
     [TestCase("Tlsv1, foo", 2)]
+    [TestCase("Tlsv1", 2)]
+    [TestCase("Tlsv1.1", 2)]
     [TestCase("foo, bar", 3)]
     [TestCase("Tlsv1.0, Tlsv1.2", 0)]
     [TestCase("foo, Tlsv1.2", 0)]

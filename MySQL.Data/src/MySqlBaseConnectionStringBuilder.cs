@@ -131,7 +131,7 @@ namespace MySql.Data.MySqlClient
 
         if (Enum.TryParse<SslProtocols>(tls, true, out SslProtocols protocol) && ((int)protocol) >= 3072)
           protocols |= protocol;
-        else if (protocol.HasFlag(SslProtocols.Tls) || protocol.HasFlag(SslProtocols.Tls))
+        else if (protocol.HasFlag(SslProtocols.Tls) || protocol.HasFlag(SslProtocols.Tls11))
           unsupported = true;
         else
           nonValid = true;
