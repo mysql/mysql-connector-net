@@ -621,17 +621,14 @@
   <data name="DnsSrvNoHostsAvailable" xml:space="preserve">
     <value>Unable to locate any hosts for {0}.</value>
   </data>
-  <data name="InvalidTlsVersionAndSslModeOption" xml:space="preserve">
-    <value>Option "tls-version" can not be specified when SSL connections are disabled.</value>
-  </data>
-  <data name="InvalidTlsVersionOption" xml:space="preserve">
-    <value>'{0}' not recognized as a valid TLS protocol version (should be one of TLSv1, TLSv1.1, TLSv1.2{1}).</value>
+  <data name="TlsNonValidProtocols" xml:space="preserve">
+    <value>Specified list of TLS versions only contains non valid TLS protocols. Accepted values are TLSv1.2 and TLSv1.3</value>
   </data>
   <data name="Tlsv13NotSupported" xml:space="preserve">
-    <value>TLSv1.3 is supported in .NET Framework 4.8 or .NET Core 3.0.</value>
+    <value>TLSv1.3 is not supported by this framework.</value>
   </data>
-  <data name="TlsVersionNotSupported" xml:space="preserve">
-    <value>No supported TLS protocol version found in the 'tls-versions' list.</value>
+  <data name="TlsVersionsEmpty" xml:space="preserve">
+    <value>Specified list of TLS versions is empty. Accepted values are TLSv1.2 and TLSv1.3</value>
   </data>
   <data name="DuplicatedConnectionOption" xml:space="preserve">
     <value>Connection option '{0}' is duplicated.</value>
@@ -650,9 +647,6 @@
   </data>
   <data name="InvalidCertificateThumbprint" xml:space="preserve">
     <value>Certificate with Thumbprint '{0}' not found.</value>
-  </data>
-  <data name="TlsDeprecationWarning" xml:space="preserve">
-    <value>This connection is using {0}, which is now deprecated and will be removed in a future release of Connector/NET.</value>
   </data>
   <data name="QueryAttributesNotSupported" xml:space="preserve">
     <value>MySQL Server {0} dos not support query attributes.</value>
@@ -683,5 +677,8 @@
   </data>
   <data name="OciKeyFileDoesNotExists" xml:space="preserve">
     <value>Private key could not be found at location given by OCI configuration entry 'key_file'.</value>
+  </data>
+  <data name="TlsUnsupportedVersions" xml:space="preserve">
+    <value>TLS protocols TLSv1 and TLSv1.1 are no longer supported. Accepted values are TLSv1.2 and TLSv1.3</value>
   </data>
 </root>

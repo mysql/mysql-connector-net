@@ -27,18 +27,18 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data;
+using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Relational;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-using MySql.Data.Common;
+using System.Data;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Data;
 
 namespace MySqlX.Data.Tests
 {
@@ -263,13 +263,10 @@ namespace MySqlX.Data.Tests
       CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=TlS1.2", "myuser", "password", "localhost", 33060, "tls-version", "Tls12");
       CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=TlSv12", "myuser", "password", "localhost", 33060, "tls-version", "Tls12");
       CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=TlS12", "myuser", "password", "localhost", 33060, "tls-version", "Tls12");
-      CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=[ TlSv1.2 ,tLsV11, TLSv1.0 , tls13 ]", "myuser", "password", "localhost", 33060, "tls-version", "Tls, Tls11, Tls12, Tls13");
-      CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=( TlSv1.2 ,tLsV11, TLSv1 , tls13 )", "myuser", "password", "localhost", 33060, "tls-version", "Tls, Tls11, Tls12, Tls13");
-      CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version= TlSv1.2 ,tLsV11, TLSv10 , tls13", "myuser", "password", "localhost", 33060, "tls-version", "Tls, Tls11, Tls12, Tls13");
-      Assert.Throws<ArgumentException>(() => CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=TlSv1.2,tLsV2.1", "myuser", "password", "localhost", 33060, "tls-version", ""));
+      CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=[ TlSv1.2 ,tLsV11, TLSv1.0 , tls13 ]", "myuser", "password", "localhost", 33060, "tls-version", "Tls12, Tls13");
+      CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=( TlSv1.2 ,tLsV11, TLSv1 , tls13 )", "myuser", "password", "localhost", 33060, "tls-version", "Tls12, Tls13");
+      CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version= TlSv1.2 ,tLsV11, TLSv10 , tls13", "myuser", "password", "localhost", 33060, "tls-version", "Tls12, Tls13");
       Assert.Throws<ArgumentException>(() => CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=SSL3", "myuser", "password", "localhost", 33060, "tls-version", ""));
-      Assert.Throws<ArgumentException>(() => CheckConnectionData("mysqlx://myuser:password@localhost:33060?ssl-mode=none&tls-version=TlsV1.2", "myuser", "password", "localhost", 33060, "tls-version", ""));
-      Assert.Throws<ArgumentException>(() => CheckConnectionData("mysqlx://myuser:password@localhost:33060?tls-version=TlsV1.2&ssl-mode=none", "myuser", "password", "localhost", 33060, "tls-version", ""));
     }
 
     [Test]
@@ -915,318 +912,6 @@ namespace MySqlX.Data.Tests
 
     }
 
-    #endregion
-
-    #region SSL
-
-    [Test]
-    [Property("Category", "Security")]
-    public void SSLSession()
-    {
-      using (var s3 = MySQLX.GetSession(ConnectionStringUri))
-      {
-        Assert.AreEqual(SessionState.Open, s3.InternalSession.SessionState);
-        var result = ExecuteSQLStatement(s3.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';")).FetchAll();
-        StringAssert.StartsWith("TLSv1", result[0][1].ToString());
-      }
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void SSLCertificate()
-    {
-      string path = "../../../../MySql.Data.Tests/";
-      string connstring = ConnectionStringUri + $"/?ssl-ca={path}client.pfx&ssl-ca-pwd=pass";
-      using (var s3 = MySQLX.GetSession(connstring))
-      {
-        Assert.AreEqual(SessionState.Open, s3.InternalSession.SessionState);
-        var result = ExecuteSQLStatement(s3.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';")).FetchAll();
-        StringAssert.StartsWith("TLSv1", result[0][1].ToString());
-      }
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void SSLEmptyCertificate()
-    {
-      string connstring = ConnectionStringUri + $"/?ssl-ca=";
-      // if certificate is empty, it connects without a certificate
-      using (var s1 = MySQLX.GetSession(connstring))
-      {
-        Assert.AreEqual(SessionState.Open, s1.InternalSession.SessionState);
-        var result = ExecuteSQLStatement(s1.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';")).FetchAll();
-        StringAssert.StartsWith("TLSv1", result[0][1].ToString());
-      }
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void SSLCrl()
-    {
-      string connstring = ConnectionStringUri + "/?ssl-crl=crlcert.pfx";
-      Assert.Throws<NotSupportedException>(() => MySQLX.GetSession(connstring));
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void SSLOptions()
-    {
-      string connectionString = ConnectionStringUri;
-      // sslmode is valid.
-      using (var connection = MySQLX.GetSession(connectionString + "?sslmode=required"))
-      {
-        Assert.AreEqual(SessionState.Open, connection.InternalSession.SessionState);
-      }
-
-      using (var connection = MySQLX.GetSession(connectionString + "?ssl-mode=required"))
-      {
-        Assert.AreEqual(SessionState.Open, connection.InternalSession.SessionState);
-      }
-
-      // sslenable is invalid.
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?sslenable"));
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?ssl-enable"));
-
-      // sslmode=Required is default value.
-      using (var connection = MySQLX.GetSession(connectionString))
-      {
-        Assert.AreEqual(connection.Settings.SslMode, MySqlSslMode.Required);
-      }
-
-      // sslmode case insensitive.
-      using (var connection = MySQLX.GetSession(connectionString + "?SsL-mOdE=required"))
-      {
-        Assert.AreEqual(SessionState.Open, connection.InternalSession.SessionState);
-      }
-      using (var connection = MySQLX.GetSession(connectionString + "?SsL-mOdE=VeRiFyca&ssl-ca=../../../../MySql.Data.Tests/client.pfx&ssl-ca-pwd=pass"))
-      {
-        Assert.AreEqual(SessionState.Open, connection.InternalSession.SessionState);
-        var uri = connection.Uri;
-      }
-
-      // Duplicate SSL connection options send error message.
-      ArgumentException ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?sslmode=Required&ssl mode=None"));
-      StringAssert.EndsWith("is duplicated.", ex.Message);
-      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?ssl-ca-pwd=pass&ssl-ca-pwd=pass"));
-      StringAssert.EndsWith("is duplicated.", ex.Message);
-      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?certificatepassword=pass&certificatepassword=pass"));
-      StringAssert.EndsWith("is duplicated.", ex.Message);
-      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?certificatepassword=pass&ssl-ca-pwd=pass"));
-      StringAssert.EndsWith("is duplicated.", ex.Message);
-
-      // send error if sslmode=None and another ssl parameter exists.
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionString + "?sslmode=None&ssl-ca=../../../../MySql.Data.Tests/certificates/client.pfx"));
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void SSLRequiredByDefault()
-    {
-      using (var connection = MySQLX.GetSession(ConnectionStringUri))
-      {
-        Assert.AreEqual(MySqlSslMode.Required, connection.Settings.SslMode);
-      }
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void SSLPreferredIsInvalid()
-    {
-      ArgumentException ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionStringUri + "?ssl-mode=Preferred"));
-      Assert.AreEqual("Value 'Preferred' is not of the correct type.", ex.Message);
-      ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionStringUri + "?ssl-mode=Prefered"));
-      Assert.AreEqual("Value 'Prefered' is not of the correct type.", ex.Message);
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void SSLCertificatePathKeepsCase()
-    {
-      var certificatePath = "../../../../MySql.Data.Tests/client.pfx";
-      // Connection string in basic format.
-      string connString = ConnectionString + ";ssl-ca=" + certificatePath + ";ssl-ca-pwd=pass;";
-      var stringBuilder = new MySqlXConnectionStringBuilder(connString);
-      Assert.AreEqual(certificatePath, stringBuilder.CertificateFile);
-      Assert.AreEqual(certificatePath, stringBuilder.SslCa);
-      Assert.True(stringBuilder.ConnectionString.Contains(certificatePath));
-      connString = stringBuilder.ToString();
-      Assert.True(connString.Contains(certificatePath));
-
-      // Connection string in uri format.
-      string connStringUri = ConnectionStringUri + "/?ssl-ca=" + certificatePath + "& ssl-ca-pwd=pass;";
-      using (var session = MySQLX.GetSession(connStringUri))
-      {
-        Assert.AreEqual(certificatePath, session.Settings.CertificateFile);
-        Assert.AreEqual(certificatePath, session.Settings.SslCa);
-        Assert.True(session.Settings.ConnectionString.Contains(certificatePath));
-        connString = session.Settings.ToString();
-        Assert.True(connString.Contains(certificatePath));
-      }
-    }
-
-    // Fix Bug 24510329 - UNABLE TO CONNECT USING TLS/SSL OPTIONS FOR THE MYSQLX URI SCHEME
-    [TestCase("../../../../MySql.Data.Tests/client.pfx")]
-    [TestCase("(../../../../MySql.Data.Tests/client.pfx)")]
-    [TestCase(@"(..\..\..\..\MySql.Data.Tests\client.pfx")]
-    [TestCase("..\\..\\..\\..\\MySql.Data.Tests\\client.pfx")]
-    [Property("Category", "Security")]
-    public void SSLCertificatePathVariations(string certificatePath)
-    {
-      string connStringUri = ConnectionStringUri + "/?ssl-ca=" + certificatePath + "& ssl-ca-pwd=pass;";
-
-      using (var session = MySQLX.GetSession(connStringUri))
-      {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-      }
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void GetUriWithSSLParameters()
-    {
-      var session = GetSession();
-
-      var builder = new MySqlXConnectionStringBuilder();
-      builder.Server = session.Settings.Server;
-      builder.UserID = session.Settings.UserID; ;
-      builder.Password = session.Settings.Password;
-      builder.Port = session.Settings.Port;
-      builder.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
-      builder.Database = session.Settings.Database;
-      builder.CharacterSet = session.Settings.CharacterSet;
-      builder.SslMode = MySqlSslMode.Required;
-      builder.SslCa = "../../../../MySql.Data.Tests/client.pfx";
-      builder.CertificatePassword = sslCertificatePassword;
-      builder.ConnectTimeout = 10000;
-      builder.Keepalive = 10;
-      builder.Auth = MySqlAuthenticationMode.AUTO;
-
-      var connectionString = builder.ConnectionString;
-      string uri = null;
-
-      // Create session with connection string.
-      using (var internalSession = MySQLX.GetSession(connectionString))
-      {
-        uri = internalSession.Uri;
-      }
-
-      // Create session with the uri version of the connection string.
-      using (var internalSession = MySQLX.GetSession(uri))
-      {
-        // Compare values of the connection options.
-        foreach (string connectionOption in builder.Keys)
-        {
-          // SslCrl connection option is skipped since it isn't currently supported.
-          if (connectionOption == "sslcrl")
-            continue;
-
-          // Authentication mode AUTO/DEFAULT is internally assigned, hence it is expected to be different in this scenario. 
-          if (connectionOption == "auth")
-            Assert.AreEqual(MySqlAuthenticationMode.PLAIN, internalSession.Settings[connectionOption]);
-          else
-            Assert.AreEqual(builder[connectionOption], internalSession.Settings[connectionOption]);
-        }
-      }
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void GetUriKeepsSSLMode()
-    {
-      var globalSession = GetSession();
-      var builder = new MySqlXConnectionStringBuilder();
-      builder.Server = globalSession.Settings.Server;
-      builder.UserID = globalSession.Settings.UserID;
-      builder.Password = globalSession.Settings.Password;
-      builder.Port = globalSession.Settings.Port;
-      builder.Database = schemaName;
-      builder.CharacterSet = globalSession.Settings.CharacterSet;
-      builder.SslMode = MySqlSslMode.VerifyCA;
-      // Setting SslCa will also set CertificateFile.
-      builder.SslCa = TestContext.CurrentContext.TestDirectory + "\\client.pfx";
-      builder.CertificatePassword = sslCertificatePassword;
-      builder.ConnectTimeout = 10000;
-      builder.Keepalive = 10;
-      // Auth will change to the authentication mode internally used PLAIN, MySQL41, SHA256_MEMORY: 
-      builder.Auth = MySqlAuthenticationMode.AUTO;
-      // Doesn't show in the session.URI because Tcp is the default value. Tcp, Socket and Sockets are treated the same.
-      builder.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
-
-      string uri = null;
-      using (var internalSession = MySQLX.GetSession(builder.ConnectionString))
-      {
-        uri = internalSession.Uri;
-      }
-
-      using (var internalSession = MySQLX.GetSession(uri))
-      {
-        Assert.AreEqual(builder.Server, internalSession.Settings.Server);
-        Assert.AreEqual(builder.UserID, internalSession.Settings.UserID);
-        Assert.AreEqual(builder.Password, internalSession.Settings.Password);
-        Assert.AreEqual(builder.Port, internalSession.Settings.Port);
-        Assert.AreEqual(builder.Database, internalSession.Settings.Database);
-        Assert.AreEqual(builder.CharacterSet, internalSession.Settings.CharacterSet);
-        Assert.AreEqual(builder.SslMode, internalSession.Settings.SslMode);
-        Assert.AreEqual(builder.SslCa, internalSession.Settings.SslCa);
-        Assert.AreEqual(builder.CertificatePassword, internalSession.Settings.CertificatePassword);
-        Assert.AreEqual(builder.ConnectTimeout, internalSession.Settings.ConnectTimeout);
-        Assert.AreEqual(builder.Keepalive, internalSession.Settings.Keepalive);
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, internalSession.Settings.Auth);
-      }
-    }
-
-    [TestCase("[]", null)]
-    [TestCase("Tlsv1", "TLSv1")]
-    [TestCase("Tlsv1.0, Tlsv1.1", "TLSv1.1")]
-    [TestCase("Tlsv1.0, Tlsv1.1, Tlsv1.2", "TLSv1.2")]
-    //#if NET48 || NETCOREAPP3_1
-    // [TestCase("Tlsv1.3", "Tlsv1.3", Skip = "Waiting for full support")]
-    //[TestCase("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.3", Skip = "Waiting for full support")]
-#if NET452
-    [TestCase("Tlsv1.3", "")]
-    [TestCase("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.2")]
-#endif
-    [Property("Category", "Security")]
-    public void TlsVersionTest(string tlsVersion, string result)
-    {
-      var globalSession = GetSession();
-      var builder = new MySqlXConnectionStringBuilder();
-      builder.Server = globalSession.Settings.Server;
-      builder.UserID = globalSession.Settings.UserID;
-      builder.Password = globalSession.Settings.Password;
-      builder.Port = globalSession.Settings.Port;
-      builder.Database = schemaName;
-      void SetTlsVersion() { builder.TlsVersion = tlsVersion; }
-      if (result == null)
-      {
-        Assert.That(SetTlsVersion, Throws.Exception);
-        return;
-      }
-
-      SetTlsVersion();
-
-      string uri = null;
-      if (!String.IsNullOrWhiteSpace(result))
-      {
-        using (var internalSession = MySQLX.GetSession(builder.ConnectionString))
-        {
-          uri = internalSession.Uri;
-          Assert.AreEqual(SessionState.Open, internalSession.InternalSession.SessionState);
-          StringAssert.AreEqualIgnoringCase(result, internalSession.SQL("SHOW SESSION STATUS LIKE 'mysqlx_ssl_version'").Execute().FetchAll()[0][1].ToString());
-        }
-        using (var internalSession = MySQLX.GetSession(uri))
-        {
-          Assert.AreEqual(SessionState.Open, internalSession.InternalSession.SessionState);
-          StringAssert.AreEqualIgnoringCase(result, internalSession.SQL("SHOW SESSION STATUS LIKE 'mysqlx_ssl_version'").Execute().FetchAll()[0][1].ToString());
-        }
-      }
-      else
-#if NET452
-        Assert.Throws<NotSupportedException>(() => MySQLX.GetSession(builder.ConnectionString));
-#else
-        Assert.Throws<System.ComponentModel.Win32Exception>(() => MySQLX.GetSession(builder.ConnectionString));
-#endif
-    }
     #endregion
 
     #region WL14389

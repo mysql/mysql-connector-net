@@ -85,8 +85,6 @@ namespace MySql.Data.MySqlClient
         (SetterDelegate)((msb, sender, value) =>
         {
           MySqlSslMode newValue = (MySqlSslMode)Enum.Parse(typeof(MySqlSslMode), value.ToString(), true);
-          if (newValue == MySqlSslMode.None && msb.TlsVersion != null)
-            throw new ArgumentException(Resources.InvalidTlsVersionAndSslModeOption, nameof(TlsVersion));
           msb.SetValue("sslmode", newValue);
         }),
         (GetterDelegate)((msb, sender) => { return msb.SslMode; })));
@@ -103,32 +101,8 @@ namespace MySql.Data.MySqlClient
             msb.SetValue("tlsversion", null);
             return;
           }
-          if (msb.SslMode == MySqlSslMode.None)
-            throw new ArgumentException(Resources.InvalidTlsVersionAndSslModeOption, nameof(TlsVersion));
-          string strValue = ((string)value).TrimStart('[', '(').TrimEnd(']', ')').Replace(" ", string.Empty);
-          if (string.IsNullOrWhiteSpace(strValue) || strValue == ",")
-            throw new ArgumentException(Resources.TlsVersionNotSupported);
-          SslProtocols protocols = SslProtocols.None;
-          foreach (string opt in strValue.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-          {
-            string tls = opt.ToLowerInvariant().Replace("v", "").Replace(".", "");
-            if (tls.Equals("tls1") || tls.Equals("tls10"))
-              tls = "tls";
-            SslProtocols protocol;
-            if (!tls.StartsWith("tls", StringComparison.OrdinalIgnoreCase)
-              || (!Enum.TryParse<SslProtocols>(tls, true, out protocol) && !tls.Equals("tls13", StringComparison.OrdinalIgnoreCase)))
-            {
-              string info = string.Empty;
-#if NET48 || NETSTANDARD2_1
-              info = ", TLSv1.3";
-#endif
-              throw new ArgumentException(string.Format(Resources.InvalidTlsVersionOption, opt, info), nameof(TlsVersion));
-            }
-            protocols |= protocol;
-          }
-          string strProtocols = protocols == SslProtocols.None ? string.Empty : Enum.Format(typeof(SslProtocols), protocols, "G");
-          strProtocols = (value.ToString().Equals("Tls13", StringComparison.OrdinalIgnoreCase)
-          || value.ToString().Equals("Tlsv1.3", StringComparison.OrdinalIgnoreCase)) ? "Tls13" : strProtocols;
+
+          string strProtocols = TlsValidation(value);
           msb.SetValue("tlsversion", strProtocols);
         }),
         (GetterDelegate)((msb, sender) => { return msb.TlsVersion; })));
@@ -138,6 +112,45 @@ namespace MySql.Data.MySqlClient
 
       // Language and charset options.
       Options.Add(new MySqlConnectionStringOption("characterset", "character set,charset", typeof(string), "", false));
+    }
+
+    private static string TlsValidation(object value)
+    {
+      string strValue = ((string)value).TrimStart('[', '(').TrimEnd(']', ')').Replace(" ", string.Empty);
+      string strProtocols;
+      SslProtocols protocols = SslProtocols.None;
+      bool unsupported = false;
+      bool nonValid = false;
+
+      if (string.IsNullOrWhiteSpace(strValue) || strValue == ",")
+        throw new ArgumentException(Resources.TlsVersionsEmpty);
+
+      foreach (string opt in strValue.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+      {
+        string tls = opt.ToLowerInvariant().Replace("v", "").Replace(".", "");
+        tls = tls.Equals("tls1") || tls.Equals("tls10") ? "tls" : tls;
+
+        if (Enum.TryParse<SslProtocols>(tls, true, out SslProtocols protocol) && ((int)protocol) >= 3072)
+          protocols |= protocol;
+        else if (protocol.HasFlag(SslProtocols.Tls) || protocol.HasFlag(SslProtocols.Tls11))
+          unsupported = true;
+        else
+          nonValid = true;
+      }
+
+      if (protocols == SslProtocols.None)
+      {
+        if (unsupported)
+          throw new ArgumentException(Resources.TlsUnsupportedVersions);
+        if (nonValid)
+          throw new ArgumentException(Resources.TlsNonValidProtocols);
+      }
+
+      strProtocols = protocols == SslProtocols.None ? string.Empty : Enum.Format(typeof(SslProtocols), protocols, "G");
+      strProtocols = (value.ToString().Equals("Tls13", StringComparison.OrdinalIgnoreCase)
+      || value.ToString().Equals("Tlsv1.3", StringComparison.OrdinalIgnoreCase)) ? "Tls13" : strProtocols;
+
+      return strProtocols;
     }
 
     /// <summary>
@@ -354,7 +367,7 @@ namespace MySql.Data.MySqlClient
     /// Sets the TLS versions to use in a <see cref="SslMode">SSL connection</see> to the server.
     /// </summary>
     /// <example>
-    /// Tls version=TLSv1.1,TLSv1.2;
+    /// Tls version=TLSv1.2,TLSv1.3;
     /// </example>
     [DisplayName("TLS version")]
     [Category("Security")]
