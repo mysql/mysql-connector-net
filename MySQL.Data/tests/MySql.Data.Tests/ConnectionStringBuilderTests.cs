@@ -150,15 +150,16 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.False(s.CheckParameters);
     }
 
-    [Test]
-    public void SettingInvalidKeyThrowsArgumentException()
+    [TestCase("foo keyword")]
+    [TestCase("password4")]
+    public void SettingInvalidKeyThrowsArgumentException(string invalidKey)
     {
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder();
-      Exception ex = Assert.Throws<ArgumentException>(() => s["foo keyword"] = "foo");
+      Exception ex = Assert.Throws<ArgumentException>(() => s[invalidKey] = "foo");
 #if NET452 || NET48
-      Assert.AreEqual($"Option not supported.{Environment.NewLine}Parameter name: foo keyword", ex.Message);           
+      Assert.AreEqual($"Option not supported.{Environment.NewLine}Parameter name: {invalidKey}", ex.Message);           
 #else
-      Assert.AreEqual($"Option not supported. (Parameter 'foo keyword')", ex.Message);
+      Assert.AreEqual($"Option not supported. (Parameter '{invalidKey}')", ex.Message);
 #endif
     }
 
@@ -285,6 +286,29 @@ namespace MySql.Data.MySqlClient.Tests
 
       connStr = "server=localhost;userid=root;defaultauthenticationplugin=";
       var conn = new MySqlConnection(connStr);
+    }
+
+    /// <summary>
+    /// WL14653 - Support for MFA (multi factor authentication) authentication
+    /// 'Password1' and 'pwd1' should be interpreted as aliases for 'password' connection option
+    /// </summary>
+    [TestCase("password1")]
+    [TestCase("pwd1")]
+    public void UsingPwdAliases(string alias)
+    {
+      string value = "test";
+      var conn = new MySqlConnection($"{alias}={value};pwd2={value};pwd3={value}");
+      StringAssert.AreEqualIgnoringCase(value, conn.Settings.Password);
+      StringAssert.AreEqualIgnoringCase(value, conn.Settings.Password2);
+      StringAssert.AreEqualIgnoringCase(value, conn.Settings.Password3);
+
+      var connBuilder = new MySqlConnectionStringBuilder();
+      connBuilder[alias] = value;
+      connBuilder["pwd2"] = value;
+      connBuilder["pwd3"] = value;
+      StringAssert.AreEqualIgnoringCase(value, connBuilder.Password);
+      StringAssert.AreEqualIgnoringCase(value, connBuilder.Password2);
+      StringAssert.AreEqualIgnoringCase(value, connBuilder.Password3);
     }
 
     #region WL14389

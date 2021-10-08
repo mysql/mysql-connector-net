@@ -135,21 +135,23 @@ namespace MySql.Data.MySqlClient
       return packet = stream.ReadPacket();
     }
 
-    internal void ReadOk(bool read)
+    internal OkPacket ReadOk(bool read)
     {
       try
       {
         if (read)
           packet = stream.ReadPacket();
 
-        byte marker = (byte)packet.ReadByte();
-        if (marker != 0)
+        byte header = packet.ReadByte();
+        if (header != 0)
         {
           throw new MySqlException("Out of sync with server", true, null);
         }
 
         OkPacket okPacket = new OkPacket(packet);
         serverStatus = okPacket.ServerStatusFlags;
+
+        return okPacket;
       }
       catch (MySqlException ex)
       {
@@ -392,6 +394,10 @@ namespace MySql.Data.MySqlClient
       // if the server supports query attributes
       if ((serverCaps & ClientFlags.CLIENT_QUERY_ATTRIBUTES) != 0)
         flags |= ClientFlags.CLIENT_QUERY_ATTRIBUTES;
+
+      // if the server supports MFA
+      if ((serverCaps & ClientFlags.MULTI_FACTOR_AUTHENTICATION) != 0)
+        flags |= ClientFlags.MULTI_FACTOR_AUTHENTICATION;
 
       // need this to get server session trackers
       flags |= ClientFlags.CLIENT_SESSION_TRACK;

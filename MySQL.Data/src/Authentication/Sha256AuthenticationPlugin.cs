@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,8 +27,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Text;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
@@ -56,23 +56,23 @@ namespace MySql.Data.MySqlClient.Authentication
       if (Settings.SslMode != MySqlSslMode.None)
       {
         // send as clear text, since the channel is already encrypted
-        byte[] passBytes = Encoding.GetBytes(Settings.Password);
+        byte[] passBytes = Encoding.GetBytes(GetMFAPassword());
         byte[] buffer = new byte[passBytes.Length + 2];
         Array.Copy(passBytes, 0, buffer, 1, passBytes.Length);
-        buffer[0] = (byte) (passBytes.Length+1);
-        buffer[buffer.Length-1] = 0x00;
+        buffer[0] = (byte)(passBytes.Length + 1);
+        buffer[buffer.Length - 1] = 0x00;
         return buffer;
       }
       else
       {
-        if (Settings.Password.Length == 0) return new byte[1];
+        if (GetMFAPassword().Length == 0) return new byte[1];
         // send RSA encrypted, since the channel is not protected
         else if (rawPubkey == null) return new byte[] { 0x01 };
         else if (!Settings.AllowPublicKeyRetrieval)
           throw new MySqlException(Resources.RSAPublicKeyRetrievalNotEnabled);
         else
         {
-          byte[] bytes = GetRsaPassword(Settings.Password, AuthenticationData, rawPubkey);
+          byte[] bytes = GetRsaPassword(GetMFAPassword(), AuthenticationData, rawPubkey);
           if (bytes != null && bytes.Length == 1 && bytes[0] == 0) return null;
           return bytes;
         }
@@ -85,7 +85,7 @@ namespace MySql.Data.MySqlClient.Authentication
       if (Settings.SslMode != MySqlSslMode.None)
       {
         // Send as clear text, since the channel is already encrypted.
-        byte[] passBytes = Encoding.GetBytes(Settings.Password);
+        byte[] passBytes = Encoding.GetBytes(GetMFAPassword());
         byte[] buffer = new byte[passBytes.Length + 1];
         Array.Copy(passBytes, 0, buffer, 0, passBytes.Length);
         buffer[passBytes.Length] = 0;
@@ -109,7 +109,7 @@ namespace MySql.Data.MySqlClient.Authentication
     /// Applies XOR to the byte arrays provided as input.
     /// </summary>
     /// <returns>A byte array that contains the results of the XOR operation.</returns>
-    protected byte[] GetXor( byte[] src, byte[] pattern )
+    protected byte[] GetXor(byte[] src, byte[] pattern)
     {
       byte[] src2 = new byte[src.Length + 1];
       Array.Copy(src, 0, src2, 0, src.Length);
@@ -117,7 +117,7 @@ namespace MySql.Data.MySqlClient.Authentication
       byte[] result = new byte[src2.Length];
       for (int i = 0; i < src2.Length; i++)
       {
-        result[ i ] = ( byte )( src2[ i ] ^ ( pattern[ i % pattern.Length ] ));
+        result[i] = (byte)(src2[i] ^ (pattern[i % pattern.Length]));
       }
       return result;
     }

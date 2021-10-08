@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,8 +27,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Text;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
@@ -62,7 +62,7 @@ namespace MySql.Data.MySqlClient.Authentication
       {
         byte[] scramble = GetPassword() as byte[];
         byte[] buffer = new byte[scramble.Length - 1];
-        Array.Copy(scramble, 1, buffer, 0, scramble.Length-1);
+        Array.Copy(scramble, 1, buffer, 0, scramble.Length - 1);
         return buffer;
       }
       // Fast authentication.
@@ -75,11 +75,11 @@ namespace MySql.Data.MySqlClient.Authentication
         return GeneratePassword() as byte[];
     }
 
-	/// <summary>
+    /// <summary>
     /// Generates a byte array set with the password of the user in the expected format based on the
-	/// SSL settings of the current connection.
+    /// SSL settings of the current connection.
     /// </summary>
-	/// <returns>A byte array that contains the password of the user in the expected format.</returns>
+    /// <returns>A byte array that contains the password of the user in the expected format.</returns>
     protected byte[] GeneratePassword()
     {
       // If connection is secure perform full authentication.
@@ -88,7 +88,7 @@ namespace MySql.Data.MySqlClient.Authentication
         _authStage = AuthStage.FULL_AUTH;
 
         // Send as clear text since the channel is already encrypted.
-        byte[] passBytes = Encoding.GetBytes(Settings.Password);
+        byte[] passBytes = Encoding.GetBytes(GetMFAPassword());
         byte[] buffer = new byte[passBytes.Length + 1];
         Array.Copy(passBytes, 0, buffer, 0, passBytes.Length);
         buffer[passBytes.Length] = 0;
@@ -108,7 +108,7 @@ namespace MySql.Data.MySqlClient.Authentication
         else
         {
           _authStage = AuthStage.FULL_AUTH;
-          byte[] bytes = GetRsaPassword(Settings.Password, AuthenticationData, rawPubkey);
+          byte[] bytes = GetRsaPassword(GetMFAPassword(), AuthenticationData, rawPubkey);
           if (bytes != null && bytes.Length == 1 && bytes[0] == 0) return null;
           return bytes;
         }
@@ -144,11 +144,11 @@ namespace MySql.Data.MySqlClient.Authentication
       _authStage = AuthStage.GENERATE_SCRAMBLE;
 
       // If we have no password then we just return 1 zero byte.
-      if (Settings.Password.Length == 0) return new byte[1];
+      if (GetMFAPassword().Length == 0) return new byte[1];
 
       SHA256 sha = SHA256.Create();
 
-      byte[] firstHash = sha.ComputeHash(Encoding.Default.GetBytes(Settings.Password));
+      byte[] firstHash = sha.ComputeHash(Encoding.Default.GetBytes(GetMFAPassword()));
       byte[] secondHash = sha.ComputeHash(firstHash);
 
       byte[] input = new byte[AuthenticationData.Length + secondHash.Length];

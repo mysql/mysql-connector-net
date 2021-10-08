@@ -66,27 +66,33 @@ namespace MySql.Data.MySqlClient
         {
           SessionTrackType type = (SessionTrackType)packet.ReadByte();
           int dataLength = (int)packet.ReadByte();
+          string name, value;
 
           // for specification of the packet structure, see WL#4797
           switch (type)
           {
             case SessionTrackType.SystemVariables:
-              AddTracker(type, packet.ReadString(packet.ReadByte()), packet.ReadString(packet.ReadByte()));
+              name = packet.ReadString(packet.ReadByte());
+              value = packet.ReadString(packet.ReadByte());
+              AddTracker(type, name, value);
               break;
             case SessionTrackType.GTIDS:
               packet.ReadByte(); // skip the byte reserved for the encoding specification, see WL#6128 
-              AddTracker(type, packet.ReadString(packet.ReadByte()), null);
+              name = packet.ReadString(packet.ReadByte());
+              AddTracker(type, name, null);
               break;
             case SessionTrackType.Schema:
             case SessionTrackType.TransactionCharacteristics:
             case SessionTrackType.TransactionState:
-              AddTracker(type, packet.ReadString(packet.ReadByte()), null);
+              name = packet.ReadString(packet.ReadByte());
+              AddTracker(type, name, null);
               break;
             case SessionTrackType.StateChange:
             default:
               AddTracker(type, packet.ReadString(), null);
               break;
           }
+
           start = packet.Position;
         }
       }
@@ -101,17 +107,17 @@ namespace MySql.Data.MySqlClient
     private void AddTracker(SessionTrackType type, string name, string value)
     {
       SessionTracker tracker;
-      tracker._trackType = type;
-      tracker._name = name;
-      tracker._value = value;
+      tracker.TrackType = type;
+      tracker.Name = name;
+      tracker.Value = value;
       SessionTrackers.Add(tracker);
     }
   }
 
   internal struct SessionTracker
   {
-    internal SessionTrackType _trackType;
-    internal string _name;
-    internal string _value;
+    internal SessionTrackType TrackType;
+    internal string Name;
+    internal string Value;
   }
 }

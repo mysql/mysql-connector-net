@@ -53,7 +53,7 @@ namespace MySql.Data.MySqlClient.Authentication
     protected override void SetAuthData(byte[] data)
     {
       Username = GetUsername();
-      Password = Settings.Password;
+      Password = GetMFAPassword();
 
       //Protocol::AuthSwitchRequest plugin data contains:
       // int<2> SPN string length

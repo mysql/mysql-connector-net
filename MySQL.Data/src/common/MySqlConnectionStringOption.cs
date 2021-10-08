@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,7 +26,6 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using System;
@@ -35,7 +34,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
-namespace MySql.Data.common
+namespace MySql.Data.Common
 {
   internal class MySqlConnectionStringOption
   {
