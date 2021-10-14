@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
 using MySql.EntityFrameworkCore.Extensions;
 using MySql.EntityFrameworkCore.Metadata;
@@ -33,6 +34,7 @@ using MySql.EntityFrameworkCore.Update;
 using MySql.EntityFrameworkCore.Utils;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -57,12 +59,12 @@ namespace MySql.EntityFrameworkCore
       IReadOnlyList<ModificationCommand> modificationCommands,
       int commandPosition)
     {
+      var table = StoreObjectIdentifier.Table(modificationCommands[0].TableName, modificationCommands[0].Schema);
       if (modificationCommands.Count == 1
-                && modificationCommands[0].ColumnModifications.All(
-                    o =>
-                        !o.IsKey
+          && modificationCommands[0].ColumnModifications.All(
+                           o => !o.IsKey
                         || !o.IsRead
-                        || o.Property?.GetValueGenerationStrategy() == MySQLValueGenerationStrategy.IdentityColumn))
+                        || o.Property?.GetValueGenerationStrategy(table) == MySQLValueGenerationStrategy.IdentityColumn))
       {
         return AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition);
       }
@@ -73,13 +75,12 @@ namespace MySql.EntityFrameworkCore
 
       var defaultValuesOnly = writeOperations.Count == 0;
       var nonIdentityOperations = modificationCommands[0].ColumnModifications
-          .Where(o => o.Property?.GetValueGenerationStrategy() != MySQLValueGenerationStrategy.IdentityColumn)
+          .Where(o => o.Property?.GetValueGenerationStrategy(table) != MySQLValueGenerationStrategy.IdentityColumn)
           .ToList();
 
       if (defaultValuesOnly)
       {
-        if (nonIdentityOperations.Count == 0
-            || readOperations.Count == 0)
+        if (nonIdentityOperations.Count == 0 || readOperations.Count == 0)
         {
           foreach (var modification in modificationCommands)
           {
@@ -133,6 +134,49 @@ namespace MySql.EntityFrameworkCore
       return ResultSetMapping.NoResultSet;
     }
 
+    protected override void AppendInsertCommandHeader(
+                [NotNull] StringBuilder commandStringBuilder,
+                [NotNull] string name,
+                 string? schema,
+                [NotNull] IReadOnlyList<IColumnModification> operations)
+    {
+      Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+      Check.NotEmpty(name, nameof(name));
+      Check.NotNull(operations, nameof(operations));
+
+      base.AppendInsertCommandHeader(commandStringBuilder, name, schema, operations);
+
+      if (operations.Count <= 0)
+      {
+        commandStringBuilder.Append(" ()");
+      }
+    }
+
+    protected override void AppendValuesHeader(
+        [NotNull] StringBuilder commandStringBuilder,
+        [NotNull] IReadOnlyList<IColumnModification> operations)
+    {
+      Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+      Check.NotNull(operations, nameof(operations));
+
+      commandStringBuilder.AppendLine();
+      commandStringBuilder.Append("VALUES ");
+    }
+
+    protected override void AppendValues(
+                [NotNull] StringBuilder commandStringBuilder,
+                [NotNull] string name,
+                  string? schema,
+                [NotNull] IReadOnlyList<IColumnModification> operations)
+    {
+      base.AppendValues(commandStringBuilder, name, schema, operations);
+
+      if (operations.Count <= 0)
+      {
+        commandStringBuilder.Append("()");
+      }
+    }
+
     protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, IColumnModification columnModification)
     {
       Check.NotNull(columnModification, "columnModification");
@@ -144,7 +188,7 @@ namespace MySql.EntityFrameworkCore
     {
       Check.NotNull(commandStringBuilder, "commandStringBuilder");
       commandStringBuilder
-        .Append("ROW_COUNT() = " + expectedRowsAffected)
+        .Append("ROW_COUNT() = " + expectedRowsAffected.ToString(CultureInfo.InvariantCulture))
         .AppendLine();
     }
 
@@ -162,6 +206,25 @@ namespace MySql.EntityFrameworkCore
       return ResultSetMapping.LastInResultSet;
     }
 
+    protected override void AppendWhereAffectedClause(
+        [NotNull] StringBuilder commandStringBuilder,
+        [NotNull] IReadOnlyList<IColumnModification> operations)
+    {
+      Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+      Check.NotNull(operations, nameof(operations));
+
+      var nonDefaultOperations = operations
+          .Where(
+              o => !o.IsKey ||
+                   !o.IsRead ||
+                   o.Property == null ||
+                   !o.Property.ValueGenerated.HasFlag(ValueGenerated.OnAdd) ||
+                   MySQLPropertyExtensions.IsCompatibleAutoIncrementColumn(o.Property))
+          .ToList()
+          .AsReadOnly();
+
+      base.AppendWhereAffectedClause(commandStringBuilder, nonDefaultOperations);
+    }
 
     internal enum ResultsGrouping
     {

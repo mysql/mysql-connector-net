@@ -83,23 +83,6 @@ namespace MySql.EntityFrameworkCore.Update
       _parameterCount += additionalParameterCount;
       return true;
     }
-    //protected override bool CanAddCommand(ModificationCommand modificationCommand)
-    //{
-    //  if (ModificationCommands.Count >= _maxBatchSize)
-    //  {
-    //    return false;
-    //  }
-
-    //  var additionalParameterCount = CountParameters(modificationCommand);
-
-    //  if (_parameterCount + additionalParameterCount >= MaxParameterCount)
-    //  {
-    //    return false;
-    //  }
-
-    //  _parameterCount += additionalParameterCount;
-    //  return true;
-    //}
 
     private static int CountParameters(IReadOnlyModificationCommand modificationCommand)
     {
@@ -211,6 +194,5 @@ namespace MySql.EntityFrameworkCore.Update
            secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
        && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
            secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
-
   }
 }

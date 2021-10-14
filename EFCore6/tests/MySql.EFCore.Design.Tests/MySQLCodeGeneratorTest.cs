@@ -66,7 +66,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
       Assert.IsInstanceOf<NestedClosureCodeFragment>(result.Arguments[1]);
       NestedClosureCodeFragment nestedClosure = (NestedClosureCodeFragment)result.Arguments[1];
       Assert.AreEqual("x", nestedClosure.Parameter);
-      Assert.AreSame(providerOptions, nestedClosure.MethodCall);
+      Assert.AreSame(providerOptions, nestedClosure.MethodCalls[0]);
       Assert.Null(result.ChainedCall);
     }
   }

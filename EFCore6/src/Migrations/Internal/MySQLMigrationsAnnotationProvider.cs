@@ -26,14 +26,16 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using MySql.EntityFrameworkCore.Metadata.Internal;
 using MySql.EntityFrameworkCore.Extensions;
+using MySql.EntityFrameworkCore.Infrastructure.Internal;
 using MySql.EntityFrameworkCore.Metadata;
-using System.Linq;
+using MySql.EntityFrameworkCore.Metadata.Internal;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MySql.EntityFrameworkCore.Migrations.Internal
 {
@@ -46,6 +48,15 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
   /// </summary>
   internal class MySQLMigrationsAnnotationProvider : RelationalAnnotationProvider
   {
+    [NotNull] private readonly IMySQLOptions _options;
+    public MySQLMigrationsAnnotationProvider(
+               [NotNull] RelationalAnnotationProviderDependencies dependencies,
+               [NotNull] IMySQLOptions options)
+               : base(dependencies)
+    {
+      _options = options;
+    }
+
     /// <summary>
     ///     Initializes a new instance of this class.
     /// </summary>
@@ -68,7 +79,14 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
     {
       if (!designTime) yield break;
 
-      yield return (IAnnotation)base.For(table, designTime);
+      var entityType = table.EntityTypeMappings.First().EntityType;
+
+      foreach (var annotation in entityType.GetAnnotations()
+          .Where(a => a.Name is MySQLAnnotationNames.Charset or
+                                MySQLAnnotationNames.Collation))
+      {
+        yield return annotation;
+      }
     }
 
     /// <inheritdoc/>
@@ -97,20 +115,22 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
     public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)
     {
       if (!designTime) yield break;
-      var property = column.PropertyMappings.Select(m => m.Property).ToArray().FirstOrDefault();
+      var table = StoreObjectIdentifier.Table(column.Table.Name, column.Table.Schema);
+      var properties = column.PropertyMappings.Select(m => m.Property).ToArray();
 
-      if (property?.GetValueGenerationStrategy() == MySQLValueGenerationStrategy.IdentityColumn)
+      if (column.PropertyMappings.Where(
+              m => m.TableMapping.IsSharedTablePrincipal &&
+                   m.TableMapping.EntityType == m.Property.DeclaringEntityType)
+          .Select(m => m.Property)
+          .FirstOrDefault(p => p.GetValueGenerationStrategy(table) == MySQLValueGenerationStrategy.IdentityColumn) is IProperty identityProperty)
       {
-        yield return new Annotation(
-            MySQLAnnotationNames.ValueGenerationStrategy,
-            MySQLValueGenerationStrategy.IdentityColumn);
+        var valueGenerationStrategy = identityProperty.GetValueGenerationStrategy(table);
+        yield return new Annotation(MySQLAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy);
       }
-
-      if (property?.GetValueGenerationStrategy() == MySQLValueGenerationStrategy.ComputedColumn)
+      else if (properties.FirstOrDefault(p => p.GetValueGenerationStrategy(table) == MySQLValueGenerationStrategy.ComputedColumn) is IProperty computedProperty)
       {
-        yield return new Annotation(
-            MySQLAnnotationNames.ValueGenerationStrategy,
-            MySQLValueGenerationStrategy.ComputedColumn);
+        var valueGenerationStrategy = computedProperty.GetValueGenerationStrategy(table);
+        yield return new Annotation(MySQLAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy);
       }
     }
   }

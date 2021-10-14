@@ -1,6 +1,6 @@
 8.0.28
-- Added Support for .NET 6.0 (WL14734).
-- Added Support for Entity Framework Core 6 (WL14735).
+- Added support for .NET 6.0 (WL14734).
+- Added support for Entity Framework Core 6 (WL14735).
 
 8.0.27
 - Added support for reading and processing session trackers (WL14678).
