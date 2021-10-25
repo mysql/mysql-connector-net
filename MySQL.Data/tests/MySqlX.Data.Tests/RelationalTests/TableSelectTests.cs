@@ -26,13 +26,13 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySqlX.XDevAPI;
-using NUnit.Framework;
-using System.Linq;
-using MySqlX.XDevAPI.Relational;
-using MySqlX.XDevAPI.Common;
-using System;
 using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI;
+using MySqlX.XDevAPI.Common;
+using MySqlX.XDevAPI.Relational;
+using NUnit.Framework;
+using System;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -173,10 +173,10 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test]
     public void DatetimeAndMilliseconds()
     {
-      ExecuteSQL("CREATE TABLE test.testDate (id INT, name VARCHAR(45), birthday DATETIME(3))");
-      ExecuteSQL("INSERT INTO test.testDate VALUES(1, 'JOHN', '1985-10-21 16:34:22.123456')");
-      ExecuteSQL("INSERT INTO test.testDate VALUES(1, 'BILL', '1985-10-21 10:00:45.098')");
-      var rows = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("testDate").Select()).FetchAll();
+      ExecuteSQL("CREATE TABLE test.testDate2 (id INT, name VARCHAR(45), birthday DATETIME(3))");
+      ExecuteSQL("INSERT INTO test.testDate2 VALUES(1, 'JOHN', '1985-10-21 16:34:22.123456')");
+      ExecuteSQL("INSERT INTO test.testDate2 VALUES(1, 'BILL', '1985-10-21 10:00:45.098')");
+      var rows = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("testDate2").Select()).FetchAll();
       Assert.AreEqual(2, rows.Count);
       Assert.AreEqual(new DateTime(1985, 10, 21, 16, 34, 22).AddTicks(1230000), (DateTime)rows[0]["birthday"]);
       Assert.AreEqual(new DateTime(1985, 10, 21, 10, 0, 45).AddTicks(980000), (DateTime)rows[1]["birthday"]);

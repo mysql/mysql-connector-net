@@ -26,13 +26,13 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
 using MySqlX.XDevAPI.Relational;
-using System;
 using NUnit.Framework;
-using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -56,6 +56,9 @@ namespace MySqlX.Data.Tests
       new object[] { 2, "milton green", 45 },
       new object[] { 3, "larry smith", 24}
     };
+
+    [SetUp]
+    public void SetUp() => session.Reset();
 
     private void InitCollection()
     {
@@ -112,9 +115,6 @@ namespace MySqlX.Data.Tests
       .GetSchema(schemaName)
       .GetTable(_tableName);
 
-    [SetUp]
-    public void SetUp() => session.Reset();
-
     [Test]
     public void Find()
     {
@@ -142,7 +142,7 @@ namespace MySqlX.Data.Tests
     {
       InitCollection();
       Collection coll = GetCollection();
-      var findStmt = coll.Find().Where("_id = 1");
+      var findStmt = coll.Find("_id = 1");
 
       DocResult foundDoc = ExecuteFindStatement(findStmt);
       Assert.AreEqual("Book 1", foundDoc.FetchAll()[0]["title"].ToString());
@@ -177,7 +177,7 @@ namespace MySqlX.Data.Tests
         threadId = mySession.SQL("SELECT THREAD_ID FROM performance_schema.threads WHERE PROCESSLIST_ID=CONNECTION_ID()").Execute().FetchOne()[0].ToString();
         Collection coll = mySession.GetSchema(schemaName).GetCollection(_collectionName);
 
-        var findStmt = coll.Find().Where($"_id = 1");
+        var findStmt = coll.Find($"_id = 1");
 
         DocResult foundDoc = ExecuteFindStatement(findStmt);
         Assert.AreEqual("Book 1", foundDoc.FetchAll()[0]["title"].ToString());
@@ -769,7 +769,7 @@ namespace MySqlX.Data.Tests
       DocResult doc = ExecuteFindStatement(findStmt);
       findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", "2").Bind("pages", 30);
       doc = ExecuteFindStatement(findStmt);
-      var remStatement = coll.Remove("True").Sort().Limit(2).Where("$._id == :id");
+      var remStatement = coll.Remove("$._id == :id").Sort().Limit(2);
       for (int i = 1; i < 4; i++)
       {
         var r1 = remStatement.Bind("id", i.ToString()).Execute();

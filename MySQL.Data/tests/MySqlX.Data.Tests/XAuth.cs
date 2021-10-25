@@ -26,11 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
-using System;
 using NUnit.Framework;
-using MySql.Data.Common;
+using System;
 
 namespace MySqlX.Data.Tests
 {
@@ -47,8 +47,6 @@ namespace MySqlX.Data.Tests
       builder.Password = "test";
       CreateUser(builder.UserID, builder.Password, pluginName);
       string connectionString = null, connectionStringUri = null;
-      //Flush Privileges
-      ExecuteSQL("flush privileges");
 
       //Connection String
       connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password}";

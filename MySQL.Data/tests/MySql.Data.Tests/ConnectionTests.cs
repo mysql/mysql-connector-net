@@ -74,7 +74,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(ConnectionState.Closed == c.State, "State");
 
       // Bug #30791289 - MYSQLCONNECTION(NULL) NOW THROWS NULLREFERENCEEXCEPTION
-      var conn = new MySqlConnection("server=localhost;");
+      var conn = new MySqlConnection($"server={Host};");
       conn.ConnectionString = null;
       Assert.AreEqual(string.Empty, conn.ConnectionString);
     }
@@ -151,7 +151,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void ConnectWithQuotePassword()
     {
       ExecuteSQL("GRANT ALL ON *.* to 'quotedUser'@'%' IDENTIFIED BY '\"'", true);
-      ExecuteSQL("GRANT ALL ON *.* to 'quotedUser'@'localhost' IDENTIFIED BY '\"'", true);
+      ExecuteSQL($"GRANT ALL ON *.* to 'quotedUser'@'{Host}' IDENTIFIED BY '\"'", true);
       MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       settings.UserID = "quotedUser";
       settings.Password = "\"";
@@ -503,7 +503,7 @@ namespace MySql.Data.MySqlClient.Tests
       c.Close();
 
       ExecuteSQL("GRANT ALL ON *.* to 'nopass'@'%'", true);
-      ExecuteSQL("GRANT ALL ON *.* to 'nopass'@'localhost'", true);
+      ExecuteSQL($"GRANT ALL ON *.* to 'nopass'@'{Host}'", true);
       ExecuteSQL("FLUSH PRIVILEGES", true);
 
       // connect with no password
@@ -637,14 +637,15 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection conn = new MySqlConnection(Settings.ToString()))
       {
         MySqlCommand cmd = new MySqlCommand("", conn);
+        string expiredPwd = _EXPIRED_USER + "1";
 
         // creates expired user
-        SetupExpiredPasswordUser();
+        SetupExpiredPasswordUser(expiredPwd);
 
         // validates expired user
         var cnstrBuilder = new MySqlConnectionStringBuilder(Root.ConnectionString);
         cnstrBuilder.UserID = _EXPIRED_USER;
-        cnstrBuilder.Password = _EXPIRED_USER + "1";
+        cnstrBuilder.Password = expiredPwd;
         conn.ConnectionString = cnstrBuilder.ConnectionString;
         conn.Open();
 
@@ -689,31 +690,12 @@ namespace MySql.Data.MySqlClient.Tests
       if (Version < new Version(5, 6, 0)) return;
 
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
-      sb.Server = "::1";
+      sb.Server = GetMySqlServerIp(true);
+
       using (MySqlConnection conn = new MySqlConnection(sb.ToString()))
       {
         conn.Open();
         Assert.AreEqual(ConnectionState.Open, conn.State);
-      }
-    }
-
-    private void SetupExpiredPasswordUser()
-    {
-      string expiredFull = $"'{_EXPIRED_USER}'@'{Host}'";
-
-      using (MySqlConnection conn = GetConnection(true))
-      {
-        MySqlCommand cmd = conn.CreateCommand();
-
-        // creates expired user
-        cmd.CommandText = $"SELECT COUNT(*) FROM mysql.user WHERE user='{_EXPIRED_USER}' AND host='{Host}'";
-        long count = (long)cmd.ExecuteScalar();
-        if (count > 0)
-          MySqlHelper.ExecuteNonQuery(conn, $"DROP USER {expiredFull}");
-
-        MySqlHelper.ExecuteNonQuery(conn, $"CREATE USER {expiredFull} IDENTIFIED BY '{_EXPIRED_USER}1'");
-        MySqlHelper.ExecuteNonQuery(conn, $"GRANT SELECT ON `{Settings.Database}`.* TO {expiredFull}");
-        MySqlHelper.ExecuteNonQuery(conn, $"ALTER USER {expiredFull} PASSWORD EXPIRE");
       }
     }
 
@@ -729,7 +711,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       sb.UserID = _EXPIRED_USER;
       sb.Password = _EXPIRED_USER + "1";
-      SetupExpiredPasswordUser();
+      SetupExpiredPasswordUser(sb.Password);
       using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
       {
         conn.Open();
@@ -752,7 +734,7 @@ namespace MySql.Data.MySqlClient.Tests
       string host = Settings.Server;
       uint port = Settings.Port;
 
-      SetupExpiredPasswordUser();
+      SetupExpiredPasswordUser(expiredPwd);
 
       var sb = new MySqlConnectionStringBuilder();
       sb.Server = host;
@@ -796,9 +778,9 @@ namespace MySql.Data.MySqlClient.Tests
     {
       var sb = new MySqlConnectionStringBuilder()
       {
-        Server = "localhost",
+        Server = Host,
         Pooling = false,
-        UserID = "root",
+        UserID = RootUser,
         ConnectionProtocol = MySqlConnectionProtocol.NamedPipe,
         SslMode = MySqlSslMode.Required
       };
@@ -820,9 +802,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       var sb = new MySqlConnectionStringBuilder()
       {
-        Server = "localhost",
+        Server = Host,
         Pooling = false,
-        UserID = "root",
+        UserID = RootUser,
         ConnectionProtocol = MySqlConnectionProtocol.SharedMemory,
         SharedMemoryName = "MySQLSocket"
       };
@@ -1245,9 +1227,12 @@ namespace MySql.Data.MySqlClient.Tests
     public void ExpiredBlankPassword()
     {
       if (Version < new Version(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+
+      string host = Host == "localhost" ? Host : "%";
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       sb.UserID = _EXPIRED_USER;
       string[] pwds = new string[] { _EXPIRED_USER + "1", "" };
+
       for (int i = 0; i < pwds.Length; i++)
       {
         //wrong password
@@ -1266,7 +1251,7 @@ namespace MySql.Data.MySqlClient.Tests
         ExecuteQueriesFail("select 1", _EXPIRED_USER, pwds[i]);
 
         //reactivate user
-        ExecuteSQL($"ALTER USER '{_EXPIRED_USER}'@'{Host}' Identified BY '{sb.Password}'");
+        ExecuteSQL($"ALTER USER '{_EXPIRED_USER}'@'{host}' Identified BY '{sb.Password}'");
         ExecuteQueriesSuccess("SELECT VERSION()", sb.Password);
         ExecuteQueriesSuccess("SHOW VARIABLES LIKE '%audit%'", sb.Password);
         ExecuteQueriesSuccess("select 1", sb.Password);
@@ -1302,9 +1287,11 @@ namespace MySql.Data.MySqlClient.Tests
     public void ExpiredPasswordBug3()
     {
       if (Version < new Version(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+      string host = Host == "localhost" ? Host : "%";
+
       var _expiredPwd = "expiredPwd";
       var _newPwd = "newPwd";
-      var expiredFull = $"'{_EXPIRED_USER}'@'{Host}'";
+      var expiredFull = $"'{_EXPIRED_USER}'@'{host}'";
       var testStr = "show create user " + expiredFull;
 
       SetupExpiredPasswordUser(_expiredPwd);
@@ -1318,7 +1305,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.True(conn.IsPasswordExpired);
       }
 
-      ExecuteSQL($"ALTER USER '{_EXPIRED_USER}'@'{Host}' Identified BY '{_newPwd}'");
+      ExecuteSQL($"ALTER USER '{_EXPIRED_USER}'@'{host}' Identified BY '{_newPwd}'");
 
       sb = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       sb.UserID = _EXPIRED_USER;
@@ -1343,9 +1330,11 @@ namespace MySql.Data.MySqlClient.Tests
     public void ExpiredPasswordBug4()
     {
       if (Version < new Version(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+      string host = Host == "localhost" ? Host : "%";
+
       var _expiredPwd = "expiredPwd";
       var _newPwd = "newPwd";
-      var expiredFull = $"'{_EXPIRED_USER}'@'{Host}'";
+      var expiredFull = $"'{_EXPIRED_USER}'@'{host}'";
       var testStr = "show create user " + expiredFull;
       SetupExpiredPasswordUser(_expiredPwd);
 
@@ -1449,6 +1438,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
       }
     }
+
     private void ExecuteQueriesFail(string sql, string user, string password)
     {
       if (Version < new Version(8, 0, 17)) return;
@@ -1463,6 +1453,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
       }
     }
+
     private void SetupExpirePasswordExecuteQueriesFail(string sql, string password)
     {
       if (Version < new Version(8, 0, 17)) return;
@@ -1478,9 +1469,11 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
       }
     }
+
     private void SetupExpiredPasswordUser(string password)
     {
-      string expiredFull = $"'{_EXPIRED_USER}'@'{Host}'";
+      string host = Host == "localhost" ? Host : "%";
+      string expiredFull = $"'{_EXPIRED_USER}'@'{host}'";
 
       using (MySqlConnection conn = new MySqlConnection(Root.ConnectionString))
       {
@@ -1488,7 +1481,7 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand cmd = conn.CreateCommand();
 
         // creates expired user
-        cmd.CommandText = $"SELECT COUNT(*) FROM mysql.user WHERE user='{_EXPIRED_USER}' AND host='{Host}'";
+        cmd.CommandText = $"SELECT COUNT(*) FROM mysql.user WHERE user='{_EXPIRED_USER}'";
         long count = (long)cmd.ExecuteScalar();
 
         if (count > 0)
@@ -1508,6 +1501,5 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     #endregion
-
   }
 }

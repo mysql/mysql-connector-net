@@ -26,13 +26,13 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
-using System;
 using NUnit.Framework;
-using MySql.Data.Common;
+using System;
 
 namespace MySqlX.Data.Tests
 {
@@ -1314,7 +1314,7 @@ namespace MySqlX.Data.Tests
     [Ignore("Uncomment to execute")]
     public void FindWithManyConditions()
     {
-      int i = 0, j = 0;
+      int i = 0;
       int Condition = 49;
       String query = "";
       var col = CreateCollection("my_collection_1");
@@ -2142,7 +2142,7 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(3, result.FetchAll().Count);
       var coll = CreateCollection("test");
       coll.Add(new DbDoc("{ \"a\": 1, \"b\": [ 1, \"value\" ], \"d\":\"\", \"ARR1\":[\"Field-1-Data-0\"] }")).Execute();
-      result = coll.Find("JSON_TYPE($.ARR1) = 'ARRAY' AND \"Field-1-Data-0\" in $.ARR1").Execute();
+      result = coll.Find("JSON_TYPE($.ARR1) = 'ARRAY' AND \"Field-1-Data-0\" in $.ARR1").Execute();
       var count = result.FetchAll().Count;
       Assert.AreEqual(1, count);
 

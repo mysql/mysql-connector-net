@@ -26,9 +26,9 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using NUnit.Framework;
 using MySql.Data.Failover;
+using NUnit.Framework;
+using System;
 using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -48,7 +48,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void RandomMethod(string server, bool shouldPass = true)
     {
       Settings.Pooling = false;
-      Settings.Server = server;
+      Settings.Server = server.Replace("localhost", Host).Replace("::1", GetMySqlServerIp(true));
 
       if (!shouldPass)
       {
@@ -78,15 +78,15 @@ namespace MySql.Data.MySqlClient.Tests
 #endif
       // Multiple hosts and validate proper order assigned to hosts.
       Settings.Pooling = false;
-      Settings.Server = "(address=server.example,priority=100),(address=127.0.0.1,priority=25),(address=192.0.10.56,priority=75)";
+      Settings.Server = $"(address=server.example,priority=100),(address={Host},priority=25),(address=192.0.10.56,priority=75)";
       using (MySqlConnection conn = new MySqlConnection(Settings.ConnectionString))
       {
         conn.Open();
         Assert.AreEqual(ConnectionState.Open, conn.State);
-        Assert.AreEqual("127.0.0.1", conn.Settings.Server);
+        Assert.AreEqual(Host, conn.Settings.Server);
         Assert.AreEqual("server.example", FailoverManager.FailoverGroup.Hosts[0].Host);
         Assert.AreEqual("192.0.10.56", FailoverManager.FailoverGroup.Hosts[1].Host);
-        Assert.AreEqual("127.0.0.1", FailoverManager.FailoverGroup.Hosts[2].Host);
+        Assert.AreEqual(Host, FailoverManager.FailoverGroup.Hosts[2].Host);
       }
 
       // Multiple hosts with IPv6
@@ -107,7 +107,7 @@ namespace MySql.Data.MySqlClient.Tests
       for (int i = 1; i <= 105; i++)
       {
         hostList += "(address=server" + i + ".example,priority=" + (priority != 0 ? priority-- : 0) + "),";
-        if (i == 105) hostList += "(address=localhost,priority=0)";
+        if (i == 105) hostList += $"(address={Host},priority=0)";
       }
 
       Settings.Server = hostList;
@@ -131,7 +131,7 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase("(address=server.example,priority=100),(address=10.10.10.10,priority=25),(address=192.0.10.56,priority=75)", "Unable to connect to any of the specified MySQL hosts.", "mysql")] // Multiple hosts. All attempts fail.
     public void PriorityMethodConnectionFail(string server, string exceptionMessage, string exceptionType)
     {
-      Settings.Server = server;
+      Settings.Server = server.Replace("127.0.0.1", Host);
       using (MySqlConnection conn = new MySqlConnection(Settings.ConnectionString))
       {
         Exception ex;
@@ -150,7 +150,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       Settings.Pooling = true;
       Settings.MinimumPoolSize = 10;
-      Settings.Server = server;
+      Settings.Server = server.Replace("localhost", Host);
 
       MySqlConnection[] connArray = new MySqlConnection[10];
       for (int i = 0; i < connArray.Length; i++)

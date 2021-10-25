@@ -26,8 +26,8 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using NUnit.Framework;
+using System;
 using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -46,12 +46,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
       ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
       ExecuteSQL("DROP FUNCTION IF EXISTS fnTest");
-    }
-
-    [SetUp]
-    public void SetUp()
-    {
-      Connection = GetConnection(false);
+      Connection.ProcedureCache.Clear();
     }
 
     /// <summary>
@@ -442,10 +437,10 @@ namespace MySql.Data.MySqlClient.Tests
 
       ExecuteSQL(String.Format(
           "GRANT ALL ON `{0}`.* to 'testuser'@'%' identified by 'testuser'",
-          (Connection.Database)));
+          Connection.Database));
       ExecuteSQL(String.Format(
-          "GRANT ALL ON `{0}`.* to 'testuser'@'localhost' identified by 'testuser'",
-          (Connection.Database)));
+          "GRANT ALL ON `{0}`.* to 'testuser'@'{1}' identified by 'testuser'",
+          Connection.Database, Host));
       ExecuteSQL("CREATE PROCEDURE spTest(id int, OUT outid int, INOUT inoutid int) " +
           "BEGIN SET outid=id+inoutid; SET inoutid=inoutid+id; END");
 

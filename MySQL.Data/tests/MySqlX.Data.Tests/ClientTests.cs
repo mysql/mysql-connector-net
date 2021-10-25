@@ -45,8 +45,8 @@ namespace MySqlX.Data.Tests
 {
   public class ClientTests : BaseTest
   {
-    private static string localServerIpv4 ="127.0.0.1";
- 
+    private static string localServerIpv4 = "localServerIpv4";
+
     public struct ClientOptions
     {
       public object ConnectionOptions { get; set; }
@@ -303,15 +303,15 @@ namespace MySqlX.Data.Tests
     [DatapointSource]
     private readonly MultiHostData[] multiHostData = new MultiHostData[]
     {
-      new MultiHostData { ConnectionData = $"server=10.10.10.10,{localServerIpv4};port={XPort};user=root;connecttimeout={_connectionTimeout};" },
+      new MultiHostData { ConnectionData = $"server=10.10.10.10,{Host};port={XPort};user=root;connecttimeout={_connectionTimeout};" },
       new MultiHostData { ConnectionData = $"server=unknown,{Host};port={XPort};user=root;connecttimeout={_connectionTimeout};" },
-      new MultiHostData { ConnectionData = $"server=(address=10.10.10.10,priority=20),(address={localServerIpv4},priority=100);port={XPort};user=root;connecttimeout={_connectionTimeout};" },
-      new MultiHostData { ConnectionData = $"mysqlx://root@[10.10.10.10,{localServerIpv4}:{XPort}]?connecttimeout={_connectionTimeout}" },
+      new MultiHostData { ConnectionData = $"server=(address=10.10.10.10,priority=20),(address={Host},priority=100);port={XPort};user=root;connecttimeout={_connectionTimeout};" },
+      new MultiHostData { ConnectionData = $"mysqlx://root@[10.10.10.10,{Host}:{XPort}]?connecttimeout={_connectionTimeout}" },
       new MultiHostData { ConnectionData = $"mysqlx://root@[unknown,{Host}:{XPort}]?connecttimeout={_connectionTimeout}" },
-      new MultiHostData { ConnectionData = $"mysqlx://root@[(address=10.10.10.10,priority=20),(address={localServerIpv4}:{XPort},priority=100)]?connecttimeout={_connectionTimeout}" },
-      new MultiHostData { ConnectionData = new { server = $"10.10.10.10,{localServerIpv4}", user = "root", port = XPort, connecttimeout = _connectionTimeout } },
+      new MultiHostData { ConnectionData = $"mysqlx://root@[(address=10.10.10.10,priority=20),(address={Host}:{XPort},priority=100)]?connecttimeout={_connectionTimeout}" },
+      new MultiHostData { ConnectionData = new { server = $"10.10.10.10,{Host}", user = "root", port = XPort, connecttimeout = _connectionTimeout } },
       new MultiHostData { ConnectionData = new { server = $"unknown,{Host}", user = "root", port = XPort, connecttimeout = _connectionTimeout } },
-      new MultiHostData { ConnectionData = new { server = $"(address=10.10.10.10,priority=100), (address=20.20.20.20,priority=90), (address={localServerIpv4},priority=20)", user = "root", port = XPort, connecttimeout = _connectionTimeout } }
+      new MultiHostData { ConnectionData = new { server = $"(address=10.10.10.10,priority=100), (address=20.20.20.20,priority=90), (address={Host},priority=20)", user = "root", port = XPort, connecttimeout = _connectionTimeout } }
     };
 
     [Theory]
@@ -411,7 +411,7 @@ namespace MySqlX.Data.Tests
       SqlResult res = session.SQL("SELECT @a IS NULL").Execute();
       Assert.AreEqual((sbyte)1, res.FetchOne()[0]);
       var ex = Assert.Throws<MySqlException>(() => session.SQL("SHOW CREATE TABLE testResetSession" + id).Execute());
-      Assert.AreEqual(string.Format("Table 'test.testresetsession{0}' doesn't exist", id), ex.Message);
+      StringAssert.AreEqualIgnoringCase(string.Format("Table 'test.testresetsession{0}' doesn't exist", id), ex.Message);
 
       session.SQL(string.Format("SET @a='session{0}'", id)).Execute();
       res = session.SQL("SELECT @a AS a").Execute();
@@ -460,9 +460,9 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(string.Format(ResourcesX.DuplicateUserDefinedAttribute, "key"), ex.Message);
 
       MySqlXConnectionStringBuilder builder = new MySqlXConnectionStringBuilder();
-      builder.Server = "localhost";
-      builder.Port = 33060;
-      builder.UserID = "root";
+      builder.Server = Host;
+      builder.Port = UInt32.Parse(XPort);
+      builder.UserID = RootUser;
       builder.ConnectionAttributes = ";";
       ex = Assert.Throws<MySqlException>(() => MySQLX.GetClient(builder.ConnectionString, "{ \"pooling\": { \"enabled\": true } }"));
       Assert.AreEqual("The requested value ';' is invalid for the given keyword 'connection-attributes'.", ex.Message);
@@ -512,19 +512,20 @@ namespace MySqlX.Data.Tests
     [Test, Description("Pooling Check")]
     public void MultHostPooling()
     {
+      localServerIpv4 = GetMySqlServerIp();
       string invalidhost = "invalid";
       // Scenario-1
-      var client = MySQLX.GetClient($"server=(address={session.Settings.Server},priority=1),(address={invalidhost},priority=90);uid={session.Settings.UserID};password={session.Settings.Password};port={XPort};connecttimeout=9000", new
+      var client = MySQLX.GetClient($"server=(address={localServerIpv4},priority=1),(address={invalidhost},priority=90);uid={session.Settings.UserID};password={session.Settings.Password};port={XPort};connecttimeout=9000", new
       {
         pooling = new { maxSize = 60, queueTimeout = 2000 }
       });
-      MultHost_Pooling(client, session.Settings.Server);
+      MultHost_Pooling(client, localServerIpv4);
       // Scenario-2
-      client = MySQLX.GetClient($"server=(address={invalidhost},priority=90),(address={session.Settings.Server},priority=1);uid={session.Settings.UserID};password={session.Settings.Password};port={XPort};connecttimeout=9000", new
+      client = MySQLX.GetClient($"server=(address={invalidhost},priority=90),(address={localServerIpv4},priority=1);uid={session.Settings.UserID};password={session.Settings.Password};port={XPort};connecttimeout=9000", new
       {
         pooling = new { maxSize = 60, queueTimeout = 2000 }
       });
-      MultHost_Pooling(client, session.Settings.Server);
+      MultHost_Pooling(client, localServerIpv4);
       // Scenario-3
       client = MySQLX.GetClient($"server=(address={invalidhost}),(address={session.Settings.Server});uid={session.Settings.UserID};password={session.Settings.Password};port={XPort};connecttimeout=9000", new
       {
@@ -590,60 +591,32 @@ namespace MySqlX.Data.Tests
     [Test, Description("Checking connection with valid/invalid multi hosts without priority")]
     public void ConnectionMultiHostNoPriority()
     {
-      string hostName = System.Net.Dns.GetHostName();
       string invalidhost = "invalid";
-      string sql = "select @@hostname,@@port";
-      using (var conn = new MySqlConnection($"server={session.Settings.Server},{invalidhost};" + $"uid=test;port={Port};password=test"))
-      {
-        conn.Open();
-        MySqlCommand cmd = new MySqlCommand(sql, conn);
-        object result = cmd.ExecuteScalar();
-        Assert.AreEqual(hostName, result);
-        conn.Close();
-      }
 
-      using (var conn = new MySqlConnection($"server={invalidhost},{session.Settings.Server};" + $"uid=test;port={Port};password=test;ConnectionTimeout=2000"))
-      {
-        conn.Open();
-        MySqlCommand cmd = new MySqlCommand(sql, conn);
-        object result = cmd.ExecuteScalar();
-        Assert.AreEqual(hostName, result);
-      }
+      using (var sess = MySQLX.GetSession($"server={Host},{invalidhost};" + $"uid=test;port={XPort};password=test;connect-timeout=2000;"))
+        Assert.AreEqual(Host, sess.Settings.Server);
 
-      using (var sess = MySQLX.GetSession($"server={session.Settings.Server},{invalidhost};" + $"uid=test;port={XPort};password=test;connect-timeout=2000;"))
-      {
-        Assert.AreEqual("localhost", sess.Settings.Server);
-      }
-
-      using (var sess = MySQLX.GetSession($"server={session.Settings.Server},{invalidhost};" + $"uid=test;port={XPort};password=test;connect-timeout=2000"))
-      {
-        Assert.AreEqual(session.Settings.Server, sess.Settings.Server);
-      }
+      using (var sess = MySQLX.GetSession($"server={Host},{invalidhost};" + $"uid=test;port={XPort};password=test;connect-timeout=2000"))
+        Assert.AreEqual(Host, sess.Settings.Server);
     }
 
     [Test, Description("Checking connection with valid/invalid multi host with priority")]
     public void ConnectionMultiHostPriority()
     {
-      string hostName = System.Net.Dns.GetHostName();
       string invalidhost = "invalid";
-      string sql = "select @@hostname,@@port";
-      using (var sess = MySQLX.GetSession($"server=(address={session.Settings.Server},priority=90),(address={invalidhost},priority=30);uid=test;port={XPort};password=test;"))
-      {
-        Assert.AreEqual(session.Settings.Server, sess.Settings.Server);
-      }
 
-      using (var sess = MySQLX.GetSession($"server=(address={session.Settings.Server},priority=90),(address={invalidhost},priority=30);uid=test;port={XPort};password=test;connect-timeout=2000"))
-      {
-        Assert.AreEqual(session.Settings.Server, sess.Settings.Server);
-      }
+      using (var sess = MySQLX.GetSession($"server=(address={Host},priority=90),(address={invalidhost},priority=30);uid=test;port={XPort};password=test;"))
+        Assert.AreEqual(Host, sess.Settings.Server);
+
+      using (var sess = MySQLX.GetSession($"server=(address={Host},priority=90),(address={invalidhost},priority=30);uid=test;port={XPort};password=test;connect-timeout=2000"))
+        Assert.AreEqual(Host, sess.Settings.Server);
     }
 
-    private void MultHost_Pooling(Client client, string host)
+    private static void MultHost_Pooling(Client client, string host)
     {
       for (int i = 0; i < 3; i++)
       {
         var session1 = client.GetSession();
-        string xpluginport1 = session1.SQL("SELECT @@mysqlx_port").Execute().FetchOne()[0].ToString();
         Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
         if (host != "")
         {
@@ -655,7 +628,6 @@ namespace MySqlX.Data.Tests
         }
 
         var session2 = client.GetSession();
-        string xpluginport2 = session2.SQL("SELECT @@mysqlx_port").Execute().FetchOne()[0].ToString();
         Assert.AreEqual(SessionState.Open, session2.InternalSession.SessionState);
         if (host != "")
         {
@@ -667,7 +639,6 @@ namespace MySqlX.Data.Tests
         }
 
         var session3 = client.GetSession();
-        string xpluginport3 = session3.SQL("SELECT @@mysqlx_port").Execute().FetchOne()[0].ToString();
         Assert.AreEqual(SessionState.Open, session3.InternalSession.SessionState);
         if (host != "")
         {
@@ -1806,47 +1777,51 @@ namespace MySqlX.Data.Tests
         Exception ex = Assert.Throws<MySqlException>(() => client.GetSession());
         Assert.AreEqual(expectedMsg, ex.Message);
       }
-      //MySqlXConnectionStringBuilder
-      MySqlXConnectionStringBuilder mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
-      mysqlx0.Database = schemaName;
-      mysqlx0.CharacterSet = "utf8mb4";
-      mysqlx0.SslMode = MySqlSslMode.Required;
-      mysqlx0.ConnectTimeout = 10;
-      mysqlx0.Keepalive = 10;
-      mysqlx0.CertificateFile = sslCa;
-      mysqlx0.CertificatePassword = sslCertificatePassword;
-      mysqlx0.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
-      mysqlx0.CertificateThumbprint = "";
-      mysqlx0.ConnectionAttributes = "[quua=bar,quua=qux,key=]";
-      using (Client client = MySQLX.GetClient(mysqlx0.ConnectionString, "{ \"pooling\": { \"enabled\": true } }"))
+
+      if (Platform.IsWindows())
       {
-        Exception ex = Assert.Throws<MySqlException>(() => client.GetSession());
-        Assert.AreEqual(expectedMsg, ex.Message);
+        //MySqlXConnectionStringBuilder
+        MySqlXConnectionStringBuilder mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
+        mysqlx0.Database = schemaName;
+        mysqlx0.CharacterSet = "utf8mb4";
+        mysqlx0.SslMode = MySqlSslMode.Required;
+        mysqlx0.ConnectTimeout = 10;
+        mysqlx0.Keepalive = 10;
+        mysqlx0.CertificateFile = sslCa;
+        mysqlx0.CertificatePassword = sslCertificatePassword;
+        mysqlx0.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
+        mysqlx0.CertificateThumbprint = "";
+        mysqlx0.ConnectionAttributes = "[quua=bar,quua=qux,key=]";
+        using (Client client = MySQLX.GetClient(mysqlx0.ConnectionString, "{ \"pooling\": { \"enabled\": true } }"))
+        {
+          Exception ex = Assert.Throws<MySqlException>(() => client.GetSession());
+          Assert.AreEqual(expectedMsg, ex.Message);
+        }
+        //Connection String
+        Exception ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[quua=bar,quua=qux,key]"));
+        Assert.AreEqual(expectedMsg, ex1.Message);
+        //Uri
+        ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionStringUri + "?connection-attributes=[quua=bar,quua=qux,key];"));
+        Assert.AreEqual(expectedMsg, ex1.Message);
+        //Anonymous Object
+        sb = new MySqlXConnectionStringBuilder(ConnectionString);
+        ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new { server = sb.Server, port = XPort, user = sb.UserID, password = sb.Password, ConnectionAttributes = "[quua=bar,quua=qux,key=]" }));
+        Assert.AreEqual(expectedMsg, ex1.Message);
+        //MySqlXConnectionStringBuilder
+        mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
+        mysqlx0.Database = schemaName;
+        mysqlx0.CharacterSet = "utf8mb4";
+        mysqlx0.SslMode = MySqlSslMode.Required;
+        mysqlx0.ConnectTimeout = 10;
+        mysqlx0.Keepalive = 10;
+        mysqlx0.CertificateFile = sslCa;
+        mysqlx0.CertificatePassword = sslCertificatePassword;
+        mysqlx0.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
+        mysqlx0.CertificateThumbprint = "";
+        mysqlx0.ConnectionAttributes = "[quua=bar,quua=qux,key=]";
+        ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(mysqlx0.ConnectionString));
+        Assert.AreEqual(expectedMsg, ex1.Message);
       }
-      //Connection String
-      Exception ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[quua=bar,quua=qux,key]"));
-      Assert.AreEqual(expectedMsg, ex1.Message);
-      //Uri
-      ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionStringUri + "?connection-attributes=[quua=bar,quua=qux,key];"));
-      Assert.AreEqual(expectedMsg, ex1.Message);
-      //Anonymous Object
-      sb = new MySqlXConnectionStringBuilder(ConnectionString);
-      ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new { server = sb.Server, port = XPort, user = sb.UserID, password = sb.Password, ConnectionAttributes = "[quua=bar,quua=qux,key=]" }));
-      Assert.AreEqual(expectedMsg, ex1.Message);
-      //MySqlXConnectionStringBuilder
-      mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
-      mysqlx0.Database = schemaName;
-      mysqlx0.CharacterSet = "utf8mb4";
-      mysqlx0.SslMode = MySqlSslMode.Required;
-      mysqlx0.ConnectTimeout = 10;
-      mysqlx0.Keepalive = 10;
-      mysqlx0.CertificateFile = sslCa;
-      mysqlx0.CertificatePassword = sslCertificatePassword;
-      mysqlx0.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
-      mysqlx0.CertificateThumbprint = "";
-      mysqlx0.ConnectionAttributes = "[quua=bar,quua=qux,key=]";
-      ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(mysqlx0.ConnectionString));
-      Assert.AreEqual(expectedMsg, ex1.Message);
     }
 
     [Test, Description("Connection Attributes with key 33 characters - Extending scenarios in ConnectionAttributes()")]
@@ -1873,44 +1848,47 @@ namespace MySqlX.Data.Tests
         Assert.AreEqual(errorMsg, ex.Message);
       }
 
-      MySqlXConnectionStringBuilder mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
-      mysqlx0.CharacterSet = "utf8mb4";
-      mysqlx0.SslMode = MySqlSslMode.Required;
-      mysqlx0.ConnectTimeout = 10;
-      mysqlx0.Keepalive = 10;
-      mysqlx0.CertificateFile = sslCa;
-      mysqlx0.CertificatePassword = sslCertificatePassword;
-      mysqlx0.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
-      mysqlx0.CertificateThumbprint = "";
-      mysqlx0.ConnectionAttributes = "[foo32foo32foo32foo32foo32foo32323=bar,quua=qux,key=]";
-      using (Client client = MySQLX.GetClient(mysqlx0.ConnectionString, "{ \"pooling\": { \"enabled\": true } }"))
+      if (Platform.IsWindows())
       {
-        Exception ex = Assert.Throws<MySqlException>(() => client.GetSession());
-        Assert.AreEqual(errorMsg, ex.Message);
+        MySqlXConnectionStringBuilder mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
+        mysqlx0.CharacterSet = "utf8mb4";
+        mysqlx0.SslMode = MySqlSslMode.Required;
+        mysqlx0.ConnectTimeout = 10;
+        mysqlx0.Keepalive = 10;
+        mysqlx0.CertificateFile = sslCa;
+        mysqlx0.CertificatePassword = sslCertificatePassword;
+        mysqlx0.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
+        mysqlx0.CertificateThumbprint = "";
+        mysqlx0.ConnectionAttributes = "[foo32foo32foo32foo32foo32foo32323=bar,quua=qux,key=]";
+        using (Client client = MySQLX.GetClient(mysqlx0.ConnectionString, "{ \"pooling\": { \"enabled\": true } }"))
+        {
+          Exception ex = Assert.Throws<MySqlException>(() => client.GetSession());
+          Assert.AreEqual(errorMsg, ex.Message);
+        }
+
+        Exception ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[foo32foo32foo32foo32foo32foo32323=bar,quua=qux,key]"));
+        Assert.AreEqual(errorMsg, ex1.Message);
+
+        ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionStringUri + "?connection-attributes=[foo32foo32foo32foo32foo32foo32323=bar,quua=qux,key];"));
+        Assert.AreEqual(errorMsg, ex1.Message);
+
+        sb = new MySqlXConnectionStringBuilder(ConnectionString);
+        ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new { server = sb.Server, port = XPort, user = sb.UserID, password = sb.Password, ConnectionAttributes = "[foo32foo32foo32foo32foo32foo32323=bar,quua=qux,key=]" }));
+        Assert.AreEqual(errorMsg, ex1.Message);
+
+        mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
+        mysqlx0.CharacterSet = "utf8mb4";
+        mysqlx0.SslMode = MySqlSslMode.Required;
+        mysqlx0.ConnectTimeout = 10;
+        mysqlx0.Keepalive = 10;
+        mysqlx0.CertificateFile = sslCa;
+        mysqlx0.CertificatePassword = sslCertificatePassword;
+        mysqlx0.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
+        mysqlx0.CertificateThumbprint = "";
+        mysqlx0.ConnectionAttributes = "[foo32foo32foo32foo32foo32foo32323=bar,quua=qux,key=]";
+        ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(mysqlx0.ConnectionString));
+        Assert.AreEqual(errorMsg, ex1.Message);
       }
-
-      Exception ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[foo32foo32foo32foo32foo32foo32323=bar,quua=qux,key]"));
-      Assert.AreEqual(errorMsg, ex1.Message);
-
-      ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionStringUri + "?connection-attributes=[foo32foo32foo32foo32foo32foo32323=bar,quua=qux,key];"));
-      Assert.AreEqual(errorMsg, ex1.Message);
-
-      sb = new MySqlXConnectionStringBuilder(ConnectionString);
-      ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new { server = sb.Server, port = XPort, user = sb.UserID, password = sb.Password, ConnectionAttributes = "[foo32foo32foo32foo32foo32foo32323=bar,quua=qux,key=]" }));
-      Assert.AreEqual(errorMsg, ex1.Message);
-
-      mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
-      mysqlx0.CharacterSet = "utf8mb4";
-      mysqlx0.SslMode = MySqlSslMode.Required;
-      mysqlx0.ConnectTimeout = 10;
-      mysqlx0.Keepalive = 10;
-      mysqlx0.CertificateFile = sslCa;
-      mysqlx0.CertificatePassword = sslCertificatePassword;
-      mysqlx0.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
-      mysqlx0.CertificateThumbprint = "";
-      mysqlx0.ConnectionAttributes = "[foo32foo32foo32foo32foo32foo32323=bar,quua=qux,key=]";
-      ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(mysqlx0.ConnectionString));
-      Assert.AreEqual(errorMsg, ex1.Message);
     }
 
     [Test, Description("Connection Attributes with invalid combinations - Extending scenarios in ConnectionAttributes()")]
@@ -1940,47 +1918,52 @@ namespace MySqlX.Data.Tests
           Exception ex = Assert.Throws<MySqlException>(() => client.GetSession());
           Assert.True(errorMsgs.Contains(ex.Message));
         }
-        //MySqlXConnectionStringBuilder
-        MySqlXConnectionStringBuilder mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
-        mysqlx0.Database = schemaName;
-        mysqlx0.CharacterSet = "utf8mb4";
-        mysqlx0.SslMode = MySqlSslMode.Required;
-        mysqlx0.ConnectTimeout = 10;
-        mysqlx0.Keepalive = 10;
-        mysqlx0.CertificateFile = sslCa;
-        mysqlx0.CertificatePassword = sslCertificatePassword;
-        mysqlx0.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
-        mysqlx0.CertificateThumbprint = "";
-        mysqlx0.ConnectionAttributes = invalid[i].ToString();
-        using (Client client = MySQLX.GetClient(mysqlx0.ConnectionString, "{ \"pooling\": { \"enabled\": true } }"))
+
+        if (Platform.IsWindows())
         {
-          Exception ex = Assert.Throws<MySqlException>(() => client.GetSession());
-          Assert.True(errorMsgs.Contains(ex.Message));
+          //MySqlXConnectionStringBuilder
+          MySqlXConnectionStringBuilder mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
+          mysqlx0.Database = schemaName;
+          mysqlx0.CharacterSet = "utf8mb4";
+          mysqlx0.SslMode = MySqlSslMode.Required;
+          mysqlx0.ConnectTimeout = 10;
+          mysqlx0.Keepalive = 10;
+          mysqlx0.CertificateFile = sslCa;
+          mysqlx0.CertificatePassword = sslCertificatePassword;
+          mysqlx0.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
+          mysqlx0.CertificateThumbprint = "";
+          mysqlx0.ConnectionAttributes = invalid[i].ToString();
+          using (Client client = MySQLX.GetClient(mysqlx0.ConnectionString, "{ \"pooling\": { \"enabled\": true } }"))
+          {
+            Exception ex = Assert.Throws<MySqlException>(() => client.GetSession());
+            Assert.True(errorMsgs.Contains(ex.Message));
+          }
+
+          //Connection String
+          Exception ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=" + invalid[i]));
+          Assert.True(errorMsgs.Contains(ex1.Message));
+          //Uri
+          ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionStringUri + "?connection-attributes=" + invalid[i]));
+          Assert.True(errorMsgs.Contains(ex1.Message));
+          //Anonymous object
+          sb = new MySqlXConnectionStringBuilder(ConnectionString);
+          ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new { server = sb.Server, port = XPort, user = sb.UserID, password = sb.Password, ConnectionAttributes = invalid[i] }));
+          Assert.True(errorMsgs.Contains(ex1.Message));
+          //MySqlXConnectionStringBuilder
+          mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
+          mysqlx0.Database = schemaName;
+          mysqlx0.CharacterSet = "utf8mb4";
+          mysqlx0.SslMode = MySqlSslMode.Required;
+          mysqlx0.ConnectTimeout = 10;
+          mysqlx0.Keepalive = 10;
+          mysqlx0.CertificateFile = sslCa;
+          mysqlx0.CertificatePassword = sslCertificatePassword;
+          mysqlx0.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
+          mysqlx0.CertificateThumbprint = "";
+          mysqlx0.ConnectionAttributes = invalid[i].ToString();
+          ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(mysqlx0.ConnectionString));
+          Assert.True(errorMsgs.Contains(ex1.Message));
         }
-        //Connection String
-        Exception ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=" + invalid[i]));
-        Assert.True(errorMsgs.Contains(ex1.Message));
-        //Uri
-        ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionStringUri + "?connection-attributes=" + invalid[i]));
-        Assert.True(errorMsgs.Contains(ex1.Message));
-        //Anonymous object
-        sb = new MySqlXConnectionStringBuilder(ConnectionString);
-        ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new { server = sb.Server, port = XPort, user = sb.UserID, password = sb.Password, ConnectionAttributes = invalid[i] }));
-        Assert.True(errorMsgs.Contains(ex1.Message));
-        //MySqlXConnectionStringBuilder
-        mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
-        mysqlx0.Database = schemaName;
-        mysqlx0.CharacterSet = "utf8mb4";
-        mysqlx0.SslMode = MySqlSslMode.Required;
-        mysqlx0.ConnectTimeout = 10;
-        mysqlx0.Keepalive = 10;
-        mysqlx0.CertificateFile = sslCa;
-        mysqlx0.CertificatePassword = sslCertificatePassword;
-        mysqlx0.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
-        mysqlx0.CertificateThumbprint = "";
-        mysqlx0.ConnectionAttributes = invalid[i].ToString();
-        ex1 = Assert.Throws<MySqlException>(() => MySQLX.GetSession(mysqlx0.ConnectionString));
-        Assert.True(errorMsgs.Contains(ex1.Message));
       }
     }
 

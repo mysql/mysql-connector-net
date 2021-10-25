@@ -26,12 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using NUnit.Framework;
+using System;
 using System.Data;
+using System.Data.Common;
 using System.Globalization;
 using System.Threading;
-using System.Data.Common;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -42,13 +42,14 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
       ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
       ExecuteSQL("DROP DATABASE IF EXISTS `dotnet3.1`");
+      Connection.ProcedureCache.Clear();
     }
 
-    [SetUp]
-    public void SetUp()
-    {
-      Connection = GetConnection(false);
-    }
+    //[SetUp]
+    //public void SetUp()
+    //{
+    //  Connection = GetConnection(false);
+    //}
 
     /// <summary>
     /// Bug #7623  	Adding MySqlParameter causes error if MySqlDbType is Decimal
@@ -839,7 +840,7 @@ namespace MySql.Data.MySqlClient.Tests
       //Database and stored procedure contains "."
       ExecuteSQL("CREATE DATABASE IF NOT EXISTS `dotnet3.1`;", true);
       ExecuteSQL("CREATE PROCEDURE `dotnet3.1`.`sp_normalname.1`(p int) BEGIN SELECT p; END", true);
-      using (MySqlConnection rootConnection = new MySqlConnection($"server=localhost;port={Connection.Settings.Port};user id=root;password=;persistsecurityinfo=True;allowuservariables=True;database=dotnet3.1;"))
+      using (MySqlConnection rootConnection = new MySqlConnection($"server={Host};port={Port};user id={RootUser};password={RootPassword};persistsecurityinfo=True;allowuservariables=True;database=dotnet3.1;"))
       {
         rootConnection.Open();
         using (MySqlCommand cmd = new MySqlCommand("`sp_normalname.1`", rootConnection))
@@ -879,7 +880,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       ExecuteSQL("CREATE PROCEDURE spTest() BEGIN SELECT 1; END");
 
-      using (MySqlConnection conn = new MySqlConnection($"server=localhost;user=root;password=;port={Connection.Settings.Port};"))
+      using (MySqlConnection conn = new MySqlConnection($"server={Host};user={RootUser};password={RootPassword};port={Port};"))
       {
         conn.Open();
 
@@ -1071,12 +1072,12 @@ namespace MySql.Data.MySqlClient.Tests
       {
         while (rdr.Read())
         {
-          if(rdr.GetString(1) != "ON") Assert.Ignore("general_log is disabled");
+          if (rdr.GetString(1) != "ON") Assert.Ignore("general_log is disabled");
         }
       }
 
       ExecuteSQL("CREATE PROCEDURE spGetCount() BEGIN SELECT 5; END");
-      cmd= new MySqlCommand(spName, Connection);
+      cmd = new MySqlCommand(spName, Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       var cmd2 = new MySqlCommand("truncate table performance_schema.events_statements_history", Connection);
       cmd2.ExecuteNonQuery();
@@ -1085,7 +1086,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         while (rdr.Read())
         {
-          Assert.AreEqual("5",rdr.GetString(0));
+          Assert.AreEqual("5", rdr.GetString(0));
         }
       }
 
@@ -1103,7 +1104,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.True(testResult);
 
       cmd = new MySqlCommand($"SELECT count(*) FROM information_schema.routines WHERE 1=1 AND ROUTINE_SCHEMA='{Settings.Database}' AND ROUTINE_NAME='{spName}';", Connection);
-      var count=cmd.ExecuteScalar();
+      var count = cmd.ExecuteScalar();
       Assert.AreEqual(1, count);
 
     }

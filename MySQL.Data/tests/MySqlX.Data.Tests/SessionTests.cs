@@ -229,23 +229,23 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void CheckConnectionUri()
     {
-      CheckConnectionData("mysqlx://myuser:password@localhost:33060", "myuser", "password", "localhost", 33060);
-      CheckConnectionData("mysqlx://my%3Auser:p%40ssword@localhost:33060", "my:user", "p@ssword", "localhost", 33060);
-      CheckConnectionData("mysqlx://my%20user:p%40ss%20word@localhost:33060", "my user", "p@ss word", "localhost", 33060);
-      CheckConnectionData("mysqlx:// myuser : p%40ssword@localhost:33060", "myuser", "p@ssword", "localhost", 33060);
-      CheckConnectionData("mysqlx://myuser@localhost:33060", "myuser", "", "localhost", 33060);
-      CheckConnectionData("mysqlx://myuser:p%40ssword@localhost", "myuser", "p@ssword", "localhost", 33060);
-      CheckConnectionData("mysqlx://myuser:p%40ssw%40rd@localhost", "myuser", "p@ssw@rd", "localhost", 33060);
-      CheckConnectionData("mysqlx://my%40user:p%40ssword@localhost", "my@user", "p@ssword", "localhost", 33060);
-      CheckConnectionData("mysqlx://myuser@localhost", "myuser", "", "localhost", 33060);
-      CheckConnectionData("mysqlx://myuser@127.0.0.1", "myuser", "", "127.0.0.1", 33060);
-      CheckConnectionData("mysqlx://myuser@[::1]", "myuser", "", "[::1]", 33060);
-      CheckConnectionData("mysqlx://myuser:password@[2606:b400:440:1040:bd41:e449:45ee:2e1a]", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", 33060);
-      CheckConnectionData("mysqlx://myuser:password@[2606:b400:440:1040:bd41:e449:45ee:2e1a]:33060", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", 33060);
-      Assert.Throws<UriFormatException>(() => CheckConnectionData("mysqlx://myuser:password@[2606:b400:440:1040:bd41:e449:45ee:2e1a:33060]", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", 33060));
-      Assert.Throws<UriFormatException>(() => CheckConnectionData("mysqlx://myuser:password@2606:b400:440:1040:bd41:e449:45ee:2e1a:33060", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", 33060));
-      CheckConnectionData("mysqlx://myuser:password@[fe80::bd41:e449:45ee:2e1a%17]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060);
-      CheckConnectionData("mysqlx://myuser:password@[(address=[fe80::bd41:e449:45ee:2e1a%17],priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060);
+      CheckConnectionData($"mysqlx://myuser:password@{Host}:{XPort}", "myuser", "password", Host, uint.Parse(XPort));
+      CheckConnectionData($"mysqlx://my%3Auser:p%40ssword@{Host}:{XPort}", "my:user", "p@ssword", Host, uint.Parse(XPort));
+      CheckConnectionData($"mysqlx://my%20user:p%40ss%20word@{Host}:{XPort}", "my user", "p@ss word", Host, uint.Parse(XPort));
+      CheckConnectionData($"mysqlx:// myuser : p%40ssword@{Host}:{XPort}", "myuser", "p@ssword", Host, uint.Parse(XPort));
+      CheckConnectionData($"mysqlx://myuser@{Host}:{XPort}", "myuser", "", Host, uint.Parse(XPort));
+      CheckConnectionData($"mysqlx://myuser:p%40ssword@{Host}", "myuser", "p@ssword", Host, uint.Parse(XPort));
+      CheckConnectionData($"mysqlx://myuser:p%40ssw%40rd@{Host}", "myuser", "p@ssw@rd", Host, uint.Parse(XPort));
+      CheckConnectionData($"mysqlx://my%40user:p%40ssword@{Host}", "my@user", "p@ssword", Host, uint.Parse(XPort));
+      CheckConnectionData($"mysqlx://myuser@{Host}", "myuser", "", Host, uint.Parse(XPort));
+      CheckConnectionData($"mysqlx://myuser@{Host}", "myuser", "", Host, uint.Parse(XPort));
+      CheckConnectionData("mysqlx://myuser@[::1]", "myuser", "", "[::1]", uint.Parse(XPort));
+      CheckConnectionData("mysqlx://myuser:password@[2606:b400:440:1040:bd41:e449:45ee:2e1a]", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", uint.Parse(XPort));
+      CheckConnectionData($"mysqlx://myuser:password@[2606:b400:440:1040:bd41:e449:45ee:2e1a]:{XPort}", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", uint.Parse(XPort));
+      Assert.Throws<UriFormatException>(() => CheckConnectionData("mysqlx://myuser:password@[2606:b400:440:1040:bd41:e449:45ee:2e1a:33060]", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", uint.Parse(XPort)));
+      Assert.Throws<UriFormatException>(() => CheckConnectionData($"mysqlx://myuser:password@2606:b400:440:1040:bd41:e449:45ee:2e1a:{XPort}", "myuser", "password", "[2606:b400:440:1040:bd41:e449:45ee:2e1a]", uint.Parse(XPort)));
+      CheckConnectionData("mysqlx://myuser:password@[fe80::bd41:e449:45ee:2e1a%17]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", uint.Parse(XPort));
+      CheckConnectionData("mysqlx://myuser:password@[(address=[fe80::bd41:e449:45ee:2e1a%17],priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", uint.Parse(XPort));
       CheckConnectionData("mysqlx://myuser:password@[(address=[fe80::bd41:e449:45ee:2e1a%17]:3305,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 3305);
       Assert.Throws<UriFormatException>(() => CheckConnectionData("mysqlx://myuser:password@[(address=fe80::bd41:e449:45ee:2e1a%17,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060));
       CheckConnectionData("mysqlx://myuser@localhost/test", "myuser", "", "localhost", 33060, "database", schemaName);
@@ -291,7 +291,7 @@ namespace MySqlX.Data.Tests
     public void IPv6()
     {
       var csBuilder = new MySqlXConnectionStringBuilder(ConnectionString);
-      csBuilder.Server = "::1";
+      csBuilder.Server = GetMySqlServerIp(true);
       csBuilder.Port = uint.Parse(XPort);
 
       using (var session = MySQLX.GetSession(csBuilder.ToString()))
@@ -305,7 +305,7 @@ namespace MySqlX.Data.Tests
     public void IPv6AsUrl()
     {
       var csBuilder = new MySqlXConnectionStringBuilder(ConnectionString);
-      string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[::1]:{XPort}";
+      string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[{GetMySqlServerIp(true)}]:{XPort}";
       using (Session session = MySQLX.GetSession(connString))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
@@ -317,7 +317,7 @@ namespace MySqlX.Data.Tests
     public void IPv6AsAnonymous()
     {
       var csBuilder = new MySqlXConnectionStringBuilder(ConnectionString);
-      using (Session session = MySQLX.GetSession(new { server = "::1", user = csBuilder.UserID, password = csBuilder.Password, port = XPort }))
+      using (Session session = MySQLX.GetSession(new { server = GetMySqlServerIp(true), user = csBuilder.UserID, password = csBuilder.Password, port = XPort }))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
       }
@@ -498,23 +498,23 @@ namespace MySqlX.Data.Tests
       }
 
       // Create a session using the fail over functionality passing two diferrent Server address(one of them is fake host). Must succeed after 2000ms
-      var conn = $"server=143.24.20.36,127.0.0.1;user=test;password=test;port={XPort};connecttimeout=2000;";
+      var conn = $"server=143.24.20.36,{Host};user=test;password=test;port={XPort};connecttimeout=2000;";
       TestConnectTimeoutSuccessTimeout(conn, 0, 3, "Fail over success");
 
       // Offline (fake)host using default value, 10000ms.
-      conn = "server=143.24.20.36;user=test;password=test;port=33060;";
+      conn = $"server=143.24.20.36;user=test;password=test;port={XPort};";
       TestConnectTimeoutFailureTimeout(conn, 9, 20, "Offline host default value");
 
       // Offline (fake)host using 15000ms.
-      conn = "server=143.24.20.36;user=test;password=test;port=33060;connecttimeout=15000";
+      conn = $"server=143.24.20.36;user=test;password=test;port={XPort};connecttimeout=15000";
       TestConnectTimeoutFailureTimeout(conn, 14, 17, "Offline host 15000ms");
 
       // Offline (fake)host timeout disabled.
-      conn = "server=143.24.20.36;user=test;password=test;port=33060;connecttimeout=0";
+      conn = $"server=143.24.20.36;user=test;password=test;port={XPort};connecttimeout=0";
       TestConnectTimeoutFailureTimeout(conn, 10, 600, "Offline host timeout disabled");
 
       // Both (fake)servers offline. Connection must time out after 20000ms
-      conn = "server=143.24.20.36,143.24.20.35;user=test;password=test;port=33060;";
+      conn = $"server=143.24.20.36,143.24.20.35;user=test;password=test;port={XPort};";
       DateTime start = DateTime.Now;
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(conn));
       TimeSpan diff = DateTime.Now.Subtract(start);
@@ -556,7 +556,7 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
 
       // Valid value for ConnectionTimeout, invalid credentials
-      var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession("server=localhost;user=test;password=noPass;port=33060;connect-timeout=2000;"));
+      var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession($"server={Host};user=test;password=noPass;port={XPort};connect-timeout=2000;"));
       Assert.NotNull(exception);
     }
 
@@ -665,7 +665,7 @@ namespace MySqlX.Data.Tests
       ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[key=value,key=value2]"));
       Assert.AreEqual(string.Format(ResourcesX.DuplicateUserDefinedAttribute, "key"), ex.Message);
 
-      ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new { server = "localhost", port = 33060, user = "root", connectionattributes = "=" }));
+      ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new { server = Host, port = XPort, user = RootUser, connectionattributes = "=" }));
 
       ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connectionattributes=[=bar]"));
       Assert.AreEqual(string.Format(ResourcesX.EmptyKeyConnectionAttribute), ex.Message);
@@ -731,12 +731,9 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void ConnectUsingSha256PasswordPlugin()
     {
-      using (var session = MySQLX.GetSession("server=localhost;port=33060;user=root;password=;"))
-      {
-        ExecuteSQLStatement(session.SQL("DROP USER IF EXISTS 'testSha256'@'localhost';"));
-        ExecuteSQLStatement(session.SQL("CREATE USER 'testSha256'@'localhost' identified with sha256_password by 'mysql';"));
-        ExecuteSQLStatement(session.SQL("GRANT ALL PRIVILEGES  ON *.*  TO 'testSha256'@'localhost';"));
-      }
+      ExecuteSqlAsRoot($"DROP USER IF EXISTS 'testSha256'@'%';");
+      ExecuteSqlAsRoot($"CREATE USER 'testSha256'@'%' identified with sha256_password by 'mysql';");
+      ExecuteSqlAsRoot($"GRANT ALL PRIVILEGES  ON *.*  TO 'testSha256'@'%';");
 
       string userName = "testSha256";
       string password = "mysql";
@@ -761,7 +758,7 @@ namespace MySqlX.Data.Tests
       }
 
       // User without password over TLS connection.
-      ExecuteSQL(String.Format("ALTER USER {0}@'localhost' IDENTIFIED BY ''", userName));
+      ExecuteSQL($"ALTER USER {userName}@'%' IDENTIFIED BY ''");
       using (var session = MySQLX.GetSession(ConnectionStringUri.Replace("test:test", string.Format("{0}:{1}", userName, ""))))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
@@ -770,9 +767,6 @@ namespace MySqlX.Data.Tests
         Assert.AreEqual(session.Settings.UserID, result[0][0].ToString());
         Assert.AreEqual(pluginName, result[0][1].ToString());
       }
-
-      using (var session = MySQLX.GetSession("server=localhost;port=33060;user=root;password=;"))
-        ExecuteSQLStatement(session.SQL("DROP USER IF EXISTS 'testSha256'@'localhost';"));
     }
 
     [Test]
@@ -839,10 +833,10 @@ namespace MySqlX.Data.Tests
 
       string user = "testsha256";
 
-      ExecuteSQLStatement(session.SQL($"DROP USER IF EXISTS {user}@'localhost'"));
-      ExecuteSQLStatement(session.SQL($"CREATE USER {user}@'localhost' IDENTIFIED WITH caching_sha2_password BY '{user}'"));
+      ExecuteSQLStatement(session.SQL($"DROP USER IF EXISTS {user}@'%'"));
+      ExecuteSQLStatement(session.SQL($"CREATE USER {user}@'%' IDENTIFIED WITH caching_sha2_password BY '{user}'"));
 
-      string connString = $"mysqlx://{user}:{user}@localhost:{XPort}";
+      string connString = $"mysqlx://{user}:{user}@{Host}:{XPort}";
       // Default to PLAIN when TLS is enabled.
       using (var session = MySQLX.GetSession(connString))
       {
@@ -922,10 +916,12 @@ namespace MySqlX.Data.Tests
     [Description("IPv6 connection Scenario [localhost],[127.0.0.1]")]
     public void ConnectionTest(string serverName)
     {
-      if (!Platform.IsWindows()) return;
+      if (!Platform.IsWindows()) Assert.Ignore("This test only applies foe Windows OS.");
+
+      serverName = serverName.Replace("localhost", Host);
 
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
-      string connStr = "server=" + sb.Server + ";user=" + sb.UserID + ";port=" + XPort + ";password=" + sb.Password + ";" + "sslmode=" + MySqlSslMode.Required;
+      string connStr = "server=" + Host + ";user=" + sb.UserID + ";port=" + XPort + ";password=" + sb.Password + ";" + "sslmode=" + MySqlSslMode.Required;
 
       using (var sessionTest = MySQLX.GetSession(connStr))
       {
@@ -1116,6 +1112,7 @@ namespace MySqlX.Data.Tests
         Assert.IsNotNull(session1.Uri);
         session1.DropSchema("㭋玤䂜蚌");
       }
+
     }
 
     [Test, Description("Test MySqlX plugin Connection for user with wrong password")]
@@ -1531,8 +1528,8 @@ namespace MySqlX.Data.Tests
       string[] positiveStringList = new string[6];
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       positiveStringList[0] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + sb.Server + ":" + XPort + "/?ssl-mode=Required";
-      positiveStringList[1] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + "127.0.0.1" + ":" + XPort + "/?ssl-mode=Required";
-      positiveStringList[2] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + "localhost" + ":" + XPort + "/" + schemaName + "?ssl-mode=Required";
+      positiveStringList[1] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + GetLocalIPAddress() + ":" + XPort + "/?ssl-mode=Required";
+      positiveStringList[2] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + Host + ":" + XPort + "/" + schemaName + "?ssl-mode=Required";
       positiveStringList[3] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + sb.Server + ":" + XPort + "/" + schemaName + "?ssl-mode=Required&auth=SHA256_MEMORY";
       positiveStringList[4] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + sb.Server + ":" + XPort + "/" + schemaName + "?ssl-mode=Required&characterset=utf8mb4";
       positiveStringList[5] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + sb.Server + ":" + XPort + "/" + schemaName + "?" + "ssl-mode=Required&keepalive=10";
@@ -1874,7 +1871,7 @@ namespace MySqlX.Data.Tests
         connStr = ConnectionString + ";protocol=Socket;" +
               "database=" + schemaName + ";characterset=utf8mb4;sslmode=VerifyCA;ssl-ca="
               + sslCa + $";certificatepassword={sslCertificatePassword};certificatestorelocation=LocalMachine;"
-              + ";keepalive =10;auth=PLAIN;certificatethumbprint=;"
+              + ";auth=PLAIN;certificatethumbprint=;"
               + "connect-timeout=" + i;
         mysqlx0 = new MySqlXConnectionStringBuilder(connStr);
         using (var conn = MySQLX.GetSession(mysqlx0.ConnectionString))
@@ -1898,7 +1895,6 @@ namespace MySqlX.Data.Tests
         mysqlx0.SslCa = sslCa;
         mysqlx0.CertificatePassword = sslCertificatePassword;
         mysqlx0.CertificateStoreLocation = MySqlCertificateStoreLocation.LocalMachine;
-        mysqlx0.Keepalive = 10;
         mysqlx0.Auth = MySqlAuthenticationMode.PLAIN;
         mysqlx0.CertificateThumbprint = "";
         mysqlx0.ConnectTimeout = (uint)i;
@@ -2053,7 +2049,7 @@ namespace MySqlX.Data.Tests
       for (var i = 1; i <= 101; i++)
       {
         hostList.Append("(address=server" + i + ".example,priority=" + (priority != 0 ? priority-- : 0) + "),");
-        if (i == 101) hostList.Append("(address=127.0.0.1,priority=0)");
+        if (i == 101) hostList.Append($"(address={GetLocalIPAddress()},priority=0)");
       }
 
       using (var session1 = MySQLX.GetSession("server=" + hostList + ";port=" + XPort + ";uid=" +

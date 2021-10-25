@@ -26,29 +26,25 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {
   public class TableAsyncTests : BaseTest
   {
-    [SetUp]
-    public void SetUp()
-    {
-      ExecuteSQL("CREATE TABLE test.test(id INT, age INT)");
-    }
-
-
     [TearDown]
     public void TearDown() => ExecuteSQL("DROP TABLE IF EXISTS test");
+
+    [SetUp]
+    public void SetUp() => ExecuteSQL("CREATE TABLE test.test(id INT, age INT)");
 
     [Test]
     public void MultipleTableInsertAsync()
@@ -101,13 +97,13 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Table.Select() with shared lock and Table.Update() ")]
     public async Task TableSelectAndUpdateAsync()
     {
-      int t1 = await SubProcess1();
-      int t2 = await SubProcess2();
+      _ = await SubProcess1();
+      _ = await SubProcess2();
     }
 
-    private async Task<int> SubProcess1()
+    private Task<int> SubProcess1()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) return 0;
+      if (!session.Version.isAtLeast(8, 0, 3)) return Task.FromResult(0);
       session.SQL("SET autocommit = 0").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
@@ -132,14 +128,14 @@ namespace MySqlX.Data.Tests.RelationalTests
       }
 
       session.SQL("SET autocommit = 1").Execute();
-      return 0;
+      return Task.FromResult(0);
     }
 
 
-    private async Task<int> SubProcess2()
+    private Task<int> SubProcess2()
     {
       Thread.Sleep(1000);
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return 0;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) return Task.FromResult(0);
       session.SQL("SET autocommit = 0").Execute();
 
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -161,7 +157,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       }
 
       session.SQL("SET autocommit = 0").Execute();
-      return 0;
+      return Task.FromResult(0);
     }
     #endregion WL14389
   }

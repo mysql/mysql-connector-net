@@ -30,8 +30,8 @@ using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
-using System;
 using NUnit.Framework;
+using System;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {

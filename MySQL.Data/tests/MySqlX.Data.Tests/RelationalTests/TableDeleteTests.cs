@@ -35,6 +35,9 @@ namespace MySqlX.Data.Tests.RelationalTests
 {
   public class TableDeleteTests : BaseTest
   {
+    [TearDown]
+    public void TearDown() => ExecuteSQL("DROP TABLE IF EXISTS test");
+
     [SetUp]
     public void SetUp()
     {
@@ -49,9 +52,6 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteInsertStatement(insertStatement);
       Assert.AreEqual(rowsToInsert, CountRows());
     }
-
-    [TearDown]
-    public void TearDown() => ExecuteSQL("DROP TABLE IF EXISTS test");
 
     private long CountRows()
     {

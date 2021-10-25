@@ -27,13 +27,13 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.MySqlClient;
-using System;
-using NUnit.Framework;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
+using MySqlX.XDevAPI.CRUD;
+using NUnit.Framework;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MySqlX.XDevAPI.CRUD;
 
 namespace MySqlX.Data.Tests
 {
@@ -1807,7 +1807,7 @@ namespace MySqlX.Data.Tests
       using (var connection = new MySqlConnection(ConnectionString.Replace(BaseTest.XPort, BaseTest.Port)))
       {
         connection.Open();
-        var command = new MySqlCommand($"SHOW INDEX FROM test.{collectionName}", connection);
+        var command = new MySqlCommand($"SHOW INDEX FROM `test`.`{collectionName}`", connection);
         var reader = command.ExecuteReader();
         if (!reader.HasRows)
           throw new Exception("No indexes found.");

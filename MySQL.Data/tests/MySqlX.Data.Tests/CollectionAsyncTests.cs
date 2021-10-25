@@ -26,14 +26,14 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using NUnit.Framework;
-using MySqlX.XDevAPI;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySqlX.Data.Tests
 {

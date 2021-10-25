@@ -26,12 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Collections.Generic;
-using MySqlX.XDevAPI;
-using NUnit.Framework;
 using MySql.Data.MySqlClient;
-using System;
+using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using MySqlX.XDevAPI.Relational;
 using System.Threading;
@@ -56,6 +56,8 @@ namespace MySqlX.Data.Tests
     [Test]
     public void GetAllCollections()
     {
+      session.DropSchema("test");
+      session.CreateSchema("test");
       Collection book = CreateCollection("book");
       List<Collection> collections = book.Schema.GetCollections();
       Assert.That(collections, Has.One.Items);
@@ -340,7 +342,7 @@ namespace MySqlX.Data.Tests
       testReuseOptions.Validation = new Validation() { Level = ValidationLevel.OFF };
       test.CreateCollection("testReuse");
       var exreuse = Assert.Throws<MySqlException>(() => test.CreateCollection("testReuse", testReuseOptions));
-      Assert.AreEqual("Table 'testreuse' already exists", exreuse.Message);
+      StringAssert.AreEqualIgnoringCase("Table 'testReuse' already exists", exreuse.Message);
 
       //Test: Resuse Existing = True should return existing collection
       testReuseOptions.ReuseExisting = true;
@@ -397,6 +399,7 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(1, col_schema1.Count());
       var sqlDefinition1 = session.SQL("SHOW CREATE TABLE test.testSchema1").Execute().FetchOne()[1];
 
+
       var schema2 = "{\"id\": \"http://json-schema.org/geo\","
             + "\"$schema\": \"http://json-schema.org/draft-06/schema#\","
             + "\"description\": \"A Movies example\","
@@ -439,7 +442,7 @@ namespace MySqlX.Data.Tests
 
       //Create an existing collection sending reuseExisting as false,exception expected
       var ex_existing = Assert.Throws<MySqlException>(() => test.CreateCollection("testOriginal2", false));
-      Assert.AreEqual(@"Table 'testoriginal2' already exists", ex_existing.Message);
+      StringAssert.AreEqualIgnoringCase(@"Table 'testOriginal2' already exists", ex_existing.Message);
 
       //Modify collection with only level option
       ModifyCollectionOptions Test_Options = new ModifyCollectionOptions();
@@ -506,7 +509,7 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(1, Convert.ToInt32(values.values["_id"]));
       StringAssert.AreEqualIgnoringCase("foo", values.values["title"].ToString());
 
-      res = stmt.Bind("v", "2").Execute();
+      res = coll.Find("_id=:v").Bind("v", "2").Execute();
       values = res.FetchOne();
       Assert.AreEqual(2, Convert.ToInt32(values.values["_id"]));
       StringAssert.AreEqualIgnoringCase("bar", values.values["title"].ToString());
@@ -702,11 +705,11 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify MultiThreading with count")]
     public async Task MultithreadCount()
     {
-      var r1 = await SubProcessA();
-      var r2 = await SubProcessB();
+      _ = await SubProcessA();
+      _ = await SubProcessB();
     }
 
-    private async Task<int> SubProcessA()
+    private Task<int> SubProcessA()
     {
       using (var sessionA = MySQLX.GetSession(ConnectionString))
       {
@@ -731,10 +734,10 @@ namespace MySqlX.Data.Tests
         var r = coll.Remove("_id = :_id").Bind("_id", 1001).Execute();
         Assert.AreEqual(999, collection.Count());
       }
-      return 0;
+      return Task.FromResult(0);
     }
 
-    private async Task<int> SubProcessB()
+    private Task<int> SubProcessB()
     {
       Thread.Sleep(8000);
       using (var sessionB = MySQLX.GetSession(ConnectionString))
@@ -758,7 +761,7 @@ namespace MySqlX.Data.Tests
         var r = coll.Remove("_id = :_id").Bind("_id", 1100).Execute();
         Assert.AreEqual(998, collection.Count());
       }
-      return 0;
+      return Task.FromResult(0);
     }
 
     [Test, Description("Verify the behaviour of the dropX method for dropCollection under stressed conditions")]

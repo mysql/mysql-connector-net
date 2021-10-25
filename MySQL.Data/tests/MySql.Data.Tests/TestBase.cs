@@ -31,6 +31,8 @@ using NUnit.Framework;
 using System;
 using System.Data;
 using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -246,7 +248,7 @@ namespace MySql.Data.MySqlClient.Tests
       return cmd.ExecuteReader();
     }
 
-    public void KillConnection(MySqlConnection c,bool useCompression=false)
+    public void KillConnection(MySqlConnection c, bool useCompression = false)
     {
       int threadId = c.ServerThread;
 
@@ -292,6 +294,38 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnection c = new MySqlConnection(connStr);
       c.Open();
       KillConnection(c);
+    }
+
+    /// <summary>
+    /// Method to get the local ip address of the active MySql Server
+    /// </summary>
+    /// <param name="isIpV6">when is true return IPv6(::1), otherwise return IPv4(127.0.0.1) which is the default</param>
+    /// <returns>Return the ip address as string</returns>
+    public string GetMySqlServerIp(bool isIpV6 = false)
+    {
+      string hostname = string.Empty;
+      using (var reader = ExecuteReader("SELECT SUBSTRING_INDEX(host, ':', 1) as 'ip' " +
+        "FROM information_schema.processlist WHERE ID = connection_id()"))
+        while (reader.Read())
+          hostname = reader.GetString(0);
+
+      string ipv4 = string.Empty;
+      string ipv6 = string.Empty;
+
+      foreach (var item in Dns.GetHostEntry(hostname).AddressList)
+      {
+        switch (item.AddressFamily)
+        {
+          case AddressFamily.InterNetwork:
+            ipv4 = item.ToString();
+            break;
+          case AddressFamily.InterNetworkV6:
+            ipv6 = item.ToString();
+            break;
+        }
+      }
+
+      return isIpV6 ? ipv6 : ipv4;
     }
     #endregion
   }

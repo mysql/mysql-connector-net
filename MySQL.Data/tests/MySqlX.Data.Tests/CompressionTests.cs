@@ -28,8 +28,8 @@
 
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
-using System;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Diagnostics;
@@ -100,10 +100,10 @@ namespace MySqlX.Data.Tests
     {
       var connectionData = new
       {
-        server = "localhost",
+        server = Host,
         user = "test",
         password = "test",
-        port = 33060,
+        port = UInt32.Parse(XPort),
         compression = CompressionType.Required
       };
 
@@ -117,23 +117,23 @@ namespace MySqlX.Data.Tests
     [Test]
     public void ConnectionOptionIsValidUsingConnectionString()
     {
-      var builder = new MySqlXConnectionStringBuilder("server=localhost;port=33060;compression=PreFerRed");
+      var builder = new MySqlXConnectionStringBuilder($"server={Host};port={XPort};compression=PreFerRed");
       Assert.AreEqual(CompressionType.Preferred, builder.Compression);
 
-      builder = new MySqlXConnectionStringBuilder("server=localhost;port=33060;compression=required");
+      builder = new MySqlXConnectionStringBuilder($"server={Host};port={XPort};compression=required");
       Assert.AreEqual(CompressionType.Required, builder.Compression);
 
-      builder = new MySqlXConnectionStringBuilder("server=localhost;port=33060;compression=DISABLED");
+      builder = new MySqlXConnectionStringBuilder($"server={Host};port={XPort};compression=DISABLED");
       Assert.AreEqual(CompressionType.Disabled, builder.Compression);
 
       // Test whitespace
-      builder = new MySqlXConnectionStringBuilder("server=localhost;port=33060;compression=  required");
+      builder = new MySqlXConnectionStringBuilder($"server={Host};port={XPort};compression=  required");
       Assert.AreEqual(CompressionType.Required, builder.Compression);
 
-      builder = new MySqlXConnectionStringBuilder("server=localhost;port=33060;compression=    required");
+      builder = new MySqlXConnectionStringBuilder($"server={Host};port={XPort};compression=    required");
       Assert.AreEqual(CompressionType.Required, builder.Compression);
 
-      builder = new MySqlXConnectionStringBuilder("server=localhost;port=33060;compression=  required  ");
+      builder = new MySqlXConnectionStringBuilder($"server={Host};port={XPort};compression=  required  ");
       Assert.AreEqual(CompressionType.Required, builder.Compression);
     }
 
@@ -166,10 +166,10 @@ namespace MySqlX.Data.Tests
       string[] invalidValues = { "test", "true", "123" };
       foreach (var invalidValue in invalidValues)
       {
-        var exception = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder($"server=localhost;port=33060;compression={invalidValue}"));
+        var exception = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder($"server={Host};port={XPort};compression={invalidValue}"));
         Assert.AreEqual($"The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value '{invalidValue}' is not acceptable.", exception.Message);
 
-        exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server=localhost;port=33060;user=root;compression={invalidValue}"));
+        exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server={Host};port={XPort};user=root;compression={invalidValue}"));
         Assert.AreEqual($"The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value '{invalidValue}' is not acceptable.", exception.Message);
       }
     }
@@ -347,20 +347,20 @@ namespace MySqlX.Data.Tests
 
 #if NETFRAMEWORK
          // No exception expected due to compression=preferred, no compression expected
-         using (var session = MySQLX.GetSession(new { server = "localhost", port = $"{XPort}", uid = "test", password = "test", compressionalgorithms = "deflate_stream" }))
+         using (var session = MySQLX.GetSession(new { server = Host, port = XPort, uid = "test", password = "test", compressionalgorithms = "deflate_stream" }))
          {
            var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
            Assert.IsNull(compressionAlgorithm);
          }
 #else
-        using (var session = MySQLX.GetSession(new { server = "localhost", port = 33060, uid = "test", password = "test", compressionalgorithms = "deflate_stream" }))
+        using (var session = MySQLX.GetSession(new { server = Host, port = XPort, uid = "test", password = "test", compressionalgorithms = "deflate_stream" }))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
           StringAssert.AreEqualIgnoringCase(CompressionAlgorithms.deflate_stream.ToString(), compressionAlgorithm);
         }
 #endif
 
-        var sb = new MySqlXConnectionStringBuilder("server=localhost;port=33060;uid=test;password=test;compression-algorithms=lz4_message");
+        var sb = new MySqlXConnectionStringBuilder($"server={Host};port={XPort};uid=test;password=test;compression-algorithms=lz4_message");
         using (var session = MySQLX.GetSession(sb.GetConnectionString(true)))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
@@ -369,7 +369,7 @@ namespace MySqlX.Data.Tests
 
         // FR1_2 Create session with option compression-algorithms and set the option with no value either by not including the property in the connection string 
         // or by setting it with an empty value.
-        using (var session = MySQLX.GetSession("server=localhost;port=33060;uid=test;password=test;"))
+        using (var session = MySQLX.GetSession($"server={Host};port={XPort};uid=test;password=test;"))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
           Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
@@ -398,13 +398,13 @@ namespace MySqlX.Data.Tests
 
 #if NETFRAMEWORK
          // No exception expected due to compression=preferred, lz4_message compression expected
-         using (var session = MySQLX.GetSession(new { server = "localhost", port = $"{XPort}", uid = "test", password = "test", compressionalgorithms = "deflate_stream,lz4_message,zstd_stream" }))
+         using (var session = MySQLX.GetSession(new { server = Host, port = XPort, uid = "test", password = "test", compressionalgorithms = "deflate_stream,lz4_message,zstd_stream" }))
          {
            var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
            Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
          }
 #else
-        using (var session = MySQLX.GetSession(new { server = "localhost", port = 33060, uid = "test", password = "test", compressionalgorithms = "deflate_stream,lz4_message,zstd_stream" }))
+        using (var session = MySQLX.GetSession(new { server = Host, port = XPort, uid = "test", password = "test", compressionalgorithms = "deflate_stream,lz4_message,zstd_stream" }))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
           StringAssert.AreEqualIgnoringCase(CompressionAlgorithms.deflate_stream.ToString(), compressionAlgorithm);
@@ -444,7 +444,7 @@ namespace MySqlX.Data.Tests
           Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
         }
 
-        sb = new MySqlXConnectionStringBuilder("server=localhost;port=33060;uid=test;password=test;compression-algorithms=[NotValid,INVALID,NOTSUPPORTED,zstd]");
+        sb = new MySqlXConnectionStringBuilder($"server={Host};port={XPort};uid=test;password=test;compression-algorithms=[NotValid,INVALID,NOTSUPPORTED,zstd]");
         using (var session = MySQLX.GetSession(sb.GetConnectionString(true)))
         {
           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
@@ -563,7 +563,7 @@ namespace MySqlX.Data.Tests
       }
       catch (Exception ex)
       {
-        TestContext.WriteLine("Exception: "+ ex.Message);
+        TestContext.WriteLine("Exception: " + ex.Message);
         success = false;
       }
       finally

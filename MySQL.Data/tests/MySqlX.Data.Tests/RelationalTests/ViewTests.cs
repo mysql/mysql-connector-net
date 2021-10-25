@@ -28,11 +28,11 @@
 
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Relational;
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
-using System;
 using MySqlX.XDevAPI;
+using System;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {
@@ -45,17 +45,18 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("DROP view IF EXISTS view1");
       ExecuteSQL("DROP view IF EXISTS view2");
     }
+
     [Test]
     public void TryUpdatingView()
     {
       ExecuteSQL("CREATE TABLE test(id int)");
-      ExecuteSQL("CREATE VIEW view1 AS select *, 1 from test");
+      ExecuteSQL("CREATE VIEW view2 AS select *, 1 from test");
 
       List<Table> tables = testSchema.GetTables();
       Assert.AreEqual(2, tables.Count);
 
       Table view = tables.First(i => i.IsView);
-      Assert.AreEqual("view1", view.Name);
+      Assert.AreEqual("view2", view.Name);
       MySqlException ex = Assert.Throws<MySqlException>(() => ExecuteInsertStatement(view.Insert().Values(1)));
       Assert.AreEqual("Column '1' is not updatable", ex.Message);
     }
@@ -70,9 +71,9 @@ namespace MySqlX.Data.Tests.RelationalTests
       Table view = testSchema.GetTable("view1");
       Assert.True(view.IsView);
       Assert.False(table.IsView);
-    }
 
-    //private bool IsView() => testSchema.GetTable("no_exists").IsView;
+      ExecuteSQL("DROP VIEW view1");
+    }
 
     [Test]
     public void NonExistingView()

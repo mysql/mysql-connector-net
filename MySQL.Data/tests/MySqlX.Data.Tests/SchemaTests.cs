@@ -26,14 +26,14 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
-using System.Collections.Generic;
 using NUnit.Framework;
-using System.Linq;
 using System;
-using MySql.Data.MySqlClient;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MySqlX.Data.Tests
 {
@@ -66,7 +66,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void GetAllTables()
     {
-      Collection coll = CreateCollection("coll");
+      ExecuteSQL("DROP TABLE IF EXISTS test");
       ExecuteSQL("CREATE TABLE test(id int)");
 
       List<Table> tables = testSchema.GetTables();
@@ -76,8 +76,9 @@ namespace MySqlX.Data.Tests
     [Test]
     public void GetAllViews()
     {
-      Collection coll = CreateCollection("coll");
+      CreateCollection("coll");
 
+      ExecuteSQL("DROP TABLE IF EXISTS test");
       ExecuteSQL("CREATE TABLE test(id int)");
       ExecuteSQL("CREATE VIEW view1 AS select * from test");
       ExecuteSQL("CREATE VIEW view2 AS select * from test");

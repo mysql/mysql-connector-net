@@ -2,6 +2,7 @@
 - Added Support for .NET 6.0 (WL14734).
 - Added support for multifactor authentication (WL14653).
 - Removed support for the TLSv1.0 and TLSv1.1 protocols (WL14811).
+- Improved the test suite configuration (WL14662).
 
 
 8.0.27

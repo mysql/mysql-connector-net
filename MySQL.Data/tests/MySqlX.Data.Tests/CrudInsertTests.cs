@@ -26,21 +26,20 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data;
+using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.Common;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
-using System;
-using NUnit.Framework;
 using MySqlX.XDevAPI.CRUD;
-using System.Collections.Generic;
 using MySqlX.XDevAPI.Relational;
-using System.Text;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using MySql.Data.Common;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
-using MySql.Data;
 
 namespace MySqlX.Data.Tests
 {
@@ -387,7 +386,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result result = col.Add(docs).Execute();
-      
+
       Assert.AreEqual(4, (int)result.AffectedItemsCount, "Matching the updated record count");
       DocResult foundDocs = col.Find("pages > 20").Execute();
       Assert.AreEqual(true, foundDocs.Next(), "Next Node Exist");
@@ -598,7 +597,7 @@ namespace MySqlX.Data.Tests
       foundDocs = col.Remove("pages=20").Execute();
       Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
       var docs1 = new[]
-      { 
+      {
         new { _id = -100001, title = "Book 0", pages = 10 },
         new { _id = 0, title = "Book 1", pages = 20 },
         new { _id = 100001, title = "Book 2", pages = 30 },
@@ -613,7 +612,7 @@ namespace MySqlX.Data.Tests
       foundDocs = col.Remove("pages=10").Execute();
       Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
       docs1 = new[]
-      { 
+      {
         new { _id = -100001, title = "Book 0", pages = 10 },
         new { _id = 0, title = "Book 1", pages = 20 },
         new { _id = 100001, title = "Book 2", pages = 30 },
@@ -690,7 +689,7 @@ namespace MySqlX.Data.Tests
 
 
       var docs1 = new[]
-      { 
+      {
         new { _id = -100001, title = "Book 0", pages = 10 },
         new { _id = 0, title = "Book 1", pages = 20 },
         new { _id = 100001, title = "Book 2", pages = 30 },
@@ -706,7 +705,7 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(4, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
 
       docs1 = new[]
-      { 
+      {
         new { _id = -100001, title = "Book 0", pages = 10 },
         new { _id = 0, title = "Book 1", pages = 20 },
         new { _id = 100001, title = "Book 2", pages = 30 },
@@ -1143,7 +1142,6 @@ namespace MySqlX.Data.Tests
         newDoc2.SetValue("F2", ("Field-2-Data-" + i));
         newDoc2.SetValue("F3", (300 + i).ToString());
         jsonlist[i] = newDoc2;
-        newDoc2 = null;
       }
 
       Result result = testCollection.Add(jsonlist).Execute();
@@ -1159,7 +1157,7 @@ namespace MySqlX.Data.Tests
     public void CollectionAddJSONDepth()
     {
       if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
-      int i, j = 0, maxArrayelement = 100;
+      int i, maxArrayelement = 100;
       Collection col = CreateCollection("my_collection_1");
       Collection col1 = CreateCollection("my_collection_2");
 
@@ -1251,7 +1249,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Binary Expression")]
     public void BinaryExpression()
     {
-      String json = "", query2 = "";
+      String json = "";
       Collection col = CreateCollection("my_collection_1");
       Collection col1 = CreateCollection("my_collection_2");
       json = "{\"_id\":\"1004\",\"F1\": 123,\"F2\":\"#\" }";
@@ -1373,12 +1371,10 @@ namespace MySqlX.Data.Tests
     {
       if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only.");
       if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5, 7, 0 or higher.");
-      int i = 0, j = 0, k = 0;
-      int maxrec = 5, arraySize = 9;
-      String q = "";
+      int maxrec = 5;
       var col = CreateCollection("my_collection_1");
       DbDoc[] jsonlist = new DbDoc[maxrec];
-      for (i = 0; i < maxrec; i++)
+      for (int i = 0; i < maxrec; i++)
       {
         DbDoc newDoc2 = new DbDoc();
         newDoc2.SetValue("_id", i);
@@ -1390,7 +1386,6 @@ namespace MySqlX.Data.Tests
 
         col.Add(newDoc2).Execute();
         jsonlist[i] = newDoc2;
-        newDoc2 = null;
       }
 
       jsonlist = null;
@@ -1559,7 +1554,7 @@ namespace MySqlX.Data.Tests
       List<string> idStringList = new List<string>();
       var col = CreateCollection("my_collection");
       Result result = null;
-      string generatedIDs1 = null, generatedIDs2 = null;
+      string generatedIDs1 = null;
       int countgenerateIDs = 0;
       HashSet<string> firstset = new HashSet<string>();
 
@@ -1764,7 +1759,7 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("this test is for MySql 8.0.11 or higher.");
       List<string> idStringList = new List<string>();
       Result result = null;
-      string generatedIDs1 = null, generatedIDs2 = null;
+      string generatedIDs1 = null;
       int countgenerateIDs = 0;
       var col = CreateCollection("my_collection");
       object[] data = null;
@@ -1933,7 +1928,7 @@ namespace MySqlX.Data.Tests
       List<string> idStringList = new List<string>();
       var col = CreateCollection("my_collection");
       Result result = null;
-      string generatedIDs1 = null, generatedIDs2 = null;
+      string generatedIDs1 = null;
       int countgenerateIDs = 0;
       object[] data = null;
 
@@ -2291,12 +2286,12 @@ namespace MySqlX.Data.Tests
     {
       if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
 
-      var col = CreateCollection("my_collection");
+      CreateCollection("my_collection");
       var r1 = await CollectionAddThread1();
-      var r2 = await CollectionAddThread2();
+      _ = await CollectionAddThread2();
       Assert.AreEqual(1000, r1);
     }
-    public async Task<int> CollectionAddThread1()
+    public Task<int> CollectionAddThread1()
     {
       List<string> idStringList = new List<string>();
       var col = CreateCollection("my_collection");
@@ -2328,10 +2323,10 @@ namespace MySqlX.Data.Tests
         VerifySequence(idStringList[i], idStringList[j]);
         j++;
       }
-      return (int)r.AffectedItemsCount;
+      return Task.FromResult((int)r.AffectedItemsCount);
     }
 
-    public async Task<int> CollectionAddThread2()
+    public Task<int> CollectionAddThread2()
     {
       List<string> idStringList = new List<string>();
       var col = CreateCollection("my_collection1");
@@ -2363,7 +2358,7 @@ namespace MySqlX.Data.Tests
         VerifySequence(idStringList[i], idStringList[j]);
         j++;
       }
-      return 0;
+      return Task.FromResult(0);
     }
 
     ///// <summary>
@@ -2372,6 +2367,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("WHEN A DBDOC IS PASSED AS OBJ TO SETVALUE OF ANOTHER DBDOC IT CONVERTS TO BLANK")]
     public void DbDocAsObjectConvertToBlank()
     {
+      string newLine = Platform.IsWindows() ? "\r\n" : "\n";
+
       var col = CreateCollection("my_collection");
       var data1 = new DbDoc(@"{ ""id"": 1, ""pages"": 20,
                   ""person"": { ""name"": ""Fred"", ""age"": 45 }
@@ -2380,7 +2377,7 @@ namespace MySqlX.Data.Tests
       d2.SetValue("id", 1);
       d2.SetValue("pages", 20);
       d2.SetValue("taker1", data1);
-      string expected = "{\r\n  \"id\": 1, \r\n  \"pages\": 20, \r\n  \"taker1\": {\r\n    \"id\": 1, \r\n    \"pages\": 20, \r\n    \"person\": {\r\n      \"name\": \"Fred\", \r\n      \"age\": 45\r\n    }\r\n  }\r\n}";
+      string expected = $"{{{newLine}  \"id\": 1, {newLine}  \"pages\": 20, {newLine}  \"taker1\": {{{newLine}    \"id\": 1, {newLine}    \"pages\": 20, {newLine}    \"person\": {{{newLine}      \"name\": \"Fred\", {newLine}      \"age\": 45{newLine}    }}{newLine}  }}{newLine}}}";
       Assert.AreEqual(expected, d2.ToString());
     }
 

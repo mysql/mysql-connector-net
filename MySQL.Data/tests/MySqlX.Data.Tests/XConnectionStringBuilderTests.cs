@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,8 +28,8 @@
 
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
-using System;
 using NUnit.Framework;
+using System;
 
 namespace MySqlX.Data.Tests
 {
@@ -45,8 +45,8 @@ namespace MySqlX.Data.Tests
 
     static XConnectionStringBuilderTests()
     {
-      _connectionString = $"server=localhost;user=root;port={BaseTest.Port};";
-      _xConnectionURI = $"mysqlx://root@localhost:{BaseTest.XPort}";
+      _connectionString = $"server={BaseTest.Host};user={BaseTest.RootUser};password={BaseTest.RootPassword};port={BaseTest.Port};";
+      _xConnectionURI = $"mysqlx://{BaseTest.RootUser}:{BaseTest.RootPassword}@{BaseTest.Host}:{BaseTest.XPort}";
       _connectionStringWithSslMode = _connectionString + "sslmode=required;";
     }
 
@@ -67,7 +67,7 @@ namespace MySqlX.Data.Tests
       connection.Open();
       connection.Close();
 
-      session = MySQLX.GetSession(_xConnectionURI + "?sslca=../../../../MySql.Data.Tests/client.pfx&certificatepassword=pass");
+      session = MySQLX.GetSession(_xConnectionURI + "?sslca=client.pfx&certificatepassword=pass");
       session.Close();
     }
 
@@ -101,79 +101,54 @@ namespace MySqlX.Data.Tests
       builder.SslCa = "";
     }
 
-#if NET48 || NETCOREAPP3_1
+#if !NET452
     [TestCase(";tls-version=TlSv1.3", "Tls13")]
-    [TestCase(";tls-version=TlSv1.2, tLsV11, TLS13, tls1.0", "Tls, Tls11, Tls12, Tls13")]
+    [TestCase(";tls-version=TlSv1.2, tLsV11, TLS13, tls1.0", "Tls12, Tls13")]
 #endif
-    [TestCase(";tls-version=TlSv1.2, tLsV11, tls1.0", "Tls, Tls11, Tls12")]
-    [TestCase(";tls-version=TlSv1.2, SsLv3", null, "SsLv3")]
-    public void ValidateTlsVersionOptionAsString(string options, string result, string error = null)
+    [TestCase(";tls-version=TlSv1.2, tLsV11, tls1.0", "Tls12")]
+    [TestCase(";tls-version=TlSv1.2, SsLv3", "Tls12")]
+    public void ValidateTlsVersionOptionAsString(string options, string result)
     {
-      if (result != null)
-      {
-        MySqlXConnectionStringBuilder builder = new MySqlXConnectionStringBuilder(_connectionString + options);
-        Assert.AreEqual(result, builder.TlsVersion);
-      }
-      else
-      {
-        string info = string.Empty;
-#if NET48 || NETCOREAPP3_1
-        info = ", TLSv1.3";
-#endif
-        Assert.Throws<ArgumentException>(() => { new MySqlXConnectionStringBuilder(_connectionString + options); });
-      }
+      MySqlXConnectionStringBuilder builder = new MySqlXConnectionStringBuilder(_connectionString + options);
+      Assert.AreEqual(result, builder.TlsVersion);
     }
 
-#if NET48 || NETCOREAPP3_1
-    [TestCase("TlSv1.2, tLsV11, TLS13, tls1.0", "Tls, Tls11, Tls12, Tls13")]
-    [TestCase("TlSv1.2, TLS13, SsLv3", null, "SsLv3")]
+#if !NET452
+    [TestCase("TlSv1.2, tLsV11, TLS13, tls1.0", "Tls12, Tls13")]
+    [TestCase("TlSv1.2, TLS13, SsLv3", "Tls12, Tls13")]
 #endif
-    [TestCase("TlSv1.2, tLsV11, tls1.0", "Tls, Tls11, Tls12")]
-    [TestCase("TlSv1.2, SsLv3", null, "SsLv3")]
-    public void ValidateTlsVersionOptionAsProperty(string options, string result, string error = null)
+    [TestCase("TlSv1.2, tLsV11, tls1.0", "Tls12")]
+    [TestCase("TlSv1.2, SsLv3", "Tls12")]
+    public void ValidateTlsVersionOptionAsProperty(string options, string result)
     {
       MySqlXConnectionStringBuilder builder = new MySqlXConnectionStringBuilder(_connectionString);
-      if (result != null)
-      {
-        builder.TlsVersion = options;
-        Assert.AreEqual(result, builder.TlsVersion);
-      }
-      else
-      {
-        string info = string.Empty;
-#if NET48 || NETCOREAPP3_1
-        info = ", TLSv1.3";
-#endif
-        Assert.Throws<ArgumentException>(() => { builder.TlsVersion = options; });
-      }
+
+      builder.TlsVersion = options;
+      Assert.AreEqual(result, builder.TlsVersion);
     }
 
-#if NET48 || NETCOREAPP3_1
-    [TestCase(MySqlSslMode.Prefered, "TlSv1.2, tLsV11, TLS13, tls1.0", "Tls, Tls11, Tls12, Tls13", null)]
-    [TestCase(MySqlSslMode.None, "TlSv1.2, tLsV11, TLS13, tls1.0", null, null)]
-    [TestCase(null, "TlSv1.2, tLsV11, TLS13, tls1.0", "Tls, Tls11, Tls12, Tls13", MySqlSslMode.None)]
+#if !NET452
+    [TestCase(MySqlSslMode.Prefered, "TlSv1.2, tLsV11, TLS13, tls1.0", "Tls12, Tls13")]
+    [TestCase(MySqlSslMode.None, "TlSv1.2, tLsV11, TLS13, tls1.0", "TLS12, TLS13")]
+    [TestCase(null, "TlSv1.2, tLsV11, TLS13, tls1.0", "Tls12, Tls13")]
 #endif
-    [TestCase(MySqlSslMode.Prefered, "TlSv1.2, tLsV11, tls1.0", "Tls, Tls11, Tls12", null)]
-    [TestCase(MySqlSslMode.None, "TlSv1.2, tLsV11, tls1.0", null, null)]
-    [TestCase(null, "TlSv1.2, tLsV11, tls1.0", "Tls, Tls11, Tls12", MySqlSslMode.None)]
-    public void ValidateTlsVersionOptionAndSslMode(MySqlSslMode? sslMode1, string options, string result, MySqlSslMode? sslMode2)
+    [TestCase(MySqlSslMode.Prefered, "TlSv1.2, tLsV11, tls1.0", "Tls12")]
+    [TestCase(MySqlSslMode.None, "TlSv1.2, tLsV11, tls1.0", "Tls12")]
+    [TestCase(null, "TlSv1.2, tLsV11, tls1.0", "Tls12")]
+    public void ValidateTlsVersionOptionAndSslMode(MySqlSslMode? sslMode1, string options, string result)
     {
       MySqlXConnectionStringBuilder builder = new MySqlXConnectionStringBuilder(_connectionString);
+
       if (sslMode1.HasValue)
         builder.SslMode = sslMode1.Value;
+
       if (result != null)
       {
         builder.TlsVersion = options;
-        Assert.AreEqual(result, builder.TlsVersion);
+        StringAssert.AreEqualIgnoringCase(result, builder.TlsVersion);
       }
       else
-        Assert.Throws<ArgumentException>(() =>
-        { builder.TlsVersion = options; });
-      if (sslMode2.HasValue)
-      {
-        Assert.Throws<ArgumentException>(() =>
-        { builder.SslMode = sslMode2.Value; });
-      }
+        Assert.Throws<ArgumentException>(() => { builder.TlsVersion = options; });
     }
   }
 }

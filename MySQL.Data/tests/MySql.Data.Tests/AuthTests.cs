@@ -1111,7 +1111,7 @@ namespace MySql.Data.MySqlClient.Tests
       string fixedNonce = "fyko+d2lbbFgONRv9qkxdawL";
       byte[] response;
 
-      ScramSha1Mechanism scramSha1 = new ScramSha1Mechanism("user", "pencil", "localhost");
+      ScramSha1Mechanism scramSha1 = new ScramSha1Mechanism("user", "pencil", Host);
       scramSha1._cnonce = fixedNonce;
       Assert.AreEqual(ScramBase.AuthState.INITIAL, scramSha1._state);
 
@@ -1137,7 +1137,7 @@ namespace MySql.Data.MySqlClient.Tests
       string fixedNonce = "rOprNGfwEbeRWgbNEkqO";
       byte[] response;
 
-      ScramSha256Mechanism scramSha256 = new ScramSha256Mechanism("user", "pencil", "localhost");
+      ScramSha256Mechanism scramSha256 = new ScramSha256Mechanism("user", "pencil", Host);
       scramSha256._cnonce = fixedNonce;
       Assert.AreEqual(ScramBase.AuthState.INITIAL, scramSha256._state);
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,8 +27,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using NUnit.Framework;
-using System.Data;
 using System;
+using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -50,12 +50,12 @@ namespace MySql.Data.MySqlClient.Tests
         "  # This table is bogus\r\n" +
         "Test VALUES (2, 'Test2')";
 
-      
+
       MySqlCommand cmd = new MySqlCommand(sql, Connection);
       cmd.ExecuteNonQuery();
 
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
-      TestDataTable table = new TestDataTable();
+      DataTable table = new DataTable();
       da.Fill(table);
       Assert.AreEqual(1, table.Rows[0]["id"]);
       Assert.AreEqual("Test", table.Rows[0]["name"]);

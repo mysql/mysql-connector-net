@@ -26,8 +26,8 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using NUnit.Framework;
+using System;
 using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -37,7 +37,7 @@ namespace MySql.Data.MySqlClient.Tests
     protected override void Cleanup()
     {
       ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
-    }   
+    }
 
     [Test]
     public void TestQuoting()

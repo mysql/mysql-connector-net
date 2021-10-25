@@ -26,10 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using NUnit.Framework;
 using System;
+using System.Data;
 using System.IO;
 using System.Reflection;
-using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -72,7 +73,7 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.AreEqual(200, count);
 
-      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
+      DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
       Assert.AreEqual(200, dt.Rows.Count);
       Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
     }
@@ -103,7 +104,7 @@ namespace MySql.Data.MySqlClient.Tests
         int count = loader.Load();
         Assert.AreEqual(200, count);
 
-        TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
+        DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
         Assert.AreEqual(200, dt.Rows.Count);
         Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
       }
@@ -226,7 +227,7 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.AreEqual(200, count);
 
-      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
+      DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
       Assert.AreEqual(200, dt.Rows.Count);
       Assert.AreEqual("col1", dt.Rows[0][1]);
       Assert.AreEqual("col2", dt.Rows[0][2].ToString().Trim());
@@ -255,7 +256,7 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.AreEqual(200, count);
 
-      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
+      DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
       Assert.AreEqual(200, dt.Rows.Count);
       Assert.AreEqual("col1still col1", dt.Rows[0][1]);
       Assert.AreEqual("col2", dt.Rows[0][2].ToString().Trim());
@@ -299,7 +300,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Local = true;
       loader.Load();
 
-      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
+      DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
       Assert.AreEqual(20, dt.Rows.Count);
       Assert.AreEqual("col2", dt.Rows[0][1].ToString().Trim());
     }
@@ -342,7 +343,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Local = true;
       loader.Load();
 
-      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
+      DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
       Assert.AreEqual(20, dt.Rows.Count);
       Assert.AreEqual("col1", dt.Rows[0][1].ToString().Trim());
     }
@@ -369,7 +370,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.LoadAsync().ContinueWith(loadResult =>
       {
         int dataLoaded = loadResult.Result;
-        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadSimpleAsyncTest", Connection);
+        DataTable dt = Utils.FillTable("SELECT * FROM BulkLoadSimpleAsyncTest", Connection);
 
         Assert.AreEqual(dataLoaded, dt.Rows.Count);
         Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
@@ -403,7 +404,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           int dataLoaded = loadResult.Result;
 
-          TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadReadOnlyFileAsyncTest", Connection);
+          DataTable dt = Utils.FillTable("SELECT * FROM BulkLoadReadOnlyFileAsyncTest", Connection);
           Assert.AreEqual(dataLoaded, dt.Rows.Count);
           Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
         }).Wait();
@@ -438,7 +439,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.LoadAsync().ContinueWith(loadResult =>
       {
         int dataLoaded = loadResult.Result;
-        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadFieldQuotingAsyncTest", Connection);
+        DataTable dt = Utils.FillTable("SELECT * FROM BulkLoadFieldQuotingAsyncTest", Connection);
 
         Assert.AreEqual(dataLoaded, dt.Rows.Count);
         Assert.AreEqual("col1", dt.Rows[0][1]);
@@ -469,7 +470,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.LoadAsync().ContinueWith(loadResult =>
       {
         int dataLoaded = loadResult.Result;
-        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadEscapingAsyncTest", Connection);
+        DataTable dt = Utils.FillTable("SELECT * FROM BulkLoadEscapingAsyncTest", Connection);
 
         Assert.AreEqual(dataLoaded, dt.Rows.Count);
         Assert.AreEqual("col1still col1", dt.Rows[0][1]);
@@ -514,7 +515,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Local = true;
 
       loader.LoadAsync().Wait();
-      TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadConflictOptionReplaceAsyncTest", Connection);
+      DataTable dt = Utils.FillTable("SELECT * FROM BulkLoadConflictOptionReplaceAsyncTest", Connection);
       Assert.AreEqual(20, dt.Rows.Count);
       Assert.AreEqual("col2", dt.Rows[0][1].ToString().Trim());
     }
@@ -560,7 +561,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.LoadAsync().ContinueWith(loadResult =>
       {
         int dataLoaded = loadResult.Result;
-        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadConflictOptionIgnoreAsyncTest", Connection);
+        DataTable dt = Utils.FillTable("SELECT * FROM BulkLoadConflictOptionIgnoreAsyncTest", Connection);
         Assert.AreEqual(20, dt.Rows.Count);
         Assert.AreEqual("col1", dt.Rows[0][1].ToString().Trim());
       }).Wait();
@@ -593,7 +594,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.LoadAsync().ContinueWith(loadResult =>
       {
         int dataLoaded = loadResult.Result;
-        TestDataTable dt = Utils.FillTable("SELECT * FROM BulkLoadColumnOrderAsyncTest", Connection);
+        DataTable dt = Utils.FillTable("SELECT * FROM BulkLoadColumnOrderAsyncTest", Connection);
         Assert.AreEqual(20, dt.Rows.Count);
         Assert.AreEqual("col1", dt.Rows[0][1]);
         Assert.AreEqual("col2", dt.Rows[0][2]);
@@ -636,7 +637,7 @@ namespace MySql.Data.MySqlClient.Tests
       int count = loader.Load();
       Assert.AreEqual(20, count);
 
-      TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
+      DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
       Assert.AreEqual(20, dt.Rows.Count);
       Assert.AreEqual("col1", dt.Rows[0][1]);
       Assert.AreEqual("col2", dt.Rows[0][2]);
@@ -703,7 +704,7 @@ namespace MySql.Data.MySqlClient.Tests
         int count = loader.Load();
         Assert.AreEqual(200, count);
 
-        TestDataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
+        DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
         Assert.AreEqual(200, dt.Rows.Count);
         Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
       }
@@ -757,8 +758,8 @@ namespace MySql.Data.MySqlClient.Tests
         var result = cmd.ExecuteNonQuery();
         Assert.IsNotNull(result);
         cmd.CommandText = "select count(*) from file;";
-        var count=cmd.ExecuteScalar();
-        Assert.AreEqual(1,count);
+        var count = cmd.ExecuteScalar();
+        Assert.AreEqual(1, count);
       }
     }
 

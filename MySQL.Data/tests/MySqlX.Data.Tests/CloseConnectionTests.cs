@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates.
+﻿// Copyright (c) 2020, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,69 +26,18 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
-using System;
 using NUnit.Framework;
-using System.Threading;
+using System;
 using System.Diagnostics;
-using MySql.Data;
-using System.Reflection;
-using System.IO;
-using System.Linq;
+using System.Threading;
 
 namespace MySqlX.Data.Tests
 {
   public class CloseConnectionTests : BaseTest
   {
-
-    [SetUp]
-    public override void BaseSetUp()
-    {
-      Assembly executingAssembly = typeof(BaseTest).GetTypeInfo().Assembly;
-      Stream stream = executingAssembly.GetManifestResourceStream("MySqlX.Data.Tests.Properties.CreateUsers.sql");
-      StreamReader sr = new StreamReader(stream);
-      string sql = sr.ReadToEnd();
-      sr.Dispose();
-      ExecuteSqlAsRoot(sql);
-      session = null;
-      session = GetSession();
-      testSchema = session.GetSchema(schemaName);
-      if (SchemaExistsInDatabase(testSchema))
-        session.DropSchema(schemaName);
-      session.CreateSchema(schemaName);
-    }
-
-    [TearDown]
-    public override void BaseTearDown()
-    {
-      if (!ServerIsDown)
-      {
-        var tryClose = true;
-        var attempts = 0;
-        do
-        {
-          try
-          {
-            session = null;
-            using (Session s = GetSession())
-            {
-              Schema schema = s.GetSchema(schemaName);
-              if (SchemaExistsInDatabase(schema))
-                s.DropSchema(schemaName);
-              Assert.False(SchemaExistsInDatabase(schema));
-              tryClose = false;
-            }
-          }
-          catch (Exception e)
-          {
-            session = GetSession();
-            session.Close();
-            attempts++;
-          }
-        } while (tryClose && attempts < 3);
-      }
-    }
     /// <summary>
     /// WL14166 - XProtocol: Support connection close notification
     /// This feature was implemented since MySQL Server 8.0.23
@@ -102,7 +51,7 @@ namespace MySqlX.Data.Tests
     public void NotificationKill()
     {
       if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) Assert.Ignore();
-      using (Session session1 = MySQLX.GetSession(BaseTest.ConnectionString))
+      using (Session session1 = MySQLX.GetSession(ConnectionString))
       {
         Schema test = session1.GetSchema("test");
         Assert.AreEqual(SessionState.Open, session1.XSession.SessionState);
@@ -116,23 +65,21 @@ namespace MySqlX.Data.Tests
         StringAssert.Contains(ResourcesX.NoticeKilledConnection, ex.Message);
 
         Assert.AreEqual(SessionState.Closed, session1.XSession.SessionState);
-
       }
     }
 
     //Idle Notice, exception expected
     [Test]
-    [Ignore("comment this line to run this test manually")]
     public void NotificationIdle()
     {
       if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) Assert.Ignore();
 
       ExecuteSqlAsRoot("SET GLOBAL mysqlx_read_timeout = 5");
       ExecuteSqlAsRoot("SET GLOBAL mysqlx_wait_timeout = 5");
-      using (Session localsession = MySQLX.GetSession(BaseTest.ConnectionString))
+      using (Session localsession = MySQLX.GetSession(ConnectionString))
       {
         Assert.AreEqual(SessionState.Open, localsession.XSession.SessionState);
-        //wait for server to server kill idle connection
+        //wait for server to kill idle connection
         Thread.Sleep(7000);
 
         Exception ex = Assert.Throws<MySqlException>(() => localsession.SQL("select 1").Execute());
@@ -163,11 +110,11 @@ namespace MySqlX.Data.Tests
     {
       if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) Assert.Ignore();
       Session sessionCol = null;
-      sessionCol = MySQLX.GetSession(BaseTest.ConnectionString);
+      sessionCol = MySQLX.GetSession(ConnectionString);
 
       sessionCol.DropSchema(schemaName);
       sessionCol.CreateSchema(schemaName);
-      var threadId1 = (UInt64)sessionCol.ThreadId;
+      var threadId1 = (ulong)sessionCol.ThreadId;
 
       // Kill connection
       ExecuteSqlAsRoot($"KILL {threadId1};");
@@ -280,7 +227,6 @@ namespace MySqlX.Data.Tests
 
     // Open multiple connection and wait o be killed by server
     [Test]
-    [Ignore("comment this line to run this test manually")]
     public void PoolWithIdleConnections()
     {
       if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) Assert.Ignore();
@@ -315,7 +261,7 @@ namespace MySqlX.Data.Tests
         StartInfo = new ProcessStartInfo
         {
           FileName = basedir + "mysqladmin.exe",
-          Arguments = " shutdown",
+          Arguments = " -uroot shutdown",
           UseShellExecute = true,
           RedirectStandardOutput = false,
           CreateNoWindow = true,

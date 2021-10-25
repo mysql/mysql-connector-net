@@ -39,12 +39,12 @@ using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
 using MySqlX.XDevAPI.Relational;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Diagnostics;
-using System.Collections;
 using System.Threading;
 
 namespace MySqlX.Sessions
@@ -323,14 +323,14 @@ namespace MySqlX.Sessions
     /// <summary>
     /// Validate the algorithms given in the connection string are valid compared with enum CompressionAlgorithms
     /// </summary>
-    public string[] NegotiateUserAgainstClientAlgorithms(string inputString)
+    public List<string> NegotiateUserAgainstClientAlgorithms(string inputString)
     {
       inputString = inputString.Contains("[") ? inputString.Replace("[", string.Empty) : inputString;
       inputString = inputString.Contains("]") ? inputString.Replace("]", string.Empty) : inputString;
       inputString.Trim();
       if (string.IsNullOrEmpty(inputString))
       {
-        return Enum.GetNames(typeof(CompressionAlgorithms));
+        return Enum.GetNames(typeof(CompressionAlgorithms)).ToList();
       }
       var elements = inputString.ToLowerInvariant().Split(',');
       List<string> ret = new List<string>();
@@ -365,7 +365,7 @@ namespace MySqlX.Sessions
           ret.Add(elements[i]);
         }
       }
-      return ret.ToArray();
+      return ret;
     }
 
     /// <summary>
@@ -373,11 +373,11 @@ namespace MySqlX.Sessions
     /// </summary>
     /// <param name="serverSupportedAlgorithms">An array containing the compression algorithms supported by the server.</param>
     /// <param name="clientAgainstUserAlgorithms">An array containing the compression algorithms given by user/client.</param>
-    private Dictionary<string, object> NegotiateCompression(string[] serverSupportedAlgorithms, string[] clientAgainstUserAlgorithms)
+    private Dictionary<string, object> NegotiateCompression(string[] serverSupportedAlgorithms, List<string> clientAgainstUserAlgorithms)
     {
       if (serverSupportedAlgorithms == null || serverSupportedAlgorithms.Length == 0)
       {
-        if (Settings.Compression == CompressionType.Required && clientAgainstUserAlgorithms.Length > 0)
+        if (Settings.Compression == CompressionType.Required && clientAgainstUserAlgorithms.Count > 0)
         {
           throw new NotSupportedException(ResourcesX.CompressionAlgorithmNegotiationFailed);
         }
@@ -386,7 +386,7 @@ namespace MySqlX.Sessions
 
       // If server and client don't have matching compression algorithms either log a warning message
       // or raise an exception based on the selected compression type.
-      XCompressionController.LoadLibzstdLibrary();
+      XCompressionController.LoadLibzstdLibrary(ref clientAgainstUserAlgorithms);
       if (!clientAgainstUserAlgorithms.Any(element => serverSupportedAlgorithms.Contains(element)))
       {
         if (Settings.Compression == CompressionType.Preferred)
@@ -401,7 +401,7 @@ namespace MySqlX.Sessions
       }
 
       string negotiatedAlgorithm = null;
-      for (int index = 0; index < clientAgainstUserAlgorithms.Length; index++)
+      for (int index = 0; index < clientAgainstUserAlgorithms.Count; index++)
       {
         if (!serverSupportedAlgorithms.Contains(clientAgainstUserAlgorithms[index]))
         {

@@ -32,24 +32,18 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Reflection;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class ConnectionStringBuilderTests : TestBase
   {
     private string _sslCa;
-    private string _sslCert;
-    private string _sslKey;
 
     public ConnectionStringBuilderTests()
     {
-      string cPath = string.Empty;
-      cPath = Assembly.GetExecutingAssembly().Location.Replace(String.Format("{0}.dll", Assembly.GetExecutingAssembly().GetName().Name), string.Empty);
+      string cPath = TestContext.CurrentContext.TestDirectory + "\\";
 
       _sslCa = cPath + "ca.pem";
-      _sslCert = cPath + "client-cert.pem";
-      _sslKey = cPath + "client-key.pem";
     }
 
     [Test]

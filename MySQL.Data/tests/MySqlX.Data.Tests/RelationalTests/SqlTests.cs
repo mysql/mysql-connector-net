@@ -32,7 +32,6 @@ using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Relational;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 
 namespace MySqlX.Data.Tests.RelationalTests
@@ -51,7 +50,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("DROP TABLE IF EXISTS test.test");
       ExecuteSQL("CREATE TABLE test.test(id INT)");
       ExecuteSQL("INSERT INTO test.test VALUES (1)");
-      using (var ss= MySQLX.GetSession(ConnectionString))
+      using (var ss = MySQLX.GetSession(ConnectionString))
       {
         SqlResult r = ss.SQL("SELECT * FROM test.test").Execute();
         Assert.True(r.Next());
@@ -157,6 +156,10 @@ namespace MySqlX.Data.Tests.RelationalTests
     public void ProcedureWithNoTable()
     {
       ExecuteSQL("create procedure newproc (in p1 int,in p2 char(20)) begin select 1; select 'XXX' from notab; end;");
+
+      var session = MySQLX.GetSession(ConnectionString + ";database=test;");
+
+
       var sqlRes = session.SQL("call newproc(?, ?)").Bind(10).Bind("X").Execute();
       var ex = Assert.Throws<MySqlException>(() => session.SQL("drop procedure if exists newproc ").Execute());
       StringAssert.AreEqualIgnoringCase("Table 'test.notab' doesn't exist", ex.Message);
@@ -167,47 +170,47 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       var connectionStringObject = new { connection = "server=" + sb.Server + ";user=" + sb.UserID + ";port=" + sb.Port + ";password=" + sb.Password + ";sslmode=" + MySqlSslMode.Required + ";" };
-      Session sessionPlain = MySQLX.GetSession(connectionStringObject.connection);
-      sessionPlain.SQL("DROP DATABASE IF EXISTS DBName").Execute();
-      sessionPlain.SQL("CREATE DATABASE DBName").Execute();
-      sessionPlain.SQL("USE DBName").Execute();
-      sessionPlain.SQL("CREATE TABLE address" +
-                  "(address_number  INT NOT NULL AUTO_INCREMENT, " +
-                  "building_name  VARCHAR(100) NOT NULL, " +
-                  "district VARCHAR(100) NOT NULL, PRIMARY KEY (address_number)" + ");").Execute();
-      sessionPlain.SQL("INSERT INTO address" +
-                  "(address_number,building_name,district)" +
-                  " VALUES " +
-                  "(1573,'MySQL','BGL');").Execute();
-      string procI = "CREATE PROCEDURE my_add_one_procedure " +
-                  " (IN address_id INT) " +
-                  "BEGIN " +
-                  "select * from address as a where a.address_number = address_id;" +
-                  "END;";
-      sessionPlain.SQL(procI).Execute();
-      var res = sessionPlain.SQL("CALL my_add_one_procedure(1573);").Execute();
-      if (res.HasData)
+      using (Session sessionPlain = MySQLX.GetSession(connectionStringObject.connection))
       {
-        var row = res.FetchOne();
-        if (row != null)
+        sessionPlain.SQL("DROP DATABASE IF EXISTS DBName").Execute();
+        sessionPlain.SQL("CREATE DATABASE DBName").Execute();
+        sessionPlain.SQL("USE DBName").Execute();
+        sessionPlain.SQL("CREATE TABLE address" +
+                    "(address_number  INT NOT NULL AUTO_INCREMENT, " +
+                    "building_name  VARCHAR(100) NOT NULL, " +
+                    "district VARCHAR(100) NOT NULL, PRIMARY KEY (address_number)" + ");").Execute();
+        sessionPlain.SQL("INSERT INTO address" +
+                    "(address_number,building_name,district)" +
+                    " VALUES " +
+                    "(1573,'MySQL','BGL');").Execute();
+        string procI = "CREATE PROCEDURE my_add_one_procedure " +
+                    " (IN address_id INT) " +
+                    "BEGIN " +
+                    "select * from address as a where a.address_number = address_id;" +
+                    "END;";
+        sessionPlain.SQL(procI).Execute();
+        var res = sessionPlain.SQL("CALL my_add_one_procedure(1573);").Execute();
+        if (res.HasData)
         {
-          do
+          var row = res.FetchOne();
+          if (row != null)
           {
-            if (row[0] != null)
-              Assert.IsNotNull(row[0].ToString());
+            do
+            {
+              if (row[0] != null)
+                Assert.IsNotNull(row[0].ToString());
 
-            if (row[1] != null)
-              Assert.IsNotNull(row[1].ToString());
+              if (row[1] != null)
+                Assert.IsNotNull(row[1].ToString());
 
-            if (row[2] != null)
-              Assert.IsNotNull(row[2].ToString());
+              if (row[2] != null)
+                Assert.IsNotNull(row[2].ToString());
 
-          } while (res.Next()); while (res.NextResult()) ;
+            } while (res.Next()); while (res.NextResult()) ;
+          }
         }
+        sessionPlain.SQL("DROP DATABASE DBName").Execute();
       }
-      sessionPlain.SQL("DROP DATABASE DBName").Execute();
-      sessionPlain.Close();
-      sessionPlain.Dispose();
     }
 
     [Test, Description("Stored Procedure Table-StringBuilder and Session")]
@@ -217,90 +220,93 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       var connectionStringObject = new { connection = "server=" + sb.Server + ";user=" + sb.UserID + ";port=" + sb.Port + ";password=" + sb.Password };
-      Session sessionPlain = MySQLX.GetSession(connectionStringObject.connection);
 
-      MySqlConnection mysql = new MySqlConnection(ConnectionStringRoot);
-      mysql.Open();
-      System.Text.StringBuilder sql = new System.Text.StringBuilder();
-      sql.AppendLine("DROP DATABASE IF EXISTS DBName");
-      MySqlScript script = new MySqlScript(mysql, sql.ToString());
-      script.Execute();
-      sql = new System.Text.StringBuilder();
-      sql.AppendLine("CREATE DATABASE DBName");
-      script = new MySqlScript(mysql, sql.ToString());
-      script.Execute();
-      sql = new System.Text.StringBuilder();
-      sql.AppendLine("USE DBName");
-      script = new MySqlScript(mysql, sql.ToString());
-      script.Execute();
-      sql = new System.Text.StringBuilder();
-      sql.AppendLine("CREATE TABLE address" +
-                  "(address_number  INT NOT NULL AUTO_INCREMENT, " +
-                  "building_name  VARCHAR(100) NOT NULL, " +
-                  "district VARCHAR(100) NOT NULL, PRIMARY KEY (address_number)" + ");"
-                  );
-      script = new MySqlScript(mysql, sql.ToString());
-      script.Execute();
-      sql = new System.Text.StringBuilder();
-      sql.AppendLine("INSERT INTO address" +
-                  "(address_number,building_name,district)" +
-                  " VALUES " +
-                  "(1573,'MySQL','BGL');");
-      script = new MySqlScript(mysql, sql.ToString());
-      script.Execute();
-      sql = new System.Text.StringBuilder();
-      sql.AppendLine("INSERT INTO address" +
-                  "(address_number,building_name,district)" +
-                  " VALUES " +
-                  "(1,'MySQLTest1','BGLTest1');");
-      script = new MySqlScript(mysql, sql.ToString());
-      script.Execute();
-      sql = new System.Text.StringBuilder();
-      sql.AppendLine("INSERT INTO address" +
-                  "(address_number,building_name,district)" +
-                  " VALUES " +
-                  "(2,'MySQLTest2','BGLTest2');");
-      script = new MySqlScript(mysql, sql.ToString());
-      script.Execute();
-      sql = new System.Text.StringBuilder();
-      sql.AppendLine("DELIMITER //");
-      sql.AppendLine("CREATE PROCEDURE my_add_one_procedure " +
-                  " (IN address_id INT) " +
-                  "BEGIN " +
-                  "select * from address as a where a.address_number = address_id;" +
-                  "END//");
-      script = new MySqlScript(mysql, sql.ToString());
-      script.Execute();
-      sql = new System.Text.StringBuilder();
-      sql.AppendLine("DELIMITER ;");
-      script = new MySqlScript(mysql, sql.ToString());
-      script.Execute();
-      sessionPlain.SQL("USE DBName").Execute();
-      var res = sessionPlain.SQL("CALL my_add_one_procedure(1573);").Execute();
-      if (res.HasData)
+      using (MySqlConnection mysql = new MySqlConnection(ConnectionStringRoot))
       {
-        var row = res.FetchOne();
-        if (row != null)
-        {
-          do
-          {
-            if (row[0] != null)
-              Assert.IsNotNull(row[0].ToString());
-
-            if (row[1] != null)
-              Assert.IsNotNull(row[1].ToString());
-
-            if (row[2] != null)
-              Assert.IsNotNull(row[2].ToString());
-
-          } while (res.Next()); while (res.NextResult()) ;
-        }
+        mysql.Open();
+        System.Text.StringBuilder sql = new System.Text.StringBuilder();
+        sql.AppendLine("DROP DATABASE IF EXISTS DBName");
+        MySqlScript script = new MySqlScript(mysql, sql.ToString());
+        script.Execute();
+        sql = new System.Text.StringBuilder();
+        sql.AppendLine("CREATE DATABASE DBName");
+        script = new MySqlScript(mysql, sql.ToString());
+        script.Execute();
+        sql = new System.Text.StringBuilder();
+        sql.AppendLine("USE DBName");
+        script = new MySqlScript(mysql, sql.ToString());
+        script.Execute();
+        sql = new System.Text.StringBuilder();
+        sql.AppendLine("CREATE TABLE address" +
+                    "(address_number  INT NOT NULL AUTO_INCREMENT, " +
+                    "building_name  VARCHAR(100) NOT NULL, " +
+                    "district VARCHAR(100) NOT NULL, PRIMARY KEY (address_number)" + ");"
+                    );
+        script = new MySqlScript(mysql, sql.ToString());
+        script.Execute();
+        sql = new System.Text.StringBuilder();
+        sql.AppendLine("INSERT INTO address" +
+                    "(address_number,building_name,district)" +
+                    " VALUES " +
+                    "(1573,'MySQL','BGL');");
+        script = new MySqlScript(mysql, sql.ToString());
+        script.Execute();
+        sql = new System.Text.StringBuilder();
+        sql.AppendLine("INSERT INTO address" +
+                    "(address_number,building_name,district)" +
+                    " VALUES " +
+                    "(1,'MySQLTest1','BGLTest1');");
+        script = new MySqlScript(mysql, sql.ToString());
+        script.Execute();
+        sql = new System.Text.StringBuilder();
+        sql.AppendLine("INSERT INTO address" +
+                    "(address_number,building_name,district)" +
+                    " VALUES " +
+                    "(2,'MySQLTest2','BGLTest2');");
+        script = new MySqlScript(mysql, sql.ToString());
+        script.Execute();
+        sql = new System.Text.StringBuilder();
+        sql.AppendLine("DELIMITER //");
+        sql.AppendLine("CREATE PROCEDURE my_add_one_procedure " +
+                    " (IN address_id INT) " +
+                    "BEGIN " +
+                    "select * from address as a where a.address_number = address_id;" +
+                    "END//");
+        script = new MySqlScript(mysql, sql.ToString());
+        script.Execute();
+        sql = new System.Text.StringBuilder();
+        sql.AppendLine("DELIMITER ;");
+        script = new MySqlScript(mysql, sql.ToString());
+        script.Execute();
       }
-      sessionPlain.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      sessionPlain.SQL("DROP TABLE address;").Execute();
-      sessionPlain.SQL("DROP DATABASE DBName;").Execute();
-      sessionPlain.Close();
-      sessionPlain.Dispose();
+
+      using (Session sessionPlain = MySQLX.GetSession(connectionStringObject.connection))
+      {
+        sessionPlain.SQL("USE DBName").Execute();
+        var res = sessionPlain.SQL("CALL my_add_one_procedure(1573);").Execute();
+        if (res.HasData)
+        {
+          var row = res.FetchOne();
+          if (row != null)
+          {
+            do
+            {
+              if (row[0] != null)
+                Assert.IsNotNull(row[0].ToString());
+
+              if (row[1] != null)
+                Assert.IsNotNull(row[1].ToString());
+
+              if (row[2] != null)
+                Assert.IsNotNull(row[2].ToString());
+
+            } while (res.Next()); while (res.NextResult()) ;
+          }
+        }
+        sessionPlain.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        sessionPlain.SQL("DROP TABLE address;").Execute();
+        sessionPlain.SQL("DROP DATABASE DBName;").Execute();
+      }
     }
 
     [Test, Description("Stored Procedure Table-Negative(procedure returns null)")]
@@ -388,185 +394,186 @@ namespace MySqlX.Data.Tests.RelationalTests
     {
       if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
       var connectionString = ConnectionString + ";sslmode=" + MySqlSslMode.Required;
+      SqlResult myResult;
+      Row row;
 
       //integer
-      Session sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("DROP DATABASE IF EXISTS  DBName ").Execute();
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param INT) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param + 1;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind(10).Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      var myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      var row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (Session sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("DROP DATABASE IF EXISTS  DBName ").Execute();
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param INT) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param + 1;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind(10).Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //JSON
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param Json) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      var jsonParams = "{ \"pages1\" : 30, \"pages2\" : 40 }";
-      sessionTest.SQL("SET @my_var = ?;").Bind(jsonParams).Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (var sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param Json) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        var jsonParams = "{ \"pages1\" : 30, \"pages2\" : 40 }";
+        sessionTest.SQL("SET @my_var = ?;").Bind(jsonParams).Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //TINYINT
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param TINYINT) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param + 1;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind(1).Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (var sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param TINYINT) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param + 1;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind(1).Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //SMALLINT
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param SMALLINT) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param + 1;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind(11111).Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (var sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param SMALLINT) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param + 1;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind(11111).Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //MEDIUMINT
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param MEDIUMINT) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param + 1;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind(1111).Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (var sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param MEDIUMINT) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param + 1;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind(1111).Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //FLOATMD
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param FLOAT(10,2)) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param + 1;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind(100.2).Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (var sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param FLOAT(10,2)) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param + 1;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind(100.2).Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //DOUBLEMD
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param DOUBLE(10,2)) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param + 1;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind(1000.2).Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (var sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param DOUBLE(10,2)) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param + 1;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind(1000.2).Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //DECIMALMD
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param DECIMAL(10,2)) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param + 1;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind(10000.2).Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
-
+      using (var sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param DECIMAL(10,2)) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param + 1;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind(10000.2).Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
     }
 
 
@@ -576,115 +583,118 @@ namespace MySqlX.Data.Tests.RelationalTests
       if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
       //DATE
       string connectionString = ConnectionString + ";sslmode=" + MySqlSslMode.Required;
-      Session sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("DROP DATABASE IF EXISTS  DBName ").Execute();
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param DATE) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param ;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind("1973-12-30").Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      var myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      var row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      SqlResult myResult;
+      Row row;
+
+      using (Session sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("DROP DATABASE IF EXISTS  DBName ").Execute();
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param DATE) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param ;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind("1973-12-30").Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //DATETIME
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param DATETIME) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param ;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind("1981-04-10 15:30:00").Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (Session sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param DATETIME) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param ;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind("1981-04-10 15:30:00").Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //TIMESTAMP
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param TIMESTAMP) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param ;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind("20160316153000").Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (Session sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param TIMESTAMP) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param ;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind("20160316153000").Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //TIME
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param TIME) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param ;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind("12:00:00").Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (Session sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param TIME) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param ;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind("12:00:00").Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //YEAR
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param YEAR(4)) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param ;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind("2111").Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (Session sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param YEAR(4)) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param ;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind("2111").Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
     }
 
 
@@ -694,160 +704,162 @@ namespace MySqlX.Data.Tests.RelationalTests
       if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
       //CHAR(20)
       string connectionString = ConnectionString + ";sslmode=" + MySqlSslMode.Required;
-      Session sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("DROP DATABASE IF EXISTS  DBName ").Execute();
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param CHAR(20)) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind("ABCDEFGHIJABCDEFGHIJ").Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      var myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      var row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      SqlResult myResult;
+      Row row;
+
+      using (Session sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("DROP DATABASE IF EXISTS  DBName ").Execute();
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param CHAR(20)) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind("ABCDEFGHIJABCDEFGHIJ").Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //VARCHAR(20)
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param VARCHAR(20)) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind("ABCDEFGHIJABCDEFGHIJ").Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (Session sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param VARCHAR(20)) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind("ABCDEFGHIJABCDEFGHIJ").Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //BLOB
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param BLOB) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param ;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind(19731230153000).Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (Session sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param BLOB) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param ;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind(19731230153000).Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //TINYBLOB
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param TINYBLOB) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param ;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind("12:00:00").Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (Session sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param TINYBLOB) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param ;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind("12:00:00").Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //MEDIUMBLOB
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param MEDIUMBLOB) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param ;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind(2111).Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (Session sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param MEDIUMBLOB) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param ;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind(2111).Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //LONGBLOB
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param LONGBLOB) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param ;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind(111232).Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
+      using (Session sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param LONGBLOB) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param ;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind(111232).Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
 
       //ENUM
-      sessionTest = MySQLX.GetSession(connectionString);
-      sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
-      sessionTest.SQL("USE DBName").Execute();
-      sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
-                  " (INOUT incr_param ENUM('x-small', 'small', 'medium', 'large', 'x-large')) " +
-                  "BEGIN " +
-                  "  SET incr_param = incr_param ;" +
-                  "END;").Execute();
-      //Uncomment once Bind is implemented in 7.0.2
-      sessionTest.SQL("SET @my_var = ?;").Bind("large").Execute();
-      sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
-      sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
-      // Use a SQL query to get the result
-      myResult = sessionTest.SQL("SELECT @my_var").Execute();
-      // Gets the row and prints the first column
-      row = myResult.FetchOne();
-      Assert.IsNotNull(row[0].ToString());
-      sessionTest.SQL("DROP DATABASE DBName").Execute();
-      sessionTest.Close();
-      sessionTest.Dispose();
-
+      using (Session sessionTest = MySQLX.GetSession(connectionString))
+      {
+        sessionTest.SQL("CREATE DATABASE IF NOT EXISTS DBName").Execute();
+        sessionTest.SQL("USE DBName").Execute();
+        sessionTest.SQL("CREATE PROCEDURE my_add_one_procedure " +
+                    " (INOUT incr_param ENUM('x-small', 'small', 'medium', 'large', 'x-large')) " +
+                    "BEGIN " +
+                    "  SET incr_param = incr_param ;" +
+                    "END;").Execute();
+        //Uncomment once Bind is implemented in 7.0.2
+        sessionTest.SQL("SET @my_var = ?;").Bind("large").Execute();
+        sessionTest.SQL("CALL my_add_one_procedure(@my_var);").Execute();
+        sessionTest.SQL("DROP PROCEDURE my_add_one_procedure;").Execute();
+        // Use a SQL query to get the result
+        myResult = sessionTest.SQL("SELECT @my_var").Execute();
+        // Gets the row and prints the first column
+        row = myResult.FetchOne();
+        Assert.IsNotNull(row[0].ToString());
+        sessionTest.SQL("DROP DATABASE DBName").Execute();
+      }
     }
 
     [Test, Description("Bind Support for Session SQL Negative Tests-Null")]
@@ -914,6 +926,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       sessionTest.Dispose();
 
     }
+
     // Aditional Tests
     [Test, Description("Test MySQLX plugin MySQL mixed scenario")]
     public void MixedChainedCommands()
@@ -929,7 +942,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       var rows = r.FetchAll();
       Assert.AreEqual(1, r.Columns.Count, "Matching");
       Assert.AreEqual(typeof(float).ToString(), r.Columns[0].ClrType.ToString(), "Matching");
-      Assert.AreEqual(MySql.Data.MySqlClient.MySqlDbType.Float.ToString(), r.Columns[0].Type.ToString(), "Matching");
+      Assert.AreEqual(MySqlDbType.Float.ToString(), r.Columns[0].Type.ToString(), "Matching");
       Assert.AreEqual(14, (int)r.Columns[0].Length, "Matching");
       Assert.AreEqual(8, (int)r.Columns[0].FractionalDigits, "Matching");
       Assert.AreEqual(3, rows.Count, "Matching");
@@ -1016,7 +1029,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
       if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
 
-      using (var ss= MySQLX.GetSession(ConnectionString))
+      using (var ss = MySQLX.GetSession(ConnectionString))
       {
         ss.SQL("DROP TABLE IF EXISTS test.test").Execute();
         ss.SQL("CREATE TABLE test.test (Id smallint NOT NULL PRIMARY KEY, jsoncolumn JSON)").Execute();
@@ -1047,8 +1060,6 @@ namespace MySqlX.Data.Tests.RelationalTests
         }
       }
     }
-
     #endregion
-
   }
 }
