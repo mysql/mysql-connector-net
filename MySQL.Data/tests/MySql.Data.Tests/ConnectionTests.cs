@@ -29,7 +29,9 @@
 using MySql.Data.Common;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -1007,6 +1009,43 @@ namespace MySql.Data.MySqlClient.Tests
         if (e.CurrentState == ConnectionState.Closed)
           closed = true;
       }
+    }
+
+    /// <summary>
+    /// Bug #33380176	Malformed communication packet while using MEDIUMTEXT
+    /// </summary>
+    [Test]
+    public void MediumTextMalformedPkg()
+    {
+      ExecuteSQL("SET GLOBAL max_allowed_packet=25165824");
+      ExecuteSQL($"CREATE TABLE `{Settings.Database}`.`testmalformed` (caseref VARCHAR(12) NOT NULL, fieldId INT NOT NULL, " +
+        "fieldtext MEDIUMTEXT, PRIMARY KEY (caseref, fieldId))");
+
+      int rowMax = 40000 ; //Maximum allowed for prepared statement 21846
+      var query = $"INSERT INTO `{Settings.Database}`.`testmalformed` (caseref, fieldId, fieldtext) VALUES {{0}} ON DUPLICATE KEY UPDATE caseref = caseref;";
+
+      List<MySqlParameter> mySqlParameters = new();
+      StringBuilder sb = new();
+      string[] fieldValues = {
+            "0010EF7V002",
+            "1",
+            "Text, text, and more text."
+        };
+
+      for (int i = 0; i < rowMax; i++)
+      {
+        mySqlParameters.Add(new MySqlParameter(i + "caseref", fieldValues[0]));
+        mySqlParameters.Add(new MySqlParameter(i + "fieldid_1", int.Parse(fieldValues[1]) + i));
+        mySqlParameters.Add(new MySqlParameter(i + "fieldtext_1", fieldValues[2]));
+        sb.AppendFormat("(@{0}caseref, @{0}fieldid_1, @{0}fieldtext_1), ", i);
+      }
+
+      string fullQuery = string.Format(query, sb.ToString(0, sb.Length - 2));
+      var res = MySqlHelper.ExecuteNonQuery(Connection.ConnectionString + ";ssl-mode=none", fullQuery, mySqlParameters.ToArray());
+      Assert.AreEqual(res, 40000);
+
+      ExecuteSQL("SET GLOBAL max_allowed_packet=1024000");
+      ExecuteSQL($"DROP TABLE `{Settings.Database}`.`testmalformed`;");
     }
 
     #region WL14389

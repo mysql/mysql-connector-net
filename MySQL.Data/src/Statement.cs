@@ -105,7 +105,7 @@ namespace MySql.Data.MySqlClient
 
       while (true)
       {
-        MySqlPacket packet = BuildInitialPartQueryPacket(parameters, attributes);
+        MySqlPacket packet = BuildQueryAttributesPacket(attributes);
         InternalBindParameters(ResolvedCommandText, parameters, packet);
 
         // if we are not batching, then we are done.  This is only really relevant the
@@ -152,10 +152,9 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Builds the initial part of the COM_QUERY packet
     /// </summary>
-    /// <param name="parameters">Collection of parameters</param>
     /// <param name="attributes">Collection of attributes</param>
     /// <returns>A <see cref="MySqlPacket"/></returns>
-    private MySqlPacket BuildInitialPartQueryPacket(MySqlParameterCollection parameters, MySqlAttributeCollection attributes)
+    private MySqlPacket BuildQueryAttributesPacket(MySqlAttributeCollection attributes)
     {
       MySqlPacket packet;
       packet = new MySqlPacket(Driver.Encoding) { Version = Driver.Version };
@@ -165,7 +164,7 @@ namespace MySql.Data.MySqlClient
         MySqlTrace.LogWarning(Connection.ServerThread, string.Format(Resources.QueryAttributesNotSupported, Driver.Version));
       else if (Driver.SupportsQueryAttributes)
       {
-        int paramCount = parameters.Count + attributes.Count;
+        int paramCount = attributes.Count;
         packet.WriteLength(paramCount); // int<lenenc> parameter_count - Number of parameters
         packet.WriteByte(1); // int<lenenc> parameter_set_count - Number of parameter sets. Currently always 1
 
@@ -178,27 +177,11 @@ namespace MySql.Data.MySqlClient
           packet.Position += numNullBytes;  // leave room for our null map
           packet.WriteByte((byte)1); // new_params_bind_flag - Always 1. Malformed packet error if not 1
 
-          // set type and name for each parameter
-          foreach (MySqlParameter parameter in parameters)
-          {
-            packet.WriteInteger(parameter.GetPSType(), 2);
-            packet.WriteLenString(parameter.ParameterName);
-          }
-
           // set type and name for each attribute
           foreach (MySqlAttribute attribute in attributes)
           {
             packet.WriteInteger(attribute.GetPSType(), 2);
             packet.WriteLenString(attribute.AttributeName);
-          }
-
-          // set value for each parameter
-          for (int i = 0; i < parameters.Count; i++)
-          {
-            MySqlParameter param = parameters[i];
-            _nullMap[i] = (param.Value == DBNull.Value || param.Value == null) || param.Direction == ParameterDirection.Output;
-            if (_nullMap[i]) continue;
-            param.Serialize(packet, true, Connection.Settings);
           }
 
           // set value for each attribute
