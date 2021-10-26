@@ -31,7 +31,6 @@ using MySqlX.XDevAPI;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Diagnostics;
 using System.Text;
 
@@ -199,21 +198,18 @@ namespace MySqlX.Data.Tests
       {
         var exception = Assert.Throws<NotSupportedException>(() => MySQLX.GetSession($"{ConnectionStringUri}?compression=Required"));
         Assert.AreEqual("Compression requested but the server does not support it.", exception.Message);
-
-        return;
       }
-
-      using (var session = MySQLX.GetSession($"{ConnectionStringUri}?compression=Required"))
+      else
       {
-        session.Close();
+        using var session = MySQLX.GetSession($"{ConnectionStringUri}?compression=Required");
+        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
       }
     }
 
     [Test]
     public void NegotiationSucceedsWithExpectedCompressionAlgorithm()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 19))
-        return;
+      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 19)) Assert.Ignore("Feature only available since v8.0.19");
 
       // Validate zstd_stream is the default.
       using (var session = MySQLX.GetSession(ConnectionStringUri))
@@ -643,10 +639,10 @@ namespace MySqlX.Data.Tests
     public MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA, MySqlSslMode.VerifyFull, MySqlSslMode.Preferred };
     public static object connObject = new { server = Host, port = XPort, user = "test", password = "test" };
 
-    [Test,Description("Connection Compression tests to verify the values of compress option with connection string, uri, anonymous object, string builder")]
+    [Test, Description("Connection Compression tests to verify the values of compress option with connection string, uri, anonymous object, string builder")]
     public void ConnectionStringCombinations()
     {
-      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql Server 8.0.19 or higher.");
 
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       sb.SslCa = sslCa;
@@ -656,82 +652,82 @@ namespace MySqlX.Data.Tests
       {
         for (int i = 0; i < 3; i++)
         {
-            //ConnectionString
-            session1 = MySQLX.GetSession(ConnectionStringUserWithSSLPEM + " ;Auth=AUTO;sslmode=" + modes[j] + ";compression=" + compressValue[i]);
-            Assert.AreEqual(SessionState.Open, session1.XSession.SessionState);
-            session1.Close();
+          //ConnectionString
+          session1 = MySQLX.GetSession(ConnectionStringUserWithSSLPEM + " ;Auth=AUTO;sslmode=" + modes[j] + ";compression=" + compressValue[i]);
+          Assert.AreEqual(SessionState.Open, session1.XSession.SessionState);
+          session1.Close();
 
-            //Uri
-            session2 = MySQLX.GetSession(connSSLURI + "&sslmode=" + modes[j] + "&compression=" + compressValue[i]);
-            Assert.AreEqual(SessionState.Open, session2.XSession.SessionState);
-            session2.Close();
+          //Uri
+          session2 = MySQLX.GetSession(connSSLURI + "&sslmode=" + modes[j] + "&compression=" + compressValue[i]);
+          Assert.AreEqual(SessionState.Open, session2.XSession.SessionState);
+          session2.Close();
 
-            //Anonymous Object
-            session3 = MySQLX.GetSession(new { server = sb.Server, user = sb.UserID, port = sb.Port, password = sb.Password, SslCa = sslCa, SslCert = sslCert, SslKey = sslKey, Auth = MySqlAuthenticationMode.AUTO, sslmode = modes[j], compression = compressValue[i] });
-            Assert.AreEqual(SessionState.Open, session3.XSession.SessionState);
-            session3.Close();
+          //Anonymous Object
+          session3 = MySQLX.GetSession(new { server = sb.Server, user = sb.UserID, port = sb.Port, password = sb.Password, SslCa = sslCa, SslCert = sslCert, SslKey = sslKey, Auth = MySqlAuthenticationMode.AUTO, sslmode = modes[j], compression = compressValue[i] });
+          Assert.AreEqual(SessionState.Open, session3.XSession.SessionState);
+          session3.Close();
 
-            //MySqlXConnectionStringBuilder
-            sb.SslMode = modes[j];
-            sb.Auth = MySqlAuthenticationMode.AUTO;
-            sb.Compression = compressValue[i];
-            session4 = MySQLX.GetSession(sb.ConnectionString);
-            Assert.AreEqual(SessionState.Open, session4.XSession.SessionState);
-            session4.Close();
+          //MySqlXConnectionStringBuilder
+          sb.SslMode = modes[j];
+          sb.Auth = MySqlAuthenticationMode.AUTO;
+          sb.Compression = compressValue[i];
+          session4 = MySQLX.GetSession(sb.ConnectionString);
+          Assert.AreEqual(SessionState.Open, session4.XSession.SessionState);
+          session4.Close();
         }
       }
 
       sb = new MySqlXConnectionStringBuilder(ConnectionString);
       for (int i = 0; i < 3; i++)
       {
-          session1 = MySQLX.GetSession(ConnectionString + ";auth=AUTO;compression=" + compressValue[i]);
-          Assert.AreEqual(SessionState.Open, session1.XSession.SessionState);
-          session1.Close();
+        session1 = MySQLX.GetSession(ConnectionString + ";auth=AUTO;compression=" + compressValue[i]);
+        Assert.AreEqual(SessionState.Open, session1.XSession.SessionState);
+        session1.Close();
 
-          session2 = MySQLX.GetSession(ConnectionStringUri + "?compression=" + compressValue[i]);
-          Assert.AreEqual(SessionState.Open, session2.XSession.SessionState);
-          session2.Close();
+        session2 = MySQLX.GetSession(ConnectionStringUri + "?compression=" + compressValue[i]);
+        Assert.AreEqual(SessionState.Open, session2.XSession.SessionState);
+        session2.Close();
 
-          session3 = MySQLX.GetSession(new { server = sb.Server, user = sb.UserID, port = sb.Port, password = sb.Password, compression = compressValue[i] });
-          Assert.AreEqual(SessionState.Open, session3.XSession.SessionState);
-          session3.Close();
+        session3 = MySQLX.GetSession(new { server = sb.Server, user = sb.UserID, port = sb.Port, password = sb.Password, compression = compressValue[i] });
+        Assert.AreEqual(SessionState.Open, session3.XSession.SessionState);
+        session3.Close();
 
-          sb.Compression = compressValue[i];
-          session4 = MySQLX.GetSession(sb.ConnectionString);
-          Assert.AreEqual(SessionState.Open, session4.XSession.SessionState);
-          session4.Close();
+        sb.Compression = compressValue[i];
+        session4 = MySQLX.GetSession(sb.ConnectionString);
+        Assert.AreEqual(SessionState.Open, session4.XSession.SessionState);
+        session4.Close();
       }
     }
 
 
-    [Test,Description("Verifying the connection pooling with compression option")]
+    [Test, Description("Verifying the connection pooling with compression option")]
     public void CompressionWithPolling()
     {
       if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
       for (int i = 0; i < 3; i++)
       {
         client = MySQLX.GetClient(ConnectionString + ";compression=" + compressValue[i], new { pooling = new { maxSize = 2, queueTimeout = 2000 } });
-        
-          session1 = client.GetSession();
-          Assert.AreEqual(SessionState.Open, session1.XSession.SessionState);
-          session1.Close();
-   
-          session2 = client.GetSession();
-          Assert.AreEqual(SessionState.Open, session2.XSession.SessionState);
-          session2.Close();
 
-          session1 = client.GetSession();
-          Assert.AreEqual(SessionState.Open, session1.XSession.SessionState);
-          session2 = client.GetSession();
-          Assert.AreEqual(SessionState.Open, session2.XSession.SessionState);
+        session1 = client.GetSession();
+        Assert.AreEqual(SessionState.Open, session1.XSession.SessionState);
+        session1.Close();
 
-          Assert.Throws<TimeoutException>(()=> client.GetSession());
-          session1.Close();
-          session2.Close();
+        session2 = client.GetSession();
+        Assert.AreEqual(SessionState.Open, session2.XSession.SessionState);
+        session2.Close();
+
+        session1 = client.GetSession();
+        Assert.AreEqual(SessionState.Open, session1.XSession.SessionState);
+        session2 = client.GetSession();
+        Assert.AreEqual(SessionState.Open, session2.XSession.SessionState);
+
+        Assert.Throws<TimeoutException>(() => client.GetSession());
+        session1.Close();
+        session2.Close();
       }
     }
 
-    [Test,Description("Verify if data sent is compressed")]
+    [Test, Description("Verify if data sent is compressed")]
     public void VerifyDataSentCompression()
     {
       if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
@@ -755,7 +751,7 @@ namespace MySqlX.Data.Tests
         session2 = MySQLX.GetSession(ConnectionString + ";compression=" + compressValue2[i]);
         session2.SQL("use compression").Execute();
         schema = session2.GetSchema("compression");
-        
+
         schema.GetCollection("compressed");
         var reader = session2.SQL("Select count(*) from compressed").Execute().FetchOne()[0];
         var reader2 = session2.SQL("Select * from compressed").Execute().FetchAll();
@@ -767,7 +763,7 @@ namespace MySqlX.Data.Tests
         var result2 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_uncompressed_frame' ").Execute().FetchOne()[1];
         Assert.IsNotNull(result2);
         var result3 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_sent_compressed_payload' ").Execute().FetchOne()[1];
-        Assert.IsNotNull(result3); 
+        Assert.IsNotNull(result3);
         var result4 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_compressed_payload' ").Execute().FetchOne()[1];
         Assert.IsNotNull(result4);
         if (Convert.ToInt32(result4) == 0 || Convert.ToInt32(result2) == 0)
@@ -789,7 +785,7 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Test,Description("Verify if data read is compressed")]
+    [Test, Description("Verify if data read is compressed")]
     public void VerifyDataReadCompression()
     {
       if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
@@ -840,7 +836,7 @@ namespace MySqlX.Data.Tests
     }
 
 
-    [Test,Description("Verifying the threshold for compression")]
+    [Test, Description("Verifying the threshold for compression")]
     public void CompressionThreshold()
     {
       if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
@@ -906,7 +902,7 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Test,Description("Checking the network latency")]
+    [Test, Description("Checking the network latency")]
     public void NetworkLatency()
     {
       if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
