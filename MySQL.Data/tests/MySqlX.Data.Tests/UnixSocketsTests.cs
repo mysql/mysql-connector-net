@@ -144,7 +144,7 @@ namespace MySqlX.Data.Tests
     {
       if (Platform.IsWindows()) return;
 
-      Assert.Throws<MySqlException>(() => MySQLX.GetSession($"mysqlx://{RootUser}:@{defaultUnixSocket}?protocol=unix"));
+      Assert.Throws<MySqlException>(() => MySQLX.GetSession($"mysqlx://{RootUser}:@{defaultUnixSocket}?protocol=unix&sslmode=required"));
     }
 
     [Test]

@@ -30,6 +30,7 @@ using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using NUnit.Framework;
 using System;
+using System.Data;
 
 namespace MySqlX.Data.Tests
 {
@@ -53,52 +54,24 @@ namespace MySqlX.Data.Tests
     [Test]
     public void SessionCanBeOpened()
     {
-      Session session = null;
-      session = MySQLX.GetSession(_xConnectionURI);
+      using (var session = MySQLX.GetSession(_xConnectionURI))
+        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
     }
 
     [Test]
     public void ConnectionAfterSessionCanBeOpened()
     {
-      Session session = null;
-      session = MySQLX.GetSession(_xConnectionURI);
+      using (var session = MySQLX.GetSession(_xConnectionURI))
+        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
 
-      var connection = new MySqlConnection(_connectionStringWithSslMode);
-      connection.Open();
-      connection.Close();
+      using (var connection = new MySqlConnection(_connectionStringWithSslMode))
+      {
+        connection.Open();
+        Assert.AreEqual(ConnectionState.Open, connection.State);
+      }
 
-      session = MySQLX.GetSession(_xConnectionURI + "?sslca=client.pfx&certificatepassword=pass");
-      session.Close();
-    }
-
-    [Test]
-    public void Bug28151070_3()
-    {
-      var connection = new MySqlConnection(_connectionStringWithSslMode);
-      connection.Open();
-      connection.Close();
-
-      Session session = null;
-      session = MySQLX.GetSession(_xConnectionURI);
-    }
-
-    [Test]
-    public void Bug28151070_4()
-    {
-      var connection = new MySqlConnection(_connectionStringWithSslMode);
-      connection.Open();
-      connection.Close();
-    }
-
-    [Test]
-    public void Bug28151070_5()
-    {
-      Session session = null;
-      session = MySQLX.GetSession(_xConnectionURI);
-
-      var builder = new MySqlXConnectionStringBuilder();
-      builder.Auth = MySqlAuthenticationMode.AUTO;
-      builder.SslCa = "";
+      using (var session = MySQLX.GetSession(_xConnectionURI + "?sslca=client.pfx&certificatepassword=pass"))
+        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
     }
 
 #if !NET452

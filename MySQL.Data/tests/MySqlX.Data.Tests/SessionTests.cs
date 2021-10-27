@@ -78,20 +78,24 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void CountClosedSession()
     {
-      Session nodeSession = MySQLX.GetSession(ConnectionString);
-      int sessions = ExecuteSQLStatement(nodeSession.SQL("show processlist")).FetchAll().Count;
+      int sessions, newSessions;
 
-      for (int i = 0; i < 20; i++)
+      using (Session nodeSession = MySQLX.GetSession(ConnectionString))
       {
-        Session session = MySQLX.GetSession(ConnectionString);
-        Assert.True(session.InternalSession.SessionState == SessionState.Open);
-        session.Close();
-        Assert.AreEqual(session.InternalSession.SessionState, SessionState.Closed);
+        sessions = ExecuteSQLStatement(nodeSession.SQL("show processlist")).FetchAll().Count;
+
+        for (int i = 0; i < 20; i++)
+        {
+          Session session = MySQLX.GetSession(ConnectionString);
+          Assert.True(session.InternalSession.SessionState == SessionState.Open);
+          session.Close();
+          Assert.AreEqual(session.InternalSession.SessionState, SessionState.Closed);
+        }
+
+        newSessions = ExecuteSQLStatement(nodeSession.SQL("show processlist")).FetchAll().Count;
       }
 
-      int newSessions = ExecuteSQLStatement(nodeSession.SQL("show processlist")).FetchAll().Count;
-      nodeSession.Close();
-      Assert.AreEqual(sessions, newSessions - 1);
+      Assert.AreEqual(sessions, newSessions);
     }
 
     [Test]
@@ -1532,7 +1536,7 @@ namespace MySqlX.Data.Tests
       positiveStringList[2] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + Host + ":" + XPort + "/" + schemaName + "?ssl-mode=Required";
       positiveStringList[3] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + sb.Server + ":" + XPort + "/" + schemaName + "?ssl-mode=Required&auth=SHA256_MEMORY";
       positiveStringList[4] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + sb.Server + ":" + XPort + "/" + schemaName + "?ssl-mode=Required&characterset=utf8mb4";
-      positiveStringList[5] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + sb.Server + ":" + XPort + "/" + schemaName + "?" + "ssl-mode=Required&keepalive=10";
+      positiveStringList[5] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + sb.Server + ":" + XPort + "/" + schemaName + "?" + "ssl-mode=Required";
 
       foreach (var connStr in positiveStringList)
       {

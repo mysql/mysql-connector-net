@@ -251,48 +251,47 @@ namespace MySqlX.Data.Tests
     [Test, Description("Session Switch-SetCurrentSchema(Same and Different Session)")]
     public void SessionChangeCurrentSchema()
     {
-      Session sessionPlain = MySQLX.GetSession(ConnectionString);
-      sessionPlain.SQL("DROP DATABASE IF EXISTS dbname1").Execute();
-      sessionPlain.SQL("CREATE DATABASE dbname1").Execute();
-      sessionPlain.SQL("USE dbname1").Execute();
-      Assert.AreEqual("dbname1", sessionPlain.GetCurrentSchema().Name);
-      sessionPlain.SQL("CREATE TABLE address1" +
-                  "(address_number  INT NOT NULL AUTO_INCREMENT, " +
-                  "building_name  VARCHAR(100) NOT NULL, " +
-                  "district VARCHAR(100) NOT NULL, PRIMARY KEY (address_number)" + ");").Execute();
-      sessionPlain.SQL("INSERT INTO address1" +
-                  "(address_number,building_name,district)" +
-                  " VALUES " +
-                  "(1,'MySQL1','BGL1');").Execute();
+      using (Session session = MySQLX.GetSession(ConnectionString))
+      {
+        session.SQL("DROP DATABASE IF EXISTS dbname1").Execute();
+        session.SQL("CREATE DATABASE dbname1").Execute();
+        session.SQL("USE dbname1").Execute();
+        StringAssert.AreEqualIgnoringCase("dbname1", session.GetCurrentSchema().Name);
+        session.SQL("CREATE TABLE address1" +
+                    "(address_number  INT NOT NULL AUTO_INCREMENT, " +
+                    "building_name  VARCHAR(100) NOT NULL, " +
+                    "district VARCHAR(100) NOT NULL, PRIMARY KEY (address_number)" + ");").Execute();
+        session.SQL("INSERT INTO address1" +
+                    "(address_number,building_name,district)" +
+                    " VALUES " +
+                    "(1,'MySQL1','BGL1');").Execute();
 
-      sessionPlain.SQL("DROP DATABASE IF EXISTS dbname2").Execute();
-      sessionPlain.SQL("CREATE DATABASE dbname2").Execute();
-      sessionPlain.SQL("USE dbname2").Execute();
-      Assert.AreEqual("dbname2", sessionPlain.GetCurrentSchema().Name);
-      sessionPlain.SQL("CREATE TABLE address2" +
-                  "(address_number  INT NOT NULL AUTO_INCREMENT, " +
-                  "building_name  VARCHAR(100) NOT NULL, " +
-                  "district VARCHAR(100) NOT NULL, PRIMARY KEY (address_number)" + ");").Execute();
-      sessionPlain.SQL("INSERT INTO address2" +
-                  "(address_number,building_name,district)" +
-                  " VALUES " +
-                  "(2,'MySQL2','BGL2');").Execute();
-      sessionPlain.SetCurrentSchema("dbname1");
-      Assert.AreEqual("dbname1", sessionPlain.Schema.Name);
-      sessionPlain.SQL("SELECT * FROM address1").Execute();
-      sessionPlain.SQL("DROP TABLE address1").Execute();
-      sessionPlain.SetCurrentSchema("dbName2");
-      Assert.AreEqual("dbName2", sessionPlain.Schema.Name);
-      sessionPlain.SQL("SELECT * FROM address2").Execute();
-      sessionPlain.SQL("DROP TABLE address2").Execute();
-      sessionPlain.SQL("DROP DATABASE DBName1").Execute();
-      sessionPlain.SQL("DROP DATABASE DBName2").Execute();
-      sessionPlain.Close();
-      sessionPlain.Dispose();
-
+        session.SQL("DROP DATABASE IF EXISTS dbname2").Execute();
+        session.SQL("CREATE DATABASE dbname2").Execute();
+        session.SQL("USE dbname2").Execute();
+        StringAssert.AreEqualIgnoringCase("dbname2", session.GetCurrentSchema().Name);
+        session.SQL("CREATE TABLE address2" +
+                    "(address_number  INT NOT NULL AUTO_INCREMENT, " +
+                    "building_name  VARCHAR(100) NOT NULL, " +
+                    "district VARCHAR(100) NOT NULL, PRIMARY KEY (address_number)" + ");").Execute();
+        session.SQL("INSERT INTO address2" +
+                    "(address_number,building_name,district)" +
+                    " VALUES " +
+                    "(2,'MySQL2','BGL2');").Execute();
+        session.SetCurrentSchema("dbname1");
+        Assert.AreEqual("dbname1", session.Schema.Name);
+        session.SQL("SELECT * FROM address1").Execute();
+        session.SQL("DROP TABLE address1").Execute();
+        session.SetCurrentSchema("dbname2");
+        StringAssert.AreEqualIgnoringCase("dbName2", session.Schema.Name);
+        session.SQL("SELECT * FROM address2").Execute();
+        session.SQL("DROP TABLE address2").Execute();
+        session.SQL("DROP DATABASE dbname1").Execute();
+        session.SQL("DROP DATABASE dbname2").Execute();
+        session.Close();
+        session.Dispose();
+      }
     }
-
     #endregion WL14389
-
   }
 }
