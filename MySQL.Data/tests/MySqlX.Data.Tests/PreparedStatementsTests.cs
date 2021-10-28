@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
@@ -609,6 +610,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("Deallocate PreparedStatments When Closing Session Load-100 times")]
     public void DeallocatePreparedStatmentsWhenClosingSessionLoad()
     {
+      if (!Platform.IsWindows()) Assert.Ignore("Check for Linux OS");
+
       InitCollection();
       string threadId;
       for (int k = 0; k < 100; k++)

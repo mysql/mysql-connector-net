@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using NUnit.Framework;
@@ -61,6 +62,8 @@ namespace MySqlX.Data.Tests
     [Test]
     public void ConnectionAfterSessionCanBeOpened()
     {
+      if (!Platform.IsWindows()) Assert.Ignore("Check for Linux OS");
+
       using (var session = MySQLX.GetSession(_xConnectionURI))
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
 

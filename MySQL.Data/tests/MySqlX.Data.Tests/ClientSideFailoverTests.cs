@@ -438,76 +438,6 @@ namespace MySqlX.Data.Tests
     }
 
     #region WL14389
-
-    [Test, Description("Test MySQLX Client Side Failover-Scenario-1(All Scenarios)")]
-    public void FailoverConnectionScenarios()
-    {
-      if (!session.Version.isAtLeast(8, 0, 8)) Assert.Ignore("This test is for MySql 8.0.8 or higher");
-
-      MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
-      string ipV6Address = GetIPV6Address();
-
-      //IP Address,IP Address:[xpluginport] with space in the connection string
-      string connectionString = $"mysqlx://test:test@[{Host},{Host}:{sb.Port}]?connecttimeout=1000";
-
-      using (Session session1 = MySQLX.GetSession(connectionString))
-      {
-        var schema1 = session1.GetSchemas();
-        Assert.IsNotNull(schema1);
-      }
-
-      //IP Address,IP Address:[xpluginport] without space in the connection string
-      connectionString = $"mysqlx://test:test@[127.9.9.1,{Host}:{sb.Port}]?ssl-mode=required";
-      using (Session session1 = MySQLX.GetSession(connectionString))
-      {
-        var schema1 = session1.GetSchemas();
-        Assert.IsNotNull(schema1);
-      }
-
-      connectionString = $"mysqlx://test:test@[143.24.20.36,{Host}:{sb.Port}]?ssl-mode=required";
-      using (Session session1 = MySQLX.GetSession(connectionString))
-      {
-        var schema1 = session1.GetSchemas();
-        Assert.IsNotNull(schema1);
-      }
-
-      ////Single IP Address in an array in the connection string
-      connectionString = $"mysqlx://test:test@[{sb.Server}:{sb.Port}]/test?ssl-mode=required";
-      using (Session session1 = MySQLX.GetSession(connectionString))
-      {
-        var schema1 = session1.GetSchemas();
-        Assert.IsNotNull(schema1);
-      }
-
-      ////Multiple Addresses which contains localhost:[xpluginport],[::1]:[xpluginport],IPV6 Adddress:[xpluginport]  in the connection string
-      connectionString = $"mysqlx://test:test@[{Host}:{XPort},[{localServerIpv6}]:{XPort},{ipV6Address}:{XPort}]/test?ssl-mode=required";
-      using (Session session1 = MySQLX.GetSession(connectionString))
-      {
-        var schema1 = session1.GetSchemas();
-        Assert.IsNotNull(schema1);
-      }
-
-      ////Multiple Addresses which contains localhost:[xpluginport],localaddress:[33070],IPV6 Adddress:[xpluginport]  in the connection string with connection Timeout
-      connectionString = $"mysqlx://test:test@[{sb.Server}:{sb.Port},{Host}:{sb.Port},{ipV6Address}:{sb.Port}]/test?ssl-mode=required";
-      using (Session session1 = MySQLX.GetSession(connectionString))
-      {
-        var schema1 = session1.GetSchemas();
-        Assert.IsNotNull(schema1);
-      }
-
-      ////Multiple Addresses which contains invalidservername:[invalidport],localhost:[xpluginport]  in the connection string with connection Timeout
-      connectionString = $"mysqlx://test:test@[invalidservername:9999,{sb.Server}:{sb.Port}]/test?ssl-mode=required";
-      using (Session session1 = MySQLX.GetSession(connectionString))
-      {
-        var schema1 = session1.GetSchemas();
-        Assert.IsNotNull(schema1);
-      }
-
-      ////Multiple Addresses which contains localhost:[invalidport],invalidlocaladdress:[xpluginport],localhost:[xpluginport]  in the connection string with connection Timeout
-      connectionString = $"mysqlx://test:test@[{sb.Server}:9999,invalidlocaladdress:{sb.Port}]?ssl-mode=required&database=test";
-      Assert.Catch(() => MySQLX.GetSession(connectionString));
-    }
-
     /// <summary>
     ///   Bug 26198818
     /// </summary>
@@ -519,45 +449,6 @@ namespace MySqlX.Data.Tests
       string ipV6Address = GetIPV6Address();
       string connectionString = $"mysqlx://test:test@[{sb.Server},{Host},{ipV6Address}:{sb.Port}]?implicit-failover";
       Assert.Catch(() => MySQLX.GetSession(connectionString + "&ssl-mode=required"));
-    }
-
-    [Test, Description("Provide three hosts to connection with one with priority and other two without priority")]
-    public void HostsWithPriority()
-    {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
-
-      MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
-      var connectionTimeout = 1;
-      var address_priority1 = $"(address = {Host}, priority = 2),(address =[{localServerIpv6}]),(address = {Host})";
-      var address_priority2 = $"(address = {Host}),(address =[{localServerIpv6}]),(address = {Host},priority = 100)";
-
-      var connStr = $"mysqlx://test:test@[{address_priority1}]?ssl-mode=Required";
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connStr));
-
-      connStr = $"mysqlx://test:test@[{address_priority2}]?ssl-mode=Required";
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connStr));
-
-      connStr = $"server={address_priority1};port={sb.Port};uid={sb.UserID};password={sb.Password};connectiontimeout={connectionTimeout};ssl-mode=Required";
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connStr));
-
-      connStr = $"server={address_priority2};port={sb.Port};uid={sb.UserID};password={sb.Password};connectiontimeout={connectionTimeout};ssl-mode=Required";
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connStr));
-
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new
-      {
-        server = address_priority1,
-        port = sb.Port,
-        user = sb.UserID,
-        password = string.Empty
-      }));
-
-      Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new
-      {
-        server = address_priority2,
-        port = sb.Port,
-        user = sb.UserID,
-        password = string.Empty
-      }));
     }
 
     [Test, Description("Provide 101 hosts to connection without priority where 1st 100 hosts are invalid ones(Internal priority is set from 100...0) and " +

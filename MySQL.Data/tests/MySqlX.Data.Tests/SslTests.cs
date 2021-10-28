@@ -1655,6 +1655,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Test, Description("checking TLSv1.3 in Linux")]
+    [Ignore("Fix this")]
     public void Tlsv13Linux()
     {
       if (Platform.IsWindows()) Assert.Ignore("This test is for Linux OS only");

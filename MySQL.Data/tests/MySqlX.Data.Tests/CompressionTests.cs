@@ -255,18 +255,13 @@ namespace MySqlX.Data.Tests
     public void NegotiationWithSpecificCompressionAlgorithm()
     {
       var updatedConnectionStringUri = ConnectionStringUri + "?compression=Required";
-      bool _libZstdLoaded = UnmanagedLibraryLoader.LoadUnmanagedLibraryFromEmbeddedResources("MySql.Data", "libzstd.dll");
-      CompressionAlgorithms defaultAlgorithm = _libZstdLoaded ? CompressionAlgorithms.zstd_stream : CompressionAlgorithms.lz4_message;
 
-      if (_libZstdLoaded)
+      // Test with one of the supported compression algorithms.
+      ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{CompressionAlgorithms.zstd_stream.ToString().ToUpperInvariant()}\"");
+      using (var session = MySQLX.GetSession(updatedConnectionStringUri))
       {
-        // Test with one of the supported compression algorithms.
-        ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{CompressionAlgorithms.zstd_stream.ToString().ToUpperInvariant()}\"");
-        using (var session = MySQLX.GetSession(updatedConnectionStringUri))
-        {
-          var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-          Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
-        }
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
       }
 
       ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{CompressionAlgorithms.lz4_message.ToString().ToUpperInvariant()}\"");
@@ -293,7 +288,7 @@ namespace MySqlX.Data.Tests
       using (var session = MySQLX.GetSession(updatedConnectionStringUri))
       {
         var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-        Assert.AreEqual(defaultAlgorithm.ToString(), compressionAlgorithm);
+        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
       }
     }
 
