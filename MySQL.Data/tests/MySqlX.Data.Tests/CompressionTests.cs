@@ -322,9 +322,6 @@ namespace MySqlX.Data.Tests
     // WL-14001 XProtocol -- support for configurable compression algorithms
     public void ConfigurableCompressionAlgorithms()
     {
-      bool _libZstdLoaded = UnmanagedLibraryLoader.LoadUnmanagedLibraryFromEmbeddedResources("MySql.Data", "libzstd.dll");
-      CompressionAlgorithms defaultAlgorithm = _libZstdLoaded ? CompressionAlgorithms.zstd_stream : CompressionAlgorithms.lz4_message;
-
       // FR1_1 Create session with option compression-algorithms for URI, connectionstring, anonymous object, MySqlXConnectionStringBuilder.
       using (var session = MySQLX.GetSession(ConnectionStringUri + "?compression-algorithms=lz4_message;"))
       {
@@ -365,13 +362,13 @@ namespace MySqlX.Data.Tests
       using (var session = MySQLX.GetSession($"server={Host};port={XPort};uid=test;password=test;"))
       {
         var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-        Assert.AreEqual(defaultAlgorithm.ToString(), compressionAlgorithm);
+        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
       }
 
       using (var session = MySQLX.GetSession(ConnectionString + ";compression-algorithms="))
       {
         var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-        Assert.AreEqual(defaultAlgorithm.ToString(), compressionAlgorithm);
+        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
       }
 
       // FR2_1,FR2_2 Create session with option compression-algorithms and set the value with multiple compression algorithms for 

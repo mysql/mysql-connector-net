@@ -524,7 +524,6 @@ namespace MySqlX.Data.Tests
         res = sessionTest.SQL("insert into t2 select * from t1").Execute();
         Assert.AreEqual(1, res.Warnings.Count);
         sessionTest.Commit();
-        sessionTest.Commit();
 
       }
     }

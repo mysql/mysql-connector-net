@@ -480,7 +480,7 @@ namespace MySqlX.Data.Tests
       }
 
       ////Multiple Addresses which contains localhost:[xpluginport],[::1]:[xpluginport],IPV6 Adddress:[xpluginport]  in the connection string
-      connectionString = $"mysqlx://test:test@[{Host}:{sb.Port},[{localServerIpv6}]:{sb.Port},{ipV6Address}:{sb.Port}]/test?ssl-mode=required";
+      connectionString = $"mysqlx://test:test@[{Host}:{XPort},[{localServerIpv6}]:{XPort},{ipV6Address}:{XPort}]/test?ssl-mode=required";
       using (Session session1 = MySQLX.GetSession(connectionString))
       {
         var schema1 = session1.GetSchemas();

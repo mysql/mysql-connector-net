@@ -195,9 +195,8 @@ namespace MySqlX.Data.Tests
             threadId);
         }
 
-        mySession.Close();
-        ValidatePreparedStatements(0, 0, null, threadId);
       }
+      ValidatePreparedStatements(0, 0, null, threadId);
     }
 
     [Test]
@@ -632,9 +631,8 @@ namespace MySqlX.Data.Tests
           }
           ValidatePreparedStatements(1, 4,
             $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?", threadId);
-          mySession.Close();
-          ValidatePreparedStatements(0, 0, null, threadId);
         }
+        ValidatePreparedStatements(0, 0, null, threadId);
       }
     }
 

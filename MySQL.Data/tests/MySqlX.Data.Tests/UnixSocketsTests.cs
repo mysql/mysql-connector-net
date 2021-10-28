@@ -140,15 +140,6 @@ namespace MySqlX.Data.Tests
 
     [Test]
     [Property("Category", "Security")]
-    public void SslNotSupported()
-    {
-      if (Platform.IsWindows()) return;
-
-      Assert.Throws<MySqlException>(() => MySQLX.GetSession($"mysqlx://{RootUser}:@{defaultUnixSocket}?protocol=unix&sslmode=required"));
-    }
-
-    [Test]
-    [Property("Category", "Security")]
     public void MissingProtocolConnectionOption()
     {
       if (Platform.IsWindows()) return;

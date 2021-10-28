@@ -40,7 +40,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("User selects DEFAULT as authentication mechanism-(default user,ssl mode none,fresh connection - ensure password is not cached")]
     public void DefaultAuthNullPlugin()
     {
-      if (!(session.Version.isAtLeast(8, 0, 11))) return;
+      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
+
       string pluginName = null;//default plugin
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
       builder.UserID = "testDefaultPlugin";
@@ -57,13 +58,16 @@ namespace MySqlX.Data.Tests
         Assert.True(result[0][1].ToString().Contains("TLSv1"));
       }
 
-      connectionString = connectionString + "; ssl-mode=none";
+      connectionString = connectionString + ";ssl-mode=none";
       using (var session1 = MySQLX.GetSession(connectionString))
         Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
 
-      connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password};ssl-mode=VerifyCA;ssl-ca={sslCa};ssl-ca-pwd=pass;";
-      using (var session1 = MySQLX.GetSession(connectionString))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+      if (Platform.IsWindows())
+      {
+        connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password};ssl-mode=VerifyCA;ssl-ca={sslCa};ssl-ca-pwd=pass;";
+        using (var session1 = MySQLX.GetSession(connectionString))
+          Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+      }
 
       //invalid values
       connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password};ssl-mode=required;auth=shaa256memory";
