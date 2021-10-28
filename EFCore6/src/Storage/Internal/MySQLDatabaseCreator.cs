@@ -38,7 +38,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MySql.EntityFrameworkCore
+namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   /// <summary>
   /// Relational Database creator implementation in MySQL

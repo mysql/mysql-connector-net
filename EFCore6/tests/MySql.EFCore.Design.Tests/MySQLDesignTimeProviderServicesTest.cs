@@ -28,6 +28,7 @@
 
 using Microsoft.EntityFrameworkCore.Design;
 using MySql.EntityFrameworkCore.Design.Internal;
+using MySql.EntityFrameworkCore.Storage.Internal;
 using NUnit.Framework;
 using System;
 using System.Reflection;

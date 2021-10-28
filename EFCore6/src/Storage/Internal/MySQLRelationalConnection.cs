@@ -30,11 +30,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using MySql.Data.MySqlClient;
-using MySql.EntityFrameworkCore.Storage.Internal;
 using System.Data.Common;
 using System.Reflection;
 
-namespace MySql.EntityFrameworkCore
+namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   internal class MySQLRelationalConnection : RelationalConnection, IMySQLRelationalConnection
   {

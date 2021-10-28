@@ -31,9 +31,12 @@ using MySql.EntityFrameworkCore.Infrastructure.Internal;
 using MySql.EntityFrameworkCore.Utils;
 using System.Text;
 
-namespace MySql.EntityFrameworkCore
+namespace MySql.EntityFrameworkCore.Storage.Internal
 {
-  public partial class MySQLSqlGenerationHelper : RelationalSqlGenerationHelper
+  /// <summary>
+  /// Provides the service to assist in generating SQL commands.
+  /// </summary>
+  internal class MySQLSqlGenerationHelper : RelationalSqlGenerationHelper
   {
     private readonly IMySQLOptions _options;
 

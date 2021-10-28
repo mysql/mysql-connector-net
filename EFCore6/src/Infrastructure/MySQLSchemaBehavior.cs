@@ -28,12 +28,32 @@
 
 namespace MySql.EntityFrameworkCore.Infrastructure
 {
+  /// <summary>
+  /// Translates the specified schema and object to an output object name whenever a schema is being used.
+  /// </summary>
+  /// <param name="schemaName">schema name</param>
+  /// <param name="objectName">object name</param>
+  /// <returns></returns>
   public delegate string MySQLSchemaNameTranslator(string schemaName, string objectName);
 
+  /// <summary>
+  /// Represents the behavior of the schema.
+  /// </summary>
   public enum MySqlSchemaBehavior
   {
+    /// <summary>
+    /// Throws an exception if a schema is being used. All specified translator delegates are ignored.
+    /// This is the default.
+    /// </summary>
     Throw,
+    /// <summary>
+    /// Silently ignores any schema definitions. All specified translator delegates are ignored.
+    /// </summary>
     Ignore,
+    /// <summary>
+    /// Uses the specified translator delegate to translate an input schema and object name to
+    /// an output object name whenever a schema is being used.
+    /// </summary>
     Translate
   }
 }
