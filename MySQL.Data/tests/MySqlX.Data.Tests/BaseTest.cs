@@ -46,12 +46,12 @@ namespace MySqlX.Data.Tests
     protected Session session;
     protected Schema testSchema;
     protected static readonly string schemaName = "test";
-    public static readonly string sslCa = "../../../../MySql.Data.Tests/certificates/ca.pem";
-    public static readonly string sslCert = "../../../../MySql.Data.Tests/certificates/client-cert.pem";
-    public static readonly string sslKey = "../../../../MySql.Data.Tests/certificates/client-key.pem";
-    public static string clientPfxIncorrect = "../../../../MySql.Data.Tests/certificates/client-Incorrect.pfx";
-    public static string clientPfx = "client.pfx";
-    public static string sslCertificatePassword = "pass";
+    public static readonly string sslCa = "ca.pem";
+    public static readonly string sslCert = "client-cert.pem";
+    public static readonly string sslKey = "client-key.pem";
+    public static readonly string clientPfxIncorrect = "client-incorrect.pfx";
+    public static readonly string clientPfx = "client.pfx";
+    public static readonly string sslCertificatePassword = "pass";
 
     #region Properties
     internal static string Port { get; private set; } = Environment.GetEnvironmentVariable("MYSQL_PORT") ?? "3306";

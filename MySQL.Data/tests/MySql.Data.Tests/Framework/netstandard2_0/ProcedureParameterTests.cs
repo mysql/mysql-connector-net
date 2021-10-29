@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -420,8 +420,8 @@ namespace MySql.Data.MySqlClient.Tests
     public void StoredProcedureWithDifferentUser(bool hasPrivileges)
     {
       //Create Required Objects for all the tests
-
-      string sql = $"use `{Connection.Settings.Database}`; " + @"CREATE TABLE IF NOT EXISTS hello (
+      string host = Host == "localhost" ? Host : "%";
+      string sql = $"use `{Connection.Settings.Database}`; " + $@"CREATE TABLE IF NOT EXISTS hello (
              id int(11) NOT NULL AUTO_INCREMENT,
              string varchar(255) DEFAULT NULL,
              PRIMARY KEY (id)
@@ -435,11 +435,11 @@ namespace MySql.Data.MySqlClient.Tests
              END;
 
              INSERT INTO hello (string) VALUES ('Hello World!');
-             CREATE USER 'atest'@'localhost' IDENTIFIED BY 'pwd';
+             CREATE USER 'atest'@'{host}' IDENTIFIED BY 'pwd';
 
-             GRANT SELECT ON table hello TO 'atest'@'localhost';
+             GRANT SELECT ON table hello TO 'atest'@'{host}';
 
-             GRANT EXECUTE ON procedure get_hello TO 'atest'@'localhost';
+             GRANT EXECUTE ON procedure get_hello TO 'atest'@'{host}';
 
              CREATE PROCEDURE get_hello2(IN p_id int)
              SQL SECURITY INVOKER
@@ -488,9 +488,9 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
 
-      sql = $"use `{Connection.Settings.Database}`; " + @"drop procedure get_hello;
+      sql = $"use `{Connection.Settings.Database}`; " + $@"drop procedure get_hello;
         drop procedure get_hello2;
-        drop user 'atest'@'localhost';";
+        drop user 'atest'@'{host}';";
       ExecuteSQL(sql, true);
     }
 

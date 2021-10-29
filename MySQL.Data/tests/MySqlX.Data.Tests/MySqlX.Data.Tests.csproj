@@ -65,6 +65,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+    <PackageReference Include="NunitXml.TestLogger" Version="3.0.107" />
     <EmbeddedResource Include="Properties\CreateUsers.sql" />
   </ItemGroup>
 
@@ -94,6 +95,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Update="..\MySql.Data.Tests\certificates\client-key_dummy.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="..\MySql.Data.Tests\certificates\client-incorrect.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Update="..\MySql.Data.Tests\certificates\server-cert.pem">

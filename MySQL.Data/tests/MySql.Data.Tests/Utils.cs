@@ -1,4 +1,4 @@
-// Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,13 +27,14 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   /// <summary>
   /// Summary description for Utils.
   /// </summary>
-  public class Utils
+  public static class Utils
   {
     public static byte[] CreateBlob(int size)
     {
@@ -44,12 +45,29 @@ namespace MySql.Data.MySqlClient.Tests
       return buf;
     }
 
-    public static TestDataTable FillTable(string sql, MySqlConnection conn)
+    public static DataTable FillTable(string sql, MySqlConnection conn)
     {
       MySqlDataAdapter da = new MySqlDataAdapter(sql, conn);
-      TestDataTable dt = new TestDataTable();
+      DataTable dt = new DataTable();
       da.Fill(dt);
       return dt;
+    }
+
+    public static bool TableExists(string tableName, MySqlConnection conn)
+    {
+      using (conn)
+      {
+        MySqlCommand cmd = new MySqlCommand($"SELECT * FROM {tableName} LIMIT 0", conn);
+        try
+        {
+          cmd.ExecuteScalar();
+          return true;
+        }
+        catch (Exception)
+        {
+          return false;
+        }
+      }
     }
   }
 }

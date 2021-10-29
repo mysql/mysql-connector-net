@@ -30,15 +30,20 @@ using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
-using System;
-using NUnit.Framework;
 using MySqlX.XDevAPI.Relational;
+using NUnit.Framework;
+using System;
 using System.Linq;
 
 namespace MySqlX.Data.Tests
 {
   public class TransactionTests : BaseTest
   {
+    private string collName = "collSp";
+
+    [TearDown]
+    public void TearDown() => session.Schema.DropCollection(collName);
+
     [Test]
     public void Commit()
     {
@@ -253,7 +258,7 @@ namespace MySqlX.Data.Tests
       using (var session = MySQLX.GetSession(ConnectionString))
       {
         var schema = session.GetSchema("test");
-        var coll = schema.CreateCollection("collSP");
+        var coll = schema.CreateCollection(collName);
 
         session.StartTransaction();
 
@@ -336,7 +341,6 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
       using (Session sessionTest = MySQLX.GetSession(ConnectionString))
       {
-        Row r = null;
         Schema db = null;
         db = sessionTest.GetSchema("test");
         sessionTest.StartTransaction();
@@ -519,7 +523,6 @@ namespace MySqlX.Data.Tests
         Assert.AreEqual(0, res.Warnings.Count);
         res = sessionTest.SQL("insert into t2 select * from t1").Execute();
         Assert.AreEqual(1, res.Warnings.Count);
-        sessionTest.Commit();
         sessionTest.Commit();
 
       }

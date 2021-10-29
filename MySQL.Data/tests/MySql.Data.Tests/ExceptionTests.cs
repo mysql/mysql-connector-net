@@ -26,8 +26,8 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using NUnit.Framework;
+using System;
 using System.Data;
 using System.Threading;
 
@@ -45,13 +45,13 @@ namespace MySql.Data.MySqlClient.Tests
       // we create a new connection so our base one is not closed
       var connection = GetConnection(false);
       KillConnection(connection);
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);    
-       
-      Exception ex = Assert.Throws<InvalidOperationException>(() =>  cmd.ExecuteReader());
-      Assert.AreEqual("Connection must be valid and open.", ex.Message);     
+      MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
+
+      Exception ex = Assert.Throws<InvalidOperationException>(() => cmd.ExecuteReader());
+      Assert.AreEqual("Connection must be valid and open.", ex.Message);
       Assert.AreEqual(ConnectionState.Closed, connection.State);
       connection.Close();
-      
+
     }
     /// <summary>
     /// Bug #27436 Add the MySqlException.Number property value to the Exception.Data Dictionary  
@@ -100,48 +100,28 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void UngrantedAccessException()
     {
-      using (var conn = new MySqlConnection($"server={Connection.Settings.Server};port={Connection.Settings.Port};userid=root;password=;database={Connection.Settings.Database};"))
+      string host = Host == "localhost" ? Host : "%";
+      string password = "anypwd123";
+      string user = CreateUser("bug", password);
+      ExecuteSQL($"GRANT INSERT ON `{BaseDBName}`.* TO '{user}'@'{host}';", true);
+      var query = "SELECT * FROM INFORMATION_SCHEMA.tables";
+
+      using var connection = new MySqlConnection($"server={Host};port={Port};userid={user};password={password};database={Connection.Database};");
+      using var cmd = new MySqlCommand(query, connection);
+      connection.Open();
+      int limit = 10;
+      int count = 0;
+      using (var reader = cmd.ExecuteReader())
       {
-        conn.Open();
-        var cmd = new MySqlCommand("Select count(*) from mysql.user where user='buguser1'",conn);
-        var res=cmd.ExecuteScalar();
-        if (int.Parse(res.ToString()) > 0)
+        if (reader.HasRows)
         {
-          ExecuteSQL($"DROP USER 'buguser1'@'{Connection.Settings.Server}';", true);
-        }
-        if (Version < new Version("5.7")) 
-          ExecuteSQL($"CREATE USER 'buguser1'@'{Connection.Settings.Server}' IDENTIFIED BY 'anypwd123';", true);
-        else
-          ExecuteSQL($"CREATE USER 'buguser1'@'{Connection.Settings.Server}' IDENTIFIED WITH mysql_native_password BY 'anypwd123';", true);
-        ExecuteSQL($"GRANT INSERT ON `{Connection.Settings.Database}`.* TO 'buguser1'@'{Connection.Settings.Server}';", true);
-      }
-      
-      using (var connection = new MySqlConnection($"server={Connection.Settings.Server};port={Connection.Settings.Port};userid=buguser1;password= anypwd123; database = {Connection.Settings.Database};"))
-      {
-        var query = "SELECT * FROM INFORMATION_SCHEMA.tables";
-        using (var cmd = new MySqlCommand(query))
-        {
-          cmd.Connection = connection;
-          connection.Open();
-          cmd.CommandTimeout = 1800;
-          int limit = 10;
-          int count = 0;
-          using (var reader = cmd.ExecuteReader())
+          while (reader.Read() && count < limit)
           {
-            if (reader.HasRows)
-            {
-              while (reader.Read() && count < limit)
-              {
-                Console.WriteLine(reader.GetString(0));
-                count += 1;
-              }
-            }
-            cmd.Cancel();
+            Assert.DoesNotThrow(() => reader.GetString(0));
+            count += 1;
           }
         }
       }
-      Assert.Pass("Connection closed properly");
     }
-
   }
 }

@@ -26,16 +26,16 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using MySql.Data.Common;
 using MySqlX.XDevAPI;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -47,9 +47,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     public SslTests()
     {
-      string cPath = string.Empty;
-      cPath = Assembly.GetExecutingAssembly().Location.Replace(String.Format("{0}.dll",
-        Assembly.GetExecutingAssembly().GetName().Name), string.Empty);
+      string cPath = TestContext.CurrentContext.TestDirectory + Path.DirectorySeparatorChar;
 
       _sslCa = cPath + "ca.pem";
       _sslCert = cPath + "client-cert.pem";
@@ -638,6 +636,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void AttemptConnectionWithDummyPemCertificates()
     {
+      //if (!Convert.ToBoolean(CertificatesAvailable)) Assert.Ignore("Certificates are not available.");
+
       var builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslCa = _sslCa.Replace("ca.pem", "ca_dummy.pem");
       builder.SslMode = MySqlSslMode.VerifyCA;
@@ -645,7 +645,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
         Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(Resources.FileIsNotACertificate, exception.InnerException.Message);
+        Assert.AreEqual(Resources.FileIsNotACertificate, exception.InnerException.Message, $"Cert. path: {_sslCa}");
       }
 
       builder.SslCa = _sslCa;
@@ -992,7 +992,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       foreach (MySqlSslMode mode in modes)
       {
-        version = new string[] { "TLSv1.2"};
+        version = new string[] { "TLSv1.2" };
         foreach (string tlsVersion in version)
         {
           using (var conn = new MySqlConnection(conStr + ";ssl-mode=" + mode + ";tls-version=" + tlsVersion))

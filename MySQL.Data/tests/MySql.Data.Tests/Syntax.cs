@@ -26,10 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using NUnit.Framework;
 using System;
 using System.Data;
 using System.IO;
-using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -44,7 +44,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void ShowCreateTable()
     {
       ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
-      TestDataTable dt = Utils.FillTable("SHOW CREATE TABLE Test", Connection);
+      DataTable dt = Utils.FillTable("SHOW CREATE TABLE Test", Connection);
 
       Assert.That(dt.Rows, Has.One.Items);
       Assert.AreEqual(2, dt.Columns.Count);
@@ -105,7 +105,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void LoadDataLocalInfile()
     {
-      if (Version >= new Version(8,0,2)) ExecuteSQL("SET GLOBAL local_infile = 1");
+      if (Version >= new Version(8, 0, 2)) ExecuteSQL("SET GLOBAL local_infile = 1");
 
       ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
@@ -293,7 +293,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       string sql = "SELECT `PO#` AS PurchaseOrderNumber, " +
         "`PODate` AS OrderDate FROM  Test";
-      TestDataTable dt = Utils.FillTable(sql, Connection);
+      DataTable dt = Utils.FillTable(sql, Connection);
       Assert.That(dt.Rows, Has.One.Items);
     }
 
@@ -352,7 +352,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void NullAsAType()
     {
-      TestDataTable dt = Utils.FillTable(@"SELECT 'localhost' as SERVER_NAME, 
+      DataTable dt = Utils.FillTable(@"SELECT 'localhost' as SERVER_NAME,
         null as CATALOG_NAME, database() as SCHEMA_NAME", Connection);
       Assert.True(dt.Rows[0][0].GetType() == typeof(string));
       Assert.AreEqual(DBNull.Value, dt.Rows[0][1]);
@@ -387,7 +387,7 @@ namespace MySql.Data.MySqlClient.Tests
 
 
         MySqlCommand cmd = new MySqlCommand("show processlist", c);
-        TestDataTable dt = new TestDataTable();
+        DataTable dt = new DataTable();
 
         using (MySqlDataReader rdr = cmd.ExecuteReader())
         {
@@ -549,7 +549,7 @@ namespace MySql.Data.MySqlClient.Tests
       ins.Parameters.Add("?p2", MySqlDbType.Int32).SourceColumn = "expr";
       ins.Parameters.Add("?p3", MySqlDbType.VarChar, 20).SourceColumn = "name";
 
-      TestDataTable dt = new TestDataTable();
+      DataTable dt = new DataTable();
       da.Fill(dt);
 
       for (int i = 1; i <= 100; i++)

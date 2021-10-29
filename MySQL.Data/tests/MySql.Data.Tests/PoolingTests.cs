@@ -26,15 +26,14 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
+using System.Data;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Threading;
-using System.Data;
-using System.Timers;
-using System.Net.NetworkInformation;
-using MySql.Data.Common;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -643,8 +642,8 @@ namespace MySql.Data.MySqlClient.Tests
       myConnection2.Open();
       myConnection3.Open();
       myConnection4.Open();
-      Exception ex=Assert.Throws<MySqlException>(()=> myConnection5.Open());
-      StringAssert.Contains("Timeout",ex.Message);
+      Exception ex = Assert.Throws<MySqlException>(() => myConnection5.Open());
+      StringAssert.Contains("Timeout", ex.Message);
 
       myConnection1.Close();
       myConnection2.Close();
@@ -665,9 +664,9 @@ namespace MySql.Data.MySqlClient.Tests
       List<MySqlConnection> connectionList = new();
       using (var con = new MySqlConnection(connectionString))
       {
-        while (connectionList.Count<poolSize)
+        while (connectionList.Count < poolSize)
         {
-          var newConn= new MySqlConnection(connectionString);
+          var newConn = new MySqlConnection(connectionString);
           newConn.Open();
           connectionList.Add(newConn);
         }

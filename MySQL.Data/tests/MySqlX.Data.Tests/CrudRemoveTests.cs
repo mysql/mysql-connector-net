@@ -26,10 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using MySqlX.XDevAPI;
-using NUnit.Framework;
 using MySqlX.XDevAPI.Common;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 
 namespace MySqlX.Data.Tests
@@ -274,15 +274,13 @@ namespace MySqlX.Data.Tests
       Result result = collection.Add(docs).Execute();
       Assert.AreEqual(4, result.AffectedItemsCount);
 
-      string errorMessage = "Parameter can't be null or empty.\r\nParameter name: condition";
-      result = collection.Remove("true").Where("_id = 1").Execute();
+      result = collection.Remove("_id = 1").Execute();
       Assert.AreEqual(1, result.AffectedItemsCount);
-
-      result = collection.Remove("true").Where("_id = 10").Execute();
+      result = collection.Remove("_id = 10").Execute();
       Assert.AreEqual(0, result.AffectedItemsCount);
-      result = collection.Remove("false").Where("_id = 2").Execute();
+      result = collection.Remove("_id = 2").Execute();
       Assert.AreEqual(1, result.AffectedItemsCount);
-      result = collection.Remove("false").Where("_id = 10").Execute();
+      result = collection.Remove("_id = 10").Execute();
       Assert.AreEqual(0, result.AffectedItemsCount);
       Assert.Throws<ArgumentNullException>(() => collection.Remove(""));
     }
@@ -291,7 +289,6 @@ namespace MySqlX.Data.Tests
     public void CollectionUnsetMultiple()
     {
       Collection col = CreateCollection("my_collection_1");
-      Collection col1 = CreateCollection("my_collection_2");
 
       var d1 = new DbDoc();
       d1.SetValue("_id", 1);

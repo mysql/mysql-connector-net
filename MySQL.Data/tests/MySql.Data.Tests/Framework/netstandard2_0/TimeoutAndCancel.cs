@@ -237,7 +237,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Ignore("Issue")]
     public void ConnectionStringModifiedAfterCancel()
     {
-      string connStr = "server=localhost;userid=root;pwd=;database=test;port=3305;persist security info=true";
+      string connStr = $"server={Host};userid={RootUser};pwd={RootPassword};port={Port};persist security info=true";
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(connStr);
 
       if (sb.ConnectionProtocol == MySqlConnectionProtocol.NamedPipe)

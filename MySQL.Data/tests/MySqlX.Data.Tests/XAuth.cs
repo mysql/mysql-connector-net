@@ -26,11 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
-using System;
 using NUnit.Framework;
-using MySql.Data.Common;
+using System;
 
 namespace MySqlX.Data.Tests
 {
@@ -40,15 +40,15 @@ namespace MySqlX.Data.Tests
     [Test, Description("User selects DEFAULT as authentication mechanism-(default user,ssl mode none,fresh connection - ensure password is not cached")]
     public void DefaultAuthNullPlugin()
     {
-      if (!(session.Version.isAtLeast(8, 0, 11))) return;
+      if (!Platform.IsWindows()) Assert.Ignore("Check for Linux OS");
+      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
+
       string pluginName = null;//default plugin
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
       builder.UserID = "testDefaultPlugin";
       builder.Password = "test";
       CreateUser(builder.UserID, builder.Password, pluginName);
       string connectionString = null, connectionStringUri = null;
-      //Flush Privileges
-      ExecuteSQL("flush privileges");
 
       //Connection String
       connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password}";
@@ -59,7 +59,7 @@ namespace MySqlX.Data.Tests
         Assert.True(result[0][1].ToString().Contains("TLSv1"));
       }
 
-      connectionString = connectionString + "; ssl-mode=none";
+      connectionString = connectionString + ";ssl-mode=none";
       using (var session1 = MySQLX.GetSession(connectionString))
         Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
 
@@ -123,7 +123,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("User selects DEFAULT as authentication mechanism-(default user,ssl mode none with allow public key retrieval=true,fresh connection - ensure password is not cached")]
     public void DefaultAuthPublicKeyRetrieval()
     {
-      if (!(session.Version.isAtLeast(8, 0, 11))) return;
+      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
+
       string pluginName = "caching_sha2_password";//default plugin
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
       builder.UserID = "testDefaultPlugin";
@@ -174,8 +175,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("User selects DEFAULT as authentication mechanism-mysql_native_password user,ssl mode default,fresh connection")]
     public void MySqlNativePlugin()
     {
-      if (!Platform.IsWindows()) return;
-      if (!(session.Version.isAtLeast(8, 0, 11))) return;
+      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
+
       var counter = session.SQL("SELECT count(*) FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME = 'caching_sha2_password'").Execute().FetchOne();
       if (Convert.ToInt32(counter[0]) <= 0)
         Assert.Ignore("The caching_sha2_password plugin isn't available.");
@@ -238,8 +239,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("User selects DEFAULT as authentication mechanism-sha256_password user,ssl mode none,fresh connection")]
     public void Sha256_passwordPlugin()
     {
-      if (!Platform.IsWindows()) return;
-      if (!(session.Version.isAtLeast(8, 0, 11))) return;
+      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
+
       var counter = session.SQL("SELECT count(*) FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME = 'caching_sha2_password'").Execute().FetchOne();
       if (Convert.ToInt32(counter[0]) <= 0)
         Assert.Ignore("The caching_sha2_password plugin isn't available.");
@@ -301,13 +302,12 @@ namespace MySqlX.Data.Tests
       }))
         Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session.Settings.Auth);
     }
+
     [TestCase("mysql_native_password")]
     [TestCase("sha256_password")]
-    //[Test, Description("User selects SHA256_MEMORY as authentication mechanism(mysql_native_password user,ssl mode default,fresh connection)")]
     public void Sha256MemoryAuthWithDifferentPlugin(string pluginName)
     {
-
-      if (!(session.Version.isAtLeast(8, 0, 11))) return;
+      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
 
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
       builder.UserID = "testDefaultPlugin";
@@ -352,7 +352,9 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Extern Support")]
     public void NativeAuthValidAndInvalidConnection()
     {
-      if (!(session.Version.isAtLeast(8, 0, 3))) return;
+      if (!Platform.IsWindows()) Assert.Ignore("Check for Linux OS");
+      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
+
       var user = "testNative";
       var pwd = "test";
       var cs = $"server={Host};user={user};port={XPort};password={pwd}";
@@ -551,6 +553,5 @@ namespace MySqlX.Data.Tests
       ExecuteSqlAsRoot("FLUSH PRIVILEGES");
       return userName;
     }
-
   }
 }

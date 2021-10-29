@@ -26,10 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Data;
 using MySql.Data.Common;
 using NUnit.Framework;
+using System;
+using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -405,13 +405,15 @@ namespace MySql.Data.MySqlClient.Tests
         string database = "数据库";
         string user = "用户";
         string password = "tést€";
+        string host = Host == "localhost" ? Host : "%";
+        string fullUser = $"'{user}'@'{host}'";
 
         rootConnection.Open();
         MySqlCommand rootCommand = new MySqlCommand();
         rootCommand.Connection = rootConnection;
         rootCommand.CommandText = string.Format("CREATE DATABASE IF NOT EXISTS `{0}`;", database);
-        rootCommand.CommandText += string.Format("CREATE USER '{0}'@'localhost' identified by '{1}';", user, password);
-        rootCommand.CommandText += string.Format("GRANT ALL ON `{0}`.* to '{1}'@'localhost';", database, user, password);
+        rootCommand.CommandText += string.Format("CREATE USER {0} identified by '{1}';", fullUser, password);
+        rootCommand.CommandText += string.Format("GRANT ALL ON `{0}`.* to {1};", database, fullUser);
         rootCommand.ExecuteNonQuery();
 
         string connString = Connection.ConnectionString;
@@ -432,7 +434,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           if (rootConnection.State == ConnectionState.Open)
           {
-            rootCommand.CommandText = string.Format("DROP DATABASE `{0}`;DROP USER '{1}'@'localhost'", database, user);
+            rootCommand.CommandText = string.Format("DROP DATABASE `{0}`;DROP USER {1}", database, fullUser);
             rootCommand.ExecuteNonQuery();
           }
         }

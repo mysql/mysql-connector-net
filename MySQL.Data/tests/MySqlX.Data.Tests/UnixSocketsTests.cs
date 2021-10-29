@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,8 +29,8 @@
 using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
-using System;
 using NUnit.Framework;
+using System;
 
 namespace MySqlX.Data.Tests
 {
@@ -40,7 +40,7 @@ namespace MySqlX.Data.Tests
 
     public UnixSocketsTests()
     {
-      defaultUnixSocket = Environment.GetEnvironmentVariable("MYSQLX_SOCKET") ?? "/var/run/mysqld/mysqlx.sock";
+      defaultUnixSocket = Environment.GetEnvironmentVariable("MYSQL_SOCKET") ?? "/tmp/mysqlx.sock";
     }
 
     [Test]
@@ -68,7 +68,7 @@ namespace MySqlX.Data.Tests
     {
       if (Platform.IsWindows()) return;
 
-      using (var session = MySQLX.GetSession("mysqlx://root:@(" + defaultUnixSocket + ")/mysql?protocol=unix&sslmode=none"))
+      using (var session = MySQLX.GetSession($"mysqlx://root:@({defaultUnixSocket})/mysql?protocol=unix&sslmode=none"))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(defaultUnixSocket, session.Settings.Server);
@@ -81,24 +81,25 @@ namespace MySqlX.Data.Tests
     {
       if (Platform.IsWindows()) return;
 
-      using (var session = MySQLX.GetSession("mysqlx://root:@(" + defaultUnixSocket + ")?protocol=unix&sslmode=none"))
+      using (var session = MySQLX.GetSession($"mysqlx://{RootUser}:@({defaultUnixSocket})?protocol=unix&sslmode=none"))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(defaultUnixSocket, session.Settings.Server);
       }
 
-      using (var session = MySQLX.GetSession("server=(" + defaultUnixSocket + ");uid=root;protocol=unix;sslmode=none"))
+      using (var session = MySQLX.GetSession($"server=({defaultUnixSocket});uid={RootUser};protocol=unix;sslmode=none"))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(defaultUnixSocket, session.Settings.Server);
       }
 
-      using (var session = MySQLX.GetSession(new {
+      using (var session = MySQLX.GetSession(new
+      {
         server = "(" + defaultUnixSocket + ")",
         uid = "root",
         protocol = "unix",
         sslmode = MySqlSslMode.None
-        }))
+      }))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(defaultUnixSocket, session.Settings.Server);
@@ -111,7 +112,7 @@ namespace MySqlX.Data.Tests
     {
       if (Platform.IsWindows()) return;
 
-      using (var session = MySQLX.GetSession("server=" + defaultUnixSocket + ";uid=root;protocol=unixsocket;sslmode=none"))
+      using (var session = MySQLX.GetSession($"server={defaultUnixSocket};uid={RootUser};protocol=unixsocket;sslmode=none"))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(defaultUnixSocket, session.Settings.Server);
@@ -124,25 +125,17 @@ namespace MySqlX.Data.Tests
     {
       if (Platform.IsWindows()) return;
 
-      using (var session = MySQLX.GetSession(new {
+      using (var session = MySQLX.GetSession(new
+      {
         server = defaultUnixSocket,
-        uid = "root",
+        uid = RootUser,
         protocol = "unix",
         sslmode = MySqlSslMode.None
-        }))
+      }))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(defaultUnixSocket, session.Settings.Server);
       }
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void SslNotSupported()
-    {
-      if (Platform.IsWindows()) return;
-
-      Assert.Throws<MySqlException>(() => MySQLX.GetSession("mysqlx://root:@" + defaultUnixSocket + "?protocol=unix"));
     }
 
     [Test]
@@ -151,7 +144,7 @@ namespace MySqlX.Data.Tests
     {
       if (Platform.IsWindows()) return;
 
-      Assert.Throws<AggregateException>(() => MySQLX.GetSession("mysqlx://root:@" + defaultUnixSocket));
+      Assert.Throws<AggregateException>(() => MySQLX.GetSession($"mysqlx://{RootUser}:@{defaultUnixSocket}"));
     }
 
     [Test]
@@ -160,58 +153,59 @@ namespace MySqlX.Data.Tests
     {
       if (Platform.IsWindows()) return;
 
-      using (var session = MySQLX.GetSession("server=/tmp/mysql.sock1, (/tmp/mysql.sock2) ,(%2Ftmp%2Fmysql.sock3) , " + defaultUnixSocket + ";uid=root;protocol=unix;sslmode=none;"))
+      using (var session = MySQLX.GetSession($"server=/tmp/mysql.sock1, (/tmp/mysql.sock2) ,(%2Ftmp%2Fmysql.sock3) ,{defaultUnixSocket};uid={RootUser};protocol=unix;sslmode=none;"))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(defaultUnixSocket, session.Settings.Server);
       }
 
-      using (var session = MySQLX.GetSession("server=(address=/tmp/mysql.sock1, priority=100),(address=(/tmp/mysql.sock2),priority=99),(address=(%2tmp%2mysql.sock3),priority=98),(address=" + defaultUnixSocket + ",priority=97);uid=root;protocol=unix;sslmode=none;"))
+      using (var session = MySQLX.GetSession($"server=(address=/tmp/mysql.sock1, priority=100),(address=(/tmp/mysql.sock2),priority=99),(address=(%2tmp%2mysql.sock3),priority=98),(address={defaultUnixSocket},priority=97);uid={RootUser};protocol=unix;sslmode=none;"))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(defaultUnixSocket, session.Settings.Server);
       }
 
-      using (var session = MySQLX.GetSession("server=(address=" + defaultUnixSocket + ",priority=100);uid=root;protocol=unix;sslmode=none;"))
+      using (var session = MySQLX.GetSession($"server=(address={defaultUnixSocket},priority=100);uid={RootUser};protocol=unix;sslmode=none;"))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(defaultUnixSocket, session.Settings.Server);
       }
 
-      using (var session = MySQLX.GetSession("server=(address=(" + defaultUnixSocket + "),priority=100);uid=root;protocol=unix;sslmode=none;"))
+      using (var session = MySQLX.GetSession($"server=(address=({defaultUnixSocket}),priority=100);uid={RootUser};protocol=unix;sslmode=none;"))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(defaultUnixSocket, session.Settings.Server);
       }
 
-      using (var session = MySQLX.GetSession("mysqlx://root:@[./tmp/mysql.sock, (../tmp/mysql.sock) ,(%2Ftmpsocket%2Fmysql.sock) , " + defaultUnixSocket + "]?protocol=unix&sslmode=none"))
+      using (var session = MySQLX.GetSession($"mysqlx://{RootUser}:@[./tmp/mysql.sock, (../tmp/mysql.sock) ,(%2Ftmpsocket%2Fmysql.sock) , {defaultUnixSocket}]?protocol=unix&sslmode=none"))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(defaultUnixSocket, session.Settings.Server);
       }
 
-      using (var session = MySQLX.GetSession("mysqlx://root:@[(address=./tmp/mysql.sock,priority=100),(address=(../tmp/mysql.sock),priority=99),(address=(%2tmpsocket%2mysql.sock),priority=98),(address=" + defaultUnixSocket + ",priority=97)]?protocol=unix&sslmode=none"))
+      using (var session = MySQLX.GetSession($"mysqlx://{RootUser}:@[(address=./tmp/mysql.sock,priority=100),(address=(../tmp/mysql.sock),priority=99),(address=(%2tmpsocket%2mysql.sock),priority=98),(address={defaultUnixSocket},priority=97)]?protocol=unix&sslmode=none"))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(defaultUnixSocket, session.Settings.Server);
       }
 
-      using (var session = MySQLX.GetSession("mysqlx://root:@[(address=" + defaultUnixSocket + ",priority=100)]?protocol=unix&sslmode=none"))
+      using (var session = MySQLX.GetSession($"mysqlx://{RootUser}:@[(address={defaultUnixSocket},priority=100)]?protocol=unix&sslmode=none"))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(defaultUnixSocket, session.Settings.Server);
       }
 
-      using (var session = MySQLX.GetSession("mysqlx://root:@[(address=(" + defaultUnixSocket + "),priority=100)]?protocol=unix&sslmode=none"))
+      using (var session = MySQLX.GetSession($"mysqlx://{RootUser}:@[(address=({defaultUnixSocket}),priority=100)]?protocol=unix&sslmode=none"))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
         Assert.AreEqual(defaultUnixSocket, session.Settings.Server);
       }
 
-      using (var session = MySQLX.GetSession(new {
-        server ="/tmp/mysql.sock1, (/tmp/mysql.sock2) ,(%2Ftmp%2Fmysql.sock3) , " + defaultUnixSocket,
-        uid = "root",
-        protocol ="unix",
+      using (var session = MySQLX.GetSession(new
+      {
+        server = "/tmp/mysql.sock1, (/tmp/mysql.sock2) ,(%2Ftmp%2Fmysql.sock3) , " + defaultUnixSocket,
+        uid = RootUser,
+        protocol = "unix",
         sslmode = MySqlSslMode.None
       }))
       {
@@ -222,7 +216,7 @@ namespace MySqlX.Data.Tests
       using (var session = MySQLX.GetSession(new
       {
         server = "(address=/tmp/mysql.sock1, priority=100),(address=(/tmp/mysql.sock2),priority=99),(address=(%2Ftmp%2Fmysql.sock3),priority=98),(address=" + defaultUnixSocket + ",priority=97)",
-        uid = "root",
+        uid = RootUser,
         protocol = "unix",
         sslmode = MySqlSslMode.None
       }))
@@ -234,7 +228,7 @@ namespace MySqlX.Data.Tests
       using (var session = MySQLX.GetSession(new
       {
         server = "(address=" + defaultUnixSocket + ",priority=100)",
-        uid = "root",
+        uid = RootUser,
         protocol = "unix",
         sslmode = MySqlSslMode.None
       }))
@@ -246,7 +240,7 @@ namespace MySqlX.Data.Tests
       using (var session = MySQLX.GetSession(new
       {
         server = "(address=(" + defaultUnixSocket + "),priority=100)",
-        uid = "root",
+        uid = RootUser,
         protocol = "unix",
         sslmode = MySqlSslMode.None
       }))

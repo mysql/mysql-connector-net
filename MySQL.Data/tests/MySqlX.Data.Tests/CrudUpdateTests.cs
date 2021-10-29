@@ -26,7 +26,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data;
-using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
@@ -1016,7 +1015,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Test, Description("Test valid modify.patch with condition/limit/OrderBy")]
-    public void ModifyPatchWithWhere()
+    public void ModifyPatch()
     {
       if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
       var collection = CreateCollection("test");
@@ -1030,27 +1029,23 @@ namespace MySqlX.Data.Tests
       var r = collection.Add(docs).Execute();
       Assert.AreEqual(4, (int)r.AffectedItemsCount, "Matching the updated record count");
 
-      //Deprecated Modify().Where() in 8.0.17
       var jsonParams = new { title = "Book 100" };
-      var foundDocs = collection.Modify("age = :age").Patch(jsonParams).Where("age==18").Execute();
+      var foundDocs = collection.Modify("age==18").Patch(jsonParams).Execute();
       Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the record count");
 
       var document = collection.GetOne("2");
       Assert.AreEqual("Book 100", document["title"]);
 
       jsonParams = new { title = "Book 300" };
-      r = collection.Modify("age = :age").Patch(jsonParams).Where("age<18").Limit(1).Execute();
+      r = collection.Modify("age<18").Patch(jsonParams).Limit(1).Execute();
       Assert.AreEqual(1, (int)r.AffectedItemsCount, "Matching the record count");
 
       document = collection.GetOne(1);
       Assert.AreEqual("Book 300", document["title"]);
 
-      //Deprecated Modify().Where() in 8.0.17
       var jsonParams1 = new { title = "Book 10", pages = 1000 };
-      r = collection.Modify("age = :age").Patch(jsonParams1).Where("age>30").
-          Sort("age ASC").Execute();
+      r = collection.Modify("age>30").Patch(jsonParams1).Sort("age ASC").Execute();
       Assert.AreEqual(1, (int)r.AffectedItemsCount, "Matching the record count");
-
     }
 
     [Test, Description("Test valid modify.patch with set/unset")]
@@ -1283,7 +1278,7 @@ namespace MySqlX.Data.Tests
       session.SQL(
               "ALTER TABLE test.test ADD COLUMN name VARCHAR(3) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$.name'))) VIRTUAL UNIQUE KEY NOT NULL")
           .Execute();
-      Assert.Throws<MySqlException>(()=>collection.AddOrReplaceOne(1, new { name = "bar" }));
+      Assert.Throws<MySqlException>(() => collection.AddOrReplaceOne(1, new { name = "bar" }));
       Assert.Throws<MySqlException>(() => collection.AddOrReplaceOne(1, new { _id = 3, name = "bar", age = "55" }));
     }
 

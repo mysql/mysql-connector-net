@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2018, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,6 +29,7 @@
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Relational;
+using System;
 using System.Collections.Generic;
 
 namespace MySqlX.Data.Tests
@@ -40,16 +41,16 @@ namespace MySqlX.Data.Tests
   public class PerformanceTests
   {
     private const string PERFORMANCE_SCHEMA = "PerfSchema";
-    private const string HOST = "localhost";
-    private const string USER = "root";
-    private const int X_DEVAPI_PORT = 33060;
+    private string HOST = Environment.GetEnvironmentVariable("MYSQL_HOST") ?? "localhost";
+    private string USER = Environment.GetEnvironmentVariable("MYSQL_ROOT_USER") ?? "root";
+    private int X_DEVAPI_PORT = int.Parse(Environment.GetEnvironmentVariable("MYSQLX_PORT") ?? "33060");
 
     private static Session _session;
     private static string _connectionString;
     private static string _connectionURI;
     private static Schema _schema;
     private static DbDoc _emptyDocument;
-    
+
     public PerformanceTests()
     {
       _connectionString = $"server={HOST};user={USER};port={X_DEVAPI_PORT};database={PERFORMANCE_SCHEMA}";

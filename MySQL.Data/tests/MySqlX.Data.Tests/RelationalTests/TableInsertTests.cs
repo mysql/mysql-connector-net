@@ -26,10 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Linq;
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Relational;
 using NUnit.Framework;
-using MySql.Data.MySqlClient;
+using System.Linq;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {

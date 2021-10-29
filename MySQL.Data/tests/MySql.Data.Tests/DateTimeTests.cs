@@ -26,12 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
-using System;
-using System.Text;
 using MySql.Data.Types;
-using System.Globalization;
 using NUnit.Framework;
+using System;
+using System.Globalization;
+using System.Text;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -892,7 +891,7 @@ namespace MySql.Data.MySqlClient.Tests
         var myTimestampGdt = reader.GetDateTime("mytimestampcolumn");
 
         Assert.True(myTimestampSb.Kind == myTimestampGdt.Kind);
-        Assert.True(conn.driver.timeZoneOffset == ((DateTimeOffset)myTimestampSb).Offset.Hours);
+        Assert.True(conn.driver.timeZoneOffset == ((DateTimeOffset)myTimestampSb).Offset.Hours, $"Driver: {conn.driver.timeZoneOffset}; Sb: {((DateTimeOffset)myTimestampSb).Offset.Hours}");
         Assert.True(conn.driver.timeZoneOffset == ((DateTimeOffset)myTimestampGdt).Offset.Hours);
 
         reader.Close();
@@ -929,7 +928,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
           var val = reader.GetValue(0);
-          StringAssert.StartsWith(timeValue.Substring(0,14), val.ToString());
+          StringAssert.StartsWith(timeValue.Substring(0, 14), val.ToString());
         }
 
         cmd.CommandText = "DROP TABLE IF EXISTS T";

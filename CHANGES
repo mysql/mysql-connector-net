@@ -5,6 +5,7 @@
 - Fixed a bug caused by the mishandling of parameters and query attributes (Oracle Bug #33380176).
 - Added missing summaries to MySql EF Core types (Oracle Bug #33513153).
 - Changed access modifier from public to internal for Resources file in EF and Web projects (Oracle Bug #33513545).
+- Improved the test suite configuration (WL14662).
 
 
 8.0.27
