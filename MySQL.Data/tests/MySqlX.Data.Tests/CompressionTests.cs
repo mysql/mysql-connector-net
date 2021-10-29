@@ -357,18 +357,17 @@ namespace MySqlX.Data.Tests
       using (var session = MySQLX.GetSession($"server={Host};port={XPort};uid=test;password=test;"))
       {
         var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
+        Assert.True(Enum.TryParse<CompressionAlgorithms>(compressionAlgorithm, out var result));
       }
 
       using (var session = MySQLX.GetSession(ConnectionString + ";compression-algorithms="))
       {
         var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
+        Assert.True(Enum.TryParse<CompressionAlgorithms>(compressionAlgorithm, out var result));
       }
 
       // FR2_1,FR2_2 Create session with option compression-algorithms and set the value with multiple compression algorithms for 
       // URI,connectionstring,anonymous object,MySqlXConnectionStringBuilder.check that the negotiation happens in the order provided in the connection string
-
       using (var session = MySQLX.GetSession(ConnectionStringUri + "?compression-algorithms=lz4_message,zstd_stream,deflate_stream;"))
       {
         var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);

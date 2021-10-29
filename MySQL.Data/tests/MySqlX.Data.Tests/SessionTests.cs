@@ -471,6 +471,8 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void ConnectTimeout()
     {
+      if (Platform.IsMacOSX()) Assert.Ignore("Check failure on MacOS: <System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (51): Network is unreachable 143.24.20.36:33060");
+
       // Create a session passing the new parameter "connect-timeout" and set it to a valid value.
       // ConnectionString.
       using (Session session = MySQLX.GetSession(ConnectionString + ";connect-timeout=5000;"))

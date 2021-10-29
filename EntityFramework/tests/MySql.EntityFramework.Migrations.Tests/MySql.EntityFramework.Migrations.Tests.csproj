@@ -31,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
     <ProjectReference Include="..\..\..\MySQL.Data\src\MySql.Data.csproj" />
     <ProjectReference Include="..\..\src\MySql.Data.EntityFramework.csproj" />
     <ProjectReference Include="..\MySql.EntityFramework.Basic.Tests\MySql.EntityFramework.Basic.Tests.csproj" />
@@ -39,8 +38,9 @@
 
   <ItemGroup>
     <PackageReference Include="EntityFramework" Version="6.4.4" />
-    <PackageReference Include="NUnit" Version="3.12.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="NUnit" Version="3.13.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">
