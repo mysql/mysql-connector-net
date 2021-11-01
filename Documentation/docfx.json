@@ -3,53 +3,41 @@
     {
       "src": [
         {
-          "files": ["MySql.Data.dll"],
-          "src": "../MySQL.Data/src/bin/Release/netstandard2.1/"
+          "files": ["MySql.Data.csproj"],
+          "src": "../MySQL.Data/src/"
         }
       ],
       "dest": "api/data_api",
-      "shouldSkipMarkup": false,
-      "disableGitFeatures": false,
-      "disableDefaultFilter": false,
+      "properties": { "TargetFramework": "netstandard2.1" }
+    },    
+    {
+      "src": [
+        {
+          "files": ["MySql.Data.EntityFramework.csproj"],
+          "src": "../EntityFramework/src/"
+        }
+      ],
+      "dest": "api/ef_api",
       "properties": { "TargetFramework": "netstandard2.1" }
     },
     {
       "src": [
         {
-          "files": ["MySql.EntityFrameworkCore.dll"],
-          "src": "../EFCore6/src/bin/Release/net5.0/"
+          "files": ["MySql.EntityFrameworkCore.csproj"],
+          "src": "../EFCore6/src/"
         }
       ],
       "dest": "api/efcore_api",
-      "shouldSkipMarkup": false,
-      "disableGitFeatures": false,
-      "disableDefaultFilter": false,
       "properties": { "TargetFramework": "net5.0" }
     },
     {
       "src": [
         {
-          "files": ["MySql.Data.EntityFramework.dll"],
-          "src": "../EntityFramework/src/bin/Release/netstandard2.1/"
-        }
-      ],
-      "dest": "api/ef_api",
-      "shouldSkipMarkup": false,
-      "disableGitFeatures": false,
-      "disableDefaultFilter": false,
-      "properties": { "TargetFramework": "netstandard2.1" }
-    },
-    {
-      "src": [
-        {
-          "files": ["MySql.Web.dll"],
-          "src": "../MySql.Web/src/bin/Release/net48/"
+          "files": ["MySql.Web.csproj"],
+          "src": "../MySql.Web/src/"
         }
       ],
       "dest": "api/web_api",
-      "shouldSkipMarkup": false,
-      "disableGitFeatures": false,
-      "disableDefaultFilter": false,
       "properties": { "TargetFramework": "net48" }
     }
   ],

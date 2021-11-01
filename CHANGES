@@ -6,6 +6,7 @@
 - Added missing summaries to MySql EF Core types (Oracle Bug #33513153).
 - Changed access modifier from public to internal for Resources file in EF and Web projects (Oracle Bug #33513545).
 - Improved the test suite configuration (WL14662).
+- Fixed wrong type classification in the API documentation (Oracle Bug #33509644).
 
 
 8.0.27

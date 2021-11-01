@@ -2,9 +2,9 @@
   href: index.md
 - name: MySQL Data
   href: api/data_api/
-- name: MySQL Entity Framework Core
-  href: api/efcore_api/
 - name: MySQL Entity Framework
   href: api/ef_api/
+- name: MySQL Entity Framework Core
+  href: api/efcore_api/  
 - name: MySQL Web
   href: api/web_api/
