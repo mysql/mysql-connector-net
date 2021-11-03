@@ -253,44 +253,6 @@ namespace MySqlX.Data.Tests
     }
 
     [Test]
-    public void SimpleExclusiveLock()
-    {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
-
-      ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
-      using (var session2 = MySQLX.GetSession(ConnectionString))
-      {
-        ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
-        Collection coll = CreateCollection("test");
-        ExecuteSQLStatement(session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)"));
-        var docs = new[]
-        {
-          new {  _id = 1, a = 1 },
-          new {  _id = 2, a = 1 },
-          new {  _id = 3, a = 1 },
-        };
-        ExecuteAddStatement(coll.Add(docs));
-        Collection coll2 = session2.GetSchema("test").GetCollection("test");
-
-        ExecuteSQLStatement(session.SQL("START TRANSACTION"));
-        DocResult docResult = ExecuteFindStatement(coll.Find("_id = 1").LockExclusive());
-        Assert.That(docResult.FetchAll(), Has.One.Items);
-
-        ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
-        // Should return immediately since document isn't locked.
-        docResult = ExecuteFindStatement(coll2.Find("_id = 2").LockExclusive());
-        Assert.That(docResult.FetchAll(), Has.One.Items);
-        // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
-        ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
-        Exception ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll2.Find("_id = 1").LockExclusive()));
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
-
-        ExecuteSQLStatement(session.SQL("ROLLBACK"));
-        ExecuteSQLStatement(session2.SQL("ROLLBACK"));
-      }
-    }
-
-    [Test]
     public void SharedLockForbidsToModifyDocuments()
     {
       if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
@@ -361,9 +323,11 @@ namespace MySqlX.Data.Tests
         // Modify() is allowed for non-locked documents.
         Result result = ExecuteModifyStatement(coll2.Modify("_id = 2").Set("a", 2));
         Assert.AreEqual(1, result.AffectedItemsCount);
-        // Session1 blocks, Modify() is not allowed for locked documents.
+        // Session2 blocks, Modify() is not allowed for locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteModifyStatement(coll2.Modify("_id = 1").Set("a", 2)));
+        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+        ex = Assert.Throws<MySqlException>(() => ExecuteModifyStatement(coll2.Modify("_id = 1").Change("a", 12)));
         Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
 
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
@@ -383,7 +347,7 @@ namespace MySqlX.Data.Tests
       {
         ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
         Collection coll = CreateCollection("test");
-        ExecuteSQLStatement(session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)"));
+        ExecuteSQLStatement(session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)"));
         var docs = new[]
         {
           new {  _id = 1, a = 1 },
@@ -425,7 +389,7 @@ namespace MySqlX.Data.Tests
       {
         ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
         Collection coll = CreateCollection("test");
-        ExecuteSQLStatement(session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)"));
+        ExecuteSQLStatement(session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)"));
         var docs = new[]
         {
           new {  _id = 1, a = 1 },
@@ -468,7 +432,7 @@ namespace MySqlX.Data.Tests
       {
         ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
         Collection coll = CreateCollection("test");
-        ExecuteSQLStatement(session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)"));
+        ExecuteSQLStatement(session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)"));
         var docs = new[]
         {
           new {  _id = 1, a = 1 },
@@ -1343,7 +1307,7 @@ namespace MySqlX.Data.Tests
       {
         ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
         Collection coll = CreateCollection("test");
-        ExecuteSQLStatement(session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)"));
+        ExecuteSQLStatement(session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)"));
         Result result1 = null;
         switch (scenario)
         {
@@ -1412,7 +1376,7 @@ namespace MySqlX.Data.Tests
       {
         ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
         Collection coll = CreateCollection("test");
-        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
+        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
         var docs = new[]
         {
             new {_id = 1, a = 1},
@@ -1472,9 +1436,9 @@ namespace MySqlX.Data.Tests
       {
         ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
         Collection coll = CreateCollection("test");
-        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
+        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
         if (lockMode == LockMode.Shared)
-          session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_m_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$.a')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex1`(`$ix_i_m_index`)").Execute();
+          session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_m_index` INT GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$.a'))) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex1`(`$ix_i_m_index`)").Execute();
 
         var docs = new[]
         {
@@ -1519,7 +1483,7 @@ namespace MySqlX.Data.Tests
       {
         ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
         Collection coll = CreateCollection("test");
-        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
+        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
         var docs = new[]
         {
             new {_id = 1, a = 1},
@@ -1632,47 +1596,7 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Test, Description("MySQLX CNET-Test Collection.Find() with exclusive lock and Collection.Modify() normal from two sessions. ")]
-    public void LockExclusiveAndModify()
-    {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
-      ExecuteSQLStatement(session.SQL("SET autocommit = 0"));
-      using (var session2 = MySQLX.GetSession(ConnectionString))
-      {
-        session2.SQL("SET autocommit = 0").Execute();
-        Collection coll = CreateCollection("test");
-        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
-        var docs = new[]
-        {
-            new {_id = 1, a = 1},
-            new {_id = 2, a = 2},
-            new {_id = 3, a = 3}
-        };
-
-        coll.Add(docs).Execute();
-        var coll2 = session2.GetSchema("test").GetCollection("test");
-        session.SQL("START TRANSACTION").Execute();
-        var docResult = coll.Find("_id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
-        session2.SQL("START TRANSACTION").Execute();
-        // Should return immediately since document isn't locked.
-        docResult = coll2.Find("_id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
-        // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
-        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
-        Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll2.Find("_id = 1").LockExclusive()));
-        // Session2 blocks due to to LockExclusive() not allowing to modify locked documents.
-        Assert.Throws<MySqlException>(() => ExecuteModifyStatement(coll2.Modify("a = 1").Change("a", 10)));
-        // Session2 blocks due to to LockExclusive() not allowing to modify locked documents.
-        Assert.Throws<MySqlException>(() => ExecuteModifyStatement(coll2.Modify("a = 1").Set("a", 12)));
-        session.SQL("ROLLBACK").Execute();
-        session2.SQL("ROLLBACK").Execute();
-      }
-
-      ExecuteSQLStatement(session.SQL("SET autocommit = 1"));
-    }
-
-    [Test, Description("MySQLX CNET-Test Collection.Find() with shared lock and Collection.Modify() normal from two sessions. ")]
+    [Test, Description("Collection.Find() with shared lock and Collection.Modify() normal from two sessions. ")]
     public void LockSharedAndModify()
     {
       if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
@@ -1681,7 +1605,7 @@ namespace MySqlX.Data.Tests
       {
         session2.SQL("SET autocommit = 0").Execute();
         Collection coll = CreateCollection("test");
-        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
+        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
         var docs = new[]
         {
             new {_id = 1, a = 1},
@@ -1712,44 +1636,7 @@ namespace MySqlX.Data.Tests
       ExecuteSQLStatement(session.SQL("SET autocommit = 1"));
     }
 
-    [Test, Description("MySQLX CNET-Test Collection.Find() with exclusive lock from two sessions. ")]
-    public void LockExclusiveTwoSessions()
-    {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
-      ExecuteSQLStatement(session.SQL("SET autocommit = 0"));
-      using (var session2 = MySQLX.GetSession(ConnectionString))
-      {
-        session2.SQL("SET autocommit = 0").Execute();
-        Collection coll = CreateCollection("test");
-        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
-        var docs = new[]
-        {
-            new {_id = 1, a = 1},
-            new {_id = 2, a = 1},
-            new {_id = 3, a = 1}
-        };
-
-        coll.Add(docs).Execute();
-        var coll2 = session2.GetSchema("test").GetCollection("test");
-
-        session.SQL("START TRANSACTION").Execute();
-        var docResult = coll.Find("_id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
-        session2.SQL("START TRANSACTION").Execute();
-        // Should return immediately since document isn't locked.
-        docResult = coll2.Find("_id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
-        // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
-        session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
-        Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll2.Find("_id = 1").LockExclusive()));
-        session.SQL("ROLLBACK").Execute();
-        session2.SQL("ROLLBACK").Execute();
-      }
-
-      ExecuteSQLStatement(session.SQL("SET autocommit = 1"));
-    }
-
-    [Test, Description("MySQLX CNET-Test Collection.Find() with shared lock from two sessions. ")]
+    [Test, Description("Collection.Find() with shared lock from two sessions. ")]
     public void LockSharedTwoSessions()
     {
       if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
@@ -1786,7 +1673,7 @@ namespace MySqlX.Data.Tests
       ExecuteSQLStatement(session.SQL("SET autocommit = 1"));
     }
 
-    [Test, Description("MySQLX CNET-Test Collection.Find() with exclusive lock and Collection.Find() with shared lock from two sessions. ")]
+    [Test, Description("Collection.Find() with exclusive lock and Collection.Find() with shared lock from two sessions. ")]
     public void LockExclusiveFindAndLockSharedFind()
     {
       if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
@@ -1795,7 +1682,7 @@ namespace MySqlX.Data.Tests
       {
         session2.SQL("SET autocommit = 0").Execute();
         Collection coll = CreateCollection("test");
-        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
+        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
         var docs = new[]
         {
             new {_id = 1, a = 1},
@@ -1828,7 +1715,7 @@ namespace MySqlX.Data.Tests
       ExecuteSQLStatement(session.SQL("SET autocommit = 1"));
     }
 
-    [Test, Description("MySQLX CNET-Test Collection.Find() with shared lock and Collection.Find() with exclusive lock from two sessions. ")]
+    [Test, Description("Collection.Find() with shared lock and Collection.Find() with exclusive lock from two sessions. ")]
     public void LockSharedFindAndExclusiveLocks()
     {
       if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
@@ -1837,7 +1724,7 @@ namespace MySqlX.Data.Tests
       {
         session2.SQL("SET autocommit = 0").Execute();
         Collection coll = CreateCollection("test");
-        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
+        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
         var docs = new[]
         {
             new {_id = 1, a = 1},
@@ -1875,7 +1762,7 @@ namespace MySqlX.Data.Tests
       ExecuteSQLStatement(session.SQL("SET autocommit = 1"));
     }
 
-    [Test, Description("MySQLX CNET-Test Collection.Find() with exclusive lock and Collection.Find() with exclusive lock from two sessions. ")]
+    [Test, Description("Collection.Find() with exclusive lock and Collection.Find() with exclusive lock from two sessions. ")]
     public void LockExclusiveWithRollback()
     {
       if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
@@ -1884,7 +1771,7 @@ namespace MySqlX.Data.Tests
       {
         session2.SQL("SET autocommit = 0").Execute();
         Collection coll = CreateCollection("test");
-        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
+        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
         var docs = new[]
         {
             new {_id = 1, a = 1},
@@ -1919,7 +1806,7 @@ namespace MySqlX.Data.Tests
       ExecuteSQLStatement(session.SQL("SET autocommit = 1"));
     }
 
-    [Test, Description("MySQLX CNET-Test Collection.Find() with exclusive lock and Collection.Find() with exclusive lock from two sessions--Select multiple records ")]
+    [Test, Description("Collection.Find() with exclusive lock and Collection.Find() with exclusive lock from two sessions--Select multiple records ")]
     public void LockExclusiveWithINSelection()
     {
       if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
@@ -1936,7 +1823,7 @@ namespace MySqlX.Data.Tests
           };
 
         coll.Add(docs).Execute();
-        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
+        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
         var coll2 = session2.GetSchema("test").GetCollection("test");
         session.SQL("START TRANSACTION").Execute();
         var docResult = coll.Find("_id in (1,3)").LockExclusive().Execute();
@@ -1962,7 +1849,7 @@ namespace MySqlX.Data.Tests
       ExecuteSQLStatement(session.SQL("SET autocommit = 1"));
     }
 
-    [Test, Description("MySQLX CNET-Test Collection.Find() with shared lock twice ")]
+    [Test, Description("Collection.Find() with shared lock twice ")]
     public void LockSharedReadTwice()
     {
       if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
@@ -1971,7 +1858,7 @@ namespace MySqlX.Data.Tests
       {
         session2.SQL("SET autocommit = 0").Execute();
         Collection coll = CreateCollection("test");
-        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_EXTRACT(doc, '$._id')) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
+        session2.SQL("ALTER TABLE `test`.`test` ADD COLUMN `$ix_i_r_index` INT GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) VIRTUAL NOT NULL, ADD UNIQUE INDEX `myIndex`(`$ix_i_r_index`)").Execute();
         var docs = new[]
         {
             new {_id = 1, a = 1},

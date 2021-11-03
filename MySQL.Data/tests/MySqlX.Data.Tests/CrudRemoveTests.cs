@@ -232,7 +232,7 @@ namespace MySqlX.Data.Tests
       Result result = ExecuteAddStatement(collection.Add(docs));
       Assert.AreEqual(4, result.AffectedItemsCount);
 
-      ExecuteAddStatement(collection.Add(new { title = "Book 5", pages = 60 }));
+      ExecuteAddStatement(collection.Add(new { _id = 5, title = "Book 5", pages = 60 }));
       Assert.AreEqual(5, ExecuteFindStatement(collection.Find()).FetchAll().Count);
 
       // Remove sending numeric parameter.

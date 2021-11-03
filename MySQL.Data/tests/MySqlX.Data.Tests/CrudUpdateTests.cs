@@ -1239,7 +1239,7 @@ namespace MySqlX.Data.Tests
       document = coll.GetOne(5);
       Assert.AreEqual(null, document);
 
-      coll.Add(new { title = "Book 5", pages = 60 }).Execute();
+      coll.Add(new { _id = 5, title = "Book 5", pages = 60 }).Execute();
       Assert.AreEqual(5, coll.Find().Execute().FetchAll().Count);
       // Remove sending numeric parameter.
       //WL11843-Core API v1 alignment Changes

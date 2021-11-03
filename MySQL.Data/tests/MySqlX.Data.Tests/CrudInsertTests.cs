@@ -301,7 +301,7 @@ namespace MySqlX.Data.Tests
       Assert.True(collection.GetOne(5) != null);
 
       Assert.AreEqual(1, collection.AddOrReplaceOne("6", new { title = "Book 6", pages = 70 }).AffectedItemsCount);
-      Assert.True(collection.GetOne(6) == null);
+      Assert.True(collection.GetOne(6) != null);
       Assert.True(collection.GetOne("6") != null);
 
       // Replace a document.

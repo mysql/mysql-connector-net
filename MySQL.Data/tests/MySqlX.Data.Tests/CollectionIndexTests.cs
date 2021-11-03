@@ -40,6 +40,7 @@ namespace MySqlX.Data.Tests
   public class CollectionIndexTests : BaseTest
   {
     public string longval = "123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567";
+
     [Test]
     public void IncorrectlyFormatedIndexDefinition()
     {
@@ -77,7 +78,6 @@ namespace MySqlX.Data.Tests
 
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex3", "{\"fields\": [ { \"field\":$.myGeoJsonField, \"type\":\"GEOJSON\" } ], \"type\":\"sPaTiAl\" }"));
       Assert.AreEqual("GEOJSON index requires 'constraint.required: TRUE", ex.Message);
-
     }
 
     [Test]
@@ -388,7 +388,7 @@ namespace MySqlX.Data.Tests
 
     #region WL14389
 
-    [Test, Description("Test MySQLX plugin Add Collection index")]
+    [Test, Description("Add Collection index")]
     public void AddIndexAndInsertRecords()
     {
       if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
@@ -605,8 +605,7 @@ namespace MySqlX.Data.Tests
     /// <summary>
     /// //Bug29692534
     /// </summary>
-    [Test, Description("Create valid index using a document field type of array and setting array to true with single key on all possible datatypes-data " +
-               "inserted and then index created")]
+    [Test, Description("Create valid index using a document field type of array and setting array to true with single key on all possible datatypes-data inserted and then index created")]
     public void IndexWithArrayOptionSingleKeyAfterInsertData()
     {
       if (!session.Version.isAtLeast(8, 0, 17)) Assert.Ignore("This test is for MySql 8.0.17 or higher.");
@@ -640,11 +639,12 @@ namespace MySqlX.Data.Tests
       docResult = collection.Find(":myField IN $.myField").Bind("myField", "23:59:59.15").Execute();
       docResult = collection.Find(":myField IN $._id").Bind("myField", true).Execute();
       Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+
       collection = CreateCollection("test");
       collection.Add(doc).Execute();
       collection.Add(doc22).Execute();
-
       CreateArrayIndex("TIME", collection);
+
       collection = CreateCollection("test");
       collection.Add(doc).Execute();
       collection.Add(doc22).Execute();
@@ -1798,7 +1798,7 @@ namespace MySqlX.Data.Tests
       }
       ValidateIndex("myIndex", "test", dataType, false, false, false, 1, null, true);
       collection.DropIndex("myIndex");
-      collection.RemoveOne(1);
+      collection.RemoveOne("1");
     }
 
     private void ValidateIndex(string fieldName, string collectionName, string dataType, bool unique, bool required, bool isUnsigned, int sequence, int? length = null, bool array = false)

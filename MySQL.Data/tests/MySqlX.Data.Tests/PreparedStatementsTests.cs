@@ -135,7 +135,7 @@ namespace MySqlX.Data.Tests
       }
 
       ValidatePreparedStatements(1, 4,
-        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?");
+        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_UNQUOTE(JSON_EXTRACT(doc,'$._id')) = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?");
     }
 
     [Test]
@@ -155,7 +155,7 @@ namespace MySqlX.Data.Tests
       Assert.True(findStmt._isPrepared || !findStmt.Session.SupportsPreparedStatements);
 
       ValidatePreparedStatements(1, 1,
-        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_EXTRACT(doc,'$._id') = 1) LIMIT ?, ?");
+        $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_UNQUOTE(JSON_EXTRACT(doc,'$._id')) = 1) LIMIT ?, ?");
 
       for (int i = 1; i <= _docs.Length; i++)
       {
@@ -192,7 +192,7 @@ namespace MySqlX.Data.Tests
         if (findStmt.Session.SupportsPreparedStatements)
         {
           ValidatePreparedStatements(1, 1,
-            $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_EXTRACT(doc,'$._id') = 1) LIMIT ?, ?",
+            $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE (JSON_UNQUOTE(JSON_EXTRACT(doc,'$._id')) = 1) LIMIT ?, ?",
             threadId);
         }
 
@@ -555,7 +555,7 @@ namespace MySqlX.Data.Tests
           Assert.AreEqual($"Book {i}", doc.FetchAll()[0]["title"].ToString());
         }
         ValidatePreparedStatements(1, 3,
-          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?");
+          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_UNQUOTE(JSON_EXTRACT(doc,'$._id')) = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?");
         session1.Close();
 
         session2 = client1.GetSession();
@@ -578,7 +578,7 @@ namespace MySqlX.Data.Tests
           Assert.AreEqual($"Book {i}", doc.FetchAll()[0]["title"].ToString());
         }
         ValidatePreparedStatements(1, 3,
-          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?");
+          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_UNQUOTE(JSON_EXTRACT(doc,'$._id')) = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?");
         session2.Close();
         Assert.Throws<MySqlException>(() => doc = ExecuteFindStatement(findStmt));
         session2 = client1.GetSession();
@@ -601,7 +601,7 @@ namespace MySqlX.Data.Tests
           Assert.AreEqual($"Book {i}", doc.FetchAll()[0]["title"].ToString());
         }
         ValidatePreparedStatements(1, 3,
-          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?");
+          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_UNQUOTE(JSON_EXTRACT(doc,'$._id')) = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?");
         session2.Close();
         Assert.Throws<MySqlException>(() => doc = ExecuteFindStatement(findStmt));
       }
@@ -633,7 +633,7 @@ namespace MySqlX.Data.Tests
             Assert.AreEqual($"Book {i}", doc.FetchAll()[0]["title"].ToString());
           }
           ValidatePreparedStatements(1, 4,
-            $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?", threadId);
+            $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_UNQUOTE(JSON_EXTRACT(doc,'$._id')) = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?", threadId);
         }
         ValidatePreparedStatements(0, 0, null, threadId);
       }
@@ -678,9 +678,9 @@ namespace MySqlX.Data.Tests
       }
 
       ValidatePreparedStatements(1, 4,
-          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?", threadId1);
+          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_UNQUOTE(JSON_EXTRACT(doc,'$._id')) = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?", threadId1);
       ValidatePreparedStatements(1, 4,
-          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_EXTRACT(doc,'$._id') = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?", threadId2);
+          $"SELECT doc FROM `{schemaName}`.`{_collectionName}` WHERE ((JSON_UNQUOTE(JSON_EXTRACT(doc,'$._id')) = ?) AND (JSON_EXTRACT(doc,'$.pages') = ?)) LIMIT ?, ?", threadId2);
 
       mySession1.Close();
       mySession2.Close();

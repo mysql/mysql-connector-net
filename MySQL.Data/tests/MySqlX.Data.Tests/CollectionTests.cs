@@ -29,11 +29,11 @@
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
+using MySqlX.XDevAPI.Relational;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MySqlX.XDevAPI.Relational;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -609,7 +609,7 @@ namespace MySqlX.Data.Tests
       var collection = schema.GetCollection("testCount");
       Assert.AreEqual(4, collection.Count());
 
-      coll.Add(new { title = "Book 5", pages = 60 }).Execute();
+      coll.Add(new { _id = 5, title = "Book 5", pages = 60 }).Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
       schema = session.GetSchema(schemaName);
       collection = schema.GetCollection("testCount");
@@ -1082,7 +1082,7 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(count, collection.Count());
 
       options1.Validation = new Validation() { };
-      Assert.Throws<MySqlException>(()=> schema.ModifyCollection("coll2", options1));
+      Assert.Throws<MySqlException>(() => schema.ModifyCollection("coll2", options1));
 
       string docEnum = "{\"id\":\"http://json-schema.org/draft-06/schema#\",\"$schema\":\"http://json-schema.org/draft-06/schema#\","
       + "\"description\": \"A Person example\",\"type\":\"object\","

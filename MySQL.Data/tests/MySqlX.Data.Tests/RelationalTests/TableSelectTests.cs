@@ -397,40 +397,6 @@ namespace MySqlX.Data.Tests.RelationalTests
     }
 
     [Test]
-    public void ExclusiveLockAfterExclusiveLock()
-    {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
-
-      ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
-      using (var session2 = MySQLX.GetSession(ConnectionString))
-      {
-        ExecuteSQLStatement(session2.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
-        Table table = session.Schema.GetTable("test");
-        ExecuteSQLStatement(session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)"));
-        Table table2 = session2.GetSchema("test").GetTable("test");
-
-        ExecuteSQLStatement(session.SQL("START TRANSACTION"));
-        RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id = 1").LockExclusive());
-        Assert.That(rowResult.FetchAll(), Has.One.Items);
-
-        ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
-        // Should return immediately since row isn't locked.
-        rowResult = ExecuteSelectStatement(table2.Select().Where("id = 2").LockExclusive());
-        Assert.That(rowResult.FetchAll(), Has.One.Items);
-        // Session2 blocks due to to LockExclusive() not allowing to read locked rows.
-        ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
-        Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive()));
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
-
-        // Session unlocks rows.
-        ExecuteSQLStatement(session.SQL("ROLLBACK"));
-        rowResult = ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive());
-        Assert.That(rowResult.FetchAll(), Has.One.Items);
-        ExecuteSQLStatement(session2.SQL("ROLLBACK"));
-      }
-    }
-
-    [Test]
     public void SelectWithInOperator()
     {
       Table table = testSchema.GetTable("test");
