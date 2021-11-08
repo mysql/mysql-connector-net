@@ -451,8 +451,7 @@ namespace MySqlX.Data.Tests
       Assert.Catch(() => MySQLX.GetSession(connectionString + "&ssl-mode=required"));
     }
 
-    [Test, Description("Provide 101 hosts to connection without priority where 1st 100 hosts are invalid ones(Internal priority is set from 100...0) and " +
-     "the last host is valid")]
+    [Test, Description("Provide 101 hosts to connection without priority where 1st 100 hosts are invalid ones(Internal priority is set from 100...0) and the last host is valid")]
     public void ManyInvalidHost()
     {
       if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
@@ -759,7 +758,22 @@ namespace MySqlX.Data.Tests
         Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
       }
     }
-
     #endregion
+
+    /// <summary>
+    /// Bug #30581109 - XPLUGIN/CLASSIC CONNECTION SUCCEEDS WHEN MULTIPLE HOSTS ARE USED IN WHICH FIRST HOST FAILS WITH MYSQL ERROR LIKE HOST EXHAUSTED ALL THE CONNECTIONS OR WRONG CREDENTIALS AND THE OTHER HOST IS VALID-WL#13304
+    /// Due to the restrictions of the automated test, the approach to this test is to have one invalid host that will be attempted to connect to first given its priority throwing a timeout error, then C/NET will then try with the second host raising a MySQL exception.
+    /// </summary>
+    [Test]
+    public void FailWhenMySqlExceptionRaised()
+    {
+      ExecuteSqlAsRoot("SET @@global.mysqlx_max_connections = 1");
+      ExecuteSqlAsRoot("CREATE USER 'test1'@'%' IDENTIFIED BY 'testpass'");
+
+      var address_priority = $"(address={Host}, priority=90),(address=10.20.30.40, priority=100)";
+      Assert.Throws<MySqlException>(() => MySQLX.GetSession($"server={address_priority};port=33060;user=test1;pwd=testpass;"));
+
+      ExecuteSqlAsRoot("SET @@global.mysqlx_max_connections = 100");
+    }
   }
 }

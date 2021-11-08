@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2017, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -126,7 +126,10 @@ namespace MySql.Data.Failover
         Settings = new MySqlXConnectionStringBuilder(connectionString, isDefaultPort);
 
         try { internalSession = InternalSession.GetSession(Settings); }
-        catch (Exception) { }
+        catch (Exception ex)
+        {
+          if (ex.GetType() == typeof(MySqlException)) throw;
+        }
 
         if (internalSession != null)
           break;
@@ -196,7 +199,10 @@ namespace MySql.Data.Failover
             connection.driver = driver;
           break;
         }
-        catch (Exception) { }
+        catch (Exception ex)
+        {
+          if (ex.GetType() == typeof(MySqlException)) throw;
+        }
 
         var tmpHost = currentHost;
         currentHost = FailoverGroup.GetNextHost();

@@ -98,7 +98,7 @@ namespace MySql.Data.Common
       Task task = client.ConnectAsync(settings.Server, (int)settings.Port);
 
       if (!task.Wait(((int)settings.ConnectionTimeout * 1000)))
-        throw new MySqlException(Resources.Timeout);
+        throw new TimeoutException(Resources.Timeout);
       if (settings.Keepalive > 0)
       {
         SetKeepAlive(client.Client, settings.Keepalive);

@@ -951,8 +951,26 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
-
     #endregion WL14389
 
+    /// <summary>
+    /// Bug #33539844	- Parser for TIME values differ between Plain and Prepared Statements (Server bug)
+    /// </summary>
+    [Test]
+    public void TimeParserForPlainAndPreparedStmts()
+    {
+      string timeValue = "10-11-12";
+      ExecuteSQL("CREATE TABLE test_time (t TIME)");
+
+      // Plain statement
+      Assert.Throws<MySqlException>(() => ExecuteSQL($"INSERT INTO test_time VALUES ('{timeValue}')"));
+      // Prepare statement
+      using (var cmd = new MySqlCommand("INSERT INTO test_time VALUES (?)", Connection))
+      {
+        cmd.Parameters.AddWithValue("t", timeValue);
+        cmd.Prepare();
+        Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
+      }
+    }
   }
 }

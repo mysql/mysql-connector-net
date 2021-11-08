@@ -130,7 +130,12 @@ namespace MySqlX.Protocol
         packet = ReadPacket();
 
       if (packet.MessageType != (int)ServerMessageId.CONN_CAPABILITIES)
+      {
+        if (packet.MessageType == (int)ServerMessageId.ERROR)
+          DecodeAndThrowError(packet);
+        else
         ThrowUnexpectedMessage(packet.MessageType, (int)ServerMessageId.CONN_CAPABILITIES);
+      }
       Capabilities = Capabilities.Parser.ParseFrom(packet.Buffer);
     }
 
@@ -391,9 +396,10 @@ namespace MySqlX.Protocol
             {
               innerAny.Obj.Fld.Add(CreateObject(field.Key, field.Value));
             }
-          } else if (arg.Key=="reuse_existing") 
+          }
+          else if (arg.Key == "reuse_existing")
           {
-            reuse_any=ExprUtil.BuildAny(arg.Value);
+            reuse_any = ExprUtil.BuildAny(arg.Value);
           }
           else
           {
@@ -461,7 +467,7 @@ namespace MySqlX.Protocol
     private void DecodeAndThrowError(CommunicationPacket p)
     {
       Error e = Error.Parser.ParseFrom(p.Buffer);
-            throw new MySqlException(e.Code, e.SqlState, e.Msg);
+      throw new MySqlException(e.Code, e.SqlState, e.Msg);
     }
 
     public override List<byte[]> ReadRow(BaseResult rs)

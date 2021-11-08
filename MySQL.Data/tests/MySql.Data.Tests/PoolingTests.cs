@@ -463,8 +463,8 @@ namespace MySql.Data.MySqlClient.Tests
       {
         using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
         {
-          Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
-          Assert.AreEqual("Unable to connect to any of the specified MySQL hosts.", ex.Message);
+          Exception ex = Assert.Throws<AggregateException>(() => connection.Open());
+          Assert.AreEqual("No such host is known.", ex.InnerException.Message);
         }
         Thread.Sleep(50);
       }

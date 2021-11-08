@@ -172,8 +172,8 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.Server = "foobar";
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
-      var ex = Assert.Throws<MySqlException>(() => c.Open());
-      Assert.AreEqual((int)MySqlErrorCode.UnableToConnectToHost, ex.Number);
+      var ex = Assert.Throws<AggregateException>(() => c.Open());
+      Assert.IsTrue(ex.InnerException.GetType() == typeof(System.Net.Sockets.SocketException));
     }
 
     /// <summary>
@@ -482,14 +482,15 @@ namespace MySql.Data.MySqlClient.Tests
     public void ConnectionTimeout()
     {
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      connStr.Server = "10.20.30.40";
       connStr.Port = 3000;
       connStr.ConnectionTimeout = 5;
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
 
       DateTime start = DateTime.Now;
-      Assert.Throws<MySqlException>(() => c.Open());
+      Assert.Throws<TimeoutException>(() => c.Open());
       TimeSpan diff = DateTime.Now.Subtract(start);
-      Assert.True(diff.TotalSeconds < 10, $"Timeout exceeded: {diff.TotalSeconds}");
+      Assert.True(diff.TotalSeconds < 6, $"Timeout exceeded: {diff.TotalSeconds}");
     }
 
     [Test]

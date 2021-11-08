@@ -191,10 +191,9 @@ namespace MySql.Data.MySqlClient
         if (Settings.IncludeSecurityAsserts)
           MySqlSecurityPermission.CreatePermissionSet(false).Assert();
       }
-      catch (System.Security.SecurityException)
-      {
-        throw;
-      }
+      catch (System.Security.SecurityException) { throw; }
+      catch (TimeoutException) { throw; }
+      catch (AggregateException) { throw; }
       catch (Exception ex)
       {
         throw new MySqlException(Resources.UnableToConnectToHost,

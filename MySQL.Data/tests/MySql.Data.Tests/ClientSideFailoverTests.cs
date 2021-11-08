@@ -174,5 +174,21 @@ namespace MySql.Data.MySqlClient.Tests
       for (int i = 0; i < connArray.Length; i++)
         connArray[i].Close();
     }
+
+    /// <summary>
+    /// Bug #30581109 - XPLUGIN/CLASSIC CONNECTION SUCCEEDS WHEN MULTIPLE HOSTS ARE USED IN WHICH FIRST HOST FAILS WITH MYSQL ERROR LIKE HOST EXHAUSTED ALL THE CONNECTIONS OR WRONG CREDENTIALS AND THE OTHER HOST IS VALID-WL#13304
+    /// Due to the restrictions of the automated test, the approach to this test is to have one invalid host that will be attempted to connect to first given its priority throwing a timeout error, then C/NET will then try with the second host raising a MySQL exception.
+    /// </summary>
+    [Test]
+    public void FailWhenMySqlExceptionRaised()
+    {
+      ExecuteSQL("SET @@global.max_connections = 1", true);
+      ExecuteSQL("CREATE USER 'test1'@'%' IDENTIFIED BY 'testpass'", true);
+
+      var address_priority = $"(address={Host}, priority=90),(address=10.20.30.40, priority=100)";
+      Assert.Throws<MySqlException>(() => new MySqlConnection($"server={address_priority};port=3306;user=test1;pwd=testpass;").Open());
+
+      ExecuteSQL("SET @@global.max_connections = 100", true);
+    }
   }
 }
