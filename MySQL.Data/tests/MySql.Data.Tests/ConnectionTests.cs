@@ -173,7 +173,7 @@ namespace MySql.Data.MySqlClient.Tests
       connStr.Server = "badHostName";
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
       var ex = Assert.Throws<AggregateException>(() => c.Open());
-      Assert.IsTrue(ex.InnerException.GetType() == typeof(System.Net.Sockets.SocketException));
+      if (Platform.IsWindows()) Assert.IsTrue(ex.InnerException.GetType() == typeof(System.Net.Sockets.SocketException));
     }
 
     /// <summary>
@@ -1004,7 +1004,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL($"CREATE TABLE `{Settings.Database}`.`testmalformed` (caseref VARCHAR(12) NOT NULL, fieldId INT NOT NULL, " +
         "fieldtext MEDIUMTEXT, PRIMARY KEY (caseref, fieldId))");
 
-      int rowMax = 40000 ; //Maximum allowed for prepared statement 21846
+      int rowMax = 40000; //Maximum allowed for prepared statement 21846
       var query = $"INSERT INTO `{Settings.Database}`.`testmalformed` (caseref, fieldId, fieldtext) VALUES {{0}} ON DUPLICATE KEY UPDATE caseref = caseref;";
 
       List<MySqlParameter> mySqlParameters = new();

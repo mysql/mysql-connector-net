@@ -1804,7 +1804,7 @@ namespace MySqlX.Data.Tests
     private void ValidateIndex(string fieldName, string collectionName, string dataType, bool unique, bool required, bool isUnsigned, int sequence, int? length = null, bool array = false)
     {
       bool indexFound = false;
-      using (var connection = new MySqlConnection(ConnectionString.Replace(BaseTest.XPort, BaseTest.Port)))
+      using (var connection = new MySqlConnection(ConnectionStringRoot))
       {
         connection.Open();
         var command = new MySqlCommand($"SHOW INDEX FROM `test`.`{collectionName}`", connection);
@@ -1847,8 +1847,6 @@ namespace MySqlX.Data.Tests
 
         if (!indexFound)
           throw new Exception("Index not found.");
-
-        connection.Close();
       }
     }
 

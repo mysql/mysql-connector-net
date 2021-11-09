@@ -960,12 +960,12 @@ namespace MySql.Data.MySqlClient.Tests
     public void TimeParserForPlainAndPreparedStmts()
     {
       string timeValue = "10-11-12";
-      ExecuteSQL("CREATE TABLE test_time (t TIME)");
+      ExecuteSQL("CREATE TABLE Test (t TIME)");
 
       // Plain statement
-      Assert.Throws<MySqlException>(() => ExecuteSQL($"INSERT INTO test_time VALUES ('{timeValue}')"));
+      Assert.Throws<MySqlException>(() => ExecuteSQL($"INSERT INTO Test VALUES ('{timeValue}')"));
       // Prepare statement
-      using (var cmd = new MySqlCommand("INSERT INTO test_time VALUES (?)", Connection))
+      using (var cmd = new MySqlCommand("INSERT INTO Test VALUES (?)", Connection))
       {
         cmd.Parameters.AddWithValue("t", timeValue);
         cmd.Prepare();
