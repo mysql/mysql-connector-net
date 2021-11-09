@@ -277,8 +277,8 @@ namespace MySqlX.Data.Tests
 
       ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms ={DEFLATE_STREAM}");
 #if NETFRAMEWORK
-                var exception = Assert.Throws<NotSupportedException>(() => MySQLX.GetSession(updatedConnectionStringUri));
-                Assert.AreEqual("Compression requested but the compression algorithm negotiation failed.", exception.Message);
+      var exception = Assert.Throws<NotSupportedException>(() => MySQLX.GetSession(updatedConnectionStringUri));
+      Assert.AreEqual("Compression requested but the compression algorithm negotiation failed.", exception.Message);
 #else
       using (var session = MySQLX.GetSession(updatedConnectionStringUri))
       {
@@ -292,7 +292,8 @@ namespace MySqlX.Data.Tests
       using (var session = MySQLX.GetSession(updatedConnectionStringUri))
       {
         var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
+        Assert.True(Enum.TryParse<CompressionAlgorithms>(compressionAlgorithm, out var algorithm));
+        Assert.True(algorithm == CompressionAlgorithms.lz4_message || algorithm == CompressionAlgorithms.zstd_stream);
       }
     }
 

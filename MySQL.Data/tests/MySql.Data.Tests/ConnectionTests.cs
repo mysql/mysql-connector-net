@@ -170,7 +170,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void TestConnectingSocketBadHostName()
     {
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
-      connStr.Server = "foobar";
+      connStr.Server = "badHostName";
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
       var ex = Assert.Throws<AggregateException>(() => c.Open());
       Assert.IsTrue(ex.InnerException.GetType() == typeof(System.Net.Sockets.SocketException));
