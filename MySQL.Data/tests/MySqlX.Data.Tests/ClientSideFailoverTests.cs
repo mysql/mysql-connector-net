@@ -767,13 +767,9 @@ namespace MySqlX.Data.Tests
     [Test]
     public void FailWhenMySqlExceptionRaised()
     {
-      ExecuteSqlAsRoot("SET @@global.mysqlx_max_connections = 1");
       ExecuteSqlAsRoot("CREATE USER 'test1'@'%' IDENTIFIED BY 'testpass'");
-
       var address_priority = $"(address={Host}, priority=90),(address=10.20.30.40, priority=100)";
-      Assert.Throws<MySqlException>(() => MySQLX.GetSession($"server={address_priority};port=33060;user=test1;pwd=testpass;"));
-
-      ExecuteSqlAsRoot("SET @@global.mysqlx_max_connections = 100");
+      Assert.Throws<MySqlException>(() => MySQLX.GetSession($"server={address_priority};port={XPort};user=test1;pwd=wrongPass;"));
     }
   }
 }

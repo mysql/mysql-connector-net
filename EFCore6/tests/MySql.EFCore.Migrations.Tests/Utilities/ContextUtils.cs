@@ -79,7 +79,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests.Utilities
     {
       var contextServices = CreateContextServices();
       var modelBuilder = new ModelBuilder(contextServices.GetRequiredService<IProviderConventionSetBuilder>().CreateConventionSet());
-      contextServices.GetRequiredService<IModelRuntimeInitializer>().Initialize(modelBuilder.FinalizeModel(), null);
+      contextServices.GetRequiredService<IModelRuntimeInitializer>().Initialize(modelBuilder.FinalizeModel());
 
       return modelBuilder;
     }

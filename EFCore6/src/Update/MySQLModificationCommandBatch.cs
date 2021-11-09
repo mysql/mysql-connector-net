@@ -66,7 +66,7 @@ namespace MySql.EntityFrameworkCore.Update
 
     protected new virtual IMySQLUpdateSqlGenerator UpdateSqlGenerator => (IMySQLUpdateSqlGenerator)base.UpdateSqlGenerator;
 
-    protected override bool CanAddCommand(ModificationCommand modificationCommand)
+    protected override bool CanAddCommand(IReadOnlyModificationCommand modificationCommand)
     {
       if (ModificationCommands.Count >= _maxBatchSize)
       {
@@ -84,7 +84,7 @@ namespace MySql.EntityFrameworkCore.Update
       return true;
     }
 
-    private static int CountParameters(ModificationCommand modificationCommand)
+    private static int CountParameters(IReadOnlyModificationCommand modificationCommand)
     {
       var parameterCount = 0;
 
@@ -165,17 +165,16 @@ namespace MySql.EntityFrameworkCore.Update
     protected override void UpdateCachedCommandText(int commandPosition)
     {
       var newModificationCommand = ModificationCommands[commandPosition];
-
       if (newModificationCommand.EntityState == EntityState.Added)
       {
         if (_bulkInsertCommands.Count > 0
-            && !CanBeInsertedInSameStatement(_bulkInsertCommands[0], newModificationCommand))
+            && !CanBeInsertedInSameStatement(_bulkInsertCommands[0], (ModificationCommand)newModificationCommand))
         {
           CachedCommandText.Append(GetBulkInsertCommandText(commandPosition));
           _bulkInsertCommands.Clear();
         }
 
-        _bulkInsertCommands.Add(newModificationCommand);
+        _bulkInsertCommands.Add((ModificationCommand)newModificationCommand);
 
         LastCachedCommandIndex = commandPosition;
       }

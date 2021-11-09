@@ -182,13 +182,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void FailWhenMySqlExceptionRaised()
     {
-      ExecuteSQL("SET @@global.max_connections = 1", true);
       ExecuteSQL("CREATE USER 'test1'@'%' IDENTIFIED BY 'testpass'", true);
-
       var address_priority = $"(address={Host}, priority=90),(address=10.20.30.40, priority=100)";
-      Assert.Throws<MySqlException>(() => new MySqlConnection($"server={address_priority};port=3306;user=test1;pwd=testpass;").Open());
-
-      ExecuteSQL("SET @@global.max_connections = 100", true);
+      Assert.Throws<MySqlException>(() => new MySqlConnection($"server={address_priority};port={Port};user=test1;pwd=wrongPass;").Open());
     }
   }
 }

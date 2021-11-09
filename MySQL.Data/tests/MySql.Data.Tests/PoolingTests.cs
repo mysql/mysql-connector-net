@@ -464,7 +464,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
         {
           Exception ex = Assert.Throws<AggregateException>(() => connection.Open());
-          Assert.AreEqual("No such host is known.", ex.InnerException.Message);
+          Assert.True(ex.InnerException.GetType() == typeof(System.Net.Sockets.SocketException));
         }
         Thread.Sleep(50);
       }

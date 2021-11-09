@@ -28,7 +28,7 @@
         }
       ],
       "dest": "api/efcore_api",
-      "properties": { "TargetFramework": "net5.0" }
+      "properties": { "TargetFramework": "net6.0" }
     },
     {
       "src": [

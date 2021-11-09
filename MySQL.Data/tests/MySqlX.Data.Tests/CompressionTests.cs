@@ -257,12 +257,15 @@ namespace MySqlX.Data.Tests
     {
       var updatedConnectionStringUri = ConnectionStringUri + "?compression=Required";
 
-      // Test with one of the supported compression algorithms.
-      ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{CompressionAlgorithms.zstd_stream.ToString().ToUpperInvariant()}\"");
-      using (var session = MySQLX.GetSession(updatedConnectionStringUri))
+      if (Platform.IsWindows())
       {
-        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-        Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
+        // Test with one of the supported compression algorithms.
+        ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{CompressionAlgorithms.zstd_stream.ToString().ToUpperInvariant()}\"");
+        using (var session = MySQLX.GetSession(updatedConnectionStringUri))
+        {
+          var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+          Assert.AreEqual(CompressionAlgorithms.zstd_stream.ToString(), compressionAlgorithm);
+        }
       }
 
       ExecuteSqlAsRoot($"SET GLOBAL mysqlx_compression_algorithms = \"{CompressionAlgorithms.lz4_message.ToString().ToUpperInvariant()}\"");
@@ -884,41 +887,38 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
       const int BYTESIZE = 20000;
       Stopwatch watch1 = new Stopwatch();
-      session1 = MySQLX.GetSession(ConnectionString + ";compression=required");
-      session1.SQL("DROP database if exists compression").Execute();
-      session1.SQL("create database compression").Execute();
-      session1.SQL("use compression").Execute();
-      Schema schema = session1.GetSchema("compression");
-      var collection = schema.CreateCollection("compressed");
-      string text = GenerateDummyText("Wiki Loves Monuments ", BYTESIZE);
-      var doc = new[] { new { _id = 1, summary = text } };
-
-      watch1.Start();
-      collection.Add(doc).Execute();
-      schema.GetCollection("compressed");
-      watch1.Stop();
-
-      var watchTime1 = watch1.ElapsedMilliseconds;
-      session1.Close();
-
       Stopwatch watch2 = new Stopwatch();
-      session2 = MySQLX.GetSession(ConnectionString + ";compression=disabled");
-      session2.SQL("drop database if exists compression").Execute();
-      session2.SQL("create database compression").Execute();
-      session2.SQL("use compression").Execute();
-      Schema schema2 = session2.GetSchema("compression");
-      collection = schema2.CreateCollection("compressed2");
-      text = GenerateDummyText("Wiki Loves Monuments ", BYTESIZE);
-      doc = new[] { new { _id = 1, summary = text } };
+      Collection collection;
+      string dummyText = GenerateDummyText("Wiki Loves Monuments ", BYTESIZE);
+      var doc = new[] { new { _id = 1, summary = dummyText } };
 
-      watch2.Start();
-      collection.Add(doc).Execute();
-      schema2.GetCollection("compressed2");
-      watch2.Stop();
+      using (session1 = MySQLX.GetSession(ConnectionString + ";compression=required"))
+      {
+        session1.SQL("DROP DATABASE IF EXISTS compression").Execute();
+        session1.SQL("CREATE DATABASE compression").Execute();
+        session1.SQL("USE compression").Execute();
+        Schema schema = session1.GetSchema("compression");
+        collection = schema.CreateCollection("compressed");
+        watch1.Start();
+        collection.Add(doc).Execute();
+        schema.GetCollection("compressed");
+        watch1.Stop();
+      }
 
-      var watchTime2 = watch2.ElapsedMilliseconds;
-      session2.Close();
-      Assert.True(watchTime1 != watchTime2);
+      using (session2 = MySQLX.GetSession(ConnectionString + ";compression=disabled"))
+      {
+        session2.SQL("DROP DATABASE IF EXISTS compression").Execute();
+        session2.SQL("CREATE DATABASE compression").Execute();
+        session2.SQL("USE compression").Execute();
+        Schema schema = session2.GetSchema("compression");
+        collection = schema.CreateCollection("compressed2");
+        watch2.Start();
+        collection.Add(doc).Execute();
+        schema.GetCollection("compressed2");
+        watch2.Stop();
+      }
+
+      Assert.True(watch1.ElapsedMilliseconds != watch2.ElapsedMilliseconds);
     }
     #endregion
 
