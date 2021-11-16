@@ -9,6 +9,8 @@
 - Fixed wrong type classification in the API documentation (Oracle Bug #33509644).
 - Fixed unexpected behavior when multiple hosts are used and the first fails with a MySQL exception (Oracle Bug #30581109).
 - Added support for EF Core 6 (WL14735).
+- Fixed a bug that occurred when the OpenAsync method is invoked with multithreading (MySQL Bug #92465, Oracle Bug #28662512).
+
 
 8.0.27
 - Added support for reading and processing session trackers (WL14678).

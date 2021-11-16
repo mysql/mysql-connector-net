@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -105,9 +105,11 @@ namespace MySql.Data.MySqlClient
         throw new InvalidOperationException("Connection must be valid and open to commit transaction");
       if (!open)
         throw new InvalidOperationException("Transaction has already been committed or is not pending");
-      MySqlCommand cmd = new MySqlCommand("COMMIT", Connection);
-      cmd.ExecuteNonQuery();
-      open = false;
+      using (MySqlCommand cmd = new MySqlCommand("COMMIT", Connection))
+      {
+        cmd.ExecuteNonQuery();
+        open = false;
+      }
     }
 
     /// <include file='docs/MySqlTransaction.xml' path='docs/Rollback/*'/>
@@ -117,9 +119,11 @@ namespace MySql.Data.MySqlClient
         throw new InvalidOperationException("Connection must be valid and open to rollback transaction");
       if (!open)
         throw new InvalidOperationException("Transaction has already been rolled back or is not pending");
-      MySqlCommand cmd = new MySqlCommand("ROLLBACK", Connection);
-      cmd.ExecuteNonQuery();
-      open = false;
+      using (MySqlCommand cmd = new MySqlCommand("ROLLBACK", Connection))
+      {
+        cmd.ExecuteNonQuery();
+        open = false;
+      }
     }
 
   }

@@ -353,6 +353,14 @@ namespace MySql.Data.MySqlClient
       return false;
     }
 
+    /// <summary>
+    /// Executes the <see cref="Open"/> method as a Task.
+    /// </summary>
+    public override Task OpenAsync(CancellationToken cancellationToken)
+    {
+      return Task.Run(() => Open());
+    }
+
     /// <include file='docs/MySqlConnection.xml' path='docs/Open/*'/>
     public override void Open()
     {
