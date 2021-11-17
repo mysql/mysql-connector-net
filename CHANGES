@@ -10,6 +10,8 @@
 - Fixed unexpected behavior when multiple hosts are used and the first fails with a MySQL exception (Oracle Bug #30581109).
 - Added support for EF Core 6 (WL14735).
 - Fixed a bug that occurred when the OpenAsync method is invoked with multithreading (MySQL Bug #92465, Oracle Bug #28662512).
+- Fixed a bug that occurred when trying to retrieve the IndexColumns schema on a database that has a FULLTEXT index defined (MySQL Bug #75301, Oracle Bug #20266825).
+- Fixed a bug that occurred when accessing a database in which the character set equals "utf8mb3" (MySQL Bug #105516, Oracle Bug #33556024).
 
 
 8.0.27

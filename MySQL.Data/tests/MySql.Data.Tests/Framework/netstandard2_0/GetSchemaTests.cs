@@ -26,11 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using NUnit.Framework;
 using System;
 using System.Data;
 using System.Linq;
-using MySql.Data.Common;
-using NUnit.Framework;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -740,16 +740,15 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual(rows[i]["COLUMN_NAME"], expected[i]);
     }
 
-    #region WL14389
     [Test, Description("Test to verify different variations in Generated Coloumns")]
     public void GeneratedColumnsVariations()
     {
       if (Version < new Version(5, 7)) Assert.Ignore("This test is for MySql 5.7 or higher");
 
-      using (var conn= new MySqlConnection(Settings.ConnectionString))
+      using (var conn = new MySqlConnection(Settings.ConnectionString))
       {
         conn.Open();
-        var cmd = new MySqlCommand("create table Test(c1 int, c2 double GENERATED ALWAYS AS(c1 * 101 / 102) Stored COMMENT 'First Gen Col', c3 Json GENERATED ALWAYS AS(concat('{\"F1\":', c1, '}')) VIRTUAL COMMENT 'Second Gen /**/Col', c4 bigint GENERATED ALWAYS as (c1*10000) VIRTUAL UNIQUE KEY Comment '3rd Col' NOT NULL)",conn);
+        var cmd = new MySqlCommand("create table Test(c1 int, c2 double GENERATED ALWAYS AS(c1 * 101 / 102) Stored COMMENT 'First Gen Col', c3 Json GENERATED ALWAYS AS(concat('{\"F1\":', c1, '}')) VIRTUAL COMMENT 'Second Gen /**/Col', c4 bigint GENERATED ALWAYS as (c1*10000) VIRTUAL UNIQUE KEY Comment '3rd Col' NOT NULL)", conn);
         cmd.ExecuteNonQuery();
 
         cmd = new MySqlCommand("insert into Test(c1) values(1000)", conn);
@@ -779,12 +778,26 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual("STORED GENERATED", dt.Rows[1]["EXTRA"].ToString(), "Matching the values");
         Assert.AreEqual("VIRTUAL GENERATED", dt.Rows[2]["EXTRA"].ToString(), "Matching the values");
         Assert.AreEqual("VIRTUAL GENERATED", dt.Rows[3]["EXTRA"].ToString(), "Matching the values");
-
       }
-
     }
 
-    #endregion WL14389
+    /// <summary>
+    /// Bug #20266825 - SQLNULLVALUEEXCEPTION THROWN WHEN CALLING MYSQLCONNECTION::GETSCHEMA
+    /// Changed how "COLLATION" column value was retrieved
+    /// </summary>
+    [Test]
+    public void GetIndexColumnsWithFullTextIndex()
+    {
+      string indexName = "idxTest";
+      ExecuteSQL($"CREATE TABLE Test (id INT, name VARCHAR(20), FULLTEXT {indexName}(name))");
+      string cmdText = $"SELECT name, index_id, table_id, space from INFORMATION_SCHEMA.INNODB_INDEXES WHERE name = '{indexName}'";
+      MySqlCommand cmd = new MySqlCommand(cmdText, Connection);
 
+      StringAssert.AreEqualIgnoringCase(indexName, cmd.ExecuteScalar().ToString());
+
+      var indexColumns = Connection.GetSchema("IndexColumns");
+      var row = indexColumns.Select("TABLE_NAME = 'Test'");
+      StringAssert.AreEqualIgnoringCase(indexName, row[0]["INDEX_NAME"].ToString());
+    }
   }
 }

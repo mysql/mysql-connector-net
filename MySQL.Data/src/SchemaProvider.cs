@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,17 +26,17 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using MySql.Data.Types;
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
-using MySql.Data.Common;
-using MySql.Data.Types;
 
 namespace MySql.Data.MySqlClient
 {
@@ -357,10 +357,10 @@ namespace MySql.Data.MySqlClient
             row["INDEX_CATALOG"] = null;
             row["INDEX_SCHEMA"] = table["TABLE_SCHEMA"];
             row["INDEX_NAME"] = key_name;
-            row["TABLE_NAME"] = GetString(reader, reader.GetOrdinal("TABLE"));
+            row["TABLE_NAME"] = table["TABLE_NAME"];
             row["COLUMN_NAME"] = col_name;
             row["ORDINAL_POSITION"] = reader.GetValue(reader.GetOrdinal("SEQ_IN_INDEX"));
-            row["SORT_ORDER"] = reader.GetString("COLLATION");
+            row["SORT_ORDER"] = reader.GetValue(reader.GetOrdinal("COLLATION"));
           }
         }
       }
