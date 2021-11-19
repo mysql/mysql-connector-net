@@ -323,12 +323,12 @@ namespace MySqlX.Data.Tests
     }
 
     [Test, Description("Column Custom Datatypes(Unsigned,Padded,CharacterSet,Collation)")]
-    [Ignore("Bug#33116709")]
     public void ColumnCustomDatatypes()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      if (!session.Version.isAtLeast(8, 0, 14)) Assert.Ignore("This test is for MySql 8.0.14 or higher");
+      var defaultCharset = "utf8mb4";
       session.SQL($"USE {schemaName}").Execute();
-      session.SQL("CREATE TABLE address" +
+      session.SQL("CREATE TABLE IF NOT EXISTS address" +
                     "(address_number1  TINYINT UNSIGNED NOT NULL AUTO_INCREMENT, " +
                     "address_number2  SMALLINT ZEROFILL NOT NULL, " +
                     "address_number3  MEDIUMINT NOT NULL, " +
@@ -366,11 +366,11 @@ namespace MySqlX.Data.Tests
                     "building_name1","building_name2","building_name3","building_name4","building_name5","building_name6","building_name7",
                     "building_name8","building_name9","building_name10","building_name11","building_name12","building_name13","building_name14",
                     "building_name15","building_name16","building_name17"};
-      uint[] Length = new uint[] { 3, 5, 9, 10, 20, 12, 10, 10, 8, 1, 100, 100, 255, 16777215, 4294967295, 1, 120, 65535, 16777215, 4294967295, 7, 34, 10, 26, 10, 19, 4 };
+      uint[] Length = new uint[] { 3, 5, 9, 10, 20, 12, 10, 10, 8, 1, 100, 100, 255, 16777215, 4294967295, 1, 120, 65535, 16777215, 4294967295, 0, 0, 10, 26, 10, 19, 4 };
       string[] columnTypeMatch = new string[] { "Tinyint", "Smallint", "Mediumint", "Int", "Bigint", "Float", "Float",
                         "Double", "Decimal", "Bit", "String", "String", "String", "String", "String", "Bytes", "Bytes", "Bytes",
                         "Bytes", "Bytes", "Enum", "Set", "Date", "DateTime", "Time", "Timestamp", "Smallint" };
-      uint[] FDLength = new uint[] { 0, 0, 0, 0, 0, 31, 2, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0 };
+      uint[] FDLength = new uint[] { 0, 0, 0, 0, 0, 31, 2, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
       string[] columnIsSignedMatch = new string[] { "False", "False", "True", "False", "True", "False", "False",
                         "False", "False", "False", "False", "False", "False", "False", "False", "False", "False", "False", "False",
                         "False", "False", "False", "False", "False", "False", "False", "False" };
@@ -408,7 +408,7 @@ namespace MySqlX.Data.Tests
           Assert.AreEqual(null, columnCollation, "Matching the Collation Name as null for data types other than characters");
         string columnCharacterSet = result.Columns[i].CharacterSetName;
         if (i == 10 || i == 11 || i == 12 || i == 13 || i == 14 || i == 20 || i == 21)
-          Assert.AreEqual("latin1", columnCharacterSet, "Matching the CharacterSet Name for default characters");
+          StringAssert.AreEqualIgnoringCase(defaultCharset, columnCharacterSet, "Matching the CharacterSet Name for default characters");
         else if (i == 15 || i == 16 || i == 17 || i == 18 || i == 19)
           Assert.AreEqual("binary", columnCharacterSet, "Matching the Collation Name for default characters");
         else
@@ -418,13 +418,14 @@ namespace MySqlX.Data.Tests
         var columnClrType = result.Columns[i].ClrType;
         Assert.AreEqual(clrTypeMatch[i], columnClrType.ToString(), "Matching whether column CLR Type");
       }
+      session.SQL($"drop table if exists address").Execute();
     }
 
     [Test, Description("Column Join Two tables")]
-    [Ignore("Bug#33116709")]
     public void ColumnJoin()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5, 7, 0 or higher");
+      if (!session.Version.isAtLeast(8, 0, 14)) Assert.Ignore("This test is for MySql 8.0.14 or higher");
+      var defaultCharset = "utf8mb4";
       session.SQL($"USE {schemaName}").Execute();
       session.SQL("CREATE TABLE address1" +
                   "(address_number1  TINYINT UNSIGNED NOT NULL AUTO_INCREMENT, " +
@@ -461,7 +462,7 @@ namespace MySqlX.Data.Tests
       string[] columns1 = new string[] { "address_number1", "address_number2", "address_number3", "address_number4", "address_number5", "address_number6" };
       string[] columns2 = new string[] { "address_number1", "address_number2", "address_number3" };
       uint[] Length1 = new uint[] { 3, 5, 100, 10, 20, 100 };
-      uint[] Length2 = new uint[] { 3, 5, 100 };
+      uint[] Length2 = new uint[] { 3, 5, 400 };
       string[] columnTypeMatch1 = new string[] { "Tinyint", "Smallint", "String", "Int", "Bigint", "String" };
       string[] columnTypeMatch2 = new string[] { "Tinyint", "Smallint", "String" };
       uint[] FDLength1 = new uint[] { 0, 0, 0, 0, 0, 0 };
@@ -494,13 +495,9 @@ namespace MySqlX.Data.Tests
         var columnIsSigned = result1.Columns[i].IsNumberSigned;
         Assert.AreEqual(columnIsSignedMatch1[i], columnIsSigned.ToString(), "Matching whether column is signed or not");
         string columnCollation = result1.Columns[i].CollationName;
-        if (i == 2)
+        if (i == 2 || i == 5)
         {
-          Assert.AreEqual(columnCollation, columnCollation, "Matching the Collation Name for default characters");
-        }
-        else if (i == 5)
-        {
-          Assert.AreEqual(columnCollation, columnCollation, "Matching the Collation Name for default characters");
+          StringAssert.Contains(defaultCharset, columnCollation, "Matching the Collation Name for default characters");
         }
         else
         {
@@ -508,7 +505,7 @@ namespace MySqlX.Data.Tests
         }
         string columnCharacterSet = result1.Columns[i].CharacterSetName;
         if (i == 2 || i == 5)
-          Assert.AreEqual(columnCharacterSet, columnCharacterSet, "Matching the CharacterSet Name for default characters");
+          StringAssert.AreEqualIgnoringCase(defaultCharset, columnCharacterSet, "Matching the CharacterSet Name for default characters");
         else
           Assert.AreEqual(null, columnCharacterSet, "Matching the Collation Name as null for data types other than characters");
         var columnIsPadded = result1.Columns[i].IsPadded;
@@ -537,12 +534,12 @@ namespace MySqlX.Data.Tests
         Assert.AreEqual(columnIsSignedMatch2[i], columnIsSigned.ToString(), "Matching whether column is signed or not");
         string columnCollation = result2.Columns[i].CollationName;
         if (i == 2)
-          Assert.AreEqual(columnCollation, columnCollation, "Matching the Collation Name for default characters");
+          StringAssert.Contains(defaultCharset, columnCollation, "Matching the Collation Name for default characters");
         else
           Assert.AreEqual(null, columnCollation, "Matching the Collation Name as null for data types other than characters");
         string columnCharacterSet = result2.Columns[i].CharacterSetName;
         if (i == 2)
-          Assert.AreEqual("latin1", columnCharacterSet, "Matching the CharacterSet Name for default characters");
+          StringAssert.AreEqualIgnoringCase(defaultCharset, columnCharacterSet, "Matching the CharacterSet Name for default characters");
         else
           Assert.AreEqual(null, columnCharacterSet, "Matching the Collation Name as null for data types other than characters");
         var columnIsPadded = result2.Columns[i].IsPadded;
@@ -577,11 +574,11 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual("b", result2.Columns[1].ColumnName, "Matching Column Name");
       Assert.AreEqual("b", result2.Columns[1].ColumnLabel, "Matching Column Label");
       Assert.AreEqual("String", result2.Columns[1].Type.ToString(), "Matching Column Type");
-      Assert.AreEqual(255u, result2.Columns[1].Length, "Matching Column Length");
+      Assert.AreEqual(1020u, result2.Columns[1].Length, "Matching Column Length");
       Assert.AreEqual(0u, result2.Columns[1].FractionalDigits, "Matching Column FD");
       Assert.AreEqual(false, result2.Columns[1].IsNumberSigned, "Matching Column Is Signed");
-      Assert.AreEqual("latin1", result2.Columns[1].CharacterSetName, "Matching Character Set Name");
-      Assert.AreEqual("latin1_swedish_ci", result2.Columns[1].CollationName, "Matching Collation Name");
+      Assert.AreEqual(defaultCharset, result2.Columns[1].CharacterSetName, "Matching Character Set Name");
+      StringAssert.Contains(defaultCharset, result2.Columns[1].CollationName, "Matching Collation Name");
       Assert.AreEqual(false, result2.Columns[1].IsPadded, "Matching Column Padded");
 
       session.SQL("create table test1(c1 int,c2 double GENERATED ALWAYS AS (c1*101/102) Stored COMMENT 'First Gen Col',c3 Json GENERATED ALWAYS AS (concat('{\"F1\":',c1,'}')) VIRTUAL COMMENT 'Second Gen /**/Col', c4 bigint GENERATED ALWAYS as (c1*10000) VIRTUAL UNIQUE KEY Comment '3rd Col' NOT NULL)").Execute();
@@ -646,21 +643,12 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(null, result2.Columns[0].CollationName, "Matching Collation Name");
       Assert.AreEqual(false, result2.Columns[0].IsPadded, "Matching Column Padded");
 
-      session.SQL("create table x(id int);").Execute();
-      session.SQL("insert into x values(10);").Execute();
-
-      result2 = session.GetSchema(schemaName).GetTable("x").Select("1 as col1", "2 as col2").Execute();
-      string test1 = result2.Columns[0].CharacterSetName;
-      string test2 = result2.Columns[0].ClrType.ToString();
-      string test3 = result2.Columns[0].CollationName;
-      string test4 = result2.Columns[0].ColumnLabel;
-      string test5 = result2.Columns[0].ColumnName;
-      string test6 = result2.Columns[0].DatabaseName;
-      uint test7 = result2.Columns[0].FractionalDigits;
-      string test8 = result2.Columns[0].SchemaName;
-      string test9 = result2.Columns[0].TableLabel;
-      string test10 = result2.Columns[0].TableName;
-
+      session.SQL("DROP TABLE if exists test").Execute();
+      session.SQL("DROP TABLE if exists test1").Execute();
+      session.SQL("DROP TABLE if exists result1").Execute();
+      session.SQL("DROP TABLE if exists result2").Execute();
+      session.SQL("DROP TABLE if exists address1").Execute();
+      session.SQL("DROP TABLE if exists address2").Execute();
     }
 
     [Test, Description("Column Character Default Datatype")]
@@ -722,13 +710,14 @@ namespace MySqlX.Data.Tests
         var columnClrType = result.Columns[i].ClrType;
         Assert.AreEqual(clrTypeMatch[i], columnClrType.ToString(), "Matching whether column CLR Type");
       }
+      session.SQL("DROP TABLE if exists address").Execute();
     }
 
     [Test, Description("Column Character Custom Datatype")]
-    [Ignore("Bug#33116709")]
     public void ColumnCharacterCustomDatatype()
     {
-      if (!_serverVersion.isAtLeast(5, 7, 0)) return;
+      if (!session.Version.isAtLeast(8, 0, 14)) Assert.Ignore("This test is for MySql 8.0.14 or higher");
+      var defaultCharset = "utf8mb4";
       session.SQL($"USE {schemaName}").Execute();
       session.SQL("Drop table if exists address").Execute();
       session.SQL("CREATE TABLE address" +
@@ -771,12 +760,12 @@ namespace MySqlX.Data.Tests
         Assert.AreEqual(columnIsSignedMatch[i], columnIsSigned.ToString(), "Matching whether column is signed or not");
         string columnCollation = result.Columns[i].CollationName;
         if (i == 1 || i == 2 || i == 3 || i == 4 || i == 5)
-          Assert.AreEqual("big5_chinese_ci", columnCollation, "Matching the Collation Name for big5_chinese_ci characters");
+          StringAssert.Contains(defaultCharset, columnCollation, "Matching the Collation Name for big5_chinese_ci characters");
         else
           Assert.AreEqual(null, columnCollation, "Matching the Collation Name as null for data types other than characters");
         string columnCharacterSet = result.Columns[i].CharacterSetName;
         if (i == 1 || i == 2 || i == 3 || i == 4 || i == 5)
-          Assert.AreEqual("big5", columnCharacterSet, "Matching the CharacterSet Name for big5 characters");
+          StringAssert.AreEqualIgnoringCase(defaultCharset, columnCharacterSet, "Matching the CharacterSet Name for big5 characters");
         else
           Assert.AreEqual(null, columnCharacterSet, "Matching the Collation Name as null for data types other than characters");
         var columnIsPadded = result.Columns[i].IsPadded;
@@ -784,6 +773,7 @@ namespace MySqlX.Data.Tests
         var columnClrType = result.Columns[i].ClrType;
         Assert.AreEqual(clrTypeMatch[i], columnClrType.ToString(), "Matching whether column CLR Type");
       }
+      session.SQL("Drop table if exists address").Execute();
     }
 
     [Test, Description("Column Geometric Datatypes")]
@@ -910,44 +900,31 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    [Test, Description("Verify with latin1 charset and collation")]
-    [Ignore("Bug#33116709")]
+    /// <summary>
+    /// Bug #33116709	WRONG CHARSET RETURNED USING XPLUGIN
+    /// </summary>
+    [Test, Description("Verify default charset and collation")]
     public void VerifyLatinCharsetAndCollation()
     {
+      if (!session.Version.isAtLeast(8, 0, 14)) Assert.Ignore("This test is for MySql 8.0.14 or higher");
       var database_name = "collation_test";
       var charset = "latin1";
-      String[] collationname = { "latin1_danish_ci" };
-      Assert.AreEqual("utf8mb4", session.Settings.CharacterSet, "Matching the character set of the session");
-      for (var i = 0; i < collationname.Length; i++)
-      {
-        session.DropSchema(database_name);
-        var CommandText1 = $"CREATE DATABASE {database_name} CHARACTER SET {charset} COLLATE {collationname[i]}";
-        session.SQL(CommandText1).Execute();
-        session.SQL("USE " + database_name).Execute();
-        session.SQL("create table x(id int,name char(25));").Execute();
-        session.SQL("insert into x values(10,'AXTREF');").Execute();
-        RowResult result1 = session.GetSchema(database_name).GetTable("x").Select("id").Execute();
-        Assert.AreEqual(null, result1.Columns[0].CharacterSetName, "id-charset");
-        Assert.AreEqual(null, result1.Columns[0].CollationName, "id-collation");
-        result1 = session.GetSchema(database_name).GetTable("x").Select("name").Execute();
-        Assert.AreEqual(charset, result1.Columns[0].CharacterSetName, "name-charset");
-        Assert.AreEqual(collationname[0], result1.Columns[0].CollationName, "name-collation");
-        session.DropSchema(database_name);
-
-        CommandText1 = "CREATE DATABASE " + database_name;
-        session.SQL(CommandText1).Execute();
-        session.SQL("USE " + database_name).Execute();
-        session.SQL("create table x(id int,name char(25))" + " CHARACTER SET " + charset + " COLLATE " +
-                       collationname[i] + ";").Execute();
-        session.SQL("insert into x values(10,'AXTREF');").Execute();
-        var result = session.GetSchema(database_name).GetTable("x").Select("id").Execute();
-        Assert.AreEqual(null, result.Columns[0].CharacterSetName, "id-charset");
-        Assert.AreEqual(null, result.Columns[0].CollationName, "id-collation");
-        result = session.GetSchema(database_name).GetTable("x").Select("name").Execute();
-        Assert.AreEqual(charset, result.Columns[0].CharacterSetName, "name-charset");
-        Assert.AreEqual(collationname[0], result.Columns[0].CollationName, "name-collation");
-        session.DropSchema(database_name);
-      }
+      var collationname = "latin1_danish_ci";
+      var defaultCharset = "utf8mb4";
+      Assert.AreEqual(defaultCharset, session.Settings.CharacterSet, "Matching the character set of the session");
+      session.DropSchema(database_name);
+      var CommandText1 = $"CREATE DATABASE {database_name} CHARACTER SET {charset} COLLATE {collationname}";
+      session.SQL(CommandText1).Execute();
+      session.SQL("USE " + database_name).Execute();
+      session.SQL("create table x(id int,name char(25));").Execute();
+      session.SQL("insert into x values(10,'AXTREF');").Execute();
+      RowResult result1 = session.GetSchema(database_name).GetTable("x").Select("id").Execute();
+      Assert.AreEqual(null, result1.Columns[0].CharacterSetName, "id-charset");
+      Assert.AreEqual(null, result1.Columns[0].CollationName, "id-collation");
+      result1 = session.GetSchema(database_name).GetTable("x").Select("name").Execute();
+      StringAssert.AreEqualIgnoringCase(defaultCharset, result1.Columns[0].CharacterSetName, "name-charset");
+      StringAssert.Contains(defaultCharset, result1.Columns[0].CollationName, "name-collation");
+      session.DropSchema(database_name);
     }
 
     [Test, Description("Create table/db with collation utf8mb4_0900_bin and insert non ascii characters and fetch data")]
@@ -1123,6 +1100,5 @@ namespace MySqlX.Data.Tests
     }
 
     #endregion WL14389
-
   }
 }
