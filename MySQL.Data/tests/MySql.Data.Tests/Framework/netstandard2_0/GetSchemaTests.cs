@@ -790,10 +790,13 @@ namespace MySql.Data.MySqlClient.Tests
     {
       string indexName = "idxTest";
       ExecuteSQL($"CREATE TABLE Test (id INT, name VARCHAR(20), FULLTEXT {indexName}(name))");
-      string cmdText = $"SELECT name, index_id, table_id, space from INFORMATION_SCHEMA.INNODB_INDEXES WHERE name = '{indexName}'";
-      MySqlCommand cmd = new MySqlCommand(cmdText, Connection);
 
-      StringAssert.AreEqualIgnoringCase(indexName, cmd.ExecuteScalar().ToString());
+      if (Version >= new Version(8, 0))
+      {
+        string cmdText = $"SELECT name, index_id, table_id, space from INFORMATION_SCHEMA.INNODB_INDEXES WHERE name = '{indexName}'";
+        MySqlCommand cmd = new MySqlCommand(cmdText, Connection);
+        StringAssert.AreEqualIgnoringCase(indexName, cmd.ExecuteScalar().ToString());
+      }
 
       var indexColumns = Connection.GetSchema("IndexColumns");
       var row = indexColumns.Select("TABLE_NAME = 'Test'");

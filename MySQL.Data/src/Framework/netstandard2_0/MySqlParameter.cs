@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -47,7 +47,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>An object that is a clone of this object.</returns>
     public MySqlParameter Clone()
     {
-      MySqlParameter clone = new MySqlParameter(_paramName, _mySqlDbType, Direction, SourceColumn, SourceVersion, _paramValue)
+      MySqlParameter clone = new MySqlParameter(_paramName, _mySqlDbType, Direction, SourceColumn, SourceVersion, _paramValue, SourceColumnNullMapping)
       {
         _inferType = _inferType
       };

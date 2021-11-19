@@ -12,6 +12,11 @@
 - Fixed a bug that occurred when the OpenAsync method is invoked with multithreading (MySQL Bug #92465, Oracle Bug #28662512).
 - Fixed a bug that occurred when trying to retrieve the IndexColumns schema on a database that has a FULLTEXT index defined (MySQL Bug #75301, Oracle Bug #20266825).
 - Fixed a bug that occurred when accessing a database in which the character set equals "utf8mb3" (MySQL Bug #105516, Oracle Bug #33556024).
+- Fixed a bug that occurred when cloning a parameter to ensure the SourceColumnNullMapping property is copied with the right value (MySQL Bug #74533, Oracle Bug #20056757).
+- Fixed how the length of connection attribute values are calculated for sending across the wire (MySQL Bug #92789, Oracle Bug #28824591).
+- Added missing implementation of the IConvertible interface for type MySqlDateTime (MySQL Bug #82661, Oracle Bug #24495619).
+- Fixed how parameters are created, ensuring that the values of type DbType and MySQLDbType match (MySQL Bug #81586, Oracle Bug #23343947).
+- Fixed wrong setting of the default value in integral type parameters (MySQL Bug #101253, Oracle Bug #32050204).
 
 
 8.0.27

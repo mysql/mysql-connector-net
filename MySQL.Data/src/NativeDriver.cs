@@ -898,11 +898,10 @@ namespace MySql.Data.MySqlClient
 
           string value = (string)property.GetValue(attrs, null);
           connectAttrs += string.Format("{0}{1}", (char)name.Length, name);
-          connectAttrs += string.Format("{0}{1}", (char)value.Length, value);
+          connectAttrs += string.Format("{0}{1}", (char)Encoding.UTF8.GetBytes(value).Length, value);
         }
         packet.WriteLenString(connectAttrs);
       }
     }
   }
-
 }

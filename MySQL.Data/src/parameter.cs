@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -71,8 +71,11 @@ namespace MySql.Data.MySqlClient
 
     public MySqlParameter()
     {
+      DbType = DbType.String;
+      MySqlDbType = MySqlDbType.VarChar;
       SourceVersion = DataRowVersion.Default;
       Direction = ParameterDirection.Input;
+      _inferType = true;
     }
 
     /// <summary>
@@ -94,27 +97,6 @@ namespace MySql.Data.MySqlClient
     public MySqlParameter(string parameterName, MySqlDbType dbType) : this(parameterName, null)
     {
       MySqlDbType = dbType;
-      SetNumericDefaultValueByType(MySqlDbType);
-    }
-
-    private void SetNumericDefaultValueByType(MySqlDbType mySqlDbType)
-    {
-      switch (mySqlDbType)
-      {
-        case MySqlDbType.Decimal:
-        case MySqlDbType.Byte:
-        case MySqlDbType.Int16:
-        case MySqlDbType.Int24:
-        case MySqlDbType.Int32:
-        case MySqlDbType.Int64:
-        case MySqlDbType.Float:
-        case MySqlDbType.Double:
-          if (Value is null)
-          {
-            Value = 0;
-          }
-          break;
-      }
     }
 
     /// <summary>
@@ -155,13 +137,14 @@ namespace MySql.Data.MySqlClient
       SourceVersion = sourceVersion;
     }
 
-    internal MySqlParameter(string name, MySqlDbType type, ParameterDirection dir, string col, DataRowVersion sourceVersion, object val)
+    internal MySqlParameter(string name, MySqlDbType type, ParameterDirection dir, string col, DataRowVersion sourceVersion, object val, bool sourceColumnNullMapping)
       : this(name, type)
     {
       Direction = dir;
       SourceColumn = col;
       Value = val;
       SourceVersion = sourceVersion;
+      SourceColumnNullMapping = sourceColumnNullMapping;
     }
 
     #endregion
@@ -382,7 +365,7 @@ namespace MySql.Data.MySqlClient
       {
         Type t = _paramValue.GetType();
         if (t.GetTypeInfo().BaseType == typeof(Enum))
-            t = t.GetTypeInfo().GetEnumUnderlyingType();
+          t = t.GetTypeInfo().GetEnumUnderlyingType();
         switch (t.Name)
         {
           case "SByte": MySqlDbType = MySqlDbType.Byte; break;
@@ -401,7 +384,7 @@ namespace MySql.Data.MySqlClient
           case "Decimal": MySqlDbType = MySqlDbType.Decimal; break;
           case "Object":
           default:
-              MySqlDbType = MySqlDbType.Blob;
+            MySqlDbType = MySqlDbType.Blob;
             break;
         }
       }
@@ -636,6 +619,5 @@ namespace MySql.Data.MySqlClient
       // Always call base, even if you can't convert.
       return base.ConvertTo(context, culture, value, destinationType);
     }
-
   }
 }

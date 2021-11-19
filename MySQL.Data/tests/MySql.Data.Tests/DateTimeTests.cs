@@ -972,5 +972,19 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
       }
     }
+
+    /// <summary>
+    /// Bug #24495619	- MySqlDateTime type bug in .NET provider
+    /// Added missing implementation of the IConvertible interface
+    /// </summary>
+    [Test]
+    public void IConvertibleImplementation()
+    {
+      var mySqlDateTime = new MySqlDateTime(DateTime.Now);
+
+      Assert.AreEqual(TypeCode.DateTime, ((IConvertible)mySqlDateTime).GetTypeCode());
+      Assert.NotNull(((IConvertible)mySqlDateTime).ToString());
+      Assert.NotNull(Convert.ToString(mySqlDateTime));
+    }
   }
 }

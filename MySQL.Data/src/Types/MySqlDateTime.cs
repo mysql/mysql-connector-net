@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020 Oracle and/or its affiliates.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,10 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using MySql.Data.MySqlClient;
 using System;
 using System.Globalization;
-using MySql.Data.MySqlClient;
-using MySql.Data.Common;
 
 namespace MySql.Data.Types
 {
@@ -509,93 +509,41 @@ namespace MySql.Data.Types
     #endregion
 
     #region IConvertible Members
-
-    ulong IConvertible.ToUInt64(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    sbyte IConvertible.ToSByte(IFormatProvider provider)
-    {
-      // TODO:  Add MySqlDateTime.ToSByte implementation
-      return 0;
-    }
-
-    double IConvertible.ToDouble(IFormatProvider provider)
-    {
-      return 0;
-    }
-
     DateTime IConvertible.ToDateTime(IFormatProvider provider)
     {
       return GetDateTime();
     }
 
-    float IConvertible.ToSingle(IFormatProvider provider)
+    string IConvertible.ToString(IFormatProvider provider)
     {
-      return 0;
+      return GetDateTime().ToString(provider);
     }
 
-    bool IConvertible.ToBoolean(IFormatProvider provider)
+    TypeCode IConvertible.GetTypeCode()
     {
-      return false;
-    }
-
-    int IConvertible.ToInt32(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    ushort IConvertible.ToUInt16(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    short IConvertible.ToInt16(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    string System.IConvertible.ToString(IFormatProvider provider)
-    {
-      return null;
-    }
-
-    byte IConvertible.ToByte(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    char IConvertible.ToChar(IFormatProvider provider)
-    {
-      return '\0';
-    }
-
-    long IConvertible.ToInt64(IFormatProvider provider)
-    {
-      return 0;
-    }
-
-    System.TypeCode IConvertible.GetTypeCode()
-    {
-      return new System.TypeCode();
-    }
-
-    decimal IConvertible.ToDecimal(IFormatProvider provider)
-    {
-      return 0;
+      return TypeCode.DateTime;
     }
 
     object IConvertible.ToType(Type conversionType, IFormatProvider provider)
     {
-      return null;
+      return conversionType == typeof(DateTime) ? (object)GetDateTime() :
+        conversionType == typeof(string) ? ((IConvertible)this).ToString(provider)
+        : throw new InvalidCastException();
     }
 
-    uint IConvertible.ToUInt32(IFormatProvider provider)
-    {
-      return 0;
-    }
-
+    ulong IConvertible.ToUInt64(IFormatProvider provider) => throw new InvalidCastException();
+    sbyte IConvertible.ToSByte(IFormatProvider provider) => throw new InvalidCastException();
+    double IConvertible.ToDouble(IFormatProvider provider) => throw new InvalidCastException();
+    float IConvertible.ToSingle(IFormatProvider provider) => throw new InvalidCastException();
+    bool IConvertible.ToBoolean(IFormatProvider provider) => throw new InvalidCastException();
+    int IConvertible.ToInt32(IFormatProvider provider) => throw new InvalidCastException();
+    ushort IConvertible.ToUInt16(IFormatProvider provider) => throw new InvalidCastException();
+    short IConvertible.ToInt16(IFormatProvider provider) => throw new InvalidCastException();
+    byte IConvertible.ToByte(IFormatProvider provider) => throw new InvalidCastException();
+    char IConvertible.ToChar(IFormatProvider provider) => throw new InvalidCastException();
+    long IConvertible.ToInt64(IFormatProvider provider) => throw new InvalidCastException();
+    decimal IConvertible.ToDecimal(IFormatProvider provider) => throw new InvalidCastException();
+    uint IConvertible.ToUInt32(IFormatProvider provider) => throw new InvalidCastException();
     #endregion
 
   }
