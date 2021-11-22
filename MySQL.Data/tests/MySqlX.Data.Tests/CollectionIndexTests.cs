@@ -132,8 +132,9 @@ namespace MySqlX.Data.Tests
 
       // Timestamp index.
       collection.DropIndex("myIndex");
+      string explicitDefaultTimestamp = session.SQL("SHOW VARIABLES LIKE 'explicit_defaults_for_timestamp'").Execute().FetchAll()[0][1].ToString();
       collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TIMESTAMP\" } ] }");
-      ValidateIndex("myIndex", "test", "ds", false, true, false, 1);
+      ValidateIndex("myIndex", "test", "ds", false, explicitDefaultTimestamp == "OFF" ? true : false, false, 1);
 
       // Time index.
       collection.DropIndex("myIndex");

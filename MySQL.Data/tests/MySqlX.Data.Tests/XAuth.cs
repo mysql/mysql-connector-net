@@ -49,6 +49,7 @@ namespace MySqlX.Data.Tests
       builder.Password = "test";
       CreateUser(builder.UserID, builder.Password, pluginName);
       string connectionString = null, connectionStringUri = null;
+      string defaultAuthPlugin = session.SQL("SHOW VARIABLES LIKE 'default_authentication_plugin'").Execute().FetchAll()[0][1].ToString();
 
       //Connection String
       connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password}";
@@ -61,7 +62,7 @@ namespace MySqlX.Data.Tests
 
       connectionString = connectionString + ";ssl-mode=none";
       using (var session1 = MySQLX.GetSession(connectionString))
-        Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
+        Assert.AreEqual(defaultAuthPlugin == "mysql_native_password" ? MySqlAuthenticationMode.MYSQL41 : MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
 
       connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password};ssl-mode=VerifyCA;ssl-ca={sslCa};ssl-ca-pwd=pass;";
       using (var session1 = MySQLX.GetSession(connectionString))
@@ -83,7 +84,7 @@ namespace MySqlX.Data.Tests
 
       connectionStringUri = connectionStringUri + "?sslmode=none";
       using (var session1 = MySQLX.GetSession(connectionStringUri))
-        Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
+        Assert.AreEqual(defaultAuthPlugin == "mysql_native_password" ? MySqlAuthenticationMode.MYSQL41 : MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
 
       //Anonymous Object
       using (var session1 = MySQLX.GetSession(new { server = builder.Server, port = XPort, user = builder.UserID, password = builder.Password }))
@@ -102,22 +103,41 @@ namespace MySqlX.Data.Tests
         sslmode = MySqlSslMode.None,
         password = builder.Password
       }))
-        Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
+        Assert.AreEqual(defaultAuthPlugin == "mysql_native_password" ? MySqlAuthenticationMode.MYSQL41 : MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
+
       ExecuteSQL("flush privileges");
       connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password};ssl-mode=none";
-      Assert.Throws<MySqlException>(() => MySQLX.GetSession(connectionString));
+      if (defaultAuthPlugin == "mysql_native_password")
+        Assert.NotNull(MySQLX.GetSession(connectionString));
+      else
+        Assert.Throws<MySqlException>(() => MySQLX.GetSession(connectionString));
+
       //URI
       connectionStringUri = $"mysqlx://{builder.UserID}:{builder.Password}@{builder.Server}:{XPort}?sslmode=none";
-      Assert.Throws<MySqlException>(() => MySQLX.GetSession(connectionString));
+      if (defaultAuthPlugin == "mysql_native_password")
+        Assert.NotNull(MySQLX.GetSession(connectionStringUri));
+      else
+        Assert.Throws<MySqlException>(() => MySQLX.GetSession(connectionStringUri));
+
       //Anonymous Object
-      Assert.Throws<MySqlException>(() => MySQLX.GetSession(new
-      {
-        server = Host,
-        port = XPort,
-        user = builder.UserID,
-        sslmode = MySqlSslMode.None,
-        password = builder.Password
-      }));
+      if (defaultAuthPlugin == "mysql_native_password")
+        Assert.NotNull(MySQLX.GetSession(new
+        {
+          server = Host,
+          port = XPort,
+          user = builder.UserID,
+          sslmode = MySqlSslMode.None,
+          password = builder.Password
+        }));
+      else
+        Assert.Throws<MySqlException>(() => MySQLX.GetSession(new
+        {
+          server = Host,
+          port = XPort,
+          user = builder.UserID,
+          sslmode = MySqlSslMode.None,
+          password = builder.Password
+        }));
     }
 
     [Test, Description("User selects DEFAULT as authentication mechanism-(default user,ssl mode none with allow public key retrieval=true,fresh connection - ensure password is not cached")]
