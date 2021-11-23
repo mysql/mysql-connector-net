@@ -117,33 +117,36 @@ namespace MySql.Data.MySqlClient
           _packet.WriteLength(paramCount);
         }
 
-        // now prepare our null map
-        _nullMap = new BitArray(paramCount);
-        int numNullBytes = (_nullMap.Length + 7) / 8;
-        _nullMapPosition = _packet.Position;
-        _packet.Position += numNullBytes;  // leave room for our null map
-        _packet.WriteByte(1); // new_params_bind_flag
-
-        // write out the parameter types and names
-        foreach (MySqlParameter p in _parametersToSend)
+        if (paramCount > 0)
         {
-          // parameter type
-          _packet.WriteInteger(p.GetPSType(), 2);
+          // now prepare our null map
+          _nullMap = new BitArray(paramCount);
+          int numNullBytes = (_nullMap.Length + 7) / 8;
+          _nullMapPosition = _packet.Position;
+          _packet.Position += numNullBytes;  // leave room for our null map
+          _packet.WriteByte(1); // new_params_bind_flag
 
-          // parameter name
-          if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
-            _packet.WriteLenString(p.BaseName);
-        }
+          // write out the parameter types and names
+          foreach (MySqlParameter p in _parametersToSend)
+          {
+            // parameter type
+            _packet.WriteInteger(p.GetPSType(), 2);
 
-        // write out the attributes types and names
-        foreach (MySqlAttribute a in Attributes)
-        {
-          // attribute type
-          _packet.WriteInteger(a.GetPSType(), 2);
+            // parameter name
+            if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
+              _packet.WriteLenString(p.BaseName);
+          }
 
-          // attribute name
-          if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
-            _packet.WriteLenString(a.AttributeName);
+          // write out the attributes types and names
+          foreach (MySqlAttribute a in Attributes)
+          {
+            // attribute type
+            _packet.WriteInteger(a.GetPSType(), 2);
+
+            // attribute name
+            if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
+              _packet.WriteLenString(a.AttributeName);
+          }
         }
       }
 

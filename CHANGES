@@ -17,6 +17,8 @@
 - Added missing implementation of the IConvertible interface for type MySqlDateTime (MySQL Bug #82661, Oracle Bug #24495619).
 - Fixed how parameters are created, ensuring that the values of type DbType and MySQLDbType match (MySQL Bug #81586, Oracle Bug #23343947).
 - Fixed wrong setting of the default value in integral type parameters (MySQL Bug #101253, Oracle Bug #32050204).
+- Removed an extra query when inserting multiple batched rows using MySqlDataAdapter (MySQL Bug #71626, Oracle Bug #20328929).
+- Fixed a bug that occurred when reading a zero time value after reading a nonzero time value (MySQL Bug #105209, Oracle Bug #33470147).
 
 
 8.0.27

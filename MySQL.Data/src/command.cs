@@ -871,8 +871,7 @@ namespace MySql.Data.MySqlClient
         // we can use the multi-value form of insert
         if (String.Compare(CommandText.Substring(0, 6), "INSERT", StringComparison.OrdinalIgnoreCase) == 0)
         {
-          MySqlCommand cmd = new MySqlCommand("SELECT @@sql_mode", Connection);
-          string sql_mode = StringUtility.ToUpperInvariant(cmd.ExecuteScalar().ToString());
+          string sql_mode = Connection.driver.Property("sql_mode").ToUpperInvariant();
           MySqlTokenizer tokenizer = new MySqlTokenizer(CommandText);
           tokenizer.AnsiQuotes = sql_mode.IndexOf("ANSI_QUOTES") != -1;
           tokenizer.BackslashEscapes = sql_mode.IndexOf("NO_BACKSLASH_ESCAPES") == -1;

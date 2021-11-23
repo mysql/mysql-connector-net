@@ -26,10 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using NUnit.Framework;
-using System.Data;
 using MySql.Data.Types;
+using NUnit.Framework;
+using System;
+using System.Data;
 using System.Text;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -1465,7 +1465,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #region WL143889
     /// <summary>
     /// Bug 26876582 UNEXPECTED COLUMNSIZE FOR CHAR(36) AND BLOB COLUMNS IN GETSCHEMATABLE
     /// </summary>
@@ -1561,6 +1560,36 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #endregion  WL143889
+    /// <summary>
+    /// Bug #33470147 - Bug #91752 is marked as fixed in v8.0.16, but still present in v8.0.26
+    /// When reading a zero time value, it didn't reset the value of the new row hence the exception
+    /// </summary>
+    [Test]
+    public void ZeroTimeValues()
+    {
+      ExecuteSQL(@"CREATE TABLE Test (tm TIME NOT NULL); 
+        INSERT INTO Test VALUES('00:00:00'); 
+        INSERT INTO Test VALUES('01:01:01');
+        INSERT INTO Test VALUES('00:00:00');");
+
+      using (var command = new MySqlCommand(@"SELECT tm FROM Test", Connection))
+      {
+        command.Prepare();
+        using (var reader = command.ExecuteReader())
+        {
+          Assert.True(reader.Read());
+          Assert.AreEqual("00:00:00", reader.GetValue(0).ToString());
+          Assert.AreEqual("00:00:00", reader.GetTimeSpan(0).ToString());
+
+          Assert.True(reader.Read());
+          Assert.AreEqual("01:01:01", reader.GetValue(0).ToString());
+          Assert.AreEqual("01:01:01", reader.GetTimeSpan(0).ToString());
+
+          Assert.True(reader.Read());
+          Assert.AreEqual("00:00:00", reader.GetValue(0).ToString());
+          Assert.AreEqual("00:00:00", reader.GetTimeSpan(0).ToString());
+        }
+      }
+    }
   }
 }

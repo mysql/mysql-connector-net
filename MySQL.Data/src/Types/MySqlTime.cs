@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,9 +26,9 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using System;
 using System.Globalization;
-using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Types
 {
@@ -76,21 +76,21 @@ namespace MySql.Data.Types
         else
           packet.WriteByte(8);
 
-        packet.WriteByte((byte)(negative ? 1 : 0));        
+        packet.WriteByte((byte)(negative ? 1 : 0));
         packet.WriteInteger(ts.Days, 4);
         packet.WriteByte((byte)ts.Hours);
         packet.WriteByte((byte)ts.Minutes);
         packet.WriteByte((byte)ts.Seconds);
         if (ts.Milliseconds > 0)
         {
-          long mval = ts.Milliseconds*1000;
-          packet.WriteInteger(mval, 4);          
+          long mval = ts.Milliseconds * 1000;
+          packet.WriteInteger(mval, 4);
         }
       }
       else
       {
-        String s = $"'{(negative ? "-" : "")}{ts.Days} {ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Ticks%10000000/10:000000}'";
-      
+        String s = $"'{(negative ? "-" : "")}{ts.Days} {ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Ticks % 10000000 / 10:000000}'";
+
         packet.WriteStringNoNull(s);
       }
     }
@@ -114,20 +114,23 @@ namespace MySql.Data.Types
 
       IsNull = false;
       if (bufLength == 0)
+      {
         IsNull = true;
+        Value = new MySqlTimeSpan().Value;
+      }
       else if (bufLength == 5)
         Value = new TimeSpan(packet.ReadInteger(4), 0, 0, 0);
       else if (bufLength == 8)
         Value = new TimeSpan(packet.ReadInteger(4),
              packet.ReadByte(), packet.ReadByte(), packet.ReadByte());
       else
-        {
-          var days = (int) packet.ReadInteger(4);
-          var hours = (int) packet.ReadByte();
-          var minutes = (int) packet.ReadByte();
-          var seconds = (int) packet.ReadByte();
-          var microseconds = (int) packet.ReadInteger(4);
-          Value = new TimeSpan(days, hours, minutes, seconds) + TimeSpan.FromTicks(microseconds*10);
+      {
+        var days = (int)packet.ReadInteger(4);
+        var hours = (int)packet.ReadByte();
+        var minutes = (int)packet.ReadByte();
+        var seconds = (int)packet.ReadByte();
+        var microseconds = (int)packet.ReadInteger(4);
+        Value = new TimeSpan(days, hours, minutes, seconds) + TimeSpan.FromTicks(microseconds * 10);
       }
 
       if (negate == 1)
