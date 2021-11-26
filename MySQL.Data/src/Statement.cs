@@ -30,8 +30,6 @@ using MySql.Data.Common;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
-using System.Text;
 
 namespace MySql.Data.MySqlClient
 {
@@ -119,11 +117,8 @@ namespace MySql.Data.MySqlClient
           // now we make a guess if this statement will fit in our current stream
           long estimatedCmdSize = batchedCmd.EstimatedSize();
           if (((packet.Length - 4) + estimatedCmdSize) > Connection.driver.MaxPacketSize)
-          {
-            // it won't, so we setup to start a new run from here
-            parameters = batchedCmd.Parameters;
-            break;
-          }
+            // it won't, so we raise an exception to avoid a partial batch 
+            throw new MySqlException(Resources.QueryTooLarge, (int)MySqlErrorCode.PacketTooLarge);
 
           // looks like we might have room for it so we remember the current end of the stream
           _buffers.RemoveAt(_buffers.Count - 1);

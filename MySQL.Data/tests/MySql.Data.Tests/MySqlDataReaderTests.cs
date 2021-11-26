@@ -26,11 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using NUnit.Framework;
-using System.Data;
 using MySql.Data.Common;
+using NUnit.Framework;
+using System;
+using System.Data;
 using System.Data.SqlTypes;
+using System.Text;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -774,5 +775,34 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    /// <summary>
+    /// Bug #28980953 - MYSQLDATAREADER.GETSTREAM THROWS INDEXOUTOFRANGEEXCEPTION
+    /// The implementation of GetStream method was missing, hence the exception.
+    /// </summary>
+    [Test]
+    public void GetStream()
+    {
+      ExecuteSQL("CREATE TABLE Test (data BLOB)");
+
+      string str = "randomText_12345";
+      byte[] val = UTF8Encoding.UTF8.GetBytes(str);
+
+      using (var command = new MySqlCommand(@"INSERT INTO Test VALUES(@data);", Connection))
+      {
+        command.Parameters.AddWithValue("@data", val);
+        command.ExecuteNonQuery();
+      }
+
+      using (var command = new MySqlCommand(@"SELECT data FROM Test", Connection))
+      using (var reader = command.ExecuteReader())
+      {
+        reader.Read();
+        using (var stream = reader.GetStream(0))
+        {
+          string result = UTF8Encoding.UTF8.GetString(((System.IO.MemoryStream)stream).ToArray());
+          StringAssert.AreEqualIgnoringCase(str, result);
+        }
+      }
+    }
   }
 }

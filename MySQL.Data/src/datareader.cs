@@ -32,6 +32,7 @@ using System.Collections;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.IO;
 using System.Threading;
 
 namespace MySql.Data.MySqlClient
@@ -667,6 +668,30 @@ namespace MySql.Data.MySqlClient
         Throw(new Exception("No current query in data reader"));
 
       return ResultSet.GetOrdinal(name);
+    }
+
+    /// <summary>
+    /// Gets a stream to retrieve data from the specified column.
+    /// </summary>
+    /// <param name="ordinal">The zero-based column ordinal.</param>
+    /// <returns>A stream</returns>
+    public override Stream GetStream(int i)
+    {
+      if (i >= FieldCount)
+        Throw(new IndexOutOfRangeException());
+
+      IMySqlValue val = GetFieldValue(i, false);
+
+      if (!(val is MySqlBinary) && !(val is MySqlGuid))
+        Throw(new MySqlException("GetStream can only be called on binary or guid columns"));
+
+      byte[] bytes = new byte[0];
+      if (val is MySqlBinary)
+        bytes = ((MySqlBinary)val).Value;
+      else
+        bytes = ((MySqlGuid)val).Bytes;
+
+      return new MemoryStream(bytes, false);
     }
 
     /// <include file='docs/MySqlDataReader.xml' path='docs/GetStringS/*'/>

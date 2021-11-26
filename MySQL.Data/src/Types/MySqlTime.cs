@@ -81,11 +81,9 @@ namespace MySql.Data.Types
         packet.WriteByte((byte)ts.Hours);
         packet.WriteByte((byte)ts.Minutes);
         packet.WriteByte((byte)ts.Seconds);
-        if (ts.Milliseconds > 0)
-        {
-          long mval = ts.Milliseconds * 1000;
-          packet.WriteInteger(mval, 4);
-        }
+        var microseconds = (int)(ts.Ticks % 10_000_000) / 10;
+        if (microseconds != 0)
+          packet.WriteInteger(microseconds, 4);
       }
       else
       {

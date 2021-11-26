@@ -1591,5 +1591,32 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
     }
+
+    /// <summary>
+    /// Bug #32933120 - CAN'T USE TIMESPAN VALUE WITH MICROSECONDS USING PREPARED STATEMENT
+    /// At the moment of writing the time value, the calculation of microseconds was wrong
+    /// </summary>
+    [Test]
+    public void TimespanWithMicrosecondsPrepared()
+    {
+      ExecuteSQL("CREATE TABLE Test (tm TIME(4))");
+      var value = new TimeSpan(0, 0, 0, 1, 234) + TimeSpan.FromTicks(5000);
+
+      using var cmd = new MySqlCommand();
+      cmd.Connection = Connection;
+      cmd.Parameters.AddWithValue("@value", value);
+
+      // Try the INSERT
+      cmd.CommandText = "INSERT INTO Test VALUES(@value)";
+      cmd.Prepare();
+      Assert.AreEqual(1, cmd.ExecuteNonQuery());
+
+      // Try the SELECT
+      cmd.CommandText = "SELECT tm FROM Test WHERE tm = @value;";
+      cmd.Prepare();
+      using var reader = cmd.ExecuteReader();
+      Assert.IsTrue(reader.Read());
+      Assert.AreEqual(value, reader.GetValue(0));
+    }
   }
 }
