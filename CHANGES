@@ -19,7 +19,7 @@
 - Fixed wrong setting of the default value in integral type parameters (MySQL Bug #101253, Oracle Bug #32050204).
 - Removed an extra query when inserting multiple batched rows using MySqlDataAdapter (MySQL Bug #71626, Oracle Bug #20328929).
 - Fixed a bug that occurred when reading a zero time value after reading a nonzero time value (MySQL Bug #105209, Oracle Bug #33470147).
-- Fixed a bug that prevented the use of microseconds in a timespan value when using prepared statement (MySQL Bug #103801, Oracle Bug #32933120).
+- Fixed a bug that prevented the use of microseconds in a timespan value when using prepared statements (MySQL Bug #103801, Oracle Bug #32933120).
 - Fixed a bug caused by a missing implementation of the GetStream method for the MySqlDataReader (MySQL Bug #93374, Oracle Bug #28980953).
 - Fixed wrong behavior when doing a batch insert and the packet is larger than max_allowed_packet (MySQL Bug #80693, Oracle Bug #22913833).
 
