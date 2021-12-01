@@ -67,10 +67,11 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Test]
-    public void TestNotAllowZerDateAndTime()
+    public void TestNotAllowZeroDateAndTime()
     {
       ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, dt DATETIME, d DATE, " +
         "t TIME, ts TIMESTAMP, PRIMARY KEY(id))");
+      var sql_mode = MySqlHelper.ExecuteScalar(Connection, "SELECT @@session.sql_mode");
       ExecuteSQL("SET SQL_MODE=''");
       ExecuteSQL("INSERT INTO Test VALUES(1, 'Test', '0000-00-00', '0000-00-00', '00:00:00')");
       ExecuteSQL("INSERT INTO Test VALUES(2, 'Test', '2004-11-11', '2004-11-11', '06:06:06')");
@@ -91,6 +92,8 @@ namespace MySql.Data.MySqlClient.Tests
         DateTime dt2 = (DateTime)reader.GetValue(2);
         Assert.AreEqual(new DateTime(2004, 11, 11).Date, dt2.Date);
       }
+
+      ExecuteSQL($"SET SQL_MODE = '{sql_mode}'");
     }
 
     [Test]
