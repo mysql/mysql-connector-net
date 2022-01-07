@@ -2,9 +2,8 @@
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore for Entity Framework.</Description>
-    <Copyright>Copyright (c) 2021, Oracle and/or its affiliates.</Copyright>
-    <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>6.0.0+MySQL8.0.28</Version>
+    <Copyright>Copyright (c) 2021, 2022, Oracle and/or its affiliates.</Copyright>
+    <Version>6.0.1+MySQL8.0.29</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net6.0;</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
@@ -30,8 +29,8 @@
     <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MySQL.Data\src\MySql.Data.csproj" />

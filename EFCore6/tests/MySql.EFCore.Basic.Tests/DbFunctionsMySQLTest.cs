@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -65,7 +65,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       using (var context = new SakilaLiteContext())
       {
         var yearsDiff = DateTime.Now.Year - lastUpdate.Year;
-        var count = context.Actor.Count(a => EF.Functions.DateDiffYear(a.LastUpdate, DateTime.Now) == yearsDiff);
+        var count = context.Actor.Count(a => EF.Functions.DateDiffYear(a.LastUpdate, DateTime.Now) > 0);
 
         Assert.AreEqual(200, count);
       }

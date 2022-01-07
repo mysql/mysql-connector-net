@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore for Entity Framework.</Description>
-    <Copyright>Copyright (c) 2016, 2021, Oracle and/or its affiliates.</Copyright>
+    <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>5.0.10+MySQL8.0.28</Version>
+    <Version>5.0.13+MySQL8.0.29</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>netstandard2.1</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
@@ -30,8 +30,8 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- PrivateAssets="none" is set to flow the EF Core analyzer to users referencing this package https://github.com/aspnet/EntityFrameworkCore/pull/11350 -->
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.10" PrivateAssets="none" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.10" PrivateAssets="none" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.13" PrivateAssets="none" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.13" PrivateAssets="none" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MySQL.Data\src\MySql.Data.csproj" />

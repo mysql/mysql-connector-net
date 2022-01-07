@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <Description>MySql.Data.EntityFramework.CodeFirTests</Description>
-    <Copyright>Copyright (c) 2016, 2021, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.28</Version>
+    <Version>8.0.29</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net452;netcoreapp3.1;</TargetFrameworks>
     <AssemblyName>MySql.EntityFramework.Basic.Tests</AssemblyName>

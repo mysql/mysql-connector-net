@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <Description>MySql.Web.Tests</Description>
-    <Copyright>Copyright (c) 2016, 2021, Oracle and/or its affiliates.</Copyright>
+    <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.28</Version>
+    <Version>8.0.29</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net452;net48;</TargetFrameworks>
     <AssemblyName>MySql.Web.Tests</AssemblyName>
