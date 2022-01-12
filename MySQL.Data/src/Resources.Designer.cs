@@ -19,7 +19,7 @@ namespace MySql.Data {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -367,24 +367,6 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Connection option &apos;{0}&apos; is duplicated..
-        /// </summary>
-        internal static string DuplicatedConnectionOption {
-            get {
-                return ResourceManager.GetString("DuplicatedConnectionOption", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SSL connection option &apos;{0}&apos; is duplicated..
-        /// </summary>
-        internal static string DuplicatedSslConnectionOption {
-            get {
-                return ResourceManager.GetString("DuplicatedSslConnectionOption", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Encoding error during validation..
         /// </summary>
         internal static string EncodingError {
@@ -615,15 +597,6 @@ namespace MySql.Data {
         internal static string InvalidMillisecondValue {
             get {
                 return ResourceManager.GetString("InvalidMillisecondValue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No other SSL options are accepted when SSL Mode is set to None..
-        /// </summary>
-        internal static string InvalidOptionWhenSslDisabled {
-            get {
-                return ResourceManager.GetString("InvalidOptionWhenSslDisabled", resourceCulture);
             }
         }
         

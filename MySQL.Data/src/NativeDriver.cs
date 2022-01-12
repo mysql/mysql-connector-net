@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -268,7 +268,7 @@ namespace MySql.Data.MySqlClient
       // Server doesn't support SSL connections
       if ((serverCaps & ClientFlags.SSL) == 0)
       {
-        if (Settings.SslMode != MySqlSslMode.None && Settings.SslMode != MySqlSslMode.Prefered)
+        if (Settings.SslMode != MySqlSslMode.Disabled && Settings.SslMode != MySqlSslMode.Prefered)
         {
           throw new MySqlException(string.Format(Resources.NoServerSSLSupport,
             Settings.Server));
@@ -277,7 +277,7 @@ namespace MySql.Data.MySqlClient
       // Current connection doesn't support SSL connections
       else if ((connectionFlags & ClientFlags.SSL) == 0)
       {
-        if (Settings.SslMode != MySqlSslMode.None && Settings.SslMode != MySqlSslMode.Prefered)
+        if (Settings.SslMode != MySqlSslMode.Disabled && Settings.SslMode != MySqlSslMode.Prefered)
         {
           throw new MySqlException(string.Format(Resources.SslNotAllowedForConnectionProtocol,
             Settings.ConnectionProtocol));
@@ -371,7 +371,7 @@ namespace MySql.Data.MySqlClient
         flags |= ClientFlags.SECURE_CONNECTION;
 
       // if the server is capable of SSL and the user is requesting SSL
-      if ((serverCaps & ClientFlags.SSL) != 0 && Settings.SslMode != MySqlSslMode.None
+      if ((serverCaps & ClientFlags.SSL) != 0 && Settings.SslMode != MySqlSslMode.Disabled
         && Settings.ConnectionProtocol != MySqlConnectionProtocol.NamedPipe
         && Settings.ConnectionProtocol != MySqlConnectionProtocol.SharedMemory)
         flags |= ClientFlags.SSL;

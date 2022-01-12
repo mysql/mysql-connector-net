@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -79,7 +79,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (Version < new Version("8.0.24")) return;
 
       var builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       builder.AllowPublicKeyRetrieval = true;
       builder.Database = "";
       using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,7 +37,7 @@ namespace MySql.Data.MySqlClient.Authentication
     public override string PluginName => "mysql_clear_password";
     protected override byte[] MoreData(byte[] data)
     {
-      if ((Settings.SslMode != MySqlSslMode.None &&
+      if ((Settings.SslMode != MySqlSslMode.Disabled &&
       Settings.ConnectionProtocol != MySqlConnectionProtocol.UnixSocket) ||
       (Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket))
       {

@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -98,7 +98,7 @@ namespace MySqlX.Data.Tests
         server = "(" + defaultUnixSocket + ")",
         uid = "root",
         protocol = "unix",
-        sslmode = MySqlSslMode.None
+        sslmode = MySqlSslMode.Disabled
       }))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
@@ -130,7 +130,7 @@ namespace MySqlX.Data.Tests
         server = defaultUnixSocket,
         uid = RootUser,
         protocol = "unix",
-        sslmode = MySqlSslMode.None
+        sslmode = MySqlSslMode.Disabled
       }))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
@@ -206,7 +206,7 @@ namespace MySqlX.Data.Tests
         server = "/tmp/mysql.sock1, (/tmp/mysql.sock2) ,(%2Ftmp%2Fmysql.sock3) , " + defaultUnixSocket,
         uid = RootUser,
         protocol = "unix",
-        sslmode = MySqlSslMode.None
+        sslmode = MySqlSslMode.Disabled
       }))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
@@ -218,7 +218,7 @@ namespace MySqlX.Data.Tests
         server = "(address=/tmp/mysql.sock1, priority=100),(address=(/tmp/mysql.sock2),priority=99),(address=(%2Ftmp%2Fmysql.sock3),priority=98),(address=" + defaultUnixSocket + ",priority=97)",
         uid = RootUser,
         protocol = "unix",
-        sslmode = MySqlSslMode.None
+        sslmode = MySqlSslMode.Disabled
       }))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
@@ -230,7 +230,7 @@ namespace MySqlX.Data.Tests
         server = "(address=" + defaultUnixSocket + ",priority=100)",
         uid = RootUser,
         protocol = "unix",
-        sslmode = MySqlSslMode.None
+        sslmode = MySqlSslMode.Disabled
       }))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
@@ -242,7 +242,7 @@ namespace MySqlX.Data.Tests
         server = "(address=(" + defaultUnixSocket + "),priority=100)",
         uid = RootUser,
         protocol = "unix",
-        sslmode = MySqlSslMode.None
+        sslmode = MySqlSslMode.Disabled
       }))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);

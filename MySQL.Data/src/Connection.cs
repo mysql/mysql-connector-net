@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -35,12 +35,9 @@ using System.Threading.Tasks;
 using MySql.Data.Common;
 using IsolationLevel = System.Data.IsolationLevel;
 using MySql.Data.MySqlClient.Interceptors;
-using System.Linq;
 using System.Transactions;
 using MySql.Data.MySqlClient.Replication;
 using MySql.Data.Failover;
-using System.Collections.Generic;
-using System.Net;
 #if NET452
 using System.Drawing.Design;
 #endif

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2018, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -344,7 +344,7 @@ namespace MySql.Data.MySqlClient
     [DisplayName("Ssl Mode")]
     [Category("Authentication")]
     [Description("SSL properties for connection.")]
-    [DefaultValue(MySqlSslMode.None)]
+    [DefaultValue(MySqlSslMode.Disabled)]
     public MySqlSslMode SslMode
     {
       get { return (MySqlSslMode)values["sslmode"]; }
@@ -448,8 +448,6 @@ namespace MySql.Data.MySqlClient
     internal void AnalyzeConnectionString(string connectionString, bool isXProtocol, bool isDefaultPort = true)
     {
       string[] queries = connectionString.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-      var usedSslOptions = new List<string>();
-      bool sslModeIsNone = false;
       bool isDnsSrv = false;
 
       if (queries.FirstOrDefault(q => q.ToLowerInvariant().Contains("dns-srv=true")) != null
@@ -477,50 +475,11 @@ namespace MySql.Data.MySqlClient
             throw new ArgumentException(Resources.DnsSrvInvalidConnOptionUnixSocket);
         }
 
-        if (option == null
-          || (option.Keyword != "sslmode"
-               && option.Keyword != "certificatefile"
-               && option.Keyword != "certificatepassword"
-               && option.Keyword != "sslcrl"
-               && option.Keyword != "sslca"
-               && option.Keyword != "sslcert"
-               && option.Keyword != "sslkey"
-               && option.Keyword != "server"
-               && option.Keyword != "tlsversion"
-               && option.Keyword != "dns-srv"))
-          continue;
-
-        // SSL connection options can't be duplicated.
-        if (usedSslOptions.Contains(option.Keyword) && option.Keyword != "server" &&
-          option.Keyword != "tlsversion" && option.Keyword != "dns-srv")
-          throw new ArgumentException(string.Format(Resources.DuplicatedSslConnectionOption, keyword));
-        else if (usedSslOptions.Contains(option.Keyword))
-          throw new ArgumentException(string.Format(Resources.DuplicatedConnectionOption, keyword));
-
-        // SSL connection options can't be used if sslmode=None.
-        if (option.Keyword == "sslmode" && (value == "none" || value == "disabled"))
-          sslModeIsNone = true;
-
-        if (sslModeIsNone &&
-             (option.Keyword == "certificatefile"
-               || option.Keyword == "certificatepassword"
-               || option.Keyword == "sslcrl"
-               || option.Keyword == "sslca"
-               || option.Keyword == "sslcert"
-               || option.Keyword == "sslkey"))
-          throw new ArgumentException(Resources.InvalidOptionWhenSslDisabled);
+        if (option == null) continue;
 
         // Preferred is not allowed for the X Protocol.
         if (isXProtocol && option.Keyword == "sslmode" && (value == "preferred" || value == "prefered"))
           throw new ArgumentException(string.Format(Resources.InvalidSslMode, keyValue[1]));
-
-        if (option.Keyword == "sslca" || option.Keyword == "certificatefile")
-        {
-          usedSslOptions.Add("sslca");
-          usedSslOptions.Add("certificatefile");
-        }
-        else
-          usedSslOptions.Add(option.Keyword);
       }
     }
 

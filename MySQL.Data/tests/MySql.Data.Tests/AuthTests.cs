@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2016, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2016, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -388,7 +388,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       // User with password over non-TLS connection.
-      settings.SslMode = MySqlSslMode.None;
+      settings.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         connection.Open();
@@ -453,7 +453,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
 
-      settings.SslMode = MySqlSslMode.None;
+      settings.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         if (serverCompiledUsingOpenSsl)
@@ -532,7 +532,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
 
-      settings.SslMode = MySqlSslMode.None;
+      settings.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         Exception ex = Assert.Throws<MySqlException>(() => connection.Open()); ;
@@ -567,7 +567,7 @@ namespace MySql.Data.MySqlClient.Tests
       settings.Password = password;
       CreateUser(userName, password, pluginName);
 
-      settings.SslMode = MySqlSslMode.None;
+      settings.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         connection.Open();
@@ -644,7 +644,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       // TLS not enabled.
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
       {
         connection.Open();
@@ -661,7 +661,7 @@ namespace MySql.Data.MySqlClient.Tests
       StringAssert.StartsWith("Access denied for user", ex.InnerException.Message);
 
       // TLS not enabled.
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
       StringAssert.StartsWith("Access denied for user", ex.InnerException.Message);
 
@@ -685,7 +685,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         builder.UserID = "testCachingSha2";
         builder.Password = "test";
-        builder.SslMode = MySqlSslMode.None;
+        builder.SslMode = MySqlSslMode.Disabled;
 
         using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
         {
@@ -753,7 +753,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
 
-      settings.SslMode = MySqlSslMode.None;
+      settings.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
@@ -813,7 +813,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       // Success since the user exists in the cache.
-      settings.SslMode = MySqlSslMode.None;
+      settings.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         connection.Open();
@@ -867,7 +867,7 @@ namespace MySql.Data.MySqlClient.Tests
       settings.Password = password;
       CreateUser(userName, password, pluginName);
 
-      settings.SslMode = MySqlSslMode.None;
+      settings.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         connection.Open();
@@ -1001,7 +1001,7 @@ namespace MySql.Data.MySqlClient.Tests
       CreateUser(userName, ldapstr, pluginName);
       settings.UserID = userName;
       settings.Password = "Testpw1";
-      settings.SslMode = MySqlSslMode.None;
+      settings.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
@@ -1174,7 +1174,7 @@ namespace MySql.Data.MySqlClient.Tests
         UserID = userName,
         Password = password,
         Database = string.Empty,
-        SslMode = MySqlSslMode.None
+        SslMode = MySqlSslMode.Disabled
       };
 
       ExecuteSQL("CREATE USER 'test1@MYSQL.LOCAL' IDENTIFIED WITH authentication_ldap_sasl; GRANT ALL ON *.* to 'test1@MYSQL.LOCAL';", true);
@@ -1304,7 +1304,7 @@ namespace MySql.Data.MySqlClient.Tests
         UserID = userName,
         Password = password,
         Database = string.Empty,
-        SslMode = MySqlSslMode.None,
+        SslMode = MySqlSslMode.Disabled,
         DefaultAuthenticationPlugin = pluginName
       };
 
@@ -1646,7 +1646,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       // Authentication fails with full authentication - TLS connection.SSL Mode default disabled
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
       {
         Assert.Throws<MySqlException>(() => connection.Open());
@@ -1705,7 +1705,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       if (serverCompiledUsingOpenSsl)
       {
-        builder.SslMode = MySqlSslMode.None;
+        builder.SslMode = MySqlSslMode.Disabled;
         using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString + ";AllowPublicKeyRetrieval=false;pooling=false"))
         {
           Assert.Throws<MySqlException>(() => connection.Open());
@@ -1755,7 +1755,7 @@ namespace MySql.Data.MySqlClient.Tests
         connection.Close();
       }
 
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
       {
         connection.Open();
@@ -1766,7 +1766,7 @@ namespace MySql.Data.MySqlClient.Tests
       builder.SslMode = MySqlSslMode.Required;
       Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
 
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
 
       pluginName = "mysql_native_password";
@@ -1783,7 +1783,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
 
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
       {
         connection.Open();
@@ -1798,7 +1798,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       ExecuteSQL("flush privileges");
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
       {
         connection.Open();
@@ -1830,7 +1830,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       // TLS not enabled.
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
       {
         connection.Open();
@@ -1845,7 +1845,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       ExecuteSQL("flush privileges");
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
       {
         connection.Open();

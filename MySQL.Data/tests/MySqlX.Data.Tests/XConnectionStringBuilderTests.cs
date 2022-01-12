@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2018, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -105,11 +105,11 @@ namespace MySqlX.Data.Tests
 
 #if !NET452
     [TestCase(MySqlSslMode.Prefered, "TlSv1.2, tLsV11, TLS13, tls1.0", "Tls12, Tls13")]
-    [TestCase(MySqlSslMode.None, "TlSv1.2, tLsV11, TLS13, tls1.0", "TLS12, TLS13")]
+    [TestCase(MySqlSslMode.Disabled, "TlSv1.2, tLsV11, TLS13, tls1.0", "TLS12, TLS13")]
     [TestCase(null, "TlSv1.2, tLsV11, TLS13, tls1.0", "Tls12, Tls13")]
 #endif
     [TestCase(MySqlSslMode.Prefered, "TlSv1.2, tLsV11, tls1.0", "Tls12")]
-    [TestCase(MySqlSslMode.None, "TlSv1.2, tLsV11, tls1.0", "Tls12")]
+    [TestCase(MySqlSslMode.Disabled, "TlSv1.2, tLsV11, tls1.0", "Tls12")]
     [TestCase(null, "TlSv1.2, tLsV11, tls1.0", "Tls12")]
     public void ValidateTlsVersionOptionAndSslMode(MySqlSslMode? sslMode1, string options, string result)
     {

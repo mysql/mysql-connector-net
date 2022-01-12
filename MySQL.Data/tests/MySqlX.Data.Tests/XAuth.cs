@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -100,7 +100,7 @@ namespace MySqlX.Data.Tests
         server = builder.Server,
         port = XPort,
         user = builder.UserID,
-        sslmode = MySqlSslMode.None,
+        sslmode = MySqlSslMode.Disabled,
         password = builder.Password
       }))
         Assert.AreEqual(defaultAuthPlugin == "mysql_native_password" ? MySqlAuthenticationMode.MYSQL41 : MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
@@ -126,7 +126,7 @@ namespace MySqlX.Data.Tests
           server = Host,
           port = XPort,
           user = builder.UserID,
-          sslmode = MySqlSslMode.None,
+          sslmode = MySqlSslMode.Disabled,
           password = builder.Password
         }));
       else
@@ -135,7 +135,7 @@ namespace MySqlX.Data.Tests
           server = Host,
           port = XPort,
           user = builder.UserID,
-          sslmode = MySqlSslMode.None,
+          sslmode = MySqlSslMode.Disabled,
           password = builder.Password
         }));
     }
@@ -175,7 +175,7 @@ namespace MySqlX.Data.Tests
         server = builder.Server,
         port = XPort,
         user = builder.UserID,
-        sslmode = MySqlSslMode.None,
+        sslmode = MySqlSslMode.Disabled,
         allowpublickeyretrieval = true,
         pooling = false,
         password = builder.Password
@@ -185,7 +185,7 @@ namespace MySqlX.Data.Tests
         server = builder.Server,
         port = XPort,
         user = builder.UserID,
-        sslmode = MySqlSslMode.None,
+        sslmode = MySqlSslMode.Disabled,
         allowpublickeyretrieval = false,
         pooling = false,
         password = builder.Password
@@ -250,7 +250,7 @@ namespace MySqlX.Data.Tests
         server = builder.Server,
         port = XPort,
         user = builder.UserID,
-        sslmode = MySqlSslMode.None,
+        sslmode = MySqlSslMode.Disabled,
         password = builder.Password
       }))
         Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
@@ -285,7 +285,7 @@ namespace MySqlX.Data.Tests
         server = builder.Server,
         port = XPort,
         user = builder.UserID,
-        sslmode = MySqlSslMode.None,
+        sslmode = MySqlSslMode.Disabled,
         password = builder.Password
       }));
 
@@ -364,7 +364,7 @@ namespace MySqlX.Data.Tests
         port = XPort,
         user = builder.UserID,
         password = builder.Password,
-        sslmode = MySqlSslMode.None,
+        sslmode = MySqlSslMode.Disabled,
         auth = MySqlAuthenticationMode.SHA256_MEMORY
       }));
     }
@@ -478,7 +478,7 @@ namespace MySqlX.Data.Tests
         user = user,
         password = pwd,
         auth = MySqlAuthenticationMode.MYSQL41,
-        sslmode = MySqlSslMode.None
+        sslmode = MySqlSslMode.Disabled
       }))
         Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
 
@@ -510,7 +510,7 @@ namespace MySqlX.Data.Tests
         user = user,
         password = pwd,
         auth = MySqlAuthenticationMode.PLAIN,
-        sslmode = MySqlSslMode.None
+        sslmode = MySqlSslMode.Disabled
       }));
 
       using (var session1 = MySQLX.GetSession(new
@@ -530,7 +530,7 @@ namespace MySqlX.Data.Tests
         port = XPort,
         user = user,
         password = pwd,
-        sslmode = MySqlSslMode.None
+        sslmode = MySqlSslMode.Disabled
       }))
         Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
 

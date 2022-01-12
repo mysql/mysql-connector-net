@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -116,7 +116,7 @@ namespace MySqlX.Sessions
       }
 
       // Validates use of TLS.
-      if (Settings.SslMode != MySqlSslMode.None)
+      if (Settings.SslMode != MySqlSslMode.Disabled)
       {
         if (_serverSupportsTls)
         {
@@ -168,7 +168,7 @@ namespace MySqlX.Sessions
       // Default authentication
       if (Settings.Auth == MySqlAuthenticationMode.Default)
       {
-        if ((Settings.SslMode != MySqlSslMode.None && _serverSupportsTls) || Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix)
+        if ((Settings.SslMode != MySqlSslMode.Disabled && _serverSupportsTls) || Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix)
         {
           Settings.Auth = MySqlAuthenticationMode.PLAIN;
           AuthenticatePlain();
@@ -240,7 +240,7 @@ namespace MySqlX.Sessions
       Mysqlx.Connection.Capability capability = null;
 
       // Validates TLS use.
-      if (Settings.SslMode != MySqlSslMode.None)
+      if (Settings.SslMode != MySqlSslMode.Disabled)
       {
         capability = _protocol.Capabilities.Capabilities_.FirstOrDefault(i => i.Name.ToLowerInvariant() == "tls");
         if (capability != null)

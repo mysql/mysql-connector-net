@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -214,7 +214,7 @@ namespace MySqlX.Data.Tests
         port = XPort,
         user = "test",
         password = "test",
-        sslmode = MySqlSslMode.None
+        sslmode = MySqlSslMode.Disabled
       }))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
@@ -514,7 +514,7 @@ namespace MySqlX.Data.Tests
         port = sb.Port,
         user = sb.UserID,
         password = sb.Password,
-        sslmode = MySqlSslMode.None
+        sslmode = MySqlSslMode.Disabled
       }))
       {
         Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
@@ -554,7 +554,7 @@ namespace MySqlX.Data.Tests
         port = XPort,
         user = sb.UserID,
         password = sb.Password,
-        sslmode = MySqlSslMode.None
+        sslmode = MySqlSslMode.Disabled
       }))
       {
         Assert.AreEqual(SessionState.Open, sessionTest.InternalSession.SessionState);

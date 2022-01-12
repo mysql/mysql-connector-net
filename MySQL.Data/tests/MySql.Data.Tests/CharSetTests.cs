@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -551,7 +551,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void CharacterVariablesByDefaultServerDefault()
     {
 
-      var connStr = $"server={Host};port={Port};user={Settings.UserID};password={Settings.Password};database={Settings.Database};SSL Mode={MySqlSslMode.None};";
+      var connStr = $"server={Host};port={Port};user={Settings.UserID};password={Settings.Password};database={Settings.Database};SSL Mode={MySqlSslMode.Disabled};";
       var rootSb = new MySqlConnectionStringBuilder(connStr);
       rootSb.CharacterSet = string.Empty;
       using (var rootConnection = new MySqlConnection(rootSb.ToString()))
@@ -590,7 +590,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void CharacterVariablesByAssignedServerDefault()
     {
 
-      var connStr = $"server={Host};port={Port};user={Settings.UserID};password={Settings.Password};database={Settings.Database};SSL Mode={MySqlSslMode.None};";
+      var connStr = $"server={Host};port={Port};user={Settings.UserID};password={Settings.Password};database={Settings.Database};SSL Mode={MySqlSslMode.Disabled};";
       var rootSb = new MySqlConnectionStringBuilder(connStr);
       var expectedCharSet = "utf8";
       rootSb.CharacterSet = "utf8";

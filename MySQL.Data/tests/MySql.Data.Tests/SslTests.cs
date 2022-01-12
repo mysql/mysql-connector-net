@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2018, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -73,7 +73,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void SslModeOverriden()
     {
       var builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       builder.AllowPublicKeyRetrieval = true;
       builder.Database = "";
       using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
@@ -90,82 +90,79 @@ namespace MySql.Data.MySqlClient.Tests
 
     [Test]
     [Property("Category", "Security")]
-    public void RepeatedSslConnectionOptionsNotAllowed()
+    public void RepeatedSslConnectionOptions()
     {
+      string repeatedOption = "foo";
+
       var builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslCa = _sslCa;
-      var exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};sslca={_sslCa}"));
-      Assert.AreEqual(string.Format(Resources.DuplicatedSslConnectionOption, "sslca"), exception.Message);
+      var conn = new MySqlConnection($"{builder.ConnectionString};sslca={repeatedOption}");
+      Assert.AreEqual(repeatedOption, conn.Settings.SslCa);
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.CertificateFile = _sslCa;
-      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};certificatefile={_sslCa}"));
-      Assert.AreEqual(string.Format(Resources.DuplicatedSslConnectionOption, "certificatefile"), exception.Message);
+      conn = new MySqlConnection($"{builder.ConnectionString};certificatefile={repeatedOption}");
+      Assert.AreEqual(repeatedOption, conn.Settings.CertificateFile);
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslCa = _sslCa;
-      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};certificatefile={_sslCa}"));
-      Assert.AreEqual(string.Format(Resources.DuplicatedSslConnectionOption, "certificatefile"), exception.Message);
+      conn = new MySqlConnection($"{builder.ConnectionString};certificatefile={repeatedOption}");
+      Assert.AreEqual(repeatedOption, conn.Settings.CertificateFile);
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.CertificateFile = _sslCa;
-      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};sslca={_sslCa}"));
-      Assert.AreEqual(string.Format(Resources.DuplicatedSslConnectionOption, "sslca"), exception.Message);
+      conn = new MySqlConnection($"{builder.ConnectionString};sslca={repeatedOption}");
+      Assert.AreEqual(repeatedOption, conn.Settings.SslCa);
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslCa = _sslCa;
-      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};sslcert={_sslCert};sslkey={_sslKey};sslca={_sslCa}"));
-      Assert.AreEqual(string.Format(Resources.DuplicatedSslConnectionOption, "sslca"), exception.Message);
+      conn = new MySqlConnection($"{builder.ConnectionString};sslcert={_sslCert};sslkey={_sslKey};sslca={repeatedOption}");
+      Assert.AreEqual(repeatedOption, conn.Settings.SslCa);
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.CertificatePassword = "pass";
-      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};certificatepassword=pass"));
-      Assert.AreEqual(string.Format(Resources.DuplicatedSslConnectionOption, "certificatepassword"), exception.Message);
+      conn = new MySqlConnection($"{builder.ConnectionString};certificatepassword={repeatedOption}");
+      Assert.AreEqual(repeatedOption, conn.Settings.CertificatePassword);
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslCert = _sslCert;
-      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};sslcert={_sslCert}"));
-      Assert.AreEqual(string.Format(Resources.DuplicatedSslConnectionOption, "sslcert"), exception.Message);
+      conn = new MySqlConnection($"{builder.ConnectionString};sslcert={repeatedOption}");
+      Assert.AreEqual(repeatedOption, conn.Settings.SslCert);
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslKey = _sslKey;
-      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection($"{builder.ConnectionString};sslkey={_sslKey}"));
-      Assert.AreEqual(string.Format(Resources.DuplicatedSslConnectionOption, "sslkey"), exception.Message);
+      conn = new MySqlConnection($"{builder.ConnectionString};sslkey={repeatedOption}");
+      Assert.AreEqual(repeatedOption, conn.Settings.SslKey);
     }
 
     [Test]
     [Property("Category", "Security")]
-    public void InvalidOptionsWhenSslDisabled()
+    public void SslOptionsWhenSslDisabled()
     {
       var builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       builder.SslCa = "value";
-      var exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(builder.ConnectionString));
-      Assert.AreEqual(Resources.InvalidOptionWhenSslDisabled, exception.Message);
+      Assert.DoesNotThrow(() => new MySqlConnection(builder.ConnectionString));
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       builder.SslCert = "value";
-      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(builder.ConnectionString));
-      Assert.AreEqual(Resources.InvalidOptionWhenSslDisabled, exception.Message);
+      Assert.DoesNotThrow(() => new MySqlConnection(builder.ConnectionString));
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       builder.SslKey = "value";
-      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(builder.ConnectionString));
-      Assert.AreEqual(Resources.InvalidOptionWhenSslDisabled, exception.Message);
+      Assert.DoesNotThrow(() => new MySqlConnection(builder.ConnectionString));
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       builder.CertificateFile = "value";
-      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(builder.ConnectionString));
-      Assert.AreEqual(Resources.InvalidOptionWhenSslDisabled, exception.Message);
+      Assert.DoesNotThrow(() => new MySqlConnection(builder.ConnectionString));
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
-      builder.SslMode = MySqlSslMode.None;
+      builder.SslMode = MySqlSslMode.Disabled;
       builder.CertificatePassword = "value";
-      exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(builder.ConnectionString));
-      Assert.AreEqual(Resources.InvalidOptionWhenSslDisabled, exception.Message);
+      Assert.DoesNotThrow(() => new MySqlConnection(builder.ConnectionString));
     }
 
     [Test]
@@ -185,7 +182,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void SslOverrided()
     {
       var cstrBuilder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
-      cstrBuilder.SslMode = MySqlSslMode.None;
+      cstrBuilder.SslMode = MySqlSslMode.Disabled;
       cstrBuilder.AllowPublicKeyRetrieval = true;
       cstrBuilder.Database = "";
       using (MySqlConnection connection = new MySqlConnection(cstrBuilder.ConnectionString))
@@ -276,7 +273,7 @@ namespace MySql.Data.MySqlClient.Tests
       var builder = new MySqlConnectionStringBuilder(Connection.ConnectionString)
       {
         TlsVersion = tlsVersion,
-        SslMode = MySqlSslMode.None
+        SslMode = MySqlSslMode.Disabled
       };
 
       using (var conn = new MySqlConnection(builder.ConnectionString))
@@ -604,7 +601,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       var builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslCa = "dummy_file";
-      builder.SslMode = MySqlSslMode.Preferred;
+      builder.SslMode = MySqlSslMode.Required;
 
       // Connection attempt is successful since SslMode=Preferred causign SslCa to be ignored.
       using (var connection = new MySqlConnection(builder.ConnectionString))
@@ -636,8 +633,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void AttemptConnectionWithDummyPemCertificates()
     {
-      //if (!Convert.ToBoolean(CertificatesAvailable)) Assert.Ignore("Certificates are not available.");
-
       var builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslCa = _sslCa.Replace("ca.pem", "ca_dummy.pem");
       builder.SslMode = MySqlSslMode.VerifyCA;
@@ -715,8 +710,6 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     #endregion
-
-    #region WL14389
 
     [Test, Description("Test session variables specific to clients ")]
     [Ignore("This test needs to be executed individually because server setup affects to other tests")]
@@ -1034,8 +1027,12 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Throws<ArgumentException>(() => conn = new MySqlConnection(conStr + $";ssl-mode={MySqlSslMode.Required};tls-version={tlsVersion}"));
       }
 
-      Assert.Throws<ArgumentException>(() => conn = new MySqlConnection(conStr + $";ssl-mode={MySqlSslMode.Required};tls-version=[TLSv1];tls-version=[TLSv1]"));
-      Assert.Throws<ArgumentException>(() => conn = new MySqlConnection(conStr + $";ssl-mode={MySqlSslMode.Required};tls-version=[TLSv1.1,TLSv1.2];tls-version=[TLSv1.1,TLSv1.2]"));
+      // Not supported protocols
+      var ex = Assert.Throws<ArgumentException>(() => conn = new MySqlConnection(conStr + $";ssl-mode={MySqlSslMode.Required};tls-version=[TLSv1];tls-version=[TLSv1]"));
+      StringAssert.AreEqualIgnoringCase("TLS protocols TLSv1 and TLSv1.1 are no longer supported. Accepted values are TLSv1.2 and TLSv1.3", ex.Message);
+
+      // Repeated options are allowed
+      Assert.DoesNotThrow(() => conn = new MySqlConnection(conStr + $";ssl-mode={MySqlSslMode.Required};tls-version=[TLSv1.1,TLSv1.2];tls-version=[TLSv1.2]"));
     }
 
     [Test, Description("Default SSL user with SSL but without SSL Parameters")]
@@ -1043,7 +1040,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       if (!ServerHaveSsl()) Assert.Ignore("Server doesn't have Ssl support");
       MySqlCommand cmd = new MySqlCommand();
-      string connstr = $"server={Host};user={Settings.UserID};port={Port};password={Settings.Password};sslmode={MySqlSslMode.None}";
+      string connstr = $"server={Host};user={Settings.UserID};port={Port};password={Settings.Password};sslmode={MySqlSslMode.Disabled}";
       using (var c = new MySqlConnection(connstr))
       {
         c.Open();
@@ -1055,7 +1052,7 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.True(rdr1.GetValue(1).ToString().Trim() == "");
       }
 
-      connstr = $"server={Host};user={Settings.UserID};port={Port};password=;sslmode={MySqlSslMode.None}";
+      connstr = $"server={Host};user={Settings.UserID};port={Port};password=;sslmode={MySqlSslMode.Disabled}";
       using (var c = new MySqlConnection(connstr))
       {
         Assert.Throws<MySqlException>(() => c.Open());
@@ -1137,7 +1134,46 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #endregion WL14389
+    /// <summary>
+    /// WL14828 - Align TLS option checking across connectors
+    /// </summary>
+    [TestCase(MySqlSslMode.Disabled)]
+    [TestCase(MySqlSslMode.Disabled, "ssl-ca=foo")]
+    [TestCase(MySqlSslMode.Disabled, "ssl-cert=foo")]
+    [TestCase(MySqlSslMode.Disabled, "ssl-key=foo")]
+    [TestCase(MySqlSslMode.Disabled, "tls-version=TLSv1.2")]
+    [TestCase(MySqlSslMode.Required, "ssl-mode=disabled")]
+    [Theory]
+    public void SslOptionsCombinedWhenDisabled(MySqlSslMode sslMode, string sslOption = "")
+    {
+      var connStr = Connection.ConnectionString + $";ssl-mode={sslMode};{sslOption}";
+
+      using var conn = new MySqlConnection(connStr);
+      conn.Open();
+      var cmd = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_cipher'", conn);
+      using var reader = cmd.ExecuteReader();
+      reader.Read();
+      string encryption = reader.GetString(1);
+
+      Assert.IsEmpty(encryption);
+      Assert.AreEqual(ConnectionState.Open, conn.State);
+    }
+
+    [Test]
+    public void SslRequiredOverDisabled()
+    {
+      var connStr = Connection.ConnectionString + $";ssl-mode={MySqlSslMode.Disabled};ssl-mode={MySqlSslMode.Required}";
+
+      using var conn = new MySqlConnection(connStr);
+      conn.Open();
+      var cmd = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_cipher'", conn);
+      using var reader = cmd.ExecuteReader();
+      reader.Read();
+      string encryption = reader.GetString(1);
+
+      Assert.IsNotEmpty(encryption);
+      Assert.AreEqual(ConnectionState.Open, conn.State);
+    }
 
     #region Methods
     public bool ServerHaveSsl()
@@ -1160,6 +1196,5 @@ namespace MySql.Data.MySqlClient.Tests
       return (strValues["have_ssl"] == "YES" && strValues["Ssl_version"].StartsWith("TLS") && !string.IsNullOrEmpty(strValues["tls_version"])) ? true : false;
     }
     #endregion Methods
-
   }
 }

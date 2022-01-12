@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -248,19 +248,6 @@ namespace MySqlX.Data.Tests
       IPHostEntry ipEntry = System.Net.Dns.GetHostEntry(strHostName);
       IPAddress[] addr = ipEntry.AddressList;
       return addr[0].ToString();
-    }
-
-    public static string GetLocalIPAddress()
-    {
-      var host = Dns.GetHostEntry(Dns.GetHostName());
-      foreach (var ip in host.AddressList)
-      {
-        if (ip.AddressFamily == AddressFamily.InterNetwork)
-        {
-          return ip.ToString();
-        }
-      }
-      throw new Exception("Local IP Address Not Found!");
     }
 
     /// <summary>

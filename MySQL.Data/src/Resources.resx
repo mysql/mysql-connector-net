@@ -540,12 +540,6 @@
   <data name="OptionNotCurrentlySupported" xml:space="preserve">
     <value>The option '{0}' is not currently supported.</value>
   </data>
-  <data name="DuplicatedSslConnectionOption" xml:space="preserve">
-    <value>SSL connection option '{0}' is duplicated.</value>
-  </data>
-  <data name="InvalidOptionWhenSslDisabled" xml:space="preserve">
-    <value>No other SSL options are accepted when SSL Mode is set to None.</value>
-  </data>
   <data name="ParameterNullOrEmpty" xml:space="preserve">
     <value>Parameter can't be null or empty.</value>
   </data>
@@ -629,9 +623,6 @@
   </data>
   <data name="TlsVersionsEmpty" xml:space="preserve">
     <value>Specified list of TLS versions is empty. Accepted values are TLSv1.2 and TLSv1.3</value>
-  </data>
-  <data name="DuplicatedConnectionOption" xml:space="preserve">
-    <value>Connection option '{0}' is duplicated.</value>
   </data>
   <data name="ExecuteProcedureUnauthorized" xml:space="preserve">
     <value>Verify that user '{0}'@'{1}' has enough privileges to execute.</value>
