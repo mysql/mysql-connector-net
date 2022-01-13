@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Authentication.FIDO.Utility;
 using MySql.Data.Common;
 using MySql.Data.MySqlClient.Authentication;
 using NUnit.Framework;
@@ -1573,6 +1574,147 @@ namespace MySql.Data.MySqlClient.Tests
         conn.Open();
         Assert.AreEqual(ConnectionState.Open, conn.State);
       }
+    }
+    #endregion
+
+    #region FIDO Authentication
+    /// <summary>
+    /// WL14871 - Support FIDO authentication [classic]
+    /// </summary>
+    [Test]
+    [Ignore("This should be executed manually since it depends on libfido2 library")]
+    [Property("Category", "Security")]
+    public void FidoAuthentication1F()
+    {
+      // Install FIDO plugin
+      ExecuteSQL("INSTALL PLUGIN authentication_fido SONAME 'authentication_fido.so';", true);
+      // Create user
+      // The INITIAL AUTHENTICATION IDENTIFIED clause must be specified to set a random or a static password.
+      ExecuteSQL("CREATE USER 'user_f1'@'localhost' IDENTIFIED WITH authentication_fido INITIAL AUTHENTICATION IDENTIFIED BY 'bar';", true);
+
+      // Register the authenticator
+      // $ mysql --user=user_f1 --fido-register-factor=1
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = "user_f1",
+        Server = Settings.Server,
+        Port = Settings.Port
+      };
+
+      using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
+      conn.FidoActionRequested += Conn_FidoActionRequested;
+      conn.Open();
+      Assert.AreEqual(ConnectionState.Open, conn.State);
+    }
+
+    [Test]
+    [Ignore("This should be executed manually since it depends on libfido2 library")]
+    [Property("Category", "Security")]
+    public void FidoAuthentication2F()
+    {
+      // Install FIDO plugin
+      ExecuteSQL("INSTALL PLUGIN authentication_fido SONAME 'authentication_fido.so';", true);
+      // Create user
+      ExecuteSQL("CREATE USER 'user_f2'@'localhost' IDENTIFIED BY 'bar' AND IDENTIFIED WITH authentication_fido;", true);
+
+      // Register the authenticator
+      // $ mysql --user=user_f2 --fido-register-factor=2
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = "user_f2",
+        Password = "bar",
+        Server = Settings.Server,
+        Port = Settings.Port
+      };
+
+      using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
+      conn.FidoActionRequested += Conn_FidoActionRequested;
+      conn.Open();
+      Assert.AreEqual(ConnectionState.Open, conn.State);
+    }
+
+    [Test]
+    [Ignore("This should be executed manually since it depends on libfido2 library")]
+    [Property("Category", "Security")]
+    public void FidoAuthentication3F()
+    {
+      // Install FIDO plugin
+      ExecuteSQL("INSTALL PLUGIN authentication_fido SONAME 'authentication_fido.so';", true);
+      // Create user
+      ExecuteSQL("CREATE USER 'user_f3'@'localhost' IDENTIFIED BY 'bar' AND IDENTIFIED BY 'baz' AND IDENTIFIED WITH authentication_fido;", true);
+
+      // Register the authenticator
+      // $ mysql --user=user_f3 --fido-register-factor=3
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = "user_f3",
+        Password = "bar",
+        Password2 = "baz",
+        Server = Settings.Server,
+        Port = Settings.Port
+      };
+
+      using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
+      conn.FidoActionRequested += Conn_FidoActionRequested;
+      conn.Open();
+      Assert.AreEqual(ConnectionState.Open, conn.State);
+    }
+
+    [Test]
+    [Ignore("This should be executed manually since it depends on libfido2 library")]
+    [Property("Category", "Security")]
+    public void FidoAuthenticationNoUserGestureException()
+    {
+      // Install FIDO plugin
+      ExecuteSQL("INSTALL PLUGIN authentication_fido SONAME 'authentication_fido.so';", true);
+      // Create user
+      ExecuteSQL("CREATE USER 'user_f2'@'localhost' IDENTIFIED BY 'bar' AND IDENTIFIED WITH authentication_fido;", true);
+
+      // Register the authenticator
+      // $ mysql --user=user_f2 --fido-register-factor=2
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = "user_f2",
+        Password = "bar",
+        Server = Settings.Server,
+        Port = Settings.Port
+      };
+
+      using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
+      conn.FidoActionRequested += Conn_FidoActionRequested;
+      Assert.Throws<CtapException>(()=> conn.Open());
+    }
+
+    [Test]
+    [Ignore("This should be executed manually since it depends on libfido2 library")]
+    [Property("Category", "Security")]
+    public void FidoAuthenticationUnregisteredUserException()
+    {
+      // Install FIDO plugin
+      ExecuteSQL("INSTALL PLUGIN authentication_fido SONAME 'authentication_fido.so';", true);
+      // Create user
+      ExecuteSQL("CREATE USER 'user_f2'@'localhost' IDENTIFIED BY 'bar' AND IDENTIFIED WITH authentication_fido;", true);
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = "user_f2",
+        Password = "bar",
+        Server = Settings.Server,
+        Port = Settings.Port
+      };
+
+      using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
+      conn.FidoActionRequested += Conn_FidoActionRequested;
+      Assert.Throws<MySqlException>(() => conn.Open());
+    }
+
+    private static void Conn_FidoActionRequested()
+    {
+      Console.WriteLine("Please insert FIDO device and perform gesture action for authentication to complete.");
     }
     #endregion
 
