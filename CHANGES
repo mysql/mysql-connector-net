@@ -1,5 +1,6 @@
 8.0.29
 - Aligned the TLS/SSL connection options verification across connectors (WL14828).
+- Fixed a bug that prevented the generation of a complete MySqlAttributeCollection at the moment of cloning a MySqlCommand (MySQL Bug #105730, Oracle Bug #33613687).
 
 
 8.0.28

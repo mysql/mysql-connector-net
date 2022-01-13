@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -676,9 +676,16 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void CloneCommand()
     {
-      MySqlCommand cmd = new MySqlCommand();
-      MySqlCommand newCommand = cmd.Clone() as MySqlCommand;
-      IDbCommand newCommand2 = (IDbCommand)(cmd as ICloneable).Clone();
+      using var cmd = new MySqlCommand();
+      cmd.Attributes.SetAttribute("attr", "attr_value");
+      cmd.Parameters.AddWithValue("@param", "param_value");
+
+      var cmd2 = (MySqlCommand)cmd.Clone();
+
+      Assert.AreEqual(1, cmd2.Parameters.Count);
+      Assert.AreEqual(1, cmd2.Attributes.Count);
+      StringAssert.AreEqualIgnoringCase("attr_value", cmd2.Attributes[0].Value.ToString());
+      StringAssert.AreEqualIgnoringCase("param_value", cmd2.Parameters[0].Value.ToString());
     }
 
     /// <summary>

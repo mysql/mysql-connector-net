@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,10 +38,9 @@ namespace MySql.Data.MySqlClient
   [DesignerCategory("Code")]
   public sealed partial class MySqlCommand : ICloneable
   {
-
     /// <summary>
     /// Creates a clone of this <see cref="MySqlCommand"/> object.  CommandText, Connection, and Transaction properties
-    /// are included as well as the entire parameter list.
+    /// are included as well as the entire parameter and the arribute list.
     /// </summary>
     /// <returns>The cloned <see cref="MySqlCommand"/> object.</returns>
     public object Clone()
@@ -57,9 +56,11 @@ namespace MySql.Data.MySqlClient
       };
 
       foreach (MySqlParameter p in Parameters)
-      {
         clone.Parameters.Add(p.Clone());
-      }
+
+      foreach (MySqlAttribute a in Attributes)
+        clone.Attributes.SetAttribute(a.Clone());
+
       return clone;
     }
   }

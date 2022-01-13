@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -35,7 +35,7 @@ namespace MySql.Data.MySqlClient
   /// <summary>
   /// Represents a query attribute to a <see cref="MySqlCommand"/>.
   /// </summary>
-  public class MySqlAttribute
+  public class MySqlAttribute : ICloneable
   {
     private const int UNSIGNED_MASK = 0x8000;
     private string _attributeName;
@@ -214,6 +214,21 @@ namespace MySql.Data.MySqlClient
         }
         ValueObject.WriteValue(packet, binary, _attributeValue, _size);
       }
+    }
+
+    /// <summary>
+    /// Clones this object.
+    /// </summary>
+    /// <returns>An object that is a clone of this object.</returns>
+    public MySqlAttribute Clone()
+    {
+      MySqlAttribute clone = new MySqlAttribute(_attributeName, _attributeValue);
+      return clone;
+    }
+
+    object ICloneable.Clone()
+    {
+      return this.Clone();
     }
   }
 }

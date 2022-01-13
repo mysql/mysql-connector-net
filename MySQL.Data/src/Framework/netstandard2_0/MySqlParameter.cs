@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -42,7 +42,7 @@ namespace MySql.Data.MySqlClient
     public override DataRowVersion SourceVersion { get; set; }
 
     /// <summary>
-    /// CLoses this object.
+    /// Clones this object.
     /// </summary>
     /// <returns>An object that is a clone of this object.</returns>
     public MySqlParameter Clone()
@@ -56,7 +56,7 @@ namespace MySql.Data.MySqlClient
       return clone;
     }
 
-    object System.ICloneable.Clone()
+    object ICloneable.Clone()
     {
       return this.Clone();
     }
