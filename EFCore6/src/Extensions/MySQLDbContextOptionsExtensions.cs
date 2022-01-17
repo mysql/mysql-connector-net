@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,9 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using MySql.EntityFrameworkCore.Infrastructure;
 using MySql.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.EntityFrameworkCore.Utils;
 using System;
 using System.Data.Common;
 
@@ -59,6 +61,27 @@ namespace Microsoft.EntityFrameworkCore
       IDbContextOptionsBuilderInfrastructure o = optionsBuilder as IDbContextOptionsBuilderInfrastructure;
       o.AddOrUpdateExtension(extension);
 
+      MySQLOptionsAction?.Invoke(new MySQLDbContextOptionsBuilder(optionsBuilder));
+
+      return optionsBuilder;
+    }
+
+    /// <summary>
+    /// Configures the <see cref="DbContext" /> to use MySQL Sever.
+    /// </summary>
+    /// <param name="optionsBuilder">DbContext option builder.</param>
+    /// <param name="MySQLOptionsAction">DbContext option builder action.</param>
+    /// <returns>DbContext option builder using MySQL.</returns>
+    public static DbContextOptionsBuilder UseMySQL(
+      this DbContextOptionsBuilder optionsBuilder,
+      Action<MySQLDbContextOptionsBuilder>? MySQLOptionsAction = null)
+    {
+      Check.NotNull(optionsBuilder, nameof(optionsBuilder));
+
+      var extension = GetOrCreateExtension(optionsBuilder);
+
+      ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+      ConfigureWarnings(optionsBuilder);
       MySQLOptionsAction?.Invoke(new MySQLDbContextOptionsBuilder(optionsBuilder));
 
       return optionsBuilder;
@@ -123,5 +146,19 @@ namespace Microsoft.EntityFrameworkCore
           ? new MySQLOptionsExtension(existing)
           : new MySQLOptionsExtension();
     }
+
+    private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
+    {
+      var coreOptionsExtension
+          = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
+            ?? new CoreOptionsExtension();
+
+      coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
+          coreOptionsExtension.WarningsConfiguration.TryWithExplicit(
+              RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw));
+
+      ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(coreOptionsExtension);
+    }
+
   }
 }

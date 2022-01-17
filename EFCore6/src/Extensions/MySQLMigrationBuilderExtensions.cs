@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,7 +27,10 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using MySql.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.EntityFrameworkCore.Migrations.Operations;
+using MySql.EntityFrameworkCore.Utils;
 using System;
 using System.Reflection;
 
@@ -48,5 +51,51 @@ namespace MySql.EntityFrameworkCore.Extensions
     => string.Equals(migrationBuilder.ActiveProvider,
         typeof(MySQLOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
         StringComparison.Ordinal);
+
+    internal static OperationBuilder<MySQLDropPrimaryKeyAndRecreateForeignKeysOperation> DropPrimaryKey(
+            [NotNull] this MigrationBuilder migrationBuilder,
+            [NotNull] string name,
+            [NotNull] string table,
+            [CanBeNull] string schema = null,
+            bool recreateForeignKeys = false)
+    {
+      Check.NotNull(migrationBuilder, nameof(migrationBuilder));
+      Check.NotEmpty(name, nameof(name));
+      Check.NotEmpty(table, nameof(table));
+
+      var operation = new MySQLDropPrimaryKeyAndRecreateForeignKeysOperation
+      {
+        Schema = schema,
+        Table = table,
+        Name = name,
+        RecreateForeignKeys = recreateForeignKeys,
+      };
+      migrationBuilder.Operations.Add(operation);
+
+      return new OperationBuilder<MySQLDropPrimaryKeyAndRecreateForeignKeysOperation>(operation);
+    }
+
+    internal static OperationBuilder<MySQLDropUniqueConstraintAndRecreateForeignKeysOperation> DropUniqueConstraint(
+            [NotNull] this MigrationBuilder migrationBuilder,
+            [NotNull] string name,
+            [NotNull] string table,
+            [CanBeNull] string schema = null,
+            bool recreateForeignKeys = false)
+    {
+      Check.NotNull(migrationBuilder, nameof(migrationBuilder));
+      Check.NotEmpty(name, nameof(name));
+      Check.NotEmpty(table, nameof(table));
+
+      var operation = new MySQLDropUniqueConstraintAndRecreateForeignKeysOperation
+      {
+        Schema = schema,
+        Table = table,
+        Name = name,
+        RecreateForeignKeys = recreateForeignKeys,
+      };
+      migrationBuilder.Operations.Add(operation);
+
+      return new OperationBuilder<MySQLDropUniqueConstraintAndRecreateForeignKeysOperation>(operation);
+    }
   }
 }

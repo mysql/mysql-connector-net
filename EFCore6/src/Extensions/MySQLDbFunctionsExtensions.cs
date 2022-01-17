@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,6 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using System;
 using System.Globalization;
 
@@ -542,5 +543,29 @@ namespace MySql.EntityFrameworkCore.Extensions
 
       return false;
     }
+
+    /// <summary>
+    ///     <para>
+    ///         An implementation of the SQL MATCH function used to perform a natural language search for a string against a text collection.
+    ///         A collection is a set of one or more columns included in a FULLTEXT index.
+    ///     </para>
+    ///     <para>
+    ///         MATCH (col1,col2,...) AGAINST (expr [search_modifier])
+    ///     </para>
+    /// </summary>
+    /// <param name="_">The DbFunctions instance.</param>
+    /// <param name="properties">The columns of the entity that is to be matched.</param>
+    /// <param name="pattern">A pattern that may involve wildcards %,_,[,],^.</param>
+    /// <param name="searchMode">
+    ///     Indicates what type of search to perform
+    /// </param>
+    /// <returns><see langword="true"/> if there is a match; otherwise, <see langword="false"/>.</returns>
+    public static bool Match(
+            [CanBeNull] this DbFunctions _,
+            [NotNull] string[] properties,
+            [CanBeNull] string pattern,
+            MySQLMatchSearchMode searchMode) 
+            => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Match)));
+
   }
 }

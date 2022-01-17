@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,6 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -66,6 +67,41 @@ namespace MySql.EntityFrameworkCore.Utils
       return IsInteger(type)
         || type == typeof(float)
         || type == typeof(double);
+    }
+
+    private static readonly Dictionary<Type, object> _commonTypeDictionary = new Dictionary<Type, object>
+        {
+#pragma warning disable IDE0034 // Simplify 'default' expression - default causes default(object)
+            { typeof(int), default(int) },
+            { typeof(Guid), default(Guid) },
+            { typeof(DateOnly), default(DateOnly) },
+            { typeof(DateTime), default(DateTime) },
+            { typeof(DateTimeOffset), default(DateTimeOffset) },
+            { typeof(TimeOnly), default(TimeOnly) },
+            { typeof(long), default(long) },
+            { typeof(bool), default(bool) },
+            { typeof(double), default(double) },
+            { typeof(short), default(short) },
+            { typeof(float), default(float) },
+            { typeof(byte), default(byte) },
+            { typeof(char), default(char) },
+            { typeof(uint), default(uint) },
+            { typeof(ushort), default(ushort) },
+            { typeof(ulong), default(ulong) },
+            { typeof(sbyte), default(sbyte) }
+#pragma warning restore IDE0034 // Simplify 'default' expression
+        };
+
+    public static object GetDefaultValue(this Type type)
+    {
+      if (!type.GetTypeInfo().IsValueType)
+      {
+        return null;
+      }
+
+      return _commonTypeDictionary.TryGetValue(type, out var value)
+          ? value
+          : Activator.CreateInstance(type);
     }
   }
 }

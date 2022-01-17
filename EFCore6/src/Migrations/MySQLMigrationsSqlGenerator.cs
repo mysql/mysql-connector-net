@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,6 +38,7 @@ using MySql.EntityFrameworkCore.Metadata;
 using MySql.EntityFrameworkCore.Metadata.Internal;
 using MySql.EntityFrameworkCore.Migrations.Operations;
 using MySql.EntityFrameworkCore.Utils;
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -80,6 +81,87 @@ namespace MySql.EntityFrameworkCore.Migrations
         Generate((MySQLDropDatabaseOperation)operation, model, builder);
       else
         base.Generate(operation, model, builder);
+    }
+
+    protected override void Generate(RenameColumnOperation operation, IModel? model, MigrationCommandListBuilder builder)
+    {
+      Check.NotNull(operation, nameof(operation));
+      Check.NotNull(builder, nameof(builder));
+
+      builder.Append("ALTER TABLE ")
+          .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
+
+      builder.Append(" CHANGE ")
+          .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+          .Append(" ");
+
+      var column = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema).FindColumn(operation.NewName);
+      if (column == null)
+      {
+        if (!(operation[RelationalAnnotationNames.ColumnType] is string type))
+        {
+          throw new InvalidOperationException(
+              $"Could not find the column: {Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)}.{Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.NewName)}. Specify the column type explicitly on 'RenameColumn' using the \"{RelationalAnnotationNames.ColumnType}\" annotation");
+        }
+
+        builder
+            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.NewName))
+            .Append(" ")
+            .Append(type)
+            .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+        EndStatement(builder);
+        return;
+      }
+
+      var typeMapping = column.PropertyMappings.FirstOrDefault()?.TypeMapping;
+      var converter = typeMapping?.Converter;
+      var clrType = (converter?.ProviderClrType ?? typeMapping?.ClrType).UnwrapNullableType();
+      var columnType = (string)(operation[RelationalAnnotationNames.ColumnType]
+                                ?? column[RelationalAnnotationNames.ColumnType]);
+      var isNullable = column.IsNullable;
+
+      var defaultValue = column.DefaultValue;
+      defaultValue = converter != null
+          ? converter.ConvertToProvider(defaultValue)
+          : defaultValue;
+      defaultValue = (defaultValue == DBNull.Value ? null : defaultValue)
+                     ?? (isNullable
+                         ? null
+                         : clrType == typeof(string)
+                             ? string.Empty
+                             : clrType.IsArray
+                                 ? Array.CreateInstance(clrType.GetElementType(), 0)
+                                 : clrType.GetDefaultValue());
+
+      var isRowVersion = (clrType == typeof(DateTime) || clrType == typeof(byte[])) &&
+                         column.IsRowVersion;
+
+      var addColumnOperation = new AddColumnOperation
+      {
+        Schema = operation.Schema,
+        Table = operation.Table,
+        Name = operation.NewName,
+        ClrType = clrType,
+        ColumnType = columnType,
+        IsUnicode = column.IsUnicode,
+        MaxLength = column.MaxLength,
+        IsFixedLength = column.IsFixedLength,
+        IsRowVersion = isRowVersion,
+        IsNullable = isNullable,
+        DefaultValue = defaultValue,
+        DefaultValueSql = column.DefaultValueSql,
+        ComputedColumnSql = column.ComputedColumnSql,
+        IsStored = column.IsStored,
+      };
+
+      ColumnDefinition(
+          addColumnOperation,
+          model,
+          builder);
+      builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+      EndStatement(builder);
+
     }
 
     protected override void Generate(

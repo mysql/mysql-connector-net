@@ -1,4 +1,4 @@
-// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,24 +26,29 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-namespace MySql.EntityFrameworkCore.Metadata.Internal
-{
-  /// <summary>
-  /// Names for MySQL annotations.
-  /// </summary>
-  internal static class MySQLAnnotationNames
-  {
-    public const string Prefix = "MySQL:";
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-    public const string ValueGenerationStrategy = Prefix + "ValueGenerationStrategy";
-    public const string LegacyValueGeneratedOnAddOrUpdate = Prefix + "ValueGeneratedOnAddOrUpdate";
-    public const string LegacyValueGeneratedOnAdd = Prefix + "ValueGeneratedOnAdd";
-    public const string FullTextIndex = Prefix + "FullTextIndex";
-    public const string SpatialIndex = Prefix + "SpatialIndex";
-    public const string DefaultValueSql = Prefix + "DefaultValueSql";
-    public const string Charset = Prefix + "Charset";
-    public const string Collation = Prefix + "Collation";
-    public const string IndexPrefixLength = Prefix + "IndexPrefixLength";
-    public const string StoreOptions = Prefix + "StoreOptions";
+namespace MySql.EntityFrameworkCore.Extensions
+{
+  public enum MySQLMatchSearchMode
+  {
+    /// <summary>
+    /// Perform a natural language search for a string against a text collection.
+    /// </summary>
+    NaturalLanguage = 0,
+
+    /// <summary>
+    /// Perform a natural language search with query expansion for a string against a text collection.
+    /// </summary>
+    NaturalLanguageWithQueryExpansion = 1,
+
+    /// <summary>
+    /// Perform a boolean search for a string against a text collection.
+    /// </summary>
+    Boolean = 2,
   }
 }
