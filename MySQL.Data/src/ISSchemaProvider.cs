@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -506,8 +506,7 @@ namespace MySql.Data.MySqlClient
       return GetTable(sql);
     }
 
-    #region Procedures Support Rouines
-
+    #region Procedures Support Routines
     internal void GetParametersFromShowCreate(MySqlSchemaCollection parametersTable,
         string[] restrictions, MySqlSchemaCollection routines)
     {
@@ -699,9 +698,8 @@ namespace MySql.Data.MySqlClient
     private static string GetDataTypeDefaults(string type, MySqlSchemaRow row)
     {
       string format = "({0},{1})";
-      object precision = row["NUMERIC_PRECISION"];
       if (MetaData.IsNumericType(type) &&
-          string.IsNullOrEmpty((string)row["NUMERIC_PRECISION"]))
+      string.IsNullOrEmpty(Convert.ToString(row["NUMERIC_PRECISION"])))
       {
         row["NUMERIC_PRECISION"] = 10;
         row["NUMERIC_SCALE"] = 0;
@@ -730,8 +728,6 @@ namespace MySql.Data.MySqlClient
           row["NUMERIC_SCALE"] = Int32.Parse(parts[1], CultureInfo.InvariantCulture);
       }
     }
-
     #endregion
-
   }
 }

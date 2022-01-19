@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,10 +26,9 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using NUnit.Framework;
+using System;
 using System.Data;
-
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -387,6 +386,24 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual("boo", cb.UnquoteIdentifier("`boo`"));
       Assert.AreEqual("`boo", cb.UnquoteIdentifier("`boo"));
       Assert.AreEqual("bo`o", cb.UnquoteIdentifier("`bo``o`"));
-    }   
+    }
+
+    /// <summary>
+    /// Bug #33650097 - MySqlCommandBuilder doesn't support tables with a bigint unsigned as primary key
+    /// This bug was introduced in the attempt to fix Bug#29802379, which is not a C/NET bug per se.
+    /// </summary>
+    [Test]
+    public void BigintUnsignedAsPK()
+    {
+      ExecuteSQL(@"CREATE TABLE `Test` (`id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, 
+        `field1` VARCHAR(45) NOT NULL DEFAULT '', PRIMARY KEY(`id`)); ");
+
+      var adapter = new MySqlDataAdapter("SELECT * FROM Test", Connection);
+      var commandBuilder = new MySqlCommandBuilder(adapter);
+      var myCommand = commandBuilder.GetUpdateCommand();
+
+      StringAssert.AreEqualIgnoringCase($"UPDATE `test` SET `field1` = @p1 WHERE ((`id` = @p2) AND (`field1` = @p3))",
+        myCommand.CommandText);
+    }
   }
 }
