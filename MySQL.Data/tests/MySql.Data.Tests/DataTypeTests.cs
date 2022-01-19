@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -1187,32 +1187,6 @@ namespace MySql.Data.MySqlClient.Tests
 
       cmd.CommandText = "INSERT INTO Test (name) VALUES ('boo2')";
       cmd.ExecuteNonQuery();
-    }
-
-    /// <summary>
-    /// Bug #29802379	LOAD A DATATABLE FROM A DATAREADER DOESN'T WORK FOR LARGE BIGINT UNSIGNED
-    /// </summary>
-    [Test]
-    public void Bug29802379()
-    {
-      ExecuteSQL(@"
-        CREATE TABLE `test_29802379` (
-          `ID` bigint signed NOT NULL AUTO_INCREMENT,
-          PRIMARY KEY (`ID`),
-          UNIQUE KEY `ID_UNIQUE` (`ID`)
-        ) ENGINE=InnoDB AUTO_INCREMENT=2147483648 ;
-      ");
-      ExecuteSQL(@"
-        INSERT INTO test_29802379 (`ID`) VALUES ('2147483648');
-        INSERT INTO test_29802379 (`ID`) VALUES ('2147483649');
-      ");
-
-      MySqlCommand cmd = new MySqlCommand("SELECT * FROM test_29802379;", Connection);
-      MySqlDataReader dr = cmd.ExecuteReader();
-      DataTable dataTable = new DataTable();
-      dataTable.Load(dr);
-      int records = dataTable.Rows.Count;
-      Assert.AreEqual((int)2, records);
     }
 
     /// <summary>

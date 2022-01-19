@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -311,6 +311,19 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual("Procedures", dt.TableName);
       Assert.AreEqual("spTest", dt.Rows[0][3]);
       Assert.AreEqual("id int", dt.Rows[0][dt.Columns.Count - 1]);
+    }
+
+    /// <summary>
+    /// Bug #33674814 - Empty result from MySqlConnection.GetSchema("Procedure Parameters") call.
+    /// Incorrect casting on [NUMERIC_PRECISION] column whn looking for "PROCEDURE PARAMETERS" collection without any restriction
+    /// </summary>
+    [Test]
+    public void ProcedureParameters()
+    {
+      var dt = Connection.GetSchema("PROCEDURE PARAMETERS");
+
+      Assert.AreEqual("Procedure Parameters", dt.TableName);
+      Assert.True(dt.Rows.Count > 0);
     }
 
     [Test]

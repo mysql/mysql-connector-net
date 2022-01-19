@@ -2,6 +2,8 @@
 - Aligned the TLS/SSL connection options verification across connectors (WL14828).
 - Fixed a bug that prevented the generation of a complete MySqlAttributeCollection at the moment of cloning a MySqlCommand (MySQL Bug #105730, Oracle Bug #33613687).
 - Added support for the FIDO authentication client-side plugin (WL14781).
+- Fixed a bug that prevented using MySqlCommandBuilder for tables with BIGINT unsigned columns as the primary key (MySQL Bug #105768, Oracle Bug #33650097).
+- Fixed a bug that prevented obtaining the "Procedure Parameters" collection by using the GetSchema method (MySQL Bug #105181, Oracle Bug #33674814).
 
 
 8.0.28
