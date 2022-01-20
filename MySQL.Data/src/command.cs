@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -56,7 +56,7 @@ namespace MySql.Data.MySqlClient
     /// <include file='docs/mysqlcommand.xml' path='docs/ctor1/*'/>
     public MySqlCommand()
     {
-      CommandType = System.Data.CommandType.Text;
+      CommandType = CommandType.Text;
       Parameters = new MySqlParameterCollection(this);
       Attributes = new MySqlAttributeCollection(this);
       cmdText = String.Empty;
@@ -839,7 +839,7 @@ namespace MySql.Data.MySqlClient
       if (string.IsNullOrEmpty(query)) return false;
 
       string keyword = query.ToUpper();
-      int indexChar = keyword.IndexOfAny(new char[] { '(', '"', '@', '\'', '`' });
+      int indexChar = keyword.IndexOfAny(new char[] { '(', '"', '@', '\'', '`', '\t', '\n' });
       if (indexChar > 0)
         keyword = keyword.Substring(0, indexChar);
 
@@ -953,4 +953,3 @@ namespace MySql.Data.MySqlClient
     }
   }
 }
-

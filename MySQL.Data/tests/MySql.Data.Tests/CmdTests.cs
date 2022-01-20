@@ -755,7 +755,6 @@ namespace MySql.Data.MySqlClient.Tests
 
     #endregion
 
-    #region WL14389
     [Test, Description("Timeout using Big Table ")]
     public void TimeoutBigTable()
     {
@@ -870,6 +869,24 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #endregion WL14389
+    /// <summary>
+    /// Bug #21971751 - USING TABS FOR WHITESPACE RESULTS IN "YOU HAVE AN ERROR IN YOUR SQL SYNTAX..."
+    /// At the moment the query was analyzed, the tabs ('\t') and new lines ('\n') were not considered.
+    /// </summary>
+    [Test]
+    public void ExecuteCmdWithTabsAndNewLines()
+    {
+      ExecuteSQL(@"CREATE TABLE Test (id INT NOT NULL PRIMARY KEY); 
+        INSERT INTO Test VALUES (1);");
+
+      using (var cmd = Connection.CreateCommand())
+      {
+        cmd.CommandText = "SELECT\nCOUNT(*)\nFROM\nTest;";
+        Assert.AreEqual(1, cmd.ExecuteScalar());
+
+        cmd.CommandText = "SELECT\tCOUNT(*)\n\t\tFROM\tTest;";
+        Assert.AreEqual(1, cmd.ExecuteScalar());
+      }
+    }
   }
 }
