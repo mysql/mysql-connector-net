@@ -5,6 +5,7 @@
 - Fixed a bug that prevented using MySqlCommandBuilder for tables with BIGINT unsigned columns as the primary key (MySQL Bug #105768, Oracle Bug #33650097).
 - Fixed a bug that prevented obtaining the "Procedure Parameters" collection by using the GetSchema method (MySQL Bug #105181, Oracle Bug #33674814).
 - Fixed a bug that occurred when using tabs instead of white spaces in a query (MySQL Bug #78760, Oracle Bug #21971751).
+- Fixed a bug that occurred when a DateTime LINQ expression is compared against a DB date field (MySQL Bug #103436, Oracle Bug #32965150).
 
 
 8.0.28

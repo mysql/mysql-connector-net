@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 //
 // MySQL Connector/NET is licensed under the terms of the GPLv2
 // <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>, like most 
@@ -142,5 +142,41 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         }
       }
     }
+
+    /// <summary>
+    /// Bug #103436 SqlNullabilityProcessor error when using EF and filter by Date/Time
+    /// </summary>
+    [Test]
+    public void QueryWithDate()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        var scenario1 = context.Actor.Where(
+        w => w.FirstName == "GARY"
+        && w.LastName == "PENN"
+        && w.LastUpdate >= DateTime.Today.AddDays(-15));
+
+        var res = scenario1.Count();
+        Assert.AreEqual(0, res);
+
+        var dt = DateTime.Today.AddDays(-15);
+        var scenario2 = context.Actor.Where(
+        w => w.FirstName == "GARY"
+        && w.LastName == "PENN"
+        && w.LastUpdate >= dt);
+
+        var res2 = scenario2.Count();
+        Assert.AreEqual(0, res2);
+
+        var scenario3 = context.Actor.Where(
+        w => w.FirstName == "GARY"
+        && w.LastName == "PENN"
+        && w.LastUpdate >= DateTime.Today.AddDays(3));
+
+        var res3 = scenario3.Count();
+        Assert.AreEqual(0, res3);
+      }
+    }
+
   }
 }
