@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -96,12 +96,15 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     {
       var newValueExpression = visitor.VisitAndConvert(_valueExpression, nameof(VisitChildren));
 
-      return newValueExpression != _valueExpression && newValueExpression != null
-          ? new MySQLCollateExpression(newValueExpression, _charset, _collation, TypeMapping)
-          : this;
+      return Update(newValueExpression);
 
     }
 
+    public virtual MySQLCollateExpression Update(SqlExpression valueExpression)
+    => valueExpression != _valueExpression &&
+       valueExpression != null
+        ? new MySQLCollateExpression(valueExpression, _charset, _collation, TypeMapping)
+        : this;
 
     /// <summary>
     ///     Tests if this object is considered equal to another.

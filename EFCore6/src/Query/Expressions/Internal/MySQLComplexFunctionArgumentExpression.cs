@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -41,9 +41,20 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     public MySQLComplexFunctionArgumentExpression(
       IEnumerable<SqlExpression> argumentParts,
       Type type,
-      RelationalTypeMapping? typeMapping)
+      RelationalTypeMapping typeMapping)
     : base(type, typeMapping)
     {
+      ArgumentParts = argumentParts.ToList().AsReadOnly();
+    }
+
+    public MySQLComplexFunctionArgumentExpression(
+    IEnumerable<SqlExpression> argumentParts,
+    string delimiter,
+    Type type,
+    RelationalTypeMapping typeMapping)
+    : base(type, typeMapping)
+    {
+      Delimiter = delimiter;
       ArgumentParts = argumentParts.ToList().AsReadOnly();
     }
 
@@ -51,6 +62,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     ///     The arguments parts.
     /// </summary>
     public virtual IReadOnlyList<SqlExpression> ArgumentParts { get; }
+    public virtual string Delimiter { get; }
 
     /// <summary>
     ///     Dispatches to the specific visit method for this node type.
@@ -59,30 +71,28 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
         visitor is MySQLQuerySqlGenerator mySqlQuerySqlGenerator
             ? mySqlQuerySqlGenerator.VisitMySQLComplexFunctionArgumentExpression(this)
             : base.Accept(visitor);
-
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
-      var changed = false;
-      var newArgumentParts = new SqlExpression[ArgumentParts.Count];
+      var argumentParts = new SqlExpression[ArgumentParts.Count];
 
-      for (var i = 0; i < newArgumentParts.Length; i++)
+      for (var i = 0; i < argumentParts.Length; i++)
       {
-        newArgumentParts[i] = (SqlExpression)visitor.Visit(ArgumentParts[i]);
-        changed |= newArgumentParts[i] != ArgumentParts[i];
+        argumentParts[i] = (SqlExpression)visitor.Visit(ArgumentParts[i]);
       }
 
-      return changed
-          ? new MySQLComplexFunctionArgumentExpression(
-              newArgumentParts,
-              Type,
-              TypeMapping)
-          : this;
+      return Update(argumentParts, Delimiter);
     }
+
+    public virtual MySQLComplexFunctionArgumentExpression Update(IReadOnlyList<SqlExpression> argumentParts, string delimiter)
+            => !argumentParts.SequenceEqual(ArgumentParts)
+                ? new MySQLComplexFunctionArgumentExpression(argumentParts, delimiter, Type, TypeMapping)
+                : this;
+
 
     protected override void Print(ExpressionPrinter expressionPrinter)
         => expressionPrinter.Append(ToString());
 
-    public override bool Equals(object? obj)
+    public override bool Equals(object obj)
         => obj != null
         && (ReferenceEquals(this, obj)
             || obj is MySQLComplexFunctionArgumentExpression sqlFragmentExpression

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Oracle and/or its affiliates.
+// Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -100,6 +100,7 @@ namespace MySql.EntityFrameworkCore.Extensions
         .TryAdd<IQuerySqlGeneratorFactory, MySQLQueryGeneratorFactory>()
         .TryAdd<ISqlExpressionFactory, MySQLSqlExpressionFactory>()
         .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, MySQLSqlTranslatingExpressionVisitorFactory>()
+        .TryAdd<IRelationalParameterBasedSqlProcessorFactory, MySQLParameterBasedSqlProcessorFactory>()
         .TryAdd<IQueryTranslationPostprocessorFactory, MySQLQueryTranslationPostprocessorFactory>()
         .TryAdd<IMigrationsModelDiffer, MySQLMigrationsModelDiffer>()
         .TryAddProviderSpecificServices(m => m
