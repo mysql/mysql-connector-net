@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2021, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2019, 2022, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -184,7 +184,9 @@ namespace MySql.Data.MySqlClient.Tests
     {
       ExecuteSQL("CREATE USER 'test1'@'%' IDENTIFIED BY 'testpass'", true);
       var address_priority = $"(address={Host}, priority=90),(address=10.20.30.40, priority=100)";
-      Assert.Throws<MySqlException>(() => new MySqlConnection($"server={address_priority};port={Port};user=test1;pwd=wrongPass;").Open());
+
+      using var conn = new MySqlConnection($"server={address_priority};port={Port};user=test1;pwd=wrongPass;");
+      Assert.Throws<MySqlException>(() => conn.Open());
     }
   }
 }

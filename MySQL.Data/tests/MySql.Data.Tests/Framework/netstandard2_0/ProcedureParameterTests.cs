@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,8 +26,8 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using NUnit.Framework;
+using System;
 using System.Data;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -242,7 +242,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void ProcedureParameters4()
     {
       ExecuteSQL(@"CREATE  PROCEDURE ProcedureParameters4 (name VARCHAR(1200) 
-          CHARACTER /* hello*/ SET utf8) BEGIN SELECT name; END");
+          CHARACTER /* hello*/ SET utf8mb3) BEGIN SELECT name; END");
 
       string[] restrictions = new string[5];
       restrictions[1] = Connection.Database;
@@ -258,9 +258,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual("VARCHAR", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
       Assert.AreEqual(1200, dt.Rows[0]["CHARACTER_MAXIMUM_LENGTH"]);
       Assert.AreEqual(3600, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
-      //else
-      //  Assert.AreEqual(4800, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
-      Assert.AreEqual("utf8", dt.Rows[0]["CHARACTER_SET_NAME"]);
+      Assert.AreEqual("utf8mb3", dt.Rows[0]["CHARACTER_SET_NAME"]);
       Assert.AreEqual("utf8_general_ci", dt.Rows[0]["COLLATION_NAME"]);
     }
 
