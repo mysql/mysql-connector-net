@@ -6,6 +6,8 @@
 - Fixed a bug that prevented obtaining the "Procedure Parameters" collection by using the GetSchema method (MySQL Bug #105181, Oracle Bug #33674814).
 - Fixed a bug that occurred when using tabs instead of white spaces in a query (MySQL Bug #78760, Oracle Bug #21971751).
 - Fixed a bug that occurred when a DateTime LINQ expression is compared against a DB date field (MySQL Bug #103436, Oracle Bug #32965150).
+- Fixed a bug that raised an exception when trying to retrieve the value of a BINARY column by using the MySqlDataReader.GetFieldValue<T> method (MySQL Bug #106244, Oracle Bug #33781449).
+- Fixed a bug caused by an exception type that was changed. Reverted to MySqlException type (MySQL Bug #106242, Oracle Bug #33781445).
 
 
 8.0.28

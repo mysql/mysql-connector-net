@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -114,6 +114,7 @@ namespace MySql.Data.Failover
       FailoverServer initialHost = currentHost;
       MySqlXConnectionStringBuilder Settings = null;
       InternalSession internalSession = null;
+      int attempts = 0;
 
       do
       {
@@ -125,10 +126,14 @@ namespace MySql.Data.Failover
           connectionString = connectionString.Replace(connectionString.Split(';').First(p => p.Contains("port")).Split('=')[1], currentHost.Port.ToString());
         Settings = new MySqlXConnectionStringBuilder(connectionString, isDefaultPort);
 
-        try { internalSession = InternalSession.GetSession(Settings); }
+        try
+        {
+          internalSession = InternalSession.GetSession(Settings);
+        }
         catch (Exception ex)
         {
-          if (ex.GetType() == typeof(MySqlException)) throw;
+          if (ex.GetType() == typeof(MySqlException) && attempts == FailoverGroup.Hosts.Count)
+            throw;
         }
 
         if (internalSession != null)
@@ -147,6 +152,8 @@ namespace MySql.Data.Failover
             client.DemotedServersTimer = new Timer(new TimerCallback(client.ReleaseDemotedHosts),
               null, Client.DEMOTED_TIMEOUT, Timeout.Infinite);
         }
+
+        attempts++;
       }
       while (!currentHost.Equals(initialHost));
 
@@ -178,6 +185,7 @@ namespace MySql.Data.Failover
       FailoverServer currentHost = FailoverGroup.ActiveHost;
       FailoverServer initialHost = currentHost;
       Driver driver = null;
+      int attempts = 0;
 
       do
       {
@@ -201,7 +209,8 @@ namespace MySql.Data.Failover
         }
         catch (Exception ex)
         {
-          if (ex.GetType() == typeof(MySqlException)) throw;
+          if (ex.GetType() == typeof(MySqlException) && attempts == FailoverGroup.Hosts.Count)
+            throw;
         }
 
         var tmpHost = currentHost;
@@ -217,8 +226,11 @@ namespace MySql.Data.Failover
             MySqlPoolManager.DemotedServersTimer = new Timer(new TimerCallback(MySqlPoolManager.ReleaseDemotedHosts),
               null, MySqlPoolManager.DEMOTED_TIMEOUT, Timeout.Infinite);
         }
+
+        attempts++;
       } while (!currentHost.Equals(initialHost));
 
+      // All connection attempts failed.
       if (driver == null)
         throw new MySqlException(Resources.UnableToConnectToHost);
     }

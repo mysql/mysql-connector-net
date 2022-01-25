@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2013, 2022, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -31,6 +31,7 @@ using NUnit.Framework;
 using System;
 using System.Data;
 using System.Data.SqlTypes;
+using System.IO;
 using System.Text;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -799,9 +800,46 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         using (var stream = reader.GetStream(0))
         {
-          string result = UTF8Encoding.UTF8.GetString(((System.IO.MemoryStream)stream).ToArray());
+          string result = UTF8Encoding.UTF8.GetString(((MemoryStream)stream).ToArray());
           StringAssert.AreEqualIgnoringCase(str, result);
         }
+      }
+    }
+
+    /// <summary>
+    /// Bug #33781449	- MySqlDataReader.GetFieldValue<Stream> throws InvalidCastException
+    /// Added the handling for Stream type.
+    /// </summary>
+    [Test]
+    public void GetFieldValue()
+    {
+      ExecuteSQL(@"CREATE TABLE Test (intCol INT, decimalCol DECIMAL(5,2), textCol VARCHAR(10), dateCol DATETIME, boolCol TINYINT(1), blobCol BLOB)");
+
+      string str = "randomText_12345";
+      byte[] blob = Encoding.UTF8.GetBytes(str);
+      DateTime dateTime = DateTime.Now;
+
+      using (var command = new MySqlCommand(@"INSERT INTO Test VALUES(@int, @decimal, @text, @date, @bit, @blob);", Connection))
+      {
+        command.Parameters.AddWithValue("@int", 1);
+        command.Parameters.AddWithValue("@decimal", 1.23);
+        command.Parameters.AddWithValue("@text", "test");
+        command.Parameters.AddWithValue("@date", dateTime);
+        command.Parameters.AddWithValue("@bit", true);
+        command.Parameters.AddWithValue("@blob", blob);
+        command.ExecuteNonQuery();
+      }
+
+      using (var cmd = new MySqlCommand("SELECT * FROM Test", Connection))
+      using (var reader = cmd.ExecuteReader())
+      {
+        reader.Read();
+        Assert.AreEqual(1, reader.GetFieldValue<int>(0));
+        Assert.AreEqual(1.23, reader.GetFieldValue<decimal>(1));
+        Assert.AreEqual("test", reader.GetFieldValue<string>(2));
+        Assert.AreEqual(dateTime.ToShortDateString(), reader.GetFieldValue<DateTime>(3).ToShortDateString());
+        Assert.AreEqual(true, reader.GetFieldValue<bool>(4));
+        StringAssert.AreEqualIgnoringCase(str, Encoding.UTF8.GetString(((MemoryStream)reader.GetFieldValue<Stream>(5)).ToArray()));
       }
     }
   }

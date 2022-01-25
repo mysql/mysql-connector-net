@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -172,7 +172,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.Server = "badHostName";
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
-      var ex = Assert.Throws<AggregateException>(() => c.Open());
+      var ex = Assert.Throws<MySqlException>(() => c.Open());
       if (Platform.IsWindows()) Assert.IsTrue(ex.InnerException.GetType() == typeof(System.Net.Sockets.SocketException));
     }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -1045,6 +1045,12 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    /// <summary>
+    /// Gets the value of the specified column as a type.
+    /// </summary>
+    /// <typeparam name="T">Type.</typeparam>
+    /// <param name="ordinal">The index of the column.</param>
+    /// <returns>The value of the column.</returns>
     public override T GetFieldValue<T>(int ordinal)
     {
       if (typeof(T).Equals(typeof(DateTimeOffset)))
@@ -1054,6 +1060,8 @@ namespace MySql.Data.MySqlClient
         DateTime datetime = result ? dtValue : DateTime.MinValue;
         return (T)Convert.ChangeType(new DateTimeOffset(datetime), typeof(T));
       }
+      else if (typeof(T).Equals(typeof(Stream)))
+        return (T)(object)GetStream(ordinal);
       else
         return base.GetFieldValue<T>(ordinal);
     }
