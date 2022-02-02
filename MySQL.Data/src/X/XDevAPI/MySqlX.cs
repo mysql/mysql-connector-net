@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,8 +26,6 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-
 namespace MySqlX.XDevAPI
 {
 
@@ -45,7 +43,7 @@ namespace MySqlX.XDevAPI
     /// <returns>A <see cref="Session"/> object representing the established session.</returns>
     /// <remarks>Multiple hosts can be specified as part of the <paramref name="connectionString"/> which
     /// will enable client side failover when trying to establish a connection. For additional details and syntax 
-    /// examples refer to the <see cref="BaseSession.BaseSession(string)"/> remarks section.</remarks>
+    /// examples refer to the <see cref="BaseSession(string, Client)"/> remarks section.</remarks>
     public static Session GetSession(string connectionString)
     {
       return new Session(connectionString);

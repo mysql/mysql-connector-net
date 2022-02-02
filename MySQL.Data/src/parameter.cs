@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -41,6 +41,10 @@ namespace MySql.Data.MySqlClient
   /// <summary>
   /// Represents a parameter to a <see cref="MySqlCommand"/>, This class cannot be inherited.
   /// </summary>
+  /// <remarks>
+  ///  Parameter names are not case sensitive.
+  /// You can read more about it <see href="https://dev.mysql.com/doc/connector-net/en/connector-net-tutorials-parameters.html">here</see>.
+  /// </remarks>
   [TypeConverter(typeof(MySqlParameterConverter))]
   public sealed partial class MySqlParameter : DbParameter, IDbDataParameter
   {

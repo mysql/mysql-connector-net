@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,7 +34,6 @@ namespace MySql.Data.MySqlClient
   /// <summary>
   /// Represents a collection of query attributes relevant to a <see cref="MySqlCommand"/>.
   /// </summary>
-  /// <include file='docs/mySqlattributecollection.xml' path='docs/ClassSummary/*'/>
   public class MySqlAttributeCollection
   {
     readonly List<MySqlAttribute> _items = new List<MySqlAttribute>();

@@ -37,7 +37,35 @@ using System.Threading;
 
 namespace MySql.Data.MySqlClient
 {
-  /// <include file='docs/MySqlDataReader.xml' path='docs/ClassSummary/*'/>
+  /// <summary>
+  ///  Provides a means of reading a forward-only stream of rows from a MySQL database. This class cannot be inherited.
+  /// </summary>
+  /// <remarks>
+  ///  <para>
+  ///    To create a <see cref="MySqlDataReader"/>, you must call the <see cref="MySqlCommand.ExecuteReader()"/>
+  ///    method of the <see cref="MySqlCommand"/> object, rather than directly using a constructor.
+  ///  </para>
+  ///  <para>
+  ///    While the <see cref="MySqlDataReader"/> is in use, the associated <see cref="MySqlConnection"/>
+  ///    is busy serving the <see cref="MySqlDataReader"/>, and no other operations can be performed
+  ///    on the <B>MySqlConnection</B> other than closing it. This is the case until the
+  ///    <see cref="Close"/> method of the <see cref="MySqlDataReader"/> is called.
+  ///  </para>
+  ///  <para>
+  ///    <see cref="IsClosed"/> and <see cref="RecordsAffected"/>
+  ///    are the only properties that you can call after the <see cref="MySqlDataReader"/> is
+  ///    closed. Though the <see cref="RecordsAffected"/> property may be accessed at any time
+  ///    while the <see cref="MySqlDataReader"/> exists, always call <B>Close</B> before returning
+  ///    the value of <see cref="RecordsAffected"/> to ensure an accurate return value.
+  ///  </para>
+  ///  <para>
+  ///    For optimal performance, <see cref="MySqlDataReader"/> avoids creating
+  ///    unnecessary objects or making unnecessary copies of data. As a result, multiple calls
+  ///    to methods such as <see cref="MySqlDataReader.GetValue"/> return a reference to the
+  ///    same object. Use caution if you are modifying the underlying value of the objects
+  ///    returned by methods such as <see cref="GetValue"/>.
+  ///  </para>
+  /// </remarks>
   public sealed partial class MySqlDataReader : DbDataReader, IDataReader, IDataRecord, IDisposable
   {
     // The DataReader should always be open when returned to the user.
@@ -92,21 +120,26 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the number of columns in the current row.
     /// </summary>
+    /// <returns>The number of columns in the current row.</returns>
     public override int FieldCount => ResultSet?.Size ?? 0;
 
     /// <summary>
     /// Gets a value indicating whether the MySqlDataReader contains one or more rows.
     /// </summary>
+    /// <returns>true if the <see cref="MySqlDataReader"/> contains one or more rows; otherwise false.</returns>
     public override bool HasRows => ResultSet?.HasRows ?? false;
 
     /// <summary>
     /// Gets a value indicating whether the data reader is closed.
     /// </summary>
+    /// <returns>true if the <see cref="MySqlDataReader"/> is closed; otherwise false.</returns>
     public override bool IsClosed => !_isOpen;
 
     /// <summary>
     /// Gets the number of rows changed, inserted, or deleted by execution of the SQL statement.
     /// </summary>
+    /// <returns>The number of rows changed, inserted, or deleted. 
+    /// -1 for SELECT statements; 0 if no rows were affected or the statement failed.</returns>
     public override int RecordsAffected
     {
       // RecordsAffected returns the number of rows affected in batch
@@ -127,20 +160,23 @@ namespace MySql.Data.MySqlClient
 
     /// <summary>
     /// Overloaded. Gets the value of a column in its native format.
-    /// In C#, this property is the indexer for the MySqlDataReader class.
+    /// In C#, this property is the indexer for the <see cref="MySqlDataReader"/> class.
     /// </summary>
+    /// <returns>The value of the specified column.</returns>
     public override object this[int i] => GetValue(i);
 
     /// <summary>
     /// Gets the value of a column in its native format.
-    ///	[C#] In C#, this property is the indexer for the MySqlDataReader class.
+    ///	[C#] In C#, this property is the indexer for the <see cref="MySqlDataReader"/> class.
     /// </summary>
+    /// <returns>The value of the specified column.</returns>
     public override object this[String name] => this[GetOrdinal(name)];
 
     /// <summary>
     /// Gets a value indicating the depth of nesting for the current row.  This method is not 
     /// supported currently and always returns 0.
     /// </summary>
+    /// <returns>The depth of nesting for the current row.</returns>
     public override int Depth => 0;
 
     #endregion
@@ -227,8 +263,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the value of the specified column as a Boolean.
     /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
+    /// <param name="name">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public bool GetBoolean(string name)
     {
       return GetBoolean(GetOrdinal(name));
@@ -237,8 +273,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the value of the specified column as a Boolean.
     /// </summary>
-    /// <param name="i"></param>
-    /// <returns></returns>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public override bool GetBoolean(int i)
     {
       var asValue = GetValue(i);
@@ -251,8 +287,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the value of the specified column as a byte.
     /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
+    /// <param name="name">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public byte GetByte(string name)
     {
       return GetByte(GetOrdinal(name));
@@ -261,8 +297,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the value of the specified column as a byte.
     /// </summary>
-    /// <param name="i"></param>
-    /// <returns></returns>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public override byte GetByte(int i)
     {
       IMySqlValue v = GetFieldValue(i, false);
@@ -275,8 +311,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the value of the specified column as a sbyte.
     /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
+    /// <param name="name">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public sbyte GetSByte(string name)
     {
       return GetSByte(GetOrdinal(name));
@@ -285,8 +321,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the value of the specified column as a sbyte.
     /// </summary>
-    /// <param name="i"></param>
-    /// <returns></returns>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public sbyte GetSByte(int i)
     {
       IMySqlValue v = GetFieldValue(i, false);
@@ -299,13 +335,12 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Reads a stream of bytes from the specified column offset into the buffer an array starting at the given buffer offset.
     /// </summary>
-    /// <param name="i">The zero-based column ordinal. </param>
-    /// <param name="fieldOffset">The index within the field from which to begin the read operation. </param>
-    /// <param name="buffer">The buffer into which to read the stream of bytes. </param>
-    /// <param name="bufferoffset">The index for buffer to begin the read operation. </param>
-    /// <param name="length">The maximum length to copy into the buffer. </param>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <param name="fieldOffset">The index within the field from which to begin the read operation.</param>
+    /// <param name="buffer">The buffer into which to read the stream of bytes.</param>
+    /// <param name="bufferoffset">The index for buffer to begin the read operation.</param>
+    /// <param name="length">The maximum length to copy into the buffer.</param>
     /// <returns>The actual number of bytes read.</returns>
-    /// <include file='docs/MySqlDataReader.xml' path='MyDocs/MyMembers[@name="GetBytes"]/*'/>
     public override long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
     {
       if (i >= FieldCount)
@@ -353,8 +388,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the value of the specified column as a single character.
     /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
+    /// <param name="name">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public char GetChar(string name)
     {
       return GetChar(GetOrdinal(name));
@@ -363,8 +398,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the value of the specified column as a single character.
     /// </summary>
-    /// <param name="i"></param>
-    /// <returns></returns>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public override char GetChar(int i)
     {
       string s = GetString(i);
@@ -374,12 +409,12 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Reads a stream of characters from the specified column offset into the buffer as an array starting at the given buffer offset.
     /// </summary>
-    /// <param name="i"></param>
-    /// <param name="fieldoffset"></param>
-    /// <param name="buffer"></param>
-    /// <param name="bufferoffset"></param>
-    /// <param name="length"></param>
-    /// <returns></returns>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <param name="fieldoffset">The index within the row from which to begin the read operation.</param>
+    /// <param name="buffer">The buffer into which to copy the data.</param>
+    /// <param name="bufferoffset">The index with the buffer to which the data will be copied.</param>
+    /// <param name="length">The maximum number of characters to read.</param>
+    /// <returns>The actual number of characters read.</returns>
     public override long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
     {
       if (i >= FieldCount)
@@ -405,8 +440,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the name of the source data type.
     /// </summary>
-    /// <param name="i"></param>
-    /// <returns></returns>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>A string representing the name of the data type.</returns>
     public override String GetDataTypeName(int i)
     {
       if (!_isOpen)
@@ -419,25 +454,83 @@ namespace MySql.Data.MySqlClient
       return v.MySqlTypeName;
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetMySqlDateTime/*'/>
+    /// <summary>
+    ///  Gets the value of the specified column as a <see cref="MySqlDateTime"/> object.
+    /// </summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="DateTime"/> object.</para>
+    ///  <para>Call IsDBNull to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public MySqlDateTime GetMySqlDateTime(string column)
     {
       return GetMySqlDateTime(GetOrdinal(column));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetMySqlDateTime/*'/>
+    /// <summary>
+    ///  Gets the value of the specified column as a <see cref="MySqlDateTime"/> object.
+    /// </summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="DateTime"/> object.</para>
+    ///  <para>Call IsDBNull to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public MySqlDateTime GetMySqlDateTime(int column)
     {
       return (MySqlDateTime)GetFieldValue(column, true);
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetDateTimeS/*'/>
+    /// <summary>
+    ///  Gets the value of the specified column as a <see cref="DateTime"/> object.
+    /// </summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="DateTime"/> object.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    ///  <note>
+    ///    <para>
+    ///      MySql allows date columns to contain the value '0000-00-00' and datetime
+    ///      columns to contain the value '0000-00-00 00:00:00'.  The DateTime structure cannot contain
+    ///      or represent these values.  To read a datetime value from a column that might
+    ///      contain zero values, use <see cref="GetMySqlDateTime(int)"/>.
+    ///    </para>
+    ///    <para>
+    ///      The behavior of reading a zero datetime column using this method is defined by the
+    ///      <i>ZeroDateTimeBehavior</i> connection string option.  For more information on this option,
+    ///      please refer to <see cref="MySqlConnection.ConnectionString"/>.
+    ///    </para>
+    ///  </note>
+    /// </remarks>
+    /// <param name="column">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public DateTime GetDateTime(string column)
     {
       return GetDateTime(GetOrdinal(column));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetDateTime/*'/>
+    /// <summary>
+    ///  Gets the value of the specified column as a <see cref="DateTime"/> object.
+    /// </summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="DateTime"/> object.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    ///  <note>
+    ///    <para>
+    ///      MySql allows date columns to contain the value '0000-00-00' and datetime
+    ///      columns to contain the value '0000-00-00 00:00:00'.  The DateTime structure cannot contain
+    ///      or represent these values.  To read a datetime value from a column that might
+    ///      contain zero values, use <see cref="GetMySqlDateTime(int)"/>.
+    ///    </para>
+    ///    <para>
+    ///      The behavior of reading a zero datetime column using this method is defined by the
+    ///      <i>ZeroDateTimeBehavior</i> connection string option.  For more information on this option,
+    ///      please refer to <see cref="MySqlConnection.ConnectionString"/>.
+    ///    </para>
+    ///  </note>
+    /// </remarks>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public override DateTime GetDateTime(int i)
     {
       IMySqlValue val = GetFieldValue(i, true);
@@ -479,13 +572,29 @@ namespace MySql.Data.MySqlClient
       return (MySqlDecimal)GetFieldValue(i, false);
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetDecimalS/*'/>
+    /// <summary>
+    ///  Gets the value of the specified column as a <see cref="Decimal"/> object.
+    /// </summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="Decimal"/> object.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public Decimal GetDecimal(string column)
     {
       return GetDecimal(GetOrdinal(column));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetDecimal/*'/>
+    /// <summary>
+    ///  Gets the value of the specified column as a <see cref="Decimal"/> object.
+    /// </summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="Decimal"/> object.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="i">The zero-based column ordinal</param>
+    /// <returns>The value of the specified column.</returns>
     public override Decimal GetDecimal(int i)
     {
       IMySqlValue v = GetFieldValue(i, true);
@@ -494,13 +603,25 @@ namespace MySql.Data.MySqlClient
       return Convert.ToDecimal(v.Value);
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetDoubleS/*'/>
+    /// <summary>Gets the value of the specified column as a double-precision floating point number.</summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="double"/> object.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public double GetDouble(string column)
     {
       return GetDouble(GetOrdinal(column));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetDouble/*'/>
+    /// <summary>Gets the value of the specified column as a double-precision floating point number.</summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="double"/> object.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public override double GetDouble(int i)
     {
       IMySqlValue v = GetFieldValue(i, true);
@@ -509,6 +630,11 @@ namespace MySql.Data.MySqlClient
       return Convert.ToDouble(v.Value);
     }
 
+    /// <summary>
+    /// Gets the Type that is the data type of the object.
+    /// </summary>
+    /// <param name="column">The column name.</param>
+    /// <returns>The data type of the specified column.</returns>
     public Type GetFieldType(string column)
     {
       return GetFieldType(GetOrdinal(column));
@@ -517,8 +643,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the Type that is the data type of the object.
     /// </summary>
-    /// <param name="i"></param>
-    /// <returns></returns>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The data type of the specified column.</returns>
     public override Type GetFieldType(int i)
     {
       if (!_isOpen)
@@ -538,13 +664,29 @@ namespace MySql.Data.MySqlClient
       return v.SystemType;
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetFloatS/*'/>
+    /// <summary>
+    ///  Gets the value of the specified column as a single-precision floating point number.
+    /// </summary>
+    /// <remarks>
+    ///  <para> No conversions are performed; therefore, the data retrieved must already be a <see cref="float"/> object.</para>
+    ///  <para> Call <see cref="IsDBNull"/> to check for null values before calling this method. </para>
+    /// </remarks>
+    /// <param name="column">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public float GetFloat(string column)
     {
       return GetFloat(GetOrdinal(column));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetFloat/*'/>
+    /// <summary>
+    ///  Gets the value of the specified column as a single-precision floating point number.
+    /// </summary>
+    /// <remarks>
+    ///  <para> No conversions are performed; therefore, the data retrieved must already be a <see cref="float"/> object.</para>
+    ///  <para> Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public override float GetFloat(int i)
     {
       IMySqlValue v = GetFieldValue(i, true);
@@ -553,6 +695,11 @@ namespace MySql.Data.MySqlClient
       return Convert.ToSingle(v.Value);
     }
 
+    /// <summary>
+    /// Gets the body definition of a routine.
+    /// </summary>
+    /// <param name="column">The column name.</param>
+    /// <returns>The definition of the routine.</returns>
     public string GetBodyDefinition(string column)
     {
       var value = GetValue(GetOrdinal(column));
@@ -570,13 +717,17 @@ namespace MySql.Data.MySqlClient
     /// Gets the value of the specified column as a globally-unique identifier(GUID).
     /// </summary>
     /// <param name="column">The name of the column.</param>
-    /// <returns></returns>
+    /// <returns>The value of the specified column.</returns>
     public Guid GetGuid(string column)
     {
       return GetGuid(GetOrdinal(column));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetGuid/*'/>
+    /// <summary>
+    /// Gets the value of the specified column as a globally-unique identifier(GUID).
+    /// </summary>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public override Guid GetGuid(int i)
     {
       object v = GetValue(i);
@@ -594,13 +745,25 @@ namespace MySql.Data.MySqlClient
       return Guid.Empty; // just to silence compiler
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetInt16S/*'/>
+    /// <summary>Gets the value of the specified column as a 16-bit signed integer.</summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="Int16"/> value.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public Int16 GetInt16(string column)
     {
       return GetInt16(GetOrdinal(column));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetInt16/*'/>
+    /// <summary>Gets the value of the specified column as a 16-bit signed integer.</summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="Int16"/> value.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public override Int16 GetInt16(int i)
     {
       IMySqlValue v = GetFieldValue(i, true);
@@ -610,13 +773,25 @@ namespace MySql.Data.MySqlClient
       return (short)ChangeType(v, i, typeof(short));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetInt32S/*'/>
+    /// <summary>Gets the value of the specified column as a 32-bit signed integer.</summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="Int32"/> value.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public Int32 GetInt32(string column)
     {
       return GetInt32(GetOrdinal(column));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetInt32/*'/>
+    /// <summary>Gets the value of the specified column as a 32-bit signed integer.</summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="Int32"/> value.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public override Int32 GetInt32(int i)
     {
       IMySqlValue v = GetFieldValue(i, true);
@@ -626,13 +801,25 @@ namespace MySql.Data.MySqlClient
       return (Int32)ChangeType(v, i, typeof(Int32));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetInt64S/*'/>
+    /// <summary>Gets the value of the specified column as a 64-bit signed integer.</summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="Int64"/> value.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public Int64 GetInt64(string column)
     {
       return GetInt64(GetOrdinal(column));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetInt64/*'/>
+    /// <summary>Gets the value of the specified column as a 64-bit signed integer.</summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="Int64"/> value.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public override Int64 GetInt64(int i)
     {
       IMySqlValue v = GetFieldValue(i, true);
@@ -645,8 +832,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the name of the specified column.
     /// </summary>
-    /// <param name="i"></param>
-    /// <returns></returns>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The name of the specified column.</returns>
     public override String GetName(int i)
     {
       if (!_isOpen)
@@ -660,8 +847,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the column ordinal, given the name of the column.
     /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
+    /// <param name="name">The name of the column.</param>
+    /// <returns>The zero-based column ordinal.</returns>
     public override int GetOrdinal(string name)
     {
       if (!_isOpen || ResultSet == null)
@@ -694,13 +881,29 @@ namespace MySql.Data.MySqlClient
       return new MemoryStream(bytes, false);
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetStringS/*'/>
+    /// <summary>
+    ///  Gets the value of the specified column as a <see cref="String"/> object.
+    /// </summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="String"/> object.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public string GetString(string column)
     {
       return GetString(GetOrdinal(column));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetString/*'/>
+    /// <summary>
+    ///  Gets the value of the specified column as a <see cref="String"/> object.
+    /// </summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="String"/> object.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public override String GetString(int i)
     {
       IMySqlValue val = GetFieldValue(i, true);
@@ -714,13 +917,29 @@ namespace MySql.Data.MySqlClient
       return val.Value.ToString();
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetTimeSpan/*'/>
+    /// <summary>
+    ///  Gets the value of the specified column as a <see cref="TimeSpan"/> object.
+    /// </summary>
+    /// <remarks>
+    ///  <para> No conversions are performed; therefore, the data retrieved must already be a <see cref="TimeSpan"/> value.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public TimeSpan GetTimeSpan(string column)
     {
       return GetTimeSpan(GetOrdinal(column));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetTimeSpan/*'/>
+    /// <summary>
+    ///  Gets the value of the specified column as a <see cref="TimeSpan"/> object.
+    /// </summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="TimeSpan"/> value.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public TimeSpan GetTimeSpan(int column)
     {
       IMySqlValue val = GetFieldValue(column, true);
@@ -732,8 +951,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets the value of the specified column in its native format.
     /// </summary>
-    /// <param name="i"></param>
-    /// <returns></returns>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public override object GetValue(int i)
     {
       if (!_isOpen)
@@ -767,8 +986,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets all attribute columns in the collection for the current row.
     /// </summary>
-    /// <param name="values"></param>
-    /// <returns></returns>
+    /// <param name="values">An array of <see cref="Object"/> into which to copy the attribute columns.</param>
+    /// <returns>The number of instances of <see cref="Object"/> in the array.</returns>
     public override int GetValues(object[] values)
     {
       int numCols = Math.Min(values.Length, FieldCount);
@@ -778,13 +997,25 @@ namespace MySql.Data.MySqlClient
       return numCols;
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetUInt16/*'/>
+    /// <summary>Gets the value of the specified column as a 16-bit unsigned integer.</summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="UInt16"/> value.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public UInt16 GetUInt16(string column)
     {
       return GetUInt16(GetOrdinal(column));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetUInt16/*'/>
+    /// <summary>Gets the value of the specified column as a 16-bit unsigned integer.</summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="UInt16"/> value.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public UInt16 GetUInt16(int column)
     {
       IMySqlValue v = GetFieldValue(column, true);
@@ -794,13 +1025,25 @@ namespace MySql.Data.MySqlClient
       return (UInt16)ChangeType(v, column, typeof(UInt16));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetUInt32/*'/>
+    /// <summary>Gets the value of the specified column as a 32-bit unsigned integer.</summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="UInt32"/> value.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public UInt32 GetUInt32(string column)
     {
       return GetUInt32(GetOrdinal(column));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetUInt32/*'/>
+    /// <summary>Gets the value of the specified column as a 32-bit unsigned integer.</summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="UInt32"/> value.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public UInt32 GetUInt32(int column)
     {
       IMySqlValue v = GetFieldValue(column, true);
@@ -809,13 +1052,25 @@ namespace MySql.Data.MySqlClient
       return (uint)ChangeType(v, column, typeof(UInt32));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetUInt64/*'/>
+    /// <summary>Gets the value of the specified column as a 64-bit unsigned integer.</summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="UInt64"/> value.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The column name.</param>
+    /// <returns>The value of the specified column.</returns>
     public UInt64 GetUInt64(string column)
     {
       return GetUInt64(GetOrdinal(column));
     }
 
-    /// <include file='docs/MySqlDataReader.xml' path='docs/GetUInt64/*'/>
+    /// <summary>Gets the value of the specified column as a 64-bit unsigned integer.</summary>
+    /// <remarks>
+    ///  <para>No conversions are performed; therefore, the data retrieved must already be a <see cref="UInt64"/> value.</para>
+    ///  <para>Call <see cref="IsDBNull"/> to check for null values before calling this method.</para>
+    /// </remarks>
+    /// <param name="column">The zero-based column ordinal.</param>
+    /// <returns>The value of the specified column.</returns>
     public UInt64 GetUInt64(int column)
     {
       IMySqlValue v = GetFieldValue(column, true);
@@ -825,9 +1080,13 @@ namespace MySql.Data.MySqlClient
       return (UInt64)ChangeType(v, column, typeof(UInt64));
     }
 
-
     #endregion
 
+    /// <summary>
+    /// Returns a <see cref="DbDataReader"/> object for the requested column ordinal.
+    /// </summary>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>A <see cref="DbDataReader"/> object.</returns>
     IDataReader IDataRecord.GetData(int i)
     {
       return base.GetData(i);
@@ -836,8 +1095,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets a value indicating whether the column contains non-existent or missing values.
     /// </summary>
-    /// <param name="i"></param>
-    /// <returns></returns>
+    /// <param name="i">The zero-based column ordinal.</param>
+    /// <returns>true if the specified column is equivalent to <see cref="DBNull"/>; otherwise false.</returns>
     public override bool IsDBNull(int i)
     {
       return DBNull.Value == GetValue(i);
@@ -846,7 +1105,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Advances the data reader to the next result, when reading the results of batch SQL statements.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>true if there are more result sets; otherwise false.</returns>
     public override bool NextResult()
     {
       if (!_isOpen)
@@ -932,9 +1191,9 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Advances the MySqlDataReader to the next record.
+    /// Advances the <see cref="MySqlDataReader"/> to the next record.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>true if there are more rows; otherwise false.</returns>
     public override bool Read()
     {
       if (!_isOpen)
@@ -1002,7 +1261,8 @@ namespace MySql.Data.MySqlClient
 
     /// <summary>
     /// Returns an <see cref="IEnumerator"/> that iterates through the <see cref="MySqlDataReader"/>. 
-    /// </summary>    
+    /// </summary>
+    /// <returns>An <see cref="IEnumerator"/> that can be used to iterate through the rows in the data reader.</returns>
     public override IEnumerator GetEnumerator()
     {
       return new DbEnumerator(this, (CommandBehavior & CommandBehavior.CloseConnection) != 0);
@@ -1072,6 +1332,9 @@ namespace MySql.Data.MySqlClient
       throw ex;
     }
 
+    /// <summary>
+    /// Releases all resources used by the current instance of the <see cref="MySqlDataReader"/> class.
+    /// </summary>
     public new void Dispose()
     {
       Dispose(true);

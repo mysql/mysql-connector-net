@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,7 +27,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using MySql.Data.MySqlClient;
 using System.Data.Common;
 using System.Runtime.Serialization;
 
@@ -36,7 +35,16 @@ namespace MySql.Data.MySqlClient
   /// <summary>
   /// The exception that is thrown when MySQL returns an error. This class cannot be inherited.
   /// </summary>
-  /// <include file='docs/MySqlException.xml' path='MyDocs/MyMembers[@name="Class"]/*'/>
+  /// <remarks>
+  ///    <para>
+  ///      This class is created whenever the MySQL Data Provider encounters an error generated from the server.
+  ///    </para>
+  ///    <para>
+  ///      Any open connections are not automatically closed when an exception is thrown.  If
+  ///      the client application determines that the exception is fatal, it should close any open
+  ///      <see cref="MySqlDataReader"/> objects or <see cref="MySqlConnection"/> objects.
+  ///    </para>
+  /// </remarks>
   [Serializable]
   public sealed class MySqlException : DbException
   {

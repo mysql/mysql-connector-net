@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2018, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,9 +34,13 @@ using System.Collections;
 namespace MySql.Data.MySqlClient
 {
   /// <summary>
-  /// Represents a collection of parameters relevant to a <see cref="MySqlCommand"/> as well as their respective mappings to columns in a <see cref="System.Data.DataSet"/>. This class cannot be inherited.
+  /// Represents a collection of parameters relevant to a <see cref="MySqlCommand"/> 
+  /// as well as their respective mappings to columns in a <see cref="System.Data.DataSet"/>. This class cannot be inherited.
   /// </summary>
-  /// <include file='docs/MySqlParameterCollection.xml' path='MyDocs/MyMembers[@name="Class"]/*'/>
+  /// <remarks>
+  ///  The number of the parameters in the collection must be equal to the number of
+  ///  parameter placeholders within the command text, or an exception will be generated.
+  ///</remarks>
   public sealed partial class MySqlParameterCollection : DbParameterCollection
   {
     readonly List<MySqlParameter> _items = new List<MySqlParameter>();

@@ -7,7 +7,7 @@
 // This program is also distributed with certain software (including
 // but not limited to OpenSSL) that is licensed under separate terms,
 // as designated in a particular file or component or in included license
-// documentation.  The authors of MySQL hereby grant you an
+// documentation. The authors of MySQL hereby grant you an
 // additional permission to link the program and your derivative works
 // with the separately licensed software that they have included with
 // MySQL.
@@ -44,7 +44,21 @@ using System.Drawing.Design;
 
 namespace MySql.Data.MySqlClient
 {
-  /// <include file='docs/MySqlConnection.xml' path='docs/ClassSummary/*'/>
+  /// <summary>
+  ///  Represents a connection to a MySQL Server database. This class cannot be inherited.
+  /// </summary>
+  /// <remarks>
+  ///  <para>
+  ///    A <see cref="MySqlConnection"/> object represents a session to a MySQL Server
+  ///    data source. When you create an instance of <see cref="MySqlConnection"/>, all
+  ///    properties are set to their initial values.
+  ///  </para>
+  ///  <para>
+  ///    If the <see cref="MySqlConnection"/> goes out of scope, it is not closed. Therefore,
+  ///    you must explicitly close the connection by calling <see cref="MySqlConnection.Close"/>
+  ///    or <see cref="MySqlConnection.Dispose()"/>.
+  ///  </para>
+  /// </remarks>
   public sealed partial class MySqlConnection : DbConnection
   {
     internal ConnectionState connectionState;
@@ -60,15 +74,22 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Occurs when FIDO authentication request to perform gesture action on a device.
     /// </summary>
-    public event FidoAction FidoActionRequested;
+    public event FidoActionCallback FidoActionRequested;
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/InfoMessage/*'/>
+    /// <summary>
+    /// Occurs when MySQL returns warnings as a result of executing a command or query.
+    /// </summary>
     public event MySqlInfoMessageEventHandler InfoMessage;
 
     private static readonly Cache<string, MySqlConnectionStringBuilder> ConnectionStringCache =
       new Cache<string, MySqlConnectionStringBuilder>(0, 25);
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/DefaultCtor/*'/>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MySqlConnection"/> class.
+    /// </summary>
+    /// <remarks>
+    /// You can read more about it <see href="https://dev.mysql.com/doc/connector-net/en/connector-net-tutorials-connection.html">here</see>. 
+    /// </remarks>
     public MySqlConnection()
     {
       //TODO: add event data to StateChange docs
@@ -76,7 +97,14 @@ namespace MySql.Data.MySqlClient
       _database = String.Empty;
     }
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/Ctor1/*'/>
+    /// <summary>
+    ///  Initializes a new instance of the <see cref="MySqlConnection"/> class when given a string containing the connection string.
+    /// </summary>
+    /// <remarks>
+    /// You can read more about it <see href="https://dev.mysql.com/doc/connector-net/en/connector-net-tutorials-connection.html">here</see>.
+    ///</remarks>
+    ///<param name="connectionString">The connection properties used to open the MySQL database.
+    ///</param>
     public MySqlConnection(string connectionString)
       : this()
     {
@@ -149,11 +177,29 @@ namespace MySql.Data.MySqlClient
     [Browsable(true)]
     public override string DataSource => Settings.Server;
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/ConnectionTimeout/*'/>
+    /// <summary>
+    /// Gets the time to wait while trying to establish a connection before terminating the attempt and generating an error.
+    /// </summary>
+    /// <remarks>
+    ///  A value of 0 indicates no limit, and should be avoided in a
+    ///  <see cref="MySqlConnection.ConnectionString"/> because an attempt to connect
+    ///  will wait indefinitely.
+    /// </remarks>
+    /// <exception cref="ArgumentException">The value set is less than 0.</exception>
     [Browsable(true)]
     public override int ConnectionTimeout => (int)Settings.ConnectionTimeout;
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/Database/*'/>
+    /// <summary>Gets the name of the current database or the database to be used after a connection is opened.</summary>
+    /// <returns>The name of the current database or the name of the database to be used after a connection is opened. 
+    /// The default value is an empty string.</returns>
+    /// <remarks>
+    ///  <para>
+    ///    The <see cref="Database"/> property does not update dynamically.
+    ///    If you change the current database using a SQL statement, then this property
+    ///    may reflect the wrong value. If you change the current database using the <see cref="ChangeDatabase"/>
+    ///    method, this property is updated to reflect the new database.
+    ///  </para>
+    /// </remarks>
     [Browsable(true)]
     public override string Database => _database;
 
@@ -163,15 +209,37 @@ namespace MySql.Data.MySqlClient
     [Browsable(false)]
     public bool UseCompression => Settings.UseCompression;
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/State/*'/>
+    /// <summary>Gets the current state of the connection.</summary>
+    /// <returns>
+    ///  A bitwise combination of the <see cref="ConnectionState"/> values. The default is <see cref="ConnectionState.Closed"/>.
+    /// </returns>
+    /// <remarks>
+    ///  The allowed state changes are:
+    ///  <list type="bullet">
+    ///    <item>
+    ///      From <see cref="ConnectionState.Closed"/> to <see cref="ConnectionState.Open"/>, 
+    ///      using the <see cref="ConnectionState.Open"/> method of the connection object.
+    ///    </item>
+    ///    <item>
+    ///      From <B>Open</B> to <B>Closed</B>, using either the <B>Close</B> method or the <B>Dispose</B> method of the connection object.
+    ///    </item>
+    ///  </list>
+    ///</remarks>
     [Browsable(false)]
     public override ConnectionState State => connectionState;
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/ServerVersion/*'/>
+    /// <summary>Gets a string containing the version of the MySQL server to which the client is connected.</summary>
+    /// <returns>The version of the instance of MySQL.</returns>
+    /// <exception cref = "InvalidOperationException" > The connection is closed.</exception>
     [Browsable(false)]
     public override string ServerVersion => driver.Version.ToString();
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/ConnectionString/*'/>
+    /// <summary>
+    ///  Gets or sets the string used to connect to a MySQL Server database.
+    /// </summary>
+    /// <remarks>
+    /// You can read more about it <see href="https://dev.mysql.com/doc/connector-net/en/connector-net-8-0-connection-options.html">here</see>.
+    /// </remarks>
 #if NET452
     [Editor("MySql.Data.MySqlClient.Design.ConnectionStringTypeEditor,MySqlClient.Design", typeof(UITypeEditor))]
 #endif
@@ -219,7 +287,11 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    /// <summary>
+    /// Gets the instance of the <see cref="MySqlClientFactory"/>
+    /// </summary>
     protected override DbProviderFactory DbProviderFactory => MySqlClientFactory.Instance;
+
     /// <summary>
     /// Gets a boolean value that indicates whether the password associated to the connection is expired.
     /// </summary>
@@ -227,6 +299,11 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
+    /// <summary>
+    /// Starts a database transaction.
+    /// </summary>
+    /// <param name="isolationLevel">Specifies the isolation level for the transaction.</param>
+    /// <returns>An object representing the new transaction.</returns>
     protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
     {
       if (isolationLevel == IsolationLevel.Unspecified)
@@ -234,11 +311,14 @@ namespace MySql.Data.MySqlClient
       return BeginTransaction(isolationLevel);
     }
 
+    /// <summary>
+    /// Creates and returns a System.Data.Common.DbCommand object associated with the current connection.
+    /// </summary>
+    /// <returns>A <see cref="DbCommand"/> object.</returns>
     protected override DbCommand CreateDbCommand()
     {
       return CreateCommand();
     }
-
 
     #region IDisposeable
 
@@ -250,7 +330,6 @@ namespace MySql.Data.MySqlClient
     }
 
     #endregion
-
 
     #region Transactions
     /// <include file='docs/MySqlConnection.xml' path='docs/BeginTransaction/*'/>
@@ -308,7 +387,24 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/ChangeDatabase/*'/>
+    /// <summary>Changes the current database for an open MySqlConnection.</summary>
+    /// <param name="databaseName">The name of the database to use.</param>
+    /// <remarks>
+    ///  <para>
+    ///    The value supplied in the <I>databaseName</I> parameter must be a valid database
+    ///    name. The <I>databaseName</I> parameter cannot contain a null value, an empty
+    ///    string, or a string with only blank characters.
+    ///  </para>
+    ///  <para>
+    ///    When you are using connection pooling against MySQL, and you close
+    ///    the connection, it is returned to the connection pool. The next time the
+    ///    connection is retrieved from the pool, the reset connection request
+    ///    executes before the user performs any operations.
+    ///  </para>
+    /// </remarks>
+    /// <exception cref="ArgumentException">The database name is not valid.</exception>
+    /// <exception cref="InvalidOperationException">The connection is not open.</exception>
+    /// <exception cref="MySqlException">Cannot change the database.</exception>
     public override void ChangeDatabase(string databaseName)
     {
       if (databaseName == null || databaseName.Trim().Length == 0)
@@ -363,7 +459,15 @@ namespace MySql.Data.MySqlClient
       return Task.Run(() => Open());
     }
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/Open/*'/>
+    /// <summary>Opens a database connection with the property settings specified by the <see cref="ConnectionString"/>.</summary>
+    /// <exception cref="InvalidOperationException">Cannot open a connection without specifying a data source or server.</exception>
+    /// <exception cref="MySqlException">A connection-level error occurred while opening the connection.</exception>
+    /// <remarks>
+    ///  <para>
+    ///    The <see cref="MySqlConnection"/> draws an open connection from the connection pool if one is available.
+    ///    Otherwise, it establishes a new connection to an instance of MySQL.
+    ///  </para>
+    /// </remarks>
     public override void Open()
     {
       if (State == ConnectionState.Open)
@@ -476,7 +580,10 @@ namespace MySql.Data.MySqlClient
       SetState(ConnectionState.Open, true);
     }
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/CreateCommand/*'/>
+    /// <summary>
+    /// Creates and returns a <see cref="MySqlCommand"/> object associated with the <see cref="MySqlConnection"/>.
+    /// </summary>
+    /// <returns>A <see cref="MySqlCommand"/> object.</returns>
     public new MySqlCommand CreateCommand()
     {
       // Return a new instance of a command object.
@@ -522,7 +629,18 @@ namespace MySql.Data.MySqlClient
       driver = null;
     }
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/Close/*'/>
+    /// <summary>Closes the connection to the database. This is the preferred method of closing any open connection.</summary>
+    /// <remarks>
+    ///  <para>
+    ///    The <see cref="Close"/> method rolls back any pending transactions. It then releases
+    ///    the connection to the connection pool, or closes the connection if connection
+    ///    pooling is disabled.
+    ///  </para>
+    ///  <para>
+    ///    An application can call <see cref="Close"/> more than one time. No exception is
+    ///    generated.
+    ///  </para>
+    /// </remarks>
     public override void Close()
     {
       if (driver != null)
@@ -708,13 +826,27 @@ namespace MySql.Data.MySqlClient
 
     #region Pool Routines
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/ClearPool/*'/>
+    /// <summary>Empties the connection pool associated with the specified connection.</summary>
+    /// <param name="connection">
+    ///  The <see cref="MySqlConnection"/> associated with the pool to be cleared.
+    /// </param>
+    /// <remarks>
+    ///  <para>
+    ///    <see cref="ClearPool(MySqlConnection)"/> clears the connection pool that is associated with the connection.
+    ///    If additional connections associated with connection are in use at the time of the call,
+    ///    they are marked appropriately and are discarded (instead of being returned to the pool)
+    ///    when <see cref="Close"/> is called on them.
+    ///  </para>
+    /// </remarks>
     public static void ClearPool(MySqlConnection connection)
     {
       MySqlPoolManager.ClearPool(connection.Settings);
     }
 
-    /// <include file='docs/MySqlConnection.xml' path='docs/ClearAllPools/*'/>
+    /// <summary>
+    /// Clears all connection pools.
+    /// </summary>
+    /// <remarks>ClearAllPools essentially performs a <see cref="ClearPool"/> on all current connection pools.</remarks>
     public static void ClearAllPools()
     {
       MySqlPoolManager.ClearAllPools();
@@ -729,6 +861,9 @@ namespace MySql.Data.MySqlClient
       _exceptionInterceptor.Throw(ex);
     }
 
+    /// <summary>
+    /// Releases the resources used by the <see cref="MySqlConnection"/>
+    /// </summary>
     public new void Dispose()
     {
       Dispose(true);
@@ -828,28 +963,16 @@ namespace MySql.Data.MySqlClient
       return result.Task;
     }
 
-    ///// <summary>
-    ///// Async version of Open
-    ///// </summary>
-    ///// <returns></returns>
-    //public Task OpenAsync()
-    //{
-    //  return Task.Run(() =>
-    //  {
-    //    Open();
-    //  });
-    //}
-
     /// <summary>
     /// Asynchronous version of the Close method.
     /// </summary>
-    public new Task CloseAsync()
+    public Task CloseAsync()
     {
       return CloseAsync(CancellationToken.None);
     }
 
     /// <summary>
-    /// Asynchronous version of the Close method.
+    /// Asynchronous version of the <see cref="Close"/> method.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     public Task CloseAsync(CancellationToken cancellationToken)
@@ -875,7 +998,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the ClearPool method.
+    /// Asynchronous version of the <see cref="ClearPool(MySqlConnection)"/> method.
     /// </summary>
     /// <param name="connection">The connection associated with the pool to be cleared.</param>
     public Task ClearPoolAsync(MySqlConnection connection)
@@ -884,7 +1007,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the ClearPool method.
+    /// Asynchronous version of the <see cref="ClearPool(MySqlConnection)"/> method.
     /// </summary>
     /// <param name="connection">The connection associated with the pool to be cleared.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -911,7 +1034,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the ClearAllPools method.
+    /// Asynchronous version of the <see cref="ClearAllPools"/> method.
     /// </summary>
     public Task ClearAllPoolsAsync()
     {
@@ -919,7 +1042,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the ClearAllPools method.
+    /// Asynchronous version of the <see cref="ClearAllPools"/> method.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     public Task ClearAllPoolsAsync(CancellationToken cancellationToken)
@@ -945,7 +1068,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the GetSchemaCollection method.
+    /// Asynchronous version of the <see cref="GetSchemaCollection(string, string[])"/> method.
     /// </summary>
     /// <param name="collectionName">The name of the collection.</param>
     /// <param name="restrictionValues">The values to restrict.</param>
@@ -956,7 +1079,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the GetSchemaCollection method.
+    /// Asynchronous version of the <see cref="GetSchemaCollection(string, string[])"/> method.
     /// </summary>
     /// <param name="collectionName">The name of the collection.</param>
     /// <param name="restrictionValues">The values to restrict.</param>
@@ -990,7 +1113,7 @@ namespace MySql.Data.MySqlClient
   /// Represents the method to handle the <see cref="MySqlConnection.FidoActionRequested"/> event of a 
   /// <see cref="MySqlConnection"/>
   /// </summary>
-  public delegate void FidoAction();
+  public delegate void FidoActionCallback();
 
   /// <summary>
   /// Represents the method to handle the <see cref="MySqlConnection.InfoMessage"/> event of a 

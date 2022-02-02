@@ -260,6 +260,8 @@ namespace MySql.Data.MySqlClient
     /// Gets or sets the name of the named pipe that should be used
     /// for communicating with MySQL.
     /// </summary>
+    /// <remarks>This property has no effect unless the <see cref="MySqlBaseConnectionStringBuilder.ConnectionProtocol"/> 
+    /// property has been set to <see cref="MySqlConnectionProtocol.NamedPipe"/>.</remarks>
     [Category("Connection")]
     [DisplayName("Pipe Name")]
     [Description("Name of pipe to use when connecting with named pipes (Win32 only)")]
@@ -416,7 +418,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets a boolean value that indicates if the connection should be encrypted.
     /// </summary>
-    /// <remarks>Obsolte. Use <see cref="SslMode"/> instead.</remarks>
+    /// <remarks>Obsolte. Use <see cref="MySqlSslMode"/> instead.</remarks>
     [Category("Authentication")]
     [DisplayName("Integrated Security")]
     [Description("Use windows authentication when connecting to server")]
@@ -794,7 +796,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the event for the callback.
     /// </summary>
-    internal FidoAction FidoActionRequested { get; set; }
+    internal FidoActionCallback FidoActionRequested { get; set; }
 
     #endregion
 

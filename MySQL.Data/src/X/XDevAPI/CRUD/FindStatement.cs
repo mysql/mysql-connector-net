@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,11 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Collections.Generic;
+using MySql.Data;
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Common;
 using System;
-using MySql.Data.MySqlClient;
-using MySql.Data;
+using System.Collections.Generic;
 
 namespace MySqlX.XDevAPI.CRUD
 {
@@ -114,7 +114,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// Sets the collection aggregation.
     /// </summary>
     /// <param name="groupBy">The field list for aggregation.</param>
-    /// <returns>This same <see cref="TableSelectStatement"/> object set with the specified group-by criteria.</returns>
+    /// <returns>This same <see cref="FindStatement"/> object set with the specified group-by criteria.</returns>
     public FindStatement GroupBy(params string[] groupBy)
     {
       if (groupBy == null)
@@ -136,7 +136,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// Filters criteria for aggregated groups.
     /// </summary>
     /// <param name="having">The filter criteria for aggregated groups.</param>
-    /// <returns>This same <see cref="TableSelectStatement"/> object set with the specified filter criteria.</returns>
+    /// <returns>This same <see cref="FindStatement"/> object set with the specified filter criteria.</returns>
     public FindStatement Having(string having)
     {
       findParams.GroupByCritieria = having;
@@ -162,7 +162,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// </summary>
     /// <param name="condition">The Where condition.</param>
     /// <returns>The implementing statement type.</returns>
-    [Obsolete("Where(string condition) has been deprecated since version 8.0.17.")] 
+    [Obsolete("Where(string condition) has been deprecated since version 8.0.17.")]
     public new FindStatement Where(string condition)
     {
       return base.Where(condition);
