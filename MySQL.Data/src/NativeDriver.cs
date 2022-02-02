@@ -193,14 +193,15 @@ namespace MySql.Data.MySqlClient
       }
       catch (System.Security.SecurityException) { throw; }
       catch (TimeoutException) { throw; }
-      catch (AggregateException ex)
+      catch (AggregateException ae)
       {
-        if (ex.InnerException.Message.Contains("No such host is known") ||
-          ex.InnerException.Message.Contains("Name or service not known"))
-          throw new MySqlException(Resources.UnableToConnectToHost,
-              (int)MySqlErrorCode.UnableToConnectToHost, ex.InnerException);
-        else
-          throw;
+        ae.Handle(ex =>
+        {
+          if (ex is System.Net.Sockets.SocketException)
+            throw new MySqlException(Resources.UnableToConnectToHost,
+              (int)MySqlErrorCode.UnableToConnectToHost, ex);
+          return ex is MySqlException;
+        });
       }
       catch (Exception ex)
       {
