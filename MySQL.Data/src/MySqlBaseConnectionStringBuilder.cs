@@ -168,6 +168,9 @@ namespace MySql.Data.MySqlClient
     /// Gets or sets the name of the server.
     /// </summary>
     /// <value>The server.</value>
+    /// <remarks>
+    /// If this property is not set, then the provider will attempt to connect to<b>localhost</b> 
+    /// even though this property will return <b>String.Empty</b>.</remarks>
     [Category("Connection")]
     [Description("Server to connect to")]
     [RefreshProperties(RefreshProperties.All)]
@@ -180,6 +183,8 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets or sets the name of the database for the initial connection.
     /// </summary>
+    /// <remarks> There is no default for this property and, if not set, the connection will not have a current database.
+    /// </remarks>
     [Category("Connection")]
     [Description("Database to use initially")]
     [RefreshProperties(RefreshProperties.All)]

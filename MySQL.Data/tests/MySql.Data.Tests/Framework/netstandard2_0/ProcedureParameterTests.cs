@@ -241,8 +241,10 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void ProcedureParameters4()
     {
-      ExecuteSQL(@"CREATE  PROCEDURE ProcedureParameters4 (name VARCHAR(1200) 
-          CHARACTER /* hello*/ SET utf8mb3) BEGIN SELECT name; END");
+      string charset = Version < new Version(8, 0) ? "utf8" : "utf8mb3";
+
+      ExecuteSQL($@"CREATE  PROCEDURE ProcedureParameters4 (name VARCHAR(1200) 
+          CHARACTER /* hello*/ SET {charset}) BEGIN SELECT name; END");
 
       string[] restrictions = new string[5];
       restrictions[1] = Connection.Database;
@@ -258,7 +260,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual("VARCHAR", dt.Rows[0]["DATA_TYPE"].ToString().ToUpper());
       Assert.AreEqual(1200, dt.Rows[0]["CHARACTER_MAXIMUM_LENGTH"]);
       Assert.AreEqual(3600, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
-      Assert.AreEqual("utf8mb3", dt.Rows[0]["CHARACTER_SET_NAME"]);
+      Assert.AreEqual(charset, dt.Rows[0]["CHARACTER_SET_NAME"]);
       Assert.AreEqual("utf8_general_ci", dt.Rows[0]["COLLATION_NAME"]);
     }
 

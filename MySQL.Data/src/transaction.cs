@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,7 +32,70 @@ using System.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
-  /// <include file='docs/MySqlTransaction.xml' path='docs/Class/*'/>
+  /// <summary>
+  ///  Represents a SQL transaction to be made in a MySQL database. This class cannot be inherited.
+  /// </summary>
+  /// <remarks>
+  ///  The application creates a <see cref="MySqlTransaction"/> object by calling <see cref="MySqlConnection.BeginTransaction()"/>
+  ///  on the <see cref="MySqlConnection"/> object. All subsequent operations associated with the
+  ///  transaction (for example, committing or aborting the transaction), are performed on the
+  ///  <see cref="MySqlTransaction"/> object.
+  /// </remarks>
+  /// <example>
+  ///  The following example creates a <see cref="MySqlConnection"/> and a <see cref="MySqlTransaction"/>.
+  ///  It also demonstrates how to use the <see cref="MySqlConnection.BeginTransaction()"/>,
+  ///  <see cref="MySqlTransaction.Commit"/>, and <see cref="MySqlTransaction.Rollback"/> methods.
+  ///  <code>
+  ///    public void RunTransaction(string myConnString)
+  ///    {
+  ///      MySqlConnection myConnection = new MySqlConnection(myConnString);
+  ///      myConnection.Open();
+  ///      
+  ///      MySqlCommand myCommand = myConnection.CreateCommand();
+  ///      MySqlTransaction myTrans;
+  ///      
+  ///      // Start a local transaction
+  ///      myTrans = myConnection.BeginTransaction();
+  ///      // Must assign both transaction object and connection
+  ///      // to Command object for a pending local transaction
+  ///      myCommand.Connection = myConnection;
+  ///      myCommand.Transaction = myTrans;
+  ///      
+  ///      try
+  ///      {
+  ///        myCommand.CommandText = "Insert into Region (RegionID, RegionDescription) VALUES (100, 'Description')";
+  ///        myCommand.ExecuteNonQuery();
+  ///        myCommand.CommandText = "Insert into Region (RegionID, RegionDescription) VALUES (101, 'Description')";
+  ///        myCommand.ExecuteNonQuery();
+  ///        myTrans.Commit();
+  ///        Console.WriteLine("Both records are written to database.");
+  ///      }
+  ///      catch(Exception e)
+  ///      {
+  ///        try
+  ///        {
+  ///          myTrans.Rollback();
+  ///        }
+  ///        catch (MySqlException ex)
+  ///        {
+  ///          if (myTrans.Connection != null)
+  ///          {
+  ///            Console.WriteLine("An exception of type " + ex.GetType() +
+  ///            " was encountered while attempting to roll back the transaction.");
+  ///          }
+  ///        }
+  ///        
+  ///        Console.WriteLine("An exception of type " + e.GetType() +
+  ///        " was encountered while inserting the data.");
+  ///        Console.WriteLine("Neither record was written to database.");
+  ///      }
+  ///      finally
+  ///      {
+  ///        myConnection.Close();
+  ///      }
+  ///    }
+  ///  </code>
+  /// </example>
   public sealed class MySqlTransaction : DbTransaction
   {
     private bool open;
@@ -78,6 +141,10 @@ namespace MySql.Data.MySqlClient
     /// </remarks>
     public override IsolationLevel IsolationLevel { get; }
 
+    /// <summary>
+    /// Gets the <see cref="DbConnection"/> object associated with the transaction,
+    /// or a null reference if the transaction is no longer valid.
+    /// </summary>
     protected override DbConnection DbConnection
     {
       get { return Connection; }
@@ -85,7 +152,12 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-
+    /// <summary>
+    /// Releases the unmanaged resources used by the <see cref="MySqlTransaction"/>
+    /// and optionally releases the managed resources
+    /// </summary>
+    /// <param name="disposing">If true, this method releases all resources held by any managed objects that
+    /// this <see cref="MySqlTransaction"/> references.</param>
     protected override void Dispose(bool disposing)
     {
       if (disposed) return;
@@ -98,7 +170,12 @@ namespace MySql.Data.MySqlClient
       disposed = true;
     }
 
-    /// <include file='docs/MySqlTransaction.xml' path='docs/Commit/*'/>
+    /// <summary>
+    ///  Commits the database transaction.
+    /// </summary>
+    /// <remarks>
+    ///  The <see cref="Commit"/> method is equivalent to the MySQL SQL statement COMMIT.
+    /// </remarks>
     public override void Commit()
     {
       if (Connection == null || (Connection.State != ConnectionState.Open && !Connection.SoftClosed))
@@ -112,7 +189,15 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    /// <include file='docs/MySqlTransaction.xml' path='docs/Rollback/*'/>
+    /// <summary>
+    ///  Rolls back a transaction from a pending state.
+    /// </summary>
+    /// <remarks>
+    ///  The <see cref="Rollback"/> method is equivalent to the MySQL statement ROLLBACK.
+    ///  The transaction can only be rolled back from a pending state
+    ///  (after BeginTransaction has been called, but before Commit is
+    ///  called).
+    /// </remarks>
     public override void Rollback()
     {
       if (Connection == null || (Connection.State != ConnectionState.Open && !Connection.SoftClosed))
@@ -125,6 +210,5 @@ namespace MySql.Data.MySqlClient
         open = false;
       }
     }
-
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,9 +28,9 @@
 
 using MySql.Data;
 using MySql.Data.Common;
+using MySql.Data.Failover;
 using MySql.Data.MySqlClient;
 using MySqlX.Common;
-using MySql.Data.Failover;
 using MySqlX.Sessions;
 using MySqlX.XDevAPI.Relational;
 using System;
@@ -403,7 +403,7 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Commits the current transaction.
     /// </summary>
-    /// <returns>A <see cref="Result"/> object containing the results of the commit operation.</returns>
+    /// <returns>A <see cref="Common.Result"/> object containing the results of the commit operation.</returns>
     public void Commit()
     {
       InternalSession.ExecuteSqlNonQuery("COMMIT");

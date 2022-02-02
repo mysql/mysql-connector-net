@@ -195,7 +195,8 @@ namespace MySql.Data.MySqlClient
       catch (TimeoutException) { throw; }
       catch (AggregateException ex)
       {
-        if (ex.InnerException.Message == "No such host is known.")
+        if (ex.InnerException.Message.Contains("No such host is known") ||
+          ex.InnerException.Message.Contains("Name or service not known"))
           throw new MySqlException(Resources.UnableToConnectToHost,
               (int)MySqlErrorCode.UnableToConnectToHost, ex.InnerException);
         else

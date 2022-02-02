@@ -8,6 +8,9 @@
 - Fixed a bug that occurred when a DateTime LINQ expression is compared against a DB date field (MySQL Bug #103436, Oracle Bug #32965150).
 - Fixed a bug that raised an exception when trying to retrieve the value of a BINARY column by using the MySqlDataReader.GetFieldValue<T> method (MySQL Bug #106244, Oracle Bug #33781449).
 - Fixed a bug caused by an exception type that was changed. Reverted to MySqlException type (MySQL Bug #106242, Oracle Bug #33781445).
+- Added the missing summaries for some classes in the API documentation (Oracle Bug #33775282).
+- Added the Connector/NET version number to the API documentation (Oracle Bug #33775317).
+- Added missing description for MySqlSslMode.Prefered (Oracle Bug #33784669).
 
 
 8.0.28

@@ -42,32 +42,28 @@
     }
   ],
   "build": {
+    "template": [
+      "default",
+      "templates/custom"
+    ],
     "content": [
       {
-        "files": [
-          "**/*.yml",
-          "index.md"],
+        "files": [ "**/*.yml"],
         "src": "api/data_api",
         "dest": "api/data_api"
       },
       {
-        "files": [
-          "**/*.yml",
-          "index.md"],
+        "files": [ "**/*.yml"],
         "src": "api/efcore_api",
         "dest": "api/efcore_api"
       },
       {
-        "files": [
-          "**/*.yml",
-          "index.md"],
+        "files": [ "**/*.yml"],
         "src": "api/ef_api",
         "dest": "api/ef_api"
       },
       {
-        "files": [
-          "**/*.yml",
-          "index.md"],
+        "files": [ "**/*.yml"],
         "src": "api/web_api",
         "dest": "api/web_api"
       },
@@ -81,9 +77,10 @@
       }
     ],
     "globalMetadata": {
-      "_appFooter": "Copyright © 2021, Oracle and/or its affiliates.",
+      "_appFooter": "Copyright © 2021, 2022, Oracle and/or its affiliates.",
       "_appLogoPath": "/images/logo.svg",
-      "_appFaviconPath": "/images/favicon.ico"
+      "_appFaviconPath": "/images/favicon.ico",
+      "_enableSearch": true
     },
     "dest": "Output",
     "markdownEngineName": "markdig",
