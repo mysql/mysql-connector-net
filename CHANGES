@@ -11,6 +11,7 @@
 - Added the missing summaries for some classes in the API documentation (Oracle Bug #33775282).
 - Added the Connector/NET version number to the API documentation (Oracle Bug #33775317).
 - Added missing description for MySqlSslMode.Prefered (Oracle Bug #33784669).
+- Upgraded Google.Protobuf dependency to 3.9.14 (WL15082).
 
 
 8.0.28
