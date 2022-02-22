@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -515,8 +515,6 @@ namespace MySqlX.Data.Tests
       StringAssert.AreEqualIgnoringCase("bar", values.values["title"].ToString());
     }
 
-    #region WL14389
-
     [Test, Description("Verify Count method for Tables,Collections,Collection As Table,Views with different combinations")]
     public void AdditionalCountTests()
     {
@@ -536,9 +534,9 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(count, collectionAsTable.Count());
 
       var result = table.Insert("name", "age")
-        .Values("upper('mark')", "50 - 16")
-        .Values("lower('RICHIE')", "0 + 16")
-        .Values("upper('tEsT')", "50>40")
+        .Values("MARK", "34")
+        .Values("richie", "16")
+        .Values("TEST", "50")
        .Execute();
 
       Assert.AreEqual((ulong)3, result.AffectedItemsCount);
@@ -1685,8 +1683,5 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual("1001", res[0]["_id"].ToString(), "Matching the id");
       Assert.AreEqual("1003", res[1]["_id"].ToString(), "Matching the id");
     }
-
-    #endregion
-
   }
 }

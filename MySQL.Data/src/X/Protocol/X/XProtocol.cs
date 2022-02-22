@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -35,22 +35,22 @@ using Mysqlx.Crud;
 using Mysqlx.Datatypes;
 using Mysqlx.Expr;
 using Mysqlx.Notice;
+using Mysqlx.Prepare;
 using Mysqlx.Resultset;
 using Mysqlx.Session;
 using Mysqlx.Sql;
 using MySqlX.Communication;
 using MySqlX.Data;
+using MySqlX.DataAccess;
 using MySqlX.Protocol.X;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using static Mysqlx.Datatypes.Object.Types;
-using Mysqlx.Prepare;
-using MySqlX.DataAccess;
-using System.Collections;
 
 namespace MySqlX.Protocol
 {
@@ -134,7 +134,7 @@ namespace MySqlX.Protocol
         if (packet.MessageType == (int)ServerMessageId.ERROR)
           DecodeAndThrowError(packet);
         else
-        ThrowUnexpectedMessage(packet.MessageType, (int)ServerMessageId.CONN_CAPABILITIES);
+          ThrowUnexpectedMessage(packet.MessageType, (int)ServerMessageId.CONN_CAPABILITIES);
       }
       Capabilities = Capabilities.Parser.ParseFrom(packet.Buffer);
     }
@@ -583,18 +583,18 @@ namespace MySqlX.Protocol
       if (columns != null && columns.Length > 0)
       {
         foreach (string column in columns)
-        {
           msg.Projection.Add(new ExprParser(column).ParseTableInsertField());
-        }
       }
+
       foreach (object row in rows)
       {
         Mysqlx.Crud.Insert.Types.TypedRow typedRow = new Mysqlx.Crud.Insert.Types.TypedRow();
         object[] fields = row.GetType().IsArray ? (object[])row : new object[] { row };
         foreach (object field in fields)
-        {
-          typedRow.Field.Add(ExprUtil.ArgObjectToExpr(field, isRelational));
-        }
+          if (field is null)
+            typedRow.Field.Add(ExprUtil.BuildLiteralNullScalar());
+          else
+            typedRow.Field.Add(ExprUtil.BuildLiteralScalar(Convert.ToString(field)));
 
         msg.Row.Add(typedRow);
       }
@@ -661,7 +661,6 @@ namespace MySqlX.Protocol
         updateBuilder.Source = update.GetSource(isRelational);
         if (update.Type != UpdateOperation.Types.UpdateType.ItemRemove
           || (update.Type == UpdateOperation.Types.UpdateType.ItemRemove && update.HasValue))
-          //updateBuilder.Value = update.GetValue(update.Type == UpdateOperation.Types.UpdateType.MergePatch ? true : false);
           updateBuilder.Value = update.GetValue(update.Type);
         msg.Operation.Add(updateBuilder);
       }
