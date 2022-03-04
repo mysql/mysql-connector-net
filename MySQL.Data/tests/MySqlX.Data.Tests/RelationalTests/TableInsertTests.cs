@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -70,9 +70,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test.test(name VARCHAR(40), age INT)");
       Table table = testSchema.GetTable("test");
 
-      var result = ExecuteInsertStatement(table.Insert("name", "age")
-        .Values("upper('mark')", "50-16")
-        );
+      var result = ExecuteInsertStatement(table.Insert("name", "age").Values("MARK", "34"));
       Assert.AreEqual(1, result.AffectedItemsCount);
 
       var selectResult = ExecuteSelectStatement(table.Select());
@@ -89,12 +87,39 @@ namespace MySqlX.Data.Tests.RelationalTests
       Table table = testSchema.GetTable("test");
 
       var stmt = table.Insert("name", "age");
-      var result = ExecuteInsertStatement(stmt.Values("upper('mark')", "50-16"));
+      var result = ExecuteInsertStatement(stmt.Values("MARK", "34"));
       Assert.AreEqual(1, result.AffectedItemsCount);
       // error 5014 - Wrong number of fields in row being inserted
       Assert.AreEqual(5014u, Assert.Throws<MySqlException>(() => result = ExecuteInsertStatement(stmt.Values("George", 34, 1))).Code);
       Assert.AreEqual(5014u, Assert.Throws<MySqlException>(() => ExecuteInsertStatement(stmt.Values("George", 34))).Code);
       Assert.That(ExecuteSelectStatement(table.Select()).FetchAll(), Has.One.Items);
+    }
+
+    /// <summary>
+    /// Bug#31692694 - TABLEINSERTSTATEMENT STRING SPECIAL CARAC VALUES OBJECT ARE UNCORRECTLY MANAGED
+    /// </summary>
+    [TestCase("-")]
+    [TestCase("+")]
+    [TestCase("*")]
+    [TestCase("/")]
+    [TestCase("\\")]
+    [TestCase("=")]
+    [TestCase("(")]
+    [TestCase(")")]
+    public void InsertWithExpressionsAlikeValues(string specialChar)
+    {
+      ExecuteSQL("CREATE TABLE test(ID INT, COLUMN_TEST VARCHAR(40))");
+      string value = $"ImproperFieldNameBug {specialChar} Bug";
+
+      Table table = testSchema.GetTable("test");
+      var insertResult = table.Insert("ID", "COLUMN_TEST").Values("1", value).Execute();
+      var selectResult = ExecuteSelectStatement(table.Select());
+      while (selectResult.Next()) ;
+
+      Assert.AreEqual(1, insertResult.AffectedItemsCount);
+      Assert.That(selectResult.Rows, Has.One.Items);
+      StringAssert.AreEqualIgnoringCase("1", selectResult.Rows.ToArray()[0][0].ToString());
+      StringAssert.AreEqualIgnoringCase(value, selectResult.Rows.ToArray()[0][1].ToString());
     }
   }
 }

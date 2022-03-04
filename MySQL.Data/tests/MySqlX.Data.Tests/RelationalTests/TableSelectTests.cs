@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
@@ -34,9 +35,6 @@ using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using MySql.Data.Common;
 
 namespace MySqlX.Data.Tests.RelationalTests
 {
@@ -766,12 +764,12 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("create table test1(name VARCHAR(40), age INT)");
       Table table = session.GetSchema(schemaName).GetTable("test1");
       var result = table.Insert("name", "age")
-        .Values("upper('mark')", 50 - 16)
+        .Values("MARK", 34)
         .Execute();
 
       Assert.AreEqual((ulong)1, result.AffectedItemsCount, "Matching the values");
       result = table.Insert("name", "age")
-      .Values("lower('RICHIE')", 0 + 16)
+      .Values("richie", 16)
       .Execute();
       Assert.AreEqual((ulong)1, result.AffectedItemsCount, "Matching the values");
       var selectResult = table.Select().Execute();

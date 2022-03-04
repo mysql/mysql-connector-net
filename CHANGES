@@ -13,6 +13,7 @@
 - Added missing description for MySqlSslMode.Prefered (Oracle Bug #33784669).
 - Upgraded the Google.Protobuf dependency to version 3.9.14 (WL15082).
 - Fixed a bug that prevented the proper installation of Connector/NET by using the msi package (Oracle Bug #33843853).
+- Fixed a bug that raised an exception when using X DevAPI and trying to insert a string value containing special characters (MySQL Bug #100314, Oracle Bug #31692694).
 
 
 8.0.28
