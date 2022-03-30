@@ -1,6 +1,8 @@
 8.0.30
-- Deprecated the MySql.EMTrace project (WL15159). This will be removed in 8.0.31
-- Deprecate memcached client.  This will be removed in 8.0.31
+- Deprecated the MySql.EMTrace project. This will be removed in 8.0.31 (WL15159).
+- Deprecate memcached client. This will be removed in 8.0.31 (WL15163).
+- Fixed a bug that raised an exception when using the named-pipe protocol to connect to MySQL Server (MySQL Bug #106765, Oracle Bug #33974737).
+
 
 8.0.29
 - Aligned the TLS/SSL connection options verification across connectors (WL14828).

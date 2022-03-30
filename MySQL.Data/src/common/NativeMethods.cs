@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright (c) 2009, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,7 +28,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using System.Threading;
 
 namespace MySql.Data.Common
 {
@@ -42,6 +41,10 @@ namespace MySql.Data.Common
     //Constants for dwDesiredAccess:
     public const UInt32 GENERIC_READ = 0x80000000;
     public const UInt32 GENERIC_WRITE = 0x40000000;
+    public const UInt32 FILE_READ_ATTRIBUTES = 0x0080;
+    public const UInt32 FILE_READ_DATA = 0x0001;
+    public const UInt32 FILE_WRITE_ATTRIBUTES = 0x0100;
+    public const UInt32 FILE_WRITE_DATA = 0x0002;
 
     //Constants for return value:
     public const Int32 INVALIDpipeHandle_VALUE = -1;
@@ -91,7 +94,7 @@ namespace MySql.Data.Common
 
     [return: MarshalAs(UnmanagedType.Bool)]
     [DllImport("Kernel32")]
-    public static extern bool WriteFile(IntPtr hFile, [In]byte[] buffer,
+    public static extern bool WriteFile(IntPtr hFile, [In] byte[] buffer,
   uint numberOfBytesToWrite, out uint numberOfBytesWritten, IntPtr lpOverlapped);
 
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -108,12 +111,12 @@ namespace MySql.Data.Common
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
     public static extern IntPtr OpenEvent(uint dwDesiredAccess,
-        [MarshalAs(UnmanagedType.Bool)]bool bInheritHandle,
+        [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle,
         string lpName);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
     public static extern IntPtr OpenFileMapping(uint dwDesiredAccess,
-        [MarshalAs(UnmanagedType.Bool)]bool bInheritHandle,
+        [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle,
         string lpName);
 
     [DllImport("kernel32.dll")]

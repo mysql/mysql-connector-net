@@ -774,6 +774,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug#32853205 - UNABLE TO CONNECT USING NAMED PIPES AND SHARED MEMORY
     /// To be able to connect using Named Pipes, it requires to start the server supporting the protocol
     /// mysqld --standalone --console --enable-named-pipe
+    /// MySQL Server needs to be running as a Windows Service.
     /// </summary>    
     [Test]
     [Ignore("To be able to connect using Named Pipes, it requires to start the server supporting the protocol")]

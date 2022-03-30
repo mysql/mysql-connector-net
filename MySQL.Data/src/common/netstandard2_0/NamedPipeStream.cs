@@ -1,4 +1,4 @@
-// Copyright (c) 2009, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2009, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -66,14 +66,15 @@ namespace MySql.Data.MySqlClient.Common
     {
       IntPtr nativeHandle;
 
-      for (;;)
+      for (; ; )
       {
         NativeMethods.SecurityAttributes security = new NativeMethods.SecurityAttributes();
         security.inheritHandle = true;
         security.Length = Marshal.SizeOf(security);
 
-        nativeHandle = NativeMethods.CreateFile(path, NativeMethods.GENERIC_READ | NativeMethods.GENERIC_WRITE,
-                     0, security, NativeMethods.OPEN_EXISTING, NativeMethods.FILE_FLAG_OVERLAPPED, 0);
+        nativeHandle = NativeMethods.CreateFile(path, NativeMethods.FILE_READ_ATTRIBUTES | NativeMethods.FILE_READ_DATA |
+          NativeMethods.FILE_WRITE_ATTRIBUTES | NativeMethods.FILE_WRITE_DATA,
+          0, security, NativeMethods.OPEN_EXISTING, NativeMethods.FILE_FLAG_OVERLAPPED, 0);
 
         if (nativeHandle != IntPtr.Zero)
           break;
