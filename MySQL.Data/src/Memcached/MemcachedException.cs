@@ -32,6 +32,9 @@ namespace MySql.Data.MySqlClient.Memcached
 {
   /// <summary>
   /// The base exception class for all Memcached exceptions.
+  /// 
+  /// -------- This class has been deprecated and will be removed in a future version ------
+  ///
   /// </summary>
   public class MemcachedException : Exception
   {

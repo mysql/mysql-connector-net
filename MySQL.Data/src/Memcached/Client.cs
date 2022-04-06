@@ -37,6 +37,9 @@ namespace MySql.Data.MySqlClient.Memcached
   /// An interface of the client memcached protocol. This class is abstract for 
   /// implementation of the Memcached client interface see <see cref="TextClient"/> for the 
   /// text protocol version and <see cref="BinaryClient"/> for the binary protocol version.
+  /// 
+  /// -------- This class has been deprecated and will be removed in a future version ------
+  ///
   /// </summary>
   public abstract class Client
   {

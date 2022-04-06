@@ -35,6 +35,9 @@ namespace MySql.Data.MySqlClient.Memcached
 {
   /// <summary>
   /// Implementation of memcached binary client protocol.
+  /// 
+  /// -------- This class has been deprecated and will be removed in a future version ------
+  ///
   /// </summary>
   /// <remarks>According to http://code.google.com/p/memcached/wiki/BinaryProtocolRevamped </remarks>
   public class BinaryClient : Client

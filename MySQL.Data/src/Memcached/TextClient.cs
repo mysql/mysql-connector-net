@@ -35,6 +35,9 @@ namespace MySql.Data.MySqlClient.Memcached
 {
   /// <summary>
   /// Implementation of the Memcached text client protocol.
+  /// 
+  /// -------- This class has been deprecated and will be removed in a future version ------
+  ///
   /// </summary>
   public class TextClient : Client
   {
