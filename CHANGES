@@ -1,3 +1,6 @@
+8.0.30
+- Deprecated the MySql.EMTrace project (WL15159). This will be removed in 8.0.31
+
 8.0.29
 - Aligned the TLS/SSL connection options verification across connectors (WL14828).
 - Fixed a bug that prevented the generation of a complete MySqlAttributeCollection at the moment of cloning a MySqlCommand (MySQL Bug #105730, Oracle Bug #33613687).
