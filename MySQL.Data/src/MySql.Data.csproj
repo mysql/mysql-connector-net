@@ -41,6 +41,7 @@
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.19.4" />
     <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
     <Reference Include="Ubiety.Dns.Core">
@@ -77,7 +78,6 @@
     <Reference Include="ZstdNet">
       <HintPath>..\..\Dependencies\ZstdNet\NetFramework\ZstdNet.dll</HintPath>
     </Reference>
-    <PackageReference Include="BouncyCastle" Version="1.8.5" />
     <EmbeddedResource Include="Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
     <EmbeddedResource Include="..\..\Dependencies\ZstdNet\NetFramework\libzstd.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -89,7 +89,6 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.1" />
     <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
-    <PackageReference Include="BouncyCastle.NetCore" Version="1.8.5" />
     <Reference Include="ZstdNet">
       <HintPath>..\..\Dependencies\ZstdNet\NetStandard2.0\ZstdNet.dll</HintPath>
     </Reference>

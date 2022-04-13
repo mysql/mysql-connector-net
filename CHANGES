@@ -3,6 +3,7 @@
 - Deprecate memcached client. This will be removed in 8.0.31 (WL15163).
 - Fixed a bug that raised an exception when using the named-pipe protocol to connect to MySQL Server (MySQL Bug #106765, Oracle Bug #33974737).
 - Updated the link to the Oracle Contributor Agreement (OCA) page specified in the CONTRIBUTING file (MySQL Bug #107048, Oracle Bug #34082302).
+- Updated the BouncyCastle NuGet dependency to use a most convenient version (MySQL Bug #106370, Oracle Bug #33827732).
 
 
 8.0.29
