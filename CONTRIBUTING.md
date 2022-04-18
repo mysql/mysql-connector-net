@@ -18,7 +18,7 @@ Bug reports should be as complete as possible. Please try and include the follow
 Contributing to this project is easy. You just need to follow these steps:
 
 * Make sure you have a user account at [bugs.mysql.com](bugs.mysql.com). You'll need to reference this user account when you submit your OCA (Oracle Contributor Agreement).
-* Sign the Oracle OCA. You can find instructions for doing that at the [OCA Page](https://www.oracle.com/technetwork/community/oca-486395.html).
+* Sign the Oracle OCA. You can find instructions for doing that at the [OCA Page](https://oca.opensource.oracle.com/).
 * Develop your pull request.
   * Make sure you are aware of the requirements for the project (e.g. don't require .NET Core 3.0 if we are curently supporting .NET Core 2.2 and lower).
 * Validate your pull request by including tests that sufficiently cover the functionality.
