@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Migrations.Tests Class Library</Description>
     <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates.</Copyright>
-    <Version>6.0.1+MySQL8.0.29</Version>
+    <Version>6.0.4+MySQL8.0.30</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net6.0;</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Migrations.Tests</AssemblyName>
