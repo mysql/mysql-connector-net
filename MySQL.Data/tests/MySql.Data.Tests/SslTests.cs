@@ -591,7 +591,9 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         try { connection.Open(); }
-        catch (Exception ex) { Assert.True(ex is MySqlException || ex is AuthenticationException); }
+        catch (Exception ex) { Assert.True(ex is MySqlException || 
+          ex is AuthenticationException || 
+          ex is FormatException, ex.Message); }
       }
     }
 

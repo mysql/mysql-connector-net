@@ -261,7 +261,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(1200, dt.Rows[0]["CHARACTER_MAXIMUM_LENGTH"]);
       Assert.AreEqual(3600, dt.Rows[0]["CHARACTER_OCTET_LENGTH"]);
       Assert.AreEqual(charset, dt.Rows[0]["CHARACTER_SET_NAME"]);
-      Assert.AreEqual("utf8_general_ci", dt.Rows[0]["COLLATION_NAME"]);
+      Assert.AreEqual($"{charset}_general_ci", dt.Rows[0]["COLLATION_NAME"]);
     }
 
     [Test]
