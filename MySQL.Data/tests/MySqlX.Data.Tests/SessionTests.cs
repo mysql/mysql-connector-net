@@ -298,6 +298,8 @@ namespace MySqlX.Data.Tests
       csBuilder.Server = GetMySqlServerIp(true);
       csBuilder.Port = uint.Parse(XPort);
 
+      if (string.IsNullOrEmpty(csBuilder.Server)) Assert.Ignore("No IPv6 available.");
+
       using (var session = MySQLX.GetSession(csBuilder.ToString()))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
@@ -309,7 +311,10 @@ namespace MySqlX.Data.Tests
     public void IPv6AsUrl()
     {
       var csBuilder = new MySqlXConnectionStringBuilder(ConnectionString);
-      string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[{GetMySqlServerIp(true)}]:{XPort}";
+      string ipv6 = GetMySqlServerIp(true);
+      if (string.IsNullOrEmpty(ipv6)) Assert.Ignore("No IPv6 available.");
+
+      string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[{ipv6}]:{XPort}";
       using (Session session = MySQLX.GetSession(connString))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
@@ -321,7 +326,10 @@ namespace MySqlX.Data.Tests
     public void IPv6AsAnonymous()
     {
       var csBuilder = new MySqlXConnectionStringBuilder(ConnectionString);
-      using (Session session = MySQLX.GetSession(new { server = GetMySqlServerIp(true), user = csBuilder.UserID, password = csBuilder.Password, port = XPort }))
+      string ipv6 = GetMySqlServerIp(true);
+      if (string.IsNullOrEmpty(ipv6)) Assert.Ignore("No IPv6 available.");
+
+      using (Session session = MySQLX.GetSession(new { server = ipv6, user = csBuilder.UserID, password = csBuilder.Password, port = XPort }))
       {
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
       }
@@ -505,7 +513,7 @@ namespace MySqlX.Data.Tests
 
       // Create a session using the fail over functionality passing two diferrent Server address(one of them is fake host). Must succeed after 2000ms
       var conn = $"server=143.24.20.36,{Host};user=test;password=test;port={XPort};connecttimeout=2000;";
-      TestConnectTimeoutSuccessTimeout(conn, 0, 3, "Fail over success");
+      TestConnectTimeoutSuccessTimeout(conn, 0, 5, "Fail over success");
 
       // Offline (fake)host using default value, 10000ms.
       conn = $"server=143.24.20.36;user=test;password=test;port={XPort};";
@@ -1368,7 +1376,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Connection time with Database set")]
     public void ConnectionTimeWithDatabaseTest()
     {
-      int secondsExpected = 10;
+      int secondsExpected = 15;
       var connString = ConnectionString + ";database=test";
       var connStringURI = ConnectionStringUri + "/?database=test";
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
@@ -1534,7 +1542,7 @@ namespace MySqlX.Data.Tests
       string[] positiveStringList = new string[6];
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       positiveStringList[0] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + sb.Server + ":" + XPort + "/?ssl-mode=Required";
-      positiveStringList[1] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + GetMySqlServerIp() + ":" + XPort + "/?ssl-mode=Required";
+      positiveStringList[1] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + Host + ":" + XPort + "/?ssl-mode=Required";
       positiveStringList[2] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + Host + ":" + XPort + "/" + schemaName + "?ssl-mode=Required";
       positiveStringList[3] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + sb.Server + ":" + XPort + "/" + schemaName + "?ssl-mode=Required&auth=SHA256_MEMORY";
       positiveStringList[4] = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + sb.Server + ":" + XPort + "/" + schemaName + "?ssl-mode=Required&characterset=utf8mb4";
@@ -1777,11 +1785,11 @@ namespace MySqlX.Data.Tests
     {
       string connStr = "server=" + session.Settings.Server + ";user=" + session.Settings.UserID + ";port=" + XPort + ";password="
            + session.Settings.Password + ";" + "connect-timeout=90;";
-      TestConnectStringTimeoutSuccessTimeout(connStr, 0, 1, "Timeout value between 0 and 1 second");
+      TestConnectStringTimeoutSuccessTimeout(connStr, 0, 3, "Timeout value between 0 and 1 second");
       connStr = "mysqlx://" + session.Settings.UserID + ":" + session.Settings.Password + "@" + session.Settings.Server + ":" + XPort + "?connect-timeout=900;";
-      TestConnectStringTimeoutSuccessTimeout(connStr, 0, 1, "Timeout value between 0 and 1 second");
+      TestConnectStringTimeoutSuccessTimeout(connStr, 0, 3, "Timeout value between 0 and 1 second");
       var connObj = new { server = session.Settings.Server, port = XPort, user = session.Settings.UserID, password = session.Settings.Password, connecttimeout = 9000 };
-      TestConnectObjectTimeoutSuccessTimeout(connObj, 0, 1, "Timeout value between 0 and 1 second");
+      TestConnectObjectTimeoutSuccessTimeout(connObj, 0, 3, "Timeout value between 0 and 1 second");
     }
 
     [Test, Description("scenario 2(connectionString,connectionUri,Anonymous Object with all options)")]
@@ -2055,7 +2063,7 @@ namespace MySqlX.Data.Tests
       for (var i = 1; i <= 101; i++)
       {
         hostList.Append("(address=server" + i + ".example,priority=" + (priority != 0 ? priority-- : 0) + "),");
-        if (i == 101) hostList.Append($"(address={GetMySqlServerIp()},priority=0)");
+        if (i == 101) hostList.Append($"(address={Host},priority=0)");
       }
 
       using (var session1 = MySQLX.GetSession("server=" + hostList + ";port=" + XPort + ";uid=" +
@@ -2307,7 +2315,7 @@ namespace MySqlX.Data.Tests
       {
         string connStr = "server=" + serverName + ";user=" + session.Settings.UserID + ";port=" + XPort + ";password="
                   + session.Settings.Password + ";" + "connect-timeout=2000;";
-        TestConnectStringTimeoutFailureTimeout(connStr, 0, 3, "Timeout value between 1 and 3 second");
+        TestConnectStringTimeoutFailureTimeout(connStr, 0, 5, "Timeout value between 1 and 3 second");
       }
     }
 

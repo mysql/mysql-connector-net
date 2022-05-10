@@ -65,9 +65,12 @@ namespace MySqlX.Data.Tests
       }
 
       // Multiple hosts with IPv6
-      using (var session = MySQLX.GetSession($"server=10.10.10.10, {localServerIpv6}, 20.20.20.20, 30.30.30.30;port={XPort};uid=test;password=test;connecttimeout={connectionTimeout}"))
+      if (!string.IsNullOrEmpty(localServerIpv6))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        using (var session = MySQLX.GetSession($"server=10.10.10.10, {localServerIpv6}, 20.20.20.20, 30.30.30.30;port={XPort};uid=test;password=test;connecttimeout={connectionTimeout}"))
+        {
+          Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        }
       }
 
       // Multiple hosts using synonyms for "server" connection option.
@@ -118,9 +121,12 @@ namespace MySqlX.Data.Tests
       }
 
       // Multiple hosts which may or may not contain a port number.
-      using (var session = MySQLX.GetSession($"mysqlx://test:test@[192.1.10.10,120.0.0.2:22000,[{localServerIpv6}]:{XPort}]/test?connecttimeout={connectionTimeout}"))
+      if (!string.IsNullOrEmpty(localServerIpv6))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        using (var session = MySQLX.GetSession($"mysqlx://test:test@[192.1.10.10,120.0.0.2:22000,[{localServerIpv6}]:{XPort}]/test?connecttimeout={connectionTimeout}"))
+        {
+          Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        }
       }
     }
 
@@ -143,10 +149,13 @@ namespace MySqlX.Data.Tests
         Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
       }
 
-      // Multiple hosts with IPv6
-      using (var session = MySQLX.GetSession(new { server = "10.10.10.10, ::1", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
+      // Multiple hosts with IPv6      
+      if (!string.IsNullOrEmpty(localServerIpv6))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        using (var session = MySQLX.GetSession(new { server = $"10.10.10.10, {localServerIpv6}", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
+        {
+          Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        }
       }
 
       // Multiple hosts using synonyms for "server" connection option. First attempt fails, second is succesful.

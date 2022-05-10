@@ -695,6 +695,8 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       sb.Server = GetMySqlServerIp(true);
 
+      if (sb.Server == string.Empty) Assert.Ignore("No IPv6 available.");
+
       using (MySqlConnection conn = new MySqlConnection(sb.ToString()))
       {
         conn.Open();

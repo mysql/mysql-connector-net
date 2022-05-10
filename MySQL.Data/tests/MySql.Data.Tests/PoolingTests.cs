@@ -116,7 +116,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void ReclaimBrokenConnection()
     {
       // now create a new connection string only allowing 1 connection in the pool
-      string connStr = Settings.ConnectionString + ";connect timeout=1;max pool size=1";
+      string connStr = Settings.ConnectionString + ";max pool size=1";
 
       // now use up that connection
       MySqlConnection c = new MySqlConnection(connStr);

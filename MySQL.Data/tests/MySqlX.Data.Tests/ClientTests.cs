@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2018, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -515,6 +515,9 @@ namespace MySqlX.Data.Tests
     {
       localServerIpv4 = GetMySqlServerIp();
       string invalidhost = "invalid";
+
+      if (string.IsNullOrEmpty(localServerIpv4)) Assert.Ignore("No IPv4 available.");
+
       // Scenario-1
       var client = MySQLX.GetClient($"server=(address={localServerIpv4},priority=1),(address={invalidhost},priority=90);uid={session.Settings.UserID};password={session.Settings.Password};port={XPort};connecttimeout=9000", new
       {

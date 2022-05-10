@@ -1,4 +1,4 @@
-// Copyright (c) 2019, 2022, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -48,7 +48,15 @@ namespace MySql.Data.MySqlClient.Tests
     public void RandomMethod(string server, bool shouldPass = true)
     {
       Settings.Pooling = false;
-      Settings.Server = server.Replace("localhost", Host).Replace("::1", GetMySqlServerIp(true));
+      Settings.Server = server.Replace("localhost", Host);
+
+      string ipv6;
+      if (Settings.Server.Contains("::1"))
+      {
+        ipv6 = GetMySqlServerIp(true);
+        if (string.IsNullOrEmpty(ipv6)) Assert.Ignore("No IPv6 available.");
+        Settings.Server = server.Replace("::1", ipv6);
+      }
 
       if (!shouldPass)
       {
