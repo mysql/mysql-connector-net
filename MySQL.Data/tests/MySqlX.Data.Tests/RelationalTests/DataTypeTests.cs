@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,7 +26,6 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
@@ -307,7 +306,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       Assert.AreEqual(typeof(string), r.Columns[1].ClrType);
       Assert.AreEqual(ColumnType.Bytes, r.Columns[0].Type);
       Assert.AreEqual(ColumnType.String, r.Columns[1].Type);
-      Assert.AreEqual(CharSetMap.GetEncoding(new DBVersion(), r.Columns[0].CharacterSetName).GetBytes("Car"), rows[0][0]);
+      Assert.AreEqual(CharSetMap.GetEncoding(r.Columns[0].CharacterSetName).GetBytes("Car"), rows[0][0]);
       Assert.AreEqual("Plane", rows[0][1]);
     }
   }

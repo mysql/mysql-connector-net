@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -51,7 +51,7 @@ namespace MySql.Data.MySqlClient
       InitializeMapping();
     }
 
-    public static CharacterSet GetCharacterSet(DBVersion version, string charSetName)
+    public static CharacterSet GetCharacterSet(string charSetName)
     {
       if (charSetName == null)
         throw new ArgumentNullException("CharSetName is null");
@@ -67,14 +67,13 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Returns the text encoding for a given MySQL character set name
     /// </summary>
-    /// <param name="version">Version of the connection requesting the encoding</param>
     /// <param name="charSetName">Name of the character set to get the encoding for</param>
     /// <returns>Encoding object for the given character set name</returns>
-    public static Encoding GetEncoding(DBVersion version, string charSetName)
+    public static Encoding GetEncoding(string charSetName)
     {
       try
       {
-        CharacterSet cs = GetCharacterSet(version, charSetName);
+        CharacterSet cs = GetCharacterSet(charSetName);
 
         return Encoding.GetEncoding(cs.name);
       }
@@ -155,7 +154,7 @@ namespace MySql.Data.MySqlClient
       _mapping.Add("latvian1", new CharacterSet("iso-8859-13", 1));
       _mapping.Add("estonia", new CharacterSet("iso-8859-13", 1));
       _mapping.Add("dos", new CharacterSet("ibm437", 1));
-      _mapping.Add("utf8mb3", new CharacterSet("utf-8", 3));
+      _mapping.Add("utf8mb3", _mapping["utf8"]);
       _mapping.Add("utf8mb4", new CharacterSet("utf-8", 4));
       _mapping.Add("utf16", new CharacterSet("utf-16BE", 2));
       _mapping.Add("utf16le", new CharacterSet("utf-16", 2));

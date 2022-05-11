@@ -356,14 +356,13 @@ namespace MySql.Data.MySqlClient
     private void SetFieldEncoding()
     {
       Dictionary<int, string> charSets = driver.CharacterSets;
-      DBVersion version = driver.Version;
 
       if (charSets == null || charSets.Count == 0 || CharacterSetIndex == -1) return;
       if (charSets[CharacterSetIndex] == null) return;
 
-      CharacterSet cs = CharSetMap.GetCharacterSet(version, (string)charSets[CharacterSetIndex]);
+      CharacterSet cs = CharSetMap.GetCharacterSet(charSets[CharacterSetIndex]);
       MaxLength = cs.byteCount;
-      Encoding = CharSetMap.GetEncoding(version, (string)charSets[CharacterSetIndex]);
+      Encoding = CharSetMap.GetEncoding(charSets[CharacterSetIndex]);
     }
   }
 }

@@ -101,8 +101,7 @@ namespace MySqlX.Sessions
       _protocol = new XProtocol(_packetReaderWriter);
 
       Settings.CharacterSet = string.IsNullOrWhiteSpace(Settings.CharacterSet) ? "utf8mb4" : Settings.CharacterSet;
-
-      var encoding = Encoding.GetEncoding(string.Compare(Settings.CharacterSet, "utf8mb4", true) == 0 ? "UTF-8" : Settings.CharacterSet);
+      var encoding = CharSetMap.GetEncoding(Settings.CharacterSet);
 
       SetState(SessionState.Connecting, false);
 

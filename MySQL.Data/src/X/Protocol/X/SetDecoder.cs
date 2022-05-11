@@ -1,4 +1,4 @@
-// Copyright © 2015, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,16 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Text;
-using MySqlX.Data;
-using System;
-using MySqlX.XDevAPI;
-
 using MySql.Data;
 using MySql.Data.MySqlClient;
-using MySql.Data.Common;
-using MySqlX;
 using MySql.Data.MySqlClient.X.XDevAPI.Common;
+using System;
+using System.Text;
 
 namespace MySqlX.Protocol.X
 {
@@ -50,7 +45,7 @@ namespace MySqlX.Protocol.X
       ClrValueDecoder = DecodeValue;
 
       string charset = Column.CollationName.Split('_')[0];
-      _encoding = CharSetMap.GetEncoding(new DBVersion(), charset);
+      _encoding = CharSetMap.GetEncoding(charset);
     }
 
     private object DecodeValue(byte[] bytes)
@@ -63,7 +58,7 @@ namespace MySqlX.Protocol.X
       string delim = "";
       int len = bytes.Length;
       int index = 0;
-      while (index < len-1)
+      while (index < len - 1)
       {
         sb.Append(delim);
         int strLen = bytes[index++];

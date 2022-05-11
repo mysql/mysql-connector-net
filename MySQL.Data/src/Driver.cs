@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -268,7 +268,7 @@ namespace MySql.Data.MySqlClient
       // sets character_set_results to null to return values in their original character set
       charSetCmd.ExecuteNonQuery();
 
-      Encoding = CharSetMap.GetEncoding(Version, charSet ?? "utf-8");
+      Encoding = CharSetMap.GetEncoding(charSet ?? "utf-8");
 
       handler.Configure();
     }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,11 +30,10 @@ using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Relational;
-using System.Collections.Generic;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Data;
 
 namespace MySqlX.Data.Tests
 {
@@ -111,10 +110,12 @@ namespace MySqlX.Data.Tests
         {
           var id = reader.GetInt32("id");
           var collationName = reader.GetString("collation_name");
+
+          if (!_serverVersion.isAtLeast(8, 0, 30) && collationName.Contains("utf8_"))
+            collationName = collationName.Replace("utf8_", "utf8mb3_");
+
           Assert.AreEqual(CollationMap.GetCollationName(id), collationName);
         }
-
-        connection.Close();
       }
     }
 
@@ -897,6 +898,55 @@ namespace MySqlX.Data.Tests
         Assert.AreEqual(dbCharset[0], charset);
         Assert.AreEqual(dbCollation[0], collationname[i]);
         session.DropSchema(database_name);
+      }
+    }
+
+    /// <summary>
+    /// Bug#34156197 - Update utf8 mappings
+    /// </summary>
+    [Test]
+    public void VerifyRenamedCollations()
+    {
+      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+
+      var charset = "utf8mb3";
+      var collation = session.Version.isAtLeast(8, 0, 30) ? "utf8mb3" : "utf8";
+      string[] collationname =
+      {
+        $"{collation}_general_ci", $"{collation}_tolower_ci", $"{collation}_bin", $"{collation}_unicode_ci",
+        $"{collation}_icelandic_ci", $"{collation}_latvian_ci", $"{collation}_romanian_ci", $"{collation}_slovenian_ci", $"{collation}_polish_ci",
+        $"{collation}_estonian_ci", $"{collation}_spanish_ci", $"{collation}_swedish_ci", $"{collation}_turkish_ci", $"{collation}_czech_ci",
+        $"{collation}_danish_ci", $"{collation}_lithuanian_ci", $"{collation}_slovak_ci", $"{collation}_spanish2_ci", $"{collation}_roman_ci",
+        $"{collation}_persian_ci", $"{collation}_esperanto_ci", $"{collation}_hungarian_ci", $"{collation}_sinhala_ci", $"{collation}_german2_ci",
+        $"{collation}_croatian_ci", $"{collation}_unicode_520_ci", $"{collation}_vietnamese_ci", $"{collation}_general_mysql500_ci"
+      };
+
+      using var sessionX = MySQLX.GetSession(session.Settings.ConnectionString + $";charset={charset}");
+
+      var database_name = "collation_test";
+      session.DropSchema(database_name);
+      Assert.AreEqual(charset, sessionX.Settings.CharacterSet, "Matching the character set of the session");
+
+      for (var i = 0; i < collationname.Length; i++)
+      {
+        string cmdText = $"CREATE DATABASE {database_name} CHARACTER SET {charset} COLLATE {collationname[i]}";
+        var sqlRes = session.SQL(cmdText).Execute();
+        sessionX.SQL("USE " + database_name).Execute();
+        sessionX.SQL("CREATE TABLE x(id int,name char(25));").Execute();
+        var res = sessionX.SQL("insert into x values(10,'AXTREF');").Execute();
+        Assert.AreEqual(1, res.AffectedItemsCount);
+        sessionX.SQL("insert into x values(20,'Trädgårdsvägen');").Execute();
+        Assert.AreEqual(1, res.AffectedItemsCount);
+        sessionX.SQL("insert into x values(30,'foo𝌆bar');").Execute();
+        Assert.AreEqual(1, res.AffectedItemsCount);
+        sessionX.SQL("insert into x values(40,'Dolphin:🐬');").Execute();
+        Assert.AreEqual(1, res.AffectedItemsCount);
+
+        var dbCharset = sessionX.SQL("select @@character_set_database;").Execute().FirstOrDefault();
+        var dbCollation = sessionX.SQL("select @@collation_database").Execute().FirstOrDefault();
+        Assert.AreEqual(dbCharset[0], charset);
+        Assert.AreEqual(dbCollation[0], collationname[i]);
+        sessionX.DropSchema(database_name);
       }
     }
 
