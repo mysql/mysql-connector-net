@@ -49,6 +49,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       Settings.Pooling = false;
       Settings.Server = server.Replace("localhost", Host);
+      Settings.ConnectionTimeout = 3;
 
       string ipv6;
       if (Settings.Server.Contains("::1"))

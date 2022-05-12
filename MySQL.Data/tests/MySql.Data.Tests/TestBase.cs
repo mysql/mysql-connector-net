@@ -1,4 +1,4 @@
-// Copyright (c) 2016, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2016, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -303,16 +303,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// <returns>Return the ip address as string</returns>
     public string GetMySqlServerIp(bool isIpV6 = false)
     {
-      string hostname = string.Empty;
-      using (var reader = ExecuteReader("SELECT SUBSTRING_INDEX(host, ':', 1) as 'ip' " +
-        "FROM information_schema.processlist WHERE ID = connection_id()"))
-        while (reader.Read())
-          hostname = reader.GetString(0);
-
       string ipv4 = string.Empty;
       string ipv6 = string.Empty;
 
-      foreach (var item in Dns.GetHostEntry(hostname).AddressList)
+      foreach (var item in Dns.GetHostEntry(Host).AddressList)
       {
         switch (item.AddressFamily)
         {
