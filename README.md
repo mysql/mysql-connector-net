@@ -1,5 +1,7 @@
 # MySQL Connector/NET
 
+[![Languages](https://img.shields.io/github/languages/top/mysql/mysql-connector-net)](https://github.com/mysql/mysql-connector-net) [![License: GNU General Public License (GPLv2)](https://img.shields.io/badge/license-GPLv2_with_FOSS_exception-c30014.svg?style=flat)](LICENSE) [![NuGet](https://img.shields.io/nuget/v/MySql.Data)](https://www.nuget.org/profiles/MySQL)
+
 MySQL provides connectivity for client applications developed in .NET compatible programming languages with Connector/NET.
 
 MySQL Connector/NET is a library compatible with .NET Framework and .NET Core, for specific versions see [MySQL Connector/NET Versions](https://dev.mysql.com/doc/connector-net/en/connector-net-versions.html). The driver is a pure C# implementation of the MySQL protocol and does not rely on the MySQL client library.
@@ -35,9 +37,11 @@ There are a few ways to contribute to the Connector/NET code. Please refer to th
 ### Additional Resources
 
 * [MySQL](http://www.mysql.com/)
-* [API Reference](https://dev.mysql.com/doc/dev/connector-net/8.0/html/connector-net-x-devapi-reference.htm)
-* [Discussion Forum](https://forums.mysql.com/list.php?38)
-* [MySql Bugs database](https://bugs.mysql.com)
+* [MySQL Connector/NET Developer Guide](https://dev.mysql.com/doc/connector-net/en/)
+* [MySQL Connector/NET API](https://dev.mysql.com/doc/dev/connector-net/8.0/)
+* [MySQL Connector/NET Discussion Forum](https://forums.mysql.com/list.php?38)
+* [MySQL Public Bug Tracker](https://bugs.mysql.com)
+* [`#connectors` channel in MySQL Community Slack](https://mysqlcommunity.slack.com/messages/connectors) ([Sign-up](https://lefred.be/mysql-community-on-slack/) required when not using an Oracle account)
 * For more information about this and other MySQL products, please visit [MySQL Contact & Questions](http://www.mysql.com/about/contact/).
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/MySQL.svg?label=Follow%20%40MySQL&style=social)](https://twitter.com/intent/follow?screen_name=MySQL)
