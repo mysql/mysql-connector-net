@@ -37,7 +37,7 @@ namespace MySql.Data.MySqlClient.Tests
   {
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder setttings)
     {
-      setttings.ConnectionTimeout = 3;
+      setttings.ConnectionTimeout = 7;
     }
 
     [TestCase("localhost")] // Single host
