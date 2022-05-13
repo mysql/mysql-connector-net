@@ -37,7 +37,7 @@ namespace MySql.Data.MySqlClient.Tests
   {
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder setttings)
     {
-      setttings.ConnectionTimeout = 7;
+      setttings.ConnectionTimeout = 3;
     }
 
     [TestCase("localhost")] // Single host
@@ -49,7 +49,6 @@ namespace MySql.Data.MySqlClient.Tests
     {
       Settings.Pooling = false;
       Settings.Server = server.Replace("localhost", Host);
-      Settings.ConnectionTimeout = 3;
 
       string ipv6;
       if (Settings.Server.Contains("::1"))
