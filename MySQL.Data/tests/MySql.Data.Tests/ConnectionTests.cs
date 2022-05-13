@@ -1390,7 +1390,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.True(conn.IsPasswordExpired);
       }
 
-      ExecuteSQL($"set password for {expiredFull}='{_newPwd}'", true);
+      ExecuteSQL($"set password for {expiredFull}='{_newPwd}'");
 
       for (int i = 0; i < 50; i++)
       {
