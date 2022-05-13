@@ -303,10 +303,16 @@ namespace MySql.Data.MySqlClient.Tests
     /// <returns>Return the ip address as string</returns>
     public string GetMySqlServerIp(bool isIpV6 = false)
     {
+      string hostname = string.Empty;
+      using (var reader = ExecuteReader("SELECT SUBSTRING_INDEX(host, ':', 1) as 'ip' " +
+        "FROM information_schema.processlist WHERE ID = connection_id()"))
+        while (reader.Read())
+          hostname = reader.GetString(0);
+
       string ipv4 = string.Empty;
       string ipv6 = string.Empty;
 
-      foreach (var item in Dns.GetHostEntry(Host).AddressList)
+      foreach (var item in Dns.GetHostEntry(hostname).AddressList)
       {
         switch (item.AddressFamily)
         {
