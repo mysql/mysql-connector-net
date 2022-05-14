@@ -1366,11 +1366,11 @@ namespace MySqlX.Data.Tests
     [Test, Description("Connection Measurement Test")]
     public void ConnectionTimeTest()
     {
-      int secondsExpected = 10;
+      int secondsExpected = 15;
       var connObject = new { server = Host, port = XPort, user = session.Settings.UserID, password = session.Settings.Password };
-      MeasureConnectionString(ConnectionString, 0, secondsExpected, "Connection String", 5);
-      MeasureConnectionString(ConnectionStringUri, 0, secondsExpected, "Connection String URI", 5);
-      MeasureConnectionObject(connObject, 0, secondsExpected, "Connection Object", 5);
+      MeasureConnectionString(ConnectionString, secondsExpected, "Connection String", 5);
+      MeasureConnectionString(ConnectionStringUri, secondsExpected, "Connection String URI", 5);
+      MeasureConnectionObject(connObject, secondsExpected, "Connection Object", 5);
     }
 
     [Test, Description("Connection time with Database set")]
@@ -1388,9 +1388,9 @@ namespace MySqlX.Data.Tests
         password = sb.Password,
         database = schemaName
       };
-      MeasureConnectionString(connString, 0, secondsExpected, "Connection String", 10);
-      MeasureConnectionString(connStringURI, 0, secondsExpected, "Connection String URI", 10);
-      MeasureConnectionObject(connectionObject, 0, secondsExpected, "Connection Object", 10);
+      MeasureConnectionString(connString, secondsExpected, "Connection String", 5);
+      MeasureConnectionString(connStringURI, secondsExpected, "Connection String URI", 5);
+      MeasureConnectionObject(connectionObject, secondsExpected, "Connection Object", 5);
     }
 
     [Test, Description("REFACTOR PARSING OF CONNECTION STRING IN X DEVAPI")]
@@ -1834,11 +1834,11 @@ namespace MySqlX.Data.Tests
       connStrBuilder.Password = session.Settings.Password;
       connStrBuilder.Port = Convert.ToUInt32(XPort);
       connStrBuilder.Server = session.Settings.Server;
-      TestConnectStringTimeoutSuccessTimeout(connStrBuilder.ConnectionString, 0, 1, "Timeout value between 0 and 1 second");
+      TestConnectStringTimeoutSuccessTimeout(connStrBuilder.ConnectionString, 0, 3, "Timeout value between 0 and 3 second");
       string connStr = "server=" + session.Settings.Server + ";user=" + session.Settings.UserID + ";port=" + XPort + ";password="
-          + session.Settings.Password + ";" + "connect-timeout=900;";
+          + session.Settings.Password + ";" + "connect-timeout=9000;";
       connStrBuilder = new MySqlXConnectionStringBuilder(connStr);
-      TestConnectStringTimeoutSuccessTimeout(connStrBuilder.ConnectionString, 0, 1, "Timeout value between 0 and 1 second");
+      TestConnectStringTimeoutSuccessTimeout(connStrBuilder.ConnectionString, 0, 3, "Timeout value between 0 and 3 second");
     }
 
     [Test, Description("scenario 2(MysqlxStringBuilder with all options)")]
@@ -2003,11 +2003,11 @@ namespace MySqlX.Data.Tests
     {
       int connectionTimeout = 0;
       string connStr = ConnectionString + ";" + "connect-timeout=" + connectionTimeout;
-      TestConnectStringTimeoutSuccessTimeout(connStr, 0, 2, "Checking the timeout between 0 to 2 seconds");
+      TestConnectStringTimeoutSuccessTimeout(connStr, 0, 5, "Checking the timeout between 0 to 5 seconds");
       connStr = ConnectionStringUri + "?connect-timeout=" + connectionTimeout;
-      TestConnectStringTimeoutSuccessTimeout(connStr, 0, 2, "Checking the timeout between 0 to 2 seconds");
+      TestConnectStringTimeoutSuccessTimeout(connStr, 0, 5, "Checking the timeout between 0 to 5 seconds");
       var connectionObj = new { server = session.Settings.Server, port = XPort, user = session.Settings.UserID, password = session.Settings.Password, connecttimeout = connectionTimeout };
-      TestConnectObjectTimeoutSuccessTimeout(connectionObj, 0, 2, "Checking the timeout between 0 to 2 seconds");
+      TestConnectObjectTimeoutSuccessTimeout(connectionObj, 0, 5, "Checking the timeout between 0 to 5 seconds");
 
       var connStrBuilder = new MySqlXConnectionStringBuilder();
       connStrBuilder.ConnectTimeout = (uint)connectionTimeout;
@@ -2015,11 +2015,11 @@ namespace MySqlX.Data.Tests
       connStrBuilder.Password = session.Settings.Password;
       connStrBuilder.Port = Convert.ToUInt32(XPort);
       connStrBuilder.Server = session.Settings.Server;
-      TestConnectStringTimeoutSuccessTimeout(connStrBuilder.ConnectionString, 0, 2, "Checking the timeout between 0 to 2 seconds");
+      TestConnectStringTimeoutSuccessTimeout(connStrBuilder.ConnectionString, 0, 5, "Checking the timeout between 0 to 5 seconds");
 
       connStr = ConnectionString + ";" + "connect-timeout=" + connectionTimeout;
       connStrBuilder = new MySqlXConnectionStringBuilder(connStr);
-      TestConnectStringTimeoutSuccessTimeout(connStrBuilder.ConnectionString, 0, 2, "Checking the timeout between 0 to 2 seconds");
+      TestConnectStringTimeoutSuccessTimeout(connStrBuilder.ConnectionString, 0, 5, "Checking the timeout between 0 to 5 seconds");
 
     }
 
@@ -2304,7 +2304,7 @@ namespace MySqlX.Data.Tests
       {
         string connStr = "server=" + serverName + ";user=" + session.Settings.UserID + ";port=" + XPort + ";password="
                   + session.Settings.Password + ";" + "connect-timeout=2000;";
-        TestConnectStringTimeoutFailureTimeout(connStr, 0, 3, "Timeout value between 1 and 3 second");
+        TestConnectStringTimeoutFailureTimeout(connStr, 0, 4, "Timeout value between 1 and 3 second");
       }
     }
 
@@ -2315,7 +2315,7 @@ namespace MySqlX.Data.Tests
       {
         string connStr = "server=" + serverName + ";user=" + session.Settings.UserID + ";port=" + XPort + ";password="
                   + session.Settings.Password + ";" + "connect-timeout=2000;";
-        TestConnectStringTimeoutFailureTimeout(connStr, 0, 5, "Timeout value between 1 and 3 second");
+        TestConnectStringTimeoutFailureTimeout(connStr, 0, 4, "Timeout value between 1 and 3 second");
       }
     }
 
@@ -2508,54 +2508,35 @@ namespace MySqlX.Data.Tests
       TimeSpan diff = DateTime.Now.Subtract(start);
       Assert.True(diff.TotalSeconds >= minTime && diff.TotalSeconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, diff));
     }
-    /// <summary>
-    /// MeasureConnectionString
-    /// </summary>
-    /// <param name="connStr"></param>
-    /// <param name="minTime"></param>
-    /// <param name="maxTime"></param>
-    /// <param name="test"></param>
-    private void MeasureConnectionString(string connStr, int minTime, int maxTime, string test, int iteration)
+
+    private void MeasureConnectionString(string connStr, int maxTime, string test, int iteration)
     {
       Stopwatch sw = new Stopwatch();
       sw.Start();
+
       for (int i = 0; i < iteration; i++)
       {
-        using (Session conn = MySQLX.GetSession(connStr))
-        {
-
-        }
+        using Session conn = MySQLX.GetSession(connStr);
       }
+
       sw.Stop();
       Assert.True(sw.Elapsed.Seconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
     }
 
-    /// <summary>
-    /// MeasureConnectionString
-    /// </summary>
-    /// <param name="connStr"></param>
-    /// <param name="minTime"></param>
-    /// <param name="maxTime"></param>
-    /// <param name="test"></param>
-    private void MeasureConnectionObject(object connStr, int minTime, int maxTime, string test, int iteration)
+    private void MeasureConnectionObject(object connStr, int maxTime, string test, int iteration)
     {
       Stopwatch sw = new Stopwatch();
       sw.Start();
+
       for (int i = 0; i < iteration; i++)
       {
-        using (Session conn = MySQLX.GetSession(connStr))
-        {
-
-        }
+        using Session conn = MySQLX.GetSession(connStr);
       }
+
       sw.Stop();
       Assert.True(sw.Elapsed.Seconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
     }
 
-    /// <summary>
-    /// Nanotime
-    /// </summary>
-    /// <returns></returns>
     public long NanoTime()
     {
       long nano = 10000L * Stopwatch.GetTimestamp();
@@ -2564,11 +2545,6 @@ namespace MySqlX.Data.Tests
       return nano;
     }
 
-    /// <summary>
-    /// Connect Using String
-    /// </summary>
-    /// <param name="connectionString"></param>
-    /// <returns></returns>
     public long DoConnectString(string connectionString)
     {
       long queryStartTime, queryRunTime = 0;
@@ -2580,11 +2556,6 @@ namespace MySqlX.Data.Tests
       return queryRunTime;
     }
 
-    /// <summary>
-    /// Connect using object
-    /// </summary>
-    /// <param name="connectionString"></param>
-    /// <returns></returns>
     public long DoConnectObject(object connectionString)
     {
       long queryStartTime, queryRunTime = 0;
@@ -2598,10 +2569,8 @@ namespace MySqlX.Data.Tests
 
     /// <summary>
     /// Calculate the Connection per second </summary>
-    /// <param name="elapsedTime">
-    ///        Total execution time.(Connection+query execution time) </param>
-    /// <param name="transactions">
-    ///        Query execution time </param>
+    /// <param name="elapsedTime">Total execution time.(Connection+query execution time)</param>
+    /// <param name="transactions">Query execution time </param>
     public float CalculateTPS(long elapsedTime, long transactions)
     {
       float tps = 0;

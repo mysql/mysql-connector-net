@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -910,7 +910,6 @@ namespace MySqlX.Data.Tests
       {
         session2.SQL("DROP DATABASE IF EXISTS compression").Execute();
         session2.SQL("CREATE DATABASE compression").Execute();
-        session2.SQL("USE compression").Execute();
         Schema schema = session2.GetSchema("compression");
         collection = schema.CreateCollection("compressed2");
         watch2.Start();
@@ -919,7 +918,8 @@ namespace MySqlX.Data.Tests
         watch2.Stop();
       }
 
-      Assert.True(watch1.ElapsedMilliseconds != watch2.ElapsedMilliseconds);
+      Assert.True(watch1.ElapsedTicks != watch2.ElapsedTicks, 
+        $"Watch1: {watch1.ElapsedMilliseconds}, Watch2: {watch2.ElapsedMilliseconds}");
     }
     #endregion
 
