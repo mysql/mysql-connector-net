@@ -2300,22 +2300,22 @@ namespace MySqlX.Data.Tests
     private void SubThread1()
     {
       string serverName = "vigdis07.no.oracle.com";
-      for (int i = 0; i < 10; i++)
+      for (int i = 0; i < 5; i++)
       {
         string connStr = "server=" + serverName + ";user=" + session.Settings.UserID + ";port=" + XPort + ";password="
                   + session.Settings.Password + ";" + "connect-timeout=2000;";
-        TestConnectStringTimeoutFailureTimeout(connStr, 0, 4, "Timeout value between 1 and 3 second");
+        TestConnectStringTimeoutFailureTimeout(connStr, 0, 5, "Timeout value between 1 and 3 second");
       }
     }
 
     private void SubThread2()
     {
       string serverName = "vigdis07.no.oracle.com";
-      for (int i = 0; i < 10; i++)
+      for (int i = 0; i < 5; i++)
       {
         string connStr = "server=" + serverName + ";user=" + session.Settings.UserID + ";port=" + XPort + ";password="
                   + session.Settings.Password + ";" + "connect-timeout=2000;";
-        TestConnectStringTimeoutFailureTimeout(connStr, 0, 4, "Timeout value between 1 and 3 second");
+        TestConnectStringTimeoutFailureTimeout(connStr, 0, 5, "Timeout value between 1 and 3 second");
       }
     }
 

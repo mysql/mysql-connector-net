@@ -214,7 +214,7 @@ namespace MySql.Data.Failover
         }
 
         var tmpHost = currentHost;
-        currentHost = FailoverGroup.GetNextHost();
+        currentHost = FailoverGroup?.GetNextHost();
 
         if (mySqlPoolManager)
         {
@@ -228,7 +228,7 @@ namespace MySql.Data.Failover
         }
 
         attempts++;
-      } while (!currentHost.Equals(initialHost));
+      } while (currentHost != null && !currentHost.Equals(initialHost));
 
       // All connection attempts failed.
       if (driver == null)
