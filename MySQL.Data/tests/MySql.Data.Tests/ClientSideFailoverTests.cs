@@ -67,7 +67,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual(ConnectionState.Open, TryConnection(Settings.ConnectionString));
     }
 
-    private ConnectionState TryConnection(string connString)
+    private static ConnectionState TryConnection(string connString)
     {
       ConnectionState state;
       using (MySqlConnection conn = new MySqlConnection(connString))
