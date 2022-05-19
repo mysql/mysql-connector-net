@@ -306,7 +306,8 @@ namespace MySql.Data.MySqlClient.Tests
       string hostname, ipv4 = string.Empty, ipv6 = string.Empty;
       string query = @"SELECT SUBSTRING_INDEX(host, ':', 1) as IP FROM information_schema.processlist WHERE ID = connection_id()";
 
-      using MySqlCommand cmd = new(query, GetConnection(true));
+      using var conn = GetConnection(true);
+      using MySqlCommand cmd = new(query, conn);
       hostname = cmd.ExecuteScalar().ToString();
 
       foreach (var item in Dns.GetHostEntry(hostname).AddressList)
