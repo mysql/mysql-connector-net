@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,6 +40,7 @@ namespace MySql.Data.MySqlClient
       if (rez != null) return rez;
       return ReadResourceInternal("MySqlClient/" + name);
     }
+
     public static string ReadResourceInternal(string name)
     {
       var assembly = Assembly.GetExecutingAssembly();
@@ -53,6 +54,20 @@ namespace MySql.Data.MySqlClient
       {
         return reader.ReadToEnd();
       }
+    }
+
+    /// <summary>
+    /// Removes the outer backticks and replace the double-backticks to single-backtick
+    /// of inside the quotedString.
+    /// </summary>
+    /// <param name="quotedString">The string to unquote.</param>
+    /// <returns></returns>
+    public static string UnquoteString(string quotedString)
+    {
+      if (quotedString.StartsWith("`"))
+        return quotedString.Substring(1, quotedString.Length - 2).Replace("``", "`");
+      else
+        return quotedString;
     }
   }
 }

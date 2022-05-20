@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,6 +29,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace MySql.Data.MySqlClient
@@ -135,25 +136,17 @@ namespace MySql.Data.MySqlClient
 
     private static ProcedureCacheEntry GetProcData(MySqlConnection connection, string spName)
     {
-      string schema = string.Empty;
-      string name = spName;
-
-      int dotIndex = spName.IndexOf("`.`");
-      if (dotIndex != -1)
-      {
-        schema = spName.Substring(1, dotIndex - 1);
-        name = spName.Substring(dotIndex + 3, spName.Length - dotIndex - 4);
-      }
+      SplitSchemaAndEntity(spName, out string schema, out string entity);
 
       string[] restrictions = new string[4];
-      restrictions[1] = schema.Length > 0 ? schema : connection.CurrentDatabase();
-      restrictions[2] = name;
+      restrictions[1] = string.IsNullOrEmpty(schema) ? connection.CurrentDatabase() : Utils.UnquoteString(schema);
+      restrictions[2] = Utils.UnquoteString(entity);
       MySqlSchemaCollection proc = connection.GetSchemaCollection("procedures", restrictions);
       if (proc.Rows.Count > 1)
         throw new MySqlException(Resources.ProcAndFuncSameName);
       if (proc.Rows.Count == 0)
       {
-        string msg = string.Format(Resources.InvalidProcName, name, schema) + " " +
+        string msg = string.Format(Resources.InvalidProcName, entity, schema) + " " +
         string.Format(Resources.ExecuteProcedureUnauthorized, connection.Settings.UserID, connection.Settings.Server);
         throw new MySqlException(msg);
       }
@@ -170,6 +163,61 @@ namespace MySql.Data.MySqlClient
       entry.parameters = parameters;
 
       return entry;
+    }
+
+    /// <summary>
+    /// Splits the schema and the entity from a syntactically correct "spName"; 
+    /// if there's no schema, then schema will be an empty string.
+    /// </summary>
+    /// <param name="spName">string to inspect.</param>
+    /// <param name="schema">The schema.</param>
+    /// <param name="entity">The entity.</param>
+    private static void SplitSchemaAndEntity(string spName, out string schema, out string entity)
+    {
+      int dotIndex = ExtractDotIndex(spName);
+
+      if (dotIndex != -1)
+      {
+        schema = spName.Substring(0, dotIndex);
+        entity = spName.Substring(dotIndex + 1);
+      }
+      else
+      {
+        schema = string.Empty;
+        entity = spName;
+      }
+    }
+
+    /// <summary>
+    /// Obtains the dot index that separates the schema from the entity if there's one; 
+    /// otherwise, returns -1. It expects a syntactically correct "spName".
+    /// </summary>
+    /// <param name="spName">string to inspect.</param>
+    /// <param name="dotIndex">Value of the dot index.</param>
+    /// <returns>The dot index.</returns>
+    private static int ExtractDotIndex(string spName, int dotIndex = -1)
+    {
+      int backticks, _dotIndexTemp;
+      _dotIndexTemp = spName.IndexOf('.'); // looks for a '.' in the string passed as argument
+      string subString;
+
+      if (_dotIndexTemp != -1)
+      {
+        subString = spName.Substring(_dotIndexTemp + 1);  // gets a substring from the found '.' to the end of the string
+        backticks = subString.Count(c => c == '`'); // counts backticks in the substring
+
+        // if the count of backticks in the substring is an odd number,
+        // that means that this '.' is part of the schema or entity and will continue looking;
+        // otherwise, returns the index.
+        if (backticks % 2 == 0)
+          dotIndex = dotIndex == -1 ? _dotIndexTemp : dotIndex + _dotIndexTemp;
+        else
+          dotIndex = ExtractDotIndex(subString, _dotIndexTemp + 1);
+      }
+      else if (_dotIndexTemp == -1 && dotIndex != -1)
+        dotIndex = -1;
+
+      return dotIndex;
     }
 
     internal void Clear()

@@ -183,7 +183,7 @@ namespace MySql.Data.MySqlClient
         throw new InvalidOperationException(Resources.CanNotDeriveParametersForTextCommands);
 
       // retrieve the proc definition from the cache.
-      string spName = StoredProcedure.FixProcedureName(command.CommandText, command.Connection.Database);
+      string spName = StoredProcedure.FixProcedureName(command.CommandText);
 
       try
       {

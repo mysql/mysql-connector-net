@@ -6,6 +6,7 @@
 - Updated the BouncyCastle NuGet dependency to use a most convenient version (MySQL Bug #106370, Oracle Bug #33827732).
 - Updated test cases for UTF8 collation mappings (MySQL Bug #107256, Oracle Bug#34156197).
 - Fixed a bug that prevented the correct use of the TryGetValue method for the MySqlConnectionStringBuilder object (MySQL Bug #104910, Oracle Bug #33351775).
+- Fixed a bug that prevented executing stored procedures with backtick (`) characters in the name (MySQL Bug #104913, Oracle Bug #33338458).
 
 
 8.0.29

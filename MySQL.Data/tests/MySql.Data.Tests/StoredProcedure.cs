@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -44,12 +44,6 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("DROP DATABASE IF EXISTS `dotnet3.1`");
       Connection.ProcedureCache.Clear();
     }
-
-    //[SetUp]
-    //public void SetUp()
-    //{
-    //  Connection = GetConnection(false);
-    //}
 
     /// <summary>
     /// Bug #7623  	Adding MySqlParameter causes error if MySqlDbType is Decimal
@@ -828,7 +822,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(Connection.ConnectionString))
       {
         connection.Open();
-        var strName = "SPversion1.2.3";
+        var strName = "`SPversion1.2.3`";
         using (MySqlCommand cmd = new MySqlCommand(strName, Connection))
         {
           cmd.Parameters.AddWithValue("?p", 2);
@@ -1059,8 +1053,6 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #region WL14389
-
     [Test]
     public void EventsStatementsHistory()
     {
@@ -1109,9 +1101,6 @@ namespace MySql.Data.MySqlClient.Tests
 
     }
 
-    #endregion WL14389
-
-
     /// <summary>
     /// Bug #33097912	- FULLY QUALIFIED PROCEDURE OR FUNCTION NAMES FAIL
     /// </summary>
@@ -1134,6 +1123,111 @@ namespace MySql.Data.MySqlClient.Tests
         command.CommandType = CommandType.StoredProcedure;
         Assert.AreEqual(1, command.ExecuteScalar());
       }
+    }
+
+    /// <summary>
+    /// Bug #33338458	- Cannot execute stored procedure with backtick in name
+    /// </summary>
+    [TestCase("`a``b`", "a`b")]
+    [TestCase("`a``b`", "`a``b`")]
+    [TestCase("`my``crazy``proc`", "my`crazy`proc")]
+    [TestCase("`test.spTest2`", "`test.spTest2`")]
+    [TestCase("`my``.``proc`", "my`.`proc")]
+    [TestCase("`foo``bar``.quaz`", "foo`bar`.quaz")]
+    public void StoredProceduresWithBackticks(string quotedName, string spNameCnet)
+    {
+      // In this case since the spNameCnet is not well written, the connector will quote everything
+      ExecuteSQL($"DROP PROCEDURE IF EXISTS {quotedName}");
+      ExecuteSQL($"CREATE PROCEDURE {quotedName} () BEGIN SELECT 1; END");
+      using (var conn = new MySqlConnection(Connection.ConnectionString))
+      {
+        conn.Open();
+        MySqlCommand command = conn.CreateCommand();
+        command.CommandText = spNameCnet;
+        command.CommandType = CommandType.StoredProcedure;
+
+        Assert.AreEqual(1, command.ExecuteScalar());
+      }
+    }
+
+    [TestCase("`my``.``db`", "`my``.``proc`", "`my``.``db`.`my``.``proc`")]
+    [TestCase("`my````schema`", "`my````proc`", "`my````schema`.`my````proc`")]
+    [TestCase("`my``schema`", "`my``proc`", "`my``schema`.`my``proc`")]
+    [TestCase("`my.schema`", "myproc", "`my.schema`.myproc")]
+    [TestCase("foo", "`bar.baz`", "foo.`bar.baz`")]
+    [TestCase("foo", "bar", "    foo.bar    ")]
+    [TestCase("foo", "bar", "    `foo`.`bar`    ")]
+    public void StoredProceduresWithBackticks2(string schema, string spName, string spNameCnet)
+    {
+      ExecuteSQL($"DROP SCHEMA IF EXISTS {schema}; CREATE SCHEMA {schema}", true);
+      ExecuteSQL($"CREATE PROCEDURE {schema}.{spName} () BEGIN SELECT 1; END", true);
+      using (var conn = new MySqlConnection(Connection.ConnectionString))
+      {
+        conn.Open();
+        MySqlCommand command = conn.CreateCommand();
+        command.CommandText = spNameCnet;
+        command.CommandType = CommandType.StoredProcedure;
+
+        Assert.AreEqual(1, command.ExecuteScalar());
+      }
+    }
+
+    [TestCase("`myschema`", "`my``proc`", "myschema.`my`proc`")]
+    [TestCase("`myschema`", "`my``proc`", "`myschema.my`proc")]
+    [TestCase("`myschema`", "`my``proc`", "myschema.my``proc")]
+    [TestCase("`myschema`", "`my``proc`", "myschema.`my`proc`")]
+    [TestCase("`my``.``schema`", "`my``.``proc`", "my`.`schema.my`.`proc")]
+    [TestCase("`my``schema`", "`myproc`", "`my`schema`.myproc")]
+    [TestCase("`my``schema`", "`myproc`", "my``schema.myproc")]
+    [TestCase("`my.schema`", "`myproc`", "my.schema.myproc")]
+    [TestCase("foo", "`bar.baz`", "`foo`.bar.baz")]
+    public void StoredProceduresWithBackticksExceptionRaised(string schema, string spName, string spNameCnet)
+    {
+      ExecuteSQL($"DROP SCHEMA IF EXISTS {schema}; CREATE SCHEMA {schema}", true);
+      ExecuteSQL($"CREATE PROCEDURE {schema}.{spName} () BEGIN SELECT 1; END", true);
+
+      using (var conn = new MySqlConnection(Connection.ConnectionString))
+      {
+        conn.Open();
+        MySqlCommand command = conn.CreateCommand();
+        command.CommandText = spNameCnet;
+        command.CommandType = CommandType.StoredProcedure;
+
+        Assert.Throws<MySqlException>(() => command.ExecuteScalar());
+      }
+    }
+
+    [TestCase("test.test.spTest", false)]
+    [TestCase("`myschema`.my`table`", false)]
+    [TestCase("`db``.`tbl`", false)]
+    [TestCase("my``.``db.`my``.``proc`", false)]
+    [TestCase("`db`.`my``other```proc`", false)]
+    [TestCase("a``b", false)]
+    [TestCase("a`b`c", false)]
+    [TestCase("my`.`db.my`.`table", false)]
+    [TestCase("`myschema.my`proc", false)]
+    [TestCase("`foo`bar`", false)]
+    [TestCase(" \n`foo`.bar", false)]
+    [TestCase("foo.`bar`.baz", false)]
+    [TestCase("`foo`.bar.baz", false)]
+    [TestCase("foo.`bar.baz`", true)]
+    [TestCase("`schema`.`procedure`", true)]
+    [TestCase("`a``b`", true)]
+    [TestCase("`schema`.proc", true)]
+    [TestCase("schema.`proc`", true)]
+    [TestCase("`my``.``db`.`my``.``proc`", true)]
+    [TestCase("`my``.``proc`", true)]
+    [TestCase("`my``db`.myproc", true)]
+    [TestCase("`my``db`.`myproc`", true)]
+    [TestCase("`my``db``proc`", true)]
+    [TestCase("a.b", true)]
+    [TestCase("`a.b`", true)]
+    [TestCase("test.```spTest``3`", true)]
+    [TestCase("`db``.``1`.`tbl`", true)]
+    [TestCase("`   foo`.bar", true)]
+    public void IsSyntacticallyCorrect(string spName, bool isIt)
+    {
+      Assert.IsTrue(MySqlClient.StoredProcedure.IsSyntacticallyCorrect(spName) == isIt);
     }
   }
 }

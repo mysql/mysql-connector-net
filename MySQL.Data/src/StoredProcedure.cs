@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,13 +26,13 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using MySql.Data.Types;
 using System;
 using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using MySql.Data.Common;
-using MySql.Data.Types;
 
 namespace MySql.Data.MySqlClient
 {
@@ -100,21 +100,78 @@ namespace MySql.Data.MySqlClient
       return StringUtility.ToUpperInvariant(dtdSubstring);
     }
 
-    internal static string FixProcedureName(string spName, string db)
+    internal static string FixProcedureName(string spName)
     {
-      string spFixedName = string.Empty;
-      string[] parts = spName.Split('.');
+      if (IsSyntacticallyCorrect(spName)) return spName;
 
-      if (spName.StartsWith("`") && spName.EndsWith("`"))
-        spFixedName = spName;
-      else if (!string.IsNullOrEmpty(db) && spName.Contains(db) && parts.Length > 1)
-        spFixedName = string.Format("`{0}`.`{1}`", db, spName.Replace("`", string.Empty).Replace($"{db}.", string.Empty));
-      else if (parts.Length == 2)
-        spFixedName = string.Format("`{0}`.`{1}`", parts[0], parts[1]);
-      else
-        spFixedName = $"`{spName.Replace("`", string.Empty)}`";
+      return $"`{spName.Replace("`", "``")}`";
+    }
 
-      return spFixedName;
+    /// <summary>
+    /// Verify if the string passed as argument is syntactically correct.
+    /// </summary>
+    /// <param name="spName">String to be analyzed</param>
+    /// <returns>true if is correct; otherwise, false.</returns>
+    internal static bool IsSyntacticallyCorrect(string spName)
+    {
+      const char backtick = '`', dot = '.';
+
+      char[] spNameArray = spName.ToArray();
+      bool quoted = spName.StartsWith("`");
+      bool splittingDot = false;
+
+      for (int i = 1; i < spNameArray.Length; i++)
+      {
+        if (spNameArray[i] == backtick)
+        {
+          // We are in quoted mode.
+          if (quoted)
+          {
+            // we are not in the last char of the string.
+            if (i < spNameArray.Length - 1)
+            {
+              // Get the next char.
+              char nextChar = spNameArray[i + 1];
+
+              // If the next char are neither a dot nor a backtick,
+              // it means the input string is not well quoted and exits the loop.
+              if (nextChar != dot && nextChar != backtick)
+                return false;
+
+              // If the next char is a backtick, move forward 2 positions.
+              if (nextChar == backtick)
+                i++;
+
+              // If the next char is a dot, that means we are not in quoted mode anymore.
+              if (nextChar == dot)
+              {
+                quoted = false;
+                splittingDot = true;
+                i++;
+              }
+            }
+          }
+          // Not quoted mode
+          else
+          {
+            // If the previous char is not a dot or the string does not end with a backtick,
+            // it means the input string is not well quoted and exits the loop;
+            // otherwise, enter quoted mode.
+            if (spNameArray[i - 1] != dot || !spName.EndsWith("`"))
+              return false;
+
+            quoted = true;
+          }
+        }
+        else if (spNameArray[i] == dot && !quoted)
+          if (splittingDot)
+            return false;
+          else
+            splittingDot = true;
+      }
+
+      // If we reach to the very last char of the string, it means the string is well written.
+      return true;
     }
 
     private MySqlParameter GetAndFixParameter(string spName, MySqlSchemaRow param, bool realAsFloat, MySqlParameter returnParameter)
@@ -166,7 +223,7 @@ namespace MySql.Data.MySqlClient
       // first retrieve the procedure definition from our
       // procedure cache
       string spName = commandText;
-      spName = FixProcedureName(spName, Connection.Database);
+      spName = FixProcedureName(spName);
 
       MySqlParameter returnParameter = GetReturnParameter();
 
