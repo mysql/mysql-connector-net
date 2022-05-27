@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -329,6 +329,24 @@ namespace MySqlX.XDevAPI
         values[option.Keyword] = option.DefaultValue;
       }
       return true;
+    }
+
+    /// <summary>
+    /// Retrieves the value corresponding to the supplied key from this <see cref="MySqlXConnectionStringBuilder"/>.
+    /// </summary>
+    /// <param name="keyword">The key of the item to retrieve.</param>
+    /// <param name="value">The value corresponding to the <paramref name="keyword"/>.</param>
+    /// <returns><see langword="true"/> if <paramref name="keyword"/> was found within the connection string; 
+    /// otherwise, <see langword="false"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="keyword"/> contains a null value.</exception>
+    public override bool TryGetValue(string keyword, out object value)
+    {
+      if (keyword == null) throw new ArgumentNullException(keyword);
+
+      MySqlConnectionStringOption option = Options.Get(keyword);
+
+      value = option == null ? null : this[keyword];
+      return option != null;
     }
   }
 }

@@ -126,5 +126,65 @@ namespace MySqlX.Data.Tests
       else
         Assert.Throws<ArgumentException>(() => { builder.TlsVersion = options; });
     }
+
+    [Test]
+    public void CaseInsensitiveAuthOption()
+    {
+      string[,] values = new string[,] {
+        { "PLAIN", "plain", "PLAin", "PlaIn" },
+        { "MYSQL41", "MySQL41", "mysql41", "mYSqL41" },
+        { "EXTERNAL", "external", "exterNAL", "eXtERNal" }
+      };
+
+      for (int i = 0; i < values.GetLength(0); i++)
+      {
+        for (int j = 0; j < values.GetLength(1); j++)
+        {
+          var builder = new MySqlXConnectionStringBuilder(String.Format("server=localhost;auth={0}", values[i, j]));
+          Assert.AreEqual((MySqlAuthenticationMode)(i + 1), builder.Auth);
+        }
+      }
+    }
+
+    [Test]
+    public void IncorrectAuthOptionThrowsArgumentException()
+    {
+      string[] values = { "OTHER", "Other", "MYSQL42", "PlaINs" };
+      foreach (var value in values)
+      {
+        Exception ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder(String.Format("server=localhost;aUth={0}", value)));
+        Assert.AreEqual(String.Format("Value '{0}' is not of the correct type.", value), ex.Message);
+      }
+    }
+
+    /// <summary>
+    /// Bug #33351775 [MySqlConnectionStringBuilder.TryGetValue always returns false]
+    /// TryGetValue() method of ConnectionStringBuilder object was not overrided.
+    /// </summary>
+    [Test]
+    public void TryGetValue()
+    {
+      MySqlXConnectionStringBuilder connStringBuilder = new()
+      {
+        DnsSrv = true,
+        CompressionAlgorithm = "deflate, lz4",
+      };
+
+      Assert.IsTrue(connStringBuilder.ContainsKey("dnssrv"));
+      Assert.IsTrue(connStringBuilder.TryGetValue("dns-srv", out var dnssrv));
+      Assert.AreEqual(connStringBuilder.DnsSrv, (bool)dnssrv);
+
+      Assert.IsTrue(connStringBuilder.ContainsKey("compressionAlgorithms"));
+      Assert.IsTrue(connStringBuilder.TryGetValue("Compression-Algorithms", out var compressionAlgorithm));
+      StringAssert.AreEqualIgnoringCase(connStringBuilder.CompressionAlgorithm, (string)compressionAlgorithm);
+
+      // Default value
+      Assert.IsTrue(connStringBuilder.TryGetValue("connection-attributes", out var connectionattributes));
+      Assert.AreEqual(connStringBuilder.GetOption("connection-attributes").DefaultValue, connectionattributes);
+
+      // Non existing option
+      Assert.IsFalse(connStringBuilder.TryGetValue("foo", out var nonexistingoption));
+      Assert.IsNull(nonexistingoption);
+    }
   }
 }

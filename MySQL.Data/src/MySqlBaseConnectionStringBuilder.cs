@@ -522,5 +522,7 @@ namespace MySql.Data.MySqlClient
     }
 
     internal abstract void SetInternalValue(string keyword, object value);
+
+    public abstract override bool TryGetValue(string keyword, out object value);
   }
 }

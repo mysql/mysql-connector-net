@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,7 +27,6 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.Common;
-using MySqlX.XDevAPI;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -221,36 +220,6 @@ namespace MySql.Data.MySqlClient.Tests
     }
 #endif
 
-    [Test]
-    public void IncorrectAuthOptionThrowsArgumentException()
-    {
-      string[] values = { "OTHER", "Other", "MYSQL42", "PlaINs" };
-      foreach (var value in values)
-      {
-        Exception ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder(String.Format("server=localhost;aUth={0}", value)));
-        Assert.AreEqual(String.Format("Value '{0}' is not of the correct type.", value), ex.Message);
-      }
-    }
-
-    [Test]
-    public void CaseInsensitiveAuthOption()
-    {
-      string[,] values = new string[,] {
-        { "PLAIN", "plain", "PLAin", "PlaIn" },
-        { "MYSQL41", "MySQL41", "mysql41", "mYSqL41" },
-        { "EXTERNAL", "external", "exterNAL", "eXtERNal" }
-      };
-
-      for (int i = 0; i < values.GetLength(0); i++)
-      {
-        for (int j = 0; j < values.GetLength(1); j++)
-        {
-          var builder = new MySqlXConnectionStringBuilder(String.Format("server=localhost;auth={0}", values[i, j]));
-          Assert.AreEqual((MySqlAuthenticationMode)(i + 1), builder.Auth);
-        }
-      }
-    }
-
     // Bug #28157737 TABLE CACHING IS NOT SUPPORTED IN THE MYSQLCONNECTIONSTRINGBUILDER CLASS
     [Test]
     public void SettingTableCachingRaisesException()
@@ -304,8 +273,6 @@ namespace MySql.Data.MySqlClient.Tests
       StringAssert.AreEqualIgnoringCase(value, connBuilder.Password2);
       StringAssert.AreEqualIgnoringCase(value, connBuilder.Password3);
     }
-
-    #region WL14389
 
     [Test, Description("Session BaseString/MySQLConnectionString Builder")]
     public void ConnectionStringBuilderClassicTests()
@@ -433,7 +400,34 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #endregion WL14389
+    /// <summary>
+    /// Bug #33351775 [MySqlConnectionStringBuilder.TryGetValue always returns false]
+    /// TryGetValue() method of ConnectionStringBuilder object was not overrided.
+    /// </summary>
+    [Test]
+    public void TryGetValue()
+    {
+      MySqlConnectionStringBuilder connStringBuilder = new()
+      {
+        Server = "localhost",
+        MinimumPoolSize = 10,
+      };
 
+      Assert.IsTrue(connStringBuilder.ContainsKey("data source"));
+      Assert.IsTrue(connStringBuilder.TryGetValue("host", out var server));
+      StringAssert.AreEqualIgnoringCase(connStringBuilder.Server, (string)server);
+
+      Assert.IsTrue(connStringBuilder.ContainsKey("MinimumPoolSize"));
+      Assert.IsTrue(connStringBuilder.TryGetValue("Minimum Pool Size", out var minpoolsize));
+      Assert.AreEqual(connStringBuilder.MinimumPoolSize, (uint)minpoolsize);
+
+      // Default value
+      Assert.IsTrue(connStringBuilder.TryGetValue("allowpublickeyretrieval", out var allowpublickeyretrieval));
+      Assert.AreEqual(connStringBuilder.GetOption("allowpublickeyretrieval").DefaultValue, allowpublickeyretrieval);
+
+      // Non existing option
+      Assert.IsFalse(connStringBuilder.TryGetValue("bar", out var nonexistingoption));
+      Assert.IsNull(nonexistingoption);
+    }
   }
 }
