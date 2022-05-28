@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,15 +26,15 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
-using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Security.Certificates;
 using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Security.Certificates;
 using System;
-using MySql.Data.MySqlClient;
-using System.Net.Security;
 using System.IO;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MySql.Data.common
 {
@@ -43,22 +43,24 @@ namespace MySql.Data.common
   /// </summary>
   internal static class SslPemCertificateValidator
   {
-    public static void ValidateCertificate(
-      System.Security.Cryptography.X509Certificates.X509Certificate certificate,
-      MySqlBaseConnectionStringBuilder settings)
+    public static void ValidateCertificate(X509Chain chain, MySqlBaseConnectionStringBuilder settings)
     {
       if (settings.SslMode >= MySqlSslMode.VerifyCA)
       {
         VerifyEmptyOrWhitespaceSslConnectionOption(settings.SslCa, nameof(settings.SslCa));
         var sslCA = ReadSslCertificate(settings.SslCa);
-        VerifyIssuer(sslCA, certificate);
+
+        foreach (var x509ChainElement in chain.ChainElements)
+        {
+          var cert = DotNetUtilities.FromX509Certificate(x509ChainElement.Certificate);
+          VerifyDates(cert);
+        }
+
+        var serverCertificate = chain.ChainElements[chain.ChainElements.Count - 1].Certificate;
+        VerifyIssuer(sslCA, serverCertificate);
         VerifyDates(sslCA);
         VerifyCAStatus(sslCA, true);
-#if NET452
-        VerifySignature(sslCA, DotNetUtilities.FromX509Certificate(certificate));
-#else
-        VerifySignature(sslCA, new X509CertificateParser().ReadCertificate(certificate.GetRawCertData()));
-#endif
+        VerifySignature(sslCA, DotNetUtilities.FromX509Certificate(serverCertificate));
       }
 
       if (settings.SslMode == MySqlSslMode.VerifyFull)
@@ -67,7 +69,6 @@ namespace MySql.Data.common
         var sslCert = ReadSslCertificate(settings.SslCert);
         VerifyDates(sslCert);
         VerifyCAStatus(sslCert, false);
-
         VerifyEmptyOrWhitespaceSslConnectionOption(settings.SslKey, nameof(settings.SslKey));
         var sslKey = ReadKey(settings.SslKey);
         VerifyKeyCorrespondsToCertificateKey(sslCert, sslKey);
@@ -265,9 +266,10 @@ namespace MySql.Data.common
     /// </summary>
     /// <param name="CACertificate">The CA certificate.</param>
     /// <param name="serverCertificate">The server certificate.</param>
-    private static void VerifyIssuer(Org.BouncyCastle.X509.X509Certificate CACertificate, System.Security.Cryptography.X509Certificates.X509Certificate serverCertificate)
+    private static void VerifyIssuer(Org.BouncyCastle.X509.X509Certificate CACertificate, X509Certificate serverCertificate)
     {
-      var certificate = new System.Security.Cryptography.X509Certificates.X509Certificate(CACertificate.GetEncoded());
+      var certificate = new X509Certificate(CACertificate.GetEncoded());
+
       if (certificate.Issuer != serverCertificate.Issuer)
         throw new MySqlException(Resources.SslConnectionError, new Exception(Resources.SslCertificateCAMismatch));
     }

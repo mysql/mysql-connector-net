@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -260,7 +260,7 @@ namespace MySql.Data.Common
     /// <param name="chain">The chain of certificate authorities associated with the remote certificate.</param>
     /// <param name="sslPolicyErrors">One or more errors associated with the remote certificate.</param>
     /// <returns><c>true</c> if no errors were found based on the selected SSL mode; <c>false</c>, otherwise.</returns>
-    private bool ServerCheckValidation(object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,
+    private bool ServerCheckValidation(object sender, X509Certificate certificate,
                                               X509Chain chain, SslPolicyErrors sslPolicyErrors)
     {
       if (sslPolicyErrors == SslPolicyErrors.None)
@@ -276,7 +276,7 @@ namespace MySql.Data.Common
       // Validate PEM certificates using Bouncy Castle.
       if (_treatCertificatesAsPemFormat)
       {
-        SslPemCertificateValidator.ValidateCertificate(certificate, _settings);
+        SslPemCertificateValidator.ValidateCertificate(chain, _settings);
         return true;
       }
       // Validate PFX certificate errors.

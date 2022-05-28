@@ -591,9 +591,12 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         try { connection.Open(); }
-        catch (Exception ex) { Assert.True(ex is MySqlException || 
-          ex is AuthenticationException || 
-          ex is FormatException, ex.Message); }
+        catch (Exception ex)
+        {
+          Assert.True(ex is MySqlException ||
+          ex is AuthenticationException ||
+          ex is FormatException, ex.Message);
+        }
       }
     }
 
@@ -1175,6 +1178,34 @@ namespace MySql.Data.MySqlClient.Tests
 
       Assert.IsNotEmpty(encryption);
       Assert.AreEqual(ConnectionState.Open, conn.State);
+    }
+
+    /// <summary>
+    /// Bug #33179908 [SSL CONNECTION FAILS WITH CHAINED CERTIFICATES]
+    /// In order to execute this tests, it is needed to start the server with next configuration:
+    /// --ssl-ca=<path>/ca/root.crt --ssl-key=<path>/server/server.key --ssl-cert=<path>/server/server.cachain
+    /// The chained certificates (certificates.zip) are attached in the bug report.
+    /// </summary>
+    [Ignore("MySQL Server needs to start with special configuration.")]
+    [TestCase(MySqlSslMode.VerifyCA)]
+    [TestCase(MySqlSslMode.VerifyFull)]
+    public void SslChainedCertificates(MySqlSslMode sslMode)
+    {
+      MySqlConnectionStringBuilder stringBuilder = new()
+      {
+        Server = "localhost",
+        Port = 3306,
+        UserID = "root",
+        SslCa = @"<path_to_chained_certificates>\root.crt",
+        SslCert = @"<path_to_chained_certificates>\client.cachain",
+        SslKey = @"<path_to_chained_certificates>\client.key",
+        SslMode = sslMode
+      };
+
+      using var conn = new MySqlConnection(stringBuilder.ConnectionString);
+      conn.Open();
+
+      Assert.IsTrue(conn.State == ConnectionState.Open);
     }
 
     #region Methods
