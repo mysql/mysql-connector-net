@@ -872,18 +872,19 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void ProcedureWithoutDbNameInConnString()
     {
-      ExecuteSQL("CREATE PROCEDURE spTest() BEGIN SELECT 1; END");
+      ExecuteSQL($"DROP SCHEMA IF EXISTS test_prepare; CREATE SCHEMA test_prepare", true);
+      ExecuteSQL($"CREATE PROCEDURE test_prepare.spTest () BEGIN SELECT 1; END", true);
 
       using (MySqlConnection conn = new MySqlConnection($"server={Host};user={RootUser};password={RootPassword};port={Port};"))
       {
         conn.Open();
 
         MySqlCommand command = conn.CreateCommand();
-        command.CommandText = $"{Connection.Database}.spTest";
+        command.CommandText = $"test_prepare.spTest";
         command.CommandType = CommandType.StoredProcedure;
         Assert.AreEqual(1, command.ExecuteScalar());
 
-        command.CommandText = $"`{Connection.Database}`.`spTest`";
+        command.CommandText = $"`test_prepare`.`spTest`";
         command.CommandType = CommandType.StoredProcedure;
         Assert.AreEqual(1, command.ExecuteScalar());
       }
@@ -1087,7 +1088,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         while (rdr.Read())
         {
-          if (rdr.GetString(0).ToString().Contains($"CALL `{spName}`()"))
+          if (rdr.GetString(0).ToString().Contains($"CALL {spName}()"))
           {
             testResult = true;
           }
@@ -1170,6 +1171,8 @@ namespace MySql.Data.MySqlClient.Tests
 
         Assert.AreEqual(1, command.ExecuteScalar());
       }
+
+      ExecuteSQL($"DROP SCHEMA {schema};", true);
     }
 
     [TestCase("`myschema`", "`my``proc`", "myschema.`my`proc`")]
@@ -1195,6 +1198,8 @@ namespace MySql.Data.MySqlClient.Tests
 
         Assert.Throws<MySqlException>(() => command.ExecuteScalar());
       }
+
+      ExecuteSQL($"DROP SCHEMA {schema};", true);
     }
 
     [TestCase("test.test.spTest", false)]

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -275,7 +275,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?p_kiosk", 2);
       cmd.Parameters.AddWithValue("?p_user", 4);
       Exception ex = Assert.Throws<InvalidOperationException>(() => { if (prepare) cmd.Prepare(); cmd.ExecuteNonQuery(); });
-      Assert.AreEqual(ex.Message, "Attempt to call stored function '`fnTest`' without specifying a return parameter");
+      Assert.AreEqual(ex.Message, "Attempt to call stored function 'fnTest' without specifying a return parameter");
     }
 
     /// <summary>
