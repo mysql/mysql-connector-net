@@ -363,6 +363,8 @@ namespace MySql.Data.MySqlClient
         MySqlDbType = MySqlDbType.Guid;
       else if (_paramValue is TimeSpan)
         MySqlDbType = MySqlDbType.Time;
+      else if (_paramValue is DateTimeOffset)
+        MySqlDbType = MySqlDbType.DateTime;
       else if (_paramValue is bool)
         MySqlDbType = MySqlDbType.Byte;
       else
@@ -525,6 +527,7 @@ namespace MySql.Data.MySqlClient
           _mySqlDbType = MySqlDbType.Date;
           break;
         case DbType.DateTime:
+        case DbType.DateTimeOffset:
           _mySqlDbType = MySqlDbType.DateTime;
           break;
 

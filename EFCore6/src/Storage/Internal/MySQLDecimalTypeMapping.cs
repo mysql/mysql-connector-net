@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,39 +28,52 @@
 
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Data;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Data.Common;
 
 namespace MySql.EntityFrameworkCore.Storage.Internal
 {
-  internal class MySQLBinaryTypeMapping : MySQLTypeMapping
+  internal class MySQLDecimalTypeMapping : DecimalTypeMapping
   {
-    public MySQLBinaryTypeMapping(
-      string storeType,
-      DbType dbType = System.Data.DbType.Binary,
-      int? size = null,
-      bool fixedLength = false)
-      : base(storeType, typeof(byte[]), dbType, size: size)
+    public MySQLDecimalTypeMapping(
+        string storeType,
+        DbType? dbType = System.Data.DbType.Decimal,
+        int? precision = null,
+        int? scale = null,
+        StoreTypePostfix storeTypePostfix = StoreTypePostfix.PrecisionAndScale)
+        : base(
+            new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(typeof(decimal)),
+                    storeType,
+                    storeTypePostfix,
+                    dbType)
+                .WithPrecisionAndScale(precision, scale))
     {
     }
 
-    protected MySQLBinaryTypeMapping(RelationalTypeMappingParameters parameters)
-      : base(parameters)
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
+    protected MySQLDecimalTypeMapping(RelationalTypeMappingParameters parameters)
+        : base(parameters)
     {
     }
-
-    public override CoreTypeMapping Clone(ValueConverter? converter)
-      => new MySQLBinaryTypeMapping(Parameters.WithComposedConverter(converter));
 
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-      => new MySQLBinaryTypeMapping(parameters);
+      => new MySQLDecimalTypeMapping(parameters);
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override void ConfigureParameter(DbParameter parameter)
     {
-      byte[] value = (byte[])parameter.Value!;
-      int? length = value?.Length;
+      base.ConfigureParameter(parameter);
 
-      parameter.Size = length ?? -1;
+      if (Size.HasValue && Size.Value != -1)
+        parameter.Size = Size.Value;
     }
   }
 }

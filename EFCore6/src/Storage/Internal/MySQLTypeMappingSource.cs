@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,75 +26,68 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Infrastructure.Internal;
-using MySql.EntityFrameworkCore.Properties;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   internal class MySQLTypeMappingSource : RelationalTypeMappingSource
   {
-    private static int CHAR_MAX_LENGTH = 255;
-    private static int VARCHAR_MAX_LENGTH = 4000;
-    private static int _keyMaxLength = 767;
+    private const int MAXKEYLENGTH = 767;
 
-    private readonly MySQLNumberTypeMapping _int = new MySQLNumberTypeMapping("int", typeof(Int32), DbType.Int32);
-    private readonly MySQLNumberTypeMapping _uint = new MySQLNumberTypeMapping("int unsigned", typeof(Int32), DbType.UInt32);
-    private readonly MySQLNumberTypeMapping _bigint = new MySQLNumberTypeMapping("bigint", typeof(Int64), DbType.Int64);
-    private readonly MySQLNumberTypeMapping _ubigint = new MySQLNumberTypeMapping("bigint unsigned", typeof(Int64), DbType.UInt64);
-    private readonly MySQLNumberTypeMapping _bit = new MySQLNumberTypeMapping("bit", typeof(ulong), DbType.UInt64);
-    private readonly MySQLNumberTypeMapping _smallint = new MySQLNumberTypeMapping("smallint", typeof(Int16), DbType.Int16);
-    private readonly MySQLNumberTypeMapping _usmallint = new MySQLNumberTypeMapping("smallint unsigned", typeof(Int16), DbType.UInt16);
-    private readonly MySQLNumberTypeMapping _tinyint = new MySQLNumberTypeMapping("tinyint", typeof(Byte), DbType.SByte);
-    private readonly MySQLNumberTypeMapping _utinyint = new MySQLNumberTypeMapping("tinyint unsigned", typeof(Byte), DbType.Byte);
+    private readonly IntTypeMapping _int = new IntTypeMapping("int", DbType.Int32);
+    private readonly UIntTypeMapping _uint = new UIntTypeMapping("int unsigned", DbType.UInt32);
+    private readonly LongTypeMapping _bigint = new LongTypeMapping("bigint", DbType.Int64);
+    private readonly ULongTypeMapping _ubigint = new ULongTypeMapping("bigint unsigned", DbType.UInt64);
+    private readonly ShortTypeMapping _smallint = new ShortTypeMapping("smallint", DbType.Int16);
+    private readonly UShortTypeMapping _usmallint = new UShortTypeMapping("smallint unsigned", DbType.UInt16);
+    private readonly SByteTypeMapping _tinyint = new SByteTypeMapping("tinyint", DbType.SByte);
+    private readonly ByteTypeMapping _utinyint = new ByteTypeMapping("tinyint unsigned", DbType.Byte);
 
-    private readonly MySQLStringTypeMapping _charUnicode = new MySQLStringTypeMapping("char", DbType.StringFixedLength, unicode: true, fixedLength: true);
-    private readonly MySQLStringTypeMapping _varcharUnicode = new MySQLStringTypeMapping($"varchar", DbType.String, unicode: true);
-    private readonly MySQLStringTypeMapping _varcharmaxUnicode = new MySQLStringTypeMapping("longtext", DbType.String, unicode: true);
+    private readonly ULongTypeMapping _bit = new ULongTypeMapping("bit", DbType.UInt64);
+    private readonly MySQLStringTypeMapping _charUnicode = new MySQLStringTypeMapping("char", fixedLength: true, storeTypePostfix: StoreTypePostfix.Size);
+    private readonly MySQLStringTypeMapping _varcharUnicode = new MySQLStringTypeMapping("varchar", storeTypePostfix: StoreTypePostfix.Size);
+    private readonly MySQLStringTypeMapping _textUnicode = new MySQLStringTypeMapping("text");
+    private readonly MySQLStringTypeMapping _longtextUnicode = new MySQLStringTypeMapping("longtext");
+    private readonly MySQLStringTypeMapping _mediumTextUnicode = new MySQLStringTypeMapping("mediumtext");
+    private readonly MySQLStringTypeMapping _tinyTextUnicode = new MySQLStringTypeMapping("tinytext");
 
-    private readonly MySQLDateTimeTypeMapping _datetime = new MySQLDateTimeTypeMapping("datetime", typeof(DateTime));
-    private readonly MySQLDateTimeTypeMapping _datetimeoffset = new MySQLDateTimeTypeMapping("timestamp", typeof(DateTimeOffset));
-    private readonly MySQLDateTimeTypeMapping _date = new MySQLDateTimeTypeMapping("date", typeof(DateTime));
-    private readonly MySQLTimeSpanMapping _time = new MySQLTimeSpanMapping("time");
+    private readonly MySQLStringTypeMapping _nchar = new MySQLStringTypeMapping("nchar", fixedLength: true, storeTypePostfix: StoreTypePostfix.Size);
+    private readonly MySQLStringTypeMapping _nvarchar = new MySQLStringTypeMapping("nvarchar", storeTypePostfix: StoreTypePostfix.Size);
 
-    private readonly MySQLNumberTypeMapping _float = new MySQLNumberTypeMapping("float", typeof(float));
-    private readonly MySQLNumberTypeMapping _double = new MySQLNumberTypeMapping("double", typeof(double));
-    private readonly MySQLNumberTypeMapping _real = new MySQLNumberTypeMapping("real", typeof(Single));
-    private readonly MySQLNumberTypeMapping _decimal = new MySQLNumberTypeMapping("decimal(18, 2)", typeof(Decimal));
+    private readonly MySQLDateTimeTypeMapping _datetime = new MySQLDateTimeTypeMapping("datetime", dbType: DbType.DateTime);
+    private readonly MySQLDateTimeTypeMapping _timeStamp = new MySQLDateTimeTypeMapping("timestamp", dbType: DbType.DateTime);
+    private readonly MySQLDateTimeOffsetTypeMapping _datetimeoffset = new MySQLDateTimeOffsetTypeMapping("datetime");
+    private readonly MySQLDateTimeOffsetTypeMapping _timestampoffset = new MySQLDateTimeOffsetTypeMapping("timestamp");
+    private readonly MySQLDateTimeTypeMapping _date = new MySQLDateTimeTypeMapping("date", dbType: DbType.Date);
+    private readonly MySQLDateTimeTypeMapping _dateonly = new MySQLDateTimeTypeMapping("date", dbType: DbType.Date);
+    private readonly MySQLTimeSpanMapping _time = new MySQLTimeSpanMapping("time", typeof(TimeSpan));
+    private readonly MySQLTimeSpanMapping _timeonly = new MySQLTimeSpanMapping("time", typeof(TimeOnly));
 
-    private readonly RelationalTypeMapping _binary = new MySQLBinaryTypeMapping("binary");
-    private readonly RelationalTypeMapping _varbinary = new MySQLBinaryTypeMapping("varbinary");
-    private readonly MySQLBinaryTypeMapping _tinyblob = new MySQLBinaryTypeMapping("tinyblob");
-    private readonly MySQLBinaryTypeMapping _mediumblob = new MySQLBinaryTypeMapping("mediumblob");
-    private readonly MySQLBinaryTypeMapping _blob = new MySQLBinaryTypeMapping("blob");
-    private readonly MySQLBinaryTypeMapping _longblob = new MySQLBinaryTypeMapping("longblob");
+    private readonly MySQLFloatTypeMapping _float = new MySQLFloatTypeMapping("float", DbType.Single);
+    private readonly MySQLDoubleTypeMapping _double = new MySQLDoubleTypeMapping("double", DbType.Double);
+    private readonly MySQLDecimalTypeMapping _decimal = new MySQLDecimalTypeMapping("decimal", precision: 18, scale: 2);
 
-    private readonly MySQLStringTypeMapping _enum = new MySQLStringTypeMapping("enum", DbType.String, unicode: true);
+    private readonly RelationalTypeMapping _binary = new MySQLByteArrayTypeMapping(fixedLength: true);
+    private readonly RelationalTypeMapping _varbinary = new MySQLByteArrayTypeMapping();
+
+    private readonly MySQLStringTypeMapping _enum = new MySQLStringTypeMapping("enum");
+    private readonly MySQLStringTypeMapping _set = new MySQLStringTypeMapping("set");
     private readonly MySQLGeometryTypeMapping _geometry = new MySQLGeometryTypeMapping("geometry");
 
     private readonly MySQLBoolTypeMapping _bitBool = new MySQLBoolTypeMapping("bit", size: 1);
     private readonly MySQLBoolTypeMapping _tinyintBool = new MySQLBoolTypeMapping("tinyint", size: 1);
+
     private GuidTypeMapping? _guid;
-    private MySqlGuidFormat guidFormat= MySqlGuidFormat.Default;
+    private MySqlGuidFormat guidFormat = MySqlGuidFormat.Default;
 
-    private Dictionary<string, RelationalTypeMapping>? _storeTypeMappings;
+    private Dictionary<string, RelationalTypeMapping[]>? _storeTypeMappings;
     private Dictionary<Type, RelationalTypeMapping>? _clrTypeMappings;
-
-    // These are disallowed only if specified without any kind of length specified in parenthesis.
-    private readonly HashSet<string> _disallowedMappings = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-      "binary",
-      "char",
-      "nchar",
-      "varbinary",
-      "varchar",
-      "nvarchar"
-    };
 
     private readonly IMySQLOptions _options;
     private bool _initialized;
@@ -119,60 +112,65 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       _guid = MySQLGuidTypeMapping.IsValidGuidFormat(guidFormat)
                       ? new MySQLGuidTypeMapping(guidFormat)
                       : null;
-      _storeTypeMappings = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
+
+      _storeTypeMappings = new Dictionary<string, RelationalTypeMapping[]>(StringComparer.OrdinalIgnoreCase)
       {
         // integers
-        { "bigint", _bigint },
-        { "bigint unsigned", _ubigint },
-        { "int", _int },
-        { "int unsigned", _uint },
-        { "integer", _int },
-        { "integer unsigned", _uint },
-        { "mediumint", _int },
-        { "mediumint unsigned", _uint },
-        { "smallint", _smallint },
-        { "smallint unsigned", _usmallint },
-        { "tinyint", _tinyint },
-        { "tinyint unsigned", _utinyint },
+        { "bigint", new[]  { _bigint } },
+        { "bigint unsigned", new[] { _ubigint } },
+        { "int", new[] { _int } },
+        { "int unsigned", new[] { _uint } },
+        { "integer", new[] { _int } },
+        { "integer unsigned", new[] { _uint } },
+        { "mediumint", new[] { _int }},
+        { "mediumint unsigned",new[]  { _uint }},
+        { "smallint", new[] { _smallint }},
+        { "smallint unsigned", new[] { _usmallint }},
+        { "tinyint", new[] { _tinyint }},
+        { "tinyint unsigned", new[] { _utinyint }},
 
         // decimals
-        { "decimal", _decimal },
-        { "numeric", _decimal },
-        { "dec", _decimal },
-        { "fixed", _decimal },
-        { "double", _double },
-        { "float", _float },
-        { "real", _real },
+        { "decimal", new[] { _decimal }},
+        { "numeric",new[]  { _decimal }},
+        { "dec", new[] { _decimal }},
+        { "fixed",new[]  { _decimal }},
+        { "double",new[]  { _double }},
+        { "float", new[] { _float }},
+        { "real",new[]  { _double }},
 
         // binary
-        { "tinyblob", _tinyblob },
-        { "blob", _blob },
-        { "mediumblob", _mediumblob },
-        { "longblob", _longblob },
-        { "binary", _binary },
-        { "varbinary", _varbinary },
+        { "binary", new[] { _binary }},
+        { "varbinary",new[]  { _varbinary }},
+        { "tinyblob", new[] { _varbinary }},
+        { "blob",new[]  { _varbinary }},
+        { "mediumblob",new[]  { _varbinary }},
+        { "longblob",new[]  { _varbinary }},
 
         // string
-        { "char", _charUnicode },
-        { "varchar", _varcharUnicode },
-        { "tinytext", _varcharmaxUnicode },
-        { "text", _varcharmaxUnicode },
-        { "mediumtext", _varcharmaxUnicode },
-        { "longtext", _varcharmaxUnicode },
-        { "enum", _enum },
+        { "char",new[]  { _charUnicode }},
+        { "varchar",new[]  { _varcharUnicode }},
+        { "nchar", new[] { _nchar }},
+        { "nvarchar", new[] { _nvarchar }},
+        { "tinytext",new[]  { _tinyTextUnicode }},
+        { "text", new[] { _textUnicode }},
+        { "mediumtext", new[] { _mediumTextUnicode }},
+        { "longtext",new[]  { _longtextUnicode }},
+        { "enum",new[]  { _enum }},
+        { "set",new[]  { _set }},
 
         // DateTime
-        { "date", _date },
-        { "time", _time },
-        { "year", _smallint },
-        { "datetime", _datetime },
+        { "year",new[]  { _int }},
+        { "date", new RelationalTypeMapping[] { _date, _dateonly }},
+        { "time", new RelationalTypeMapping[] { _time, _timeonly }},
+        { "timestamp", new RelationalTypeMapping[] { _timeStamp, _timestampoffset }},
+        { "datetime", new RelationalTypeMapping[] { _datetime, _datetimeoffset }},
 
         // bit
-        { "bit", _bit },
+        { "bit",new[]  { _bit }},
 
         // other
-        { "geometry", _geometry },
-        { "json", _varcharmaxUnicode }
+        { "geometry", new[]  { _geometry }},
+        { "json", new[]  { _longtextUnicode } }
       };
 
       _clrTypeMappings = new Dictionary<Type, RelationalTypeMapping>
@@ -184,49 +182,36 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         { typeof(uint), _uint },
         { typeof(long), _bigint },
         { typeof(ulong), _ubigint },
+
+         // byte / char
         { typeof(byte), _utinyint },
         { typeof(sbyte), _tinyint },
 
         // DateTime
         { typeof(DateTime), _datetime },
+        { typeof(DateOnly), _dateonly },
         { typeof(DateTimeOffset), _datetimeoffset },
         { typeof(TimeSpan), _time },
+        {typeof(TimeOnly), _timeonly },
 
         // decimals
         { typeof(float), _float },
         { typeof(double), _double },
         { typeof(decimal), _decimal },
 
-        { typeof(char), _int },
         { typeof(Data.Types.MySqlGeometry), _geometry }
       };
 
       // bool
-      if (_options.ConnectionSettings.TreatTinyAsBoolean)
-        _clrTypeMappings[typeof(bool)] = _tinyintBool;
-      else
-        _clrTypeMappings[typeof(bool)] = _bitBool;
+      bool tinyAsBool = _options.ConnectionSettings.TreatTinyAsBoolean;
+      _storeTypeMappings[tinyAsBool ? "tinyint(1)" : "bit(1)"] = new RelationalTypeMapping[] { tinyAsBool ? _tinyintBool : _bitBool };
+      _clrTypeMappings[typeof(bool)] = tinyAsBool ? _tinyintBool : _bitBool;
 
       // Guid
-      if (_options.ConnectionSettings.OldGuids)
+      if (_guid != null)
       {
-        _storeTypeMappings.Add(_guid!.StoreType, _guid );
-        _clrTypeMappings.Add(typeof(Guid), _guid);
-      }
-
-    }
-
-    /// <inheritdoc/>
-    protected override void ValidateMapping(CoreTypeMapping? mapping, IProperty? property)
-    {
-      var relationalMapping = mapping as RelationalTypeMapping;
-
-      if (_disallowedMappings.Contains(relationalMapping?.StoreType!))
-      {
-        if (property == null)
-        {
-          throw new ArgumentException(String.Format(MySQLStrings.UnqualifiedDataType, relationalMapping!.StoreType));
-        }
+        _storeTypeMappings[_guid!.StoreType] = new RelationalTypeMapping[] { _guid };
+        _clrTypeMappings[typeof(Guid)] = _guid;
       }
     }
 
@@ -249,23 +234,18 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
       if (storeTypeName != null)
       {
-        if (_options.ConnectionSettings.TreatTinyAsBoolean)
-        {
-          if (storeTypeNameBase!.Equals(_bitBool.StoreTypeNameBase, StringComparison.OrdinalIgnoreCase)
-            && mappingInfo.Size == 1)
-            return _bitBool;
-          else if (storeTypeNameBase.Equals(_tinyintBool.StoreTypeNameBase, StringComparison.OrdinalIgnoreCase)
-            && mappingInfo.Size ==  1)
-            return _tinyintBool;
-        }
-
-        if (_storeTypeMappings!.TryGetValue(storeTypeName, out var mapping)
-          || _storeTypeMappings.TryGetValue(storeTypeNameBase!, out mapping))
+        if (_storeTypeMappings!.TryGetValue(storeTypeName, out var mapping))
         {
           return clrType == null
-                 || mapping.ClrType == clrType
-              ? mapping
-              : null;
+            ? mapping[0]
+            : mapping.FirstOrDefault(m => m.ClrType == clrType);
+        }
+
+        if (_storeTypeMappings.TryGetValue(storeTypeNameBase!, out mapping))
+        {
+          return clrType == null
+            ? mapping[0].Clone(in mappingInfo)
+            : mapping.FirstOrDefault(m => m.ClrType == clrType)?.Clone(in mappingInfo);
         }
       }
 
@@ -287,27 +267,30 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         }
         else if (clrType == typeof(string))
         {
-          bool isAnsi = mappingInfo.IsUnicode == false;
-          bool isFixedLength = mappingInfo.IsFixedLength == true;
-          var maxSize = isAnsi ? 8000 : 4000;
-          int? size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)_keyMaxLength : null);
+          var isAnsi = mappingInfo.IsUnicode == false;
+          var isFixedLength = mappingInfo.IsFixedLength == true;
+          var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ?
+            Math.Min(MAXKEYLENGTH / (_options.CharSet.byteCount * 2), 255)
+            : null);
 
+          var maxSize = isAnsi ? 8000 : 4000;
+          
           if (size > maxSize)
             size = isFixedLength ? maxSize : (int?)null;
 
-          string baseName = size.HasValue ? (isFixedLength ? "char" : "varchar") : "text";
+          mapping = isFixedLength ? _charUnicode : size == null
+            ? _longtextUnicode : _varcharUnicode;
 
-          return new MySQLStringTypeMapping(
-            $"{baseName}{(size.HasValue ? $"({size})" : string.Empty)}",
-            isFixedLength ? DbType.StringFixedLength : DbType.String,
-            !isAnsi,
-            size);
+          return size == null ? mapping : mapping.Clone($"{mapping.StoreTypeNameBase}({size})", size);
         }
         else if (clrType == typeof(byte[]))
         {
           bool isFixedLength = mappingInfo.IsFixedLength == true;
-          int size = mappingInfo.Size.HasValue ? mappingInfo.Size.Value : (isFixedLength ? CHAR_MAX_LENGTH : VARCHAR_MAX_LENGTH);
-          return new MySQLBinaryTypeMapping($"{(isFixedLength ? "binary" : "varbinary")}({size})", DbType.Binary, size, isFixedLength);
+          // 3072 max key length
+          var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? 3072 : null);
+          return new MySQLByteArrayTypeMapping(
+                        size: size,
+                        fixedLength: isFixedLength);
         }
       }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -62,6 +62,10 @@ namespace MySql.Data.Types
 
     void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
+#if NET6_0
+      if (val is TimeOnly)
+        val = ((TimeOnly)val).ToTimeSpan();
+#endif
       if (!(val is TimeSpan))
         throw new MySqlException("Only TimeSpan objects can be serialized by MySqlTimeSpan");
 

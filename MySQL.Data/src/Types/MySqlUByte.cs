@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -93,7 +93,7 @@ namespace MySql.Data.Types
       // when GetSchema is called for the DataSourceInformation 
       // collection and then it wil be cached.
       MySqlSchemaRow row = sc.AddRow();
-      row["TypeName"] = "TINY INT";
+      row["TypeName"] = "TINYINT";
       row["ProviderDbType"] = MySqlDbType.UByte;
       row["ColumnSize"] = 0;
       row["CreateFormat"] = "TINYINT UNSIGNED";

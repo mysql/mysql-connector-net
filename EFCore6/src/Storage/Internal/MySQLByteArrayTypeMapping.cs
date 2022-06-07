@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -41,19 +41,19 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     private readonly int _maxSpecificSize;
 
     public MySQLByteArrayTypeMapping(
-        string? storeType = null,
-        int? size = null,
-        bool fixedLength = false)
-        : this(System.Data.DbType.Binary,
-            storeType,
-            size.HasValue && size < MaxSize ? size : null,
-            fixedLength)
+      string storeType = null,
+      int? size = null,
+      bool fixedLength = false)
+      : this(System.Data.DbType.Binary,
+          storeType,
+          size.HasValue && size < MaxSize ? size : null, 
+          fixedLength)
     {
     }
 
     protected MySQLByteArrayTypeMapping(
         DbType type,
-        string? storeType,
+        string storeType,
         int? size,
         bool fixedLength)
         : this(

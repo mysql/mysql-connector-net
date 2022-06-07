@@ -95,7 +95,7 @@ namespace MySql.EntityFrameworkCore.Migrations
           .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
           .Append(" ");
 
-      var column = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema).FindColumn(operation.NewName);
+      var column = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema)?.FindColumn(operation.NewName);
       if (column == null)
       {
         if (!(operation[RelationalAnnotationNames.ColumnType] is string type))

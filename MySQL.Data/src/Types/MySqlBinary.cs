@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -97,8 +97,8 @@ namespace MySql.Data.Types
         }
       }
 
-      // we assume zero length means write all of the value
-      if (length == 0)
+      // we assume zero or maxsize length means write all of the value
+      if (length == 0 || buffToWrite.Length < length )
         length = buffToWrite.Length;
 
       if (buffToWrite == null)

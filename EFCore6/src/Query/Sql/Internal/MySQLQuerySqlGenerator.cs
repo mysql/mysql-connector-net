@@ -166,7 +166,7 @@ namespace MySql.EntityFrameworkCore.Query
     private string GetCastStoreType(RelationalTypeMapping typeMapping)
     {
       var storeTypeLower = typeMapping.StoreType.ToLower();
-      string castMapping = null;
+      string? castMapping = null;
       foreach (var kvp in _castMappings)
       {
         foreach (var storeType in kvp.Value)
@@ -186,7 +186,6 @@ namespace MySql.EntityFrameworkCore.Query
 
       if (castMapping == null)
         throw new InvalidOperationException($"Invalid cast '{typeMapping.StoreType}'");
-
 
       if (castMapping == "signed" && storeTypeLower.Contains("unsigned"))
       {

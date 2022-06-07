@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -46,9 +46,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
   internal class MySQLDatabaseCreator : RelationalDatabaseCreator
   {
     private readonly MySQLRelationalConnection _connection;
-    private readonly IMigrationsSqlGenerator _sqlGenerator;
     private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
-    private IMigrationCommandExecutor _migrationCommandExecutor;
 
     public MySQLDatabaseCreator(
   [NotNull] RelationalDatabaseCreatorDependencies dependencies,
@@ -56,9 +54,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
   : base(dependencies)
     {
       _connection = (MySQLRelationalConnection)dependencies.Connection;
-      _sqlGenerator = dependencies.MigrationsSqlGenerator;
       _rawSqlCommandBuilder = rawSqlCommandBuilder;
-      _migrationCommandExecutor = dependencies.MigrationCommandExecutor;
     }
 
     public virtual TimeSpan RetryDelay { get; set; } = TimeSpan.FromMilliseconds(500);
@@ -69,7 +65,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     {
       using (var workingConnection = _connection.CreateSourceConnection())
       {
-        _migrationCommandExecutor.ExecuteNonQuery(CreateCreateOperations(), workingConnection);
+        Dependencies.MigrationCommandExecutor.ExecuteNonQuery(CreateCreateOperations(), workingConnection);
         ClearPool();
       }
 
@@ -80,7 +76,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     {
       using (var workingConnection = _connection.CreateSourceConnection())
       {
-        await _migrationCommandExecutor.ExecuteNonQueryAsync(CreateCreateOperations(), workingConnection, cancellationToken);
+        await Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(CreateCreateOperations(), workingConnection, cancellationToken);
         ClearPool();
       }
     }
@@ -91,7 +87,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       ClearAllPools();
       using (var sourceConnection = _connection.CreateSourceConnection())
       {
-        _migrationCommandExecutor.ExecuteNonQuery(CreateDropCommands(), sourceConnection);
+        Dependencies.MigrationCommandExecutor.ExecuteNonQuery(CreateDropCommands(), sourceConnection);
       }
     }
 
@@ -100,7 +96,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       ClearAllPools();
       using (var sourceConnection = _connection.CreateSourceConnection())
       {
-        await _migrationCommandExecutor.ExecuteNonQueryAsync(CreateDropCommands(), sourceConnection, cancellationToken);
+        await Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(CreateDropCommands(), sourceConnection, cancellationToken);
       }
     }
 
@@ -109,7 +105,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       => Exists(retryOnNotExists: false);
 
     private bool Exists(bool retryOnNotExists)
-      => Dependencies.ExecutionStrategyFactory.Create().Execute(
+      => Dependencies.ExecutionStrategy.Execute(
         DateTime.UtcNow + RetryTimeout, giveUp =>
         {
           while (true)
@@ -152,7 +148,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         => ExistsAsync(retryOnNotExists: false, cancellationToken: cancellationToken);
 
     private Task<bool> ExistsAsync(bool retryOnNotExists, CancellationToken cancellationToken)
-      => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
+      => Dependencies.ExecutionStrategy.ExecuteAsync(
         DateTime.UtcNow + RetryTimeout, async (giveUp, ct) =>
         {
           while (true)
@@ -209,7 +205,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     /// <inheritdoc/>
     public override bool HasTables()
-      => Dependencies.ExecutionStrategyFactory.Create().Execute(
+      => Dependencies.ExecutionStrategy.Execute(
         _connection,
         connection => Convert.ToInt64(CreateHasTablesCommand()
         .ExecuteScalar(
@@ -223,9 +219,9 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     /// <inheritdoc/>
     public override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-      => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
+      => Dependencies.ExecutionStrategy.ExecuteAsync(
         _connection,
-        async (connection, ct) => (int)await CreateHasTablesCommand()
+        async (connection, ct) => Convert.ToInt64(await CreateHasTablesCommand()
         .ExecuteScalarAsync(
           new RelationalCommandParameterObject(
             connection,
@@ -233,7 +229,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
             null,
             Dependencies.CurrentContext.Context,
             Dependencies.CommandLogger),
-          cancellationToken: ct)
+          cancellationToken: ct))
         != 0, cancellationToken);
 
     private IRelationalCommand CreateHasTablesCommand()
@@ -248,6 +244,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
           {
                 new MySQLCreateDatabaseOperation { Name = _connection.DbConnection.Database }
           };
+
       return Dependencies.MigrationsSqlGenerator.Generate(operations);
     }
 

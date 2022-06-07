@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,13 +27,14 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore.Storage;
+using MySql.Data.MySqlClient;
 using System;
 using System.Data;
 using System.Data.Common;
 
 namespace MySql.EntityFrameworkCore.Storage.Internal
 {
-  internal class MySQLStringTypeMapping : StringTypeMapping
+  internal class MySQLStringTypeMapping : MySQLTypeMapping
   {
     private const int UnicodeMax = 4000;
     private const int AnsiMax = 8000;
@@ -42,24 +43,37 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     public MySQLStringTypeMapping(
         [NotNull] string storeType,
-        DbType? dbType,
-        bool unicode = false,
+        bool unicode = true,
         int? size = null,
-        bool fixedLength = false)
+        bool fixedLength = false,
+        StoreTypePostfix? storeTypePostfix = null)
         : this(
             new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(typeof(string)),
                 storeType,
-                StoreTypePostfix.None,
-                dbType,
+                storeTypePostfix ?? StoreTypePostfix.None,
+                GetDbType(unicode, fixedLength),
                 unicode,
                 size,
-                fixedLength))
+                fixedLength),
+            fixedLength
+            ? MySqlDbType.String
+            : MySqlDbType.VarString)
     {
     }
 
-    protected MySQLStringTypeMapping(RelationalTypeMappingParameters parameters)
-        : base(parameters)
+    private static DbType? GetDbType(bool unicode, bool fixedLength)
+        => unicode
+            ? fixedLength
+                ? System.Data.DbType.StringFixedLength
+                : System.Data.DbType.String
+            : fixedLength
+                ? System.Data.DbType.AnsiStringFixedLength
+                : System.Data.DbType.AnsiString;
+
+
+    protected MySQLStringTypeMapping(RelationalTypeMappingParameters parameters, MySqlDbType mySqlDbType)
+        : base(parameters, mySqlDbType)
     {
       _maxSpecificSize = CalculateSize(parameters.Unicode, parameters.Size);
     }
@@ -75,7 +89,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     /// <param name="parameters"> The parameters for this mapping. </param>
     /// <returns> The newly created mapping. </returns>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new MySQLStringTypeMapping(parameters);
+        => new MySQLStringTypeMapping(parameters, MySqlDbType);
 
     /// <inheritdoc/>
     protected override void ConfigureParameter(DbParameter parameter)
@@ -84,17 +98,11 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       int? length;
 
       if (value is string stringValue)
-      {
         length = stringValue.Length;
-      }
       else if (value is byte[] byteArray)
-      {
         length = byteArray.Length;
-      }
       else
-      {
         length = null;
-      }
 
       parameter.Value = value;
       parameter.Size = value == null || value == DBNull.Value || length != null && length <= _maxSpecificSize
@@ -104,6 +112,9 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     protected override string GenerateNonNullSqlLiteral(object value)
       => EscapeLineBreaks((string)value);
+
+    protected string EscapeSqlLiteral(string literal)
+    => literal.Replace("'", "''");
 
     private static readonly char[] LineBreakChars = new char[] { '\r', '\n' };
     private string EscapeLineBreaks(string value)

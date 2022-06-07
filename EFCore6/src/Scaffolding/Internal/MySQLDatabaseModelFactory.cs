@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -396,7 +396,7 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
             {
               var name = dataRecord.GetValueOrDefault<string>("COLUMN_NAME");
               var defaultValue = dataRecord.GetValueOrDefault<string>("COLUMN_DEFAULT");
-              var nullable = dataRecord.GetValueOrDefault<string>("IS_NULLABLE").Contains("YES") ? true : false;
+              var nullable = dataRecord.GetValueOrDefault<string>("IS_NULLABLE")!.Contains("YES");
               var dataType = dataRecord.GetValueOrDefault<string>("DATA_TYPE");
               var charset = dataRecord.GetValueOrDefault<string>("CHARACTER_SET_NAME");
               var collation = dataRecord.GetValueOrDefault<string>("COLLATION_NAME");

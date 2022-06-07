@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -249,9 +249,15 @@ namespace MySql.Data.Types
       if (value is DateTime)
         dtValue = new MySqlDateTime(_type, (DateTime)value);
       else if (valueAsString != null)
-        dtValue = MySqlDateTime.Parse(valueAsString);
+        dtValue = Parse(valueAsString);
       else if (value is MySqlDateTime)
         dtValue = (MySqlDateTime)value;
+      else if (value is DateTimeOffset)
+        dtValue = new MySqlDateTime(((DateTimeOffset)value).UtcDateTime);
+#if NET6_0
+      else if (value is DateOnly)
+        dtValue = Parse(String.Format("{0:yyyy-MM-dd}", value));
+#endif
       else
         throw new MySqlException("Unable to serialize date/time value.");
 

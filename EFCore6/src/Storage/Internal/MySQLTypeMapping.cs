@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,27 +27,52 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore.Storage;
+using MySql.Data.MySqlClient;
 using System;
 using System.Data;
+using System.Data.Common;
 
 namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   internal abstract class MySQLTypeMapping : RelationalTypeMapping
   {
+    /// <summary>
+    /// The database type used by MySQL.
+    /// </summary>
+    public virtual MySqlDbType MySqlDbType { get; }
     public MySQLTypeMapping(
         [NotNull] string storeType,
         [NotNull] Type clrType,
-        [CanBeNull] DbType? dbType = null,
+        DbType? dbType = null,
+        MySqlDbType? mySqlDbType = null,
         bool unicode = false,
         int? size = null,
         bool hasNonDefaultUnicode = false)
-      : base(storeType, clrType, dbType, unicode, size)
+      : base(
+          new RelationalTypeMappingParameters(
+            new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size))
     {
+      if (mySqlDbType != null)
+        MySqlDbType = (MySqlDbType)mySqlDbType;
     }
 
-    protected MySQLTypeMapping(RelationalTypeMappingParameters parameters)
+    protected MySQLTypeMapping(RelationalTypeMappingParameters parameters, MySqlDbType? mySqlDbType = null)
       : base(parameters)
     {
+      if (mySqlDbType != null)
+        MySqlDbType = (MySqlDbType)mySqlDbType;
+    }
+
+    protected override void ConfigureParameter(DbParameter parameter)
+    {
+      if (!(parameter is MySqlParameter mySqlParameter))
+      {
+        throw new ArgumentException($"MySQL-specific type mapping {GetType()} being used with non-MySQL parameter type {parameter.GetType().Name}");
+      }
+
+      base.ConfigureParameter(parameter);
+
+      mySqlParameter.MySqlDbType = MySqlDbType;
     }
   }
 }

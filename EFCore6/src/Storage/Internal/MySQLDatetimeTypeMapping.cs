@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,20 +33,41 @@ using System.Data.Common;
 
 namespace MySql.EntityFrameworkCore.Storage.Internal
 {
-  internal class MySQLDateTimeTypeMapping : MySQLTypeMapping
+  internal class MySQLDateTimeTypeMapping : DateTimeTypeMapping
   {
-    private const string _dateTimeFormatConst = "{0:yyyy-MM-dd HH:mm:ss.ffffff}";
+    private const string _dateTimeFormatConst = "'{0:yyyy-MM-dd HH:mm:ss.fff}'";
+    private const string _dateFormatConst = "'{0:yyyy-MM-dd}'";
+
+    // Note: this array will be accessed using the precision as an index
+    // so the order of the entries in this array is important
+    private readonly string[] _dateTime2Formats =
+    {
+        "'{0:yyyy-MM-ddTHH:mm:ssK}'",
+        "'{0:yyyy-MM-ddTHH:mm:ss.fK}'",
+        "'{0:yyyy-MM-ddTHH:mm:ss.ffK}'",
+        "'{0:yyyy-MM-ddTHH:mm:ss.fffK}'",
+        "'{0:yyyy-MM-ddTHH:mm:ss.ffffK}'",
+        "'{0:yyyy-MM-ddTHH:mm:ss.fffffK}'",
+        "'{0:yyyy-MM-ddTHH:mm:ss.ffffffK}'"
+    };
 
     public MySQLDateTimeTypeMapping(
         string storeType,
-        Type clrType,
-        DbType dbType = System.Data.DbType.DateTime)
-      : base(storeType, clrType, dbType)
+        int? precision = null,
+        DbType? dbType = System.Data.DbType.DateTime2,
+        StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
+        : base(
+            new RelationalTypeMappingParameters(
+                new CoreTypeMappingParameters(typeof(DateTime)),
+                storeType,
+                storeTypePostfix,
+                dbType,
+                precision: precision))
     {
     }
 
     protected MySQLDateTimeTypeMapping(RelationalTypeMappingParameters parameters)
-      :base (parameters)
+      : base(parameters)
     {
     }
 
@@ -59,7 +80,29 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       => new MySQLDateTimeTypeMapping(parameters);
 
     protected override string SqlLiteralFormatString
-      => $"'{_dateTimeFormatConst}'";
+    {
+      get
+      {
+        switch (StoreType)
+        {
+          case "date":
+            return _dateFormatConst;
+          case "datetime":
+            return _dateTimeFormatConst;
+          case "timestamp":
+            return $"({_dateTimeFormatConst})";
+          default:
+            if (Precision.HasValue)
+            {
+              var precision = Precision.Value;
+              if (precision <= 6 && precision >= 0)
+                return _dateTime2Formats[precision];
+            }
+
+            return _dateTime2Formats[6];
+        }
+      }
+    }
 
     protected override void ConfigureParameter([NotNull] DbParameter parameter)
     {

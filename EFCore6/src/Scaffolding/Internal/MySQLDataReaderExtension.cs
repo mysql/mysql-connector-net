@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,15 +32,15 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
 {
   internal static class MySQLDataReaderExtension
   {
-    public static T GetValueOrDefault<T>(this DbDataReader reader, string name)
+    public static T? GetValueOrDefault<T>([NotNull] this DbDataReader reader, [NotNull] string name)
     {
       var idx = reader.GetOrdinal(name);
       return reader.IsDBNull(idx)
-        ? default(T)
+        ? default
         : reader.GetFieldValue<T>(idx);
     }
 
-    public static T GetValueOrDefault<T>(this DbDataRecord record, string name)
+    public static T? GetValueOrDefault<T>(this DbDataRecord record, string name)
     {
       var idx = record.GetOrdinal(name);
       return record.IsDBNull(idx)

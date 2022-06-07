@@ -71,7 +71,6 @@ namespace MySql.EntityFrameworkCore.Utils
 
     private static readonly Dictionary<Type, object> _commonTypeDictionary = new Dictionary<Type, object>
         {
-#pragma warning disable IDE0034 // Simplify 'default' expression - default causes default(object)
             { typeof(int), default(int) },
             { typeof(Guid), default(Guid) },
             { typeof(DateOnly), default(DateOnly) },
@@ -89,7 +88,6 @@ namespace MySql.EntityFrameworkCore.Utils
             { typeof(ushort), default(ushort) },
             { typeof(ulong), default(ulong) },
             { typeof(sbyte), default(sbyte) }
-#pragma warning restore IDE0034 // Simplify 'default' expression
         };
 
     public static object GetDefaultValue(this Type type)

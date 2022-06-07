@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -56,7 +56,7 @@ namespace MySql.EntityFrameworkCore
 
     public virtual ResultSetMapping AppendBulkInsertOperation(
       StringBuilder commandStringBuilder,
-      IReadOnlyList<ModificationCommand> modificationCommands,
+      IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
       int commandPosition)
     {
       var table = StoreObjectIdentifier.Table(modificationCommands[0].TableName, modificationCommands[0].Schema);
@@ -113,7 +113,7 @@ namespace MySql.EntityFrameworkCore
 
     private ResultSetMapping AppendBulkInsertWithoutServerValues(
     StringBuilder commandStringBuilder,
-    IReadOnlyList<ModificationCommand> modificationCommands,
+    IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
     List<IColumnModification> writeOperations)
     {
       Debug.Assert(writeOperations.Count > 0);
@@ -181,15 +181,14 @@ namespace MySql.EntityFrameworkCore
     {
       Check.NotNull(columnModification, "columnModification");
       Check.NotNull(commandStringBuilder, "commandStringBuilder");
-      commandStringBuilder.AppendFormat("{0}=LAST_INSERT_ID()", SqlGenerationHelper.DelimitIdentifier(columnModification.ColumnName));
+      commandStringBuilder.AppendFormat("{0} = LAST_INSERT_ID()", SqlGenerationHelper.DelimitIdentifier(columnModification.ColumnName));
     }
 
     protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
     {
       Check.NotNull(commandStringBuilder, "commandStringBuilder");
       commandStringBuilder
-        .Append("ROW_COUNT() = " + expectedRowsAffected.ToString(CultureInfo.InvariantCulture))
-        .AppendLine();
+        .Append("ROW_COUNT() = " + expectedRowsAffected.ToString(CultureInfo.InvariantCulture));
     }
 
     protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string? schemaName, int commandPosition)
@@ -197,10 +196,9 @@ namespace MySql.EntityFrameworkCore
       Check.NotNull(commandStringBuilder, "commandStringBuilder");
       Check.NotEmpty(name, "name");
 
-
       commandStringBuilder
         .Append("SELECT ROW_COUNT()")
-        .Append(SqlGenerationHelper.StatementTerminator)
+        .Append(SqlGenerationHelper.StatementTerminator).AppendLine()
         .AppendLine();
 
       return ResultSetMapping.LastInResultSet;
