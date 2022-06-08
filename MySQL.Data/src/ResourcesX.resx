@@ -334,4 +334,7 @@
     <value>Replacement document has an '_id' that is
 different from the matched document.</value>
   </data>
+  <data name="DocPathNullOrEmpty" xml:space="preserve">
+    <value>The document path cannot be null or an empty string.</value>
+  </data>
 </root>

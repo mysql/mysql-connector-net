@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
@@ -1682,6 +1683,57 @@ namespace MySqlX.Data.Tests
       res = docs.FetchAll();
       Assert.AreEqual("1001", res[0]["_id"].ToString(), "Matching the id");
       Assert.AreEqual("1003", res[1]["_id"].ToString(), "Matching the id");
+    }
+
+    /// <summary>
+    /// Bug #34243143	[Connector/NET allows empty string in Set() method which is chained to Modify()]
+    /// The fix applied for every method in Modify().
+    /// </summary>
+    [Test]
+    public void EmptyStringInModifyMethods()
+    {
+      Collection coll = CreateCollection("test");
+      object _doc = new { _id = 1, title = "foo" };
+      coll.Add(_doc).Execute();
+      var result = coll.Find("_id == 1").Execute().FetchOne();
+
+      Assert.NotNull(result);
+      Assert.AreEqual(1, result.Id);
+
+      // empty string
+      var ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Set("", new { title = "bar" }).Execute());
+      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Unset("").Execute());
+      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Change("", new { title = "bar" }).Execute());
+      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").ArrayInsert("", new { title = "bar" }).Execute());
+      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").ArrayAppend("", new { title = "bar" }).Execute());
+      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+
+      // white space
+      ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Set(" ", new { title = "bar" }).Execute());
+      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Unset(" ").Execute());
+      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Change(" ", new { title = "bar" }).Execute());
+      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").ArrayInsert(" ", new { title = "bar" }).Execute());
+      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").ArrayAppend(" ", new { title = "bar" }).Execute());
+      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+
+      // null
+      ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Set(null, new { title = "bar" }).Execute());
+      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Change(null, new { title = "bar" }).Execute());
+      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").ArrayInsert(null, new { title = "bar" }).Execute());
+      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").ArrayAppend(null, new { title = "bar" }).Execute());
+      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      var ex2 = Assert.Throws<MySqlException>(() => coll.Modify("_id == 1").Unset(null).Execute());
     }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,13 +26,13 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySqlX.Protocol.X;
+using MySql.Data;
 using Mysqlx.Crud;
 using Mysqlx.Expr;
+using MySqlX.Protocol.X;
 using MySqlX.Serialization;
-using static Mysqlx.Crud.UpdateOperation.Types;
-using System.Collections.Generic;
 using System;
+using static Mysqlx.Crud.UpdateOperation.Types;
 
 namespace MySqlX.XDevAPI.CRUD
 {
@@ -50,7 +50,7 @@ namespace MySqlX.XDevAPI.CRUD
 
     public bool HasValue
     {
-      get { return Value != null;  }
+      get { return Value != null; }
     }
 
     public Expr GetValue(UpdateType operationType)
@@ -78,13 +78,17 @@ namespace MySqlX.XDevAPI.CRUD
     public ColumnIdentifier GetSource(bool isRelational)
     {
       var source = Path;
+
+      if (string.IsNullOrWhiteSpace(source))
+        throw new ArgumentException(ResourcesX.DocPathNullOrEmpty);
+
       // accomodate parser's documentField() handling by removing "@"
       if (source.Length > 0 && source[0] == '@')
-      {
         source = source.Substring(1);
-      }
-      ExprParser p = new ExprParser(Path, false);
+
+      ExprParser p = new ExprParser(source, false);
       ColumnIdentifier identifier;
+
       if (isRelational)
         identifier = p.ParseTableUpdateField();
       else
