@@ -939,7 +939,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       string[] dataEnum = new string[] { "small", "medium", "large" };
 
-      using var command = new MySqlCommand("INSERT INTO test(data) VALUES (@data),(@data2),(@data3);", Connection);
+      using var command = new MySqlCommand("INSERT INTO Test(data) VALUES (@data),(@data2),(@data3);", Connection);
       var parameter = new MySqlParameter("@data", MySqlDbType.Enum);
       parameter.Value = "medium";
       command.Parameters.Add(parameter);

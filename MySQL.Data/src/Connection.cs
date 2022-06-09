@@ -451,14 +451,6 @@ namespace MySql.Data.MySqlClient
       return false;
     }
 
-    /// <summary>
-    /// Executes the <see cref="Open"/> method as a Task.
-    /// </summary>
-    public override Task OpenAsync(CancellationToken cancellationToken)
-    {
-      return Task.Run(() => Open());
-    }
-
     /// <summary>Opens a database connection with the property settings specified by the <see cref="ConnectionString"/>.</summary>
     /// <exception cref="InvalidOperationException">Cannot open a connection without specifying a data source or server.</exception>
     /// <exception cref="MySqlException">A connection-level error occurred while opening the connection.</exception>

@@ -1034,8 +1034,6 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL($"DROP TABLE `{Settings.Database}`.`testmalformed`;");
     }
 
-    #region WL14389
-
     [Test, Description("Verify Compression in classic protocol where default connection string is used without any option")]
     public void CompressionUnit()
     {
@@ -1463,7 +1461,19 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #endregion
+    /// <summary>
+    /// Bug #33781447	[CancellationToken doesn't cancel MySqlConnection.OpenAsync]
+    /// This is a regression from 8.0.27 introduced by the fix of Bug #28662512.
+    /// </summary>
+    [Test]
+    public void OpenAsyncNotCancellingOperation()
+    {
+      using var conn = new MySqlConnection(Connection.ConnectionString);
+      using var cts = new CancellationTokenSource();
+      cts.Cancel();
+
+      Assert.ThrowsAsync<TaskCanceledException>(async () => await conn.OpenAsync(cts.Token));
+    }
 
     #region Methods
 

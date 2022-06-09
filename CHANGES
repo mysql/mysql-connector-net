@@ -11,6 +11,7 @@
 - Fixed a bug that permitted using an empty string to represent a document path in the Modify methods of a Collection (MySQL Bug #107487, Oracle Bug #34243143).
 - Fixed a bug that occurred when using MySqlDbType.Enum as the parameter type in a prepared statement (MySQL Bug #106247, Oracle Bug #33827735).
 - Fixed the connection pool cleanup by changing the idle list from Queue type to LinkedList type (MySQL Bug #106368, Oracle Bug #33935441). Thanks to Karl Alexander for the contribution.
+- Fixed a bug that prevented cancelling the OpenAsync operation when passing a CancellationToken object as an argument (MySQL Bug #106243, Oracle Bug #33781447).
 
 
 8.0.29
