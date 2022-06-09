@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -42,7 +42,7 @@ namespace MySql.Data.MySqlClient
   internal sealed class MySqlPool
   {
     private readonly List<Driver> _inUsePool;
-    private readonly Queue<Driver> _idlePool;
+    private readonly LinkedList<Driver> _idlePool;
     private readonly uint _minSize;
     private readonly uint _maxSize;
     private readonly AutoResetEvent _autoEvent;
@@ -53,8 +53,9 @@ namespace MySql.Data.MySqlClient
     private void EnqueueIdle(Driver driver)
     {
       driver.IdleSince = DateTime.Now;
-      _idlePool.Enqueue(driver);
+      _idlePool.AddLast(driver);
     }
+
     public MySqlPool(MySqlConnectionStringBuilder settings)
     {
       _minSize = settings.MinimumPoolSize;
@@ -67,7 +68,7 @@ namespace MySql.Data.MySqlClient
         _minSize = _maxSize;
       this.Settings = settings;
       _inUsePool = new List<Driver>((int)_maxSize);
-      _idlePool = new Queue<Driver>((int)_maxSize);
+      _idlePool = new LinkedList<Driver>();
 
       // prepopulate the idle pool to minSize
       for (int i = 0; i < _minSize; i++)
@@ -111,7 +112,10 @@ namespace MySql.Data.MySqlClient
       lock ((_idlePool as ICollection).SyncRoot)
       {
         if (HasIdleConnections)
-          driver = _idlePool.Dequeue();
+        {
+          driver = _idlePool.Last.Value;
+          _idlePool.RemoveLast();
+        }
       }
 
       // Obey the connection timeout
@@ -196,7 +200,7 @@ namespace MySql.Data.MySqlClient
           FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
             FailoverMethod.Sequential);
 
-          foreach(var idleConnection in _idlePool)
+          foreach (var idleConnection in _idlePool)
           {
             string idleServer = idleConnection.Settings.Server;
             if (!FailoverManager.FailoverGroup.Hosts.Exists(h => h.Host == idleServer) && !idleConnection.IsInActiveUse)
@@ -291,8 +295,9 @@ namespace MySql.Data.MySqlClient
         // then we remove all connections sitting in the idle pool
         while (_idlePool.Count > 0)
         {
-          Driver d = _idlePool.Dequeue();
+          Driver d = _idlePool.Last.Value;
           d.Close();
+          _idlePool.RemoveLast();
         }
 
         // there is nothing left to do here.  Now we just wait for all
@@ -315,31 +320,27 @@ namespace MySql.Data.MySqlClient
     /// </remarks>
     internal List<Driver> RemoveOldIdleConnections()
     {
-      List<Driver> oldDrivers = new List<Driver>();
+      var connectionsToClose = new List<Driver>();
       DateTime now = DateTime.Now;
 
       lock ((_idlePool as ICollection).SyncRoot)
       {
-        // The drivers appear to be ordered by their age, i.e it is
-        // sufficient to remove them until the first element is not
-        // too old.
         while (_idlePool.Count > _minSize)
         {
-          Driver d = _idlePool.Peek();
-          DateTime expirationTime = d.IdleSince.Add(
+          var iddleConnection = _idlePool.First.Value;
+          DateTime expirationTime = iddleConnection.IdleSince.Add(
             new TimeSpan(0, 0, MySqlPoolManager.maxConnectionIdleTime));
+
           if (expirationTime.CompareTo(now) < 0)
           {
-            oldDrivers.Add(d);
-            _idlePool.Dequeue();
+            connectionsToClose.Add(iddleConnection);
+            _idlePool.RemoveFirst();
           }
           else
-          {
             break;
-          }
         }
       }
-      return oldDrivers;
+      return connectionsToClose;
     }
   }
 }
