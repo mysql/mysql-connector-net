@@ -40,6 +40,9 @@ namespace MySqlX.XDevAPI.CRUD
   {
     public UpdateSpec(UpdateOperation.Types.UpdateType updateType, string docPath)
     {
+      if (updateType is not UpdateOperation.Types.UpdateType.MergePatch && string.IsNullOrWhiteSpace(docPath))
+        throw new ArgumentException(ResourcesX.DocPathNullOrEmpty);
+
       Type = updateType;
       Path = docPath;
     }
@@ -78,9 +81,6 @@ namespace MySqlX.XDevAPI.CRUD
     public ColumnIdentifier GetSource(bool isRelational)
     {
       var source = Path;
-
-      if (string.IsNullOrWhiteSpace(source))
-        throw new ArgumentException(ResourcesX.DocPathNullOrEmpty);
 
       // accomodate parser's documentField() handling by removing "@"
       if (source.Length > 0 && source[0] == '@')

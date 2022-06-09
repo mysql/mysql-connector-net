@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
 // published by the Free Software Foundation.
@@ -123,16 +123,14 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual("Invalid update expression list", ex.Message);
 
       // Unsetting empty strings raises an error.
-      ex = Assert.Throws<MySqlException>(() => ExecuteModifyStatement(coll.Modify("_id = 2").Unset("")));
-      Assert.AreEqual("The path expression '$' is not allowed in this context.", ex.Message);
-      ex = Assert.Throws<MySqlException>(() => ExecuteModifyStatement(coll.Modify("_id = 2").Unset(string.Empty)));
-      Assert.AreEqual("The path expression '$' is not allowed in this context.", ex.Message);
+      var ex2 = Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(coll.Modify("_id = 2").Unset("")));
+      Assert.AreEqual(ResourcesX.DocPathNullOrEmpty, ex2.Message);
+      ex2 = Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(coll.Modify("_id = 2").Unset(string.Empty)));
+      Assert.AreEqual(ResourcesX.DocPathNullOrEmpty, ex2.Message);
 
       // Unset with special chars.
-      var ex2 = Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(coll.Modify("_id = 3").Unset(null).Unset("@*%#ç")));
-      Assert.AreEqual("The path expression '$' is not allowed in this context.", ex.Message);
-      ex2 = Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(coll.Modify("_id = 3").Unset(null).Unset("******")));
-      Assert.AreEqual("The path expression '$' is not allowed in this context.", ex.Message);
+      Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(coll.Modify("_id = 3").Unset(null).Unset("@*%#ç")));
+      Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(coll.Modify("_id = 3").Unset(null).Unset("******")));
     }
 
     [Test]
@@ -677,23 +675,20 @@ namespace MySqlX.Data.Tests
       crudresult = col.Find("reviewers='reviewers12'").Execute().FetchAll();
       Assert.AreEqual(1, crudresult.Count, "Count should be 1 after Unset with null of pages for _id=12");
 
-      Assert.Throws<MySqlException>(() => ExecuteModifyStatement(col.Modify("_id = 12").Unset("")));
+      Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(col.Modify("_id = 12").Unset("")));
 
       crudresult = col.Find("pages=22").Execute().FetchAll();
       Assert.AreEqual(1, crudresult.Count, "Count should be 1 after Unset with blank  of pages for _id=12");
       crudresult = col.Find("reviewers='reviewers12'").Execute().FetchAll();
       Assert.AreEqual(1, crudresult.Count, "Count should be 1 after Unset with blank of pages for _id=12");
 
-      //Testcase should have failed when unset is used with blank and space
-      Assert.Throws<MySqlException>(() => ExecuteModifyStatement(col.Modify("_id = 12").Unset("")));
-
       crudresult = col.Find("pages=22").Execute().FetchAll();
       Assert.AreEqual(1, crudresult.Count, "Count should be 1 after Unset with blank with space  of pages for _id=12");
       crudresult = col.Find("reviewers='reviewers12'").Execute().FetchAll();
       Assert.AreEqual(1, crudresult.Count, "Count should be 1 after Unset with blank with space  of pages for _id=12");
 
       //Testcase should have failed when unset is used with blank and space
-      Assert.Throws<MySqlException>(() => ExecuteModifyStatement(col.Modify("_id = 12").Unset(new string[] { "", " ", "pages" })));
+      Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(col.Modify("_id = 12").Unset(new string[] { "", " ", "pages" })));
 
       crudresult = col.Find("pages=22").Execute().FetchAll();
       Assert.AreEqual(1, crudresult.Count);
