@@ -313,6 +313,8 @@ namespace MySql.Data.MySqlClient
           return (int)MySqlDbType.Int16 | UNSIGNED_MASK;
         case MySqlDbType.Guid:
           return (int)MySqlDbType.Guid - 600;
+        case MySqlDbType.Enum:
+          return (int)MySqlDbType.VarChar;
         default:
           int value = (int)_mySqlDbType;
           value = value > 255 ? value - 500 : value;

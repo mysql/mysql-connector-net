@@ -9,6 +9,7 @@
 - Fixed a bug that prevented SSL connections using chained certificates (Oracle Bug #33179908).
 - Fixed a bug that prevented executing stored procedures with backtick (`) characters in the name (MySQL Bug #104913, Oracle Bug #33338458).
 - Fixed a bug that permitted using an empty string to represent a document path in the Modify methods of a Collection (MySQL Bug #107487, Oracle Bug #34243143).
+- Fixed a bug that occurred when using MySqlDbType.Enum as the parameter type in a prepared statement (MySQL Bug #106247, Oracle Bug #33827735).
 
 
 8.0.29

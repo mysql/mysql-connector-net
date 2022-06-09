@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,9 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using NUnit.Framework;
+using System;
 using System.Data;
+using System.Linq;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -428,7 +429,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #19261  	Supplying Input Parameters
     /// </summary>
-#if  NETCOREAPP3_1
+#if NETCOREAPP3_1
     [Test]
     public void MoreParametersOutOfOrder()
     {
@@ -926,6 +927,34 @@ namespace MySql.Data.MySqlClient.Tests
           rows += 1;
         Assert.AreEqual(3, rows);
       }
+    }
+
+    /// <summary>
+    /// Bug #33827735	["Incorrect arguments to mysqld_stmt_execute" with MySqlDbType.Enum]
+    /// </summary>
+    [Test]
+    public void MySqlDbTypeEnumParameter()
+    {
+      ExecuteSQL("CREATE TABLE Test(data ENUM('small', 'medium', 'large'));");
+
+      string[] dataEnum = new string[] { "small", "medium", "large" };
+
+      using var command = new MySqlCommand("INSERT INTO test(data) VALUES (@data),(@data2),(@data3);", Connection);
+      var parameter = new MySqlParameter("@data", MySqlDbType.Enum);
+      parameter.Value = "medium";
+      command.Parameters.Add(parameter);
+      parameter = new MySqlParameter("@data2", MySqlDbType.Enum);
+      parameter.Value = 1;
+      command.Parameters.Add(parameter);
+      parameter = new MySqlParameter("@data3", "large");
+      command.Parameters.Add(parameter);
+      command.Prepare();
+      command.ExecuteNonQuery();
+
+      command.CommandText = "SELECT * FROM Test";
+      using var reader = command.ExecuteReader();
+      while (reader.Read())
+        Assert.True(dataEnum.Contains(reader.GetString(0)));
     }
   }
 }
