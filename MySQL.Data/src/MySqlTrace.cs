@@ -1,4 +1,4 @@
-// Copyright © 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2009, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,11 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-
 
 namespace MySql.Data.MySqlClient
 {
@@ -40,15 +36,6 @@ namespace MySql.Data.MySqlClient
   public class MySqlTrace
   {
     private static TraceSource source = new TraceSource("mysql");
-
-    static MySqlTrace()
-    {
-      foreach (TraceListener listener in source.Listeners.Cast<TraceListener>().Where(listener => listener.GetType().ToString().Contains("MySql.EMTrace.EMTraceListener")))
-      {
-        QueryAnalysisEnabled = true;
-        break;
-      }
-    }
 
     /// <summary>
     /// Gets the list of trace listeners.
@@ -64,48 +51,12 @@ namespace MySql.Data.MySqlClient
       set { source.Switch = value; }
     }
 
-    /// <summary>
-    /// Gets or sets a flag indicating if query analysis is enabled.
-    /// </summary>
-    public static bool QueryAnalysisEnabled { get; set; }
-
-    /// <summary>
-    /// Enables query analysis.
-    /// </summary>
-    /// <param name="host">The host on which to enable query analysis.</param>
-    /// <param name="postInterval">The interval of time for logging trace information.</param>
-    public static void EnableQueryAnalyzer(string host, int postInterval)
-    {
-      if (QueryAnalysisEnabled) return;
-      // create a EMTraceListener and add it to our source
-      TraceListener l = (TraceListener)Activator.CreateInstance(Type.GetType("MySql.EMTrace.EMTraceListener"), host, postInterval);
-
-      if (l == null)
-        throw new MySqlException(Resources.UnableToEnableQueryAnalysis);
-
-      source.Listeners.Add(l);
-      Switch.Level = SourceLevels.All;
-    }
-
-    /// <summary>
-    /// Disables query analysis.
-    /// </summary>
-    public static void DisableQueryAnalyzer()
-    {
-      QueryAnalysisEnabled = false;
-      foreach (TraceListener l in from TraceListener l in Source.Listeners where l.GetType().ToString().Contains("EMTraceListener") select l)
-      {
-        source.Listeners.Remove(l);
-        break;
-      }
-    }
-
     internal static TraceSource Source
     {
-      get 
-        { 
-            return source; 
-        }
+      get
+      {
+        return source;
+      }
     }
 
     internal static void LogInformation(int id, string msg)

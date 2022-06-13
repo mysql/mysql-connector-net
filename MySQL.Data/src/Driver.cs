@@ -138,7 +138,7 @@ namespace MySql.Data.MySqlClient
 
       try
       {
-        if (MySqlTrace.QueryAnalysisEnabled || settings.Logging || settings.UseUsageAdvisor)
+        if (settings.Logging || settings.UseUsageAdvisor)
           d = new TracingDriver(settings);
       }
       catch (TypeInitializationException ex)
