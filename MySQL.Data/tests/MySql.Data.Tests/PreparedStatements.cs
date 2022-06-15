@@ -429,7 +429,6 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #19261  	Supplying Input Parameters
     /// </summary>
-#if NETCOREAPP3_1
     [Test]
     public void MoreParametersOutOfOrder()
     {
@@ -472,7 +471,6 @@ namespace MySql.Data.MySqlClient.Tests
       int cnt = cmd.ExecuteNonQuery();
       Assert.AreEqual(1, cnt);
     }
-#endif
 
     /// <summary>
     /// Bug #16627 Index and length must refer to a location within the string." when executing c

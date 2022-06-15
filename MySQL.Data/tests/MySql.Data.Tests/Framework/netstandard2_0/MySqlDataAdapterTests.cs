@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -820,7 +820,6 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #38411, using closed connection with data adapter.
     /// </summary>
-#if !(NETCOREAPP3_1 || NET5_0 || NET6_0)
     [Test]
     public void BatchingConnectionClosed()
     {
@@ -832,19 +831,19 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnection c3 = new MySqlConnection(connStr);
 
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", c);
-      MySqlCommand ins = new MySqlCommand("INSERT INTO test (id, name) VALUES (?p1, ?p2)", c);
+      MySqlCommand ins = new MySqlCommand("INSERT INTO Test (id, name) VALUES (?p1, ?p2)", c);
       da.InsertCommand = ins;
       ins.UpdatedRowSource = UpdateRowSource.None;
       ins.Parameters.Add("?p1", MySqlDbType.Int32).SourceColumn = "id";
       ins.Parameters.Add("?p2", MySqlDbType.VarChar, 20).SourceColumn = "name";
 
-      MySqlCommand del = new MySqlCommand("delete from test where id=?p1", c2);
+      MySqlCommand del = new MySqlCommand("delete from Test where id=?p1", c2);
       da.DeleteCommand = del;
       del.UpdatedRowSource = UpdateRowSource.None;
       del.Parameters.Add("?p1", MySqlDbType.Int32).SourceColumn = "id";
 
 
-      MySqlCommand upd = new MySqlCommand("update test set id=?p1, name=?p2  where id=?p1", c3);
+      MySqlCommand upd = new MySqlCommand("update Test set id=?p1, name=?p2  where id=?p1", c3);
       da.UpdateCommand = upd;
       upd.UpdatedRowSource = UpdateRowSource.None;
       upd.Parameters.Add("?p1", MySqlDbType.Int32).SourceColumn = "id";
@@ -888,7 +887,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(0, dt.Rows.Count);
 
     }
-#endif
 
     /// <summary>
     /// Bug#54895

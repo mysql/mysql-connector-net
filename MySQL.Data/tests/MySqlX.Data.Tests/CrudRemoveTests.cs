@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -57,7 +57,7 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(1, r.AffectedItemsCount);
 
       var ex = Assert.Throws<ArgumentNullException>(() => coll.Remove(""));
-#if (NETCOREAPP3_1 || NET5_0 || NET6_0)
+#if !NETFRAMEWORK
       Assert.AreEqual("Parameter can't be null or empty. (Parameter 'condition')", ex.Message);
 #else
       Assert.AreEqual("Parameter can't be null or empty.\r\nParameter name: condition", ex.Message);
@@ -174,7 +174,7 @@ namespace MySqlX.Data.Tests
 
       // Condition can't be null or empty.
       string errorMessage = string.Empty;
-#if (NETCOREAPP3_1 || NET5_0 || NET6_0)
+#if !NETFRAMEWORK
       errorMessage = "Parameter can't be null or empty. (Parameter 'condition')";
 #else
       errorMessage = "Parameter can't be null or empty.\r\nParameter name: condition";

@@ -241,7 +241,7 @@ namespace MySqlX.Data.Tests
         Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
       }
 
-#if !NETFRAMEWORK && DEBUG
+#if !NETFRAMEWORK && !NET7_0
       using (var session = MySQLX.GetSession(ConnectionStringUri + "?compression-algorithms=deflate_stream"))
       {
         var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
@@ -279,7 +279,7 @@ namespace MySqlX.Data.Tests
 #if NETFRAMEWORK
       var exception = Assert.Throws<NotSupportedException>(() => MySQLX.GetSession(updatedConnectionStringUri));
       Assert.AreEqual("Compression requested but the compression algorithm negotiation failed.", exception.Message);
-#else
+#elif !NET7_0
       using (var session = MySQLX.GetSession(updatedConnectionStringUri))
       {
         var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
@@ -342,7 +342,7 @@ namespace MySqlX.Data.Tests
            var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
            Assert.IsNull(compressionAlgorithm);
          }
-#else
+#elif !NET7_0
       using (var session = MySQLX.GetSession(new { server = Host, port = XPort, uid = "test", password = "test", compressionalgorithms = "deflate_stream" }))
       {
         var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
@@ -392,7 +392,7 @@ namespace MySqlX.Data.Tests
            var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
            Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
          }
-#else
+#elif !NET7_0
       using (var session = MySQLX.GetSession(new { server = Host, port = XPort, uid = "test", password = "test", compressionalgorithms = "deflate_stream,lz4_message,zstd_stream" }))
       {
         var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);

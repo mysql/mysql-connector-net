@@ -1,6 +1,7 @@
 8.0.31
 - Removed the MySql.EMTrace project (WL5158).
 - Removed the Memcached client from Connector/NET (WL15213).
+- Added support for the .NET 7.0 preview release (WL15195).
 
 
 8.0.30

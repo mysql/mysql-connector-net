@@ -62,7 +62,7 @@ namespace MySql.Data.Types
 
     void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
-#if NET6_0
+#if NET6_0_OR_GREATER
       if (val is TimeOnly)
         val = ((TimeOnly)val).ToTimeSpan();
 #endif

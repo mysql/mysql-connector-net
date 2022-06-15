@@ -254,7 +254,7 @@ namespace MySql.Data.Types
         dtValue = (MySqlDateTime)value;
       else if (value is DateTimeOffset)
         dtValue = new MySqlDateTime(((DateTimeOffset)value).UtcDateTime);
-#if NET6_0
+#if NET6_0_OR_GREATER
       else if (value is DateOnly)
         dtValue = Parse(String.Format("{0:yyyy-MM-dd}", value));
 #endif
@@ -378,7 +378,7 @@ namespace MySql.Data.Types
       packet.Position += len;
     }
 
-    #endregion
+#endregion
 
     /// <summary>Returns this value as a DateTime</summary>
     public DateTime GetDateTime()
@@ -482,7 +482,7 @@ namespace MySql.Data.Types
       }
     }
 
-    #region IComparable Members
+#region IComparable Members
 
     int IComparable.CompareTo(object obj)
     {
@@ -512,9 +512,9 @@ namespace MySql.Data.Types
       return 0;
     }
 
-    #endregion
+#endregion
 
-    #region IConvertible Members
+#region IConvertible Members
     DateTime IConvertible.ToDateTime(IFormatProvider provider)
     {
       return GetDateTime();
@@ -550,7 +550,7 @@ namespace MySql.Data.Types
     long IConvertible.ToInt64(IFormatProvider provider) => throw new InvalidCastException();
     decimal IConvertible.ToDecimal(IFormatProvider provider) => throw new InvalidCastException();
     uint IConvertible.ToUInt32(IFormatProvider provider) => throw new InvalidCastException();
-    #endregion
+#endregion
 
   }
 }

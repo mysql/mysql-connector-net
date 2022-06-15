@@ -121,6 +121,10 @@ namespace MySqlX.Data.Tests
     [Test]
     public void SslPreferredIsInvalid()
     {
+      string prefered = "Prefered";
+#if NET7_0
+      prefered = "Preferred";
+#endif
       var expectedErrorMessage = "Value '{0}' is not of the correct type.";
 
       // In connection string.
@@ -140,18 +144,18 @@ namespace MySqlX.Data.Tests
         sslmode = MySqlSslMode.Prefered
       };
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionObject));
-      Assert.AreEqual(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, prefered), exception.Message);
 
       // In MySqlXConnectionStringBuilder.
       builder = new MySqlXConnectionStringBuilder(ConnectionString);
       builder.SslMode = MySqlSslMode.Prefered;
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionObject));
-      Assert.AreEqual(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, prefered), exception.Message);
 
       builder = new MySqlXConnectionStringBuilder(ConnectionString);
       builder.SslMode = MySqlSslMode.Preferred;
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionObject));
-      Assert.AreEqual(string.Format(expectedErrorMessage, "Prefered"), exception.Message);
+      Assert.AreEqual(string.Format(expectedErrorMessage, prefered), exception.Message);
     }
 
     [Test]

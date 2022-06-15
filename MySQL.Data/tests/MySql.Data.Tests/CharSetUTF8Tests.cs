@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -76,7 +76,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void GetSchemaOnUTF8()
     {
-#if NETCOREAPP3_1 || NET5_0 || NET6_0
+#if !NETFRAMEWORK
       if (!Platform.IsWindows()) Assert.Ignore();
 #endif
       ExecuteSQL("CREATE TABLE Test(name VARCHAR(40) NOT NULL, name2 VARCHAR(20)) " +
