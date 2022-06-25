@@ -196,7 +196,7 @@ namespace MySql.Data.MySqlClient
       {
         if (driver.Settings.DnsSrv)
         {
-          var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(DnsResolver.ServiceName);
+          var dnsSrvRecords = DnsSrv.GetDnsSrvRecords(DnsSrv.ServiceName);
           FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
             FailoverMethod.Sequential);
 

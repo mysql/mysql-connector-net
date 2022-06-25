@@ -240,7 +240,7 @@ namespace MySqlX.XDevAPI
 
         if (Settings.DnsSrv)
         {
-          var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(Settings.Server);
+          var dnsSrvRecords = DnsSrv.GetDnsSrvRecords(Settings.Server);
           FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, r.Priority)),
             FailoverMethod.Sequential);
           _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, _isDefaultPort, client);
@@ -317,7 +317,7 @@ namespace MySqlX.XDevAPI
       {
         if (Settings.DnsSrv)
         {
-          var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(Settings.Server);
+          var dnsSrvRecords = DnsSrv.GetDnsSrvRecords(Settings.Server);
           FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
             FailoverMethod.Sequential);
           _internalSession = FailoverManager.AttemptConnectionXProtocol(this._connectionString, out this._connectionString, _isDefaultPort, client);

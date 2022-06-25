@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,15 +27,14 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System.Collections.Generic;
-using Ubiety.Dns.Core.Records;
 
-namespace MySql.Data.Common
+namespace MySql.Data.Common.DnsClient
 {
   /// <summary>
   /// Class that represents a DNS SRV record.
   /// RFC 2782 (https://tools.ietf.org/html/rfc2782)
   /// </summary>
-  internal class DnsSrvRecord : IComparer<DnsSrvRecord>
+  internal class DnsSrvRecord : DnsRecord, IComparer<DnsSrvRecord>
   {
     /// <summary>
     /// Gets the port.
@@ -57,6 +56,8 @@ namespace MySql.Data.Common
     /// </summary>
     internal int Weight { get; }
 
+    internal DnsSrvRecord() { }
+
     /// <summary>
     /// Initializes a new instance of <see cref="DnsSrvRecord"/> class.
     /// </summary>
@@ -72,15 +73,17 @@ namespace MySql.Data.Common
       Weight = weight;
     }
 
-    internal DnsSrvRecord() { }
-
     /// <summary>
     /// Initializes a new instance of <see cref="DnsSrvRecord"/> class.
     /// </summary>
-    /// <param name="recordSRV">The DNS SRV record.</param>
-    internal DnsSrvRecord(RecordSrv recordSRV)
-      : this(recordSRV.Port, recordSRV.Priority, recordSRV.Target, recordSRV.Weight)
-    { }
+    /// <param name="recordReader"><see cref="DnsRecordReader"/> of the record data.</param>
+    internal DnsSrvRecord(DnsRecordReader recordReader)
+    {
+      Priority = recordReader.ReadUInt16();
+      Weight = recordReader.ReadUInt16();
+      Port = recordReader.ReadUInt16();
+      Target = recordReader.ReadDomainName();
+    }
 
     /// <summary>
     /// Compare two <see cref="DnsSrvRecord"/> objects. First, using their priority and
@@ -93,20 +96,6 @@ namespace MySql.Data.Common
     {
       int priorityDiff = x.Priority.CompareTo(y.Priority);
       return priorityDiff == 0 ? y.Weight.CompareTo(x.Weight) : priorityDiff;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DnsSrvRecord"/> class from a <see cref="RecordSrv"/>.
-    /// </summary>
-    /// <param name="recordSRV">The DNS SRV record.</param>
-    public static implicit operator DnsSrvRecord(RecordSrv recordSRV)
-    {
-      if (recordSRV == null)
-        return null;
-
-      recordSRV.Target = recordSRV.Target.TrimEnd('.');
-
-      return new DnsSrvRecord(recordSRV);
     }
   }
 }

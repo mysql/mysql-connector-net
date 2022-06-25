@@ -27,6 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.Common;
+using MySql.Data.Common.DnsClient;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -122,7 +123,7 @@ namespace MySql.Data.MySqlClient.Tests
         new DnsSrvRecord(3306, 120, "target_2", 0)
       };
 
-      var sortedRecords = DnsResolver.SortSrvRecords(dnsRecords.ToList());
+      var sortedRecords = DnsSrv.SortSrvRecords(dnsRecords.ToList());
 
       Assert.True(sortedRecords.Select(r => r.Target).SequenceEqual(expectedOrder.Select(r => r.Target)));
     }

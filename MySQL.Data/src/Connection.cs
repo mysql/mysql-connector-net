@@ -495,7 +495,7 @@ namespace MySql.Data.MySqlClient
 
           if (Settings.DnsSrv)
           {
-            var dnsSrvRecords = DnsResolver.GetDnsSrvRecords(Settings.Server);
+            var dnsSrvRecords = DnsSrv.GetDnsSrvRecords(Settings.Server);
             FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
               FailoverMethod.Sequential);
           }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, 2020, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2019, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,22 +26,21 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Ubiety.Dns.Core;
+using MySql.Data.Common.DnsClient;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Ubiety.Dns.Core.Common;
-using MySql.Data.MySqlClient;
 
 namespace MySql.Data.Common
 {
   /// <summary>
   /// DNS resolver that runs queries against a server.
   /// </summary>
-  internal static class DnsResolver
+  internal static class DnsSrv
   {
     // Resolver object that looks up for DNS SRV records.
-    private static Resolver _resolver;
+    private static DnsResolver _resolver;
     // DNS domain.
     internal static string ServiceName { get; private set; }
 
@@ -50,14 +49,7 @@ namespace MySql.Data.Common
     /// </summary>
     internal static void CreateResolver(string serviceName)
     {
-      _resolver = new Resolver
-      {
-        Recursion = true,
-        UseCache = true,
-        Retries = 3,
-        TransportType = TransportType.Udp
-      };
-
+      _resolver = new DnsResolver();
       ServiceName = serviceName;
     }
 
@@ -71,12 +63,9 @@ namespace MySql.Data.Common
         CreateResolver(serviceName);
 
       List<DnsSrvRecord> records = new List<DnsSrvRecord>();
-      const QuestionType qType = QuestionType.SRV;
-      const QuestionClass qClass = QuestionClass.IN;
+      DnsResponse response = _resolver.Query(ServiceName);
 
-      Response response = _resolver.Query(ServiceName, qType, qClass);
-
-      foreach (var record in response.RecordSrv)
+      foreach (var record in response.RecordsSRV)
         records.Add(record);
 
       if (records.Count > 0)
