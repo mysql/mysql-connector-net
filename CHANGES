@@ -3,6 +3,7 @@
 - Removed the Memcached client from Connector/NET (WL15213).
 - Added support for the .NET 7.0 preview release (WL15195).
 - Implemented the DNS SRV query resolver (WL14016).
+- Added support for the EF Core 7.0 preview release (WL15194).
 
 
 8.0.30
