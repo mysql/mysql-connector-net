@@ -24,7 +24,7 @@
       "src": [
         {
           "files": ["MySql.EntityFrameworkCore.csproj"],
-          "src": "../EFCore6/src/"
+          "src": "../EFCore7/src/"
         }
       ],
       "dest": "api/efcore_api",
