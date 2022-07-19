@@ -29,6 +29,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.DependencyInjection;
 using MySql.EntityFrameworkCore.Extensions;
 using MySql.EntityFrameworkCore.Infrastructure.Internal;
 using MySql.EntityFrameworkCore.Metadata;
@@ -52,6 +53,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
     ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+    /// <param name="options"> Options set of the provider. </param>
     public MySQLMigrationsAnnotationProvider(
            [NotNull] RelationalAnnotationProviderDependencies dependencies,
            [NotNull] IMySQLOptions options)

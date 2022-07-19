@@ -73,7 +73,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
     public void Dispose()
     {
       // ensure database deletion
-      using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
+      using (var cnn = new MySqlConnection(MySQLTestStore.BaseConnectionString))
       {
         cnn.Open();
         var cmd = new MySqlCommand("DROP DATABASE IF EXISTS test", cnn);
@@ -98,12 +98,12 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
 
     private class AssertFailTraceListener : DefaultTraceListener
     {
-      public override void Fail(string message)
+      public override void Fail(string? message)
       {
         //Assert.Fail("Assertion failure: " + message);
       }
 
-      public override void Fail(string message, string detailMessage)
+      public override void Fail(string? message, string? detailMessage)
       {
         //Assert.Fail("Assertion failure: " + detailMessage);
       }

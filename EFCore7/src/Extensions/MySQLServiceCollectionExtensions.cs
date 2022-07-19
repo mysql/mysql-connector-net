@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -68,11 +69,11 @@ namespace MySql.EntityFrameworkCore.Extensions
     ///     This is not recommended other than for some advanced scenarios.
     ///   </para>
     /// </summary>
-    /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+    /// <param name="services"> The <see cref="IServiceCollection" /> to add services to. </param>
     /// <returns>
     ///   The same service collection so that multiple calls can be chained.
     /// </returns>
-    public static IServiceCollection AddEntityFrameworkMySQL([NotNull] this IServiceCollection services)
+    public static IServiceCollection AddEntityFrameworkMySQL(this IServiceCollection services)
     {
       var builder = new EntityFrameworkRelationalServicesBuilder(services)
       .TryAdd<LoggingDefinitions, MySQLLoggingDefinitions>()

@@ -43,7 +43,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
         if (_version == null)
         {
           MySQLTestStore.SslMode = false;
-          using (MySqlConnection conn = new MySqlConnection(MySQLTestStore.baseConnectionString))
+          using (MySqlConnection conn = new MySqlConnection(MySQLTestStore.BaseConnectionString))
           {
             conn.Open();
             _version = new Version(conn.driver.Version.Major

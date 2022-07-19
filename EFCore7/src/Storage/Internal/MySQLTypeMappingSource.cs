@@ -270,7 +270,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
           var isAnsi = mappingInfo.IsUnicode == false;
           var isFixedLength = mappingInfo.IsFixedLength == true;
           var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ?
-          Math.Min(MAXKEYLENGTH / (_options.CharSet.byteCount * 2), 255)
+          Math.Min(MAXKEYLENGTH / (_options.CharSet!.byteCount * 2), 255)
           : null);
 
           var maxSize = isAnsi ? 8000 : 4000;

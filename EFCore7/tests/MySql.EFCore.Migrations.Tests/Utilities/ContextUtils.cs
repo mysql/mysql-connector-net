@@ -58,7 +58,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests.Utilities
 
     }
 
-    protected virtual void UseProviderOptions(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString);
+    protected virtual void UseProviderOptions(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseMySQL(MySQLTestStore.BaseConnectionString);
 
     public DbContextOptions CreateOptions(IModel model)
     {

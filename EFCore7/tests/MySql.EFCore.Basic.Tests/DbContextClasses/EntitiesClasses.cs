@@ -37,67 +37,67 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
   public class Blog
   {
     public int BlogId { get; set; }
-    public string Url { get; set; }
+    public string? Url { get; set; }
 
     //public List<Post> Posts { get; set; }
 
-    public Post RecentPost { get; set; }
-    public BlogMetadata Metadata { get; set; }
+    public Post? RecentPost { get; set; }
+    public BlogMetadata? Metadata { get; set; }
 
   }
 
   public class Post
   {
     public int PostId { get; set; }
-    public string Title { get; set; }
-    public string Content { get; set; }
+    public string? Title { get; set; }
+    public string? Content { get; set; }
 
     public int BlogIdFK { get; set; }
 
-    public string Url { get; set; }
+    public string? Url { get; set; }
 
-    public Blog Blog { get; set; }
+    public Blog? Blog { get; set; }
   }
 
 
   public class Read
   {
     public int ReadId { get; set; }
-    public string Title { get; set; }
-    public string Content { get; set; }
+    public string? Title { get; set; }
+    public string? Content { get; set; }
 
-    public List<ReadTag> ReadTags { get; set; }
+    public List<ReadTag>? ReadTags { get; set; }
   }
 
   public class Tag
   {
     public int TagId { get; set; }
 
-    public List<ReadTag> ReadTags { get; set; }
+    public List<ReadTag>? ReadTags { get; set; }
   }
 
   public class ReadTag
   {
     public int ReadId { get; set; }
-    public Read Read { get; set; }
+    public Read? Read { get; set; }
 
     public int TagId { get; set; }
-    public Tag Tag { get; set; }
+    public Tag? Tag { get; set; }
   }
 
 
   public class AuditEntry
   {
     public int AuditEntryId { get; set; }
-    public string Username { get; set; }
-    public string Action { get; set; }
+    public string? Username { get; set; }
+    public string? Action { get; set; }
   }
   
   public class BlogMetadata
   {
     [Key]    
     public int BlogId { get; set; }
-    public Blog Blog { get; set; }
+    public Blog? Blog { get; set; }
     public DateTime LoadedFromDatabase { get; set; }
   }
 
@@ -105,8 +105,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
   public class Employee
   {
     public int EmployeeId { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public string? DisplayName { get; set; }
 
@@ -118,13 +118,13 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
   {
     public int BodyShopId { get; set; }
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string City { get; set; }
+    public string? City { get; set; }
 
-    public string State { get; set; }
+    public string? State { get; set; }
 
-    public string Brand { get; set; }
+    public string? Brand { get; set; }
   }
 
 
@@ -132,13 +132,13 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
   {
     public int CarId { get; set; }
     [MaxLength(30)]
-    public string LicensePlate { get; set; }
+    public string? LicensePlate { get; set; }
     [MaxLength(30)]
-    public string State { get; set; }
-    public string Make { get; set; }
-    public string Model { get; set; }
+    public string? State { get; set; }
+    public string? Make { get; set; }
+    public string? Model { get; set; }
 
-    public List<RecordOfSale> SaleHistory { get; set; }
+    public List<RecordOfSale>? SaleHistory { get; set; }
   }
 
 
@@ -148,10 +148,10 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
     public DateTime DateSold { get; set; }
     public decimal Price { get; set; }
     [MaxLength(30)]
-    public string CarState { get; set; }
+    public string? CarState { get; set; }
     [MaxLength(30)]
-    public string CarLicensePlate { get; set; }
-    public Car Car { get; set; }
+    public string? CarLicensePlate { get; set; }
+    public Car? Car { get; set; }
   }
 
   public class Person
@@ -159,44 +159,44 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
     public int PersonId { get; set; }
 
     [ConcurrencyCheck]
-    public string SocialSecurityNumber { get; set; }
-    public string PhoneNumber { get; set; }
+    public string? SocialSecurityNumber { get; set; }
+    public string? PhoneNumber { get; set; }
     [ConcurrencyCheck]
-    public string Name { get; set; }
+    public string? Name { get; set; }
   }
 
     public class Guest
     {
         [Key]
         public int IdGuest { get; set; }
-        public string Name { get; set; }
-        public Address Address { get; set; }
+        public string? Name { get; set; }
+        public Address? Address { get; set; }
     }
 
     public class Address
     {
         [Key]
         public int IdAddress { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
-        public Guest Guest { get; set; }
+        public string? Street { get; set; }
+        public string? City { get; set; }
+        public Guest? Guest { get; set; }
     }
 
     public class Relative
     {
         [Key]
         public int IdRelative { get; set; }
-        public string Name { get; set; }
-        public AddressRelative Address { get; set; }
+        public string? Name { get; set; }
+        public AddressRelative? Address { get; set; }
     }
 
     public class AddressRelative
     {
         [Key]
         public int IdAddressRelative { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
-        public Relative Relative { get; set; }
+        public string? Street { get; set; }
+        public string? City { get; set; }
+        public Relative? Relative { get; set; }
     }
 
 
@@ -204,7 +204,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
     {
         [Key]
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public DateTimeOffset Created { get; set; }
 
     }
@@ -231,18 +231,18 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
     public double AddressNumber8 { get; set; }
     public decimal AddressNumber9 { get; set; }
     public short AddressNumber10 { get; set; }
-    public string BuildingName1 { get; set; }
-    public string BuildingName2 { get; set; }
-    public string BuildingName3 { get; set; }
-    public string BuildingName4 { get; set; }
-    public string BuildingName5 { get; set; }
-    public byte[] BuildingName6 { get; set; }
-    public byte[] BuildingName7 { get; set; }
-    public byte[] BuildingName8 { get; set; }
-    public byte[] BuildingName9 { get; set; }
-    public byte[] BuildingName10 { get; set; }
-    public string BuildingName11 { get; set; }
-    public string BuildingName12 { get; set; }
+    public string? BuildingName1 { get; set; }
+    public string? BuildingName2 { get; set; }
+    public string? BuildingName3 { get; set; }
+    public string? BuildingName4 { get; set; }
+    public string? BuildingName5 { get; set; }
+    public byte[]? BuildingName6 { get; set; }
+    public byte[]? BuildingName7 { get; set; }
+    public byte[]? BuildingName8 { get; set; }
+    public byte[]? BuildingName9 { get; set; }
+    public byte[]? BuildingName10 { get; set; }
+    public string? BuildingName11 { get; set; }
+    public string? BuildingName12 { get; set; }
     public DateTime BuildingName13 { get; set; }
     public DateTime BuildingName14 { get; set; }
     public TimeSpan BuildingName15 { get; set; }
@@ -254,8 +254,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
   public class Country
   {
     [Key]
-    public string Code { get; set; }
-    public string Name { get; set; }
+    public string? Code { get; set; }
+    public string? Name { get; set; }
     public virtual Continent? Continent { get; set; }
     public string? Region { get; set; }
     public int IndepYear { get; set; }
@@ -263,11 +263,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
 
   public class Continent
   {
-    public string Code { get; set; }
+    public string? Code { get; set; }
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public virtual ICollection<Country> Countries { get; set; }
+    public virtual ICollection<Country>? Countries { get; set; }
   }
 
   public class Triangle
@@ -283,10 +283,10 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
 
   public class StringTypes
   {
-    public string TinyString { get; set; }
-    public string NormalString { get; set; }
-    public string MediumString { get; set; }
-    public string LongString { get; set; }
+    public string? TinyString { get; set; }
+    public string? NormalString { get; set; }
+    public string? MediumString { get; set; }
+    public string? LongString { get; set; }
   }
 
   public class MyTest
@@ -301,12 +301,12 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
   {
     [MySQLCharset("binary")]
     [MaxLength(255)]
-    public string TestCharsetDAId { get; set; }
+    public string? TestCharsetDAId { get; set; }
   }
 
   public class TestCharsetFA
   {
-    public string TestCharsetFAId { get; set; }
+    public string? TestCharsetFAId { get; set; }
   }
 
   [MySQLCollation("cp932_bin")]
@@ -314,11 +314,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
   {
     [MySQLCollation("greek_bin")]
     [MaxLength(255)]
-    public string TestCollationDAId { get; set; }
+    public string? TestCollationDAId { get; set; }
   }
 
   public class TestCollationFA
   {
-    public string TestCollationFAId { get; set; }
+    public string? TestCollationFAId { get; set; }
   }
 }

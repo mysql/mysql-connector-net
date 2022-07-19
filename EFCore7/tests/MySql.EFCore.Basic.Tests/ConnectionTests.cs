@@ -44,7 +44,7 @@ using System.Diagnostics;
 
 namespace MySql.EntityFrameworkCore.Basic.Tests
 {
-  public partial class ConnectionTests
+  public class ConnectionTests
   {
     private static MySQLRelationalConnection CreateConnection(DbContextOptions options)
     {
@@ -53,10 +53,10 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       return new MySQLRelationalConnection(dependencies);
     }
 
-    public static RelationalConnectionDependencies CreateDependencies(DbContextOptions options = null)
+    public static RelationalConnectionDependencies CreateDependencies(DbContextOptions? options = null)
     {
       options ??= new DbContextOptionsBuilder()
-          .UseMySQL(MySQLTestStore.baseConnectionString + "database=test;")
+          .UseMySQL(MySQLTestStore.BaseConnectionString + "database=test;")
           .Options;
 
       return new RelationalConnectionDependencies(
@@ -65,7 +65,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
               new LoggerFactory(),
               new LoggingOptions(),
               new DiagnosticListener("FakeDiagnosticListener"),
-              new MySQLLoggingDefinitions(), null),
+              new MySQLLoggingDefinitions(), new NullDbContextLogger()),
           new RelationalConnectionDiagnosticsLogger(
                         new LoggerFactory(),
                         new LoggingOptions(),
@@ -114,7 +114,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         using (var source = connection.CreateSourceConnection())
         {
           var csb = new MySqlConnectionStringBuilder(source.ConnectionString);
-          var csb1 = new MySqlConnectionStringBuilder(MySQLTestStore.baseConnectionString + "database=mysql");
+          var csb1 = new MySqlConnectionStringBuilder(MySQLTestStore.BaseConnectionString + "database=mysql");
           Assert.True(csb.Database == csb1.Database);
           Assert.True(csb.Port == csb1.Port);
           Assert.True(csb.Server == csb1.Server);
@@ -126,7 +126,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     public static DbContextOptions CreateOptions()
     {
       var optionsBuilder = new DbContextOptionsBuilder();
-      optionsBuilder.UseMySQL(MySQLTestStore.baseConnectionString + "database=test;");
+      optionsBuilder.UseMySQL(MySQLTestStore.BaseConnectionString + "database=test;");
       return optionsBuilder.Options;
     }
 

@@ -52,7 +52,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
     protected override bool ShouldLogCategory(string logCategory)
         => logCategory == DbLoggerCategory.Scaffolding.Name;
 
-    internal static DiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
+    internal static DiagnosticsLogger<DbLoggerCategory.Scaffolding>? _logger;
     internal IMySQLOptions options = new MySQLOptions();
 
     public DatabaseModel CreateModel(string dbName, string sql, IEnumerable<string> tables, IEnumerable<string> schemas, bool executeScript = false)
@@ -71,7 +71,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
                           new NullDbContextLogger(), null);
 
       return new MySQLDatabaseModelFactory(_logger, options).
-             Create(MySQLTestStore.rootConnectionString + ";database=" + dbName + ";",
+             Create(MySQLTestStore.RootConnectionString + ";database=" + dbName + ";",
              new DatabaseModelFactoryOptions(tables, schemas));
     }
   }

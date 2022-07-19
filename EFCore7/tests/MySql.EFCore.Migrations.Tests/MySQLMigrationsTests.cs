@@ -42,7 +42,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     {
       // create the context            
       var optionsBuilder = new DbContextOptionsBuilder();
-      optionsBuilder.UseMySQL(MySQLTestStore.rootConnectionString + "database=test;");
+      optionsBuilder.UseMySQL(MySQLTestStore.RootConnectionString + "database=test;");
 
       using (var mytestContext = new MyTestContext(optionsBuilder.Options))
       {

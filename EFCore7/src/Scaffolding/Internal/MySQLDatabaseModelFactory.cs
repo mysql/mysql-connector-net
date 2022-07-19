@@ -439,7 +439,7 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
                 Name = name!,
                 StoreType = columType,
                 IsNullable = nullable,
-                DefaultValueSql = CreateDefaultValueString(defaultValue, dataType),
+                DefaultValueSql = CreateDefaultValueString(defaultValue, dataType!),
                 ValueGenerated = valueGenerated,
                 Comment = string.IsNullOrEmpty(comment) ? null : comment
               };

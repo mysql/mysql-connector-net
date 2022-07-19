@@ -78,7 +78,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
       string name = $"db-{this.GetType().Name.ToLowerInvariant()}";
-      optionsBuilder.UseMySQL(MySQLTestStore.rootConnectionString + ";database=" + name + ";charset=latin1");
+      optionsBuilder.UseMySQL(MySQLTestStore.RootConnectionString + ";database=" + name + ";charset=latin1");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

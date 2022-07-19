@@ -27,20 +27,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore.Design;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-
-// In SDK-style projects such as this one, several assembly attributes that were historically
-// defined in this file are now automatically added during build and populated with
-// values defined in project properties. For details of which attributes are included
-// and how to customise this process see: https://aka.ms/assembly-info-properties
-
-[assembly: AssemblyTitle("MySql.EntityFrameworkCore for Entity Framework Core")]
-[assembly: AssemblyDescription("Entity Framework Core 7.0 supported")]
-[assembly: AssemblyCompany("Oracle")]
-[assembly: AssemblyProduct("MySql.EntityFrameworkCore")]
-[assembly: AssemblyCopyright("Copyright (c) 2022, Oracle and/or its affiliates.")]
 
 // Setting ComVisible to false makes the types in this assembly not visible to COM
 // components.  If you need to access a type in this assembly from COM, set the ComVisible

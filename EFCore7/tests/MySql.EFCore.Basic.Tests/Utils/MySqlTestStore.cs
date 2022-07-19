@@ -65,12 +65,13 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
     {
       get { return SslMode ? "sslmode=Required;" : string.Empty; }
     }
-    public static string baseConnectionString
+
+    public static string BaseConnectionString
     {
       get { return $"server=localhost;user id=root;password=;port={Port()};{SslString}pooling=false;defaultcommandtimeout=50;"; }
     }
 
-    public static string rootConnectionString
+    public static string RootConnectionString
     {
       get { return $"server=localhost;user id=root;password=;port={Port()};{SslString}pooling=false;defaultcommandtimeout=50;"; }
     }
@@ -84,16 +85,16 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
     internal static string GetContextConnectionString(Type type)
     {
       string name = $"db-{type.Name.ToLowerInvariant()}";
-      return MySQLTestStore.rootConnectionString + $";database={name};";
+      return MySQLTestStore.RootConnectionString + $";database={name};";
     }
 
     public static string Port()
     {
       var port = Environment.GetEnvironmentVariable("MYSQL_PORT");
-      return port == null ? "3306" : port;
+      return port ?? "3306";
     }
 
-    public static void CreateDatabase(string databaseName, bool deleteifExists = false, string script = null)
+    public static void CreateDatabase(string databaseName, bool deleteifExists = false, string? script = null)
     {
       if (script != null)
       {
@@ -102,7 +103,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
 
         script = script.Replace("[database0]", databaseName);
         //execute
-        using (var cnn = new MySqlConnection(rootConnectionString))
+        using (var cnn = new MySqlConnection(RootConnectionString))
         {
           cnn.Open();
           MySqlScript s = new MySqlScript(cnn, script);
@@ -111,7 +112,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
       }
       else
       {
-        using (var cnn = new MySqlConnection(rootConnectionString))
+        using (var cnn = new MySqlConnection(RootConnectionString))
         {
           cnn.Open();
           var cmd = new MySqlCommand(string.Format("Drop database {0}; Create Database {0};", databaseName), cnn);
@@ -122,7 +123,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
 
     public static void Execute(string sql)
     {
-      using (var cnn = new MySqlConnection(rootConnectionString))
+      using (var cnn = new MySqlConnection(RootConnectionString))
       {
         cnn.Open();
         var cmd = new MySqlCommand(sql, cnn);
@@ -132,7 +133,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
 
     public static void ExecuteScript(string sql)
     {
-      using (var cnn = new MySqlConnection(rootConnectionString))
+      using (var cnn = new MySqlConnection(RootConnectionString))
       {
         cnn.Open();
         var scr = new MySqlScript(cnn, sql);
@@ -142,7 +143,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
 
     public int ExecuteNonQuery(string sql, params object[] parameters)
     {
-      using (var cnn = new MySqlConnection(rootConnectionString))
+      using (var cnn = new MySqlConnection(RootConnectionString))
       {
         cnn.Open();
         var scr = new MySqlScript(cnn, sql);
@@ -151,13 +152,13 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
       }
     }
 
-    private static int ExecuteNonQuery(MySqlConnection connection, string sql, object[] parameters = null)
+    private static int ExecuteNonQuery(MySqlConnection connection, string sql, object[]? parameters = null)
         => Execute(connection, command => command.ExecuteNonQuery(), sql, false, parameters);
 
     private static T Execute<T>(
                 MySqlConnection connection, Func<MySqlCommand, T> execute, string sql,
-                bool useTransaction = false, object[] parameters = null)
-                => ExecuteCommand(connection, execute, sql, useTransaction, parameters);
+                bool useTransaction = false, object[]? parameters = null)
+                => ExecuteCommand(connection, execute, sql, useTransaction, parameters!);
 
     private static T ExecuteCommand<T>(
                 MySqlConnection connection, Func<MySqlCommand, T> execute, string sql, bool useTransaction, object[] parameters)
@@ -206,14 +207,14 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
       csb.Password = "";
       csb.Server = "localhost";
       csb.Pooling = false;
-      csb.SslMode = MySqlSslMode.None;
+      csb.SslMode = MySqlSslMode.Disabled;
 
       return csb.ConnectionString;
     }
 
     public static void DeleteDatabase(string name)
     {
-      using (var cnn = new MySqlConnection(rootConnectionString))
+      using (var cnn = new MySqlConnection(RootConnectionString))
       {
         cnn.Open();
         var cmd = new MySqlCommand(string.Format("DROP DATABASE IF EXISTS {0}", name), cnn);
@@ -237,7 +238,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
     : base(name, true)
     {
       SslMode = true;
-      Connection = new MySqlConnection(rootConnectionString);
+      Connection = new MySqlConnection(RootConnectionString);
     }
   }
 

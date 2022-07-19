@@ -29,6 +29,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.Extensions.DependencyInjection;
 using MySql.EntityFrameworkCore.Extensions;
 using MySql.EntityFrameworkCore.Metadata;
 using MySql.EntityFrameworkCore.Update;
@@ -264,7 +265,6 @@ namespace MySql.EntityFrameworkCore
     /// <param name="schema">The table schema, or <see langword="null" /> to use the default schema.</param>
     /// <param name="readOperations">The operations representing the data to be read.</param>
     /// <param name="conditionOperations">The operations used to generate the <c>WHERE</c> clause for the select.</param>
-    /// <param name="commandPosition">The ordinal of the command for which rows affected it being returned.</param>
     /// <returns>The <see cref="ResultSetMapping" /> for this command.</returns>
     private ResultSetMapping AppendSelectAffectedCommand(
       StringBuilder commandStringBuilder,

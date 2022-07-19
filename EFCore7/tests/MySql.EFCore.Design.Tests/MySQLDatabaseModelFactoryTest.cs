@@ -47,7 +47,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
 {
   public class MySQLDatabaseModelFactoryTest : MySQLDatabaseModelFixture
   {
-    private MySQLDatabaseModelFixture _fixture;
+    private MySQLDatabaseModelFixture? _fixture;
 
     [SetUp]
     public void Init()
@@ -75,7 +75,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
         USE blogman;
         CREATE TABLE blogs (id int);
         CREATE TABLE posts (id int);";
-      var dbModel = _fixture.CreateModel("blogman", sql, new List<string> { "blogs", "posts" }, null);
+      var dbModel = _fixture!.CreateModel("blogman", sql, new List<string> { "blogs", "posts" }, new List<string>());
 
       Assert.That(dbModel.Tables.Select(c => c.Name), Has.Exactly(1).Matches<string>(table => table.Contains("blogs")));
       Assert.That(dbModel.Tables.Select(c => c.Name), Has.Exactly(1).Matches<string>(table => table.Contains("posts")));
@@ -95,7 +95,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
             created timestamp DEFAULT now(),
             PRIMARY KEY (description, id)
         );";
-      var dbModel = _fixture.CreateModel("blogman", sql, new List<string> { "blogs" }, null);
+      var dbModel = _fixture!.CreateModel("blogman", sql, new List<string> { "blogs" }, new List<string>());
 
       var columns = dbModel.Tables.Single().Columns;
 
@@ -159,13 +159,13 @@ namespace MySql.EntityFrameworkCore.Design.Tests
         KEY idx_fk_country_id (country_id),
         CONSTRAINT `fk_city_country` FOREIGN KEY (country_id) REFERENCES country (country_id) ON DELETE RESTRICT ON UPDATE CASCADE
       );";
-      var dbModel = _fixture.CreateModel("sakiladb", sql, new List<string> { "city", "country" }, null);
+      var dbModel = _fixture!.CreateModel("sakiladb", sql, new List<string> { "city", "country" }, new List<string>());
 
       var fk = (dbModel.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
       Assert.IsNotNull(fk);
-      Assert.AreEqual("sakiladb", fk[0].Table.Database.DatabaseName);
+      Assert.AreEqual("sakiladb", fk[0].Table.Database!.DatabaseName);
       Assert.AreEqual("city", fk[0].Table.Name);
-      Assert.AreEqual("sakiladb", fk[0].PrincipalTable.Database.DatabaseName);
+      Assert.AreEqual("sakiladb", fk[0].PrincipalTable.Database!.DatabaseName);
       Assert.AreEqual("country", fk[0].PrincipalTable.Name);
       Assert.AreEqual("country_id", fk[0].GetColumn().Name);
       Assert.AreEqual("country_id", fk[0].GetPrincipalColumn().Name);
@@ -187,14 +187,14 @@ namespace MySql.EntityFrameworkCore.Design.Tests
                   PRIMARY KEY(actor_id),
                   KEY idx_actor_first_last_name(first_name, last_name))";
 
-      var dbModel = _fixture.CreateModel("sakilaIndex", sql, new List<string> { "actor" }, null);
+      var dbModel = _fixture!.CreateModel("sakilaIndex", sql, new List<string> { "actor" }, new List<string>());
 
       var indexes = dbModel.Tables.Single().Indexes;
 
       Assert.Multiple(() =>
       {
         var c = indexes[0];
-        Assert.AreEqual("sakilaIndex", c.Table.Database.DatabaseName);
+        Assert.AreEqual("sakilaIndex", c.Table!.Database!.DatabaseName);
         Assert.AreEqual("actor", c.Table.Name);
       });
 
@@ -220,12 +220,12 @@ namespace MySql.EntityFrameworkCore.Design.Tests
     public void CanCreateModelForWorldDB()
     {
       Assembly executingAssembly = typeof(MySQLDatabaseModelFixture).GetTypeInfo().Assembly;
-      Stream stream = executingAssembly.GetManifestResourceStream("MySql.EntityFrameworkCore.Design.Tests.Properties.world.sql");
+      Stream stream = executingAssembly.GetManifestResourceStream("MySql.EntityFrameworkCore.Design.Tests.Properties.world.sql")!;
       StreamReader sr = new StreamReader(stream);
       string sql = sr.ReadToEnd();
       sr.Dispose();
 
-      var dbModel = _fixture.CreateModel("world", sql, new List<string> { "city", "country", "countrylanguage" }, null, true);
+      var dbModel = _fixture!.CreateModel("world", sql, new List<string> { "city", "country", "countrylanguage" }, new List<string>(), true);
       var tables = dbModel.Tables.OrderBy(t => t.Name);
 
       Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("city"));
@@ -234,7 +234,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
     }
     private void Test(string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)
     {
-      _fixture.TestStore.ExecuteNonQuery(createSql);
+      _fixture!.TestStore.ExecuteNonQuery(createSql);
 
       try
       {
@@ -245,7 +245,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
                 new DiagnosticListener("Fake"),
                 new MySQLLoggingDefinitions(),
                 new NullDbContextLogger()),
-            null);
+            _fixture.options);
 
         var databaseModel = databaseModelFactory.Create(_fixture.TestStore.ConnectionString,
             new DatabaseModelFactoryOptions(tables, schemas));
@@ -270,15 +270,15 @@ namespace MySql.EntityFrameworkCore.Design.Tests
       }
 
       Assembly executingAssembly = typeof(MySQLDatabaseModelFixture).GetTypeInfo().Assembly;
-      Stream stream = executingAssembly.GetManifestResourceStream("MySql.EntityFrameworkCore.Design.Tests.Properties.sakiladb-schema.sql");
+      Stream stream = executingAssembly.GetManifestResourceStream("MySql.EntityFrameworkCore.Design.Tests.Properties.sakiladb-schema.sql")!;
       StreamReader sr = new StreamReader(stream);
       string sql = sr.ReadToEnd();
       sr.Dispose();
 
-      var dbModel = _fixture.CreateModel("sakiladb", sql, new List<string> { "actor", "address", "category",
+      var dbModel = _fixture!.CreateModel("sakiladb", sql, new List<string> { "actor", "address", "category",
                 "city", "country", "customer",
                 "film", "film_actor", "film_category", "film_text",
-                "inventory", "language", "payment", "rental", "staff", "store"}, null, true);
+                "inventory", "language", "payment", "rental", "staff", "store"}, new List<string>(), true);
       var tables = dbModel.Tables.OrderBy(t => t.Name);
 
       Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("actor"));
@@ -324,7 +324,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
                 create view b1 as select x1.a as a, x1.b1 as b1, y1.b1 as b2 from x1
                 join y1 using (a) ;";
 
-      var dbModel = _fixture.CreateModel("testview", sql, new List<string> { "t1", "t2" }, null);
+      var dbModel = _fixture!.CreateModel("testview", sql, new List<string> { "t1", "t2" }, new List<string>());
       var tables = dbModel.Tables.OrderBy(t => t.Name);
 
       Assert.That(tables.Select(a => a.Name), Has.One.Items.EqualTo("t1"));
@@ -343,7 +343,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
 
       var selectionSet = new List<string> { "t1", "x1" };
 
-      var dbModel = _fixture.CreateModel("testview", sql, selectionSet, null);
+      var dbModel = _fixture!.CreateModel("testview", sql, selectionSet, new List<string>());
       Assert.True(dbModel.Tables.Count == 2);
     }
   }

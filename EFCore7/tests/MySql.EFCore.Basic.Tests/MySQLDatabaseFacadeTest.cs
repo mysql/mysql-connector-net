@@ -80,7 +80,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
                 () =>
                 {
                   var _ = context.Model; // Trigger context initialization
-                }).Message);
+                })!.Message);
       }
     }
 
@@ -136,7 +136,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
                 () =>
                 {
                   var _ = context.Model; // Trigger context initialization
-                }).Message);
+                })!.Message);
       }
     }
 

@@ -74,7 +74,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       using (var context = new WorldContext())
       {
         var continent = await context.FindAsync<Continent>("AS");
-        Assert.AreEqual("Asia", continent.Name);
+        Assert.AreEqual("Asia", continent!.Name);
 
         var continents = await context.Continents.ToListAsync();
         Assert.AreEqual(4, continents.Count);

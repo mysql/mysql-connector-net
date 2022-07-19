@@ -39,14 +39,6 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 {
   public class EFCoreTests : SakilaLiteFixture
   {
-    private SakilaLiteFixture fixture;
-
-    [SetUp]
-    public void Init()
-    {
-      this.fixture = new SakilaLiteFixture();
-    }
-
     // Explicitly compiled query
     private static Func<SakilaLiteContext, int, Customer> _customerById =
       EF.CompileQuery((SakilaLiteContext context, int id) =>

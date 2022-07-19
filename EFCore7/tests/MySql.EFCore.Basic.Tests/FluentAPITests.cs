@@ -75,7 +75,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Employees.Add(e);
         context.SaveChanges();
         var employeeComputedColumn = context.Employees.FirstOrDefault();
-        Assert.True(employeeComputedColumn.DisplayName.Equals("Stuart Jos"), "Wrong computed column");
+        Assert.True(employeeComputedColumn!.DisplayName!.Equals("Stuart Jos"), "Wrong computed column");
         context.Database.EnsureDeleted();
       }
     }
@@ -100,7 +100,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           context.QuickEntity.Add(e);
           context.SaveChanges();
           var row = context.QuickEntity.FirstOrDefault();
-          Assert.AreEqual(dt, row.Created);
+          Assert.AreEqual(dt, row!.Created);
         }
         finally
         {
@@ -129,7 +129,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           context.QuickEntity.Add(e);
           context.SaveChanges();
           var result = await context.QuickEntity.FirstOrDefaultAsync();
-          Assert.AreEqual(dt, result.Created);
+          Assert.AreEqual(dt, result!.Created);
         }
         catch (Exception)
         {
@@ -156,7 +156,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       using (var context = serviceProvider.GetRequiredService<KeyConventionsContext>())
       {
         context.Database.EnsureCreated();
-        using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
+        using (var cnn = new MySqlConnection(MySQLTestStore.BaseConnectionString))
         {
           cnn.Open();
           var cmd = new MySqlCommand("SELECT DISTINCT table_name, index_name FROM INFORMATION_SCHEMA.STATISTICS where table_name like 'cars' and index_name not like 'PRIMARY' ", cnn);
@@ -181,7 +181,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       using (var context = serviceProvider.GetRequiredService<TableConventionsContext>())
       {
         context.Database.EnsureCreated();
-        using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
+        using (var cnn = new MySqlConnection(MySQLTestStore.BaseConnectionString))
         {
           cnn.Open();
           var cmd = new MySqlCommand("SELECT table_name FROM INFORMATION_SCHEMA.STATISTICS where table_name like 'somecars' ", cnn);
@@ -208,7 +208,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       using (var context = serviceProvider.GetRequiredService<ConcurrencyTestsContext>())
       {
         context.Database.EnsureCreated();
-        using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString))
+        using (var cnn = new MySqlConnection(MySQLTestStore.BaseConnectionString))
         {
           cnn.Open();
           var cmd = new MySqlCommand("SELECT table_name FROM INFORMATION_SCHEMA.STATISTICS where table_schema like 'somecars' ", cnn);
@@ -245,7 +245,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Employees.Add(e);
         context.SaveChanges();
         var employeeComputedColumn = context.Employees.SingleOrDefault();
-        Assert.True(employeeComputedColumn.DisplayName.Equals("Stuart Jos"), "Wrong computed column");
+        Assert.True(employeeComputedColumn!.DisplayName!.Equals("Stuart Jos"), "Wrong computed column");
         context.Database.EnsureDeleted();
       }
     }
@@ -271,7 +271,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
         context.Employees.Add(e);
         context.SaveChanges();
-        var result = context.Employees.Where(t => t.FirstName.Contains("jo")).ToList();
+        var result = context.Employees.Where(t => t.FirstName!.Contains("jo")).ToList();
         Assert.That(result, Has.One.Items);
         context.Database.EnsureDeleted();
       }
@@ -299,7 +299,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Employees.Add(e);
         context.SaveChanges();
         var test = "jo";
-        var result = context.Employees.Where(t => t.FirstName.Contains(test)).ToList();
+        var result = context.Employees.Where(t => t.FirstName!.Contains(test)).ToList();
         Assert.That(result, Has.One.Items);
         context.Database.EnsureDeleted();
       }
@@ -326,9 +326,9 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var e = new Employee { FirstName = "Jos", LastName = "Stuart" };
         context.Employees.Add(e);
         context.SaveChanges();
-        var result = context.Employees.Where(t => t.FirstName.Contains("XXXXXXXX$%^&*()!")).ToList();
+        var result = context.Employees.Where(t => t.FirstName!.Contains("XXXXXXXX$%^&*()!")).ToList();
         Assert.IsEmpty(result);
-        result = context.Employees.Where(t => t.FirstName.Contains(null)).ToList();
+        result = context.Employees.Where(t => t.FirstName!.Contains("null")).ToList();
         Assert.IsEmpty(result);
         context.Database.EnsureDeleted();
       }
@@ -357,7 +357,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Employees.Add(e);
         context.SaveChanges();
         var avalue = "jo";
-        var result = context.Employees.Where(t => t.FirstName.Contains(avalue)).ToList();
+        var result = context.Employees.Where(t => t.FirstName!.Contains(avalue)).ToList();
         Assert.That(result, Has.One.Items);
         context.Database.EnsureDeleted();
       }

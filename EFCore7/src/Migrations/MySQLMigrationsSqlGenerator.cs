@@ -78,7 +78,7 @@ namespace MySql.EntityFrameworkCore.Migrations
       if (operation is MySQLCreateDatabaseOperation)
         Generate((MySQLCreateDatabaseOperation)operation, model, builder);
       else if (operation is MySQLDropDatabaseOperation)
-        Generate((MySQLDropDatabaseOperation)operation, model, builder);
+        Generate((MySQLDropDatabaseOperation)operation, model!, builder);
       else
         base.Generate(operation, model, builder);
     }
@@ -398,6 +398,7 @@ namespace MySql.EntityFrameworkCore.Migrations
     /// <param name="defaultValue"> The default value for the column. </param>
     /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
     /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+    /// <param name="columnType"> Store/database type of the column. </param>
     protected override void DefaultValue(object? defaultValue, string? defaultValueSql, string? columnType, MigrationCommandListBuilder builder)
     {
       Check.NotNull(builder, nameof(builder));

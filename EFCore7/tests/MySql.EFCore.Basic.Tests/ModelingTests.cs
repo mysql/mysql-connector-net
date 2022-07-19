@@ -101,7 +101,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         Assert.That(films.Where(a => a.FilmId == 2), Has.One.Items);
         Assert.That(films.Select(c => c.Title), Has.Exactly(1).Matches<string>(Title => Title.Contains("ACADEMY DINOSAUR")));
         Assert.That(films.Select(c => c.Title), Has.Exactly(1).Matches<string>(Title => Title.Contains("ACE GOLDFINGER")));
-        Assert.That(films.Where(a => a.Details.Film.Details.ReleaseYear == 2006), Has.Exactly(2).Items);
+        Assert.That(films.Where(a => a.Details!.Film!.Details!.ReleaseYear == 2006), Has.Exactly(2).Items);
       }
     }
 
@@ -122,7 +122,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     {
       using (SakilaLiteContext context = new SakilaLiteContext())
       {
-        var query = context.Actor.Where(c => EF.Functions.Like(c.LastName, "A%")).ToList();
+        var query = context.Actor.Where(c => EF.Functions.Like(c.LastName!, "A%")).ToList();
         Assert.IsNotEmpty(query);
         foreach (Actor actor in query)
         {
@@ -153,12 +153,12 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
             LastUpdate = DateTime.Parse("2014-09-25 22:30:27")
           };
 
-          context.Customer.Find((short)1).Address = address;
+          context.Customer.Find((short)1)!.Address = address;
           context.SaveChanges();
 
-          var customer = context.Customer.Where(p => p.Address.AddressId == 1).First();
+          var customer = context.Customer.Where(p => p.Address!.AddressId == 1).First();
           Assert.AreEqual(1, customer.CustomerId);
-          Assert.AreEqual("47 MySakila Drive", customer.Address.Address);
+          Assert.AreEqual("47 MySakila Drive", customer.Address!.Address);
         }
         finally
         {

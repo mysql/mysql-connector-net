@@ -1,6 +1,8 @@
 <Project>
 
   <PropertyGroup>
+    <Product>MySQL Entity Framework Core</Product>
+    <Copyright>Copyright (c) 2022, Oracle and/or its affiliates.</Copyright>
     <Version>7.0.0-preview5+MySQL8.0.31</Version>
     <Authors>Oracle</Authors>
     <PackageTags>MySql;.NET Connector;MySql Entity Framework Core;netcore;.Net Core;MySql Conector/Net Entity Framework Core;coreclr;C/NET;C/Net Core</PackageTags>
@@ -8,15 +10,6 @@
     <PackageProjectUrl>https://dev.mysql.com/downloads/</PackageProjectUrl>
     <PackageLicenseUrl>https://downloads.mysql.com/docs/licenses/connector-net-8.0-gpl-en.pdf</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <SignAssembly>True</SignAssembly>
-    <DelaySign>True</DelaySign>
-    <Nullable>enable</Nullable>
     <LangVersion>10.0</LangVersion>
     <NoWarn>$(NoWarn);EF1001</NoWarn>
   </PropertyGroup>

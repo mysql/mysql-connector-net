@@ -38,7 +38,9 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       : base(
         (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
         v => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
+#pragma warning disable CS8603 // Possible null reference return.
         v => v == null ? null : v.ToArray())
+#pragma warning restore CS8603 // Possible null reference return.
     {
     }
   }

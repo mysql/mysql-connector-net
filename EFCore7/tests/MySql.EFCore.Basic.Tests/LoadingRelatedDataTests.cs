@@ -120,7 +120,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       var list
             = context.Set<Address>()
             .OrderByDescending(a => a.City)
-            .Select(a => new { Id = a.IdAddress, City = SetCity(a.City) })
+            .Select(a => new { Id = a.IdAddress, City = SetCity(a.City!) })
             .ToList();
 
       Assert.AreEqual(3, list.Count);
@@ -161,7 +161,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     {
       var address = context.Set<Address>().Find(1);
       Assert.NotNull(address);
-      Assert.AreEqual("Michigan", address.City);
+      Assert.AreEqual("Michigan", address!.City);
     }
 
 
@@ -279,9 +279,9 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var america = context.Continents.Single(c => c.Code == "AM");
         Assert.Null(america.Countries);
         context.Entry(america)
-          .Collection(c => c.Countries)
+          .Collection(c => c.Countries!)
           .Load();
-        Assert.AreEqual(5, america.Countries.Count);
+        Assert.AreEqual(5, america.Countries!.Count);
         Assert.AreEqual("United States", america.Countries.Single(c => c.Code == "US").Name);
       }
     }
@@ -295,9 +295,9 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var asia = context.Continents.Single(c => c.Code == "AS");
         Assert.Null(asia.Countries);
         var list = context.Entry(asia)
-          .Collection(c => c.Countries)
+          .Collection(c => c.Countries!)
           .Query()
-          .Where(c => c.Name.Contains("i"))
+          .Where(c => c.Name!.Contains("i"))
           .ToList();
       }
     }

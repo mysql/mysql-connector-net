@@ -2,11 +2,13 @@
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Migrations.Tests Class Library</Description>
-    <Copyright>Copyright (c) 2022, Oracle and/or its affiliates.</Copyright>
     <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>MySql.EntityFrameworkCore.Migrations.Tests</AssemblyName>
     <PackageId>MySql.EntityFrameworkCore.Migrations.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>True</DelaySign>
+    <Nullable>enable</Nullable>
     <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
     <NoWarn>$(NoWarn);CS1591,EF1001</NoWarn>
   </PropertyGroup>

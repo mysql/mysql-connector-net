@@ -458,19 +458,19 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
   public partial class Actor
   {
     public short ActorId { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public DateTime LastUpdate { get; set; }
 
-    public List<FilmActor> FilmActors { get; set; }
+    public List<FilmActor>? FilmActors { get; set; }
   }
 
   public partial class Film
   {
     public short FilmId { get; set; }
-    public string Title { get; set; }
-    public string Description { get; set; }
+    public string? Title { get; set; }
+    public string? Description { get; set; }
     public short? ReleaseYear { get; set; }
     public byte LanguageId { get; set; }
     public byte? OriginalLanguageId { get; set; }
@@ -478,20 +478,20 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
     public decimal RentalRate { get; set; }
     public short? Length { get; set; }
     public decimal ReplacementCost { get; set; }
-    public string Rating { get; set; }
-    public string SpecialFeatures { get; set; }
+    public string? Rating { get; set; }
+    public string? SpecialFeatures { get; set; }
     public DateTime LastUpdate { get; set; }
 
-    public List<FilmActor> FilmActors { get; set; }
+    public List<FilmActor>? FilmActors { get; set; }
   }
 
   public partial class FilmActor
   {
     public short ActorId { get; set; }
-    public Actor Actor { get; set; }
+    public Actor? Actor { get; set; }
 
     public short FilmId { get; set; }
-    public Film Film { get; set; }
+    public Film? Film { get; set; }
 
     public DateTime LastUpdate { get; set; }
   }
@@ -500,26 +500,26 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
   {
     public short CustomerId { get; set; }
     public byte StoreId { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string Email { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Email { get; set; }
     public short AddressId { get; set; }
     public bool Active { get; set; }
     public DateTime CreateDate { get; set; }
     public DateTime LastUpdate { get; set; }
 
-    public virtual SakilaAddress Address { get; set; }
+    public virtual SakilaAddress? Address { get; set; }
   }
 
   public partial class SakilaAddress
   {
     public short AddressId { get; set; }
-    public string Address { get; set; }
+    public string? Address { get; set; }
     public string? Address2 { get; set; }
-    public string District { get; set; }
+    public string? District { get; set; }
     public short CityId { get; set; }
-    public string PostalCode { get; set; }
-    public string Phone { get; set; }
+    public string? PostalCode { get; set; }
+    public string? Phone { get; set; }
     public DateTime LastUpdate { get; set; }
   }
 
@@ -527,10 +527,10 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
   {
     [Key]
     public short FilmId { get; set; }
-    public string Title { get; set; }
-    public string Description { get; set; }
+    public string? Title { get; set; }
+    public string? Description { get; set; }
 
-    public FilmDetails Details { get; set; }
+    public FilmDetails? Details { get; set; }
   }
 
   public class FilmDetails
@@ -545,17 +545,17 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
     public decimal RentalRate { get; set; }
     public short? Length { get; set; }
     public decimal ReplacementCost { get; set; }
-    public string Rating { get; set; }
-    public string SpecialFeatures { get; set; }
+    public string? Rating { get; set; }
+    public string? SpecialFeatures { get; set; }
     public DateTime LastUpdate { get; set; }
 
-    public FilmLite Film { get; set; }
+    public FilmLite? Film { get; set; }
   }
 
   public class ActorTest
   {
-    public string Value { get; set; }
-    public string Text { get; set; }
+    public string? Value { get; set; }
+    public string? Text { get; set; }
     public int Number { get; set; }
   }
 

@@ -115,11 +115,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         Assert.AreEqual("BuildingName3", data.BuildingName3);
         Assert.AreEqual("BuildingName4", data.BuildingName4);
         Assert.AreEqual("BuildingName5", data.BuildingName5);
-        Assert.AreEqual("BuildingName6".PadRight(120, '\0'), UTF8Encoding.UTF8.GetString(data.BuildingName6));
-        Assert.AreEqual("BuildingName7", UTF8Encoding.UTF8.GetString(data.BuildingName7));
-        Assert.AreEqual("BuildingName8", UTF8Encoding.UTF8.GetString(data.BuildingName8));
-        Assert.AreEqual("BuildingName9", UTF8Encoding.UTF8.GetString(data.BuildingName9));
-        Assert.AreEqual("BuildingName10", UTF8Encoding.UTF8.GetString(data.BuildingName10));
+        Assert.AreEqual("BuildingName6".PadRight(120, '\0'), UTF8Encoding.UTF8.GetString(data.BuildingName6!));
+        Assert.AreEqual("BuildingName7", UTF8Encoding.UTF8.GetString(data.BuildingName7!));
+        Assert.AreEqual("BuildingName8", UTF8Encoding.UTF8.GetString(data.BuildingName8!));
+        Assert.AreEqual("BuildingName9", UTF8Encoding.UTF8.GetString(data.BuildingName9!));
+        Assert.AreEqual("BuildingName10", UTF8Encoding.UTF8.GetString(data.BuildingName10!));
         Assert.AreEqual("small", data.BuildingName11);
         Assert.AreEqual("small,medium,large", data.BuildingName12);
         Assert.AreEqual(now.Date, data.BuildingName13);

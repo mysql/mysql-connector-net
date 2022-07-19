@@ -2,11 +2,13 @@
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Basic.Tests Class Library</Description>
-    <Copyright>Copyright (c) 2022, Oracle and/or its affiliates.</Copyright>
     <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>MySql.EntityFrameworkCore.Basic.Tests</AssemblyName>
     <PackageId>MySql.EntityFrameworkCore.Basic.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>True</DelaySign>
+    <Nullable>enable</Nullable>
     <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
     <NoWarn>CS1591,CS1701,CS1702,EF1001</NoWarn>
   </PropertyGroup>

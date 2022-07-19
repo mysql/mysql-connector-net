@@ -41,7 +41,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
   public abstract class MySQLMigrationsGeneratorTestBase
   {
     protected abstract IMigrationsSqlGenerator SqlGenerator { get; }
-    protected virtual string Sql { get; set; }
+    protected virtual string? Sql { get; set; }
     protected static string EOL => Environment.NewLine;
 
     [Test]

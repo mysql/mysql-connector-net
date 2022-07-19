@@ -113,7 +113,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
 
     protected override IReadOnlyList<MigrationCommand> GenerateDownSql(
       Migration migration,
-      Migration previousMigration,
+      Migration? previousMigration,
       MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
     {
       var commands = base.GenerateDownSql(migration, previousMigration, options);

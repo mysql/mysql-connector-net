@@ -78,7 +78,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 
       using (var context = serviceProvider.GetRequiredService<NoConfigurationContext>())
       {
-        Assert.AreEqual(CoreStrings.NoProviderConfigured, Assert.Throws<InvalidOperationException>(() => context.Blogs.Any()).Message);
+        Assert.AreEqual(CoreStrings.NoProviderConfigured, Assert.Throws<InvalidOperationException>(() => context.Blogs.Any())!.Message);
       }
     }
 
@@ -96,7 +96,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       {
         context.Database.EnsureCreated();
         var dbname = context.Database.GetDbConnection().Database;
-        using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString + string.Format(";database={0}", context.Database.GetDbConnection().Database)))
+        using (var cnn = new MySqlConnection(MySQLTestStore.BaseConnectionString + string.Format(";database={0}", context.Database.GetDbConnection().Database)))
         {
           cnn.Open();
           var cmd = new MySqlCommand(string.Format("SHOW DATABASES LIKE '{0}'", context.Database.GetDbConnection().Database), cnn);
@@ -123,7 +123,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       using (var context = serviceProvider.GetRequiredService<TestsContext>())
       {
         context.Database.EnsureCreated();
-        using (var cnn = new MySqlConnection(MySQLTestStore.baseConnectionString + string.Format(";database={0}", context.Database.GetDbConnection().Database)))
+        using (var cnn = new MySqlConnection(MySQLTestStore.BaseConnectionString + string.Format(";database={0}", context.Database.GetDbConnection().Database)))
         {
           var dbname = context.Database.GetDbConnection().Database;
           cnn.Open();

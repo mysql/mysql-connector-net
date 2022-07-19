@@ -43,7 +43,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
       get
       {
         var optionsBuilder = new DbContextOptionsBuilder();
-        optionsBuilder.UseMySQL(MySQLTestStore.rootConnectionString + "database=test;");
+        optionsBuilder.UseMySQL(MySQLTestStore.RootConnectionString + "database=test;");
 
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddEntityFrameworkMySQL()

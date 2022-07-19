@@ -88,7 +88,7 @@ namespace MySql.EntityFrameworkCore.Utils
     [ContractAnnotation("value:null => halt")]
     public static string NotEmpty(string value, [InvokerParameterName][NotNull] string parameterName)
     {
-      Exception e = null;
+      Exception? e = null;
       if (value is null)
       {
         e = new ArgumentNullException(parameterName);
