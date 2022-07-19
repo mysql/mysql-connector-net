@@ -2,60 +2,25 @@
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Basic.Tests Class Library</Description>
-    <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates.</Copyright>
-    <Version>3.1.24+MySQL8.0.30</Version>
-    <Authors>Oracle</Authors>
     <TargetFrameworks>netcoreapp3.1;</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Basic.Tests</AssemblyName>
     <PackageId>MySql.EntityFrameworkCore.Basic.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core;EF;Entity Framework</PackageTags>
-    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
-    <PackageProjectUrl>http://dev.mysql.com/downloads/</PackageProjectUrl>
-    <PackageLicenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.html</PackageLicenseUrl>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
     <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>  
     <NoWarn>CS1591,CS1701,CS1702,EF1001</NoWarn>  
-    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Logging\**" />
-    <EmbeddedResource Remove="Logging\**" />
-    <None Remove="Logging\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Specification.Tests" Version="3.1.24" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Specification.Tests" Version="3.1.27" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.24" />
   </ItemGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <PreserveCompilationContext>true</PreserveCompilationContext>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\..\..\MySQL.Data\src\MySql.Data.csproj" />   
     <ProjectReference Include="..\..\src\MySql.EntityFrameworkCore.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
 </Project>

@@ -1,47 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>MySql.EntityFrameworkCore for Entity Framework.</Description>
-    <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates.</Copyright>
-    <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>3.1.24+MySQL8.0.30</Version>
-    <Authors>Oracle</Authors>
+    <Description>MySQL Server database provider for Entity Framework Core.</Description>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
-    <DelaySign>true</DelaySign>
     <AssemblyName>MySql.EntityFrameworkCore</AssemblyName>
     <PackageId>MySql.EntityFrameworkCore</PackageId>
-    <PackageTags>MySql;.NET Connector;MySql Entity Framework Core;netcore;.Net Core;MySql Conector/Net Entity Framework Core;coreclr;C/NET;C/Net Core</PackageTags>
-    <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
-    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
-    <PackageProjectUrl>https://dev.mysql.com/downloads/</PackageProjectUrl>
-    <PackageLicenseUrl>https://downloads.mysql.com/docs/licenses/connector-net-8.0-gpl-en.pdf</PackageLicenseUrl>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <Nullable>enable</Nullable>
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
     <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
-    <LangVersion>8.0</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- PrivateAssets="none" is set to flow the EF Core analyzer to users referencing this package https://github.com/aspnet/EntityFrameworkCore/pull/11350 -->
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.24" PrivateAssets="none" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.24" PrivateAssets="none" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Content\ReleaseNotes.txt">
-      <Pack>true</Pack>
-    </None>
-    <None Update="..\..\README">
-      <Pack>true</Pack>
-    </None>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.27" PrivateAssets="none" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.27" PrivateAssets="none" />
   </ItemGroup>
 
   <ItemGroup>
@@ -62,13 +36,5 @@
       <LastGenOutput>MySQLStrings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <PreserveCompilationContext>true</PreserveCompilationContext>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
 
 </Project>

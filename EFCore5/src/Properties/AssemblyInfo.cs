@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,19 +30,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.Design;
-
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-
-[assembly: AssemblyTitle("MySql.EntityFrameworkCore for Entity Framework Core")]
-[assembly: AssemblyDescription("Entity Framework Core 5.0 supported")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Oracle")]
-[assembly: AssemblyProduct("MySql.EntityFrameworkCore")]
-[assembly: AssemblyCopyright("Copyright © 2020, Oracle and/or its affiliates. All rights reserved.")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

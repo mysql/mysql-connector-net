@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <Description>MySQL Server database provider for Entity Framework Core.</Description>
-    <TargetFrameworks>net6.0;</TargetFrameworks>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <TargetFrameworks>net6.0;</TargetFrameworks>    
     <AssemblyName>MySql.EntityFrameworkCore</AssemblyName>
     <PackageId>MySql.EntityFrameworkCore</PackageId>
     <Nullable>enable</Nullable>
@@ -11,6 +10,7 @@
     <DelaySign>True</DelaySign>
     <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

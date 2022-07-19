@@ -2,29 +2,14 @@
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Migrations.Tests Class Library</Description>
-    <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates.</Copyright>
-    <Version>6.0.4+MySQL8.0.30</Version>
-    <Authors>Oracle</Authors>
     <TargetFrameworks>net6.0;</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Migrations.Tests</AssemblyName>
     <PackageId>MySql.EntityFrameworkCore.Migrations.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core;EF;Entity Framework</PackageTags>
-    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
-    <PackageProjectUrl>http://dev.mysql.com/downloads/</PackageProjectUrl>
-    <PackageLicenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.html</PackageLicenseUrl>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
     <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
     <NoWarn>$(NoWarn);CS1591,EF1001</NoWarn>
-    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,18 +18,8 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
   </ItemGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <PreserveCompilationContext>true</PreserveCompilationContext>
-  </PropertyGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\..\..\MySQL.Data\src\MySql.Data.csproj" />
-    <ProjectReference Include="..\..\src\MySql.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\MySql.EFCore.Basic.Tests\MySql.EntityFrameworkCore.Basic.Tests.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
 </Project>

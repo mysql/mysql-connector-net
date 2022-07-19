@@ -1,11 +1,11 @@
-﻿<Project>
+<Project>
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
 
   <PropertyGroup>
     <Description>MySql.Data.MySqlClient .Net Core Class Library</Description>
     <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.30</Version>
+    <Version>8.0.31</Version>
     <Authors>Oracle</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
     <TargetFrameworks>net452;net48;netstandard2.0;netstandard2.1;net5.0;net6.0;net7.0;</TargetFrameworks>
@@ -77,8 +77,7 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='netstandard2.1' or 
-             '$(TargetFramework)'=='net5.0' or '$(TargetFramework)'=='net6.0' or '$(TargetFramework)'=='net7.0'">
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='netstandard2.1' or               '$(TargetFramework)'=='net5.0' or '$(TargetFramework)'=='net6.0' or '$(TargetFramework)'=='net7.0'">
     <Compile Remove="Framework/net452/*" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.1" />
     <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
@@ -132,9 +131,9 @@
   </ItemGroup>
 
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
-  <PropertyGroup>
+  <!--<PropertyGroup>
     <PostBuildEvent Condition="'$(OS)' == 'Windows_NT' ">$(ProjectDir)Properties\metadata.sh $(ConfigurationName) $(Version)</PostBuildEvent>
     <PostBuildEvent Condition="'$(OS)' != 'Windows_NT' ">bash $(ProjectDir)Properties/metadata.sh $(ConfigurationName) $(Version)</PostBuildEvent>
-  </PropertyGroup>
+  </PropertyGroup>-->
 
 </Project>

@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Title>MySql.Data.Tests</Title>
     <Description>MySql.Data.Tests Class Library</Description>
     <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates. All rights reserved.</Copyright>
-    <Version>8.0.30</Version>
+    <Version>8.0.31</Version>
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
@@ -28,8 +28,7 @@
     <NoWarn>CS1591,CS1587,CS1701,CS1702,CS1570,CA2100</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1' or '$(TargetFramework)'=='net5.0' 
-             or '$(TargetFramework)'=='net6.0' or '$(TargetFramework)'=='net7.0'">
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1' or '$(TargetFramework)'=='net5.0' or '$(TargetFramework)'=='net6.0' or '$(TargetFramework)'=='net7.0'">
     <Compile Remove="Framework\netstandard2_0\PartialTrustSandbox.cs" />
     <Compile Remove="Framework\netstandard2_0\CmdTestsPipe.cs;Framework\netstandard2_0\CmdTestsPipeCompressed.cs;Framework\netstandard2_0\CmdTestsSharedmemCompressed.cs;Framework\netstandard2_0\CmdTestsSharedMem.cs;" />
     <Compile Remove="Framework\netstandard2_0\PSPipeCompressed.cs;Framework\netstandard2_0\PSPipe.cs;Framework\netstandard2_0\PSSharedMemory.cs;Framework\netstandard2_0\PSSharedMemoryCompressed.cs;" />
