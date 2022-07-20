@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -102,6 +103,7 @@ namespace MySql.EntityFrameworkCore.Extensions
         .TryAdd<IRelationalParameterBasedSqlProcessorFactory, MySQLParameterBasedSqlProcessorFactory>()
         .TryAdd<IQueryTranslationPostprocessorFactory, MySQLQueryTranslationPostprocessorFactory>()
         .TryAdd<IMigrationsModelDiffer, MySQLMigrationsModelDiffer>()
+        .TryAdd<IMigrator, MySqlMigrator>()
         .TryAddProviderSpecificServices(m => m
             .TryAddSingleton<IMySQLOptions, MySQLOptions>()
             .TryAddScoped<IMySQLRelationalConnection, MySQLRelationalConnection>()

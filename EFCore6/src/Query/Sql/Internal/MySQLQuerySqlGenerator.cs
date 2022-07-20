@@ -135,7 +135,7 @@ namespace MySql.EntityFrameworkCore.Query
 
     private SqlUnaryExpression VisitConvert(SqlUnaryExpression sqlUnaryExpression)
     {
-      var castMapping = GetCastStoreType(sqlUnaryExpression.TypeMapping);
+      var castMapping = GetCastStoreType(sqlUnaryExpression.TypeMapping!);
 
       if (castMapping == "binary")
       {
@@ -147,7 +147,7 @@ namespace MySql.EntityFrameworkCore.Query
 
       var sameInnerCastStoreType = sqlUnaryExpression.Operand is SqlUnaryExpression operandUnary &&
                                    operandUnary.OperatorType == ExpressionType.Convert &&
-                                   castMapping.Equals(GetCastStoreType(operandUnary.TypeMapping), StringComparison.OrdinalIgnoreCase);
+                                   castMapping.Equals(GetCastStoreType(operandUnary.TypeMapping!), StringComparison.OrdinalIgnoreCase);
 
       Visit(sqlUnaryExpression.Operand);
 
@@ -274,6 +274,38 @@ namespace MySql.EntityFrameworkCore.Query
       Sql.Append($" USING {mySqlCollateExpression.Charset}) COLLATE {mySqlCollateExpression.Collation}");
 
       return mySqlCollateExpression;
+    }
+
+    protected override Expression VisitCrossApply(CrossApplyExpression crossApplyExpression)
+    {
+      Sql.Append("JOIN ");
+
+      if (crossApplyExpression.Table is not TableExpression)
+      {
+        Sql.Append("LATERAL ");
+      }
+
+      Visit(crossApplyExpression.Table);
+
+      Sql.Append(" ON TRUE");
+
+      return crossApplyExpression;
+    }
+
+    protected override Expression VisitOuterApply(OuterApplyExpression outerApplyExpression)
+    {
+      Sql.Append("LEFT JOIN ");
+
+      if (outerApplyExpression.Table is not TableExpression)
+      {
+        Sql.Append("LATERAL ");
+      }
+
+      Visit(outerApplyExpression.Table);
+
+      Sql.Append(" ON TRUE");
+
+      return outerApplyExpression;
     }
   }
 }

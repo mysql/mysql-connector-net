@@ -102,6 +102,8 @@ namespace MySql.EntityFrameworkCore.Extensions
       .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, MySQLSqlTranslatingExpressionVisitorFactory>()
       .TryAdd<IRelationalParameterBasedSqlProcessorFactory, MySQLParameterBasedSqlProcessorFactory>()
       .TryAdd<IQueryTranslationPostprocessorFactory, MySQLQueryTranslationPostprocessorFactory>()
+      .TryAdd<IMigrationsModelDiffer, MySQLMigrationsModelDiffer>()
+      .TryAdd<IMigrator, MySQLMigrator>()
       .TryAddProviderSpecificServices(m => m
         .TryAddSingleton<IMySQLOptions, MySQLOptions>()
         .TryAddScoped<IMySQLRelationalConnection, MySQLRelationalConnection>()

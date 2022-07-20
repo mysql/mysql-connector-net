@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,22 +27,27 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using MySql.Data.MySqlClient;
+using MySql.EntityFrameworkCore.Infrastructure.Internal;
+using System;
 using System.Data.Common;
 using System.Reflection;
+using System.Transactions;
 
 namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   internal class MySQLRelationalConnection : RelationalConnection, IMySQLRelationalConnection
   {
+    private readonly MySQLOptionsExtension _mySqlOptionsExtension;
+
     public MySQLRelationalConnection([NotNull] RelationalConnectionDependencies dependencies)
       : base(dependencies)
     {
+      _mySqlOptionsExtension = Dependencies.ContextOptions.FindExtension<MySQLOptionsExtension>() ?? new MySQLOptionsExtension();
     }
 
-    private MySQLRelationalConnection CreateConnection(IDbContextOptions options) => new MySQLRelationalConnection(Dependencies with { ContextOptions = options });
+    protected override DbConnection CreateDbConnection() => new MySqlConnection(ConnectionString);
 
     private string? _cnnStr
     {
@@ -58,8 +63,6 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       }
     }
 
-    protected override DbConnection CreateDbConnection() => new MySqlConnection(ConnectionString);
-
     public virtual IMySQLRelationalConnection CreateSourceConnection()
     {
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(_cnnStr ?? ConnectionString);
@@ -68,8 +71,27 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       var optionsBuilder = new DbContextOptionsBuilder();
       optionsBuilder.UseMySQL(builder.ConnectionString);
 
-      MySQLRelationalConnection c = CreateConnection(optionsBuilder.Options);
+      MySQLRelationalConnection c = new MySQLRelationalConnection(Dependencies with { ContextOptions = optionsBuilder.Options });
+
       return c;
+    }
+
+    public override void EnlistTransaction(Transaction? transaction)
+    {
+      try
+      {
+        base.EnlistTransaction(transaction);
+      }
+      catch (MySqlException e)
+      {
+        if (e.Message == "Already enlisted in a Transaction.")
+        {
+          // Return expected exception type.
+          throw new InvalidOperationException(e.Message, e);
+        }
+
+        throw;
+      }
     }
   }
 }

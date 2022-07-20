@@ -38,7 +38,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   internal class MySQLTypeMappingSource : RelationalTypeMappingSource
   {
-    private const int MAXKEYLENGTH = 767;
+    private const int MAXKEYLENGTH = 3072;
 
     private readonly IntTypeMapping _int = new IntTypeMapping("int", DbType.Int32);
     private readonly UIntTypeMapping _uint = new UIntTypeMapping("int unsigned", DbType.UInt32);
@@ -188,17 +188,18 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         { typeof(sbyte), _tinyint },
 
         // DateTime
-        { typeof(DateTime), _datetime },
+        { typeof(DateTime), _datetime.Clone(6, null) },
         { typeof(DateOnly), _dateonly },
-        { typeof(DateTimeOffset), _datetimeoffset },
-        { typeof(TimeSpan), _time },
-        {typeof(TimeOnly), _timeonly },
+        { typeof(DateTimeOffset), _datetimeoffset.Clone(6, null) },
+        { typeof(TimeSpan), _time.Clone(6, null) },
+        { typeof(TimeOnly), _timeonly },
 
         // decimals
         { typeof(float), _float },
         { typeof(double), _double },
         { typeof(decimal), _decimal },
 
+        // geometry
         { typeof(Data.Types.MySqlGeometry), _geometry }
       };
 
@@ -273,10 +274,11 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
             Math.Min(MAXKEYLENGTH / (_options.CharSet.byteCount * 2), 255)
             : null);
 
-          var maxSize = isAnsi ? 8000 : 4000;
-          
-          if (size > maxSize)
-            size = isFixedLength ? maxSize : (int?)null;
+          if (size > 65_553 / _options.CharSet.byteCount)
+          {
+            size = null;
+            isFixedLength = false;
+          }
 
           mapping = isFixedLength ? _charUnicode : size == null
             ? _longtextUnicode : _varcharUnicode;

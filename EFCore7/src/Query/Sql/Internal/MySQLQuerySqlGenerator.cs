@@ -316,5 +316,31 @@ namespace MySql.EntityFrameworkCore.Query
 
       return mySqlCollateExpression;
     }
+
+    protected override Expression VisitCrossApply(CrossApplyExpression crossApplyExpression)
+    {
+      Sql.Append("JOIN ");
+
+      if (crossApplyExpression.Table is not TableExpression)
+        Sql.Append("LATERAL ");
+
+      Visit(crossApplyExpression.Table);
+      Sql.Append(" ON TRUE");
+
+      return crossApplyExpression;
+    }
+
+    protected override Expression VisitOuterApply(OuterApplyExpression outerApplyExpression)
+    {
+      Sql.Append("LEFT JOIN ");
+
+      if (outerApplyExpression.Table is not TableExpression)
+        Sql.Append("LATERAL ");
+
+      Visit(outerApplyExpression.Table);
+      Sql.Append(" ON TRUE");
+
+      return outerApplyExpression;
+    }
   }
 }

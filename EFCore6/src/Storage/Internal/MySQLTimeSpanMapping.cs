@@ -28,6 +28,7 @@
 
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
+using System.Globalization;
 
 namespace MySql.EntityFrameworkCore.Storage.Internal
 {
@@ -41,7 +42,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
             new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(clrType),
                 storeType,
-                precision == null ? StoreTypePostfix.None : StoreTypePostfix.Precision,
+                StoreTypePostfix.Precision,
                 System.Data.DbType.Time,
                 precision: precision))
     {
@@ -61,8 +62,34 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         => new MySQLTimeSpanMapping(parameters);
 
     /// <summary>
-    ///     Gets the string format to be used to generate SQL literals of this type.
+    ///   Generates the MySQL representation of a non-null literal value.
     /// </summary>
-    protected override string SqlLiteralFormatString => "'{0}'";
+    /// <param name="value">The literal value.</param>
+    /// <returns>
+    ///   The generated string.
+    /// </returns>
+    protected override string GenerateNonNullSqlLiteral(object value)
+    {
+      var literal = string.Format(CultureInfo.InvariantCulture, $"{{0:{GetTimeFormatString(value, Precision)}}}", value);
+      return literal.EndsWith(".")
+        ? $"TIME '{literal[..^1]}'"
+        : $"TIME '{literal}'";
+    }
+
+    protected static string GetTimeFormatString(object value, int? precision)
+    {
+      var validPrecision = Math.Min(Math.Max(precision.GetValueOrDefault(), 0), 6);
+
+      var format = value switch
+      {
+        TimeOnly => @"HH\:mm\:ss",
+        TimeSpan => @"hh\:mm\:ss",
+        _ => throw new InvalidCastException($"Can't generate time SQL literal for CLR type '{value.GetType()}'.")
+      };
+
+      return validPrecision > 0
+        ? $@"{format}\.{new string('F', validPrecision)}"
+        : format;
+    }
   }
 }

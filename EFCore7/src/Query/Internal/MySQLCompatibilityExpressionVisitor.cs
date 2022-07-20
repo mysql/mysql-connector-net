@@ -61,6 +61,8 @@ namespace MySql.EntityFrameworkCore.Query.Internal
           return VisitIntercept(intersectExpression);
         case ShapedQueryExpression shapedQueryExpression:
           return shapedQueryExpression.Update(Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+        default:
+          return base.VisitExtension(extensionExpression);
       }
 
       return base.VisitExtension(extensionExpression);
@@ -70,10 +72,10 @@ namespace MySql.EntityFrameworkCore.Query.Internal
       => CheckSupport(rowNumberExpression, true);
 
     protected virtual Expression VisitOuterApply(OuterApplyExpression outerApplyExpression)
-      => CheckSupport(outerApplyExpression, false);
+      => CheckSupport(outerApplyExpression, true);
 
     protected virtual Expression VisitCrossApply(CrossApplyExpression crossApplyExpression)
-      => CheckSupport(crossApplyExpression, false);
+      => CheckSupport(crossApplyExpression, true);
     protected virtual Expression VisitExcept(ExceptExpression exceptExpression)
       => CheckSupport(exceptExpression, false);
 

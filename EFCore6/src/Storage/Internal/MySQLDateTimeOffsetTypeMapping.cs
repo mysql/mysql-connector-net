@@ -40,19 +40,19 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
   /// </summary>
   internal class MySQLDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
   {
-    private const string _dateTimeFormatConst = "'{0:yyyy-MM-dd HH:mm:ss.fff}'";
+    private const string _dateTimeFormatConst = @"'{0:yyyy-MM-dd HH:mm:ss.fff}'";
     // Note: this array will be accessed using the precision as an index
     // so the order of the entries in this array is important
     private readonly string[] _dateTimeOffsetFormats =
     {
-        "'{0:yyyy-MM-ddTHH:mm:sszzz}'",
-        "'{0:yyyy-MM-ddTHH:mm:ss.fzzz}'",
-        "'{0:yyyy-MM-ddTHH:mm:ss.ffzzz}'",
-        "'{0:yyyy-MM-ddTHH:mm:ss.fffzzz}'",
-        "'{0:yyyy-MM-ddTHH:mm:ss.ffffzzz}'",
-        "'{0:yyyy-MM-ddTHH:mm:ss.fffffzzz}'",
-        "'{0:yyyy-MM-ddTHH:mm:ss.ffffffzzz}'",
-        "'{0:yyyy-MM-ddTHH:mm:ss.fffffffzzz}'"
+        "'{0:yyyy-MM-dd HH:mm:ss}'",
+        "'{0:yyyy-MM-dd HH:mm:ss.f}'",
+        "'{0:yyyy-MM-dd HH:mm:ss.ff}'",
+        "'{0:yyyy-MM-dd HH:mm:ss.fff}'",
+        "'{0:yyyy-MM-dd HH:mm:ss.ffff}'",
+        "'{0:yyyy-MM-dd HH:mm:ss.fffff}'",
+        "'{0:yyyy-MM-dd HH:mm:ss.ffffff}'",
+        "'{0:yyyy-MM-dd HH:mm:ss.fffffff}'"
     };
 
     /// <summary>
@@ -92,6 +92,14 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     /// <returns>The newly created mapping.</returns>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
         => new MySQLDateTimeOffsetTypeMapping(parameters);
+
+    public override string GenerateProviderValueSqlLiteral(object? value)
+    => value == null
+        ? "NULL"
+        : GenerateNonNullSqlLiteral(
+            value is DateTimeOffset dateTimeOffset
+                ? dateTimeOffset.UtcDateTime
+                : value);
 
     /// <summary>
     ///     Gets the string format to be used to generate SQL literals of this type.

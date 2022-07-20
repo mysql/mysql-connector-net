@@ -140,7 +140,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 
         Dictionary<string, string> validation = new Dictionary<string, string>
         {
-          { "TinyString", "varchar(95)" },
+          { "TinyString", "varchar(255)" },
           { "NormalString", "varchar(3000)" },
           { "MediumString", "mediumtext" },
           { "LongString", "longtext" }

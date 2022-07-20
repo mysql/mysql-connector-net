@@ -452,39 +452,42 @@ namespace MySql.Data.MySqlClient
     /// <param name="isDefaultPort">Flag that indicates if the default port is used.</param>
     internal void AnalyzeConnectionString(string connectionString, bool isXProtocol, bool isDefaultPort = true)
     {
-      string[] queries = connectionString.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-      bool isDnsSrv = false;
-
-      if (queries.FirstOrDefault(q => q.ToLowerInvariant().Contains("dns-srv=true")) != null
-            || queries.FirstOrDefault(q => q.ToLowerInvariant().Contains("dnssrv=true")) != null)
-        isDnsSrv = true;
-
-      foreach (string query in queries)
+      if (connectionString != null)
       {
-        string[] keyValue = query.Split('=');
-        if (keyValue.Length % 2 != 0)
-          continue;
+        string[] queries = connectionString.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+        bool isDnsSrv = false;
 
-        var keyword = keyValue[0].ToLowerInvariant().Trim();
-        var value = query.Contains(",") ? query.Replace(keyword, "") : keyValue[1].ToLowerInvariant();
-        MySqlConnectionStringOption option = Options.Options.Where(o => o.Keyword == keyword || (o.Synonyms != null && o.Synonyms.Contains(keyword))).FirstOrDefault();
+        if (queries.FirstOrDefault(q => q.ToLowerInvariant().Contains("dns-srv=true")) != null
+              || queries.FirstOrDefault(q => q.ToLowerInvariant().Contains("dnssrv=true")) != null)
+          isDnsSrv = true;
 
-        // DNS SRV option can't be used if Port, Unix Socket or Multihost are specified
-        if (isDnsSrv)
+        foreach (string query in queries)
         {
-          if (option.Keyword == "port" && !isDefaultPort)
-            throw new ArgumentException(Resources.DnsSrvInvalidConnOptionPort);
-          if (option.Keyword == "server" && ((value.Contains("address") && value.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Length > 2) || value.Contains(",")))
-            throw new ArgumentException(Resources.DnsSrvInvalidConnOptionMultihost);
-          if (option.Keyword == "protocol" && (value.ToLowerInvariant().Contains("unix") || value.ToLowerInvariant().Contains("unixsocket")))
-            throw new ArgumentException(Resources.DnsSrvInvalidConnOptionUnixSocket);
+          string[] keyValue = query.Split('=');
+          if (keyValue.Length % 2 != 0)
+            continue;
+
+          var keyword = keyValue[0].ToLowerInvariant().Trim();
+          var value = query.Contains(",") ? query.Replace(keyword, "") : keyValue[1].ToLowerInvariant();
+          MySqlConnectionStringOption option = Options.Options.Where(o => o.Keyword == keyword || (o.Synonyms != null && o.Synonyms.Contains(keyword))).FirstOrDefault();
+
+          // DNS SRV option can't be used if Port, Unix Socket or Multihost are specified
+          if (isDnsSrv)
+          {
+            if (option.Keyword == "port" && !isDefaultPort)
+              throw new ArgumentException(Resources.DnsSrvInvalidConnOptionPort);
+            if (option.Keyword == "server" && ((value.Contains("address") && value.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Length > 2) || value.Contains(",")))
+              throw new ArgumentException(Resources.DnsSrvInvalidConnOptionMultihost);
+            if (option.Keyword == "protocol" && (value.ToLowerInvariant().Contains("unix") || value.ToLowerInvariant().Contains("unixsocket")))
+              throw new ArgumentException(Resources.DnsSrvInvalidConnOptionUnixSocket);
+          }
+
+          if (option == null) continue;
+
+          // Preferred is not allowed for the X Protocol.
+          if (isXProtocol && option.Keyword == "sslmode" && (value == "preferred" || value == "prefered"))
+            throw new ArgumentException(string.Format(Resources.InvalidSslMode, keyValue[1]));
         }
-
-        if (option == null) continue;
-
-        // Preferred is not allowed for the X Protocol.
-        if (isXProtocol && option.Keyword == "sslmode" && (value == "preferred" || value == "prefered"))
-          throw new ArgumentException(string.Format(Resources.InvalidSslMode, keyValue[1]));
       }
     }
 

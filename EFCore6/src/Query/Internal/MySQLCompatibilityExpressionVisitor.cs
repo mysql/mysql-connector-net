@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -61,19 +61,20 @@ namespace MySql.EntityFrameworkCore.Query.Internal
           return VisitIntercept(intersectExpression);
         case ShapedQueryExpression shapedQueryExpression:
           return shapedQueryExpression.Update(Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+        default:
+          return base.VisitExtension(extensionExpression);
       }
-
-      return base.VisitExtension(extensionExpression);
     }
 
     protected virtual Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
                 => CheckSupport(rowNumberExpression, true);
 
     protected virtual Expression VisitOuterApply(OuterApplyExpression outerApplyExpression)
-        => CheckSupport(outerApplyExpression, false);
+        => CheckSupport(outerApplyExpression, true);
 
     protected virtual Expression VisitCrossApply(CrossApplyExpression crossApplyExpression)
-        => CheckSupport(crossApplyExpression, false);
+        => CheckSupport(crossApplyExpression, true);
+
     protected virtual Expression VisitExcept(ExceptExpression exceptExpression)
         => CheckSupport(exceptExpression, false);
 

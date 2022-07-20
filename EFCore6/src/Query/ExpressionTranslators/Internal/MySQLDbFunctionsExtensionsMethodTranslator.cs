@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -46,6 +46,7 @@ namespace MySql.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             typeof(int),
             typeof(long),
             typeof(DateTime),
+            typeof(DateOnly),
             typeof(Guid),
             typeof(bool),
             typeof(byte),
@@ -64,6 +65,7 @@ namespace MySql.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             typeof(int?),
             typeof(long?),
             typeof(DateTime?),
+            typeof(DateOnly?),
             typeof(Guid?),
             typeof(bool?),
             typeof(byte?),

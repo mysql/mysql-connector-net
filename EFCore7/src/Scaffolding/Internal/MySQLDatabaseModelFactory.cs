@@ -79,7 +79,7 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
       Check.NotNull(connection, nameof(connection));
       Check.NotNull(options, nameof(options));
 
-      var databaseModel = new DatabaseModel();
+      SetupMySQLOptions(connection);
 
       var connectionStartedOpen = connection.State == ConnectionState.Open;
       if (!connectionStartedOpen)
@@ -87,8 +87,7 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
 
       try
       {
-        SetupMySQLOptions(connection);
-
+        var databaseModel = new DatabaseModel();
         databaseModel.DatabaseName = connection.Database;
         databaseModel.DefaultSchema = GetDefaultSchema(connection);
 
@@ -117,13 +116,9 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
 
     private void SetupMySQLOptions(DbConnection connection)
     {
-      var optionsBuilder = new DbContextOptionsBuilder();
-      optionsBuilder.UseMySQL(connection);
-
       if (_options.ConnectionSettings.Equals(new MySQLOptions().ConnectionSettings))
-      {
-        _options.Initialize(optionsBuilder.Options);
-      }
+        _options.Initialize(new DbContextOptionsBuilder()
+          .UseMySQL(connection).Options);
     }
 
     private string? GetDefaultSchema(DbConnection connection)

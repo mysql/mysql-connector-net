@@ -26,26 +26,27 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using System.Data.Common;
-using MySql.Data.MySqlClient;
-using System.Data;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Metadata;
-using MySql.EntityFrameworkCore.Utils;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
-using System.Globalization;
-using MySql.EntityFrameworkCore.Properties;
+using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Infrastructure.Internal;
 using MySql.EntityFrameworkCore.Internal;
+using MySql.EntityFrameworkCore.Properties;
+using MySql.EntityFrameworkCore.Utils;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MySql.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -54,7 +55,9 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
     private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
     private readonly IMySQLOptions _options;
 
-    public MySQLDatabaseModelFactory([NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger, IMySQLOptions options)
+    public MySQLDatabaseModelFactory(
+      [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
+      IMySQLOptions options)
     {
       Check.NotNull(logger, nameof(logger));
 
@@ -79,16 +82,14 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
       Check.NotNull(connection, nameof(connection));
       Check.NotNull(options, nameof(options));
 
-      var databaseModel = new DatabaseModel();
-
+      SetupMySQLOptions(connection);
       var connectionStartedOpen = connection.State == ConnectionState.Open;
       if (!connectionStartedOpen)
         connection.Open();
 
       try
       {
-        SetupMySQLOptions(connection);
-
+        var databaseModel = new DatabaseModel();
         databaseModel.DatabaseName = connection.Database;
         databaseModel.DefaultSchema = GetDefaultSchema(connection);
 
@@ -117,13 +118,9 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
 
     private void SetupMySQLOptions(DbConnection connection)
     {
-      var optionsBuilder = new DbContextOptionsBuilder();
-      optionsBuilder.UseMySQL(connection);
-
       if (_options.ConnectionSettings.Equals(new MySQLOptions().ConnectionSettings))
-      {
-        _options.Initialize(optionsBuilder.Options);
-      }
+        _options.Initialize(new DbContextOptionsBuilder()
+          .UseMySQL(connection).Options);
     }
 
     private string? GetDefaultSchema(DbConnection connection)

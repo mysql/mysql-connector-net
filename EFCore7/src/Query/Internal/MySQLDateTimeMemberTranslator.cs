@@ -50,6 +50,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
         { nameof(DateTime.Second), ("second", 1) },
         { nameof(DateTime.Millisecond), ("microsecond", 1000) },
       };
+
     private readonly MySQLSqlExpressionFactory _sqlExpressionFactory;
 
     public MySQLDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
@@ -57,12 +58,18 @@ namespace MySql.EntityFrameworkCore.Query.Internal
       _sqlExpressionFactory = (MySQLSqlExpressionFactory)sqlExpressionFactory;
     }
 
-    public virtual SqlExpression? Translate(SqlExpression? instance, MemberInfo member, Type returnType, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+    public virtual SqlExpression? Translate(
+      SqlExpression? instance,
+      MemberInfo member,
+      Type returnType,
+      IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
       var declaringType = member.DeclaringType;
 
       if (declaringType == typeof(DateTime)
-        || declaringType == typeof(DateTimeOffset))
+          || declaringType == typeof(DateTimeOffset)
+          || declaringType == typeof(DateOnly)
+          || declaringType == typeof(TimeOnly))
       {
         var memberName = member.Name;
 
@@ -144,6 +151,13 @@ namespace MySql.EntityFrameworkCore.Query.Internal
               Array.Empty<SqlExpression>(),
               nullable: true,
               argumentsPropagateNullability: TrueArrays[0],
+              returnType);
+          case nameof(DateTime.DayOfWeek):
+            return _sqlExpressionFactory.Function(
+              "DAYOFWEEK",
+              new[] { instance! },
+              nullable: true,
+              argumentsPropagateNullability: TrueArrays[1],
               returnType);
         }
       }

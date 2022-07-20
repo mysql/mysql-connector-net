@@ -40,21 +40,21 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     // Note: this array will be accessed using the precision as an index
     // so the order of the entries in this array is important
-    private readonly string[] _dateTime2Formats =
+    private readonly string[] _dateTimeFormats =
     {
-        "'{0:yyyy-MM-ddTHH:mm:ssK}'",
-        "'{0:yyyy-MM-ddTHH:mm:ss.fK}'",
-        "'{0:yyyy-MM-ddTHH:mm:ss.ffK}'",
-        "'{0:yyyy-MM-ddTHH:mm:ss.fffK}'",
-        "'{0:yyyy-MM-ddTHH:mm:ss.ffffK}'",
-        "'{0:yyyy-MM-ddTHH:mm:ss.fffffK}'",
-        "'{0:yyyy-MM-ddTHH:mm:ss.ffffffK}'"
+        "'{0:yyyy-MM-dd HH:mm:ss}'",
+        "'{0:yyyy-MM-dd HH:mm:ss.f}'",
+        "'{0:yyyy-MM-dd HH:mm:ss.ff}'",
+        "'{0:yyyy-MM-dd HH:mm:ss.fff}'",
+        "'{0:yyyy-MM-dd HH:mm:ss.ffff}'",
+        "'{0:yyyy-MM-dd HH:mm:ss.fffff}'",
+        "'{0:yyyy-MM-dd HH:mm:ss.ffffff}'"
     };
 
     public MySQLDateTimeTypeMapping(
         string storeType,
         int? precision = null,
-        DbType? dbType = System.Data.DbType.DateTime2,
+        DbType? dbType = System.Data.DbType.DateTime,
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : base(
             new RelationalTypeMappingParameters(
@@ -96,10 +96,10 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
             {
               var precision = Precision.Value;
               if (precision <= 6 && precision >= 0)
-                return _dateTime2Formats[precision];
+                return _dateTimeFormats[precision];
             }
 
-            return _dateTime2Formats[6];
+            return _dateTimeFormats[6];
         }
       }
     }

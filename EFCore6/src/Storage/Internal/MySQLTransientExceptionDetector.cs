@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,35 +32,13 @@ using System;
 namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   /// <summary>
-  /// Detects the exceptions caused by SQL Server transient failures.
+  /// Detects the exceptions caused by MySQL Server transient failures.
   /// </summary>
   internal class MySQLTransientExceptionDetector
   {
     public static bool ShouldRetryOn([NotNull] Exception ex)
-    {
-      if (ex is MySqlException mySqlException)
-      {
-        switch ((MySqlErrorCode)mySqlException.Number)
-        {
-          // Unable to open connection
-          case MySqlErrorCode.UnableToConnectToHost:
-          // Too many connections
-          case MySqlErrorCode.ConnectionCountError:
-          // Lock wait timeout exceeded; try restarting transaction
-          case MySqlErrorCode.LockWaitTimeout:
-          // Deadlock found when trying to get lock; try restarting transaction
-          case MySqlErrorCode.LockDeadlock:
-          // Transaction branch was rolled back: deadlock was detected
-          case MySqlErrorCode.XARBDeadlock:
-            // Retry in all cases above
-            return true;
-        }
-
-        // Otherwise don't retry
-        return false;
-      }
-
-      return ex is TimeoutException;
-    }
+      => ex is MySqlException mySqlException
+      ? mySqlException.IsTransient
+      : ex is TimeoutException;
   }
 }

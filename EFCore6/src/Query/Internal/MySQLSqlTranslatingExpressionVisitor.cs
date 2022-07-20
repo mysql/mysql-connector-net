@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,7 +28,8 @@
 
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using MySql.EntityFrameworkCore.Utils;
+using MySql.EntityFrameworkCore.Storage.Internal;
+using System;
 using System.Linq.Expressions;
 
 namespace MySql.EntityFrameworkCore.Query.Internal
@@ -48,35 +49,78 @@ namespace MySql.EntityFrameworkCore.Query.Internal
 
     protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
-      // Returning null forces client projection.
-      var visitedExpression = (SqlExpression)base.VisitBinary(binaryExpression);
-
-      if (visitedExpression is SqlBinaryExpression visitedBinaryExpression)
+      if (binaryExpression.NodeType == ExpressionType.ArrayIndex)
       {
-        switch (visitedBinaryExpression.OperatorType)
+        if (binaryExpression.Left.Type == typeof(byte[]))
         {
-          case ExpressionType.Add:
-          case ExpressionType.Subtract:
-          case ExpressionType.Multiply:
-          case ExpressionType.Divide:
-          case ExpressionType.Modulo:
-            if (IsDateTimeBasedOperation(visitedBinaryExpression)!) return visitedBinaryExpression;
-            break;
+          if (Visit(binaryExpression.Left) is SqlExpression leftSql &&
+              Visit(binaryExpression.Right) is SqlExpression rightSql)
+          {
+            return _sqlExpressionFactory.Function(
+              "ASCII",
+              new[]
+              {
+                _sqlExpressionFactory.Function(
+                  "SUBSTRING",
+                  new[]
+                  {
+                    leftSql, Dependencies.SqlExpressionFactory.Add(
+                      Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(rightSql),
+                      Dependencies.SqlExpressionFactory.Constant(1)),
+                    Dependencies.SqlExpressionFactory.Constant(1)
+                  },
+                  nullable: true,
+                  argumentsPropagateNullability: new[] { true, true, true },
+                  typeof(byte[]))
+              },
+              nullable: true,
+              argumentsPropagateNullability: new[] { true, true, true },
+              typeof(byte));
+          }
         }
       }
 
-      return visitedExpression;
-    }
-
-    private static bool IsDateTimeBasedOperation(SqlBinaryExpression binaryExpression)
-    {
-      if (binaryExpression.TypeMapping != null
-          && (binaryExpression.TypeMapping.StoreType.StartsWith("date") || binaryExpression.TypeMapping.StoreType.StartsWith("time")))
+      if (binaryExpression.NodeType == ExpressionType.Subtract &&
+        Visit(binaryExpression.Left) is SqlExpression subtractLeftVisited &&
+        Visit(binaryExpression.Right) is SqlExpression subtractRightVisited &&
+        (subtractLeftVisited.Type == typeof(TimeOnly) && subtractRightVisited.Type == typeof(TimeOnly)))
       {
-        return true;
+        return _sqlExpressionFactory.Subtract(
+          subtractLeftVisited,
+          subtractRightVisited,
+          Dependencies.TypeMappingSource.FindMapping(typeof(TimeSpan)));
       }
 
-      return false;
+      return base.VisitBinary(binaryExpression);
     }
+
+    protected override Expression VisitUnary(UnaryExpression unaryExpression)
+    {
+      if (unaryExpression.NodeType == ExpressionType.ArrayLength
+            && unaryExpression.Operand.Type == typeof(byte[]))
+      {
+        if (!(base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression))
+        {
+          return QueryCompilationContext.NotTranslatedExpression;
+        }
+
+        var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)" || sqlExpression is SqlParameterExpression;
+        var dataLengthSqlFunction = Dependencies.SqlExpressionFactory.Function(
+            "LENGTH",
+            new[] { sqlExpression },
+            nullable: true,
+            argumentsPropagateNullability: new[] { true },
+            isBinaryMaxDataType ? typeof(long) : typeof(int));
+
+        return isBinaryMaxDataType
+            ? Dependencies.SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
+            : dataLengthSqlFunction;
+      }
+
+      return base.VisitUnary(unaryExpression);
+    }
+
+    private static string? GetProviderType(SqlExpression expression)
+    => expression.TypeMapping?.StoreType;
   }
 }

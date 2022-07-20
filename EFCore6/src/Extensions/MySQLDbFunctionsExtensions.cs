@@ -100,6 +100,36 @@ namespace MySql.EntityFrameworkCore.Extensions
             : null;
 
     /// <summary>
+    ///     Counts the number of year boundaries crossed between the startDate and endDate.
+    ///     Corresponds to TIMESTAMPDIFF(YEAR,startDate,endDate).
+    /// </summary>
+    /// <param name="_">The DbFunctions instance.</param>
+    /// <param name="startDate">Starting date for the calculation.</param>
+    /// <param name="endDate">Ending date for the calculation.</param>
+    /// <returns>Number of year boundaries crossed between the dates.</returns>
+    public static int DateDiffYear(
+        [CanBeNull] this DbFunctions _,
+        DateOnly startDate,
+        DateOnly endDate)
+        => endDate.Year - startDate.Year;
+
+    /// <summary>
+    ///     Counts the number of year boundaries crossed between the startDate and endDate.
+    ///     Corresponds to TIMESTAMPDIFF(YEAR,startDate,endDate).
+    /// </summary>
+    /// <param name="_">The DbFunctions instance.</param>
+    /// <param name="startDate">Starting date for the calculation.</param>
+    /// <param name="endDate">Ending date for the calculation.</param>
+    /// <returns>Number of year boundaries crossed between the dates.</returns>
+    public static int? DateDiffYear(
+        [CanBeNull] this DbFunctions _,
+        DateOnly? startDate,
+        DateOnly? endDate)
+        => (startDate.HasValue && endDate.HasValue)
+            ? (int?)DateDiffYear(_, startDate.Value, endDate.Value)
+            : null;
+
+    /// <summary>
     ///     Counts the number of month boundaries crossed between the startDate and endDate.
     ///     Corresponds to TIMESTAMPDIFF(MONTH,startDate,endDate).
     /// </summary>
@@ -160,6 +190,36 @@ namespace MySql.EntityFrameworkCore.Extensions
             : null;
 
     /// <summary>
+    ///     Counts the number of month boundaries crossed between the startDate and endDate.
+    ///     Corresponds to TIMESTAMPDIFF(MONTH,startDate,endDate).
+    /// </summary>
+    /// <param name="_">The DbFunctions instance.</param>
+    /// <param name="startDate">Starting date for the calculation.</param>
+    /// <param name="endDate">Ending date for the calculation.</param>
+    /// <returns>Number of month boundaries crossed between the dates.</returns>
+    public static int DateDiffMonth(
+        [CanBeNull] this DbFunctions _,
+        DateOnly startDate,
+        DateOnly endDate)
+        => 12 * (endDate.Year - startDate.Year) + endDate.Month - startDate.Month;
+
+    /// <summary>
+    ///     Counts the number of month boundaries crossed between the startDate and endDate.
+    ///     Corresponds to TIMESTAMPDIFF(MONTH,startDate,endDate).
+    /// </summary>
+    /// <param name="_">The DbFunctions instance.</param>
+    /// <param name="startDate">Starting date for the calculation.</param>
+    /// <param name="endDate">Ending date for the calculation.</param>
+    /// <returns>Number of month boundaries crossed between the dates.</returns>
+    public static int? DateDiffMonth(
+        [CanBeNull] this DbFunctions _,
+        DateOnly? startDate,
+        DateOnly? endDate)
+        => (startDate.HasValue && endDate.HasValue)
+            ? (int?)DateDiffMonth(_, startDate.Value, endDate.Value)
+            : null;
+
+    /// <summary>
     ///     Counts the number of day boundaries crossed between the startDate and endDate.
     ///     Corresponds to TIMESTAMPDIFF(DAY,startDate,endDate).
     /// </summary>
@@ -215,6 +275,36 @@ namespace MySql.EntityFrameworkCore.Extensions
         [CanBeNull] this DbFunctions _,
         DateTimeOffset? startDate,
         DateTimeOffset? endDate)
+        => (startDate.HasValue && endDate.HasValue)
+            ? (int?)DateDiffDay(_, startDate.Value, endDate.Value)
+            : null;
+
+    /// <summary>
+    ///     Counts the number of day boundaries crossed between the startDate and endDate.
+    ///     Corresponds to TIMESTAMPDIFF(DAY,startDate,endDate).
+    /// </summary>
+    /// <param name="_">The DbFunctions instance.</param>
+    /// <param name="startDate">Starting date for the calculation.</param>
+    /// <param name="endDate">Ending date for the calculation.</param>
+    /// <returns>Number of day boundaries crossed between the dates.</returns>
+    public static int DateDiffDay(
+        [CanBeNull] this DbFunctions _,
+        DateOnly startDate,
+        DateOnly endDate)
+        => endDate.Day - startDate.Day;
+
+    /// <summary>
+    ///     Counts the number of day boundaries crossed between the startDate and endDate.
+    ///     Corresponds to TIMESTAMPDIFF(DAY,startDate,endDate).
+    /// </summary>
+    /// <param name="_">The DbFunctions instance.</param>
+    /// <param name="startDate">Starting date for the calculation.</param>
+    /// <param name="endDate">Ending date for the calculation.</param>
+    /// <returns>Number of day boundaries crossed between the dates.</returns>
+    public static int? DateDiffDay(
+        [CanBeNull] this DbFunctions _,
+        DateOnly? startDate,
+        DateOnly? endDate)
         => (startDate.HasValue && endDate.HasValue)
             ? (int?)DateDiffDay(_, startDate.Value, endDate.Value)
             : null;

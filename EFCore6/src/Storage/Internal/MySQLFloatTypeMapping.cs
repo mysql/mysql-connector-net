@@ -29,6 +29,7 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 
 namespace MySql.EntityFrameworkCore.Storage.Internal
 {
@@ -41,15 +42,11 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public MySQLFloatTypeMapping(
-        string storeType,
-        DbType? dbType = System.Data.DbType.Single,
-        StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
-        : base(
-            new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(float)),
-                storeType,
-                storeTypePostfix,
-                dbType))
+      string storeType,
+      DbType? dbType = System.Data.DbType.Single)
+      : base(
+          storeType,
+          dbType)
     {
     }
 
@@ -79,7 +76,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override string GenerateNonNullSqlLiteral(object value)
-        => $"CAST({base.GenerateNonNullSqlLiteral(value)} AS {StoreType})";
+        => ((float)value).ToString("R", CultureInfo.InvariantCulture);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -91,8 +88,8 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     {
       base.ConfigureParameter(parameter);
 
-      if (Precision.HasValue && Precision.Value != -1)
-        parameter.Size = (byte)Precision.Value;
+      if (Size.HasValue && Size.Value != -1)
+        parameter.Size = (byte)Size.Value;
     }
   }
 }

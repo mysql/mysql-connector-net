@@ -41,6 +41,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
   {
     private static readonly MethodInfo[] _supportedMethods = new[]
     {
+      nameof(Convert.ToBoolean),
       nameof(Convert.ToByte),
       nameof(Convert.ToDecimal),
       nameof(Convert.ToDouble),

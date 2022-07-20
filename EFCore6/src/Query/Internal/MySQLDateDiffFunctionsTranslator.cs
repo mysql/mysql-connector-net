@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -69,6 +69,18 @@ namespace MySql.EntityFrameworkCore.Query.Internal
           },
           {
             typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+              nameof(MySQLDbFunctionsExtensions.DateDiffYear),
+              new[] { typeof(DbFunctions), typeof(DateOnly), typeof(DateOnly) })!,
+            "YEAR"
+          },
+          {
+            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+              nameof(MySQLDbFunctionsExtensions.DateDiffYear),
+              new[] { typeof(DbFunctions), typeof(DateOnly?), typeof(DateOnly?) })!,
+            "YEAR"
+          },
+          {
+            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
               nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
               new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
             "MONTH"
@@ -93,6 +105,18 @@ namespace MySql.EntityFrameworkCore.Query.Internal
           },
           {
             typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+              nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
+              new[] { typeof(DbFunctions), typeof(DateOnly), typeof(DateOnly) })!,
+            "MONTH"
+          },
+          {
+            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+              nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
+              new[] { typeof(DbFunctions), typeof(DateOnly?), typeof(DateOnly?) })!,
+            "MONTH"
+          },
+          {
+            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
               nameof(MySQLDbFunctionsExtensions.DateDiffDay),
               new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
             "DAY"
@@ -113,6 +137,18 @@ namespace MySql.EntityFrameworkCore.Query.Internal
             typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
               nameof(MySQLDbFunctionsExtensions.DateDiffDay),
               new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
+            "DAY"
+          },
+          {
+            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+              nameof(MySQLDbFunctionsExtensions.DateDiffDay),
+              new[] { typeof(DbFunctions), typeof(DateOnly), typeof(DateOnly) })!,
+            "DAY"
+          },
+          {
+            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+              nameof(MySQLDbFunctionsExtensions.DateDiffDay),
+              new[] { typeof(DbFunctions), typeof(DateOnly?), typeof(DateOnly?) })!,
             "DAY"
           },
           {
