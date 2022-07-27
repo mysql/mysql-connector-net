@@ -129,7 +129,8 @@ namespace MySqlX.Sessions
               Settings.SslCa,
               Settings.SslCert,
               Settings.SslKey,
-              Settings.TlsVersion)
+              Settings.TlsVersion,
+              Settings.ConnectTimeout)
               .StartSSL(ref _stream, encoding, Settings.ToString());
 
           if (_readerCompressionController != null && _readerCompressionController.IsCompressionEnabled)

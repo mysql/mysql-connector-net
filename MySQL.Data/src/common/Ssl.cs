@@ -74,7 +74,7 @@ namespace MySql.Data.Common
     }
 
     public Ssl(string server, MySqlSslMode sslMode, string certificateFile, MySqlCertificateStoreLocation certificateStoreLocation,
-        string certificatePassword, string certificateThumbprint, string sslCa, string sslCert, string sslKey, string tlsVersion)
+        string certificatePassword, string certificateThumbprint, string sslCa, string sslCert, string sslKey, string tlsVersion, uint connectionTimeout)
     {
       this._settings = new MySqlConnectionStringBuilder()
       {
@@ -87,7 +87,8 @@ namespace MySql.Data.Common
         SslCa = sslCa,
         SslCert = sslCert,
         SslKey = sslKey,
-        TlsVersion = tlsVersion
+        TlsVersion = tlsVersion,
+        ConnectionTimeout = connectionTimeout
       };
       // Set default value to true since PEM files is the standard for MySQL SSL certificates.
       _treatCertificatesAsPemFormat = true;
@@ -225,7 +226,7 @@ namespace MySql.Data.Common
         {
           tlsProtocol = (tlsProtocol == SslProtocols.None) ? SslProtocols.Tls12 : tlsProtocol;
           if (!ss.AuthenticateAsClientAsync(_settings.Server, certs, tlsProtocol, false).Wait((int)_settings.ConnectionTimeout * 1000))
-            throw new AuthenticationException($"Authentication to host '{_settings.Server}' failed.");
+            throw new AggregateException($"Authentication to host '{_settings.Server}' failed.", new IOException());
           tlsConnectionRef[connectionId] = tlsProtocol;
           tlsRetry.Remove(connectionId);
         }

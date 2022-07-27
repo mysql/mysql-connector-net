@@ -306,7 +306,8 @@ namespace MySql.Data.MySqlClient
           Settings.SslCa,
           Settings.SslCert,
           Settings.SslKey,
-          Settings.TlsVersion)
+          Settings.TlsVersion,
+          Settings.ConnectionTimeout)
           .StartSSL(ref baseStream, Encoding, Settings.ToString());
         packet.Clear();
         packet.WriteInteger((int)connectionFlags, 4);
