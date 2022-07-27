@@ -1665,7 +1665,7 @@ namespace MySqlX.Data.Tests
            "waiting for the respective lower layer socket timeout")]
     public void TimeoutUsingClientAndPooling_S2()
     {
-      int connectTimeout = 0;
+      int connectTimeout = 1;
       string hostList = string.Empty;
       string localIP = session.Settings.Server;
       int minTime = 0;
@@ -1928,7 +1928,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("scenario 1(connectionString,connectionUri,Anonymous Object with default timeout)")]
     public void ValidateDefaultTimeoutParameter()
     {
-      uint defaultTimeout = 0;
+      uint defaultTimeout = 1;
       string connStr = ConnectionString + ";" + "connect-timeout=" + defaultTimeout;
       for (int i = 0; i < 10; i++)
       {
@@ -1958,7 +1958,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("scenario 2(MysqlxStringBuilder with default timeout)")]
     public void ValidateDefaultTimeoutParameterWithStringBuilder()
     {
-      uint defaultTimeout = 0;
+      uint defaultTimeout = 1;
       var connStrBuilder = new MySqlXConnectionStringBuilder();
       connStrBuilder.ConnectTimeout = defaultTimeout;
       connStrBuilder.UserID = session.Settings.UserID;
