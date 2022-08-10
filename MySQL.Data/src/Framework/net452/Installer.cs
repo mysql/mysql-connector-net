@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2013, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,14 +26,14 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Configuration.Install;
-using System.ComponentModel;
-using System.Reflection;
-using System;
 using Microsoft.Win32;
-using System.Xml;
+using System;
+using System.ComponentModel;
+using System.Configuration.Install;
 using System.IO;
+using System.Reflection;
 using System.Security.Permissions;
+using System.Xml;
 
 namespace MySql.Data.MySqlClient
 {
@@ -42,8 +42,8 @@ namespace MySql.Data.MySqlClient
   /// can make proper changes to the machine.config file.
   /// </summary>
   [RunInstaller(true)]
-  [PermissionSetAttribute(SecurityAction.InheritanceDemand, Name = "FullTrust")]
-  [PermissionSetAttribute(SecurityAction.LinkDemand, Name = "FullTrust")]
+  [PermissionSet(SecurityAction.InheritanceDemand, Name = "FullTrust")]
+  [PermissionSet(SecurityAction.LinkDemand, Name = "FullTrust")]
   public class CustomInstaller : Installer
   {
     /// <summary>
@@ -94,7 +94,6 @@ namespace MySql.Data.MySqlClient
 
     private static XmlElement CreateNodeAssemblyBindingRedirection(XmlElement mysqlNode, XmlDocument doc, string oldVersion, string newVersion)
     {
-
       if (doc == null || mysqlNode == null)
         return null;
 
@@ -118,10 +117,10 @@ namespace MySql.Data.MySqlClient
       dA.AppendChild(bR);
       mysqlNode.AppendChild(dA);
 
-      //mysql.data.entity
+      //mysql.data.entityframework
       dA = (XmlElement)doc.CreateNode(XmlNodeType.Element, "dependentAssembly", ns);
       aI = (XmlElement)doc.CreateNode(XmlNodeType.Element, "assemblyIdentity", ns);
-      aI.SetAttribute("name", "MySql.Data.Entity");
+      aI.SetAttribute("name", "MySql.Data.EntityFramework");
       aI.SetAttribute("publicKeyToken", "c5687fc88969c44d");
       aI.SetAttribute("culture", "neutral");
 
@@ -150,10 +149,9 @@ namespace MySql.Data.MySqlClient
       return mysqlNode;
     }
 
-
     private static void AddProviderToMachineConfigInDir(string path)
     {
-      string configFile = String.Format(@"{0}\machine.config", path);      
+      string configFile = String.Format(@"{0}\machine.config", path);
       if (!File.Exists(configFile)) return;
 
       // now read the config file into memory
@@ -194,6 +192,7 @@ namespace MySql.Data.MySqlClient
           }
         }
       }
+
       nodes[0].AppendChild(newNode);
 
       try
@@ -212,13 +211,12 @@ namespace MySql.Data.MySqlClient
         }
 
         string newVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-        mysqlNode = CreateNodeAssemblyBindingRedirection(mysqlNode, doc, "6.7.4.0", newVersion);
+        mysqlNode = CreateNodeAssemblyBindingRedirection(mysqlNode, doc, "8.0.30", newVersion);
 
         XmlNodeList runtimeNode = doc.GetElementsByTagName("runtime");
         runtimeNode[0].AppendChild(mysqlNode);
       }
-      catch {}
-      
+      catch { }
 
       // Save the document to a file and auto-indent the output.
       XmlTextWriter writer = new XmlTextWriter(configFile, null);
@@ -230,7 +228,6 @@ namespace MySql.Data.MySqlClient
 
     private static XmlDocument RemoveOldBindingRedirection(XmlDocument doc)
     {
-
       if (doc.GetElementsByTagName("assemblyBinding").Count == 0) return doc;
 
       XmlNodeList nodesDependantAssembly = doc.GetElementsByTagName("assemblyBinding")[0].ChildNodes;
@@ -249,10 +246,6 @@ namespace MySql.Data.MySqlClient
       }
       return doc;
     }
-
-
-
-
 
     /// <summary>
     /// We override Uninstall so we can remove out assembly from the
@@ -323,4 +316,3 @@ namespace MySql.Data.MySqlClient
     }
   }
 }
-

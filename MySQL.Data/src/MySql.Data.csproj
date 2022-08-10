@@ -106,7 +106,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Update="Framework\net452\Installer.cs" />
     <Compile Update="Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

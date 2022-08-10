@@ -4,6 +4,7 @@
 - Added support for the .NET 7.0 preview release (WL15195).
 - Implemented the DNS SRV query resolver (WL14016).
 - Added support for the EF Core 7.0 preview release (WL15194).
+- Fixed a bug that prevented the proper installation of Connector/NET (MySQL Bug #107316, Oracle Bug #34189859).
 
 
 8.0.30
