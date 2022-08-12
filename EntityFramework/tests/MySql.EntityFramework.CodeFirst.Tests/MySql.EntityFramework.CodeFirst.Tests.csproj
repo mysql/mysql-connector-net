@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>MySql.Data.EntityFramework.CodeFirst.Tests</Description>
-    <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>8.0.31</Version>
     <Authors>Oracle</Authors>
@@ -12,6 +12,7 @@
     <PackageTags>MySql;.NET Connector;MySql Connector/NET</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
     <PackageProjectUrl>http://dev.mysql.com/downloads/</PackageProjectUrl>
+    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
     <PackageLicenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.html</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
