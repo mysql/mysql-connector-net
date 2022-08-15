@@ -5,6 +5,7 @@
 - Implemented the DNS SRV query resolver (WL14016).
 - Added support for the EF Core 7.0 preview release (WL15194).
 - Fixed a bug that prevented the proper installation of Connector/NET (MySQL Bug #107316, Oracle Bug #34189859).
+- Changed the exception that Connector/NET throws when a connection timeout expires (from TimeoutException to MySqlException) (MySQL Bug #107600, Oracle Bug #34299402).
 
 
 8.0.30

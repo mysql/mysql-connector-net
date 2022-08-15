@@ -488,7 +488,8 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
 
       DateTime start = DateTime.Now;
-      Assert.Throws<TimeoutException>(() => c.Open());
+      var ex = Assert.Throws<MySqlException>(() => c.Open());
+      Assert.True(ex.InnerException.InnerException is TimeoutException);
       TimeSpan diff = DateTime.Now.Subtract(start);
       Assert.True(diff.TotalSeconds < 6, $"Timeout exceeded: {diff.TotalSeconds}");
     }

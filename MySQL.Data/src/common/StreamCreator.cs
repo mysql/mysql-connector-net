@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -98,7 +98,7 @@ namespace MySql.Data.Common
       Task task = client.ConnectAsync(settings.Server, (int)settings.Port);
 
       if (!task.Wait(((int)settings.ConnectionTimeout * 1000)))
-        throw new TimeoutException(Resources.Timeout);
+        throw new MySqlException(Resources.Timeout, new TimeoutException());
       if (settings.Keepalive > 0)
       {
         SetKeepAlive(client.Client, settings.Keepalive);
