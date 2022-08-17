@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,6 +34,28 @@ using System;
 
 namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
 {
+  public class BugContext : MyTestContext
+  {
+    public BugContext() : base()
+    {
+    }
+
+    public virtual DbSet<Bug> Bugs { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      modelBuilder.Entity<Bug>(entity =>
+      {
+        entity.ToTable("Bug");
+
+        entity.Property(e => e.Id).HasColumnName("id");
+
+        entity.Property(e => e.CreatedDate)
+            .HasColumnType("date")
+            .HasColumnName("createdDate");
+      });
+    }
+  }
 
   public class NoConfigurationContext : DbContext
   {

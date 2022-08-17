@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,6 +34,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
 {
+  public class Bug
+  {
+    public int Id { get; set; }
+    public DateTime CreatedDate { get; set; }
+  }
+
   public class Blog
   {
     public int BlogId { get; set; }
@@ -93,10 +99,10 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
     public string Action { get; set; }
   }
 
-  
+
   public class BlogMetadata
   {
-    [Key]    
+    [Key]
     public int BlogId { get; set; }
     public Blog Blog { get; set; }
     public DateTime LoadedFromDatabase { get; set; }
@@ -166,49 +172,49 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
     public string Name { get; set; }
   }
 
-    public class Guest
-    {
-        [Key]
-        public int IdGuest { get; set; }
-        public string Name { get; set; }
-        public Address Address { get; set; }
-    }
+  public class Guest
+  {
+    [Key]
+    public int IdGuest { get; set; }
+    public string Name { get; set; }
+    public Address Address { get; set; }
+  }
 
-    public class Address
-    {
-        [Key]
-        public int IdAddress { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
-        public Guest Guest { get; set; }
-    }
+  public class Address
+  {
+    [Key]
+    public int IdAddress { get; set; }
+    public string Street { get; set; }
+    public string City { get; set; }
+    public Guest Guest { get; set; }
+  }
 
-    public class Relative
-    {
-        [Key]
-        public int IdRelative { get; set; }
-        public string Name { get; set; }
-        public AddressRelative Address { get; set; }
-    }
+  public class Relative
+  {
+    [Key]
+    public int IdRelative { get; set; }
+    public string Name { get; set; }
+    public AddressRelative Address { get; set; }
+  }
 
-    public class AddressRelative
-    {
-        [Key]
-        public int IdAddressRelative { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
-        public Relative Relative { get; set; }
-    }
+  public class AddressRelative
+  {
+    [Key]
+    public int IdAddressRelative { get; set; }
+    public string Street { get; set; }
+    public string City { get; set; }
+    public Relative Relative { get; set; }
+  }
 
 
-    public class QuickEntity
-    {
-        [Key]
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public DateTimeOffset Created { get; set; }
+  public class QuickEntity
+  {
+    [Key]
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public DateTimeOffset Created { get; set; }
 
-    }
+  }
 
   public class JsonData
   {

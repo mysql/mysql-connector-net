@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,7 +33,6 @@ using MySql.EntityFrameworkCore.Query.Expressions.Internal;
 using MySql.EntityFrameworkCore.Utils;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace MySql.EntityFrameworkCore.Query.Internal
@@ -51,19 +50,19 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     }
 
     public virtual SqlFunctionExpression NullableFunction(
-                string name,
-                IEnumerable<SqlExpression> arguments,
-                Type returnType,
-                bool onlyNullWhenAnyNullPropagatingArgumentIsNull)
-                => NullableFunction(name, arguments, returnType, null, onlyNullWhenAnyNullPropagatingArgumentIsNull);
+      string name,
+      IEnumerable<SqlExpression> arguments,
+      Type returnType,
+      bool onlyNullWhenAnyNullPropagatingArgumentIsNull)
+      => NullableFunction(name, arguments, returnType, null, onlyNullWhenAnyNullPropagatingArgumentIsNull);
 
     public virtual SqlFunctionExpression NullableFunction(
-                string name,
-                IEnumerable<SqlExpression> arguments,
-                Type returnType,
-                RelationalTypeMapping? typeMapping = null,
-                bool onlyNullWhenAnyNullPropagatingArgumentIsNull = true,
-                IEnumerable<bool>? argumentsPropagateNullability = null)
+      string name,
+      IEnumerable<SqlExpression> arguments,
+      Type returnType,
+      RelationalTypeMapping? typeMapping = null,
+      bool onlyNullWhenAnyNullPropagatingArgumentIsNull = true,
+      IEnumerable<bool>? argumentsPropagateNullability = null)
     {
       Check.NotEmpty(name, nameof(name));
       Check.NotNull(arguments, nameof(arguments));
@@ -77,20 +76,46 @@ namespace MySql.EntityFrameworkCore.Query.Internal
       }
 
       return new SqlFunctionExpression(
-          name,
-          typeMappedArguments,
-          true,
-          onlyNullWhenAnyNullPropagatingArgumentIsNull
-              ? (argumentsPropagateNullability ??  Statics.GetTrueValues(typeMappedArguments.Count))
-              : Statics.GetFalseValues(typeMappedArguments.Count),
-          returnType,
-          typeMapping);
+        name,
+        typeMappedArguments,
+        true,
+        onlyNullWhenAnyNullPropagatingArgumentIsNull
+        ? (argumentsPropagateNullability ?? Statics.GetTrueValues(typeMappedArguments.Count))
+        : Statics.GetFalseValues(typeMappedArguments.Count),
+        returnType,
+        typeMapping);
+    }
+
+    public virtual SqlFunctionExpression NonNullableFunction(
+      string name,
+      IEnumerable<SqlExpression> arguments,
+      Type returnType,
+      RelationalTypeMapping? typeMapping = null)
+    {
+      Check.NotEmpty(name, nameof(name));
+      Check.NotNull(arguments, nameof(arguments));
+      Check.NotNull(returnType, nameof(returnType));
+
+      var typeMappedArguments = new List<SqlExpression>();
+
+      foreach (var argument in arguments)
+      {
+        typeMappedArguments.Add(ApplyDefaultTypeMapping(argument));
+      }
+
+      return new SqlFunctionExpression(
+        name,
+        typeMappedArguments,
+        false,
+        Statics.GetFalseValues(typeMappedArguments.Count),
+        returnType,
+        typeMapping);
     }
 
     public MySQLComplexFunctionArgumentExpression ComplexFunctionArgument(
-        IEnumerable<SqlExpression> argumentParts,
-        Type argumentType,
-        RelationalTypeMapping? typeMapping = null)
+      IEnumerable<SqlExpression> argumentParts,
+      Type argumentType,
+      RelationalTypeMapping? typeMapping = null)
     {
       var typeMappedArgumentParts = new List<SqlExpression>();
 
@@ -100,69 +125,68 @@ namespace MySql.EntityFrameworkCore.Query.Internal
       }
 
       return new MySQLComplexFunctionArgumentExpression(
-          typeMappedArgumentParts,
-          argumentType,
-          typeMapping);
+        typeMappedArgumentParts,
+        argumentType,
+        typeMapping!);
     }
 
     public MySQLCollateExpression Collate(
-        SqlExpression valueExpression,
-        string charset,
-        string collation)
-        => (MySQLCollateExpression)ApplyDefaultTypeMapping(
-            new MySQLCollateExpression(
-                valueExpression,
-                charset,
-                collation,
-                null));
+      SqlExpression valueExpression,
+      string charset,
+      string collation)
+      => (MySQLCollateExpression)ApplyDefaultTypeMapping(
+        new MySQLCollateExpression(
+          valueExpression,
+          charset,
+          collation,
+          null));
 
     public virtual MySQLBinaryExpression MySqlIntegerDivide(
-    SqlExpression left,
-    SqlExpression right,
-    RelationalTypeMapping? typeMapping = null)
-    => MakeBinary(
+      SqlExpression left,
+      SqlExpression right,
+      RelationalTypeMapping? typeMapping = null)
+      => MakeBinary(
         MySQLBinaryExpressionOperatorType.IntegerDivision,
         left,
         right,
         typeMapping);
 
     public virtual MySQLBinaryExpression NonOptimizedEqual(
-                SqlExpression left,
-                SqlExpression right,
-                RelationalTypeMapping? typeMapping = null)
-                => MakeBinary(
-                    MySQLBinaryExpressionOperatorType.NonOptimizedEqual,
-                    left,
-                    right,
-                    typeMapping);
+      SqlExpression left,
+      SqlExpression right,
+      RelationalTypeMapping? typeMapping = null)
+      => MakeBinary(
+        MySQLBinaryExpressionOperatorType.NonOptimizedEqual,
+        left,
+        right,
+        typeMapping);
 
     public virtual MySQLBinaryExpression MakeBinary(
-    MySQLBinaryExpressionOperatorType operatorType,
-    SqlExpression left,
-    SqlExpression right,
-    RelationalTypeMapping? typeMapping)
+      MySQLBinaryExpressionOperatorType operatorType,
+      SqlExpression left,
+      SqlExpression right,
+      RelationalTypeMapping? typeMapping)
     {
       var returnType = left.Type;
 
       return (MySQLBinaryExpression)ApplyTypeMapping(
-          new MySQLBinaryExpression(
-              operatorType,
-              left,
-              right,
-              returnType,
-              null),
-          typeMapping);
+        new MySQLBinaryExpression(
+          operatorType,
+          left,
+          right,
+          returnType,
+          null),
+        typeMapping);
     }
 
-    [return: NotNullIfNotNull("sqlExpression")]
-    public override SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
-    {
-      if (sqlExpression == null
-          || sqlExpression.TypeMapping != null)
-      {
-        return sqlExpression;
-      }
+    public override SqlExpression ApplyTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
+    => sqlExpression is not { TypeMapping: null }
+        ? sqlExpression!
+        : ApplyNewTypeMapping(sqlExpression, typeMapping);
 
+
+    private SqlExpression ApplyNewTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
+    {
       switch (sqlExpression)
       {
         case MySQLCollateExpression e:
@@ -172,7 +196,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
         case MySQLBinaryExpression e:
           return ApplyTypeMappingOnMySqlBinary(e, typeMapping);
         default:
-          return base.ApplyTypeMapping(sqlExpression, typeMapping);
+          return base.ApplyTypeMapping(sqlExpression!, typeMapping);
       }
     }
 
@@ -184,7 +208,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
       return new MySQLComplexFunctionArgumentExpression(
           complexFunctionArgumentExpression.ArgumentParts,
           complexFunctionArgumentExpression.Type,
-          inferredTypeMapping ?? complexFunctionArgumentExpression.TypeMapping);
+          inferredTypeMapping ?? complexFunctionArgumentExpression.TypeMapping!);
     }
 
     private MySQLCollateExpression ApplyTypeMappingOnCollate(MySQLCollateExpression collateExpression)
@@ -200,8 +224,8 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     }
 
     private SqlExpression ApplyTypeMappingOnMySqlBinary(
-    MySQLBinaryExpression sqlBinaryExpression,
-    RelationalTypeMapping? typeMapping)
+      MySQLBinaryExpression sqlBinaryExpression,
+      RelationalTypeMapping? typeMapping)
     {
       var left = sqlBinaryExpression.Left;
       var right = sqlBinaryExpression.Right;
@@ -214,12 +238,14 @@ namespace MySql.EntityFrameworkCore.Query.Internal
       {
         case MySQLBinaryExpressionOperatorType.NonOptimizedEqual:
           inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
-                                ?? (left.Type != typeof(object)
-                                    ? _typeMappingSource.FindMapping(left.Type)
-                                    : _typeMappingSource.FindMapping(right.Type));
+            ?? (left.Type != typeof(object)
+            ? _typeMappingSource.FindMapping(left.Type)
+            : _typeMappingSource.FindMapping(right.Type));
+
           resultType = typeof(bool);
           resultTypeMapping = _boolTypeMapping;
           break;
+
         case MySQLBinaryExpressionOperatorType.IntegerDivision:
           {
             inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
@@ -233,11 +259,11 @@ namespace MySql.EntityFrameworkCore.Query.Internal
       }
 
       return new MySQLBinaryExpression(
-          sqlBinaryExpression.OperatorType,
-          ApplyTypeMapping(left, inferredTypeMapping),
-          ApplyTypeMapping(right, inferredTypeMapping),
-          resultType,
-          resultTypeMapping);
+        sqlBinaryExpression.OperatorType,
+        ApplyTypeMapping(left, inferredTypeMapping),
+        ApplyTypeMapping(right, inferredTypeMapping),
+        resultType,
+        resultTypeMapping);
     }
   }
 }

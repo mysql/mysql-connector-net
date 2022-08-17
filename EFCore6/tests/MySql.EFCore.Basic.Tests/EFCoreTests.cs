@@ -184,5 +184,29 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       }
     }
 
+    /// <summary>
+    /// Bug#34317220 [.NET 6 - equality check on Datetime.Date throws ArgumentOutOfRangeException]
+    /// </summary>
+    [Test]
+    public void DateTimeEqualityCheck()
+    {
+      using (BugContext context = new BugContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+
+        context.Add(new Bug { Id = 1, CreatedDate = DateTime.Today });
+        context.SaveChanges();
+
+        var test = context.Bugs.Where(x => x.CreatedDate == DateTime.Today).ToList();
+        Assert.That(test.Count, Is.EqualTo(1));
+        test = context.Bugs.Where(x => x.CreatedDate.Date > DateTime.Today).ToList();
+        Assert.That(test.Count, Is.EqualTo(0));
+        test = context.Bugs.Where(x => x.CreatedDate.Date < DateTime.Today).ToList();
+        Assert.That(test.Count, Is.EqualTo(0));
+        test = context.Bugs.Where(x => x.CreatedDate.Date == DateTime.Today).ToList();
+        Assert.That(test.Count, Is.EqualTo(1));
+      }
+    }
   }
 }

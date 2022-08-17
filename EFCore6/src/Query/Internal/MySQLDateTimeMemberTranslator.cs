@@ -103,61 +103,55 @@ namespace MySql.EntityFrameworkCore.Query.Internal
         switch (memberName)
         {
           case nameof(DateTime.DayOfYear):
-            return _sqlExpressionFactory.Function(
+            return _sqlExpressionFactory.NullableFunction(
               "DAYOFYEAR",
               new[] { instance! },
-              nullable: true,
-              argumentsPropagateNullability: TrueArrays[1],
-              returnType);
+              returnType,
+              false);
 
           case nameof(DateTime.Date):
-            return _sqlExpressionFactory.Function(
+            return _sqlExpressionFactory.NullableFunction(
               "CONVERT",
               new[]{
                 instance!,
                 _sqlExpressionFactory.Fragment("date")
               },
-              nullable: true,
-              argumentsPropagateNullability: TrueArrays[1],
-              returnType);
+              returnType,
+              false);
 
           case nameof(DateTime.TimeOfDay):
             return _sqlExpressionFactory.Convert(instance!, returnType);
 
           case nameof(DateTime.Now):
-            return _sqlExpressionFactory.Function(
+            return _sqlExpressionFactory.NonNullableFunction(
               declaringType == typeof(DateTimeOffset)
               ? "UTC_TIMESTAMP"
               : "CURRENT_TIMESTAMP",
               Array.Empty<SqlExpression>(),
-              nullable: true,
-              argumentsPropagateNullability: TrueArrays[0],
               returnType);
 
           case nameof(DateTime.UtcNow):
-            return _sqlExpressionFactory.Function(
+            return _sqlExpressionFactory.NonNullableFunction(
               "UTC_TIMESTAMP",
               Array.Empty<SqlExpression>(),
-              nullable: true,
-              argumentsPropagateNullability: TrueArrays[0],
               returnType);
 
           case nameof(DateTime.Today):
-            return _sqlExpressionFactory.Function(
+            return _sqlExpressionFactory.NonNullableFunction(
               declaringType == typeof(DateTimeOffset)
               ? "UTC_DATE"
               : "CURDATE",
               Array.Empty<SqlExpression>(),
-              nullable: true,
-              argumentsPropagateNullability: TrueArrays[0],
               returnType);
+
           case nameof(DateTime.DayOfWeek):
-            return _sqlExpressionFactory.Function(
-              "DAYOFWEEK",
-              new[] { instance! },
-              nullable: true,
-              argumentsPropagateNullability: TrueArrays[1],
-              returnType);
+            return _sqlExpressionFactory.Subtract(
+              _sqlExpressionFactory.NullableFunction(
+                "DAYOFWEEK",
+                new[] { instance! },
+                returnType,
+                false),
+              _sqlExpressionFactory.Constant(1));
         }
       }
 
