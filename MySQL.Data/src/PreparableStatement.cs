@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -113,7 +113,7 @@ namespace MySql.Data.MySqlClient
 
         if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
         {
-          paramCount = num_params + Attributes.Count;
+          paramCount += Attributes.Count;
           _packet.WriteLength(paramCount);
         }
 
@@ -134,7 +134,7 @@ namespace MySql.Data.MySqlClient
 
             // parameter name
             if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
-              _packet.WriteLenString(p.BaseName);
+              _packet.WriteLenString(String.Empty);
           }
 
           // write out the attributes types and names

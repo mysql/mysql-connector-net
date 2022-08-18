@@ -8,6 +8,7 @@
 - Changed the exception that Connector/NET throws when a connection timeout expires (from TimeoutException to MySqlException) (MySQL Bug #107600, Oracle Bug #34299402).
 - Contribution: Added PackageLicenseExpression to display licensing information from NuGet (MySQL Bug #108091, Oracle Bug #34477295). Thanks to Matthew Steeples for the contribution.
 - Fixed a bug that raised an exception when trying to do an equality check on Datetime.Date (MySQL Bug #107618, Oracle Bug #34317220).
+- Fixed a bug that overrode the query attribute's value when using command parameters with the same name (MySQL Bug #105728, Oracle Bug #33620022).
 
 
 8.0.30

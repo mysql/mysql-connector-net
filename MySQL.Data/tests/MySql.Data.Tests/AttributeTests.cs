@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -212,6 +212,33 @@ namespace MySql.Data.MySqlClient.Tests
       using MySqlCommand cmd = new MySqlCommand();
       Assert.Throws<ArgumentException>(() => cmd.Attributes.SetAttribute(string.Empty, "bar"));
       Assert.Throws<IndexOutOfRangeException>(() => name = cmd.Attributes[2].AttributeName);
+    }
+
+    /// <summary>
+    /// Bug#33620022 [Parameter name overrides query attributes]
+    /// </summary>
+    [TestCase(true)]
+    [TestCase(false)]
+    public void ParameterOverridesAttributeValue(bool prepare)
+    {
+      using var cmd = new MySqlCommand("select mysql_query_attribute_string('name') as attribute, mysql_query_attribute_string('name2') as attribute2, @name as parameter, @name2 as parameter2, mysql_query_attribute_string('attr') as attribute3", Connection);
+      cmd.Attributes.SetAttribute("name", "attribute");
+      cmd.Attributes.SetAttribute("name2", "attribute2");
+      cmd.Parameters.AddWithValue("name", "parameter");
+      cmd.Parameters.AddWithValue("name2", "parameter2");
+      cmd.Attributes.SetAttribute("attr", "attribute3");
+
+      if (prepare) cmd.Prepare();
+
+      using var reader = cmd.ExecuteReader();
+      while (reader.Read())
+      {
+        StringAssert.AreEqualIgnoringCase("attribute", reader.GetValue(0).ToString());
+        StringAssert.AreEqualIgnoringCase("attribute2", reader.GetValue(1).ToString());
+        StringAssert.AreEqualIgnoringCase("parameter", reader.GetValue(2).ToString());
+        StringAssert.AreEqualIgnoringCase("parameter2", reader.GetValue(3).ToString());
+        StringAssert.AreEqualIgnoringCase("attribute3", reader.GetValue(4).ToString());
+      }
     }
   }
 }
