@@ -27,9 +27,9 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-using System.Data.Common;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
+using System.Data.Common;
 
 namespace MySql.Data.MySqlClient
 {
@@ -409,8 +409,8 @@ namespace MySql.Data.MySqlClient
       if (parameter == null)
         throw new MySqlException("Only MySqlParameter objects may be stored");
 
-      parameter = Add(parameter);
-      return IndexOf(parameter);
+      Add(parameter);
+      return _items.Count - 1;
     }
 
     /// <summary>
@@ -513,6 +513,5 @@ namespace MySql.Data.MySqlClient
     public override object SyncRoot => (_items as IList).SyncRoot;
 
     #endregion
-
   }
 }

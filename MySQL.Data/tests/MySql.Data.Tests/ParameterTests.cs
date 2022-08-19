@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,6 +29,7 @@
 using NUnit.Framework;
 using System;
 using System.Data;
+using System.Diagnostics;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -828,6 +829,44 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(DbType.String, newParam.DbType);
       Assert.AreEqual(MySqlDbType.Int32, newIntParam.MySqlDbType);
       Assert.AreEqual(DbType.Int32, newIntParam.DbType);
+    }
+
+    /// <summary>
+    /// Bug #33710643 [Poor performance when adding parameters with "Add(Object)"]
+    /// Before the fix, the method Add(object value) was above the 8-10 seconds.
+    /// </summary>
+    [Test]
+    public void AddObjectPerformance()
+    {
+      int paramCount = 50000;
+      var cmd = new MySqlCommand();
+      var sw1 = new Stopwatch();
+      var sw2 = new Stopwatch();
+
+      sw1.Start();
+      for (int i = 0; i < paramCount; i++)
+      {
+        IDbDataParameter p = cmd.CreateParameter();
+        p.ParameterName = $"?param_{i}";
+        p.DbType = DbType.String;
+        cmd.Parameters.AddWithValue(p.ParameterName, p);
+      }
+      sw1.Stop();
+      cmd.Parameters.Clear();
+
+      sw2.Start();
+      for (int i = 0; i < paramCount; i++)
+      {
+        IDbDataParameter p = cmd.CreateParameter();
+        p.ParameterName = $"?param_{i}";
+        p.DbType = DbType.String;
+        cmd.Parameters.Add(p);
+      }
+      sw2.Stop();
+      Console.Write(sw2.Elapsed);
+
+      Assert.True(sw1.Elapsed.TotalSeconds < 1);
+      Assert.True(sw2.Elapsed.TotalSeconds < 1);
     }
   }
 }
