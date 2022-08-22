@@ -726,208 +726,6 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    #region Authentication
-
-    [Test]
-    [Property("Category", "Security")]
-    public void MySqlNativePasswordPlugin()
-    {
-      // TODO: Remove when support for caching_sha2_password plugin is included for X DevAPI.
-      if (session.InternalSession.GetServerVersion().isAtLeast(8, 0, 4)) return;
-
-      using (var session = MySQLX.GetSession(ConnectionStringUri))
-      {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        var result = ExecuteSQLStatement(session.SQL("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = 'test';")).FetchAll();
-        Assert.AreEqual(schemaName, session.Settings.UserID);
-        Assert.AreEqual(session.Settings.UserID, result[0][0].ToString());
-        Assert.AreEqual("mysql_native_password", result[0][1].ToString());
-      }
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void ConnectUsingSha256PasswordPlugin()
-    {
-      ExecuteSqlAsRoot($"DROP USER IF EXISTS 'testSha256'@'%';");
-      ExecuteSqlAsRoot($"CREATE USER 'testSha256'@'%' identified with sha256_password by 'mysql';");
-      ExecuteSqlAsRoot($"GRANT ALL PRIVILEGES  ON *.*  TO 'testSha256'@'%';");
-
-      string userName = "testSha256";
-      string password = "mysql";
-      string pluginName = "sha256_password";
-      string connectionStringUri = ConnectionStringUri.Replace("test:test", string.Format("{0}:{1}", userName, password));
-
-      // User with password over TLS connection.
-      using (var session = MySQLX.GetSession(connectionStringUri))
-      {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        var result = ExecuteSQLStatement(session.SQL(string.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName))).FetchAll();
-        Assert.AreEqual(userName, session.Settings.UserID);
-        Assert.AreEqual(session.Settings.UserID, result[0][0].ToString());
-        Assert.AreEqual(pluginName, result[0][1].ToString());
-      }
-
-      // Connect over non-TLS connection.
-      using (var session = MySQLX.GetSession(connectionStringUri + "?sslmode=none"))
-      {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session.Settings.Auth);
-      }
-
-      // User without password over TLS connection.
-      ExecuteSQL($"ALTER USER {userName}@'%' IDENTIFIED BY ''");
-      using (var session = MySQLX.GetSession(ConnectionStringUri.Replace("test:test", string.Format("{0}:{1}", userName, ""))))
-      {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        var result = ExecuteSQLStatement(session.SQL(string.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName))).FetchAll();
-        Assert.AreEqual(userName, session.Settings.UserID);
-        Assert.AreEqual(session.Settings.UserID, result[0][0].ToString());
-        Assert.AreEqual(pluginName, result[0][1].ToString());
-      }
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void ConnectUsingExternalAuth()
-    {
-      // Should fail since EXTERNAL is currently not supported by X Plugin.
-      Exception ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";auth=EXTERNAL"));
-      Assert.AreEqual("Invalid authentication method EXTERNAL", ex.Message);
-
-      ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionStringUri + "?auth=EXTERNAL"));
-      Assert.AreEqual("Invalid authentication method EXTERNAL", ex.Message);
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void ConnectUsingPlainAuth()
-    {
-      using (var session = MySQLX.GetSession(ConnectionString + ";auth=pLaIn"))
-      {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session.Settings.Auth);
-      }
-
-      using (var session = MySQLX.GetSession(ConnectionStringUri + "?auth=pLaIn"))
-      {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session.Settings.Auth);
-      }
-
-      // Should fail since PLAIN requires TLS to be enabled.
-      Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionStringUri + "?auth=PLAIN&sslmode=none"));
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void ConnectUsingMySQL41Auth()
-    {
-      var connectionStringUri = ConnectionStringUri;
-      if (session.InternalSession.GetServerVersion().isAtLeast(8, 0, 4))
-      {
-        // Use connection string uri set with a mysql_native_password user.
-        connectionStringUri = ConnectionStringUriNative;
-      }
-
-      using (var session = MySQLX.GetSession(connectionStringUri + "?auth=MySQL41"))
-      {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session.Settings.Auth);
-      }
-
-      using (var session = MySQLX.GetSession(connectionStringUri + "?auth=mysql41&sslmode=none"))
-      {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session.Settings.Auth);
-      }
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void DefaultAuth()
-    {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 5)) return;
-
-      string user = "testsha256";
-
-      ExecuteSQLStatement(session.SQL($"DROP USER IF EXISTS {user}@'%'"));
-      ExecuteSQLStatement(session.SQL($"CREATE USER {user}@'%' IDENTIFIED WITH caching_sha2_password BY '{user}'"));
-
-      string connString = $"mysqlx://{user}:{user}@{Host}:{XPort}";
-      // Default to PLAIN when TLS is enabled.
-      using (var session = MySQLX.GetSession(connString))
-      {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session.Settings.Auth);
-        var result = ExecuteSQLStatement(session.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';")).FetchAll();
-        StringAssert.StartsWith("TLSv1", result[0][1].ToString());
-      }
-
-      // Default to SHA256_MEMORY when TLS is not enabled.
-      using (var session = MySQLX.GetSession(connString + "?sslmode=none"))
-      {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session.Settings.Auth);
-      }
-    }
-
-    [Test]
-    [Property("Category", "Security")]
-    public void ConnectUsingSha256Memory()
-    {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 5)) return;
-
-      using (var session = MySQLX.GetSession(ConnectionStringUri + "?auth=SHA256_MEMORY"))
-      {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session.Settings.Auth);
-        var result = session.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.True(result[0][1].ToString().Contains("TLSv1"));
-      }
-
-      using (var session = MySQLX.GetSession(ConnectionStringUri + "?auth=SHA256_MEMORY&sslmode=none"))
-      {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session.Settings.Auth);
-      }
-
-      using (var session1 = MySQLX.GetSession(
-        new
-        {
-          server = Host,
-          port = XPort,
-          user = session.Settings.UserID,
-          sslmode = MySqlSslMode.Disabled,
-          password = session.Settings.Password,
-          auth = MySqlAuthenticationMode.SHA256_MEMORY
-        }))
-      {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
-      }
-
-      //Exceptions
-      var cs = $"server={Host};user={session.Settings.UserID};port={XPort};password=;ssl-mode=none;auth=SHA256_MEMORY";
-      Assert.Throws<MySqlException>(() => MySQLX.GetSession(cs));
-      cs = $"mysqlx://{session.Settings.UserID}:@{Host}:{XPort}?sslmode=none&auth=SHA256_MEMORY";
-      Assert.Throws<MySqlException>(() => MySQLX.GetSession(cs));
-      Assert.Throws<MySqlException>(() => MySQLX.GetSession(new
-      {
-        server = Host,
-        port = XPort,
-        user = session.Settings.UserID,
-        sslmode = MySqlSslMode.Disabled,
-        password = "",
-        auth = MySqlAuthenticationMode.SHA256_MEMORY
-      }));
-
-    }
-
-    #endregion
-
-    #region WL14389
-
     [TestCase("localhost")]
     [TestCase("127.0.0.1")]
     [TestCase("[::1]")]
@@ -2002,10 +1800,10 @@ namespace MySqlX.Data.Tests
       TestConnectStringTimeoutFailureTimeout(connStrBuilder.ConnectionString, 0, 21, "Offline host timeout value in between 1 and 21 seconds");
     }
 
-    [Test, Description("scenario 1(connectionString,connectionUri,Anonymous Object,MysqlxStringBuilder with connect timeout option=0 for online server)")]
-    public void TimeoutSuccessConnectOptionZero()
+    [Test, Description("scenario 1(connectionString,connectionUri,Anonymous Object,MysqlxStringBuilder with connect timeout option=1 for online server)")]
+    public void TimeoutSuccessConnectOptionOne()
     {
-      int connectionTimeout = 0;
+      int connectionTimeout = 1;
       string connStr = ConnectionString + ";" + "connect-timeout=" + connectionTimeout;
       TestConnectStringTimeoutSuccessTimeout(connStr, 0, 5, "Checking the timeout between 0 to 5 seconds");
       connStr = ConnectionStringUri + "?connect-timeout=" + connectionTimeout;
@@ -2431,8 +2229,6 @@ namespace MySqlX.Data.Tests
         Assert.AreEqual("Unsupported protocol version.", ex.Message);
       }
     }
-
-    #endregion
 
     #region Methods
 

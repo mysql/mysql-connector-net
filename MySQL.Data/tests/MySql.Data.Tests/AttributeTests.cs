@@ -221,6 +221,8 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase(false)]
     public void ParameterOverridesAttributeValue(bool prepare)
     {
+      if (!Connection.driver.SupportsQueryAttributes) Assert.Ignore("MySQL Server version does not support query attributes.");
+
       using var cmd = new MySqlCommand("select mysql_query_attribute_string('name') as attribute, mysql_query_attribute_string('name2') as attribute2, @name as parameter, @name2 as parameter2, mysql_query_attribute_string('attr') as attribute3", Connection);
       cmd.Attributes.SetAttribute("name", "attribute");
       cmd.Attributes.SetAttribute("name2", "attribute2");
