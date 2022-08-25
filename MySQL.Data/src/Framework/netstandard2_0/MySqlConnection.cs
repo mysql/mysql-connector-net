@@ -1,4 +1,4 @@
-﻿// Copyright © 2004, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -25,7 +25,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
-
 
 using System;
 using System.ComponentModel;
@@ -90,7 +89,7 @@ namespace MySql.Data.MySqlClient
     /// Enlists in the specified transaction. 
     /// </summary>
     /// <param name="transaction">
-    /// A reference to an existing <see cref="System.Transactions.Transaction"/> in which to enlist.
+    /// A reference to an existing <see cref="Transaction"/> in which to enlist.
     /// </param>
     public override void EnlistTransaction(Transaction transaction)
     {

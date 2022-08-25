@@ -50,10 +50,8 @@ namespace MySql.Data.MySqlClient
   ///    {
   ///      MySqlConnection myConnection = new MySqlConnection(myConnString);
   ///      myConnection.Open();
-  ///      
   ///      MySqlCommand myCommand = myConnection.CreateCommand();
   ///      MySqlTransaction myTrans;
-  ///      
   ///      // Start a local transaction
   ///      myTrans = myConnection.BeginTransaction();
   ///      // Must assign both transaction object and connection
@@ -127,7 +125,7 @@ namespace MySql.Data.MySqlClient
     /// determine the connection object associated with a particular 
     /// transaction created by <see cref="MySqlConnection.BeginTransaction()"/>.
     /// </remarks>
-    public new MySqlConnection Connection { get; }
+    public new MySqlConnection Connection { get; set; }
 
     /// <summary>
     /// Specifies the <see cref="IsolationLevel"/> for this transaction.

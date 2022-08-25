@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -89,6 +89,12 @@ namespace MySql.Data.MySqlClient
       if (connection.State == ConnectionState.Closed)
         connection.CloseFully();
     }
+
+    public void ChangeConnection(MySqlConnection connection)
+    {
+      this.connection = connection;
+      this.simpleTransaction.Connection = connection;
+    }
   }
 
   internal sealed class MySqlPromotableTransaction : IPromotableSinglePhaseNotification, ITransactionPromoter
@@ -119,6 +125,20 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    public MySqlConnection Connection
+    {
+      get
+      {
+        return connection;
+      }
+      set
+      {
+        connection = value;
+        if (scopeStack.Count > 0)
+          scopeStack.Peek().ChangeConnection(value);
+      }
+    }
+
     public bool InRollback
     {
       get
@@ -140,7 +160,7 @@ namespace MySql.Data.MySqlClient
       typeof(System.Transactions.IsolationLevel), baseTransaction.IsolationLevel);
       System.Data.IsolationLevel dataLevel = (System.Data.IsolationLevel)Enum.Parse(
            typeof(System.Data.IsolationLevel), valueName);
-      MySqlTransaction simpleTransaction = connection.BeginTransaction(dataLevel,"SESSION");
+      MySqlTransaction simpleTransaction = connection.BeginTransaction(dataLevel, "SESSION");
 
       // We need to save the per-thread scope stack locally.
       // We cannot always use thread static variable in rollback: when scope

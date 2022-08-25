@@ -10,6 +10,7 @@
 - Fixed a bug that raised an exception when trying to do an equality check on Datetime.Date (MySQL Bug #107618, Oracle Bug #34317220).
 - Fixed a bug that overrode the query attribute's value when using command parameters with the same name (MySQL Bug #105728, Oracle Bug #33620022).
 - Improved the performance for the Add(object value) method of the MySqlParameterCollection object (MySQL Bug #105997, Oracle Bug #33710643).
+- Fixed a bug that closes the connection when an exception occurs and prevents the rollback from happening when using transactions (MySQL Bug #107110, Oracle Bug #34107186).
 
 
 8.0.30

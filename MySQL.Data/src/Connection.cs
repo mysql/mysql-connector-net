@@ -588,6 +588,19 @@ namespace MySql.Data.MySqlClient
     {
       try
       {
+        if (driver.HasStatus(ServerStatusFlags.InTransaction))
+        {
+          MySqlConnection newConn = (MySqlConnection)this.Clone();
+          Driver newDriver = Driver.Create(new MySqlConnectionStringBuilder(newConn.ConnectionString));
+
+          lock(newDriver)
+          {
+            newConn.driver = newDriver;
+            newDriver.currentTransaction = driver.currentTransaction;
+            driver.currentTransaction.Connection = newConn;
+          }
+        }
+
         driver.Close();
       }
       catch (Exception ex)

@@ -469,8 +469,6 @@ namespace MySql.Data.MySqlClient.Tests
       // Expect table with entries for inner and outer scope
       NestedScopeInternalTest(TransactionScopeOption.Required, true, true, true, true);
 
-
-
       // inner scope creates new transaction, neither inner not outer  scope completes
       // Expect empty table.
       NestedScopeInternalTest(TransactionScopeOption.RequiresNew, false, false, false, false);
@@ -805,6 +803,32 @@ namespace MySql.Data.MySqlClient.Tests
       .GetAwaiter().GetResult();
     }
 
+    /// <summary>
+    /// Bug#34107186 [System.NullReferenceException]
+    /// When the connection was Aborted due to an exception, this was closed and hence the transaction couldn't be rolled back.
+    /// </summary>
+    [Test]
+    public void TransactionScopeNullReference()
+    {
+      Assert.DoesNotThrow(() => PerformSelectThatTimesOut(Connection.ConnectionString));
+    }
+
+    private void PerformSelectThatTimesOut(string connectionString)
+    {
+      using (TransactionScope scope = new TransactionScope())
+      {
+        using (var connection = new MySqlConnection(connectionString))
+        {
+          connection.Open();
+          using (var cmd = connection.CreateCommand())
+          {
+            cmd.CommandText = "SELECT * from INFORMATION_SCHEMA.TABLES LIMIT 1; SELECT SLEEP(5);";
+            cmd.CommandTimeout = 1;
+            cmd.ExecuteNonQuery();
+          }
+        }
+      }
+    }
     private static async Task PerformQueriesAtIntervals(TimeSpan interval, string connectionString, string tableName)
     {
       for (int i = 0; i < 151; i++)
