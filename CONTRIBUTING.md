@@ -23,7 +23,7 @@ Contributing to this project is easy. You just need to follow these steps:
   * Make sure you are aware of the requirements for the project (e.g. don't require .NET Core 3.0 if we are curently supporting .NET Core 2.2 and lower).
 * Validate your pull request by including tests that sufficiently cover the functionality.
 * Verify that the entire test suite passes with your code applied.
-* Submit your pull request. While you can submit the pull request via [Github](https://github.com/mysql/mysql-connector-net/pulls), you can also submit it directly via [bugs.mysql.com](bugs.mysql.com).
+* Submit your pull request. While you can submit the pull request with [Github](https://github.com/mysql/mysql-connector-net/pulls), you can also submit it directly with [bugs.mysql.com](https://bugs.mysql.com).
 
 Thanks again for being willing to contribute to MySQL. We truly believe in the principles of open source and appreciate any and all contributions to our projects.
 
