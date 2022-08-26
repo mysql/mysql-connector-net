@@ -308,6 +308,7 @@ namespace MySql.Data.MySqlClient
         case MySqlDbType.UInt32:
           return (int)MySqlDbType.Int32 | UNSIGNED_MASK;
         case MySqlDbType.UInt24:
+        case MySqlDbType.Int24:
           return (int)MySqlDbType.Int32 | UNSIGNED_MASK;
         case MySqlDbType.UInt16:
           return (int)MySqlDbType.Int16 | UNSIGNED_MASK;

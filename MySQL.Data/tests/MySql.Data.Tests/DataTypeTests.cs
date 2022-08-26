@@ -386,6 +386,43 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
+    /// Bug #29959095 incorrect integer value using prepared statement with MySqlDbType.INT24
+    /// </summary>
+    [TestCase(true)]
+    [TestCase(false)]
+    public void UsingInt24InPreparedStatement(bool prepare)
+    {
+      void insertInt24()
+      {
+        ExecuteSQL("CREATE TABLE Test(data MEDIUMINT)");
+        using (var command = new MySqlCommand(@"INSERT INTO Test(data) VALUES(@data);", Connection))
+        {
+          command.Parameters.AddWithValue("@data", 1234567).MySqlDbType = MySqlDbType.Int24;
+          if(prepare) command.Prepare();
+          command.ExecuteNonQuery();
+        }
+      }
+      Assert.DoesNotThrow(insertInt24);
+    }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OverflowInt24InPreparedStatement(bool prepare)
+    {
+      void insertInt24()
+      {
+        ExecuteSQL("CREATE TABLE Test(data MEDIUMINT)");
+        using (var command = new MySqlCommand(@"INSERT INTO Test(data) VALUES(@data);", Connection))
+        {
+          command.Parameters.AddWithValue("@data", 12345678910).MySqlDbType = MySqlDbType.Int24;
+          if (prepare) command.Prepare();
+          command.ExecuteNonQuery();
+        }
+      }
+      Assert.Catch(insertInt24);
+    }
+
+    /// <summary>
     /// Bug #25912 selecting negative time values gets wrong results 
     /// </summary>
     [Test]
