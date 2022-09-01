@@ -35,6 +35,7 @@ using System.Data.Common;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using System.IO;
 
 namespace MySql.Data.MySqlClient
 {
@@ -237,7 +238,14 @@ namespace MySql.Data.MySqlClient
         _paramValue = value;
         byte[] valueAsByte = value as byte[];
         string valueAsString = value as string;
-
+        MemoryStream valueAsMemoryStream = value as MemoryStream;
+        if (valueAsMemoryStream != null)
+        {
+          Size = (int)valueAsMemoryStream.Length;
+          valueAsMemoryStream.Position = 0;
+          StreamReader streamReaderForMemoryStream = new StreamReader(valueAsMemoryStream);
+          _paramValue = streamReaderForMemoryStream.ReadToEnd();
+        }
         if (valueAsByte != null)
           Size = valueAsByte.Length;
         else if (valueAsString != null)

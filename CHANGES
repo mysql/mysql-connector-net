@@ -13,6 +13,7 @@
 - Fixed a bug that closes the connection when an exception occurs and prevents the rollback from happening when using transactions (MySQL Bug #107110, Oracle Bug #34107186).
 - Fixed a bug that raised an exception when using Int24 data type in prepared commands (MySQL Bug #95986, Oracle Bug #29959095).
 - Contribution: Fixed a malformed URL (MySQL Bug #108290, Oracle Bug #34535732). Thanks to Adam Croot for the contribution.
+- Fixed a bug that prevented the use of a MemoryStream object as a MySqlParameter value parameter (MySQL Bug #102593, Oracle Bug #32506736).
 
 
 8.0.30

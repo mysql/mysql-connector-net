@@ -30,6 +30,7 @@ using NUnit.Framework;
 using System;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -189,6 +190,36 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (ArgumentException)
       {
+      }
+    }
+
+    /// <summary>
+    /// Bug #32506736  	Can't use MemoryStream as MySqlParameter value
+    /// </summary>
+    [Test]
+    public void MemoryStreamAsParameterValue()
+    {
+      ExecuteSQL("CREATE TABLE Test(str TEXT, blb BLOB,num INT); ");
+
+      using (MySqlCommand cmd = new MySqlCommand("INSERT INTO Test(str, blb, num) VALUES(@str, @blb, @num); ", Connection))
+      {
+        using var streamString = new MemoryStream(new byte[] { 97, 98, 99, 100 });//abcd
+        cmd.Parameters.AddWithValue("@str", streamString);
+        using var streamBlob = new MemoryStream(new byte[] { 101, 102, 103, 104 });//efgh
+        cmd.Parameters.AddWithValue("@blb", streamBlob);
+        using var streamnumber = new MemoryStream(new byte[] { 53, 54, 55, 56 });//5678
+        cmd.Parameters.AddWithValue("@num", streamnumber);
+        cmd.ExecuteNonQuery();
+
+        cmd.CommandText = "SELECT * FROM Test";
+
+        using (MySqlDataReader reader = cmd.ExecuteReader())
+        {
+          reader.Read();
+          Assert.AreEqual("abcd", reader.GetString(0));
+          Assert.AreEqual("efgh", reader.GetString(1));
+          Assert.AreEqual("5678", reader.GetString(2));
+        }
       }
     }
 
