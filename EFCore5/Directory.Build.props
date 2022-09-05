@@ -8,8 +8,7 @@
     <PackageTags>MySql;.NET Connector;MySql Entity Framework Core;netcore;.Net Core;MySql Conector/Net Entity Framework Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/mysql/mysql-connector-net</PackageProjectUrl>
-    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
-    <PackageLicenseUrl>https://downloads.mysql.com/docs/licenses/connector-net-8.0-gpl-en.pdf</PackageLicenseUrl>
+    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>    
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <LangVersion>10.0</LangVersion>
     <NoWarn>$(NoWarn);EF1001</NoWarn>
