@@ -316,7 +316,22 @@ namespace MySql.Data.MySqlClient
         packet.Write(new byte[23]);
       }
 
-      Authenticate(authenticationMethod, false);
+      try
+      {
+        Authenticate(authenticationMethod, false);
+      }
+      catch (Exception ex)
+      {
+        // If the authenticationMethod is kerberos and KerberosAuthMode is on AUTO, it will retry the connection using GSSAPI mode
+        if ((authenticationMethod == "authentication_kerberos_client" || authPlugin.SwitchedPlugin == "authentication_kerberos_client")
+          && Settings.KerberosAuthMode == KerberosAuthMode.AUTO)
+        {
+          Settings.KerberosAuthMode = KerberosAuthMode.GSSAPI;
+          Open();
+        }
+        else
+          throw ex;
+      }
 
       // if we are using compression, then we use our CompressedStream class
       // to hide the ugliness of managing the compression

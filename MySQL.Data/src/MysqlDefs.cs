@@ -566,7 +566,7 @@ namespace MySql.Data.MySqlClient
   }
 
   /// <summary>
-  ///     Controls which column type should be read as type System.Guid.
+  /// Controls which column type should be read as type System.Guid.
   /// </summary>
   public enum MySqlGuidFormat
   {
@@ -600,6 +600,25 @@ namespace MySql.Data.MySqlClient
     ///     that is, the byte order used by System.Guid.ToByteArray and System.Guid.#ctor(System.Byte[]).
     /// </summary>
     LittleEndianBinary16 = 6
+  }
+
+  /// <summary>
+  /// Defines the different APIs that can be used for Kerberos authentication.
+  /// </summary>
+  public enum KerberosAuthMode
+  {
+    /// <summary>
+    /// Use <see cref="SSPI"/> and then fall back to <see cref="GSSAPI"/> in case of error.
+    /// </summary>
+    AUTO = 0,
+    /// <summary>
+    /// Use MS Security Support Provider Interface (SSPI).
+    /// </summary>
+    SSPI = 1,
+    /// <summary>
+    /// Use Generic Security Services API (GSSAPI) through MIT Kerberos library.
+    /// </summary>
+    GSSAPI = 2
   }
 
   internal class MySqlConnectAttrs

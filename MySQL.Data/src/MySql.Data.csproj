@@ -49,6 +49,11 @@
   <Target Name="IncludeThirdPartyAssemblies">
     <ItemGroup>
       <BuildOutputInPackage Include="$(OutputPath)ZstdNet.dll" />
+      <BuildOutputInPackage Include="$(OutputPath)gssapi64.dll" />
+      <BuildOutputInPackage Include="$(OutputPath)comerr64.dll" />
+      <BuildOutputInPackage Include="$(OutputPath)k5sprt64.dll" />
+      <BuildOutputInPackage Include="$(OutputPath)krb5_64.dll" />
+      <BuildOutputInPackage Include="$(OutputPath)krbcc64.dll" />
     </ItemGroup>
   </Target>
 
@@ -58,6 +63,12 @@
     </None>
     <None Update="..\..\README">
       <Pack>true</Pack>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Dependencies\MITLibs\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

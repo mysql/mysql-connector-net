@@ -130,6 +130,15 @@ namespace MySql.Data.MySqlClient
         },
         (msb, sender) => msb.DefaultAuthenticationPlugin));
       Options.Add(new MySqlConnectionStringOption("ociconfigfile", null, typeof(string), string.Empty, false));
+      Options.Add(new MySqlConnectionStringOption("kerberosauthmode", "kerberos auth mode", typeof(KerberosAuthMode), Platform.IsWindows() ? KerberosAuthMode.AUTO : KerberosAuthMode.GSSAPI, false,
+        (msb, sender, value) =>
+        {
+          if (!Platform.IsWindows())
+            throw new PlatformNotSupportedException(string.Format(Resources.OptionNotCurrentlySupported, nameof(KerberosAuthMode)));
+          else
+            msb.SetValue("kerberosauthmode", value);
+        },
+        (msb, sender) => msb.KerberosAuthMode));
 
       // Other properties.
       Options.Add(new MySqlConnectionStringOption("autoenlist", "auto enlist", typeof(bool), true, false,
@@ -478,6 +487,22 @@ namespace MySql.Data.MySqlClient
     {
       get { return (string)values["ociconfigfile"]; }
       set { SetValue("ociconfigfile", value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the API to be used in Kerberos authentication.
+    /// </summary>
+    /// <remarks>
+    /// If <see cref="KerberosAuthMode.AUTO"/> (default value) is used, then it will try to log in using <see cref="KerberosAuthMode.SSPI"/>
+    /// and then fallback to <see cref="KerberosAuthMode.GSSAPI"/> in case of error.
+    /// </remarks>
+    [Category("Authentication")]
+    [DisplayName("KerberosAuthMode")]
+    [Description("Specifies the API to use during Kerberos authentication.")]
+    public KerberosAuthMode KerberosAuthMode
+    {
+      get { return (KerberosAuthMode)values["kerberosauthmode"]; }
+      set { SetValue("kerberosauthmode", value); }
     }
 
     #endregion

@@ -40,9 +40,14 @@ namespace MySql.Data.MySqlClient.Authentication
     internal NativeDriver _driver;
 
     /// <summary>
-    /// Handles the iteration of the multifactor authentication
+    /// Handles the iteration of the multifactor authentication.
     /// </summary>
     private int _mfaIteration = 1;
+
+    /// <summary>
+    /// Gets the AuthPlugin name of the AuthSwitchRequest.
+    /// </summary>
+    internal string SwitchedPlugin { get; private set; }
 
     /// <summary>
     /// Gets or sets the authentication data returned by the server.
@@ -252,6 +257,7 @@ namespace MySql.Data.MySqlClient.Authentication
     private MySqlAuthenticationPlugin NextPlugin(MySqlPacket packet)
     {
       string method = packet.ReadString();
+      SwitchedPlugin = method;
       byte[] authData = new byte[packet.Length - packet.Position];
       Array.Copy(packet.Buffer, packet.Position, authData, 0, authData.Length);
 
@@ -293,13 +299,12 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       switch (_mfaIteration)
       {
-        case 1:
-        default:
-          return Settings.Password;
         case 2:
           return Settings.Password2;
         case 3:
           return Settings.Password3;
+        default:
+          return Settings.Password;
       }
     }
 

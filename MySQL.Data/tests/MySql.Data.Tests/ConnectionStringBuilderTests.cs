@@ -201,6 +201,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         "sharedmemoryname",
         "pipe",
+        "kerberosauthmode"
       });
 
       foreach (string option in options)
@@ -217,6 +218,9 @@ namespace MySql.Data.MySqlClient.Tests
       csb.ConnectionProtocol = MySqlConnectionProtocol.Tcp;
       Assert.Throws<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory);
       Assert.Throws<PlatformNotSupportedException>(() => csb.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe);
+      Assert.Throws<PlatformNotSupportedException>(() => csb.KerberosAuthMode = KerberosAuthMode.AUTO);
+      Assert.Throws<PlatformNotSupportedException>(() => csb.KerberosAuthMode = KerberosAuthMode.GSSAPI);
+      Assert.Throws<PlatformNotSupportedException>(() => csb.KerberosAuthMode = KerberosAuthMode.SSPI);
     }
 #endif
 
@@ -428,6 +432,36 @@ namespace MySql.Data.MySqlClient.Tests
       // Non existing option
       Assert.IsFalse(connStringBuilder.TryGetValue("bar", out var nonexistingoption));
       Assert.IsNull(nonexistingoption);
+    }
+
+    /// <summary>
+    /// WL15341 - [Classic] Support MIT Kerberos library on Windows
+    /// New "KerberosAuthMode" connection option added.
+    /// </summary>
+    [Test]
+    public void KerberosAuthModeTest()
+    {
+      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only.");
+
+      string connString;
+      MySqlConnection conn;
+
+      conn = new MySqlConnection();
+      Assert.True(conn.Settings.KerberosAuthMode == KerberosAuthMode.AUTO);
+
+      foreach (KerberosAuthMode mode in Enum.GetValues(typeof(KerberosAuthMode)))
+      {
+        connString = $"kerberosauthmode={mode}";
+        conn = new MySqlConnection(connString);
+        Assert.True(conn.Settings.KerberosAuthMode == mode);
+
+        connString = $"kerberos auth mode={mode}";
+        conn = new MySqlConnection(connString);
+        Assert.True(conn.Settings.KerberosAuthMode == mode);
+      }
+
+      connString = "kerberosauthmode=INVALID";
+      Assert.Throws<ArgumentException>(() => conn = new MySqlConnection(connString));
     }
   }
 }

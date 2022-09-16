@@ -1277,52 +1277,114 @@ namespace MySql.Data.MySqlClient.Tests
 
     #region PureKerberos Mechanism
     /// <summary>
-    /// WL14229 - [Classic] Support for authentication_kerberos_client authentication plugin
+    /// WL14429 - [Classic] Support for authentication_kerberos_client authentication plugin
     /// WL14654 - [Classic] Integrate new SSPI kerberos library
-    /// This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini
+    /// WL15341 - [Classic] Support MIT Kerberos library on Windows
+    /// These tests require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini
     /// It uses preconfigured LDAP servers present in the labs.
-    /// For configuration of the server, there's a quick guide in Resources/KerberosConfig.txt to setup the environment.    
+    /// For configuration of the server, there's a quick guide in Resources/KerberosConfig.txt to setup the environment.
+    /// For SSPI, Windows client should be part of Windows server domain.
+    /// Please refer to the WLs to check the specifications for each case.
     /// </summary>
-    [TestCase("test2", "Testpw1", "", true)] // Same for both OS's
-    [TestCase("test1", "wrongPassword", "", true)] // [Linux] TRUE: if there's a TGT in cache.
-                                                   // [Windows] FALSE: correct password needs to be provided.
-    [TestCase("test1", "Testpw1", "authentication_kerberos_client", true)] // Same for both OS's
-    [TestCase("test1", "Testpw1", "sha256_password", true)] // Same for both OS's
-    [TestCase("invalidUser", "Testpw1", "", false)] // Same for both OS's    
-    [TestCase("test1", "", "", true)] // [Windows] TRUE: If MySQL account name is the same as the logged-in user.
-    [TestCase("invalidUser", "", "", false)] // [Windows] FALSE: If MySQL account name is not the same as the logged-in user.
-    [TestCase("", "Testpw1", "authentication_kerberos_client", true)] // [Windows] TRUE: Windows uses the logged-in user to obtain authentication.
-    [TestCase("", "falsePassword", "authentication_kerberos_client", false)] // [Windows] FALSE: Windows uses the logged-in user to obtain authentication.
-    [TestCase("", "", "caching_sha2_password", false)] // Same for both OS's
-    [TestCase("", "", "authentication_kerberos_client", true)] // [Linux] TRUE: if there's a TGT in cache or the login user is in KDC.
-                                                               // [Windows] TRUE: If Windows client is a part of Windows server domain.
+
+    [TestCase(false, "invalidUser", "", "", null)]
+    [TestCase(false, "invalidUser", "fakePassword", "", null)]
+    [TestCase(false, "", "", "caching_sha2_password", null)]
+    [TestCase(true, "", "", "authentication_kerberos_client", KerberosAuthMode.GSSAPI)] // TRUE: if there's a TGT in cache or the login user is in KDC. 'AUTO' if logged-in user is properly configured
+    [TestCase(true, "", "falsePassword", "authentication_kerberos_client", KerberosAuthMode.GSSAPI)]
+    [TestCase(true, "", "Testpw1", "authentication_kerberos_client", KerberosAuthMode.GSSAPI)]
+    [TestCase(true, "test1", "Testpw1", "authentication_kerberos_client", KerberosAuthMode.AUTO)]
+    [TestCase(true, "test1", "Testpw1", "sha256_password", KerberosAuthMode.AUTO)]
+    [TestCase(true, "test1", "Testpw1", "", KerberosAuthMode.AUTO)]
+    [TestCase(true, "test1", "wrongPassword", "", KerberosAuthMode.GSSAPI)] // TRUE: if there's a TGT in cache.
+    [TestCase(true, "test1", "", "", KerberosAuthMode.GSSAPI)]
     [Ignore("This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini")]
     [Property("Category", "Security")]
-    public void ConnectUsingMySqlPluginKerberos(string userName, string password, string pluginName, bool shouldPass)
+    public void ConnectUsingMySqlPluginKerberosAUTO(bool shouldPass, string userName, string password, string pluginName, KerberosAuthMode mode)
     {
       MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(Settings.ConnectionString)
       {
         UserID = userName,
         Password = password,
-        Database = string.Empty,
-        SslMode = MySqlSslMode.Disabled,
         DefaultAuthenticationPlugin = pluginName
       };
 
-      using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
+      TestKerberosConnection(shouldPass, userName, settings, mode);
+    }
+
+    [TestCase(false, "invalidUser", "", "", null)]
+    [TestCase(false, "invalidUser", "fakePassword", "", null)]
+    [TestCase(false, "", "", "caching_sha2_password", null)]
+    [TestCase(false, "", "", "authentication_kerberos_client", null)] // TRUE if logged-in user is properly configured in MySQL Server
+    [TestCase(false, "", "falsePassword", "authentication_kerberos_client", null)] // SSPI will use the logged-in user and the password provided
+    [TestCase(false, "test1", "wrongPassword", "", null)]
+    [TestCase(true, "", "Testpw1", "authentication_kerberos_client", KerberosAuthMode.SSPI)] // logged-in user should be properly configured in MySQL server
+    [TestCase(true, "test1", "Testpw1", "authentication_kerberos_client", KerberosAuthMode.SSPI)]
+    [TestCase(true, "test1", "Testpw1", "sha256_password", KerberosAuthMode.SSPI)]
+    [TestCase(true, "test1", "Testpw1", "", KerberosAuthMode.SSPI)]
+    [TestCase(true, "test1", "", "", KerberosAuthMode.SSPI)] // MySQL user should match with logged-in Windows user
+    [Ignore("This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini")]
+    [Property("Category", "Security")]
+    public void ConnectUsingMySqlPluginKerberosSSPI(bool shouldPass, string userName, string password, string pluginName, KerberosAuthMode mode)
+    {
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(Settings.ConnectionString)
+      {
+        UserID = userName,
+        Password = password,
+        DefaultAuthenticationPlugin = pluginName,
+        KerberosAuthMode = KerberosAuthMode.SSPI
+      };
+
+      TestKerberosConnection(shouldPass, userName, settings, mode);
+    }
+
+    [TestCase(false, "invalidUser", "", "", null)]
+    [TestCase(false, "invalidUser", "fakePassword", "", null)]
+    [TestCase(false, "", "", "caching_sha2_password", null)]
+    [TestCase(true, "", "", "authentication_kerberos_client", KerberosAuthMode.GSSAPI)] // TRUE: if there's a TGT in cache or the login user is in KDC.
+    [TestCase(true, "", "falsePassword", "authentication_kerberos_client", KerberosAuthMode.GSSAPI)] // TRUE: if there's a TGT in cache or the login user is in KDC.
+    [TestCase(true, "", "Testpw1", "authentication_kerberos_client", KerberosAuthMode.GSSAPI)] // TRUE: if there's a TGT in cache or the login user is in KDC.
+    [TestCase(true, "test1", "Testpw1", "authentication_kerberos_client", KerberosAuthMode.GSSAPI)]
+    [TestCase(true, "test1", "Testpw1", "sha256_password", KerberosAuthMode.GSSAPI)]
+    [TestCase(true, "test1", "Testpw1", "", KerberosAuthMode.GSSAPI)]
+    [TestCase(true, "test1", "wrongPassword", "", KerberosAuthMode.GSSAPI)] // TRUE: if there's a TGT in cache
+    [TestCase(true, "test1", "", "", KerberosAuthMode.GSSAPI)] // TRUE: if there's a TGT in cache
+    [Ignore("This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini")]
+    [Property("Category", "Security")]
+    public void ConnectUsingMySqlPluginKerberosGSSAPI(bool shouldPass, string userName, string password, string pluginName, KerberosAuthMode mode)
+    {
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(Settings.ConnectionString)
+      {
+        UserID = userName,
+        Password = password,
+        DefaultAuthenticationPlugin = pluginName,
+        KerberosAuthMode = KerberosAuthMode.GSSAPI
+      };
+
+      TestKerberosConnection(shouldPass, userName, settings, mode);
+    }
+
+    private void TestKerberosConnection(bool shouldPass, string username, MySqlConnectionStringBuilder settings, KerberosAuthMode mode)
+    {
+      ExecuteSQL("CREATE USER IF NOT EXISTS 'test1'@'%' IDENTIFIED WITH authentication_kerberos BY 'MYSQL.LOCAL'; " +
+        "GRANT ALL ON *.* to 'test1'@'%';", true);
+
+      using (MySqlConnection conn = new MySqlConnection(settings.ConnectionString))
       {
         if (shouldPass)
         {
-          connection.Open();
-          MySqlCommand command = new MySqlCommand($"SELECT user();", connection);
+          conn.Open();
+          MySqlCommand command = new MySqlCommand($"SELECT user();", conn);
           using (MySqlDataReader reader = command.ExecuteReader())
           {
             Assert.True(reader.Read());
-            StringAssert.Contains(userName, reader.GetString(0));
+            StringAssert.Contains(username, reader.GetString(0));
           }
+
+          Assert.True(conn.Settings.KerberosAuthMode == mode);
         }
         else
-          Assert.Throws<MySqlException>(() => connection.Open());
+          Assert.Throws<MySqlException>(() => conn.Open());
       }
     }
     #endregion
@@ -1686,7 +1748,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
       conn.FidoActionRequested += Conn_FidoActionRequested;
-      Assert.Throws<CtapException>(()=> conn.Open());
+      Assert.Throws<CtapException>(() => conn.Open());
     }
 
     [Test]

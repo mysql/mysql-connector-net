@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,6 +32,9 @@ namespace MySql.Data.Authentication.GSSAPI.Native
 {
   internal static class NativeMethods
   {
+    private static bool? _isWin;
+    private static bool IsWin => _isWin ?? (_isWin = Environment.OSVersion.Platform.ToString().StartsWith("Win")).Value;
+
     /// <summary>
     /// Converts a contiguous string name to GSS_API internal format
     /// <para>The gss_import_name() function converts a contiguous string name to internal form. In general, 
@@ -56,7 +59,9 @@ namespace MySql.Data.Authentication.GSSAPI.Native
       ref GssOidDescStruct inputNameType,
       out IntPtr outputName)
     {
-      return NativeMethodsLinux.gss_import_name(out minorStatus, ref inputNameBuffer, ref inputNameType, out outputName);
+      return IsWin
+        ? NativeMethodsWin64.gss_import_name(out minorStatus, ref inputNameBuffer, ref inputNameType, out outputName)
+        : NativeMethodsLinux.gss_import_name(out minorStatus, ref inputNameBuffer, ref inputNameType, out outputName);
     }
 
     /// <summary>
@@ -99,8 +104,11 @@ namespace MySql.Data.Authentication.GSSAPI.Native
       IntPtr actualMech,
       out uint expiryTime)
     {
-      return NativeMethodsLinux.gss_acquire_cred(out minorStatus, desiredName, timeRequired, ref desiredMechanisms,
-              credentialUsage, ref credentialHandle, actualMech, out expiryTime);
+      return IsWin
+        ? NativeMethodsWin64.gss_acquire_cred(out minorStatus, desiredName, timeRequired, ref desiredMechanisms,
+            credentialUsage, ref credentialHandle, actualMech, out expiryTime)
+        : NativeMethodsLinux.gss_acquire_cred(out minorStatus, desiredName, timeRequired, ref desiredMechanisms,
+            credentialUsage, ref credentialHandle, actualMech, out expiryTime);
     }
 
     /// <summary>
@@ -142,8 +150,11 @@ namespace MySql.Data.Authentication.GSSAPI.Native
       IntPtr actualMechs,
       out uint expiryTime)
     {
-      return NativeMethodsLinux.gss_acquire_cred_with_password(out minorStatus, desiredName, ref password, timeRequired,
-              ref desiredMechanisms, credentialUsage, ref credentialHandle, actualMechs, out expiryTime);
+      return IsWin
+        ? NativeMethodsWin64.gss_acquire_cred_with_password(out minorStatus, desiredName, ref password, timeRequired,
+            ref desiredMechanisms, credentialUsage, ref credentialHandle, actualMechs, out expiryTime)
+        : NativeMethodsLinux.gss_acquire_cred_with_password(out minorStatus, desiredName, ref password, timeRequired,
+            ref desiredMechanisms, credentialUsage, ref credentialHandle, actualMechs, out expiryTime);
     }
 
     /// <summary>
@@ -172,7 +183,9 @@ namespace MySql.Data.Authentication.GSSAPI.Native
       out int credentialUsage,
       out IntPtr mechs)
     {
-      return NativeMethodsLinux.gss_inquire_cred(out minorStatus, credentialHandle, out name, out lifetime, out credentialUsage, out mechs);
+      return IsWin
+        ? NativeMethodsWin64.gss_inquire_cred(out minorStatus, credentialHandle, out name, out lifetime, out credentialUsage, out mechs)
+        : NativeMethodsLinux.gss_inquire_cred(out minorStatus, credentialHandle, out name, out lifetime, out credentialUsage, out mechs);
     }
 
     /// <summary>
@@ -239,9 +252,13 @@ namespace MySql.Data.Authentication.GSSAPI.Native
       IntPtr retFlags,
       IntPtr timeRec)
     {
-      return NativeMethodsLinux.gss_init_sec_context(out minorStatus, claimantCredHandle, ref contextHandle, targetName,
-              ref mechType, reqFlags, timeReq, inputChanBindings, ref inputToken, actualMechType,
-              out outputToken, retFlags, timeRec);
+      return IsWin
+        ? NativeMethodsWin64.gss_init_sec_context(out minorStatus, claimantCredHandle, ref contextHandle, targetName,
+            ref mechType, reqFlags, timeReq, inputChanBindings, ref inputToken, actualMechType,
+            out outputToken, retFlags, timeRec)
+        : NativeMethodsLinux.gss_init_sec_context(out minorStatus, claimantCredHandle, ref contextHandle, targetName,
+            ref mechType, reqFlags, timeReq, inputChanBindings, ref inputToken, actualMechType,
+            out outputToken, retFlags, timeRec);
     }
 
     /// <summary>
@@ -274,7 +291,10 @@ namespace MySql.Data.Authentication.GSSAPI.Native
       ref IntPtr messageContext,
       ref GssBufferDescStruct statusString)
     {
-      return NativeMethodsLinux.gss_display_status(out minorStatus, status, statusType, ref mechType, ref messageContext,
+      return IsWin
+        ? NativeMethodsWin64.gss_display_status(out minorStatus, status, statusType, ref mechType, ref messageContext,
+              ref statusString)
+        : NativeMethodsLinux.gss_display_status(out minorStatus, status, statusType, ref mechType, ref messageContext,
               ref statusString);
     }
 
@@ -297,7 +317,9 @@ namespace MySql.Data.Authentication.GSSAPI.Native
         out GssBufferDescStruct nameBuffer,
         out GssOidDescStruct nameType)
     {
-      return NativeMethodsLinux.gss_display_name(out minorStatus, inputName, out nameBuffer, out nameType);
+      return IsWin
+        ? NativeMethodsWin64.gss_display_name(out minorStatus, inputName, out nameBuffer, out nameType)
+        : NativeMethodsLinux.gss_display_name(out minorStatus, inputName, out nameBuffer, out nameType);
     }
 
     /// <summary>
@@ -317,7 +339,9 @@ namespace MySql.Data.Authentication.GSSAPI.Native
       out uint minorStatus,
       ref GssBufferDescStruct buffer)
     {
-      return NativeMethodsLinux.gss_release_buffer(out minorStatus, ref buffer);
+      return IsWin
+        ? NativeMethodsWin64.gss_release_buffer(out minorStatus, ref buffer)
+        : NativeMethodsLinux.gss_release_buffer(out minorStatus, ref buffer);
     }
 
     /// <summary>
@@ -338,7 +362,9 @@ namespace MySql.Data.Authentication.GSSAPI.Native
       out uint minorStatus,
       ref IntPtr contextHandle)
     {
-      return NativeMethodsLinux.gss_delete_sec_context(out minorStatus, ref contextHandle, Const.GSS_C_NO_BUFFER);
+      return IsWin
+        ? NativeMethodsWin64.gss_delete_sec_context(out minorStatus, ref contextHandle, Const.GSS_C_NO_BUFFER)
+        : NativeMethodsLinux.gss_delete_sec_context(out minorStatus, ref contextHandle, Const.GSS_C_NO_BUFFER);
     }
 
     /// <summary>
@@ -355,7 +381,9 @@ namespace MySql.Data.Authentication.GSSAPI.Native
       out uint minorStatus,
       ref IntPtr inputName)
     {
-      return NativeMethodsLinux.gss_release_name(out minorStatus, ref inputName);
+      return IsWin
+        ? NativeMethodsWin64.gss_release_name(out minorStatus, ref inputName)
+        : NativeMethodsLinux.gss_release_name(out minorStatus, ref inputName);
     }
 
     /// <summary>
@@ -374,7 +402,9 @@ namespace MySql.Data.Authentication.GSSAPI.Native
       out uint minorStatus,
       ref IntPtr credentialHandle)
     {
-      return NativeMethodsLinux.gss_release_cred(out minorStatus, ref credentialHandle);
+      return IsWin
+        ? NativeMethodsWin64.gss_release_cred(out minorStatus, ref credentialHandle)
+        : NativeMethodsLinux.gss_release_cred(out minorStatus, ref credentialHandle);
     }
 
     /// <summary>
@@ -408,7 +438,9 @@ namespace MySql.Data.Authentication.GSSAPI.Native
       out int confState,
       out uint qopState)
     {
-      return NativeMethodsLinux.gss_unwrap(out minorStatus, contextHandle, ref inputMessage, out outputMessage, out confState, out qopState);
+      return IsWin
+        ? NativeMethodsWin64.gss_unwrap(out minorStatus, contextHandle, ref inputMessage, out outputMessage, out confState, out qopState)
+        : NativeMethodsLinux.gss_unwrap(out minorStatus, contextHandle, ref inputMessage, out outputMessage, out confState, out qopState);
     }
 
     /// <summary>
@@ -432,7 +464,9 @@ namespace MySql.Data.Authentication.GSSAPI.Native
       ref GssBufferDescStruct inputMessage,
       out GssBufferDescStruct outputMessage)
     {
-      return NativeMethodsLinux.gss_wrap(out minorStatus, contextHandle, 0, Const.GSS_C_QOP_DEFAULT, ref inputMessage, 0, out outputMessage);
+      return IsWin
+        ? NativeMethodsWin64.gss_wrap(out minorStatus, contextHandle, 0, Const.GSS_C_QOP_DEFAULT, ref inputMessage, 0, out outputMessage)
+        : NativeMethodsLinux.gss_wrap(out minorStatus, contextHandle, 0, Const.GSS_C_QOP_DEFAULT, ref inputMessage, 0, out outputMessage);
     }
   }
 }

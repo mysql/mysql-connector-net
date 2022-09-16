@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,11 +32,11 @@ using System.Runtime.InteropServices;
 namespace MySql.Data.Authentication.GSSAPI.Native
 {
   /// <summary>
-  /// MIT Kerberos 5 GSS Bindings Linux
+  /// MIT Kerberos 5 GSS Bindings Windows 64bit
   /// </summary>
-  internal static class NativeMethodsLinux
+  internal static class NativeMethodsWin64
   {
-    private const string GSS_MODULE_NAME = "libgssapi_krb5.so.2";
+    private const string GSS_MODULE_NAME = "gssapi64.dll";
 
     [DllImport(GSS_MODULE_NAME, EntryPoint = "gss_import_name")]
     internal static extern uint gss_import_name(
