@@ -405,9 +405,11 @@ namespace MySql.Data.MySqlClient
     /// </remarks>
     public override void Cancel()
     {
-      if (connection != null)
+      if ((connection?.State ?? ConnectionState.Closed) != ConnectionState.Closed)
+      {
         connection.CancelQuery(connection.ConnectionTimeout);
-      Canceled = true;
+        Canceled = true;
+      }
     }
 
     /// <summary>

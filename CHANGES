@@ -1,3 +1,7 @@
+8.0.32
+- Fixed a bug that raised a NullReferenceException when using the MySqlCommand.Cancel function with a closed connection (MySQL Bug #101507, Oracle Bug # 32127591).
+
+
 8.0.31
 - Removed the MySql.EMTrace project (WL5158).
 - Removed the Memcached client from Connector/NET (WL15213).

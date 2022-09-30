@@ -260,6 +260,44 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
+    /// MySQL Bugs: #32127591: MySqlCommand.Cancel throws NullReferenceException for a Closed Connection
+    /// </summary>
+    [TestCase(1)]
+    [TestCase(2)]
+    [TestCase(3)]
+    public void MySqlCommandCancelWithClosedConnection(int test)
+    {
+      using (MySqlConnection conn = new MySqlConnection(Settings.ConnectionString))
+      {
+        switch (test)
+        {
+          case 1:
+            using (MySqlCommand cmd1 = conn.CreateCommand())
+            {
+              conn.Open();
+              conn.Close();
+              Assert.DoesNotThrow(cmd1.Cancel);
+            }
+            break;
+
+          case 2:
+            using (MySqlCommand cmd2 = conn.CreateCommand())
+            {
+              Assert.DoesNotThrow(cmd2.Cancel);
+            }
+            break;
+
+          case 3:
+            using (MySqlCommand cmd3 = new MySqlCommand())
+            {
+              Assert.DoesNotThrow(cmd3.Cancel);
+            }
+            break;
+        }
+      } 
+    }
+
+    /// <summary>
     /// MySQL Bugs: #12163: Insert using prepared statement causes double insert
     /// </summary>
     [Test]
