@@ -839,10 +839,9 @@ namespace MySqlX.Data.Tests
         Assert.IsNotNull(result3);
         var result4 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_compressed_payload' ").Execute().FetchOne()[1];
         Assert.IsNotNull(result4);
-        if (Convert.ToInt32(result2) != 0 || Convert.ToInt32(result4) != 0)
-        {
+
+        if (Convert.ToInt32(result2) == 0 || Convert.ToInt32(result4) == 0)
           Assert.Fail("Compression failed");
-        }
 
         var collection2 = schema.CreateCollection("compressed2");
         string text2 = GenerateDummyText("Wiki Loves Monuments ", 48).Substring(0, 1000);
@@ -857,10 +856,9 @@ namespace MySqlX.Data.Tests
         Assert.IsNotNull(result3b);
         var result4b = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_compressed_payload' ").Execute().FetchOne()[1];
         Assert.IsNotNull(result4b);
+
         if (Convert.ToInt32(result4b) == 0 || Convert.ToInt32(result2b) == 0)
-        {
           Assert.Fail("Compression failed");
-        }
 
         var collection3 = schema.CreateCollection("compressed3");
         string text3 = GenerateDummyText("Wiki Loves Monuments ", 48).Substring(0, 1002);
@@ -875,10 +873,9 @@ namespace MySqlX.Data.Tests
         Assert.IsNotNull(result3c);
         var result4c = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_compressed_payload' ").Execute().FetchOne()[1];
         Assert.IsNotNull(result4c);
+
         if (Convert.ToInt32(result4c) == 0 || Convert.ToInt32(result2c) == 0)
-        {
           Assert.Fail("Compression failed");
-        }
       }
     }
 
@@ -918,7 +915,7 @@ namespace MySqlX.Data.Tests
         watch2.Stop();
       }
 
-      Assert.True(watch1.ElapsedTicks != watch2.ElapsedTicks, 
+      Assert.True(watch1.ElapsedTicks != watch2.ElapsedTicks,
         $"Watch1: {watch1.ElapsedMilliseconds}, Watch2: {watch2.ElapsedMilliseconds}");
     }
     #endregion

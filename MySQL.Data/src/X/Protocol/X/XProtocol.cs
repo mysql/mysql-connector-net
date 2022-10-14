@@ -289,7 +289,7 @@ namespace MySqlX.Protocol
     {
       Warning w = Warning.Parser.ParseFrom(payload);
       WarningInfo warning = new WarningInfo(w.Code, w.Msg);
-      if (w.Level != Warning.Types.Level.None)
+      if (w.HasLevel)
         warning.Level = (uint)w.Level;
       rs.AddWarning(warning);
     }

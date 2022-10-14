@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -261,10 +261,10 @@ namespace MySqlX.Data.Tests
       List<Order> orderSpec = new ExprParser("a, b desc").ParseOrderSpec();
       Assert.AreEqual(2, orderSpec.Count);
       Order o1 = orderSpec[0];
-      Assert.AreEqual(Order.Types.Direction.NoneDirection, o1.Direction);
+      Assert.False(o1.HasDirection);
       Assert.AreEqual("a", ExprUnparser.ExprToString(o1.Expr));
       Order o2 = orderSpec[1];
-      Assert.AreNotEqual(Order.Types.Direction.NoneDirection, o2.Direction);
+      Assert.True(o2.HasDirection);
       Assert.AreEqual(Order.Types.Direction.Desc, o2.Direction);
       Assert.AreEqual("b", ExprUnparser.ExprToString(o2.Expr));
     }
@@ -275,14 +275,14 @@ namespace MySqlX.Data.Tests
       List<Order> orderSpec = new ExprParser("field not in ('a',func('b', 2.0),'c') desc, 1-a$**[0].*, now () + $.b + c > 2 asc").ParseOrderSpec();
       Assert.AreEqual(3, orderSpec.Count);
       Order o1 = orderSpec[0];
-      Assert.AreNotEqual(Order.Types.Direction.NoneDirection, o1.Direction);
+      Assert.True(o1.HasDirection);
       Assert.AreEqual(Order.Types.Direction.Desc, o1.Direction);
       Assert.AreEqual("field not in(\"a\", func(\"b\", 2), \"c\")", ExprUnparser.ExprToString(o1.Expr));
       Order o2 = orderSpec[1];
-      Assert.AreEqual(Order.Types.Direction.NoneDirection, o2.Direction);
+      Assert.False(o2.HasDirection);
       Assert.AreEqual("(1 - a$**[0].*)", ExprUnparser.ExprToString(o2.Expr));
       Order o3 = orderSpec[2];
-      Assert.AreNotEqual(Order.Types.Direction.NoneDirection, o3.Direction);
+      Assert.True(o3.HasDirection);
       Assert.AreEqual(Order.Types.Direction.Asc, o3.Direction);
       Assert.AreEqual("(((now() + $.b) + c) > 2)", ExprUnparser.ExprToString(o3.Expr));
     }
