@@ -4,7 +4,7 @@
     <Description>MySql.Data.EntityFramework.Migrations.Tests</Description>
     <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.31</Version>
+    <Version>8.0.32</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net452;netcoreapp3.1;</TargetFrameworks>
     <AssemblyName>MySql.EntityFramework.Migrations.Tests</AssemblyName>

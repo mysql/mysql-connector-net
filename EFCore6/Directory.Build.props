@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Product>MySQL Entity Framework Core</Product>
     <Copyright>Copyright (c) 2022, Oracle and/or its affiliates.</Copyright>
-    <Version>6.0.7+MySQL8.0.31</Version>
+    <Version>6.0.10+MySQL8.0.32</Version>
     <Authors>Oracle</Authors>
     <PackageTags>MySql;.NET Connector;MySql Entity Framework Core;netcore;.Net Core;MySql Conector/Net Entity Framework Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
