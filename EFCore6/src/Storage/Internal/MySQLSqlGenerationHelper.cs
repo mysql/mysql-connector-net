@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -48,7 +48,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     /// <inheritdoc/>
     public override string EscapeIdentifier(string identifier)
-        => Check.NotEmpty(identifier, nameof(identifier)).Replace("`", "``");
+      => Check.NotEmpty(identifier, nameof(identifier)).Replace("`", "``");
 
     /// <inheritdoc/>
     public override void EscapeIdentifier(StringBuilder builder, string identifier)
@@ -72,17 +72,17 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     /// <inheritdoc/>
     public override string DelimitIdentifier(string identifier)
-      => $"`{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}`";
+    => $"`{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}`";
 
     /// <inheritdoc/>
     public override string DelimitIdentifier(string name, string? schema)
-               => base.DelimitIdentifier(GetObjectName(name, schema!), GetSchemaName(name, schema!));
+         => base.DelimitIdentifier(GetObjectName(name, schema!), GetSchemaName(name, schema!));
 
     protected virtual string GetObjectName(string name, string schema)
-    => !string.IsNullOrEmpty(schema) &&  _options.SchemaNameTranslator != null
-        ? _options.SchemaNameTranslator(schema, name)
-        : name;
+    => !string.IsNullOrEmpty(schema) && _options.SchemaNameTranslator != null
+      ? _options.SchemaNameTranslator(schema, name)
+      : name;
 
-    protected virtual string? GetSchemaName(string name, string schema) => null;
+    public virtual string? GetSchemaName(string name, string schema) => null;
   }
 }

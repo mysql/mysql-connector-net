@@ -29,6 +29,7 @@
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using MySql.EntityFrameworkCore.Extensions;
 using MySql.EntityFrameworkCore.Query.Expressions.Internal;
 using MySql.EntityFrameworkCore.Utils;
 using System;
@@ -43,26 +44,26 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     private readonly RelationalTypeMapping? _boolTypeMapping;
 
     public MySQLSqlExpressionFactory(SqlExpressionFactoryDependencies dependencies)
-        : base(dependencies)
+      : base(dependencies)
     {
       _typeMappingSource = dependencies.TypeMappingSource;
       _boolTypeMapping = _typeMappingSource.FindMapping(typeof(bool));
     }
 
     public virtual SqlFunctionExpression NullableFunction(
-      string name,
-      IEnumerable<SqlExpression> arguments,
-      Type returnType,
-      bool onlyNullWhenAnyNullPropagatingArgumentIsNull)
-      => NullableFunction(name, arguments, returnType, null, onlyNullWhenAnyNullPropagatingArgumentIsNull);
+    string name,
+    IEnumerable<SqlExpression> arguments,
+    Type returnType,
+    bool onlyNullWhenAnyNullPropagatingArgumentIsNull)
+    => NullableFunction(name, arguments, returnType, null, onlyNullWhenAnyNullPropagatingArgumentIsNull);
 
     public virtual SqlFunctionExpression NullableFunction(
-      string name,
-      IEnumerable<SqlExpression> arguments,
-      Type returnType,
-      RelationalTypeMapping? typeMapping = null,
-      bool onlyNullWhenAnyNullPropagatingArgumentIsNull = true,
-      IEnumerable<bool>? argumentsPropagateNullability = null)
+    string name,
+    IEnumerable<SqlExpression> arguments,
+    Type returnType,
+    RelationalTypeMapping? typeMapping = null,
+    bool onlyNullWhenAnyNullPropagatingArgumentIsNull = true,
+    IEnumerable<bool>? argumentsPropagateNullability = null)
     {
       Check.NotEmpty(name, nameof(name));
       Check.NotNull(arguments, nameof(arguments));
@@ -87,10 +88,10 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     }
 
     public virtual SqlFunctionExpression NonNullableFunction(
-      string name,
-      IEnumerable<SqlExpression> arguments,
-      Type returnType,
-      RelationalTypeMapping? typeMapping = null)
+    string name,
+    IEnumerable<SqlExpression> arguments,
+    Type returnType,
+    RelationalTypeMapping? typeMapping = null)
     {
       Check.NotEmpty(name, nameof(name));
       Check.NotNull(arguments, nameof(arguments));
@@ -113,9 +114,10 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     }
 
     public MySQLComplexFunctionArgumentExpression ComplexFunctionArgument(
-      IEnumerable<SqlExpression> argumentParts,
-      Type argumentType,
-      RelationalTypeMapping? typeMapping = null)
+    IEnumerable<SqlExpression> argumentParts,
+    string delimiter,
+    Type argumentType,
+    RelationalTypeMapping? typeMapping = null)
     {
       var typeMappedArgumentParts = new List<SqlExpression>();
 
@@ -126,8 +128,22 @@ namespace MySql.EntityFrameworkCore.Query.Internal
 
       return new MySQLComplexFunctionArgumentExpression(
         typeMappedArgumentParts,
+        delimiter,
         argumentType,
         typeMapping!);
+    }
+
+    public virtual MySQLMatchExpression MakeMatch(
+      SqlExpression match,
+      SqlExpression against,
+      MySQLMatchSearchMode searchMode)
+    {
+      return (MySQLMatchExpression)ApplyDefaultTypeMapping(
+        new MySQLMatchExpression(
+          match,
+          against,
+          searchMode,
+          null));
     }
 
     public MySQLCollateExpression Collate(
@@ -179,11 +195,19 @@ namespace MySql.EntityFrameworkCore.Query.Internal
         typeMapping);
     }
 
-    public override SqlExpression ApplyTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
-    => sqlExpression is not { TypeMapping: null }
-        ? sqlExpression!
-        : ApplyNewTypeMapping(sqlExpression, typeMapping);
+    public virtual MySQLRegexpExpression Regexp(
+      SqlExpression match,
+      SqlExpression pattern)
+      => (MySQLRegexpExpression)ApplyDefaultTypeMapping(
+        new MySQLRegexpExpression(
+          match,
+          pattern,
+          null));
 
+    public override SqlExpression ApplyTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
+      => sqlExpression is not { TypeMapping: null }
+      ? sqlExpression!
+      : ApplyNewTypeMapping(sqlExpression, typeMapping);
 
     private SqlExpression ApplyNewTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
     {
@@ -203,29 +227,30 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     private MySQLComplexFunctionArgumentExpression ApplyTypeMappingOnComplexFunctionArgument(MySQLComplexFunctionArgumentExpression complexFunctionArgumentExpression)
     {
       var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(complexFunctionArgumentExpression.ArgumentParts.ToArray())
-                                ?? _typeMappingSource.FindMapping(complexFunctionArgumentExpression.Type);
+                      ?? _typeMappingSource.FindMapping(complexFunctionArgumentExpression.Type);
 
       return new MySQLComplexFunctionArgumentExpression(
-          complexFunctionArgumentExpression.ArgumentParts,
-          complexFunctionArgumentExpression.Type,
-          inferredTypeMapping ?? complexFunctionArgumentExpression.TypeMapping!);
+        complexFunctionArgumentExpression.ArgumentParts,
+        complexFunctionArgumentExpression.Delimiter,
+        complexFunctionArgumentExpression.Type,
+        inferredTypeMapping ?? complexFunctionArgumentExpression.TypeMapping!);
     }
 
     private MySQLCollateExpression ApplyTypeMappingOnCollate(MySQLCollateExpression collateExpression)
     {
       var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(collateExpression.ValueExpression)
-                                ?? _typeMappingSource.FindMapping(collateExpression.ValueExpression.Type);
+                      ?? _typeMappingSource.FindMapping(collateExpression.ValueExpression.Type);
 
       return new MySQLCollateExpression(
-          ApplyTypeMapping(collateExpression.ValueExpression, inferredTypeMapping),
-          collateExpression.Charset,
-          collateExpression.Collation,
-          inferredTypeMapping ?? collateExpression.TypeMapping);
+        ApplyTypeMapping(collateExpression.ValueExpression, inferredTypeMapping),
+        collateExpression.Charset,
+        collateExpression.Collation,
+        inferredTypeMapping ?? collateExpression.TypeMapping);
     }
 
     private SqlExpression ApplyTypeMappingOnMySqlBinary(
-      MySQLBinaryExpression sqlBinaryExpression,
-      RelationalTypeMapping? typeMapping)
+    MySQLBinaryExpression sqlBinaryExpression,
+    RelationalTypeMapping? typeMapping)
     {
       var left = sqlBinaryExpression.Left;
       var right = sqlBinaryExpression.Right;

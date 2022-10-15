@@ -34,32 +34,32 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
   internal class MySQLBoolTypeMapping : BoolTypeMapping
   {
     public MySQLBoolTypeMapping(
-        [NotNull] string storeType,
-        DbType? dbType = null,
-        int? size = null)
-        : this(new RelationalTypeMappingParameters(
-          new CoreTypeMappingParameters(typeof(bool)),
-          storeType,
-          size == null ? StoreTypePostfix.None : StoreTypePostfix.Size,
-          dbType, size: size))
+      [NotNull] string storeType,
+      DbType? dbType = null,
+      int? size = null)
+      : this(new RelationalTypeMappingParameters(
+      new CoreTypeMappingParameters(typeof(bool)),
+      storeType,
+      size == null ? StoreTypePostfix.None : StoreTypePostfix.Size,
+      dbType, size: size))
     {
     }
 
     protected MySQLBoolTypeMapping(RelationalTypeMappingParameters parameters)
-        : base(parameters)
+      : base(parameters)
     {
     }
 
     /// <summary>
-    ///     Creates a copy of this mapping.
+    ///   Creates a copy of this mapping.
     /// </summary>
     /// <param name="parameters"> The parameters for this mapping. </param>
     /// <returns> The newly created mapping. </returns>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new MySQLBoolTypeMapping(parameters);
+      => new MySQLBoolTypeMapping(parameters);
 
     /// <inheritdoc/>
     protected override string GenerateNonNullSqlLiteral(object value)
-        => (bool)value ? "TRUE" : "FALSE";
+      => (bool)value ? "TRUE" : "FALSE";
   }
 }

@@ -40,7 +40,7 @@ namespace MySql.EntityFrameworkCore.Internal
       var valueGenerationStrategy = annotations.FirstOrDefault(a => a.Name == MySQLAnnotationNames.ValueGenerationStrategy)?.Value as MySQLValueGenerationStrategy?;
 
       if (!valueGenerationStrategy.HasValue ||
-          valueGenerationStrategy == MySQLValueGenerationStrategy.None)
+        valueGenerationStrategy == MySQLValueGenerationStrategy.None)
       {
         var generatedOnAddAnnotation = annotations.FirstOrDefault(a => a.Name == MySQLAnnotationNames.LegacyValueGeneratedOnAdd)?.Value;
         if (generatedOnAddAnnotation != null && (bool)generatedOnAddAnnotation)

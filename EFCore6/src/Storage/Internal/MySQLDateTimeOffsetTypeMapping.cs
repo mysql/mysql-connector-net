@@ -29,14 +29,15 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Data;
+using System.Data.Common;
 
 namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   /// <summary>
-  ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-  ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-  ///     any release. You should only use it directly in your code with extreme caution and knowing that
-  ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+  ///   This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+  ///   the same compatibility standards as public APIs. It may be changed or removed without notice in
+  ///   any release. You should only use it directly in your code with extreme caution and knowing that
+  ///   doing so can result in application failures when updating to a new Entity Framework Core release.
   /// </summary>
   internal class MySQLDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
   {
@@ -45,64 +46,63 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     // so the order of the entries in this array is important
     private readonly string[] _dateTimeOffsetFormats =
     {
-        "'{0:yyyy-MM-dd HH:mm:ss}'",
-        "'{0:yyyy-MM-dd HH:mm:ss.f}'",
-        "'{0:yyyy-MM-dd HH:mm:ss.ff}'",
-        "'{0:yyyy-MM-dd HH:mm:ss.fff}'",
-        "'{0:yyyy-MM-dd HH:mm:ss.ffff}'",
-        "'{0:yyyy-MM-dd HH:mm:ss.fffff}'",
-        "'{0:yyyy-MM-dd HH:mm:ss.ffffff}'",
-        "'{0:yyyy-MM-dd HH:mm:ss.fffffff}'"
+      "'{0:yyyy-MM-dd HH:mm:ss}'",
+      "'{0:yyyy-MM-dd HH:mm:ss.f}'",
+      "'{0:yyyy-MM-dd HH:mm:ss.ff}'",
+      "'{0:yyyy-MM-dd HH:mm:ss.fff}'",
+      "'{0:yyyy-MM-dd HH:mm:ss.ffff}'",
+      "'{0:yyyy-MM-dd HH:mm:ss.fffff}'",
+      "'{0:yyyy-MM-dd HH:mm:ss.ffffff}'",
+      "'{0:yyyy-MM-dd HH:mm:ss.fffffff}'"
     };
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///   This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///   the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///   any release. You should only use it directly in your code with extreme caution and knowing that
+    ///   doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public MySQLDateTimeOffsetTypeMapping(
-        string storeType,
-        DbType? dbType = System.Data.DbType.DateTimeOffset,
-        int? precision = null,
-        StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
-        : base(
-            new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(DateTimeOffset)),
-                storeType,
-                storeTypePostfix,
-                dbType,
-                precision: precision))
+      string storeType,
+      DbType? dbType = System.Data.DbType.DateTimeOffset,
+      int? precision = null,
+      StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
+      : base(
+        new RelationalTypeMappingParameters(
+          new CoreTypeMappingParameters(typeof(DateTimeOffset)),
+          storeType,
+          storeTypePostfix,
+          dbType))
     {
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="DateTimeOffsetTypeMapping" /> class.
+    ///   Initializes a new instance of the <see cref="DateTimeOffsetTypeMapping" /> class.
     /// </summary>
     /// <param name="parameters">Parameter object for <see cref="RelationalTypeMapping" />.</param>
     protected MySQLDateTimeOffsetTypeMapping(RelationalTypeMappingParameters parameters)
-        : base(parameters)
+      : base(parameters)
     {
     }
 
     /// <summary>
-    ///     Creates a copy of this mapping.
+    ///   Creates a copy of this mapping.
     /// </summary>
     /// <param name="parameters">The parameters for this mapping.</param>
     /// <returns>The newly created mapping.</returns>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new MySQLDateTimeOffsetTypeMapping(parameters);
+      => new MySQLDateTimeOffsetTypeMapping(parameters);
 
     public override string GenerateProviderValueSqlLiteral(object? value)
     => value == null
-        ? "NULL"
-        : GenerateNonNullSqlLiteral(
-            value is DateTimeOffset dateTimeOffset
-                ? dateTimeOffset.UtcDateTime
-                : value);
+      ? "NULL"
+      : GenerateNonNullSqlLiteral(
+        value is DateTimeOffset dateTimeOffset
+          ? dateTimeOffset.UtcDateTime
+          : value);
 
     /// <summary>
-    ///     Gets the string format to be used to generate SQL literals of this type.
+    ///   Gets the string format to be used to generate SQL literals of this type.
     /// </summary>
     protected override string SqlLiteralFormatString
     {
@@ -117,6 +117,20 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
         return "TIMESTAMP " + _dateTimeFormatConst;
       }
+    }
+
+    /// <summary>
+    ///   This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///   the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///   any release. You should only use it directly in your code with extreme caution and knowing that
+    ///   doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void ConfigureParameter(DbParameter parameter)
+    {
+      base.ConfigureParameter(parameter);
+
+      if (Size.HasValue && Size.Value != -1)
+        parameter.Size = Size.Value;
     }
   }
 }

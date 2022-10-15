@@ -37,27 +37,27 @@ using MySql.Data.MySqlClient;
 namespace MySql.EntityFrameworkCore.Query.Internal
 {
   /// <summary>
-  ///     <para>
-  ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
-  ///         <see cref="DbContext" /> instance will use its own instance of this service.
-  ///         The implementation may depend on other services registered with any lifetime.
-  ///         The implementation does not need to be thread-safe.
-  ///     </para>
+  ///   <para>
+  ///       The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+  ///       <see cref="DbContext" /> instance will use its own instance of this service.
+  ///       The implementation may depend on other services registered with any lifetime.
+  ///       The implementation does not need to be thread-safe.
+  ///   </para>
   /// </summary>
   internal class MySQLCompiledQueryCacheKeyGenerator : RelationalCompiledQueryCacheKeyGenerator
   {
     public MySQLCompiledQueryCacheKeyGenerator(
-        [NotNull] CompiledQueryCacheKeyGeneratorDependencies dependencies,
-        [NotNull] RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies)
-        : base(dependencies, relationalDependencies)
+      [NotNull] CompiledQueryCacheKeyGeneratorDependencies dependencies,
+      [NotNull] RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies)
+      : base(dependencies, relationalDependencies)
     {
     }
 
     /// <inheritdoc/>
     public override object GenerateCacheKey(Expression query, bool async)
     => new MySQLCompiledQueryCacheKey(
-      GenerateCacheKeyCore(query, async),
-      RelationalDependencies.ContextOptions.FindExtension<MySQLOptionsExtension>()!.CharSet!);
+    GenerateCacheKeyCore(query, async),
+    RelationalDependencies.ContextOptions.FindExtension<MySQLOptionsExtension>()!.CharSet!);
 
     private readonly struct MySQLCompiledQueryCacheKey
     {
@@ -65,23 +65,23 @@ namespace MySql.EntityFrameworkCore.Query.Internal
       private readonly CharacterSet _charSet;
 
       public MySQLCompiledQueryCacheKey(
-          RelationalCompiledQueryCacheKey relationalCompiledQueryCacheKey,
-          CharacterSet charSet)
+        RelationalCompiledQueryCacheKey relationalCompiledQueryCacheKey,
+        CharacterSet charSet)
       {
         _relationalCompiledQueryCacheKey = relationalCompiledQueryCacheKey;
         _charSet = charSet;
       }
 
       public override bool Equals(object? obj)
-          => !(obj is null)
-             && obj is MySQLCompiledQueryCacheKey key
-             && Equals(key);
+        => !(obj is null)
+           && obj is MySQLCompiledQueryCacheKey key
+           && Equals(key);
 
       private bool Equals(MySQLCompiledQueryCacheKey other)
         => _relationalCompiledQueryCacheKey.Equals(other._relationalCompiledQueryCacheKey);
 
       public override int GetHashCode()
-          => HashCode.Combine(_relationalCompiledQueryCacheKey, _charSet);
+        => HashCode.Combine(_relationalCompiledQueryCacheKey, _charSet);
     }
   }
 }

@@ -44,8 +44,8 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
     {
       var idx = record.GetOrdinal(name);
       return record.IsDBNull(idx)
-          ? default
-          : (T)record.GetValue(idx);
+        ? default
+        : (T)record.GetValue(idx);
     }
   }
 }

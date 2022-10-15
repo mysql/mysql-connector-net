@@ -37,7 +37,7 @@ using System.Reflection;
 namespace MySql.EntityFrameworkCore.Extensions
 {
   /// <summary>
-  ///     MySQL extension methods for <see cref="MigrationBuilder" />.
+  ///   MySQL extension methods for <see cref="MigrationBuilder" />.
   /// </summary>
   public static class MySQLMigrationBuilderExtensions
   {
@@ -49,15 +49,15 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <returns><see langword="true"/> if SQL Server is being used; otherwise, <see langword="false"/>.</returns>
     public static bool IsMySql([NotNull] this MigrationBuilder migrationBuilder)
     => string.Equals(migrationBuilder.ActiveProvider,
-        typeof(MySQLOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
-        StringComparison.Ordinal);
+      typeof(MySQLOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
+      StringComparison.Ordinal);
 
     internal static OperationBuilder<MySQLDropPrimaryKeyAndRecreateForeignKeysOperation> DropPrimaryKey(
-            [NotNull] this MigrationBuilder migrationBuilder,
-            [NotNull] string name,
-            [NotNull] string table,
-            [CanBeNull] string schema = null,
-            bool recreateForeignKeys = false)
+        [NotNull] this MigrationBuilder migrationBuilder,
+        [NotNull] string name,
+        [NotNull] string table,
+        [CanBeNull] string schema = null,
+        bool recreateForeignKeys = false)
     {
       Check.NotNull(migrationBuilder, nameof(migrationBuilder));
       Check.NotEmpty(name, nameof(name));
@@ -76,11 +76,11 @@ namespace MySql.EntityFrameworkCore.Extensions
     }
 
     internal static OperationBuilder<MySQLDropUniqueConstraintAndRecreateForeignKeysOperation> DropUniqueConstraint(
-            [NotNull] this MigrationBuilder migrationBuilder,
-            [NotNull] string name,
-            [NotNull] string table,
-            [CanBeNull] string schema = null,
-            bool recreateForeignKeys = false)
+        [NotNull] this MigrationBuilder migrationBuilder,
+        [NotNull] string name,
+        [NotNull] string table,
+        [CanBeNull] string schema = null,
+        bool recreateForeignKeys = false)
     {
       Check.NotNull(migrationBuilder, nameof(migrationBuilder));
       Check.NotEmpty(name, nameof(name));

@@ -239,6 +239,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 
       using (var context = serviceProvider.GetRequiredService<ComputedColumnContext>())
       {
+        context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
         var e = new Employee { FirstName = "Jos", LastName = "Stuart" };

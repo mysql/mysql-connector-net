@@ -40,20 +40,20 @@ namespace MySql.EntityFrameworkCore.Query.Internal
   internal class MySQLConvertTranslator : IMethodCallTranslator
   {
     private static readonly MethodInfo[] _supportedMethods
-      = new[]
-      { 
-        nameof(Convert.ToBoolean),
-        nameof(Convert.ToByte),
-        nameof(Convert.ToDecimal),
-        nameof(Convert.ToDouble),
-        nameof(Convert.ToInt16),
-        nameof(Convert.ToInt32),
-        nameof(Convert.ToInt64),
-        nameof(Convert.ToString)
-      }
-      .SelectMany(t => typeof(Convert).GetTypeInfo().GetDeclaredMethods(t)
-        .Where(m => m.GetParameters().Length == 1))
-          .ToArray();
+    = new[]
+    {
+      nameof(Convert.ToBoolean),
+      nameof(Convert.ToByte),
+      nameof(Convert.ToDecimal),
+      nameof(Convert.ToDouble),
+      nameof(Convert.ToInt16),
+      nameof(Convert.ToInt32),
+      nameof(Convert.ToInt64),
+      nameof(Convert.ToString)
+    }
+    .SelectMany(t => typeof(Convert).GetTypeInfo().GetDeclaredMethods(t)
+      .Where(m => m.GetParameters().Length == 1))
+      .ToArray();
 
     private ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -65,10 +65,10 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     public SqlExpression? Translate(SqlExpression? instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
       return _supportedMethods.Contains(method)
-          ? _sqlExpressionFactory.Convert(
-              arguments[0],
-              method.ReturnType)
-          : null;
+        ? _sqlExpressionFactory.Convert(
+            arguments[0],
+            method.ReturnType)
+        : null;
     }
   }
 }

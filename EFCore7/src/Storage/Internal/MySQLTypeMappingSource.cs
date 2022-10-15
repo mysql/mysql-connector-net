@@ -64,8 +64,8 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     private readonly MySQLDateTimeTypeMapping _timeStamp = new MySQLDateTimeTypeMapping("timestamp", dbType: DbType.DateTime);
     private readonly MySQLDateTimeOffsetTypeMapping _datetimeoffset = new MySQLDateTimeOffsetTypeMapping("datetime");
     private readonly MySQLDateTimeOffsetTypeMapping _timestampoffset = new MySQLDateTimeOffsetTypeMapping("timestamp");
-    private readonly MySQLDateTimeTypeMapping _date = new MySQLDateTimeTypeMapping("date", dbType: DbType.Date);
-    private readonly MySQLDateTimeTypeMapping _dateonly = new MySQLDateTimeTypeMapping("date", dbType: DbType.Date);
+    private readonly MySQLDateTypeMapping _date = new MySQLDateTypeMapping("date", typeof(DateTime));
+    private readonly MySQLDateTypeMapping _dateonly = new MySQLDateTypeMapping("date", typeof(DateOnly));
     private readonly MySQLTimeSpanMapping _time = new MySQLTimeSpanMapping("time", typeof(TimeSpan));
     private readonly MySQLTimeSpanMapping _timeonly = new MySQLTimeSpanMapping("time", typeof(TimeOnly));
 

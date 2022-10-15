@@ -45,13 +45,13 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
   /// </summary>
   internal class MySQLDatabaseCreator : RelationalDatabaseCreator
   {
-    private readonly MySQLRelationalConnection _connection;
+    private readonly IMySQLRelationalConnection _connection;
     private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
 
     public MySQLDatabaseCreator(
-  [NotNull] RelationalDatabaseCreatorDependencies dependencies,
-  [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
-  : base(dependencies)
+    [NotNull] RelationalDatabaseCreatorDependencies dependencies,
+    [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
+    : base(dependencies)
     {
       _connection = (MySQLRelationalConnection)dependencies.Connection;
       _rawSqlCommandBuilder = rawSqlCommandBuilder;
@@ -79,117 +79,121 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         await Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(CreateCreateOperations(), workingConnection, cancellationToken);
         ClearPool();
       }
+
+      await ExistsAsync(retryOnNotExists: true, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
     public override void Delete()
     {
       ClearAllPools();
+
       using (var sourceConnection = _connection.CreateSourceConnection())
-      {
         Dependencies.MigrationCommandExecutor.ExecuteNonQuery(CreateDropCommands(), sourceConnection);
-      }
     }
 
     public override async Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
     {
       ClearAllPools();
+
       using (var sourceConnection = _connection.CreateSourceConnection())
-      {
-        await Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(CreateDropCommands(), sourceConnection, cancellationToken);
-      }
+        await Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(CreateDropCommands(), sourceConnection, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
     public override bool Exists()
-      => Exists(retryOnNotExists: false);
+    => Exists(retryOnNotExists: false);
 
     private bool Exists(bool retryOnNotExists)
-      => Dependencies.ExecutionStrategy.Execute(
-        DateTime.UtcNow + RetryTimeout, giveUp =>
+    => Dependencies.ExecutionStrategy.Execute(
+      DateTime.UtcNow + RetryTimeout, giveUp =>
+      {
+        while (true)
         {
-          while (true)
+          try
           {
-            try
+            MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(_connection.ConnectionString);
+            string database = settings.Database;
+
+            if (string.IsNullOrWhiteSpace(database))
+              throw new ArgumentNullException("Database");
+
+            settings.Database = string.Empty;
+            using (var conn = new MySqlConnection(settings.ConnectionString))
             {
-              MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(_connection.ConnectionString);
-              string database = settings.Database;
-              if (string.IsNullOrWhiteSpace(database))
-                throw new ArgumentNullException("Database");
-              settings.Database = string.Empty;
-              using (var conn = new MySqlConnection(settings.ToString()))
+              conn.Open();
+              using (MySqlCommand cmd = conn.CreateCommand())
               {
-                conn.Open();
-                MySqlCommand cmd = conn.CreateCommand();
                 cmd.CommandText = $"SHOW DATABASES LIKE '{database}'";
                 var result = cmd.ExecuteScalar();
+
                 if (result == null)
                   return false;
                 else
                   return ((string)result).Equals(database, StringComparison.OrdinalIgnoreCase);
               }
             }
-            catch (MySqlException e)
-            {
-              if (!retryOnNotExists && IsDoesNotExist(e))
-                return false;
-
-              if (DateTime.UtcNow > giveUp
-                  || !RetryOnExistsFailure(e))
-                throw;
-
-              Thread.Sleep(RetryDelay);
-            }
           }
-        });
+          catch (MySqlException e)
+          {
+            if (!retryOnNotExists && IsDoesNotExist(e))
+              return false;
+
+            if (DateTime.UtcNow > giveUp
+              || !RetryOnExistsFailure(e))
+              throw;
+
+            Thread.Sleep(RetryDelay);
+          }
+        }
+      });
 
     /// <inheritdoc/>
     public override Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
-        => ExistsAsync(retryOnNotExists: false, cancellationToken: cancellationToken);
+      => ExistsAsync(retryOnNotExists: false, cancellationToken: cancellationToken);
 
     private Task<bool> ExistsAsync(bool retryOnNotExists, CancellationToken cancellationToken)
-      => Dependencies.ExecutionStrategy.ExecuteAsync(
-        DateTime.UtcNow + RetryTimeout, async (giveUp, ct) =>
+    => Dependencies.ExecutionStrategy.ExecuteAsync(
+      DateTime.UtcNow + RetryTimeout, async (giveUp, ct) =>
+      {
+        while (true)
         {
-          while (true)
+          try
           {
-            try
+            MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(_connection.ConnectionString);
+            string database = settings.Database;
+
+            if (string.IsNullOrWhiteSpace(database))
+              throw new ArgumentNullException("Database");
+
+            settings.Database = string.Empty;
+            using (MySqlConnection conn = new MySqlConnection(settings.ConnectionString))
             {
-              MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(_connection.ConnectionString);
-              string database = settings.Database;
-              if (string.IsNullOrWhiteSpace(database))
-                throw new ArgumentNullException("Database");
-              settings.Database = string.Empty;
-              using (MySqlConnection conn = new MySqlConnection(settings.ToString()))
+              await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
+              using (MySqlCommand cmd = conn.CreateCommand())
               {
-                await conn.OpenAsync(cancellationToken);
-                MySqlCommand cmd = conn.CreateCommand();
                 cmd.CommandText = $"SHOW DATABASES LIKE '{database}'";
                 var result = await cmd.ExecuteScalarAsync(cancellationToken);
+
                 if (result == null)
                   return false;
                 else
                   return ((string)result).Equals(database, StringComparison.OrdinalIgnoreCase);
               }
             }
-            catch (MySqlException e)
-            {
-              if (!retryOnNotExists
-              && IsDoesNotExist(e))
-              {
-                return false;
-              }
-
-              if (DateTime.UtcNow > giveUp
-              || !RetryOnExistsFailure(e))
-              {
-                throw;
-              }
-
-              await Task.Delay(RetryDelay, ct);
-            }
           }
-        }, cancellationToken);
+          catch (MySqlException e)
+          {
+            if (!retryOnNotExists && IsDoesNotExist(e))
+              return false;
+
+            if (DateTime.UtcNow > giveUp || !RetryOnExistsFailure(e))
+              throw;
+
+            await Task.Delay(RetryDelay, ct).ConfigureAwait(false);
+          }
+        }
+      }, cancellationToken);
 
     private static bool IsDoesNotExist(MySqlException exception) => exception.Number == 1049;
 
@@ -205,45 +209,46 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     /// <inheritdoc/>
     public override bool HasTables()
-      => Dependencies.ExecutionStrategy.Execute(
-        _connection,
-        connection => Convert.ToInt64(CreateHasTablesCommand()
-        .ExecuteScalar(
-          new RelationalCommandParameterObject(
-            connection,
-            null,
-            null,
-            Dependencies.CurrentContext.Context,
-            Dependencies.CommandLogger)))
-        != 0);
+    => Dependencies.ExecutionStrategy.Execute(
+      _connection,
+      connection => Convert.ToInt64(CreateHasTablesCommand()
+      .ExecuteScalar(
+      new RelationalCommandParameterObject(
+        connection,
+        null,
+        null,
+        Dependencies.CurrentContext.Context,
+        Dependencies.CommandLogger)))
+      != 0);
 
     /// <inheritdoc/>
     public override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-      => Dependencies.ExecutionStrategy.ExecuteAsync(
-        _connection,
-        async (connection, ct) => Convert.ToInt64(await CreateHasTablesCommand()
-        .ExecuteScalarAsync(
-          new RelationalCommandParameterObject(
-            connection,
-            null,
-            null,
-            Dependencies.CurrentContext.Context,
-            Dependencies.CommandLogger),
-          cancellationToken: ct))
-        != 0, cancellationToken);
+    => Dependencies.ExecutionStrategy.ExecuteAsync(
+      _connection,
+      async (connection, ct) => Convert.ToInt64(
+      await CreateHasTablesCommand()
+      .ExecuteScalarAsync(
+        new RelationalCommandParameterObject(
+          connection,
+          null,
+          null,
+          Dependencies.CurrentContext.Context,
+          Dependencies.CommandLogger),
+        cancellationToken: ct).ConfigureAwait(false)) != 0,
+      cancellationToken);
 
     private IRelationalCommand CreateHasTablesCommand()
     => _rawSqlCommandBuilder
-        .Build(@"SELECT CASE WHEN COUNT(*) = 0 THEN FALSE ELSE TRUE END
-              FROM information_schema.tables
-              WHERE table_type = 'BASE TABLE' AND table_schema = '" + _connection.DbConnection.Database + "'");
+      .Build(@"SELECT CASE WHEN COUNT(*) = 0 THEN FALSE ELSE TRUE END
+          FROM information_schema.tables
+          WHERE table_type = 'BASE TABLE' AND table_schema = '" + _connection.DbConnection.Database + "'");
 
     private IReadOnlyList<MigrationCommand> CreateCreateOperations()
     {
       var operations = new MigrationOperation[]
-          {
-                new MySQLCreateDatabaseOperation { Name = _connection.DbConnection.Database }
-          };
+      {
+      new MySQLCreateDatabaseOperation { Name = _connection.DbConnection.Database }
+      };
 
       return Dependencies.MigrationsSqlGenerator.Generate(operations);
     }

@@ -51,12 +51,12 @@ namespace MySql.EntityFrameworkCore.Update
     private int _commandsLeftToLengthCheck = 50;
 
     public MySQLModificationCommandBatch(
-      [NotNull] ModificationCommandBatchFactoryDependencies dependencies,
-            int? maxBatchSize)
-            : base(dependencies)
+    [NotNull] ModificationCommandBatchFactoryDependencies dependencies,
+        int? maxBatchSize)
+        : base(dependencies)
     {
       if (maxBatchSize.HasValue
-          && maxBatchSize.Value <= 0)
+        && maxBatchSize.Value <= 0)
       {
         throw new ArgumentOutOfRangeException(nameof(maxBatchSize), RelationalStrings.InvalidMaxBatchSize(maxBatchSize));
       }
@@ -125,7 +125,7 @@ namespace MySql.EntityFrameworkCore.Update
 
     /// <inheritdoc/>
     protected override int GetParameterCount()
-        => _parameterCount;
+      => _parameterCount;
 
     /// <inheritdoc/>
     protected override void ResetCommandText()
@@ -136,7 +136,7 @@ namespace MySql.EntityFrameworkCore.Update
 
     /// <inheritdoc/>
     protected override string GetCommandText()
-        => base.GetCommandText() + GetBulkInsertCommandText(ModificationCommands.Count);
+      => base.GetCommandText() + GetBulkInsertCommandText(ModificationCommands.Count);
 
     private string GetBulkInsertCommandText(int lastIndex)
     {
@@ -147,7 +147,7 @@ namespace MySql.EntityFrameworkCore.Update
 
       var stringBuilder = new StringBuilder();
       var resultSetMapping = UpdateSqlGenerator.AppendBulkInsertOperation(
-          stringBuilder, _bulkInsertCommands, lastIndex - _bulkInsertCommands.Count);
+        stringBuilder, _bulkInsertCommands, lastIndex - _bulkInsertCommands.Count);
       for (var i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
       {
         CommandResultSet[i] = resultSetMapping;
@@ -168,7 +168,7 @@ namespace MySql.EntityFrameworkCore.Update
       if (newModificationCommand.EntityState == EntityState.Added)
       {
         if (_bulkInsertCommands.Count > 0
-            && !CanBeInsertedInSameStatement(_bulkInsertCommands[0], (ModificationCommand)newModificationCommand))
+          && !CanBeInsertedInSameStatement(_bulkInsertCommands[0], (ModificationCommand)newModificationCommand))
         {
           CachedCommandText.Append(GetBulkInsertCommandText(commandPosition));
           _bulkInsertCommands.Clear();
@@ -189,10 +189,10 @@ namespace MySql.EntityFrameworkCore.Update
 
     private static bool CanBeInsertedInSameStatement(ModificationCommand firstCommand, ModificationCommand secondCommand)
     => string.Equals(firstCommand.TableName, secondCommand.TableName, StringComparison.Ordinal)
-       && string.Equals(firstCommand.Schema, secondCommand.Schema, StringComparison.Ordinal)
-       && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(
-           secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
-       && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
-           secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
+     && string.Equals(firstCommand.Schema, secondCommand.Schema, StringComparison.Ordinal)
+     && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(
+       secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
+     && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
+       secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
   }
 }

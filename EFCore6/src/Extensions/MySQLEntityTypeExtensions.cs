@@ -37,7 +37,7 @@ using System.Text.RegularExpressions;
 namespace MySql.EntityFrameworkCore.Extensions
 {
   /// <summary>
-  ///     MySQL specific extension methods for entity types.
+  ///   MySQL specific extension methods for entity types.
   /// </summary>
   public static class MySQLEntityTypeExtensions
   {
@@ -48,18 +48,18 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// </summary>
     /// <param name="entityType"> The entity type. </param>
     /// <returns> The name of the character set. </returns>
-    public static string GetCharSet([NotNull] this IReadOnlyEntityType entityType)
-        => entityType[MySQLAnnotationNames.Charset] as string;
+    public static string? GetCharSet([NotNull] this IReadOnlyEntityType entityType)
+      => entityType[MySQLAnnotationNames.Charset] as string;
 
     /// <summary>
-    /// Sets the MySQL character set on the table associated with this entity. When you only specify the character set, MySQL implicitly
+    /// Sets the MySQL character set on the table associated with this entity. When you specify the character set only, MySQL implicitly
     /// uses the default collation.
     /// </summary>
     /// <param name="entityType"> The entity type. </param>
     /// <param name="charSet"> The name of the character set. </param>
     public static void SetCharSet(
-        [NotNull] this IMutableEntityType entityType,
-        [CanBeNull] string charSet)
+      [NotNull] this IMutableEntityType entityType,
+      [CanBeNull] string charSet)
     {
       Check.NullButNotEmpty(charSet, nameof(charSet));
 
@@ -67,7 +67,7 @@ namespace MySql.EntityFrameworkCore.Extensions
     }
 
     /// <summary>
-    /// Sets the MySQL character set on the table associated with this entity. When you only specify the character set, MySQL implicitly
+    /// Sets the MySQL character set on the table associated with this entity. When you specify the character set only, MySQL implicitly
     /// uses the default collation.
     /// </summary>
     /// <param name="entityType"> The entity type. </param>
@@ -75,9 +75,9 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
     /// <returns> The configured value. </returns>
     public static string SetCharSet(
-        [NotNull] this IConventionEntityType entityType,
-        [CanBeNull] string charSet,
-        bool fromDataAnnotation = false)
+      [NotNull] this IConventionEntityType entityType,
+      [CanBeNull] string charSet,
+      bool fromDataAnnotation = false)
     {
       Check.NullButNotEmpty(charSet, nameof(charSet));
 
@@ -87,12 +87,12 @@ namespace MySql.EntityFrameworkCore.Extensions
     }
 
     /// <summary>
-    ///     Gets the configuration source for the character set mode.
+    ///   Gets the configuration source for the character set mode.
     /// </summary>
     /// <param name="entityType"> The entity type. </param>
     /// <returns> The configuration source. </returns>
     public static ConfigurationSource? GetCharSetConfigurationSource([NotNull] this IConventionEntityType entityType)
-        => entityType.FindAnnotation(MySQLAnnotationNames.Charset)?.GetConfigurationSource();
+      => entityType.FindAnnotation(MySQLAnnotationNames.Charset)?.GetConfigurationSource();
 
     #endregion CharSet
 
@@ -103,8 +103,8 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// </summary>
     /// <param name="entityType"> The entity type. </param>
     /// <returns> The name of the collation. </returns>
-    public static string GetCollation([NotNull] this IReadOnlyEntityType entityType)
-        => entityType[RelationalAnnotationNames.Collation] as string;
+    public static string? GetCollation([NotNull] this IReadOnlyEntityType entityType)
+      => entityType[RelationalAnnotationNames.Collation] as string;
 
     /// <summary>
     /// Sets the MySQL collation on the table associated with this entity. When you specify the collation, MySQL implicitly sets the
@@ -113,8 +113,8 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="entityType"> The entity type. </param>
     /// <param name="collation"> The name of the collation. </param>
     public static void SetCollation(
-        [NotNull] this IMutableEntityType entityType,
-        [CanBeNull] string collation)
+      [NotNull] this IMutableEntityType entityType,
+      [CanBeNull] string collation)
     {
       Check.NullButNotEmpty(collation, nameof(collation));
 
@@ -130,9 +130,9 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
     /// <returns> The configured value. </returns>
     public static string SetCollation(
-        [NotNull] this IConventionEntityType entityType,
-        [CanBeNull] string collation,
-        bool fromDataAnnotation = false)
+      [NotNull] this IConventionEntityType entityType,
+      [CanBeNull] string collation,
+      bool fromDataAnnotation = false)
     {
       Check.NullButNotEmpty(collation, nameof(collation));
 
@@ -142,12 +142,12 @@ namespace MySql.EntityFrameworkCore.Extensions
     }
 
     /// <summary>
-    ///     Gets the configuration source for the collation mode.
+    ///   Gets the configuration source for the collation mode.
     /// </summary>
     /// <param name="entityType"> The entity type. </param>
     /// <returns> The configuration source. </returns>
     public static ConfigurationSource? GetCollationConfigurationSource([NotNull] this IConventionEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.Collation)?.GetConfigurationSource();
+      => entityType.FindAnnotation(RelationalAnnotationNames.Collation)?.GetConfigurationSource();
 
     #endregion Collation
 
@@ -159,7 +159,7 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="entityType"> The entity type. </param>
     /// <returns> A dictionary of table options. </returns>
     public static Dictionary<string, string> GetTableOptions([NotNull] this IReadOnlyEntityType entityType)
-        => DeserializeTableOptions(entityType[MySQLAnnotationNames.StoreOptions] as string);
+      => DeserializeTableOptions(entityType[MySQLAnnotationNames.StoreOptions] as string);
 
     /// <summary>
     /// Sets the MySQL table options for the table associated with this entity.
@@ -167,9 +167,9 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="entityType"> The entity type. </param>
     /// <param name="options"> A dictionary of table options. </param>
     public static void SetTableOptions(
-        [NotNull] this IMutableEntityType entityType,
-        [CanBeNull] Dictionary<string, string> options)
-        => entityType.SetOrRemoveAnnotation(MySQLAnnotationNames.StoreOptions, SerializeTableOptions(options));
+      [NotNull] this IMutableEntityType entityType,
+      [CanBeNull] Dictionary<string, string> options)
+      => entityType.SetOrRemoveAnnotation(MySQLAnnotationNames.StoreOptions, SerializeTableOptions(options));
 
     /// <summary>
     /// Sets the MySQL table options for the table associated with this entity.
@@ -179,9 +179,9 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
     /// <returns> The configured value. </returns>
     public static Dictionary<string, string> SetTableOptions(
-        [NotNull] this IConventionEntityType entityType,
-        [CanBeNull] Dictionary<string, string> options,
-        bool fromDataAnnotation = false)
+      [NotNull] this IConventionEntityType entityType,
+      [CanBeNull] Dictionary<string, string> options,
+      bool fromDataAnnotation = false)
     {
       entityType.SetOrRemoveAnnotation(MySQLAnnotationNames.StoreOptions, SerializeTableOptions(options), fromDataAnnotation);
 
@@ -189,12 +189,12 @@ namespace MySql.EntityFrameworkCore.Extensions
     }
 
     /// <summary>
-    ///     Gets the configuration source for the table options.
+    ///   Gets the configuration source for the table options.
     /// </summary>
     /// <param name="entityType"> The entity type. </param>
     /// <returns> The configuration source. </returns>
     public static ConfigurationSource? GetTableOptionsConfigurationSource([NotNull] this IConventionEntityType entityType)
-        => entityType.FindAnnotation(MySQLAnnotationNames.StoreOptions)?.GetConfigurationSource();
+      => entityType.FindAnnotation(MySQLAnnotationNames.StoreOptions)?.GetConfigurationSource();
 
     internal static string SerializeTableOptions(Dictionary<string, string> options)
     {

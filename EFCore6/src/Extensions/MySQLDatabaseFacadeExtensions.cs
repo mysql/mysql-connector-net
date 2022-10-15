@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,35 +26,32 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using MySql.EntityFrameworkCore.Infrastructure.Internal;
-using System;
-using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 namespace MySql.EntityFrameworkCore.Extensions
 {
   /// <summary>
-  ///     MySQL specific extension methods for <see cref="DbContext.Database" />.
+  ///   MySQL specific extension methods for <see cref="DbContext.Database" />.
   /// </summary>
   public static class MySQLDatabaseFacadeExtensions
   {
     /// <summary>
-    ///     <para>
-    ///         Indicates whether the database provider currently in use is the MySQL provider.
-    ///     </para>
-    ///     <para>
-    ///         This method can only be used after the <see cref="DbContext" /> has been configured because
-    ///         it is only then that the provider is known. This method cannot be used
-    ///         in <see cref="DbContext.OnConfiguring" /> because this is where application code sets the
-    ///         provider to use as part of configuring the context.
-    ///     </para>
+    ///   <para>
+    ///       Indicates whether the database provider currently in use is the MySQL provider.
+    ///   </para>
+    ///   <para>
+    ///       This method can be used only after the <see cref="DbContext" /> has been configured because
+    ///       it is only then that the provider is known. This method cannot be used
+    ///       in <see cref="DbContext.OnConfiguring" /> because this is where application code sets the
+    ///       provider to use as part of configuring the context.
+    ///   </para>
     /// </summary>
     /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
     /// <returns><see langword="true"/> if MySQL is being used; otherwise, <see langword="false"/>. </returns>
     public static bool IsMySql(this DatabaseFacade database)
-        => database.ProviderName!.Equals(
-            typeof(MySQLOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
-            StringComparison.Ordinal);
+      => database.ProviderName == typeof(MySQLOptionsExtension).GetTypeInfo().Assembly.GetName().Name;
   }
 }

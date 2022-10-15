@@ -35,31 +35,31 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
   internal class MySQLTimeSpanMapping : TimeSpanTypeMapping
   {
     public MySQLTimeSpanMapping(
-        [NotNull] string storeType,
-        [NotNull] Type clrType,
-        int? precision = null)
-        : this(
-            new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(clrType),
-                storeType,
-                StoreTypePostfix.Precision,
-                System.Data.DbType.Time,
-                precision: precision))
+      [NotNull] string storeType,
+      [NotNull] Type clrType,
+      int? precision = null)
+      : this(
+        new RelationalTypeMappingParameters(
+          new CoreTypeMappingParameters(clrType),
+          storeType,
+          StoreTypePostfix.Precision,
+          System.Data.DbType.Time,
+          precision: precision))
     {
     }
 
     protected MySQLTimeSpanMapping(RelationalTypeMappingParameters parameters)
-        : base(parameters)
+      : base(parameters)
     {
     }
 
     /// <summary>
-    ///     Creates a copy of this mapping.
+    ///   Creates a copy of this mapping.
     /// </summary>
     /// <param name="parameters"> The parameters for this mapping. </param>
     /// <returns> The newly created mapping. </returns>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new MySQLTimeSpanMapping(parameters);
+      => new MySQLTimeSpanMapping(parameters);
 
     /// <summary>
     ///   Generates the MySQL representation of a non-null literal value.

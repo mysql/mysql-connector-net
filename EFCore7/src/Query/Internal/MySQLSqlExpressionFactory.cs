@@ -29,6 +29,7 @@
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using MySql.EntityFrameworkCore.Extensions;
 using MySql.EntityFrameworkCore.Query.Expressions.Internal;
 using MySql.EntityFrameworkCore.Storage.Internal;
 using MySql.EntityFrameworkCore.Utils;
@@ -183,6 +184,28 @@ namespace MySql.EntityFrameworkCore.Query.Internal
           null),
         typeMapping);
     }
+
+    public virtual MySQLMatchExpression MakeMatch(
+      SqlExpression match,
+      SqlExpression against,
+      MySQLMatchSearchMode searchMode)
+    {
+      return (MySQLMatchExpression)ApplyDefaultTypeMapping(
+        new MySQLMatchExpression(
+          match,
+          against,
+          searchMode,
+          null));
+    }
+
+    public virtual MySQLRegexpExpression Regexp(
+      SqlExpression match,
+      SqlExpression pattern)
+      => (MySQLRegexpExpression)ApplyDefaultTypeMapping(
+        new MySQLRegexpExpression(
+          match,
+          pattern,
+          null));
 
     public override SqlExpression ApplyTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
       => sqlExpression is not { TypeMapping: null }

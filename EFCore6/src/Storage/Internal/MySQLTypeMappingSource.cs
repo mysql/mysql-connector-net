@@ -64,8 +64,8 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     private readonly MySQLDateTimeTypeMapping _timeStamp = new MySQLDateTimeTypeMapping("timestamp", dbType: DbType.DateTime);
     private readonly MySQLDateTimeOffsetTypeMapping _datetimeoffset = new MySQLDateTimeOffsetTypeMapping("datetime");
     private readonly MySQLDateTimeOffsetTypeMapping _timestampoffset = new MySQLDateTimeOffsetTypeMapping("timestamp");
-    private readonly MySQLDateTimeTypeMapping _date = new MySQLDateTimeTypeMapping("date", dbType: DbType.Date);
-    private readonly MySQLDateTimeTypeMapping _dateonly = new MySQLDateTimeTypeMapping("date", dbType: DbType.Date);
+    private readonly MySQLDateTypeMapping _date = new MySQLDateTypeMapping("date", typeof(DateTime));
+    private readonly MySQLDateTypeMapping _dateonly = new MySQLDateTypeMapping("date", typeof(DateOnly));
     private readonly MySQLTimeSpanMapping _time = new MySQLTimeSpanMapping("time", typeof(TimeSpan));
     private readonly MySQLTimeSpanMapping _timeonly = new MySQLTimeSpanMapping("time", typeof(TimeOnly));
 
@@ -93,9 +93,9 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     private bool _initialized;
 
     public MySQLTypeMappingSource(TypeMappingSourceDependencies dependencies,
-      RelationalTypeMappingSourceDependencies relationalDependencies,
-      IMySQLOptions options)
-      : base(dependencies, relationalDependencies)
+    RelationalTypeMappingSourceDependencies relationalDependencies,
+    IMySQLOptions options)
+    : base(dependencies, relationalDependencies)
     {
       _options = options;
     }
@@ -105,103 +105,103 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       if (guidFormat == MySqlGuidFormat.Default)
       {
         guidFormat = _options.ConnectionSettings.OldGuids
-            ? MySqlGuidFormat.LittleEndianBinary16
-            : MySqlGuidFormat.Char36;
+          ? MySqlGuidFormat.LittleEndianBinary16
+          : MySqlGuidFormat.Char36;
       }
 
       _guid = MySQLGuidTypeMapping.IsValidGuidFormat(guidFormat)
-                      ? new MySQLGuidTypeMapping(guidFormat)
-                      : null;
+                ? new MySQLGuidTypeMapping(guidFormat)
+                : null;
 
       _storeTypeMappings = new Dictionary<string, RelationalTypeMapping[]>(StringComparer.OrdinalIgnoreCase)
-      {
-        // integers
-        { "bigint", new[]  { _bigint } },
-        { "bigint unsigned", new[] { _ubigint } },
-        { "int", new[] { _int } },
-        { "int unsigned", new[] { _uint } },
-        { "integer", new[] { _int } },
-        { "integer unsigned", new[] { _uint } },
-        { "mediumint", new[] { _int }},
-        { "mediumint unsigned",new[]  { _uint }},
-        { "smallint", new[] { _smallint }},
-        { "smallint unsigned", new[] { _usmallint }},
-        { "tinyint", new[] { _tinyint }},
-        { "tinyint unsigned", new[] { _utinyint }},
+    {
+      // integers
+      { "bigint", new[]  { _bigint } },
+      { "bigint unsigned", new[] { _ubigint } },
+      { "int", new[] { _int } },
+      { "int unsigned", new[] { _uint } },
+      { "integer", new[] { _int } },
+      { "integer unsigned", new[] { _uint } },
+      { "mediumint", new[] { _int }},
+      { "mediumint unsigned",new[]  { _uint }},
+      { "smallint", new[] { _smallint }},
+      { "smallint unsigned", new[] { _usmallint }},
+      { "tinyint", new[] { _tinyint }},
+      { "tinyint unsigned", new[] { _utinyint }},
 
-        // decimals
-        { "decimal", new[] { _decimal }},
-        { "numeric",new[]  { _decimal }},
-        { "dec", new[] { _decimal }},
-        { "fixed",new[]  { _decimal }},
-        { "double",new[]  { _double }},
-        { "float", new[] { _float }},
-        { "real",new[]  { _double }},
+      // decimals
+      { "decimal", new[] { _decimal }},
+      { "numeric",new[]  { _decimal }},
+      { "dec", new[] { _decimal }},
+      { "fixed",new[]  { _decimal }},
+      { "double",new[]  { _double }},
+      { "float", new[] { _float }},
+      { "real",new[]  { _double }},
 
-        // binary
-        { "binary", new[] { _binary }},
-        { "varbinary",new[]  { _varbinary }},
-        { "tinyblob", new[] { _varbinary }},
-        { "blob",new[]  { _varbinary }},
-        { "mediumblob",new[]  { _varbinary }},
-        { "longblob",new[]  { _varbinary }},
+      // binary
+      { "binary", new[] { _binary }},
+      { "varbinary",new[]  { _varbinary }},
+      { "tinyblob", new[] { _varbinary }},
+      { "blob",new[]  { _varbinary }},
+      { "mediumblob",new[]  { _varbinary }},
+      { "longblob",new[]  { _varbinary }},
 
-        // string
-        { "char",new[]  { _charUnicode }},
-        { "varchar",new[]  { _varcharUnicode }},
-        { "nchar", new[] { _nchar }},
-        { "nvarchar", new[] { _nvarchar }},
-        { "tinytext",new[]  { _tinyTextUnicode }},
-        { "text", new[] { _textUnicode }},
-        { "mediumtext", new[] { _mediumTextUnicode }},
-        { "longtext",new[]  { _longtextUnicode }},
-        { "enum",new[]  { _enum }},
-        { "set",new[]  { _set }},
+      // string
+      { "char",new[]  { _charUnicode }},
+      { "varchar",new[]  { _varcharUnicode }},
+      { "nchar", new[] { _nchar }},
+      { "nvarchar", new[] { _nvarchar }},
+      { "tinytext",new[]  { _tinyTextUnicode }},
+      { "text", new[] { _textUnicode }},
+      { "mediumtext", new[] { _mediumTextUnicode }},
+      { "longtext",new[]  { _longtextUnicode }},
+      { "enum",new[]  { _enum }},
+      { "set",new[]  { _set }},
 
-        // DateTime
-        { "year",new[]  { _int }},
-        { "date", new RelationalTypeMapping[] { _date, _dateonly }},
-        { "time", new RelationalTypeMapping[] { _time, _timeonly }},
-        { "timestamp", new RelationalTypeMapping[] { _timeStamp, _timestampoffset }},
-        { "datetime", new RelationalTypeMapping[] { _datetime, _datetimeoffset }},
+      // DateTime
+      { "year",new[]  { _int }},
+      { "date", new RelationalTypeMapping[] { _date, _dateonly }},
+      { "time", new RelationalTypeMapping[] { _time, _timeonly }},
+      { "timestamp", new RelationalTypeMapping[] { _timeStamp, _timestampoffset }},
+      { "datetime", new RelationalTypeMapping[] { _datetime, _datetimeoffset }},
 
-        // bit
-        { "bit",new[]  { _bit }},
+      // bit
+      { "bit",new[]  { _bit }},
 
-        // other
-        { "geometry", new[]  { _geometry }},
-        { "json", new[]  { _longtextUnicode } }
-      };
+      // other
+      { "geometry", new[]  { _geometry }},
+      { "json", new[]  { _longtextUnicode } }
+    };
 
       _clrTypeMappings = new Dictionary<Type, RelationalTypeMapping>
-      {
-        // integers
-        { typeof(short), _smallint },
-        { typeof(ushort), _usmallint },
-        { typeof(int), _int },
-        { typeof(uint), _uint },
-        { typeof(long), _bigint },
-        { typeof(ulong), _ubigint },
+    {
+      // integers
+      { typeof(short), _smallint },
+      { typeof(ushort), _usmallint },
+      { typeof(int), _int },
+      { typeof(uint), _uint },
+      { typeof(long), _bigint },
+      { typeof(ulong), _ubigint },
 
-         // byte / char
-        { typeof(byte), _utinyint },
-        { typeof(sbyte), _tinyint },
+       // byte / char
+      { typeof(byte), _utinyint },
+      { typeof(sbyte), _tinyint },
 
-        // DateTime
-        { typeof(DateTime), _datetime.Clone(6, null) },
-        { typeof(DateOnly), _dateonly },
-        { typeof(DateTimeOffset), _datetimeoffset.Clone(6, null) },
-        { typeof(TimeSpan), _time.Clone(6, null) },
-        { typeof(TimeOnly), _timeonly },
+      // DateTime
+      { typeof(DateTime), _datetime.Clone(6, null) },
+      { typeof(DateOnly), _dateonly },
+      { typeof(DateTimeOffset), _datetimeoffset.Clone(6, null) },
+      { typeof(TimeSpan), _time.Clone(6, null) },
+      { typeof(TimeOnly), _timeonly },
 
-        // decimals
-        { typeof(float), _float },
-        { typeof(double), _double },
-        { typeof(decimal), _decimal },
+      // decimals
+      { typeof(float), _float },
+      { typeof(double), _double },
+      { typeof(decimal), _decimal },
 
-        // geometry
-        { typeof(Data.Types.MySqlGeometry), _geometry }
-      };
+      // geometry
+      { typeof(Data.Types.MySqlGeometry), _geometry }
+    };
 
       // bool
       bool tinyAsBool = _options.ConnectionSettings.TreatTinyAsBoolean;
@@ -218,8 +218,8 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     /// <inheritdoc/>
     protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
-        => base.FindMapping(mappingInfo) ??
-      FindRawMapping(mappingInfo)?.Clone(mappingInfo);
+      => base.FindMapping(mappingInfo) ??
+    FindRawMapping(mappingInfo)?.Clone(mappingInfo);
 
     private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
     {
@@ -257,8 +257,8 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
           if (mappingInfo.Precision.HasValue)
           {
             if (clrType == typeof(DateTime) ||
-                            clrType == typeof(DateTimeOffset) ||
-                            clrType == typeof(TimeSpan))
+                      clrType == typeof(DateTimeOffset) ||
+                      clrType == typeof(TimeSpan))
             {
               return mapping.Clone(mappingInfo.Precision.Value, null);
             }
@@ -291,8 +291,8 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
           // 3072 max key length
           var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? 3072 : null);
           return new MySQLByteArrayTypeMapping(
-                        size: size,
-                        fixedLength: isFixedLength);
+                    size: size,
+                    fixedLength: isFixedLength);
         }
       }
 
@@ -304,8 +304,8 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       var storeTypeBaseName = base.ParseStoreTypeName(storeTypeName, out unicode, out size, out precision, out scale);
 
       return (storeTypeName?.IndexOf("unsigned", StringComparison.OrdinalIgnoreCase) ?? -1) >= 0
-          ? storeTypeBaseName + " unsigned"
-          : storeTypeBaseName!;
+        ? storeTypeBaseName + " unsigned"
+        : storeTypeBaseName!;
     }
   }
 }

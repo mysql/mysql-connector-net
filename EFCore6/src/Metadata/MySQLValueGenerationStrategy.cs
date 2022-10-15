@@ -29,13 +29,13 @@
 namespace MySql.EntityFrameworkCore.Metadata
 {
   /// <summary>
-  ///     Defines two strategies to use across the EF Core stack when generating key values
-  ///     from MySQL Server database columns.
+  ///   Defines two strategies to use across the Entity Framework Core stack when generating key values
+  ///   from MySQL database columns.
   /// </summary>
   public enum MySQLValueGenerationStrategy
   {
     /// <summary>
-    ///   No specific MySQL Server strategy
+    ///   No specific MySQL strategy
     /// </summary>
     None,
     /// <summary>

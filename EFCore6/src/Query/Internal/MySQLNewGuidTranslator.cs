@@ -50,13 +50,13 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     public virtual SqlExpression? Translate(SqlExpression? instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
       return _methodInfo.Equals(method)
-          ? _sqlExpressionFactory.Function(
-              "UUID",
-              Array.Empty<SqlExpression>(),
-              nullable: true,
-              argumentsPropagateNullability: TrueArrays[1],
-              method.ReturnType)
-          : null;
+        ? _sqlExpressionFactory.Function(
+            "UUID",
+            Array.Empty<SqlExpression>(),
+            nullable: true,
+            argumentsPropagateNullability: TrueArrays[1],
+            method.ReturnType)
+        : null;
     }
   }
 }

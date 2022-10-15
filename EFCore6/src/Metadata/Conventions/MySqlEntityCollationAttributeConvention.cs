@@ -40,7 +40,7 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
   internal class MySqlEntityCollationAttributeConvention : EntityTypeAttributeConventionBase<MySqlCollationAttribute>
   {
     /// <summary>
-    ///     Creates a new instance of <see cref="EntityTypeAttributeConventionBase{TAttribute}" />.
+    ///   Creates a new instance of <see cref="EntityTypeAttributeConventionBase{TAttribute}" />.
     /// </summary>
     /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
     internal MySqlEntityCollationAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
@@ -48,9 +48,9 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
     { }
 
     protected override void ProcessEntityTypeAdded(
-      [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-      [NotNull] MySqlCollationAttribute attribute,
-      [NotNull] IConventionContext<IConventionEntityTypeBuilder> context)
+    [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+    [NotNull] MySqlCollationAttribute attribute,
+    [NotNull] IConventionContext<IConventionEntityTypeBuilder> context)
     {
       entityTypeBuilder.Metadata.SetAnnotation(
         MySQLAnnotationNames.Collation,

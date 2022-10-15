@@ -28,7 +28,6 @@
 
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using MySql.EntityFrameworkCore.Storage.Internal;
 using System;
 using System.Linq.Expressions;
 
@@ -39,10 +38,10 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     public MySQLSqlTranslatingExpressionVisitor(
-        RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
-        QueryCompilationContext model,
-        QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
-        : base(dependencies, model, queryableMethodTranslatingExpressionVisitor)
+      RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
+      QueryCompilationContext model,
+      QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+      : base(dependencies, model, queryableMethodTranslatingExpressionVisitor)
     {
       _sqlExpressionFactory = dependencies.SqlExpressionFactory;
     }
@@ -60,18 +59,18 @@ namespace MySql.EntityFrameworkCore.Query.Internal
               "ASCII",
               new[]
               {
-                _sqlExpressionFactory.Function(
-                  "SUBSTRING",
-                  new[]
-                  {
-                    leftSql, Dependencies.SqlExpressionFactory.Add(
-                      Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(rightSql),
-                      Dependencies.SqlExpressionFactory.Constant(1)),
-                    Dependencies.SqlExpressionFactory.Constant(1)
-                  },
-                  nullable: true,
-                  argumentsPropagateNullability: new[] { true, true, true },
-                  typeof(byte[]))
+          _sqlExpressionFactory.Function(
+            "SUBSTRING",
+            new[]
+            {
+            leftSql, Dependencies.SqlExpressionFactory.Add(
+              Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(rightSql),
+              Dependencies.SqlExpressionFactory.Constant(1)),
+            Dependencies.SqlExpressionFactory.Constant(1)
+            },
+            nullable: true,
+            argumentsPropagateNullability: new[] { true, true, true },
+            typeof(byte[]))
               },
               nullable: true,
               argumentsPropagateNullability: new[] { true, true, true },
@@ -86,9 +85,9 @@ namespace MySql.EntityFrameworkCore.Query.Internal
         (subtractLeftVisited.Type == typeof(TimeOnly) && subtractRightVisited.Type == typeof(TimeOnly)))
       {
         return _sqlExpressionFactory.Subtract(
-          subtractLeftVisited,
-          subtractRightVisited,
-          Dependencies.TypeMappingSource.FindMapping(typeof(TimeSpan)));
+        subtractLeftVisited,
+        subtractRightVisited,
+        Dependencies.TypeMappingSource.FindMapping(typeof(TimeSpan)));
       }
 
       return base.VisitBinary(binaryExpression);
@@ -97,7 +96,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     protected override Expression VisitUnary(UnaryExpression unaryExpression)
     {
       if (unaryExpression.NodeType == ExpressionType.ArrayLength
-            && unaryExpression.Operand.Type == typeof(byte[]))
+          && unaryExpression.Operand.Type == typeof(byte[]))
       {
         if (!(base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression))
         {
@@ -106,15 +105,15 @@ namespace MySql.EntityFrameworkCore.Query.Internal
 
         var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)" || sqlExpression is SqlParameterExpression;
         var dataLengthSqlFunction = Dependencies.SqlExpressionFactory.Function(
-            "LENGTH",
-            new[] { sqlExpression },
-            nullable: true,
-            argumentsPropagateNullability: new[] { true },
-            isBinaryMaxDataType ? typeof(long) : typeof(int));
+          "LENGTH",
+          new[] { sqlExpression },
+          nullable: true,
+          argumentsPropagateNullability: new[] { true },
+          isBinaryMaxDataType ? typeof(long) : typeof(int));
 
         return isBinaryMaxDataType
-            ? Dependencies.SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
-            : dataLengthSqlFunction;
+          ? Dependencies.SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
+          : dataLengthSqlFunction;
       }
 
       return base.VisitUnary(unaryExpression);

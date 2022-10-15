@@ -1318,7 +1318,7 @@ namespace MySql.Data.MySqlClient
         var dtValue = new DateTime();
         var result = DateTime.TryParse(this.GetValue(ordinal).ToString(), out dtValue);
         DateTime datetime = result ? dtValue : DateTime.MinValue;
-        return (T)Convert.ChangeType(new DateTimeOffset(datetime), typeof(T));
+        return (T)Convert.ChangeType(new DateTimeOffset(datetime, TimeSpan.FromHours(0)), typeof(T));
       }
       else if (typeof(T).Equals(typeof(Stream)))
         return (T)(object)GetStream(ordinal);

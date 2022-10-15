@@ -89,7 +89,7 @@ namespace MySql.Data.Types
       _millisecond = 0;
       _type = MySqlDbType.DateTime;
       IsNull = false;
-      TimezoneOffset = 0;
+      TimezoneOffset = mdt.TimezoneOffset;
     }
 
     /// <summary>

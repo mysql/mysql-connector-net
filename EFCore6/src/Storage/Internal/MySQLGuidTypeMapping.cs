@@ -38,26 +38,26 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     private readonly MySqlGuidFormat _guidFormat;
 
     public MySQLGuidTypeMapping(MySqlGuidFormat guidFormat)
-        : this(new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(Guid)),
-                GetStoreType(guidFormat),
-                StoreTypePostfix.Size,
-                System.Data.DbType.Guid,
-                false,
-                GetSize(guidFormat),
-                true),
-            guidFormat)
+      : this(new RelationalTypeMappingParameters(
+          new CoreTypeMappingParameters(typeof(Guid)),
+          GetStoreType(guidFormat),
+          StoreTypePostfix.Size,
+          System.Data.DbType.Guid,
+          false,
+          GetSize(guidFormat),
+          true),
+        guidFormat)
     {
     }
 
     protected MySQLGuidTypeMapping(RelationalTypeMappingParameters parameters, MySqlGuidFormat guidFormat)
-        : base(parameters)
+      : base(parameters)
     {
       _guidFormat = guidFormat;
     }
 
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new MySQLGuidTypeMapping(parameters, _guidFormat);
+      => new MySQLGuidTypeMapping(parameters, _guidFormat);
 
     protected override string GenerateNonNullSqlLiteral(object value)
     {
@@ -124,8 +124,8 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     }
 
     public static bool IsValidGuidFormat(MySqlGuidFormat guidFormat)
-        => guidFormat != MySqlGuidFormat.None &&
-           guidFormat != MySqlGuidFormat.Default;
+      => guidFormat != MySqlGuidFormat.None &&
+       guidFormat != MySqlGuidFormat.Default;
 
     protected static byte[] GetBytesFromGuid(MySqlGuidFormat guidFormat, Guid guid)
     {

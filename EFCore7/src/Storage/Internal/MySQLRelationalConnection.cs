@@ -27,71 +27,69 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Infrastructure.Internal;
-using System;
 using System.Data.Common;
-using System.Reflection;
-using System.Transactions;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   internal class MySQLRelationalConnection : RelationalConnection, IMySQLRelationalConnection
   {
+    /// <summary>
+    /// Indicates whether the store connection supports ambient transactions
+    /// </summary>
+    protected override bool SupportsAmbientTransactions => true;
+
     private readonly MySQLOptionsExtension _mySqlOptionsExtension;
 
     public MySQLRelationalConnection([NotNull] RelationalConnectionDependencies dependencies)
-      : base(dependencies)
+    : base(dependencies)
     {
       _mySqlOptionsExtension = Dependencies.ContextOptions.FindExtension<MySQLOptionsExtension>() ?? new MySQLOptionsExtension();
     }
 
     protected override DbConnection CreateDbConnection() => new MySqlConnection(ConnectionString);
 
-    private string? _cnnStr
+    [AllowNull]
+    public new virtual MySqlConnection DbConnection
     {
-      get
-      {
-        if (this.DbConnection != null)
-        {
-          var cstr = (MySqlConnectionStringBuilder)((MySqlConnection)DbConnection).GetType().GetProperty("Settings", BindingFlags.Instance
-                | BindingFlags.NonPublic)!.GetValue((MySqlConnection)DbConnection, null)!;
-          return cstr?.ConnectionString;
-        }
-        return null;
-      }
+      get => (MySqlConnection)base.DbConnection;
+      set => base.DbConnection = value;
     }
 
     public virtual IMySQLRelationalConnection CreateSourceConnection()
     {
-      MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(_cnnStr ?? ConnectionString);
-      builder.Database = "mysql";
+      MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
+      builder.Database = string.Empty;
+      builder.Pooling = false;
+
+      var connectionString = builder.ConnectionString;
+      var relationalOptions = RelationalOptionsExtension.Extract(Dependencies.ContextOptions);
+
+      relationalOptions = relationalOptions.Connection is not null
+        ? relationalOptions.WithConnection(DbConnection.CloneWith(connectionString))
+        : relationalOptions.WithConnectionString(connectionString);
 
       var optionsBuilder = new DbContextOptionsBuilder();
-      optionsBuilder.UseMySQL(builder.ConnectionString);
+      ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(relationalOptions);
 
-      MySQLRelationalConnection c = new MySQLRelationalConnection(Dependencies with { ContextOptions = optionsBuilder.Options });
-
-      return c;
+      return new MySQLRelationalConnection(Dependencies with { ContextOptions = optionsBuilder.Options });
     }
 
-    public override void EnlistTransaction(Transaction? transaction)
+    public override bool Open(bool errorsExpected = false)
     {
-      try
-      {
-        base.EnlistTransaction(transaction);
-      }
-      catch (MySqlException e)
-      {
-        if (e.Message == "Already enlisted in a Transaction.")
-        {
-          // Return expected exception type.
-          throw new InvalidOperationException(e.Message, e);
-        }
+      var result = base.Open(errorsExpected);
+      return result;
+    }
 
-        throw;
-      }
+    public override async Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false)
+    {
+      return await base.OpenAsync(cancellationToken, errorsExpected).ConfigureAwait(false);
     }
   }
 }

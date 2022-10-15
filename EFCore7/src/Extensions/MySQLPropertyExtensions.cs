@@ -47,10 +47,10 @@ namespace MySql.EntityFrameworkCore.Extensions
   {
     /// <summary>
     ///   <para>
-    ///     Returns the <see cref="MySQLValueGenerationStrategy" /> to use for the property.
+    ///       Returns the <see cref="MySQLValueGenerationStrategy" /> to use for the property.
     ///   </para>
     ///   <para>
-    ///     If no strategy is set for the property, then the <see cref="IModel" /> provides the strategy.
+    ///       If no strategy is set for the property, then the strategy to use will be taken from the <see cref="IModel" />.
     ///   </para>
     /// </summary>
     /// <returns> The strategy, or <see cref="MySQLValueGenerationStrategy.None" /> if none was set. </returns>
@@ -70,34 +70,26 @@ namespace MySql.EntityFrameworkCore.Extensions
         return null;
       }
 
-      if (storeObject != default &&
-        property.ValueGenerated == ValueGenerated.Never)
-      {
+      if (storeObject != default && property.ValueGenerated == ValueGenerated.Never)
         return property.FindSharedStoreObjectRootProperty(storeObject)?.GetValueGenerationStrategy(storeObject);
-      }
 
       if (IsCompatibleIdentityColumn(property) && property.ValueGenerated == ValueGenerated.OnAdd)
-      {
         return MySQLValueGenerationStrategy.IdentityColumn;
-      }
 
       if (IsCompatibleComputedColumn(property) && property.ValueGenerated == ValueGenerated.OnAddOrUpdate)
-      {
         return MySQLValueGenerationStrategy.ComputedColumn;
-      }
 
       return null;
     }
 
 
     /// <summary>
-    ///   Indicates whether the property is compatible with <see cref="MySQLValueGenerationStrategy.IdentityColumn"/>.
+    /// Indicates whether the property is compatible with <see cref="MySQLValueGenerationStrategy.IdentityColumn"/>.
     /// </summary>
     /// <param name="property"> The property. </param>
     /// <returns><see langword="true"/> if compatible; otherwise, <see langword="false"/>.</returns>
     public static bool IsCompatibleIdentityColumn(IReadOnlyProperty property)
-      => IsCompatibleAutoIncrementColumn(property) ||
-      IsCompatibleCurrentTimestampColumn(property);
+      => IsCompatibleAutoIncrementColumn(property) || IsCompatibleCurrentTimestampColumn(property);
 
     /// <summary>
     ///   Returns a value indicating whether the property is compatible with an `AUTO_INCREMENT` column.
@@ -108,25 +100,71 @@ namespace MySql.EntityFrameworkCore.Extensions
     {
       var valueConverter = GetConverter(property);
       var type = (valueConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
-      return type.IsInteger() ||
-         type == typeof(decimal);
+      return type.IsInteger() || type == typeof(decimal);
+    }
+
+    /// <summary>
+    /// Returns the name of the character set used by the column of the property.
+    /// </summary>
+    /// <param name="property">The property that defines a column's character set.</param>
+    /// <returns>The name of the charset or null, if no explicit charset was set.</returns>
+    public static string? GetCharSet([NotNull] this IReadOnlyProperty property)
+      => property[MySQLAnnotationNames.Charset] as string ?? property.GetMySqlLegacyCharSet();
+
+    /// <summary>
+    /// Returns the name of the character set used by the column of the property, defined as part of the column type.
+    /// </summary>
+    /// <param name="property">The property that defines a column's character set.</param>
+    /// <returns>The name of the character set or null, if no explicit character set was set.</returns>
+    internal static string? GetMySqlLegacyCharSet([NotNull] this IReadOnlyProperty property)
+    {
+      var columnType = property.GetColumnType();
+
+      if (columnType is not null)
+      {
+        const string characterSet = "character set";
+        const string charSet = "charset";
+
+        var characterSetOccurrenceIndex = columnType.IndexOf(characterSet, StringComparison.OrdinalIgnoreCase);
+        var clauseLength = characterSet.Length;
+
+        if (characterSetOccurrenceIndex < 0)
+        {
+          characterSetOccurrenceIndex = columnType.IndexOf(charSet, StringComparison.OrdinalIgnoreCase);
+          clauseLength = charSet.Length;
+        }
+
+        if (characterSetOccurrenceIndex >= 0)
+        {
+          var result = string.Concat(
+              columnType.Skip(characterSetOccurrenceIndex + clauseLength)
+                  .SkipWhile(c => c == ' ')
+                  .TakeWhile(c => c != ' '));
+
+          if (result.Length > 0)
+          {
+            return result;
+          }
+        }
+      }
+
+      return null;
     }
 
     /// <summary>
     ///   Returns a value indicating whether the property is compatible with a `CURRENT_TIMESTAMP` column default.
     /// </summary>
-    /// <param name="property"> The property.</param>
-    /// <returns> <see langword="true"/> if compatible; otherwise, <see langword="false"/>.</returns>
+    /// <param name="property"> The property. </param>
+    /// <returns> <see langword="true"/> if compatible. </returns>
     public static bool IsCompatibleCurrentTimestampColumn(IReadOnlyProperty property)
     {
       var valueConverter = GetConverter(property);
       var type = (valueConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
-      return type == typeof(DateTime) ||
-         type == typeof(DateTimeOffset);
+      return type == typeof(DateTime) || type == typeof(DateTimeOffset);
     }
 
     /// <summary>
-    ///   Indicates whether the property is compatible with <see cref="MySQLValueGenerationStrategy.ComputedColumn"/>.
+    /// Indicates whether the property is compatible with <see cref="MySQLValueGenerationStrategy.ComputedColumn"/>.
     /// </summary>
     /// <param name="property"> The property. </param>
     /// <returns><see langword="true"/> if compatible; otherwise, <see langword="false"/>.</returns>
@@ -136,11 +174,11 @@ namespace MySql.EntityFrameworkCore.Extensions
 
       // RowVersion uses byte[] and the BytesToDateTimeConverter.
       return (type == typeof(DateTime) || type == typeof(DateTimeOffset)) && !HasConverter(property)
-         || type == typeof(byte[]) && !HasExternalConverter(property);
+           || type == typeof(byte[]) && !HasExternalConverter(property);
     }
 
     private static bool HasConverter(IReadOnlyProperty property)
-      => GetConverter(property) != null;
+    => GetConverter(property) != null;
 
     private static bool HasExternalConverter(IReadOnlyProperty property)
     {
@@ -151,11 +189,14 @@ namespace MySql.EntityFrameworkCore.Extensions
     private static ValueConverter? GetConverter(IReadOnlyProperty property)
       => property.FindTypeMapping()?.Converter ?? property.GetValueConverter();
 
-    public static void SetCharSet([NotNull] this IMutableProperty property, string charSet)
-      => property.SetOrRemoveAnnotation(MySQLAnnotationNames.Charset, charSet);
+    public static string SetCharSet([NotNull] this IMutableProperty property, string charSet)
+    {
+      property.SetOrRemoveAnnotation(MySQLAnnotationNames.Charset, charSet);
+      return charSet;
+    }
 
     /// <summary>
-    ///   Sets the <see cref="MySQLValueGenerationStrategy" /> to use for the property.
+    /// Sets the <see cref="MySQLValueGenerationStrategy" /> to use for the property.
     /// </summary>
     /// <param name="property">The property. </param>
     /// <param name="value">The strategy to use. </param>
@@ -165,6 +206,32 @@ namespace MySql.EntityFrameworkCore.Extensions
 
       property.SetOrRemoveAnnotation(MySQLAnnotationNames.ValueGenerationStrategy, value);
     }
+
+    /// <summary>
+    ///   Sets the <see cref="MySQLValueGenerationStrategy" /> to use for the property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="value">The strategy to use.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static MySQLValueGenerationStrategy? SetValueGenerationStrategy(
+      this IConventionProperty property,
+      MySQLValueGenerationStrategy? value,
+      bool fromDataAnnotation = false)
+    {
+      CheckValueGenerationStrategy(property, value);
+      property.SetOrRemoveAnnotation(MySQLAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation);
+
+      return value;
+    }
+
+    /// <summary>
+    ///   Returns the <see cref="ConfigurationSource" /> for the <see cref="MySQLValueGenerationStrategy" />.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the <see cref="MySQLValueGenerationStrategy" />.</returns>
+    public static ConfigurationSource? GetValueGenerationStrategyConfigurationSource(this IConventionProperty property)
+      => property.FindAnnotation(MySQLAnnotationNames.ValueGenerationStrategy)?.GetConfigurationSource();
 
     private static void CheckValueGenerationStrategy(IReadOnlyProperty property, MySQLValueGenerationStrategy? value)
     {

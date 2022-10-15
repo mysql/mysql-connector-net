@@ -32,14 +32,14 @@ using System.Diagnostics;
 namespace MySql.EntityFrameworkCore.Migrations.Operations
 {
   /// <summary>
-  ///     A <see cref="MigrationOperation" /> for dropping a primary key.
+  ///   A <see cref="MigrationOperation" /> for dropping a primary key.
   /// </summary>
 
   [DebuggerDisplay("ALTER TABLE {Table} DROP CONSTRAINT {Name}")]
   public class MySQLDropUniqueConstraintAndRecreateForeignKeysOperation : DropUniqueConstraintOperation
   {
     /// <summary>
-    ///     Recreate all foreign keys or not.
+    ///   Recreate all foreign keys or not.
     /// </summary>
     public virtual bool RecreateForeignKeys { get; set; }
   }

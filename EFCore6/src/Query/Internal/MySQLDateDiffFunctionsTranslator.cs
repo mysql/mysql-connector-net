@@ -41,213 +41,213 @@ namespace MySql.EntityFrameworkCore.Query.Internal
   internal class MySQLDateDiffFunctionsTranslator : IMethodCallTranslator
   {
     private readonly Dictionary<MethodInfo, string> _methodInfoDateDiffMapping
-        = new()
-        {
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffYear),
-              new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
-            "YEAR"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffYear),
-              new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) })!,
-            "YEAR"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffYear),
-              new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) })!,
-            "YEAR"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffYear),
-              new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
-            "YEAR"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffYear),
-              new[] { typeof(DbFunctions), typeof(DateOnly), typeof(DateOnly) })!,
-            "YEAR"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffYear),
-              new[] { typeof(DbFunctions), typeof(DateOnly?), typeof(DateOnly?) })!,
-            "YEAR"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
-              new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
-            "MONTH"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
-              new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) })!,
-            "MONTH"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
-              new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) })!,
-            "MONTH"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
-              new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
-            "MONTH"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
-              new[] { typeof(DbFunctions), typeof(DateOnly), typeof(DateOnly) })!,
-            "MONTH"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
-              new[] { typeof(DbFunctions), typeof(DateOnly?), typeof(DateOnly?) })!,
-            "MONTH"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffDay),
-              new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
-            "DAY"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffDay),
-              new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) })!,
-            "DAY"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffDay),
-              new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) })!,
-            "DAY"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffDay),
-              new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
-            "DAY"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffDay),
-              new[] { typeof(DbFunctions), typeof(DateOnly), typeof(DateOnly) })!,
-            "DAY"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffDay),
-              new[] { typeof(DbFunctions), typeof(DateOnly?), typeof(DateOnly?) })!,
-            "DAY"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffHour),
-              new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
-            "HOUR"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffHour),
-              new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) })!,
-            "HOUR"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffHour),
-              new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) })!,
-            "HOUR"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffHour),
-              new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
-            "HOUR"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffMinute),
-              new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
-            "MINUTE"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffMinute),
-              new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) })!,
-            "MINUTE"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffMinute),
-              new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) })!,
-            "MINUTE"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffMinute),
-              new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
-            "MINUTE"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffSecond),
-              new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
-            "SECOND"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffSecond),
-              new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) })!,
-            "SECOND"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffSecond),
-              new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) })!,
-            "SECOND"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffSecond),
-              new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
-            "SECOND"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffMicrosecond),
-              new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
-            "MICROSECOND"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffMicrosecond),
-              new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) })!,
-            "MICROSECOND"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffMicrosecond),
-              new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) })!,
-            "MICROSECOND"
-          },
-          {
-            typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
-              nameof(MySQLDbFunctionsExtensions.DateDiffMicrosecond),
-              new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
-            "MICROSECOND"
-          }
-        };
+      = new()
+      {
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffYear),
+          new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
+        "YEAR"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffYear),
+          new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) })!,
+        "YEAR"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffYear),
+          new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) })!,
+        "YEAR"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffYear),
+          new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
+        "YEAR"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffYear),
+          new[] { typeof(DbFunctions), typeof(DateOnly), typeof(DateOnly) })!,
+        "YEAR"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffYear),
+          new[] { typeof(DbFunctions), typeof(DateOnly?), typeof(DateOnly?) })!,
+        "YEAR"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
+          new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
+        "MONTH"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
+          new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) })!,
+        "MONTH"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
+          new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) })!,
+        "MONTH"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
+          new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
+        "MONTH"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
+          new[] { typeof(DbFunctions), typeof(DateOnly), typeof(DateOnly) })!,
+        "MONTH"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffMonth),
+          new[] { typeof(DbFunctions), typeof(DateOnly?), typeof(DateOnly?) })!,
+        "MONTH"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffDay),
+          new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
+        "DAY"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffDay),
+          new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) })!,
+        "DAY"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffDay),
+          new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) })!,
+        "DAY"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffDay),
+          new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
+        "DAY"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffDay),
+          new[] { typeof(DbFunctions), typeof(DateOnly), typeof(DateOnly) })!,
+        "DAY"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffDay),
+          new[] { typeof(DbFunctions), typeof(DateOnly?), typeof(DateOnly?) })!,
+        "DAY"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffHour),
+          new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
+        "HOUR"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffHour),
+          new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) })!,
+        "HOUR"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffHour),
+          new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) })!,
+        "HOUR"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffHour),
+          new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
+        "HOUR"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffMinute),
+          new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
+        "MINUTE"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffMinute),
+          new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) })!,
+        "MINUTE"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffMinute),
+          new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) })!,
+        "MINUTE"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffMinute),
+          new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
+        "MINUTE"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffSecond),
+          new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
+        "SECOND"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffSecond),
+          new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) })!,
+        "SECOND"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffSecond),
+          new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) })!,
+        "SECOND"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffSecond),
+          new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
+        "SECOND"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffMicrosecond),
+          new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) })!,
+        "MICROSECOND"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffMicrosecond),
+          new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) })!,
+        "MICROSECOND"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffMicrosecond),
+          new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) })!,
+        "MICROSECOND"
+      },
+      {
+        typeof(MySQLDbFunctionsExtensions).GetRuntimeMethod(
+          nameof(MySQLDbFunctionsExtensions.DateDiffMicrosecond),
+          new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) })!,
+        "MICROSECOND"
+      }
+      };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -268,16 +268,16 @@ namespace MySql.EntityFrameworkCore.Query.Internal
         endDate = _sqlExpressionFactory.ApplyTypeMapping(endDate, typeMapping);
 
         return _sqlExpressionFactory.Function(
-            "TIMESTAMPDIFF",
-            new[]
-            {
-              _sqlExpressionFactory.Fragment(datePart),
-              startDate,
-              endDate
-            },
-            nullable: true,
-            argumentsPropagateNullability: TrueArrays[3],
-            typeof(int));
+          "TIMESTAMPDIFF",
+          new[]
+          {
+          _sqlExpressionFactory.Fragment(datePart),
+          startDate,
+          endDate
+          },
+          nullable: true,
+          argumentsPropagateNullability: TrueArrays[3],
+          typeof(int));
       }
 
       return null;

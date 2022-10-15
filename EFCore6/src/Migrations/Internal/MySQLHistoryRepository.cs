@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,26 +26,28 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
-using System.Text;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using MySql.EntityFrameworkCore.Utils;
+using System;
+using System.Text;
 
 namespace MySql.EntityFrameworkCore.Migrations.Internal
 {
   /// <summary>
-  ///     <para>
-  ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
-  ///         <see cref="DbContext" /> instance will use its own instance of this service.
-  ///         The implementation may depend on other services registered with any lifetime.
-  ///         The implementation does not need to be thread-safe.
-  ///     </para>
+  ///   <para>
+  ///       The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+  ///       <see cref="DbContext" /> instance will use its own instance of this service.
+  ///       The implementation may depend on other services registered with any lifetime.
+  ///       The implementation does not need to be thread-safe.
+  ///   </para>
   /// </summary>
   internal partial class MySQLHistoryRepository : HistoryRepository
   {
     public MySQLHistoryRepository([NotNull] HistoryRepositoryDependencies dependencies)
-  : base(dependencies)
+      : base(dependencies)
     {
     }
 
@@ -59,11 +61,11 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
         builder.Append("SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE ");
 
         builder
-            .Append("TABLE_SCHEMA=")
-            .Append(stringTypeMapping.GenerateSqlLiteral(TableSchema ?? Dependencies.Connection.DbConnection.Database))
-            .Append(" AND TABLE_NAME=")
-            .Append(stringTypeMapping.GenerateSqlLiteral(TableName))
-            .Append(";");
+          .Append("TABLE_SCHEMA=")
+          .Append(stringTypeMapping.GenerateSqlLiteral(TableSchema ?? Dependencies.Connection.DbConnection.Database))
+          .Append(" AND TABLE_NAME=")
+          .Append(stringTypeMapping.GenerateSqlLiteral(TableName))
+          .Append(";");
 
         return builder.ToString();
       }
@@ -78,15 +80,15 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
       var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
       return new StringBuilder()
-          .Append("IF EXISTS(SELECT * FROM ")
-          .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
-          .Append(" WHERE ")
-          .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
-          .Append(" = ")
-          .Append(stringTypeMapping.GenerateSqlLiteral(migrationId))
-          .AppendLine(")")
-          .Append("BEGIN")
-          .ToString();
+        .Append("IF EXISTS(SELECT * FROM ")
+        .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
+        .Append(" WHERE ")
+        .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
+        .Append(" = ")
+        .Append(stringTypeMapping.GenerateSqlLiteral(migrationId))
+        .AppendLine(")")
+        .Append("BEGIN")
+        .ToString();
     }
 
     public override string GetBeginIfNotExistsScript(string migrationId)
@@ -96,15 +98,15 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
       var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
       return new StringBuilder()
-          .Append("IF NOT EXISTS(SELECT * FROM ")
-          .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
-          .Append(" WHERE ")
-          .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
-          .Append(" = ")
-          .Append(stringTypeMapping.GenerateSqlLiteral(migrationId))
-          .AppendLine(")")
-          .Append("BEGIN")
-          .ToString();
+        .Append("IF NOT EXISTS(SELECT * FROM ")
+        .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
+        .Append(" WHERE ")
+        .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
+        .Append(" = ")
+        .Append(stringTypeMapping.GenerateSqlLiteral(migrationId))
+        .AppendLine(")")
+        .Append("BEGIN")
+        .ToString();
     }
 
     public override string GetCreateIfNotExistsScript()

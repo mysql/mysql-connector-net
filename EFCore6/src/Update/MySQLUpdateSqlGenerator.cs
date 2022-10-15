@@ -41,30 +41,30 @@ using System.Text;
 namespace MySql.EntityFrameworkCore
 {
   /// <summary>
-  ///     <para>
-  ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
-  ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
-  ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
-  ///     </para>
+  ///   <para>
+  ///       The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+  ///       is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+  ///       This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+  ///   </para>
   /// </summary>
   internal class MySQLUpdateSqlGenerator : UpdateSqlGenerator, IMySQLUpdateSqlGenerator
   {
     public MySQLUpdateSqlGenerator([NotNull] UpdateSqlGeneratorDependencies dependencies)
-      : base(dependencies)
+    : base(dependencies)
     {
     }
 
     public virtual ResultSetMapping AppendBulkInsertOperation(
-      StringBuilder commandStringBuilder,
-      IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
-      int commandPosition)
+    StringBuilder commandStringBuilder,
+    IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
+    int commandPosition)
     {
       var table = StoreObjectIdentifier.Table(modificationCommands[0].TableName, modificationCommands[0].Schema);
       if (modificationCommands.Count == 1
-          && modificationCommands[0].ColumnModifications.All(
-                           o => !o.IsKey
-                        || !o.IsRead
-                        || o.Property?.GetValueGenerationStrategy(table) == MySQLValueGenerationStrategy.IdentityColumn))
+        && modificationCommands[0].ColumnModifications.All(
+                   o => !o.IsKey
+                  || !o.IsRead
+                  || o.Property?.GetValueGenerationStrategy(table) == MySQLValueGenerationStrategy.IdentityColumn))
       {
         return AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition);
       }
@@ -75,8 +75,8 @@ namespace MySql.EntityFrameworkCore
 
       var defaultValuesOnly = writeOperations.Count == 0;
       var nonIdentityOperations = modificationCommands[0].ColumnModifications
-          .Where(o => o.Property?.GetValueGenerationStrategy(table) != MySQLValueGenerationStrategy.IdentityColumn)
-          .ToList();
+        .Where(o => o.Property?.GetValueGenerationStrategy(table) != MySQLValueGenerationStrategy.IdentityColumn)
+        .ToList();
 
       if (defaultValuesOnly)
       {
@@ -123,11 +123,11 @@ namespace MySql.EntityFrameworkCore
 
       AppendInsertCommandHeader(commandStringBuilder, name, schema, writeOperations);
       AppendValuesHeader(commandStringBuilder, writeOperations);
-      AppendValues(commandStringBuilder,string.Empty, null, writeOperations);
+      AppendValues(commandStringBuilder, string.Empty, null, writeOperations);
       for (var i = 1; i < modificationCommands.Count; i++)
       {
         commandStringBuilder.Append(",").AppendLine();
-        AppendValues(commandStringBuilder,string.Empty,null, modificationCommands[i].ColumnModifications.Where(o => o.IsWrite).ToList());
+        AppendValues(commandStringBuilder, string.Empty, null, modificationCommands[i].ColumnModifications.Where(o => o.IsWrite).ToList());
       }
       commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine();
 
@@ -135,10 +135,10 @@ namespace MySql.EntityFrameworkCore
     }
 
     protected override void AppendInsertCommandHeader(
-                [NotNull] StringBuilder commandStringBuilder,
-                [NotNull] string name,
-                 string? schema,
-                [NotNull] IReadOnlyList<IColumnModification> operations)
+          [NotNull] StringBuilder commandStringBuilder,
+          [NotNull] string name,
+           string? schema,
+          [NotNull] IReadOnlyList<IColumnModification> operations)
     {
       Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
       Check.NotEmpty(name, nameof(name));
@@ -153,8 +153,8 @@ namespace MySql.EntityFrameworkCore
     }
 
     protected override void AppendValuesHeader(
-        [NotNull] StringBuilder commandStringBuilder,
-        [NotNull] IReadOnlyList<IColumnModification> operations)
+      [NotNull] StringBuilder commandStringBuilder,
+      [NotNull] IReadOnlyList<IColumnModification> operations)
     {
       Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
       Check.NotNull(operations, nameof(operations));
@@ -164,10 +164,10 @@ namespace MySql.EntityFrameworkCore
     }
 
     protected override void AppendValues(
-                [NotNull] StringBuilder commandStringBuilder,
-                [NotNull] string name,
-                  string? schema,
-                [NotNull] IReadOnlyList<IColumnModification> operations)
+          [NotNull] StringBuilder commandStringBuilder,
+          [NotNull] string name,
+            string? schema,
+          [NotNull] IReadOnlyList<IColumnModification> operations)
     {
       base.AppendValues(commandStringBuilder, name, schema, operations);
 
@@ -205,21 +205,21 @@ namespace MySql.EntityFrameworkCore
     }
 
     protected override void AppendWhereAffectedClause(
-        [NotNull] StringBuilder commandStringBuilder,
-        [NotNull] IReadOnlyList<IColumnModification> operations)
+      [NotNull] StringBuilder commandStringBuilder,
+      [NotNull] IReadOnlyList<IColumnModification> operations)
     {
       Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
       Check.NotNull(operations, nameof(operations));
 
       var nonDefaultOperations = operations
-          .Where(
-              o => !o.IsKey ||
-                   !o.IsRead ||
-                   o.Property == null ||
-                   !o.Property.ValueGenerated.HasFlag(ValueGenerated.OnAdd) ||
-                   MySQLPropertyExtensions.IsCompatibleAutoIncrementColumn(o.Property))
-          .ToList()
-          .AsReadOnly();
+        .Where(
+            o => !o.IsKey ||
+               !o.IsRead ||
+               o.Property == null ||
+               !o.Property.ValueGenerated.HasFlag(ValueGenerated.OnAdd) ||
+               MySQLPropertyExtensions.IsCompatibleAutoIncrementColumn(o.Property))
+        .ToList()
+        .AsReadOnly();
 
       base.AppendWhereAffectedClause(commandStringBuilder, nonDefaultOperations);
     }

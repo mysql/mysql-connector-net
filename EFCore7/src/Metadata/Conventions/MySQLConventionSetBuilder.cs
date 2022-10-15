@@ -65,6 +65,11 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
 
       conventionSet.ModelInitializedConventions.Add(new RelationalMaxIdentifierLengthConvention(64, Dependencies, RelationalDependencies));
 
+      conventionSet.PropertyAddedConventions.Add(new MySqlCharsetAttributeConvention(Dependencies));
+      conventionSet.PropertyAddedConventions.Add(new MySqlCollationAttributeConvention(Dependencies));
+      conventionSet.EntityTypeAddedConventions.Add(new MySqlEntityCharsetAttributeConvention(Dependencies));
+      conventionSet.EntityTypeAddedConventions.Add(new MySqlEntityCollationAttributeConvention(Dependencies));
+
       ValueGenerationConvention valueGeneratorConvention = new MySQLValueGenerationConvention(Dependencies, RelationalDependencies);
       ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGeneratorConvention);
       ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGeneratorConvention);
@@ -72,10 +77,6 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
       ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
 
       conventionSet.PropertyAnnotationChangedConventions.Add((MySQLValueGenerationConvention)valueGeneratorConvention);
-      conventionSet.PropertyAddedConventions.Add(new MySqlCharsetAttributeConvention(Dependencies));
-      conventionSet.PropertyAddedConventions.Add(new MySqlCollationAttributeConvention(Dependencies));
-      conventionSet.EntityTypeAddedConventions.Add(new MySqlEntityCharsetAttributeConvention(Dependencies));
-      conventionSet.EntityTypeAddedConventions.Add(new MySqlEntityCollationAttributeConvention(Dependencies));
 
       return conventionSet;
     }

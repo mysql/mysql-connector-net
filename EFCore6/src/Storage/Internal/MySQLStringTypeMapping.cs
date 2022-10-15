@@ -42,54 +42,54 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     private readonly int _maxSpecificSize;
 
     public MySQLStringTypeMapping(
-        [NotNull] string storeType,
-        bool unicode = true,
-        int? size = null,
-        bool fixedLength = false,
-        StoreTypePostfix? storeTypePostfix = null)
-        : this(
-            new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(string)),
-                storeType,
-                storeTypePostfix ?? StoreTypePostfix.None,
-                GetDbType(unicode, fixedLength),
-                unicode,
-                size,
-                fixedLength),
-            fixedLength
-            ? MySqlDbType.String
-            : MySqlDbType.VarString)
+      [NotNull] string storeType,
+      bool unicode = true,
+      int? size = null,
+      bool fixedLength = false,
+      StoreTypePostfix? storeTypePostfix = null)
+      : this(
+        new RelationalTypeMappingParameters(
+          new CoreTypeMappingParameters(typeof(string)),
+          storeType,
+          storeTypePostfix ?? StoreTypePostfix.None,
+          GetDbType(unicode, fixedLength),
+          unicode,
+          size,
+          fixedLength),
+        fixedLength
+        ? MySqlDbType.String
+        : MySqlDbType.VarString)
     {
     }
 
     private static DbType? GetDbType(bool unicode, bool fixedLength)
-        => unicode
-            ? fixedLength
-                ? System.Data.DbType.StringFixedLength
-                : System.Data.DbType.String
-            : fixedLength
-                ? System.Data.DbType.AnsiStringFixedLength
-                : System.Data.DbType.AnsiString;
+      => unicode
+        ? fixedLength
+          ? System.Data.DbType.StringFixedLength
+          : System.Data.DbType.String
+        : fixedLength
+          ? System.Data.DbType.AnsiStringFixedLength
+          : System.Data.DbType.AnsiString;
 
 
     protected MySQLStringTypeMapping(RelationalTypeMappingParameters parameters, MySqlDbType mySqlDbType)
-        : base(parameters, mySqlDbType)
+      : base(parameters, mySqlDbType)
     {
       _maxSpecificSize = CalculateSize(parameters.Unicode, parameters.Size);
     }
 
     private static int CalculateSize(bool unicode, int? size)
-        => unicode
-            ? size.HasValue && size <= UnicodeMax ? size.Value : UnicodeMax
-            : size.HasValue && size <= AnsiMax ? size.Value : AnsiMax;
+      => unicode
+        ? size.HasValue && size <= UnicodeMax ? size.Value : UnicodeMax
+        : size.HasValue && size <= AnsiMax ? size.Value : AnsiMax;
 
     /// <summary>
-    ///     Creates a copy of this mapping.
+    ///   Creates a copy of this mapping.
     /// </summary>
     /// <param name="parameters"> The parameters for this mapping. </param>
     /// <returns> The newly created mapping. </returns>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new MySQLStringTypeMapping(parameters, MySqlDbType);
+      => new MySQLStringTypeMapping(parameters, MySqlDbType);
 
     /// <inheritdoc/>
     protected override void ConfigureParameter(DbParameter parameter)
@@ -106,12 +106,12 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
       parameter.Value = value;
       parameter.Size = value == null || value == DBNull.Value || length != null && length <= _maxSpecificSize
-          ? _maxSpecificSize
-          : -1;
+        ? _maxSpecificSize
+        : -1;
     }
 
     protected override string GenerateNonNullSqlLiteral(object value)
-      => EscapeLineBreaks((string)value);
+    => EscapeLineBreaks((string)value);
 
     protected string EscapeSqlLiteral(string literal)
     => literal.Replace("'", "''");
@@ -123,9 +123,9 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
       if (value.IndexOfAny(LineBreakChars) != -1)
         escapedLiteral = "CONCAT(" + escapedLiteral
-                    .Replace("\r\n", "', CHAR(13, 10), '")
-                    .Replace("\r", "', CHAR(13), '")
-                    .Replace("\n", "', CHAR(10), '") + ")";
+              .Replace("\r\n", "', CHAR(13, 10), '")
+              .Replace("\r", "', CHAR(13), '")
+              .Replace("\n", "', CHAR(10), '") + ")";
 
       return escapedLiteral;
     }

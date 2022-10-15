@@ -33,8 +33,8 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
   internal abstract class TypeMapperWrapper : RelationalTypeMappingSource
   {
     public TypeMapperWrapper([NotNull] TypeMappingSourceDependencies dependencies,
-      [NotNull] RelationalTypeMappingSourceDependencies relationalDependencies)
-      : base(dependencies, relationalDependencies)
+    [NotNull] RelationalTypeMappingSourceDependencies relationalDependencies)
+    : base(dependencies, relationalDependencies)
     {
     }
   }

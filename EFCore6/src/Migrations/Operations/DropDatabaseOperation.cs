@@ -36,7 +36,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Operations
   internal class MySQLDropDatabaseOperation : MigrationOperation
   {
     /// <summary>
-    ///     The name of the database.
+    ///   The name of the database.
     /// </summary>
     public virtual string Name { get; [param: NotNull] set; }
   }

@@ -44,9 +44,9 @@ namespace MySql.EntityFrameworkCore.DataAnnotations
     /// Initializes a new instance of the <see cref="MySqlCharsetAttribute"/> class.
     /// </summary>
     /// <param name="charset">Character set to use.</param>
-    public MySqlCharsetAttribute([NotNull] string charset) : base()
+    public MySqlCharsetAttribute([NotNull] string charset)
     {
-      this.Charset = charset;
+      Charset = charset;
     }
   }
 }

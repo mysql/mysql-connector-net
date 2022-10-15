@@ -45,11 +45,11 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     public virtual string Delimiter { get; }
 
     public MySQLComplexFunctionArgumentExpression(
-    IEnumerable<SqlExpression> argumentParts,
-    string delimiter,
-    Type type,
-    RelationalTypeMapping typeMapping)
-    : base(type, typeMapping)
+      IEnumerable<SqlExpression> argumentParts,
+      string delimiter,
+      Type type,
+      RelationalTypeMapping typeMapping)
+      : base(type, typeMapping)
     {
       Delimiter = delimiter;
       ArgumentParts = argumentParts.ToList().AsReadOnly();

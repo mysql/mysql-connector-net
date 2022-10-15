@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -45,7 +45,7 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
   internal class MySQLValueGenerationConvention : RelationalValueGenerationConvention
   {
     /// <summary>
-    ///   Creates a new instance of <see cref="MySQLValueGenerationConvention" />.
+    /// Creates a new instance of <see cref="MySQLValueGenerationConvention" />.
     /// </summary>
     /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
     /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
@@ -57,7 +57,7 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
     }
 
     /// <summary>
-    ///   Called after an annotation is changed on a property.
+    /// Called after an annotation is changed on a property.
     /// </summary>
     /// <param name="propertyBuilder"> The builder for the property. </param>
     /// <param name="name"> The annotation name. </param>
@@ -81,7 +81,7 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
     }
 
     /// <summary>
-    ///   Indicates the store value generation strategy to set for the given property.
+    /// Indicates the store value generation strategy to set for the given property.
     /// </summary>
     /// <param name="property"> The property. </param>
     /// <returns> The store value generation strategy to set for the given property. </returns>
@@ -89,28 +89,24 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
     {
       var tableName = property.DeclaringEntityType.GetTableName();
       if (tableName == null)
-      {
         return null;
-      }
 
-      return GetValueGenerated(
-      property, StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()));
+      return GetValueGenerated(property, StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()));
     }
 
     /// <summary>
-    ///   Indicates the store value generation strategy to set for the given property.
+    ///   Returns the store value generation strategy to set for the given property.
     /// </summary>
     /// <param name="property"> The property. </param>
+    /// <param name="storeObject"> The identifier of the store object. </param>
     /// <returns> The store value generation strategy to set for the given property. </returns>
-    public static ValueGenerated? GetValueGenerated([NotNull] IProperty property)
+    public static new ValueGenerated? GetValueGenerated([NotNull] IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
-      var valueGenerated = RelationalValueGenerationConvention.GetValueGenerated(property);
+      var valueGenerated = RelationalValueGenerationConvention.GetValueGenerated(property, storeObject);
       if (valueGenerated != null)
-      {
         return valueGenerated;
-      }
 
-      var valueGenerationStrategy = property.GetValueGenerationStrategy();
+      var valueGenerationStrategy = property.GetValueGenerationStrategy(storeObject);
       if (valueGenerationStrategy.HasValue)
       {
         switch (valueGenerationStrategy.Value)

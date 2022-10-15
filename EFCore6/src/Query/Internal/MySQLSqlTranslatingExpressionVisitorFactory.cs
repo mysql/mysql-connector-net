@@ -35,17 +35,17 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     private readonly RelationalSqlTranslatingExpressionVisitorDependencies _dependencies;
 
     public MySQLSqlTranslatingExpressionVisitorFactory(
-        [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies)
+      [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies)
     {
       _dependencies = dependencies;
     }
 
     public virtual RelationalSqlTranslatingExpressionVisitor Create(
-        QueryCompilationContext model,
-        QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
-        => new MySQLSqlTranslatingExpressionVisitor(
-            _dependencies,
-            model,
-            queryableMethodTranslatingExpressionVisitor);
+      QueryCompilationContext model,
+      QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+      => new MySQLSqlTranslatingExpressionVisitor(
+        _dependencies,
+        model,
+        queryableMethodTranslatingExpressionVisitor);
   }
 }

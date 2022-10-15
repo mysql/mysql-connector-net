@@ -35,21 +35,21 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
   internal class MySQLCodeGenerator : ProviderCodeGenerator
   {
     public MySQLCodeGenerator(
-        [NotNull] ProviderCodeGeneratorDependencies dependencies)
-        : base(dependencies)
+      [NotNull] ProviderCodeGeneratorDependencies dependencies)
+      : base(dependencies)
     {
     }
 
     /// <inheritdoc/>
     public override MethodCallCodeFragment GenerateUseProvider(
-        string connectionString,
-        MethodCallCodeFragment? providerOptions)
+      string connectionString,
+      MethodCallCodeFragment? providerOptions)
     {
       return new MethodCallCodeFragment(
-          nameof(MySQLDbContextOptionsExtensions.UseMySQL),
-          providerOptions == null
-              ? new object[] { connectionString }
-              : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });
+        nameof(MySQLDbContextOptionsExtensions.UseMySQL),
+        providerOptions == null
+            ? new object[] { connectionString }
+            : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });
     }
   }
 }

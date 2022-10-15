@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,17 +26,20 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Query;
 
-
-namespace MySql.EntityFrameworkCore.Storage.Internal
+namespace MySql.EntityFrameworkCore.Query.Internal
 {
-  internal abstract class TypeMapperWrapper : RelationalTypeMappingSource
+  public class MySQLQueryCompilationContext : RelationalQueryCompilationContext
   {
-    public TypeMapperWrapper([NotNull] TypeMappingSourceDependencies dependencies,
-      [NotNull] RelationalTypeMappingSourceDependencies relationalDependencies)
-      : base(dependencies, relationalDependencies)
+    public MySQLQueryCompilationContext(
+      [NotNull] QueryCompilationContextDependencies dependencies,
+      [NotNull] RelationalQueryCompilationContextDependencies relationalDependencies, bool async)
+      : base(dependencies, relationalDependencies, async)
     {
     }
+
+    public override bool IsBuffering
+      => base.IsBuffering || QuerySplittingBehavior == Microsoft.EntityFrameworkCore.QuerySplittingBehavior.SplitQuery;
   }
 }

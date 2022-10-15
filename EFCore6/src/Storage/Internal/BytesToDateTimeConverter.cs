@@ -34,12 +34,12 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
   internal class BytesToDateTimeConverter : ValueConverter<byte[], DateTime>
   {
     private static readonly NumberToBytesConverter<long> _longToBytes
-            = new NumberToBytesConverter<long>();
+        = new NumberToBytesConverter<long>();
 
     public BytesToDateTimeConverter()
-        : base(
-            v => DateTime.FromBinary((long)_longToBytes.ConvertFromProvider(v)!),
-            v => (byte[])_longToBytes.ConvertToProvider(v.ToBinary())!)
+      : base(
+        v => DateTime.FromBinary((long)_longToBytes.ConvertFromProvider(v)!),
+        v => (byte[])_longToBytes.ConvertToProvider(v.ToBinary())!)
     {
     }
   }

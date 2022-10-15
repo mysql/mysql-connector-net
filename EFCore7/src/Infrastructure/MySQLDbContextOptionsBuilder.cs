@@ -28,13 +28,17 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Infrastructure.Internal;
+using MySql.Data.MySqlClient;
+using MySql.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using System.Collections.Generic;
+using System;
 
 namespace MySql.EntityFrameworkCore.Infrastructure
 {
   /// <summary>
-  ///   Represents the <see cref="RelationalDbContextOptionsBuilder{MySQLDbContextOptionsBuilder,MySQLOptionsExtension}" /> implementation for MySQL.
+  /// Represents the <see cref="RelationalDbContextOptionsBuilder{MySQLDbContextOptionsBuilder,MySQLOptionsExtension}" /> implementation for MySQL.
   /// </summary>
   public class MySQLDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<MySQLDbContextOptionsBuilder, MySQLOptionsExtension>
   {
@@ -49,5 +53,36 @@ namespace MySql.EntityFrameworkCore.Infrastructure
 
     internal virtual MySQLDbContextOptionsBuilder CharSet(CharacterSet charSet)
       => WithOption(e => e.WithCharSet(charSet));
+
+    /// <summary>
+    ///   <para>
+    ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
+    ///   </para>
+    /// </summary>
+    public virtual MySQLDbContextOptionsBuilder EnableRetryOnFailure()
+      => ExecutionStrategy(c => new MySQLRetryingExecutionStrategy(c));
+
+    /// <summary>
+    ///   <para>
+    ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
+    ///   </para>
+    /// </summary>
+    /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
+    public virtual MySQLDbContextOptionsBuilder EnableRetryOnFailure(int maxRetryCount)
+      => ExecutionStrategy(c => new MySQLRetryingExecutionStrategy(c, maxRetryCount));
+
+    /// <summary>
+    ///   <para>
+    ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
+    ///   </para>
+    /// </summary>
+    /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
+    /// <param name="maxRetryDelay">The maximum delay between retries.</param>
+    /// <param name="errorNumbersToAdd">Additional SQL error numbers that should be considered transient.</param>
+    public virtual MySQLDbContextOptionsBuilder EnableRetryOnFailure(
+      int maxRetryCount,
+      TimeSpan maxRetryDelay,
+      ICollection<int>? errorNumbersToAdd)
+      => ExecutionStrategy(c => new MySQLRetryingExecutionStrategy(c, maxRetryCount, maxRetryDelay, errorNumbersToAdd!));
   }
 }

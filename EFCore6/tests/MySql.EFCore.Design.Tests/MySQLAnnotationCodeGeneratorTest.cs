@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -64,7 +64,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
       var annotation = key.FindAnnotation(mySQLAnnotation);
       var result = generator.GenFluentApi((Microsoft.EntityFrameworkCore.Metadata.IProperty)key, annotation);
 
-      Assert.AreEqual(mySQLAnnotation == MySQLAnnotationNames.Charset ? "HasCharSet" : "HasCollation", result.Method);
+      Assert.AreEqual(mySQLAnnotation == MySQLAnnotationNames.Charset ? "ForMySQLHasCharset" : "ForMySQLHasCollation", result.Method);
       Assert.AreEqual(1, result.Arguments.Count);
     }
   }

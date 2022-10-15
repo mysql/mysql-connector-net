@@ -169,5 +169,30 @@ namespace MySql.Data.MySqlClient
         clone.ConnectionString = connectionString;
       return clone;
     }
+
+    /// <summary>
+    /// Returns an unopened copy of this connection with a new connection string. If the <c>Password</c>
+    /// in <paramref name="connectionString"/> is not set, the password from this connection will be used.
+    /// This allows creating a new connection with the same security information while changing other options,
+    /// such as database or pooling.
+    /// </summary>
+    /// <param name="connectionString">The new connection string to be used.</param>
+    /// <returns>A new <see cref="MySqlConnection"/> with different connection string options but
+    /// the same password as this connection (unless overridden by <paramref name="connectionString"/>).</returns>
+    public MySqlConnection CloneWith(string connectionString)
+    {
+      var newBuilder = new MySqlConnectionStringBuilder(connectionString ?? throw new ArgumentNullException(nameof(connectionString)));
+      var currentBuilder = new MySqlConnectionStringBuilder(ConnectionString);
+      var shouldCopyPassword = newBuilder.Password.Length == 0 && (!newBuilder.PersistSecurityInfo || currentBuilder.PersistSecurityInfo);
+
+      if (shouldCopyPassword)
+        newBuilder.Password = currentBuilder.Password;
+
+      var cloneConnection = new MySqlConnection(newBuilder.ConnectionString);
+      cloneConnection.ParentHasbeenOpen = hasBeenOpen;
+      cloneConnection.IsClone = true;
+
+      return cloneConnection;
+    }
   }
 }

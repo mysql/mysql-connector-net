@@ -56,8 +56,8 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
     private readonly IMySQLOptions _options;
 
     public MySQLDatabaseModelFactory(
-      [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
-      IMySQLOptions options)
+    [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
+    IMySQLOptions options)
     {
       Check.NotNull(logger, nameof(logger));
 
@@ -120,7 +120,7 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
     {
       if (_options.ConnectionSettings.Equals(new MySQLOptions().ConnectionSettings))
         _options.Initialize(new DbContextOptionsBuilder()
-          .UseMySQL(connection).Options);
+        .UseMySQL(connection).Options);
     }
 
     private string? GetDefaultSchema(DbConnection connection)
@@ -153,96 +153,96 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
     = @"(?:(?:\[(?<part{0}>(?:(?:\]\])|[^\]])+)\])|(?<part{0}>[^\.\[\]]+))";
 
     private static readonly Regex _partExtractor
-        = new Regex(
-            string.Format(
-                CultureInfo.InvariantCulture,
-                @"^{0}(?:\.{1})?$",
-                string.Format(CultureInfo.InvariantCulture, NamePartRegex, 1),
-                string.Format(CultureInfo.InvariantCulture, NamePartRegex, 2)),
-            RegexOptions.Compiled,
-            TimeSpan.FromMilliseconds(1000));
+      = new Regex(
+        string.Format(
+          CultureInfo.InvariantCulture,
+          @"^{0}(?:\.{1})?$",
+          string.Format(CultureInfo.InvariantCulture, NamePartRegex, 1),
+          string.Format(CultureInfo.InvariantCulture, NamePartRegex, 2)),
+        RegexOptions.Compiled,
+        TimeSpan.FromMilliseconds(1000));
 
     private static Func<string, string>? GenerateSchemaFilter(IReadOnlyList<string> schemas, string? defaultSchema)
     {
       return schemas.Count > 0 || defaultSchema != null
-          ? (s =>
-          {
-            var schemaFilterBuilder = new StringBuilder();
-            schemaFilterBuilder.Append(s);
-            schemaFilterBuilder.Append(" IN (");
-            if (schemas.Count > 0)
-              schemaFilterBuilder.Append(string.Join(", ", schemas.Select(EscapeLiteral)));
-            else
-              schemaFilterBuilder.Append(EscapeLiteral(defaultSchema));
-            schemaFilterBuilder.Append(")");
-            return schemaFilterBuilder.ToString();
-          })
-          : null;
+        ? (s =>
+        {
+          var schemaFilterBuilder = new StringBuilder();
+          schemaFilterBuilder.Append(s);
+          schemaFilterBuilder.Append(" IN (");
+          if (schemas.Count > 0)
+            schemaFilterBuilder.Append(string.Join(", ", schemas.Select(EscapeLiteral)));
+          else
+            schemaFilterBuilder.Append(EscapeLiteral(defaultSchema));
+          schemaFilterBuilder.Append(")");
+          return schemaFilterBuilder.ToString();
+        })
+        : null;
     }
 
     private static Func<string, string, string>? GenerateTableFilter(IReadOnlyList<(string? Schema, string Table)> tables, Func<string, string>? schemaFilter)
     {
       return schemaFilter != null || tables.Count > 0
-                    ? ((s, t) =>
+              ? ((s, t) =>
+              {
+                var tableFilterBuilder = new StringBuilder();
+
+                var openBracket = false;
+                if (schemaFilter != null)
+                {
+                  tableFilterBuilder
+                    .Append("(")
+                    .Append(schemaFilter(s));
+                  openBracket = true;
+                }
+
+                if (tables.Count > 0)
+                {
+                  if (openBracket)
+                  {
+                    tableFilterBuilder
+                    .AppendLine()
+                    .Append("AND ");
+                  }
+                  else
+                  {
+                    tableFilterBuilder.Append("(");
+                    openBracket = true;
+                  }
+
+                  var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
+                  if (tablesWithoutSchema.Count > 0)
+                  {
+                    tableFilterBuilder.Append(t);
+                    tableFilterBuilder.Append(" IN (");
+                    tableFilterBuilder.Append(string.Join(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table))));
+                    tableFilterBuilder.Append(")");
+                  }
+
+                  var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
+                  if (tablesWithSchema.Count > 0)
+                  {
+                    if (tablesWithoutSchema.Count > 0)
                     {
-                      var tableFilterBuilder = new StringBuilder();
+                      tableFilterBuilder.Append(" OR ");
+                    }
 
-                      var openBracket = false;
-                      if (schemaFilter != null)
-                      {
-                        tableFilterBuilder
-                            .Append("(")
-                            .Append(schemaFilter(s));
-                        openBracket = true;
-                      }
+                    tableFilterBuilder.Append("CONCAT_WS(N'.',");
+                    tableFilterBuilder.Append(string.Join(",", s, t));
+                    tableFilterBuilder.Append(") IN (");
+                    tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}"))));
+                    tableFilterBuilder.Append(")");
+                  }
+                }
 
-                      if (tables.Count > 0)
-                      {
-                        if (openBracket)
-                        {
-                          tableFilterBuilder
-                              .AppendLine()
-                              .Append("AND ");
-                        }
-                        else
-                        {
-                          tableFilterBuilder.Append("(");
-                          openBracket = true;
-                        }
+                if (openBracket)
+                {
+                  tableFilterBuilder.Append(")");
+                }
 
-                        var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
-                        if (tablesWithoutSchema.Count > 0)
-                        {
-                          tableFilterBuilder.Append(t);
-                          tableFilterBuilder.Append(" IN (");
-                          tableFilterBuilder.Append(string.Join(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table))));
-                          tableFilterBuilder.Append(")");
-                        }
-
-                        var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
-                        if (tablesWithSchema.Count > 0)
-                        {
-                          if (tablesWithoutSchema.Count > 0)
-                          {
-                            tableFilterBuilder.Append(" OR ");
-                          }
-
-                          tableFilterBuilder.Append("CONCAT_WS(N'.',");
-                          tableFilterBuilder.Append(string.Join(",", s, t));
-                          tableFilterBuilder.Append(") IN (");
-                          tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}"))));
-                          tableFilterBuilder.Append(")");
-                        }
-                      }
-
-                      if (openBracket)
-                      {
-                        tableFilterBuilder.Append(")");
-                      }
-
-                      return tableFilterBuilder.ToString();
-                    })
-                    : null;
+                return tableFilterBuilder.ToString();
+              })
+              : null;
     }
 
     private static ReferentialAction? ConvertToReferentialAction(string deleteAction)
@@ -276,61 +276,61 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
     AND {0};";
 
     private const string GetPrimaryQuery = @"SELECT
-     `TABLE_SCHEMA`,
-     `TABLE_NAME`,
-     `INDEX_NAME`,
-     GROUP_CONCAT(`COLUMN_NAME` ORDER BY `SEQ_IN_INDEX` SEPARATOR ',') AS COLUMNS
-     FROM `INFORMATION_SCHEMA`.`STATISTICS`
-     WHERE {0}
-     AND `INDEX_NAME` = 'PRIMARY'
-     GROUP BY `TABLE_SCHEMA`, `TABLE_NAME`, `INDEX_NAME`, `NON_UNIQUE`;";
+   `TABLE_SCHEMA`,
+   `TABLE_NAME`,
+   `INDEX_NAME`,
+   GROUP_CONCAT(`COLUMN_NAME` ORDER BY `SEQ_IN_INDEX` SEPARATOR ',') AS COLUMNS
+   FROM `INFORMATION_SCHEMA`.`STATISTICS`
+   WHERE {0}
+   AND `INDEX_NAME` = 'PRIMARY'
+   GROUP BY `TABLE_SCHEMA`, `TABLE_NAME`, `INDEX_NAME`, `NON_UNIQUE`;";
 
     private const string GetColumnsQuery = @"SELECT
-      `TABLE_SCHEMA`,
-      `TABLE_NAME`,
-      `COLUMN_NAME`,
-      `ORDINAL_POSITION`,
-      `COLUMN_DEFAULT`,
-      `IS_NULLABLE`,
-      `DATA_TYPE`,
-      `CHARACTER_SET_NAME`,
-      `COLLATION_NAME`,
-      `COLUMN_TYPE`,
-      `COLUMN_COMMENT`,
-      `EXTRA`
-      FROM
-      `INFORMATION_SCHEMA`.`COLUMNS`
-      WHERE {0}
-      ORDER BY
-      `ORDINAL_POSITION`;";
+    `TABLE_SCHEMA`,
+    `TABLE_NAME`,
+    `COLUMN_NAME`,
+    `ORDINAL_POSITION`,
+    `COLUMN_DEFAULT`,
+    `IS_NULLABLE`,
+    `DATA_TYPE`,
+    `CHARACTER_SET_NAME`,
+    `COLLATION_NAME`,
+    `COLUMN_TYPE`,
+    `COLUMN_COMMENT`,
+    `EXTRA`
+    FROM
+    `INFORMATION_SCHEMA`.`COLUMNS`
+    WHERE {0}
+    ORDER BY
+    `ORDINAL_POSITION`;";
 
     private const string GetIndexesQuery = @"SELECT 
-      `TABLE_SCHEMA`,
-      `TABLE_NAME`,
-      `INDEX_NAME`,
-      IF(`NON_UNIQUE`, 'TRUE', 'FALSE') AS NON_UNIQUE,
-      GROUP_CONCAT(`COLUMN_NAME` ORDER BY `SEQ_IN_INDEX` SEPARATOR ',') AS COLUMNS
-      FROM `INFORMATION_SCHEMA`.`STATISTICS`
-      WHERE {0}
-      AND `INDEX_NAME` <> 'PRIMARY'
-      GROUP BY `TABLE_SCHEMA`, `TABLE_NAME`, `INDEX_NAME`, `NON_UNIQUE`;";
+    `TABLE_SCHEMA`,
+    `TABLE_NAME`,
+    `INDEX_NAME`,
+    IF(`NON_UNIQUE`, 'TRUE', 'FALSE') AS NON_UNIQUE,
+    GROUP_CONCAT(`COLUMN_NAME` ORDER BY `SEQ_IN_INDEX` SEPARATOR ',') AS COLUMNS
+    FROM `INFORMATION_SCHEMA`.`STATISTICS`
+    WHERE {0}
+    AND `INDEX_NAME` <> 'PRIMARY'
+    GROUP BY `TABLE_SCHEMA`, `TABLE_NAME`, `INDEX_NAME`, `NON_UNIQUE`;";
 
     private const string GetConstraintsQuery = @"SELECT
-      `TABLE_SCHEMA`,
-      `TABLE_NAME`,
-      `CONSTRAINT_NAME`,
-      `REFERENCED_TABLE_NAME`,
-      GROUP_CONCAT(CONCAT_WS('|', `COLUMN_NAME`, `REFERENCED_COLUMN_NAME`) ORDER BY `ORDINAL_POSITION` SEPARATOR ',') AS PAIRED_COLUMNS,
-      (SELECT `DELETE_RULE` FROM `INFORMATION_SCHEMA`.`REFERENTIAL_CONSTRAINTS` 
-        WHERE `REFERENTIAL_CONSTRAINTS`.`CONSTRAINT_NAME` = `KEY_COLUMN_USAGE`.`CONSTRAINT_NAME` 
-        AND `REFERENTIAL_CONSTRAINTS`.`CONSTRAINT_SCHEMA` = `KEY_COLUMN_USAGE`.`CONSTRAINT_SCHEMA`) AS `DELETE_RULE`
-      FROM `INFORMATION_SCHEMA`.`KEY_COLUMN_USAGE`
-      WHERE {0}
-      AND `CONSTRAINT_NAME` <> 'PRIMARY'
-      AND `REFERENCED_TABLE_NAME` IS NOT NULL
-      GROUP BY `TABLE_SCHEMA`, `TABLE_NAME`, 
-      `CONSTRAINT_SCHEMA`, `CONSTRAINT_NAME`,
-      `TABLE_NAME`, `REFERENCED_TABLE_NAME`;";
+    `TABLE_SCHEMA`,
+    `TABLE_NAME`,
+    `CONSTRAINT_NAME`,
+    `REFERENCED_TABLE_NAME`,
+    GROUP_CONCAT(CONCAT_WS('|', `COLUMN_NAME`, `REFERENCED_COLUMN_NAME`) ORDER BY `ORDINAL_POSITION` SEPARATOR ',') AS PAIRED_COLUMNS,
+    (SELECT `DELETE_RULE` FROM `INFORMATION_SCHEMA`.`REFERENTIAL_CONSTRAINTS` 
+      WHERE `REFERENTIAL_CONSTRAINTS`.`CONSTRAINT_NAME` = `KEY_COLUMN_USAGE`.`CONSTRAINT_NAME` 
+      AND `REFERENTIAL_CONSTRAINTS`.`CONSTRAINT_SCHEMA` = `KEY_COLUMN_USAGE`.`CONSTRAINT_SCHEMA`) AS `DELETE_RULE`
+    FROM `INFORMATION_SCHEMA`.`KEY_COLUMN_USAGE`
+    WHERE {0}
+    AND `CONSTRAINT_NAME` <> 'PRIMARY'
+    AND `REFERENCED_TABLE_NAME` IS NOT NULL
+    GROUP BY `TABLE_SCHEMA`, `TABLE_NAME`, 
+    `CONSTRAINT_SCHEMA`, `CONSTRAINT_NAME`,
+    `TABLE_NAME`, `REFERENCED_TABLE_NAME`;";
 
     private IEnumerable<DatabaseTable> GetTables(DbConnection connection, Func<string, string, string>? tableFilter)
     {
@@ -349,8 +349,8 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
             var comment = reader.GetValueOrDefault<string>("TABLE_COMMENT");
 
             var table = string.Equals(type, "base table", StringComparison.OrdinalIgnoreCase)
-                ? new DatabaseTable()
-                : new DatabaseView();
+              ? new DatabaseTable()
+              : new DatabaseView();
 
             table.Schema = schema;
             table.Name = name;
@@ -410,9 +410,9 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
               else if (extra.IndexOf("on update", StringComparison.Ordinal) >= 0)
               {
                 if (defaultValue != null && extra.IndexOf(defaultValue, StringComparison.Ordinal) > 0 ||
-                    (string.Equals(dataType, "timestamp", StringComparison.OrdinalIgnoreCase) ||
-                     string.Equals(dataType, "datetime", StringComparison.OrdinalIgnoreCase)) &&
-                    extra.IndexOf("CURRENT_TIMESTAMP", StringComparison.Ordinal) > 0)
+                  (string.Equals(dataType, "timestamp", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(dataType, "datetime", StringComparison.OrdinalIgnoreCase)) &&
+                  extra.IndexOf("CURRENT_TIMESTAMP", StringComparison.Ordinal) > 0)
                 {
                   valueGenerated = ValueGenerated.OnAddOrUpdate;
                 }
@@ -462,8 +462,8 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
         {
           var tablePrimaryKeyGroups = reader.Cast<DbDataRecord>()
               .GroupBy(
-                  ddr => (tableSchema: ddr.GetValueOrDefault<string>("TABLE_SCHEMA"),
-                      tableName: ddr.GetValueOrDefault<string>("TABLE_NAME")));
+                ddr => (tableSchema: ddr.GetValueOrDefault<string>("TABLE_SCHEMA"),
+                  tableName: ddr.GetValueOrDefault<string>("TABLE_NAME")));
 
           foreach (var tablePrimaryKeyGroup in tablePrimaryKeyGroups)
           {
@@ -509,7 +509,7 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
           var tableIndexGroups = reader.Cast<DbDataRecord>()
             .GroupBy(
               ddr => (tableSchema: ddr.GetValueOrDefault<string>("TABLE_SCHEMA"),
-                tableName: ddr.GetValueOrDefault<string>("TABLE_NAME")));
+              tableName: ddr.GetValueOrDefault<string>("TABLE_NAME")));
 
           foreach (var tableIndexGroup in tableIndexGroups)
           {
@@ -557,7 +557,7 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
           var tableConstraintGroups = reader.Cast<DbDataRecord>()
             .GroupBy(
               ddr => (tableSchema: ddr.GetValueOrDefault<string>("TABLE_SCHEMA"),
-                tableName: ddr.GetValueOrDefault<string>("TABLE_NAME")));
+              tableName: ddr.GetValueOrDefault<string>("TABLE_NAME")));
 
           foreach (var tableConstraintGroup in tableConstraintGroups)
           {
@@ -582,9 +582,9 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
                 foreach (var pair in dataRecord.GetValueOrDefault<string>("PAIRED_COLUMNS").Split(','))
                 {
                   fkInfo.Columns.Add(table.Columns.Single(y =>
-                      string.Equals(y.Name, pair.Split('|')[0], StringComparison.OrdinalIgnoreCase)));
+                    string.Equals(y.Name, pair.Split('|')[0], StringComparison.OrdinalIgnoreCase)));
                   fkInfo.PrincipalColumns.Add(fkInfo.PrincipalTable.Columns.Single(y =>
-                      string.Equals(y.Name, pair.Split('|')[1], StringComparison.OrdinalIgnoreCase)));
+                    string.Equals(y.Name, pair.Split('|')[1], StringComparison.OrdinalIgnoreCase)));
                 }
 
                 table.ForeignKeys.Add(fkInfo);
@@ -614,13 +614,13 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
       if (defaultValue == "0")
       {
         if (dataTypeName == "bit"
-            || dataTypeName == "tinyint"
-            || dataTypeName == "smallint"
-            || dataTypeName == "int"
-            || dataTypeName == "bigint"
-            || dataTypeName == "decimal"
-            || dataTypeName == "double"
-            || dataTypeName == "float")
+          || dataTypeName == "tinyint"
+          || dataTypeName == "smallint"
+          || dataTypeName == "int"
+          || dataTypeName == "bigint"
+          || dataTypeName == "decimal"
+          || dataTypeName == "double"
+          || dataTypeName == "float")
         {
           return null;
         }
@@ -628,8 +628,8 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
       else if (Regex.IsMatch(defaultValue, @"^0\.0+$"))
       {
         if (dataTypeName == "decimal"
-            || dataTypeName == "double"
-            || dataTypeName == "float")
+          || dataTypeName == "double"
+          || dataTypeName == "float")
         {
           return null;
         }
@@ -646,15 +646,15 @@ namespace MySql.EntityFrameworkCore.Scaffolding.Internal
       }
 
       if ((string.Equals(dataType, "timestamp", StringComparison.OrdinalIgnoreCase) ||
-          string.Equals(dataType, "datetime", StringComparison.OrdinalIgnoreCase)) &&
-          string.Equals(defaultValue, "CURRENT_TIMESTAMP", StringComparison.OrdinalIgnoreCase))
+        string.Equals(dataType, "datetime", StringComparison.OrdinalIgnoreCase)) &&
+        string.Equals(defaultValue, "CURRENT_TIMESTAMP", StringComparison.OrdinalIgnoreCase))
       {
         return defaultValue;
       }
 
       // Handle bit values.
       if (string.Equals(dataType, "bit", StringComparison.OrdinalIgnoreCase)
-          && defaultValue.StartsWith("b'"))
+        && defaultValue.StartsWith("b'"))
       {
         return defaultValue;
       }

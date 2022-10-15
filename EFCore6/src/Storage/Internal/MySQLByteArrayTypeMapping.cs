@@ -41,56 +41,56 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     private readonly int _maxSpecificSize;
 
     public MySQLByteArrayTypeMapping(
-      string storeType = null,
-      int? size = null,
-      bool fixedLength = false)
-      : this(System.Data.DbType.Binary,
-          storeType,
-          size.HasValue && size < MaxSize ? size : null, 
-          fixedLength)
+    string storeType = null,
+    int? size = null,
+    bool fixedLength = false)
+    : this(System.Data.DbType.Binary,
+      storeType,
+      size.HasValue && size < MaxSize ? size : null,
+      fixedLength)
     {
     }
 
     protected MySQLByteArrayTypeMapping(
-        DbType type,
-        string storeType,
-        int? size,
-        bool fixedLength)
-        : this(
-            new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(byte[])),
-                storeType ?? GetBaseType(size, fixedLength),
-                GetStoreTypePostfix(size),
-                type,
-                size: size,
-                fixedLength: fixedLength))
+      DbType type,
+      string storeType,
+      int? size,
+      bool fixedLength)
+      : this(
+        new RelationalTypeMappingParameters(
+          new CoreTypeMappingParameters(typeof(byte[])),
+          storeType ?? GetBaseType(size, fixedLength),
+          GetStoreTypePostfix(size),
+          type,
+          size: size,
+          fixedLength: fixedLength))
     {
     }
 
     private static string GetBaseType(int? size, bool isFixedLength)
-        => size == null
-            ? "longblob"
-            : isFixedLength ? "binary" : "varbinary";
+      => size == null
+        ? "longblob"
+        : isFixedLength ? "binary" : "varbinary";
 
     private static StoreTypePostfix GetStoreTypePostfix(int? size)
-        => size != null && size <= MaxSize ? StoreTypePostfix.Size : StoreTypePostfix.None;
+      => size != null && size <= MaxSize ? StoreTypePostfix.Size : StoreTypePostfix.None;
 
     protected MySQLByteArrayTypeMapping(RelationalTypeMappingParameters parameters)
-        : base(parameters)
+      : base(parameters)
     {
       _maxSpecificSize = CalculateSize(parameters.Size);
     }
 
     /// <summary>
-    ///     Creates a copy of this mapping.
+    ///   Creates a copy of this mapping.
     /// </summary>
     /// <param name="parameters"> The parameters for this mapping. </param>
     /// <returns> The newly created mapping. </returns>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new MySQLByteArrayTypeMapping(parameters);
+      => new MySQLByteArrayTypeMapping(parameters);
 
     private static int CalculateSize(int? size)
-        => size.HasValue && size < MaxSize ? size.Value : MaxSize;
+      => size.HasValue && size < MaxSize ? size.Value : MaxSize;
 
     /// <inheritdoc/>
     protected override void ConfigureParameter(DbParameter parameter)
@@ -104,16 +104,16 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       var length = (value as string)?.Length ?? (value as byte[])?.Length;
 
       parameter.Size = value == null || value == DBNull.Value || length != null && length <= _maxSpecificSize
-          ? _maxSpecificSize
-          : -1;
+        ? _maxSpecificSize
+        : -1;
     }
 
     /// <summary>
-    ///     Generates the SQL representation of a literal value.
+    ///   Generates the SQL representation of a literal value.
     /// </summary>
     /// <param name="value">The literal value.</param>
     /// <returns>
-    ///     The generated string.
+    ///   The generated string.
     /// </returns>
     protected override string GenerateNonNullSqlLiteral(object value) => ByteArrayFormatter.ToHex((byte[])value);
   }

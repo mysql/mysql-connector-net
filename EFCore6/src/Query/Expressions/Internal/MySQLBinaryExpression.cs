@@ -44,12 +44,12 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
   internal class MySQLBinaryExpression : SqlExpression
   {
     public MySQLBinaryExpression(
-        MySQLBinaryExpressionOperatorType operatorType,
-        SqlExpression left,
-        SqlExpression right,
-        Type type,
-        RelationalTypeMapping? typeMapping)
-        : base(type, typeMapping)
+      MySQLBinaryExpressionOperatorType operatorType,
+      SqlExpression left,
+      SqlExpression right,
+      Type type,
+      RelationalTypeMapping? typeMapping)
+      : base(type, typeMapping)
     {
       Check.NotNull(left, nameof(left));
       Check.NotNull(right, nameof(right));
@@ -65,9 +65,9 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     public virtual SqlExpression Right { get; }
 
     protected override Expression Accept(ExpressionVisitor visitor)
-        => visitor is MySQLQuerySqlGenerator mySqlQuerySqlGenerator
-            ? mySqlQuerySqlGenerator.VisitMySQLBinaryExpression(this)
-            : base.Accept(visitor);
+      => visitor is MySQLQuerySqlGenerator mySqlQuerySqlGenerator
+        ? mySqlQuerySqlGenerator.VisitMySQLBinaryExpression(this)
+        : base.Accept(visitor);
 
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
@@ -78,9 +78,9 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     }
 
     public virtual MySQLBinaryExpression Update(SqlExpression left, SqlExpression right)
-        => left != Left || right != Right
-            ? new MySQLBinaryExpression(OperatorType, left, right, Type, TypeMapping)
-            : this;
+      => left != Left || right != Right
+        ? new MySQLBinaryExpression(OperatorType, left, right, Type, TypeMapping)
+        : this;
 
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
@@ -123,21 +123,21 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     private bool RequiresBrackets(SqlExpression expression)
     {
       return expression is SqlBinaryExpression sqlBinary
-          && sqlBinary.OperatorType != ExpressionType.Coalesce
-          || expression is LikeExpression;
+        && sqlBinary.OperatorType != ExpressionType.Coalesce
+        || expression is LikeExpression;
     }
 
     public override bool Equals(object? obj)
-        => obj != null
-        && (ReferenceEquals(this, obj)
-            || obj is MySQLBinaryExpression sqlBinaryExpression
-                && Equals(sqlBinaryExpression));
+      => obj != null
+      && (ReferenceEquals(this, obj)
+        || obj is MySQLBinaryExpression sqlBinaryExpression
+          && Equals(sqlBinaryExpression));
 
     private bool Equals(MySQLBinaryExpression sqlBinaryExpression)
-        => base.Equals(sqlBinaryExpression)
-        && OperatorType == sqlBinaryExpression.OperatorType
-        && Left.Equals(sqlBinaryExpression.Left)
-        && Right.Equals(sqlBinaryExpression.Right);
+      => base.Equals(sqlBinaryExpression)
+      && OperatorType == sqlBinaryExpression.OperatorType
+      && Left.Equals(sqlBinaryExpression.Left)
+      && Right.Equals(sqlBinaryExpression.Right);
 
     public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), OperatorType, Left, Right);
   }

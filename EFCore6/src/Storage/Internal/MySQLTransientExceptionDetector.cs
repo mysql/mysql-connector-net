@@ -37,8 +37,8 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
   internal class MySQLTransientExceptionDetector
   {
     public static bool ShouldRetryOn([NotNull] Exception ex)
-      => ex is MySqlException mySqlException
-      ? mySqlException.IsTransient
-      : ex is TimeoutException;
+    => ex is MySqlException mySqlException
+    ? mySqlException.IsTransient
+    : ex is TimeoutException;
   }
 }

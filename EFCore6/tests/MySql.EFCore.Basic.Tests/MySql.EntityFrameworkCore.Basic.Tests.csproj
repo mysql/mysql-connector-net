@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Basic.Tests Class Library</Description>
@@ -13,13 +13,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Specification.Tests" Version="6.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Specification.Tests" Version="6.0.10" />    
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <!--<ProjectReference Include="C:\Users\davaldez\Desktop\efcore-6.0.9\test\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />-->
     <ProjectReference Include="..\..\src\MySql.EntityFrameworkCore.csproj" />
   </ItemGroup>
 

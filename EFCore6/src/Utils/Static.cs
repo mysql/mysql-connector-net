@@ -40,61 +40,61 @@ namespace MySql.EntityFrameworkCore.Utils
   {
     internal static readonly bool[][] TrueArrays =
     {
-            Array.Empty<bool>(),
-            new[] { true },
-            new[] { true, true },
-            new[] { true, true, true },
-            new[] { true, true, true, true },
-            new[] { true, true, true, true, true },
-            new[] { true, true, true, true, true, true },
-            new[] { true, true, true, true, true, true, true },
-            new[] { true, true, true, true, true, true, true, true },
-            new[] { true, true, true, true, true, true, true, true, true },
-            new[] { true, true, true, true, true, true, true, true, true, true },
-            new[] { true, true, true, true, true, true, true, true, true, true, true },
-            new[] { true, true, true, true, true, true, true, true, true, true, true, true },
-            new[] { true, true, true, true, true, true, true, true, true, true, true, true, true },
-            new[] { true, true, true, true, true, true, true, true, true, true, true, true, true, true },
-            new[] { true, true, true, true, true, true, true, true, true, true, true, true, true, true, true },
-            new[] { true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true },
-        };
+        Array.Empty<bool>(),
+        new[] { true },
+        new[] { true, true },
+        new[] { true, true, true },
+        new[] { true, true, true, true },
+        new[] { true, true, true, true, true },
+        new[] { true, true, true, true, true, true },
+        new[] { true, true, true, true, true, true, true },
+        new[] { true, true, true, true, true, true, true, true },
+        new[] { true, true, true, true, true, true, true, true, true },
+        new[] { true, true, true, true, true, true, true, true, true, true },
+        new[] { true, true, true, true, true, true, true, true, true, true, true },
+        new[] { true, true, true, true, true, true, true, true, true, true, true, true },
+        new[] { true, true, true, true, true, true, true, true, true, true, true, true, true },
+        new[] { true, true, true, true, true, true, true, true, true, true, true, true, true, true },
+        new[] { true, true, true, true, true, true, true, true, true, true, true, true, true, true, true },
+        new[] { true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true },
+      };
 
     internal static readonly bool[][] FalseArrays =
     {
-            Array.Empty<bool>(),
-            new[] { false },
-            new[] { false, false },
-            new[] { false, false, false },
-            new[] { false, false, false, false },
-            new[] { false, false, false, false, false },
-            new[] { false, false, false, false, false, false },
-            new[] { false, false, false, false, false, false, false },
-            new[] { false, false, false, false, false, false, false, false },
-            new[] { false, false, false, false, false, false, false, false, false },
-            new[] { false, false, false, false, false, false, false, false, false, false },
-            new[] { false, false, false, false, false, false, false, false, false, false, false },
-            new[] { false, false, false, false, false, false, false, false, false, false, false, false },
-            new[] { false, false, false, false, false, false, false, false, false, false, false, false, false },
-            new[] { false, false, false, false, false, false, false, false, false, false, false, false, false, false },
-            new[] { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
-            new[] { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
-        };
-    
+        Array.Empty<bool>(),
+        new[] { false },
+        new[] { false, false },
+        new[] { false, false, false },
+        new[] { false, false, false, false },
+        new[] { false, false, false, false, false },
+        new[] { false, false, false, false, false, false },
+        new[] { false, false, false, false, false, false, false },
+        new[] { false, false, false, false, false, false, false, false },
+        new[] { false, false, false, false, false, false, false, false, false },
+        new[] { false, false, false, false, false, false, false, false, false, false },
+        new[] { false, false, false, false, false, false, false, false, false, false, false },
+        new[] { false, false, false, false, false, false, false, false, false, false, false, false },
+        new[] { false, false, false, false, false, false, false, false, false, false, false, false, false },
+        new[] { false, false, false, false, false, false, false, false, false, false, false, false, false, false },
+        new[] { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
+        new[] { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false },
+      };
+
     internal static IEnumerable<bool> GetTrueValues(int dimensions)
-        => dimensions <= 16
-            ? TrueArrays[dimensions]
-            : Enumerable.Repeat(true, dimensions);
+      => dimensions <= 16
+        ? TrueArrays[dimensions]
+        : Enumerable.Repeat(true, dimensions);
 
     internal static IEnumerable<bool> GetFalseValues(int dimensions)
-        => dimensions <= 16
-            ? FalseArrays[dimensions]
-            : Enumerable.Repeat(true, dimensions);
+      => dimensions <= 16
+        ? FalseArrays[dimensions]
+        : Enumerable.Repeat(true, dimensions);
   }
   internal static class ByteArrayFormatter
   {
     private static readonly char[] _lookup = new char[16]
     {
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
     };
 
     public static string ToHex([NotNull] byte[] b)

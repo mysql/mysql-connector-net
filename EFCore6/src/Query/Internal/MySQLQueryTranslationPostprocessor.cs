@@ -37,11 +37,11 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     private readonly IMySQLOptions _options;
 
     public MySQLQueryTranslationPostprocessor(
-        QueryTranslationPostprocessorDependencies dependencies,
-        RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-        QueryCompilationContext queryCompilationContext,
-        IMySQLOptions options)
-        : base(dependencies, relationalDependencies, queryCompilationContext)
+      QueryTranslationPostprocessorDependencies dependencies,
+      RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
+      QueryCompilationContext queryCompilationContext,
+      IMySQLOptions options)
+      : base(dependencies, relationalDependencies, queryCompilationContext)
     {
       _options = options;
     }

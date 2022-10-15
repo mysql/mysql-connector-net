@@ -43,6 +43,6 @@ namespace MySql.EntityFrameworkCore.Query
     }
 
     public QuerySqlGenerator Create()
-      => new MySQLQuerySqlGenerator(_dependencies);
+    => new MySQLQuerySqlGenerator(_dependencies);
   }
 }

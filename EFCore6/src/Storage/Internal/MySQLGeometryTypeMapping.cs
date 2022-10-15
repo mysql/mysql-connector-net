@@ -44,7 +44,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     }
 
     public override CoreTypeMapping Clone(ValueConverter? converter)
-      => new MySQLGeometryTypeMapping(Parameters.WithComposedConverter(converter));
+    => new MySQLGeometryTypeMapping(Parameters.WithComposedConverter(converter));
 
     protected override void ConfigureParameter(DbParameter parameter)
     {
@@ -58,13 +58,13 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     }
 
     public MySQLGeometryTypeMapping(
-      string storeType,
-      DbType dbType = System.Data.DbType.Binary)
-      : base(storeType, typeof(MySql.Data.Types.MySqlGeometry), dbType)
+    string storeType,
+    DbType dbType = System.Data.DbType.Binary)
+    : base(storeType, typeof(MySql.Data.Types.MySqlGeometry), dbType)
     {
     }
 
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-      => new MySQLGeometryTypeMapping(parameters);
+    => new MySQLGeometryTypeMapping(parameters);
   }
 }

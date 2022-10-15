@@ -67,33 +67,33 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     }
 
     protected virtual Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
-                => CheckSupport(rowNumberExpression, true);
+          => CheckSupport(rowNumberExpression, true);
 
     protected virtual Expression VisitOuterApply(OuterApplyExpression outerApplyExpression)
-        => CheckSupport(outerApplyExpression, true);
+      => CheckSupport(outerApplyExpression, true);
 
     protected virtual Expression VisitCrossApply(CrossApplyExpression crossApplyExpression)
-        => CheckSupport(crossApplyExpression, true);
+      => CheckSupport(crossApplyExpression, true);
 
     protected virtual Expression VisitExcept(ExceptExpression exceptExpression)
-        => CheckSupport(exceptExpression, false);
+      => CheckSupport(exceptExpression, false);
 
     protected virtual Expression VisitIntercept(IntersectExpression intersectExpression)
-        => CheckSupport(intersectExpression, false);
+      => CheckSupport(intersectExpression, false);
 
     protected virtual Expression CheckSupport(Expression expression, bool isSupported)
-        => CheckTranslated(
-            isSupported
-                ? base.VisitExtension(expression)
-                : null,
-            expression);
+      => CheckTranslated(
+        isSupported
+          ? base.VisitExtension(expression)
+          : null,
+        expression);
 
     protected virtual Expression CheckTranslated(Expression? translated, Expression original)
     {
       if (translated == null)
       {
         throw new InvalidOperationException(
-            CoreStrings.TranslationFailed(original.Print()));
+          CoreStrings.TranslationFailed(original.Print()));
       }
 
       return translated;

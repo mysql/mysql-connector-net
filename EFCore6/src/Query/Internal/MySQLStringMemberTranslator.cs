@@ -48,14 +48,14 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     public virtual SqlExpression? Translate(SqlExpression? instance, MemberInfo member, Type returnType, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
       if (member.Name == nameof(string.Length)
-          && instance?.Type == typeof(string))
+        && instance?.Type == typeof(string))
       {
         return _sqlExpressionFactory.Function(
-            "CHAR_LENGTH",
-            new[] { instance },
-            nullable: true,
-            argumentsPropagateNullability: TrueArrays[1],
-            returnType);
+          "CHAR_LENGTH",
+          new[] { instance },
+          nullable: true,
+          argumentsPropagateNullability: TrueArrays[1],
+          returnType);
       }
 
       return null;

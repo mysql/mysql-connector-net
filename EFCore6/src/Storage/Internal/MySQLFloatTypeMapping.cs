@@ -36,53 +36,53 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
   internal class MySQLFloatTypeMapping : FloatTypeMapping
   {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///   This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///   the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///   any release. You should only use it directly in your code with extreme caution and knowing that
+    ///   doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public MySQLFloatTypeMapping(
-      string storeType,
-      DbType? dbType = System.Data.DbType.Single)
-      : base(
-          storeType,
-          dbType)
+    string storeType,
+    DbType? dbType = System.Data.DbType.Single)
+    : base(
+      storeType,
+      dbType)
     {
     }
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///   This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///   the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///   any release. You should only use it directly in your code with extreme caution and knowing that
+    ///   doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected MySQLFloatTypeMapping(RelationalTypeMappingParameters parameters)
-        : base(parameters)
+      : base(parameters)
     {
     }
 
     /// <summary>
-    ///     Creates a copy of this mapping.
+    ///   Creates a copy of this mapping.
     /// </summary>
     /// <param name="parameters">The parameters for this mapping.</param>
     /// <returns>The newly created mapping.</returns>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new MySQLFloatTypeMapping(parameters);
+      => new MySQLFloatTypeMapping(parameters);
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///   This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///   the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///   any release. You should only use it directly in your code with extreme caution and knowing that
+    ///   doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override string GenerateNonNullSqlLiteral(object value)
-        => ((float)value).ToString("R", CultureInfo.InvariantCulture);
+      => ((float)value).ToString("R", CultureInfo.InvariantCulture);
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///   This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///   the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///   any release. You should only use it directly in your code with extreme caution and knowing that
+    ///   doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override void ConfigureParameter(DbParameter parameter)
     {

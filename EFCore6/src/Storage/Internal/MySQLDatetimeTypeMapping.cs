@@ -42,42 +42,42 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     // so the order of the entries in this array is important
     private readonly string[] _dateTimeFormats =
     {
-        "'{0:yyyy-MM-dd HH:mm:ss}'",
-        "'{0:yyyy-MM-dd HH:mm:ss.f}'",
-        "'{0:yyyy-MM-dd HH:mm:ss.ff}'",
-        "'{0:yyyy-MM-dd HH:mm:ss.fff}'",
-        "'{0:yyyy-MM-dd HH:mm:ss.ffff}'",
-        "'{0:yyyy-MM-dd HH:mm:ss.fffff}'",
-        "'{0:yyyy-MM-dd HH:mm:ss.ffffff}'"
+      "'{0:yyyy-MM-dd HH:mm:ss}'",
+      "'{0:yyyy-MM-dd HH:mm:ss.f}'",
+      "'{0:yyyy-MM-dd HH:mm:ss.ff}'",
+      "'{0:yyyy-MM-dd HH:mm:ss.fff}'",
+      "'{0:yyyy-MM-dd HH:mm:ss.ffff}'",
+      "'{0:yyyy-MM-dd HH:mm:ss.fffff}'",
+      "'{0:yyyy-MM-dd HH:mm:ss.ffffff}'"
     };
 
     public MySQLDateTimeTypeMapping(
-        string storeType,
-        int? precision = null,
-        DbType? dbType = System.Data.DbType.DateTime,
-        StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
-        : base(
-            new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(DateTime)),
-                storeType,
-                storeTypePostfix,
-                dbType,
-                precision: precision))
+      string storeType,
+      int? precision = null,
+      DbType? dbType = System.Data.DbType.DateTime,
+      StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
+      : base(
+        new RelationalTypeMappingParameters(
+          new CoreTypeMappingParameters(typeof(DateTime)),
+          storeType,
+          storeTypePostfix,
+          dbType,
+          precision: precision))
     {
     }
 
     protected MySQLDateTimeTypeMapping(RelationalTypeMappingParameters parameters)
-      : base(parameters)
+    : base(parameters)
     {
     }
 
     /// <summary>
-    ///     Creates a copy of this mapping.
+    ///   Creates a copy of this mapping.
     /// </summary>
     /// <param name="parameters"> The parameters for this mapping. </param>
     /// <returns> The newly created mapping. </returns>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-      => new MySQLDateTimeTypeMapping(parameters);
+    => new MySQLDateTimeTypeMapping(parameters);
 
     protected override string SqlLiteralFormatString
     {

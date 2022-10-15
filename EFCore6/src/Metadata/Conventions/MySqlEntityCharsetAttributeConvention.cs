@@ -40,7 +40,7 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
   internal class MySqlEntityCharsetAttributeConvention : EntityTypeAttributeConventionBase<MySqlCharsetAttribute>
   {
     /// <summary>
-    ///     Creates a new instance of <see cref="PropertyAttributeConventionBase{TAttribute}" />.
+    ///   Creates a new instance of <see cref="PropertyAttributeConventionBase{TAttribute}" />.
     /// </summary>
     /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
     public MySqlEntityCharsetAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
@@ -48,9 +48,9 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
     { }
 
     protected override void ProcessEntityTypeAdded(
-      [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-      [NotNull] MySqlCharsetAttribute attribute,
-      [NotNull] IConventionContext<IConventionEntityTypeBuilder> context)
+    [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+    [NotNull] MySqlCharsetAttribute attribute,
+    [NotNull] IConventionContext<IConventionEntityTypeBuilder> context)
     {
       entityTypeBuilder.Metadata.SetAnnotation(
         MySQLAnnotationNames.Charset,

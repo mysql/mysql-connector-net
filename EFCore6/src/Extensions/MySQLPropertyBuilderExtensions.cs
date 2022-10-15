@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -45,8 +45,8 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="typeName">MySQL column type as string.</param>
     /// <returns>Property builder of the auto-increment column.</returns>
     public static PropertyBuilder UseMySQLAutoIncrementColumn(
-      [NotNull] this PropertyBuilder propertyBuilder,
-      [CanBeNull] string typeName)
+    [NotNull] this PropertyBuilder propertyBuilder,
+    [CanBeNull] string typeName)
     {
       Check.NotNull(propertyBuilder, "propertyBuilder");
 
@@ -61,13 +61,13 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="sql">Default value expression.</param>
     /// <returns>Property builder of a MySQL column with a default value.</returns>
     public static PropertyBuilder ForMySQLHasDefaultValueSql(
-      [NotNull] this PropertyBuilder propertyBuilder,
-      [CanBeNull] string sql)
+    [NotNull] this PropertyBuilder propertyBuilder,
+    [CanBeNull] string sql)
     {
       Check.NotNull(propertyBuilder, "propertyBuilder");
 
       if (sql != null && sql.Length == 0)
-       Check.NotEmpty(sql, nameof(sql));
+        Check.NotEmpty(sql, nameof(sql));
 
       propertyBuilder.ValueGeneratedOnAdd();
       propertyBuilder.Metadata.SetDefaultValueSql(sql);
@@ -82,8 +82,8 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="sql">Default value.</param>
     /// <returns>Property builder of a MySQL column with a default value.</returns>
     public static PropertyBuilder ForMySQLHasDefaultValue(
-      this PropertyBuilder propertyBuilder,
-      object? value = null)
+    this PropertyBuilder propertyBuilder,
+    object? value = null)
     {
       Check.NotNull(propertyBuilder, "propertyBuilder");
 
@@ -100,11 +100,11 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="charset">MySQL character set to use.</param>
     /// <returns>Property builder with a character set.</returns>
     public static PropertyBuilder ForMySQLHasCharset(
-      [NotNull] this PropertyBuilder propertyBuilder,
-      [NotNull] string charset)
+    [NotNull] this PropertyBuilder propertyBuilder,
+    [NotNull] string charset)
     {
       Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-      propertyBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Charset, charset);
+      propertyBuilder.Metadata.SetCharSet(charset);
 
       return propertyBuilder;
     }
@@ -116,10 +116,10 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="charset">MySQL character set to use.</param>
     /// <returns>Entity type builder with a character set.</returns>
     public static EntityTypeBuilder ForMySQLHasCharset(
-      [NotNull] this EntityTypeBuilder entityTypeBuilder,
-      [NotNull] string charset)
+    [NotNull] this EntityTypeBuilder entityTypeBuilder,
+    [NotNull] string charset)
     {
-      entityTypeBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Charset, charset);
+      entityTypeBuilder.Metadata.SetCharSet(charset);
       return entityTypeBuilder;
     }
 
@@ -131,8 +131,8 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="collation">MySQL collation to use.</param>
     /// <returns>Property builder with a collation.</returns>
     public static PropertyBuilder ForMySQLHasCollation(
-      [NotNull] this PropertyBuilder propertyBuilder,
-      [NotNull] string collation)
+    [NotNull] this PropertyBuilder propertyBuilder,
+    [NotNull] string collation)
     {
       propertyBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Collation, collation);
       return propertyBuilder;
@@ -145,8 +145,8 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="collation">MySQL collation to use.</param>
     /// <returns>Entity type builder with a collation.</returns>
     public static EntityTypeBuilder ForMySQLHasCollation(
-      [NotNull] this EntityTypeBuilder entityTypeBuilder,
-      [NotNull] string collation)
+    [NotNull] this EntityTypeBuilder entityTypeBuilder,
+    [NotNull] string collation)
     {
       entityTypeBuilder.Metadata.AddAnnotation(MySQLAnnotationNames.Collation, collation);
       return entityTypeBuilder;

@@ -35,23 +35,23 @@ using MySql.EntityFrameworkCore.Extensions;
 namespace MySql.EntityFrameworkCore.Metadata.Conventions
 {
   /// <summary>
-  ///     <para>
-  ///         A convention set builder for MySQL.
-  ///     </para>
-  ///     <para>
-  ///         The service lifetime is <see cref="ServiceLifetime.Scoped" /> and multiple registrations
-  ///         are allowed. This means that each <see cref="DbContext" /> instance will use its own
-  ///         set of instances of this service.
-  ///         The implementations may depend on other services registered with any lifetime.
-  ///         The implementations do not need to be thread-safe.
-  ///     </para>
+  ///   <para>
+  ///       A convention set builder for MySQL.
+  ///   </para>
+  ///   <para>
+  ///       The service lifetime is <see cref="ServiceLifetime.Scoped" /> and multiple registrations
+  ///       are allowed. This means that each <see cref="DbContext" /> instance will use its own
+  ///       set of instances of this service.
+  ///       The implementations may depend on other services registered with any lifetime.
+  ///       The implementations do not need to be thread-safe.
+  ///   </para>
   /// </summary>
   internal class MySQLConventionSetBuilder : RelationalConventionSetBuilder
   {
     public MySQLConventionSetBuilder(
-      [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-      [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
-      : base(dependencies, relationalDependencies)
+    [NotNull] ProviderConventionSetBuilderDependencies dependencies,
+    [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+    : base(dependencies, relationalDependencies)
     {
     }
 
@@ -65,6 +65,11 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
 
       conventionSet.ModelInitializedConventions.Add(new RelationalMaxIdentifierLengthConvention(64, Dependencies, RelationalDependencies));
 
+      conventionSet.PropertyAddedConventions.Add(new MySqlCharsetAttributeConvention(Dependencies));
+      conventionSet.PropertyAddedConventions.Add(new MySqlCollationAttributeConvention(Dependencies));
+      conventionSet.EntityTypeAddedConventions.Add(new MySqlEntityCharsetAttributeConvention(Dependencies));
+      conventionSet.EntityTypeAddedConventions.Add(new MySqlEntityCollationAttributeConvention(Dependencies));
+
       ValueGenerationConvention valueGeneratorConvention = new MySQLValueGenerationConvention(Dependencies, RelationalDependencies);
       ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGeneratorConvention);
       ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGeneratorConvention);
@@ -72,10 +77,6 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
       ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
 
       conventionSet.PropertyAnnotationChangedConventions.Add((MySQLValueGenerationConvention)valueGeneratorConvention);
-      conventionSet.PropertyAddedConventions.Add(new MySqlCharsetAttributeConvention(Dependencies));
-      conventionSet.PropertyAddedConventions.Add(new MySqlCollationAttributeConvention(Dependencies));
-      conventionSet.EntityTypeAddedConventions.Add(new MySqlEntityCharsetAttributeConvention(Dependencies));
-      conventionSet.EntityTypeAddedConventions.Add(new MySqlEntityCollationAttributeConvention(Dependencies));
 
       return conventionSet;
     }
@@ -94,15 +95,15 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
     public static ConventionSet Build()
     {
       var serviceProvider = new ServiceCollection()
-          .AddEntityFrameworkMySQL()
-          .AddDbContext<DbContext>(o => o.UseMySQL("Server=."))
-          .BuildServiceProvider();
+        .AddEntityFrameworkMySQL()
+        .AddDbContext<DbContext>(o => o.UseMySQL("Server=."))
+        .BuildServiceProvider();
 
       using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
       {
         using (var context = serviceScope.ServiceProvider.GetService<DbContext>())
         {
-          return ConventionSet.CreateConventionSet(context);
+          return ConventionSet.CreateConventionSet(context!);
         }
       }
     }

@@ -43,8 +43,8 @@ namespace MySql.EntityFrameworkCore.Update
     private readonly IDbContextOptions _options;
 
     public MySQLModificationCommandBatchFactory(
-            [NotNull] ModificationCommandBatchFactoryDependencies dependencies,
-            [NotNull] IDbContextOptions options)
+        [NotNull] ModificationCommandBatchFactoryDependencies dependencies,
+        [NotNull] IDbContextOptions options)
     {
       Check.NotNull(dependencies, nameof(dependencies));
       Check.NotNull(options, nameof(options));

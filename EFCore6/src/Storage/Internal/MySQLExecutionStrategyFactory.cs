@@ -33,13 +33,13 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
   internal class MySQLExecutionStrategyFactory : RelationalExecutionStrategyFactory
   {
     public MySQLExecutionStrategyFactory(
-        [NotNull] ExecutionStrategyDependencies dependencies)
-        : base(dependencies)
+      [NotNull] ExecutionStrategyDependencies dependencies)
+      : base(dependencies)
     {
     }
 
     /// <inheritdoc/>
     protected override IExecutionStrategy CreateDefaultStrategy(ExecutionStrategyDependencies dependencies)
-        => new MySQLExecutionStrategy(dependencies);
+      => new MySQLExecutionStrategy(dependencies);
   }
 }

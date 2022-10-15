@@ -43,6 +43,6 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     }
 
     public virtual RelationalParameterBasedSqlProcessor Create(bool useRelationalNulls)
-        => new MySQLParameterBasedSqlProcessor(_dependencies, useRelationalNulls, _options);
+      => new MySQLParameterBasedSqlProcessor(_dependencies, useRelationalNulls, _options);
   }
 }

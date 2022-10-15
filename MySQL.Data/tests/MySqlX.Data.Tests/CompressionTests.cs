@@ -336,12 +336,12 @@ namespace MySqlX.Data.Tests
       }
 
 #if NETFRAMEWORK
-         // No exception expected due to compression=preferred, no compression expected
-         using (var session = MySQLX.GetSession(new { server = Host, port = XPort, uid = "test", password = "test", compressionalgorithms = "deflate_stream" }))
-         {
-           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-           Assert.IsNull(compressionAlgorithm);
-         }
+      // No exception expected due to compression=preferred, no compression expected
+      using (var session = MySQLX.GetSession(new { server = Host, port = XPort, uid = "test", password = "test", compressionalgorithms = "deflate_stream" }))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.IsNull(compressionAlgorithm);
+      }
 #elif !NET7_0
       using (var session = MySQLX.GetSession(new { server = Host, port = XPort, uid = "test", password = "test", compressionalgorithms = "deflate_stream" }))
       {
@@ -386,12 +386,12 @@ namespace MySqlX.Data.Tests
       }
 
 #if NETFRAMEWORK
-         // No exception expected due to compression=preferred, lz4_message compression expected
-         using (var session = MySQLX.GetSession(new { server = Host, port = XPort, uid = "test", password = "test", compressionalgorithms = "deflate_stream,lz4_message,zstd_stream" }))
-         {
-           var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
-           Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
-         }
+      // No exception expected due to compression=preferred, lz4_message compression expected
+      using (var session = MySQLX.GetSession(new { server = Host, port = XPort, uid = "test", password = "test", compressionalgorithms = "deflate_stream,lz4_message,zstd_stream" }))
+      {
+        var compressionAlgorithm = session.XSession.GetCompressionAlgorithm(true);
+        Assert.AreEqual(CompressionAlgorithms.lz4_message.ToString(), compressionAlgorithm);
+      }
 #elif !NET7_0
       using (var session = MySQLX.GetSession(new { server = Host, port = XPort, uid = "test", password = "test", compressionalgorithms = "deflate_stream,lz4_message,zstd_stream" }))
       {
@@ -840,8 +840,9 @@ namespace MySqlX.Data.Tests
         var result4 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_compressed_payload' ").Execute().FetchOne()[1];
         Assert.IsNotNull(result4);
 
-        if (Convert.ToInt32(result2) != 0 || Convert.ToInt32(result4) != 0)
-          Assert.Fail("Compression failed");
+        if (!Platform.IsWindows())
+          if (Convert.ToInt32(result2) != 0 || Convert.ToInt32(result4) != 0)
+            Assert.Fail("Compression failed");
 
         var collection2 = schema.CreateCollection("compressed2");
         string text2 = GenerateDummyText("Wiki Loves Monuments ", 48).Substring(0, 1000);

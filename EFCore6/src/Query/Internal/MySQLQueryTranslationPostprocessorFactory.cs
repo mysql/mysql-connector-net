@@ -38,9 +38,9 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     private readonly IMySQLOptions _options;
 
     public MySQLQueryTranslationPostprocessorFactory(
-        QueryTranslationPostprocessorDependencies dependencies,
-        RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-        IMySQLOptions options)
+      QueryTranslationPostprocessorDependencies dependencies,
+      RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
+      IMySQLOptions options)
     {
       _dependencies = dependencies;
       _relationalDependencies = relationalDependencies;
@@ -48,10 +48,10 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     }
 
     public virtual QueryTranslationPostprocessor Create(QueryCompilationContext queryCompilationContext)
-        => new MySQLQueryTranslationPostprocessor(
-            _dependencies,
-            _relationalDependencies,
-            queryCompilationContext,
-            _options);
+      => new MySQLQueryTranslationPostprocessor(
+        _dependencies,
+        _relationalDependencies,
+        queryCompilationContext,
+        _options);
   }
 }

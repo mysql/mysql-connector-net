@@ -37,10 +37,11 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     public MySQLMethodCallTranslatorProvider([NotNull] RelationalMethodCallTranslatorProviderDependencies dependencies)
         : base(dependencies)
     {
-      var sqlExpressionFactory = dependencies.SqlExpressionFactory;
+      var sqlExpressionFactory = (MySQLSqlExpressionFactory)dependencies.SqlExpressionFactory;
 
       AddTranslators(new IMethodCallTranslator[]
       {
+        new MySQLByteArrayMethodTranslator(sqlExpressionFactory),
         new MySQLConvertTranslator(sqlExpressionFactory),
         new MySQLDateTimeMethodTranslator(sqlExpressionFactory),
         new MySQLDateDiffFunctionsTranslator(sqlExpressionFactory),
@@ -48,6 +49,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
         new MySQLNewGuidTranslator(sqlExpressionFactory),
         new MySQLObjectToStringTranslator(sqlExpressionFactory),
         new MySQLStringMethodTranslator(sqlExpressionFactory),
+        new MySQLRegexIsMatchTranslator(sqlExpressionFactory),
         new MySQLStringComparisonMethodTranslator(sqlExpressionFactory),
         new MySQLDbFunctionsExtensionsMethodTranslator(sqlExpressionFactory),
       });

@@ -54,9 +54,9 @@ namespace MySql.EntityFrameworkCore.Utils
 
     [ContractAnnotation("value:null => halt")]
     public static T NotNull<T>(
-        [NoEnumeration] T value,
-        [InvokerParameterName][NotNull] string parameterName,
-        [NotNull] string propertyName)
+      [NoEnumeration] T value,
+      [InvokerParameterName][NotNull] string parameterName,
+      [NotNull] string propertyName)
     {
       if (value == null)
       {
@@ -110,7 +110,7 @@ namespace MySql.EntityFrameworkCore.Utils
     public static string? NullButNotEmpty(string value, [InvokerParameterName][NotNull] string parameterName)
     {
       if (value is object
-          && value.Length == 0)
+        && value.Length == 0)
       {
         NotEmpty(parameterName, nameof(parameterName));
 
@@ -121,7 +121,7 @@ namespace MySql.EntityFrameworkCore.Utils
     }
 
     public static IReadOnlyList<T> HasNoNulls<T>(IReadOnlyList<T> value, [InvokerParameterName][NotNull] string parameterName)
-        where T : class
+      where T : class
     {
       NotNull(value, parameterName);
 
@@ -136,7 +136,7 @@ namespace MySql.EntityFrameworkCore.Utils
     }
 
     public static T IsDefined<T>(T value, [InvokerParameterName][NotNull] string parameterName)
-        where T : struct
+      where T : struct
     {
       if (!Enum.IsDefined(typeof(T), value))
       {
@@ -161,10 +161,10 @@ namespace MySql.EntityFrameworkCore.Utils
     }
 
     internal static IEnumerable<bool> GetTrueValuesArray(int counter)
-            => Enumerable.Repeat(true, counter);
+        => Enumerable.Repeat(true, counter);
 
     internal static IEnumerable<bool> GetFalseValuesArray(int counter)
-        => Enumerable.Repeat(false, counter);
+      => Enumerable.Repeat(false, counter);
 
   }
 }

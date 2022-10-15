@@ -65,7 +65,7 @@ namespace MySql.EntityFrameworkCore.Update
     /// </summary>
     protected override int MaxBatchSize { get; }
 
-    protected override void RollbackLastCommand()
+    protected override void RollbackLastCommand(IReadOnlyModificationCommand modificationCommand)
     {
       if (_pendingBulkInsertCommands.Count > 0)
       {
@@ -73,7 +73,7 @@ namespace MySql.EntityFrameworkCore.Update
         return;
       }
 
-      base.RollbackLastCommand();
+      base.RollbackLastCommand(modificationCommand);
     }
 
     protected override bool IsValid()
@@ -85,7 +85,7 @@ namespace MySql.EntityFrameworkCore.Update
       if (_pendingBulkInsertCommands.Count == 0)
         return;
 
-      var commandPosition = CommandResultSet.Count;
+      var commandPosition = ResultSetMappings.Count;
       var resultSetMapping = UpdateSqlGenerator.AppendBulkInsertOperation(
         SqlBuilder, _pendingBulkInsertCommands, commandPosition, out var requiresTransaction);
 
@@ -93,11 +93,11 @@ namespace MySql.EntityFrameworkCore.Update
       {
         AddParameters(pendingCommand);
 
-        CommandResultSet.Add(resultSetMapping);
+        ResultSetMappings.Add(resultSetMapping);
       }
 
-      if (resultSetMapping != ResultSetMapping.NoResultSet)
-        CommandResultSet[^1] = ResultSetMapping.LastInResultSet;
+      if (resultSetMapping != ResultSetMapping.NoResults)
+        ResultSetMappings[^1] = ResultSetMapping.LastInResultSet;
     }
 
     protected override void AddCommand(IReadOnlyModificationCommand modificationCommand)
@@ -141,10 +141,10 @@ namespace MySql.EntityFrameworkCore.Update
     ///   any release. You should only use it directly in your code with extreme caution and knowing that
     ///   doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override void Complete()
+    public override void Complete(bool moreBatchesExpected)
     {
       ApplyPendingBulkInsertCommands();
-      base.Complete();
+      base.Complete(moreBatchesExpected);
     }
 
     /// <summary>

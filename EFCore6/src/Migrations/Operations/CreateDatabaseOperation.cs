@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,8 +33,9 @@ namespace MySql.EntityFrameworkCore.Migrations.Operations
   /// <summary>
   /// Create database operation class for migrations
   /// </summary>
-    internal class MySQLCreateDatabaseOperation : MigrationOperation
-    {
-        public string Name { get; set; }
-    }
+  internal class MySQLCreateDatabaseOperation : DatabaseOperation
+  {
+    public virtual string Name { get; set; } = null!;
+    public virtual string Charset { get; set; } = null!;
+  }
 }

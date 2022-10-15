@@ -43,21 +43,21 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
     /// <param name="useRelationalNulls">A bool value indicating whether relational null semantics are in use.</param>
     public MySQLSqlNullabilityProcessor(
-        RelationalParameterBasedSqlProcessorDependencies dependencies,
-        bool useRelationalNulls)
-        : base(dependencies, useRelationalNulls)
-        => _sqlExpressionFactory = dependencies.SqlExpressionFactory;
+      RelationalParameterBasedSqlProcessorDependencies dependencies,
+      bool useRelationalNulls)
+      : base(dependencies, useRelationalNulls)
+      => _sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
     /// <inheritdoc />
     protected override SqlExpression VisitCustomSqlExpression(
-        SqlExpression sqlExpression, bool allowOptimizedExpansion, out bool nullable)
-        => sqlExpression switch
-        {
-          MySQLBinaryExpression binaryExpression => VisitBinary(binaryExpression, allowOptimizedExpansion, out nullable),
-          MySQLCollateExpression collateExpression => VisitCollate(collateExpression, allowOptimizedExpansion, out nullable),
-          MySQLComplexFunctionArgumentExpression complexFunctionArgumentExpression => VisitComplexFunctionArgument(complexFunctionArgumentExpression, allowOptimizedExpansion, out nullable),
-          _ => base.VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
-        };
+      SqlExpression sqlExpression, bool allowOptimizedExpansion, out bool nullable)
+      => sqlExpression switch
+      {
+        MySQLBinaryExpression binaryExpression => VisitBinary(binaryExpression, allowOptimizedExpansion, out nullable),
+        MySQLCollateExpression collateExpression => VisitCollate(collateExpression, allowOptimizedExpansion, out nullable),
+        MySQLComplexFunctionArgumentExpression complexFunctionArgumentExpression => VisitComplexFunctionArgument(complexFunctionArgumentExpression, allowOptimizedExpansion, out nullable),
+        _ => base.VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
+      };
 
     /// <summary>
     /// Visits a <see cref="MySQLBinaryExpression" /> and computes its nullability.
@@ -67,9 +67,9 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
     /// <returns>An optimized sql expression.</returns>
     protected virtual SqlExpression VisitBinary(
-        MySQLBinaryExpression binaryExpression,
-        bool allowOptimizedExpansion,
-        out bool nullable)
+      MySQLBinaryExpression binaryExpression,
+      bool allowOptimizedExpansion,
+      out bool nullable)
     {
       Check.NotNull(binaryExpression, nameof(binaryExpression));
 
@@ -89,9 +89,9 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
     /// <returns>An optimized sql expression.</returns>
     protected virtual SqlExpression VisitCollate(
-        MySQLCollateExpression collateExpression,
-        bool allowOptimizedExpansion,
-        out bool nullable)
+      MySQLCollateExpression collateExpression,
+      bool allowOptimizedExpansion,
+      out bool nullable)
     {
       Check.NotNull(collateExpression, nameof(collateExpression));
 
@@ -108,9 +108,9 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
     /// <returns>An optimized sql expression.</returns>
     protected virtual SqlExpression VisitComplexFunctionArgument(
-        MySQLComplexFunctionArgumentExpression complexFunctionArgumentExpression,
-        bool allowOptimizedExpansion,
-        out bool nullable)
+      MySQLComplexFunctionArgumentExpression complexFunctionArgumentExpression,
+      bool allowOptimizedExpansion,
+      out bool nullable)
     {
       Check.NotNull(complexFunctionArgumentExpression, nameof(complexFunctionArgumentExpression));
       nullable = false;

@@ -39,17 +39,17 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     private readonly IMySQLOptions _options;
 
     public MySQLParameterBasedSqlProcessor(
-        RelationalParameterBasedSqlProcessorDependencies dependencies,
-        bool useRelationalNulls,
-        IMySQLOptions options)
-        : base(dependencies, useRelationalNulls)
+      RelationalParameterBasedSqlProcessorDependencies dependencies,
+      bool useRelationalNulls,
+      IMySQLOptions options)
+      : base(dependencies, useRelationalNulls)
     {
       _options = options;
     }
 
     /// <inheritdoc />
     protected override SelectExpression ProcessSqlNullability(
-        SelectExpression selectExpression, IReadOnlyDictionary<string, object?> parametersValues, out bool canCache)
+      SelectExpression selectExpression, IReadOnlyDictionary<string, object?> parametersValues, out bool canCache)
     {
       Check.NotNull(selectExpression, nameof(selectExpression));
       Check.NotNull(parametersValues, nameof(parametersValues));

@@ -40,37 +40,28 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
   {
     public MySQLComplexFunctionArgumentExpression(
       IEnumerable<SqlExpression> argumentParts,
+      string delimiter,
       Type type,
       RelationalTypeMapping typeMapping)
-    : base(type, typeMapping)
-    {
-      ArgumentParts = argumentParts.ToList().AsReadOnly();
-    }
-
-    public MySQLComplexFunctionArgumentExpression(
-    IEnumerable<SqlExpression> argumentParts,
-    string delimiter,
-    Type type,
-    RelationalTypeMapping typeMapping)
-    : base(type, typeMapping)
+      : base(type, typeMapping)
     {
       Delimiter = delimiter;
       ArgumentParts = argumentParts.ToList().AsReadOnly();
     }
 
     /// <summary>
-    ///     The arguments parts.
+    ///   The arguments parts.
     /// </summary>
     public virtual IReadOnlyList<SqlExpression> ArgumentParts { get; }
     public virtual string Delimiter { get; }
 
     /// <summary>
-    ///     Dispatches to the specific visit method for this node type.
+    ///   Dispatches to the specific visit method for this node type.
     /// </summary>
     protected override Expression Accept(ExpressionVisitor visitor) =>
-        visitor is MySQLQuerySqlGenerator mySqlQuerySqlGenerator
-            ? mySqlQuerySqlGenerator.VisitMySQLComplexFunctionArgumentExpression(this)
-            : base.Accept(visitor);
+      visitor is MySQLQuerySqlGenerator mySqlQuerySqlGenerator
+        ? mySqlQuerySqlGenerator.VisitMySQLComplexFunctionArgumentExpression(this)
+        : base.Accept(visitor);
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
       var argumentParts = new SqlExpression[ArgumentParts.Count];
@@ -84,30 +75,30 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     }
 
     public virtual MySQLComplexFunctionArgumentExpression Update(IReadOnlyList<SqlExpression> argumentParts, string delimiter)
-            => !argumentParts.SequenceEqual(ArgumentParts)
-                ? new MySQLComplexFunctionArgumentExpression(argumentParts, delimiter, Type, TypeMapping)
-                : this;
+        => !argumentParts.SequenceEqual(ArgumentParts)
+          ? new MySQLComplexFunctionArgumentExpression(argumentParts, delimiter, Type, TypeMapping)
+          : this;
 
 
     protected override void Print(ExpressionPrinter expressionPrinter)
-        => expressionPrinter.Append(ToString());
+      => expressionPrinter.Append(ToString());
 
-    public override bool Equals(object obj)
-        => obj != null
-        && (ReferenceEquals(this, obj)
-            || obj is MySQLComplexFunctionArgumentExpression sqlFragmentExpression
-                && Equals(sqlFragmentExpression));
+    public override bool Equals(object? obj)
+      => obj != null
+      && (ReferenceEquals(this, obj)
+        || obj is MySQLComplexFunctionArgumentExpression sqlFragmentExpression
+          && Equals(sqlFragmentExpression));
 
     private bool Equals(MySQLComplexFunctionArgumentExpression other)
-        => base.Equals(other)
-           && Type == other.Type
-           && ArgumentParts.SequenceEqual(other.ArgumentParts);
+      => base.Equals(other)
+       && Type == other.Type
+       && ArgumentParts.SequenceEqual(other.ArgumentParts);
 
     /// <summary>
-    ///     Returns a hash code for this object.
+    ///   Returns a hash code for this object.
     /// </summary>
     /// <returns>
-    ///     A hash code for this object.
+    ///   A hash code for this object.
     /// </returns>
     public override int GetHashCode()
     {
@@ -120,10 +111,10 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     }
 
     /// <summary>
-    ///     Creates a <see cref="string" /> representation of the Expression.
+    ///   Creates a <see cref="string" /> representation of the Expression.
     /// </summary>
     /// <returns>A <see cref="string" /> representation of the Expression.</returns>
     public override string ToString()
-        => string.Join(" ", ArgumentParts);
+      => string.Join(" ", ArgumentParts);
   }
 }

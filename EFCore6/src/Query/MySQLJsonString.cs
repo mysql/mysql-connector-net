@@ -40,89 +40,89 @@ namespace MySql.EntityFrameworkCore.Query
     private readonly string _json;
 
     private MySQLJsonString(string json)
-        => _json = json;
+      => _json = json;
 
     public static implicit operator string(MySQLJsonString jsonStringObject)
-        => jsonStringObject._json;
+      => jsonStringObject._json;
 
     public static implicit operator MySQLJsonString(string stringObject)
-        => new MySQLJsonString(stringObject);
+      => new MySQLJsonString(stringObject);
 
     public static bool operator ==(MySQLJsonString left, MySQLJsonString right)
-        => left?.Equals(right) ?? ReferenceEquals(right, null);
+      => left?.Equals(right) ?? ReferenceEquals(right, null);
 
     public static bool operator !=(MySQLJsonString left, MySQLJsonString right)
-        => !(left == right);
+      => !(left == right);
 
     public static bool operator ==(MySQLJsonString left, string right)
-        => left?.Equals(right) ?? ReferenceEquals(right, null);
+      => left?.Equals(right) ?? ReferenceEquals(right, null);
 
     public static bool operator !=(MySQLJsonString left, string right)
-        => !(left == right);
+      => !(left == right);
 
     private bool Equals(MySQLJsonString other)
-        => _json == other._json;
+      => _json == other._json;
 
     private bool Equals(string other)
-        => _json == other;
+      => _json == other;
 
     public override bool Equals(object obj)
-        => ReferenceEquals(this, obj) ||
-           obj is MySQLJsonString other && Equals(other) ||
-           obj is string otherString && Equals(otherString);
+      => ReferenceEquals(this, obj) ||
+       obj is MySQLJsonString other && Equals(other) ||
+       obj is string otherString && Equals(otherString);
 
     public override int GetHashCode()
-        => HashCode.Combine(_json);
+      => HashCode.Combine(_json);
 
     public TypeCode GetTypeCode()
-        => TypeCode.Object;
+      => TypeCode.Object;
 
     public bool ToBoolean(IFormatProvider provider)
-        => Convert.ToBoolean(_json, provider);
+      => Convert.ToBoolean(_json, provider);
 
     public byte ToByte(IFormatProvider provider)
-        => Convert.ToByte(_json, provider);
+      => Convert.ToByte(_json, provider);
 
     public char ToChar(IFormatProvider provider)
-        => Convert.ToChar(_json, provider);
+      => Convert.ToChar(_json, provider);
 
     public DateTime ToDateTime(IFormatProvider provider)
-        => Convert.ToDateTime(_json, provider);
+      => Convert.ToDateTime(_json, provider);
 
     public decimal ToDecimal(IFormatProvider provider)
-        => Convert.ToDecimal(_json, provider);
+      => Convert.ToDecimal(_json, provider);
 
     public double ToDouble(IFormatProvider provider)
-        => Convert.ToDouble(_json, provider);
+      => Convert.ToDouble(_json, provider);
 
     public short ToInt16(IFormatProvider provider)
-        => Convert.ToInt16(_json, provider);
+      => Convert.ToInt16(_json, provider);
 
     public int ToInt32(IFormatProvider provider)
-        => Convert.ToInt32(_json, provider);
+      => Convert.ToInt32(_json, provider);
 
     public long ToInt64(IFormatProvider provider)
-        => Convert.ToInt64(_json, provider);
+      => Convert.ToInt64(_json, provider);
 
     public sbyte ToSByte(IFormatProvider provider)
-        => Convert.ToSByte(_json, provider);
+      => Convert.ToSByte(_json, provider);
 
     public float ToSingle(IFormatProvider provider)
-        => Convert.ToSingle(_json, provider);
+      => Convert.ToSingle(_json, provider);
 
     public string ToString(IFormatProvider provider)
-        => Convert.ToString(_json, provider);
+      => Convert.ToString(_json, provider);
 
     public object ToType(Type conversionType, IFormatProvider provider)
-        => Convert.ChangeType(_json, conversionType, provider);
+      => Convert.ChangeType(_json, conversionType, provider);
 
     public ushort ToUInt16(IFormatProvider provider)
-        => Convert.ToUInt16(_json, provider);
+      => Convert.ToUInt16(_json, provider);
 
     public uint ToUInt32(IFormatProvider provider)
-        => Convert.ToUInt32(_json, provider);
+      => Convert.ToUInt32(_json, provider);
 
     public ulong ToUInt64(IFormatProvider provider)
-        => Convert.ToUInt64(_json, provider);
+      => Convert.ToUInt64(_json, provider);
   }
 }

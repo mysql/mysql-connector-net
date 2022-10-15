@@ -49,9 +49,9 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     /// <inheritdoc/>
     public virtual TResult Execute<TState, TResult>(
-        TState state,
-        Func<DbContext, TState, TResult> operation,
-        Func<DbContext, TState, ExecutionResult<TResult>>? verifySucceeded)
+      TState state,
+      Func<DbContext, TState, TResult> operation,
+      Func<DbContext, TState, ExecutionResult<TResult>>? verifySucceeded)
     {
       try
       {
@@ -65,10 +65,10 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     /// <inheritdoc/>
     public virtual async Task<TResult> ExecuteAsync<TState, TResult>(
-        TState state,
-        Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
-        Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
-        CancellationToken cancellationToken)
+      TState state,
+      Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
+      Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
+      CancellationToken cancellationToken)
     {
       try
       {

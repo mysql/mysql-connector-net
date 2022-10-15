@@ -40,7 +40,7 @@ namespace MySql.EntityFrameworkCore.Utils
       public bool ForceFullStates { get; }
 
       public ContractAnnotationAttribute([NotNull] string contract)
-          : this(contract, false)
+        : this(contract, false)
       {
       }
 

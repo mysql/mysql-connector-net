@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\MySQL.Data\src\MySql.Data.csproj" />
+    <!--<ProjectReference Include="C:\Users\davaldez\Desktop\efcore-6.0.9\src\EFCore.Relational\EFCore.Relational.csproj" />-->
   </ItemGroup>
 
   <ItemGroup>

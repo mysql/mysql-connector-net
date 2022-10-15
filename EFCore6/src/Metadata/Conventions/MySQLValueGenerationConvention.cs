@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,10 +37,10 @@ using MySql.EntityFrameworkCore.Metadata.Internal;
 namespace MySql.EntityFrameworkCore.Metadata.Conventions
 {
   /// <summary>
-  ///     A convention that configures store value generation as <see cref="ValueGenerated.OnAdd"/> on properties that are
-  ///     part of the primary key and not part of any foreign keys, are configured to have a database default value, or are 
-  ///     configured to use a <see cref="SqlServerValueGenerationStrategy"/>.
-  ///     It also configures properties as <see cref="ValueGenerated.OnAddOrUpdate"/> if they are configured as computed columns.
+  ///   A convention that configures store value generation as <see cref="ValueGenerated.OnAdd"/> on properties that are
+  ///   part of the primary key and not part of any foreign keys, are configured to have a database default value, or are 
+  ///   configured to use a <see cref="MySQLValueGenerationStrategy"/>.
+  ///   It also configures properties as <see cref="ValueGenerated.OnAddOrUpdate"/> if they are configured as computed columns.
   /// </summary>
   internal class MySQLValueGenerationConvention : RelationalValueGenerationConvention
   {
@@ -65,11 +65,11 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
     /// <param name="oldAnnotation"> The old annotation.  </param>
     /// <param name="context"> Additional information associated with convention execution. </param>
     public override void ProcessPropertyAnnotationChanged(
-        IConventionPropertyBuilder propertyBuilder,
-        string name,
-        IConventionAnnotation? annotation,
-        IConventionAnnotation? oldAnnotation,
-        IConventionContext<IConventionAnnotation> context)
+      IConventionPropertyBuilder propertyBuilder,
+      string name,
+      IConventionAnnotation? annotation,
+      IConventionAnnotation? oldAnnotation,
+      IConventionContext<IConventionAnnotation> context)
     {
       if (name == MySQLAnnotationNames.ValueGenerationStrategy)
       {
@@ -89,28 +89,24 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
     {
       var tableName = property.DeclaringEntityType.GetTableName();
       if (tableName == null)
-      {
         return null;
-      }
 
-      return GetValueGenerated(
-        property, StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()));
+      return GetValueGenerated(property, StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()));
     }
 
     /// <summary>
-    /// Indicates the store value generation strategy to set for the given property.
+    ///   Returns the store value generation strategy to set for the given property.
     /// </summary>
     /// <param name="property"> The property. </param>
+    /// <param name="storeObject"> The identifier of the store object. </param>
     /// <returns> The store value generation strategy to set for the given property. </returns>
-    public static new ValueGenerated? GetValueGenerated([NotNull] IProperty property)
+    public static new ValueGenerated? GetValueGenerated([NotNull] IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
-      var valueGenerated = RelationalValueGenerationConvention.GetValueGenerated(property);
+      var valueGenerated = RelationalValueGenerationConvention.GetValueGenerated(property, storeObject);
       if (valueGenerated != null)
-      {
         return valueGenerated;
-      }
 
-      var valueGenerationStrategy = property.GetValueGenerationStrategy();
+      var valueGenerationStrategy = property.GetValueGenerationStrategy(storeObject);
       if (valueGenerationStrategy.HasValue)
       {
         switch (valueGenerationStrategy.Value)

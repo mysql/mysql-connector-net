@@ -29,6 +29,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 
 namespace MySql.EntityFrameworkCore.Utils
@@ -43,8 +44,8 @@ namespace MySql.EntityFrameworkCore.Utils
       var typeInfo = type.GetTypeInfo();
 
       return !typeInfo.IsValueType
-             || (typeInfo.IsGenericType
-                 && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>));
+           || (typeInfo.IsGenericType
+             && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>));
     }
 
     public static bool IsInteger(this Type type)
@@ -52,14 +53,14 @@ namespace MySql.EntityFrameworkCore.Utils
       type = type.UnwrapNullableType();
 
       return type == typeof(int)
-             || type == typeof(long)
-             || type == typeof(short)
-             || type == typeof(byte)
-             || type == typeof(uint)
-             || type == typeof(ulong)
-             || type == typeof(ushort)
-             || type == typeof(sbyte)
-             || type == typeof(char);
+           || type == typeof(long)
+           || type == typeof(short)
+           || type == typeof(byte)
+           || type == typeof(uint)
+           || type == typeof(ulong)
+           || type == typeof(ushort)
+           || type == typeof(sbyte)
+           || type == typeof(char);
     }
 
     public static bool CanBeAutoIncrement(this Type type)
@@ -70,27 +71,27 @@ namespace MySql.EntityFrameworkCore.Utils
     }
 
     private static readonly Dictionary<Type, object> _commonTypeDictionary = new Dictionary<Type, object>
-        {
-            { typeof(int), default(int) },
-            { typeof(Guid), default(Guid) },
-            { typeof(DateOnly), default(DateOnly) },
-            { typeof(DateTime), default(DateTime) },
-            { typeof(DateTimeOffset), default(DateTimeOffset) },
-            { typeof(TimeOnly), default(TimeOnly) },
-            { typeof(long), default(long) },
-            { typeof(bool), default(bool) },
-            { typeof(double), default(double) },
-            { typeof(short), default(short) },
-            { typeof(float), default(float) },
-            { typeof(byte), default(byte) },
-            { typeof(char), default(char) },
-            { typeof(uint), default(uint) },
-            { typeof(ushort), default(ushort) },
-            { typeof(ulong), default(ulong) },
-            { typeof(sbyte), default(sbyte) }
-        };
+      {
+        { typeof(int), default(int) },
+        { typeof(Guid), default(Guid) },
+        { typeof(DateOnly), default(DateOnly) },
+        { typeof(DateTime), default(DateTime) },
+        { typeof(DateTimeOffset), default(DateTimeOffset) },
+        { typeof(TimeOnly), default(TimeOnly) },
+        { typeof(long), default(long) },
+        { typeof(bool), default(bool) },
+        { typeof(double), default(double) },
+        { typeof(short), default(short) },
+        { typeof(float), default(float) },
+        { typeof(byte), default(byte) },
+        { typeof(char), default(char) },
+        { typeof(uint), default(uint) },
+        { typeof(ushort), default(ushort) },
+        { typeof(ulong), default(ulong) },
+        { typeof(sbyte), default(sbyte) }
+      };
 
-    public static object GetDefaultValue(this Type type)
+    public static object? GetDefaultValue(this Type type)
     {
       if (!type.GetTypeInfo().IsValueType)
       {
@@ -98,8 +99,53 @@ namespace MySql.EntityFrameworkCore.Utils
       }
 
       return _commonTypeDictionary.TryGetValue(type, out var value)
-          ? value
-          : Activator.CreateInstance(type);
+        ? value
+        : Activator.CreateInstance(type);
     }
+
+    public static MethodInfo GetRequiredMethod(this Type type, string name, params Type[] parameters)
+    {
+      var method = type.GetTypeInfo().GetMethod(name, parameters);
+
+      if (method == null
+        && parameters.Length == 0)
+      {
+        method = type.GetMethod(name);
+      }
+
+      if (method == null)
+      {
+        throw new InvalidOperationException();
+      }
+
+      return method;
+    }
+
+    public static PropertyInfo GetRequiredProperty(this Type type, string name)
+      => type.GetTypeInfo().GetProperty(name)
+        ?? throw new InvalidOperationException($"Could not find property '{name}' on type '{type}'");
+
+    public static FieldInfo GetRequiredDeclaredField(this Type type, string name)
+      => type.GetTypeInfo().GetDeclaredField(name)
+        ?? throw new InvalidOperationException($"Could not find field '{name}' on type '{type}'");
+
+    public static MethodInfo GetRequiredDeclaredMethod(this Type type, string name)
+      => type.GetTypeInfo().GetDeclaredMethod(name)
+        ?? throw new InvalidOperationException($"Could not find method '{name}' on type '{type}'");
+
+    public static MethodInfo GetRequiredDeclaredMethod(this Type type, string name, Func<MethodInfo, bool> methodSelector)
+      => type.GetTypeInfo().GetDeclaredMethods(name).Single(methodSelector);
+
+    public static PropertyInfo GetRequiredDeclaredProperty(this Type type, string name)
+      => type.GetTypeInfo().GetDeclaredProperty(name)
+        ?? throw new InvalidOperationException($"Could not find property '{name}' on type '{type}'");
+
+    public static MethodInfo GetRequiredRuntimeMethod(this Type type, string name, params Type[] parameters)
+      => type.GetTypeInfo().GetRuntimeMethod(name, parameters)
+        ?? throw new InvalidOperationException($"Could not find method '{name}' on type '{type}'");
+
+    public static PropertyInfo GetRequiredRuntimeProperty(this Type type, string name)
+      => type.GetTypeInfo().GetRuntimeProperty(name)
+        ?? throw new InvalidOperationException($"Could not find property '{name}' on type '{type}'");
   }
 }

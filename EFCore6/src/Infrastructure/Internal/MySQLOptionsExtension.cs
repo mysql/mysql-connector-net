@@ -49,7 +49,7 @@ namespace MySql.EntityFrameworkCore.Infrastructure.Internal
     }
 
     public MySQLOptionsExtension(MySQLOptionsExtension copyFrom)
-      : base(copyFrom)
+    : base(copyFrom)
     {
       _charset = copyFrom._charset;
     }
@@ -78,7 +78,7 @@ namespace MySql.EntityFrameworkCore.Infrastructure.Internal
 
     /// <inheritdoc />
     public override void ApplyServices(IServiceCollection services)
-      => services.AddEntityFrameworkMySQL();
+    => services.AddEntityFrameworkMySQL();
 
     private sealed class ExtensionInfo : RelationalExtensionInfo
     {
@@ -86,12 +86,12 @@ namespace MySql.EntityFrameworkCore.Infrastructure.Internal
       private string? _logFragment;
 
       public ExtensionInfo(IDbContextOptionsExtension extension)
-          : base(extension)
+        : base(extension)
       {
       }
 
       private new MySQLOptionsExtension Extension
-          => (MySQLOptionsExtension)base.Extension;
+        => (MySQLOptionsExtension)base.Extension;
 
       public override bool IsDatabaseProvider => true;
 
@@ -124,7 +124,7 @@ namespace MySql.EntityFrameworkCore.Infrastructure.Internal
 
       public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
         => debugInfo["MySQL:" + nameof(MySQLDbContextOptionsBuilder.CharSet)]
-                    = (Extension.CharSet?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
+              = (Extension.CharSet?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
     }
   }
 }

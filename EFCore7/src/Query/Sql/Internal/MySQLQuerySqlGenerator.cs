@@ -34,6 +34,7 @@ using MySql.EntityFrameworkCore.Query.Expressions.Internal;
 using MySql.EntityFrameworkCore.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace MySql.EntityFrameworkCore.Query
@@ -66,7 +67,84 @@ namespace MySql.EntityFrameworkCore.Query
     }
 
     protected override Expression VisitExtension(Expression extensionExpression)
-      => base.VisitExtension(extensionExpression);
+    => extensionExpression switch
+    {
+      MySQLJsonTraversalExpression jsonTraversalExpression => VisitJsonPathTraversal(jsonTraversalExpression),
+      MySQLColumnAliasReferenceExpression columnAliasReferenceExpression => VisitColumnAliasReference(columnAliasReferenceExpression),
+      _ => base.VisitExtension(extensionExpression)
+    };
+
+    private Expression VisitColumnAliasReference(MySQLColumnAliasReferenceExpression columnAliasReferenceExpression)
+    {
+      Sql.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(columnAliasReferenceExpression.Alias));
+      return columnAliasReferenceExpression;
+    }
+
+    protected virtual Expression VisitJsonPathTraversal(MySQLJsonTraversalExpression expression)
+    {
+      // If the path contains parameters, then the -> and ->> aliases are not supported by MySQL, because
+      // we need to concatenate the path and the parameters.
+      // We will use JSON_EXTRACT (and JSON_UNQUOTE if needed) only in this case, because the aliases
+      // are much more readable.
+      var isSimplePath = expression.Path.All(
+        l => l is SqlConstantExpression ||
+        l is MySQLJsonArrayIndexExpression e && e.Expression is SqlConstantExpression);
+
+      if (expression.ReturnsText)
+        Sql.Append("JSON_UNQUOTE(");
+
+      if (expression.Path.Count > 0)
+        Sql.Append("JSON_EXTRACT(");
+
+      Visit(expression.Expression);
+
+      if (expression.Path.Count > 0)
+      {
+        Sql.Append(", ");
+
+        if (!isSimplePath)
+          Sql.Append("CONCAT(");
+
+        Sql.Append("'$");
+
+        foreach (var location in expression.Path)
+        {
+          if (location is MySQLJsonArrayIndexExpression arrayIndexExpression)
+          {
+            var isConstantExpression = arrayIndexExpression.Expression is SqlConstantExpression;
+
+            Sql.Append("[");
+
+            if (!isConstantExpression)
+              Sql.Append("', ");
+
+            Visit(arrayIndexExpression.Expression);
+
+            if (!isConstantExpression)
+              Sql.Append(", '");
+
+            Sql.Append("]");
+          }
+          else
+          {
+            Sql.Append(".");
+            Visit(location);
+          }
+        }
+
+        Sql.Append("'");
+
+        if (!isSimplePath)
+          Sql.Append(")");
+
+        Sql.Append(")");
+      }
+
+      if (expression.ReturnsText)
+        Sql.Append(")");
+
+      return expression;
+    }
 
     protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
     {

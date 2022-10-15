@@ -41,23 +41,23 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public virtual MySqlDbType MySqlDbType { get; }
     public MySQLTypeMapping(
-        [NotNull] string storeType,
-        [NotNull] Type clrType,
-        DbType? dbType = null,
-        MySqlDbType? mySqlDbType = null,
-        bool unicode = false,
-        int? size = null,
-        bool hasNonDefaultUnicode = false)
-      : base(
-          new RelationalTypeMappingParameters(
-            new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size))
+      [NotNull] string storeType,
+      [NotNull] Type clrType,
+      DbType? dbType = null,
+      MySqlDbType? mySqlDbType = null,
+      bool unicode = false,
+      int? size = null,
+      bool hasNonDefaultUnicode = false)
+    : base(
+      new RelationalTypeMappingParameters(
+        new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size))
     {
       if (mySqlDbType != null)
         MySqlDbType = (MySqlDbType)mySqlDbType;
     }
 
     protected MySQLTypeMapping(RelationalTypeMappingParameters parameters, MySqlDbType? mySqlDbType = null)
-      : base(parameters)
+    : base(parameters)
     {
       if (mySqlDbType != null)
         MySqlDbType = (MySqlDbType)mySqlDbType;

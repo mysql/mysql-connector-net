@@ -28,6 +28,7 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using MySql.Data.MySqlClient;
+using System.Runtime.InteropServices;
 
 namespace MySql.EntityFrameworkCore.Infrastructure.Internal
 {

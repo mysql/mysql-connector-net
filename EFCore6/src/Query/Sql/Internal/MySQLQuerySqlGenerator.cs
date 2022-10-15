@@ -28,12 +28,14 @@
 
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
+using MySql.EntityFrameworkCore.Extensions;
 using MySql.EntityFrameworkCore.Query.Expressions.Internal;
 using MySql.EntityFrameworkCore.Utils;
 using System;
-using System.Linq.Expressions;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Storage;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace MySql.EntityFrameworkCore.Query
 {
@@ -42,30 +44,159 @@ namespace MySql.EntityFrameworkCore.Query
     private const ulong LimitUpperBound = 18446744073709551610;
     private static readonly Dictionary<string, string[]> _castMappings = new Dictionary<string, string[]>
     {
-      { "signed", new []{ "tinyint", "smallint", "mediumint", "int", "bigint", "bit" }},
-      { "decimal(65,30)", new []{ "decimal" } },
-      { "double", new []{ "double" } },
-      { "float", new []{ "float" } },
-      { "binary", new []{ "binary", "varbinary", "tinyblob", "blob", "mediumblob", "longblob" } },
-      { "datetime(6)", new []{ "datetime(6)" } },
-      { "datetime", new []{ "datetime" } },
-      { "date", new []{ "date" } },
-      { "timestamp(6)", new []{ "timestamp(6)" } },
-      { "timestamp", new []{ "timestamp" } },
-      { "time(6)", new []{ "time(6)" } },
-      { "time", new []{ "time" } },
-      { "json", new []{ "json" } },
-      { "char", new []{ "char", "varchar", "text", "tinytext", "mediumtext", "longtext" } },
-      { "nchar", new []{ "nchar", "nvarchar" } },
+    { "signed", new []{ "tinyint", "smallint", "mediumint", "int", "bigint", "bit" }},
+    { "decimal(65,30)", new []{ "decimal" } },
+    { "double", new []{ "double" } },
+    { "float", new []{ "float" } },
+    { "binary", new []{ "binary", "varbinary", "tinyblob", "blob", "mediumblob", "longblob" } },
+    { "datetime(6)", new []{ "datetime(6)" } },
+    { "datetime", new []{ "datetime" } },
+    { "date", new []{ "date" } },
+    { "timestamp(6)", new []{ "timestamp(6)" } },
+    { "timestamp", new []{ "timestamp" } },
+    { "time(6)", new []{ "time(6)" } },
+    { "time", new []{ "time" } },
+    { "json", new []{ "json" } },
+    { "char", new []{ "char", "varchar", "text", "tinytext", "mediumtext", "longtext" } },
+    { "nchar", new []{ "nchar", "nvarchar" } },
     };
 
     public MySQLQuerySqlGenerator([NotNull] QuerySqlGeneratorDependencies dependencies)
-      : base(dependencies)
+    : base(dependencies)
     {
     }
 
     protected override Expression VisitExtension(Expression extensionExpression)
-       => base.VisitExtension(extensionExpression);
+    => extensionExpression switch
+    {
+      MySQLJsonTraversalExpression jsonTraversalExpression => VisitJsonPathTraversal(jsonTraversalExpression),
+      MySQLColumnAliasReferenceExpression columnAliasReferenceExpression => VisitColumnAliasReference(columnAliasReferenceExpression),
+      _ => base.VisitExtension(extensionExpression)
+    };
+
+    private Expression VisitColumnAliasReference(MySQLColumnAliasReferenceExpression columnAliasReferenceExpression)
+    {
+      Sql.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(columnAliasReferenceExpression.Alias));
+      return columnAliasReferenceExpression;
+    }
+
+    public virtual Expression VisitMySqlMatch(MySQLMatchExpression mySqlMatchExpression)
+    {
+      Check.NotNull(mySqlMatchExpression, nameof(mySqlMatchExpression));
+
+      Sql.Append("MATCH ");
+      Sql.Append("(");
+      Visit(mySqlMatchExpression.Match);
+      Sql.Append(")");
+      Sql.Append(" AGAINST ");
+      Sql.Append("(");
+      Visit(mySqlMatchExpression.Against);
+
+      switch (mySqlMatchExpression.SearchMode)
+      {
+        case MySQLMatchSearchMode.NaturalLanguage:
+          break;
+        case MySQLMatchSearchMode.NaturalLanguageWithQueryExpansion:
+          Sql.Append(" WITH QUERY EXPANSION");
+          break;
+        case MySQLMatchSearchMode.Boolean:
+          Sql.Append(" IN BOOLEAN MODE");
+          break;
+      }
+
+      Sql.Append(")");
+
+      return mySqlMatchExpression;
+    }
+
+    protected virtual Expression VisitJsonPathTraversal(MySQLJsonTraversalExpression expression)
+    {
+      // If the path contains parameters, then the -> and ->> aliases are not supported by MySQL, because
+      // we need to concatenate the path and the parameters.
+      // We will use JSON_EXTRACT (and JSON_UNQUOTE if needed) only in this case, because the aliases
+      // are much more readable.
+      var isSimplePath = expression.Path.All(
+        l => l is SqlConstantExpression ||
+        l is MySQLJsonArrayIndexExpression e && e.Expression is SqlConstantExpression);
+
+      if (expression.ReturnsText)
+        Sql.Append("JSON_UNQUOTE(");
+
+      if (expression.Path.Count > 0)
+        Sql.Append("JSON_EXTRACT(");
+
+      Visit(expression.Expression);
+
+      if (expression.Path.Count > 0)
+      {
+        Sql.Append(", ");
+
+        if (!isSimplePath)
+          Sql.Append("CONCAT(");
+
+        Sql.Append("'$");
+
+        foreach (var location in expression.Path)
+        {
+          if (location is MySQLJsonArrayIndexExpression arrayIndexExpression)
+          {
+            var isConstantExpression = arrayIndexExpression.Expression is SqlConstantExpression;
+
+            Sql.Append("[");
+
+            if (!isConstantExpression)
+              Sql.Append("', ");
+
+            Visit(arrayIndexExpression.Expression);
+
+            if (!isConstantExpression)
+              Sql.Append(", '");
+
+            Sql.Append("]");
+          }
+          else
+          {
+            Sql.Append(".");
+            Visit(location);
+          }
+        }
+
+        Sql.Append("'");
+
+        if (!isSimplePath)
+          Sql.Append(")");
+
+        Sql.Append(")");
+      }
+
+      if (expression.ReturnsText)
+        Sql.Append(")");
+
+      return expression;
+    }
+
+    protected override void GenerateLimitOffset(SelectExpression selectExpression)
+    {
+      Check.NotNull(selectExpression, nameof(selectExpression));
+
+      if (selectExpression.Limit != null)
+      {
+        Sql.AppendLine().Append("LIMIT ");
+        Visit(selectExpression.Limit);
+      }
+
+      if (selectExpression.Offset != null)
+      {
+        if (selectExpression.Limit == null)
+        {
+          // if we want to use Skip() without Take() we have to define the upper limit of LIMIT
+          Sql.AppendLine().Append($"LIMIT {LimitUpperBound}");
+        }
+
+        Sql.Append(" OFFSET ");
+        Visit(selectExpression.Offset);
+      }
+    }
 
     protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
     {
@@ -84,9 +215,9 @@ namespace MySql.EntityFrameworkCore.Query
       Check.NotNull(sqlBinaryExpression, nameof(sqlBinaryExpression));
 
       if (sqlBinaryExpression.OperatorType == ExpressionType.Add &&
-          sqlBinaryExpression.Type == typeof(string) &&
-          sqlBinaryExpression.Left.TypeMapping?.ClrType == typeof(string) &&
-          sqlBinaryExpression.Right.TypeMapping?.ClrType == typeof(string))
+        sqlBinaryExpression.Type == typeof(string) &&
+        sqlBinaryExpression.Left.TypeMapping?.ClrType == typeof(string) &&
+        sqlBinaryExpression.Right.TypeMapping?.ClrType == typeof(string))
       {
         Sql.Append("CONCAT(");
         Visit(sqlBinaryExpression.Left);
@@ -114,9 +245,9 @@ namespace MySql.EntityFrameworkCore.Query
       Sql.Append(GetOperator(sqlBinaryExpression));
 
       requiresBrackets = RequiresBrackets(sqlBinaryExpression.Right) ||
-                         !requiresBrackets &&
-                         sqlBinaryExpression.Right is SqlUnaryExpression sqlUnaryExpression &&
-                         (sqlUnaryExpression.OperatorType == ExpressionType.Equal || sqlUnaryExpression.OperatorType == ExpressionType.NotEqual);
+                 !requiresBrackets &&
+                 sqlBinaryExpression.Right is SqlUnaryExpression sqlUnaryExpression &&
+                 (sqlUnaryExpression.OperatorType == ExpressionType.Equal || sqlUnaryExpression.OperatorType == ExpressionType.NotEqual);
 
       if (requiresBrackets)
       {
@@ -146,8 +277,8 @@ namespace MySql.EntityFrameworkCore.Query
       }
 
       var sameInnerCastStoreType = sqlUnaryExpression.Operand is SqlUnaryExpression operandUnary &&
-                                   operandUnary.OperatorType == ExpressionType.Convert &&
-                                   castMapping.Equals(GetCastStoreType(operandUnary.TypeMapping!), StringComparison.OrdinalIgnoreCase);
+                       operandUnary.OperatorType == ExpressionType.Convert &&
+                       castMapping.Equals(GetCastStoreType(operandUnary.TypeMapping!), StringComparison.OrdinalIgnoreCase);
 
       Visit(sqlUnaryExpression.Operand);
 
@@ -156,12 +287,12 @@ namespace MySql.EntityFrameworkCore.Query
 
     private static bool RequiresBrackets(SqlExpression expression)
     => expression is SqlBinaryExpression ||
-       expression is LikeExpression;
+     expression is LikeExpression;
 
     protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
-         => sqlUnaryExpression.OperatorType == ExpressionType.Convert
-             ? VisitConvert(sqlUnaryExpression)
-             : base.VisitSqlUnary(sqlUnaryExpression);
+       => sqlUnaryExpression.OperatorType == ExpressionType.Convert
+         ? VisitConvert(sqlUnaryExpression)
+         : base.VisitSqlUnary(sqlUnaryExpression);
 
     private string GetCastStoreType(RelationalTypeMapping typeMapping)
     {
@@ -195,29 +326,16 @@ namespace MySql.EntityFrameworkCore.Query
       return castMapping;
     }
 
-    protected override void GenerateLimitOffset([NotNull] SelectExpression selectExpression)
+    public virtual Expression VisitMySqlRegexp(MySQLRegexpExpression mySqlRegexpExpression)
     {
-      Check.NotNull(selectExpression, nameof(selectExpression));
+      Check.NotNull(mySqlRegexpExpression, nameof(mySqlRegexpExpression));
 
-      if (selectExpression.Limit != null)
-      {
-        Sql.AppendLine().Append("LIMIT ");
-        Visit(selectExpression.Limit);
-      }
+      Visit(mySqlRegexpExpression.Match);
+      Sql.Append(" REGEXP ");
+      Visit(mySqlRegexpExpression.Pattern);
 
-      if (selectExpression.Offset != null)
-      {
-        if (selectExpression.Limit == null)
-        {
-          // if we want to use Skip() without Take() we have to define the upper limit of LIMIT
-          Sql.AppendLine().Append("LIMIT ").Append(LimitUpperBound.ToString());
-        }
-
-        Sql.Append(" OFFSET ");
-        Visit(selectExpression.Offset);
-      }
+      return mySqlRegexpExpression;
     }
-
     public Expression VisitMySQLComplexFunctionArgumentExpression(MySQLComplexFunctionArgumentExpression mySqlComplexFunctionArgumentExpression)
     {
       Check.NotNull(mySqlComplexFunctionArgumentExpression, nameof(mySqlComplexFunctionArgumentExpression));

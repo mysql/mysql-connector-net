@@ -38,16 +38,20 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.EntityFrameworkCore.Diagnostics.Internal;
+using MySql.EntityFrameworkCore.Infrastructure;
 using MySql.EntityFrameworkCore.Infrastructure.Internal;
 using MySql.EntityFrameworkCore.Internal;
 using MySql.EntityFrameworkCore.Metadata.Conventions;
+using MySql.EntityFrameworkCore.Metadata.Internal;
 using MySql.EntityFrameworkCore.Migrations;
 using MySql.EntityFrameworkCore.Migrations.Internal;
 using MySql.EntityFrameworkCore.Query;
 using MySql.EntityFrameworkCore.Query.Internal;
 using MySql.EntityFrameworkCore.Storage.Internal;
 using MySql.EntityFrameworkCore.Update;
+using MySql.EntityFrameworkCore.Utils;
 using MySql.EntityFrameworkCore.ValueGeneration.Internal;
+using System;
 
 namespace MySql.EntityFrameworkCore.Extensions
 {
@@ -57,19 +61,69 @@ namespace MySql.EntityFrameworkCore.Extensions
   public static class MySQLServiceCollectionExtensions
   {
     /// <summary>
-    ///     <para>
-    ///         Adds the services required by the Microsoft SQL Server database provider for Entity Framework
-    ///         to an <see cref="IServiceCollection" />.
-    ///     </para>
-    ///     <para>
-    ///         Calling this method is no longer necessary when building most applications, including those that
-    ///         use dependency injection in ASP.NET or elsewhere.
-    ///         It is only needed when building the internal service provider for use with
-    ///         the <see cref="DbContextOptionsBuilder.UseInternalServiceProvider" /> method.
-    ///         This is not recommended other than for some advanced scenarios.
-    ///     </para>
+    ///   <para>
+    ///     Registers the given Entity Framework <see cref="DbContext" /> as a service in the <see cref="IServiceCollection" />
+    ///     and configures it to connect to a MySQL database.
+    ///   </para>
+    ///   <para>
+    ///     This method is a shortcut for configuring a <see cref="DbContext" /> to use MySQL Server.
+    ///   </para>
+    ///   <para>
+    ///     Use this method when using dependency injection in your application, such as with ASP.NET Core.
+    ///     For applications that don't use dependency injection, consider creating <see cref="DbContext" />
+    ///     instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
+    ///     overridden to configure the MySQL Server provider and connection string.
+    ///   </para>
+    ///   <para>
+    ///     To configure the <see cref="DbContextOptions{TContext}" /> for the context, either override the
+    ///     <see cref="DbContext.OnConfiguring" /> method in your derived context, or supply
+    ///     an optional action to configure the <see cref="DbContextOptions" /> for the context.
+    ///   </para>
+    ///   <para>
+    ///     See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information.
+    ///   </para>
     /// </summary>
-    /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+    /// <typeparam name="TContext">The type of context to be registered.</typeparam>
+    /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
+    /// <param name="connectionString">The connection string of the database to connect to.</param>
+    /// <param name="sqlServerOptionsAction">An optional action to enable additional MySQL server-specific configuration.</param>
+    /// <param name="optionsAction">An optional action to configure the <see cref="DbContextOptions" /> for the context.</param>
+    /// <returns>The same service collection so that multiple calls can be chained.</returns>
+    public static IServiceCollection AddMySQLServer<TContext>(
+      this IServiceCollection serviceCollection,
+      string connectionString,
+      Action<MySQLDbContextOptionsBuilder>? sqlServerOptionsAction = null,
+      Action<DbContextOptionsBuilder>? optionsAction = null)
+      where TContext : DbContext
+    {
+      Check.NotNull(serviceCollection, nameof(serviceCollection));
+      Check.NotEmpty(connectionString, nameof(connectionString));
+
+      return serviceCollection.AddDbContext<TContext>(
+        (serviceProvider, options) =>
+        {
+          optionsAction?.Invoke(options);
+          options.UseMySQL(connectionString, sqlServerOptionsAction);
+        });
+    }
+
+    /// <summary>
+    ///   <para>
+    ///     Adds the services required by the MySQL database provider for Entity Framework
+    ///     to an <see cref="IServiceCollection" />.
+    ///   </para>
+    ///   <para>
+    ///     Warning: Do not call this method by mistake. Instead, it is more likely that you need to call <see cref="AddMySQLServer{TContext}" />.
+    ///   </para>
+    ///   <para>
+    ///     Calling this method is no longer necessary when building most applications, including those that
+    ///     use dependency injection in ASP.NET or elsewhere.
+    ///     It is only needed when building the internal service provider for use with
+    ///     the <see cref="DbContextOptionsBuilder.UseInternalServiceProvider" /> method.
+    ///     This is not recommend other than for some advanced scenarios.
+    ///   </para>
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
     /// <returns>
     ///     The same service collection so that multiple calls can be chained.
     /// </returns>
@@ -80,7 +134,7 @@ namespace MySql.EntityFrameworkCore.Extensions
         .TryAdd<IDatabaseProvider, DatabaseProvider<MySQLOptionsExtension>>()
         .TryAdd<IRelationalTypeMappingSource, MySQLTypeMappingSource>()
         .TryAdd<ISqlGenerationHelper, MySQLSqlGenerationHelper>()
-        .TryAdd<IRelationalAnnotationProvider, MySQLMigrationsAnnotationProvider>()
+        .TryAdd<IRelationalAnnotationProvider, MySQLAnnotationProvider>()
         .TryAdd<IModelValidator, MySQLModelValidator>()
         .TryAdd<IProviderConventionSetBuilder, MySQLConventionSetBuilder>()
         .TryAdd<IUpdateSqlGenerator>(p => p.GetRequiredService<IMySQLUpdateSqlGenerator>())
@@ -90,24 +144,24 @@ namespace MySql.EntityFrameworkCore.Extensions
         .TryAdd<IMigrationsSqlGenerator, MySQLMigrationsSqlGenerator>()
         .TryAdd<IRelationalDatabaseCreator, MySQLDatabaseCreator>()
         .TryAdd<IHistoryRepository, MySQLHistoryRepository>()
-        .TryAdd<ICompiledQueryCacheKeyGenerator, MySQLCompiledQueryCacheKeyGenerator>()
         .TryAdd<IExecutionStrategyFactory, MySQLExecutionStrategyFactory>()
-        .TryAdd<ISingletonOptions, IMySQLOptions>(p => p.GetRequiredService<IMySQLOptions>())
-
-        // New Query Pipeline
+        .TryAdd<IRelationalQueryStringFactory, MySQLQueryStringFactory>()
+        .TryAdd<ICompiledQueryCacheKeyGenerator, MySQLCompiledQueryCacheKeyGenerator>()
         .TryAdd<IMethodCallTranslatorProvider, MySQLMethodCallTranslatorProvider>()
         .TryAdd<IMemberTranslatorProvider, MySQLMemberTranslatorProvider>()
         .TryAdd<IQuerySqlGeneratorFactory, MySQLQueryGeneratorFactory>()
-        .TryAdd<ISqlExpressionFactory, MySQLSqlExpressionFactory>()
         .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, MySQLSqlTranslatingExpressionVisitorFactory>()
         .TryAdd<IRelationalParameterBasedSqlProcessorFactory, MySQLParameterBasedSqlProcessorFactory>()
+        .TryAdd<ISqlExpressionFactory, MySQLSqlExpressionFactory>()
+        .TryAdd<ISingletonOptions, IMySQLOptions>(p => p.GetRequiredService<IMySQLOptions>())
+        .TryAdd<IQueryCompilationContextFactory, MySQLQueryCompilationContextFactory>()
         .TryAdd<IQueryTranslationPostprocessorFactory, MySQLQueryTranslationPostprocessorFactory>()
         .TryAdd<IMigrationsModelDiffer, MySQLMigrationsModelDiffer>()
         .TryAdd<IMigrator, MySqlMigrator>()
         .TryAddProviderSpecificServices(m => m
-            .TryAddSingleton<IMySQLOptions, MySQLOptions>()
-            .TryAddScoped<IMySQLRelationalConnection, MySQLRelationalConnection>()
-            .TryAddSingleton<IMySQLUpdateSqlGenerator, MySQLUpdateSqlGenerator>());
+          .TryAddSingleton<IMySQLOptions, MySQLOptions>()
+          .TryAddScoped<IMySQLRelationalConnection, MySQLRelationalConnection>()
+          .TryAddSingleton<IMySQLUpdateSqlGenerator, MySQLUpdateSqlGenerator>());
 
       builder.TryAddCoreServices();
 

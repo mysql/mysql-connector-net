@@ -39,11 +39,11 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
   internal class MySQLMatchExpression : SqlExpression
   {
     public MySQLMatchExpression(
-        SqlExpression match,
-        SqlExpression against,
-        MySQLMatchSearchMode searchMode,
-        RelationalTypeMapping typeMapping)
-        : base(typeof(bool), typeMapping)
+      SqlExpression match,
+      SqlExpression against,
+      MySQLMatchSearchMode searchMode,
+      RelationalTypeMapping? typeMapping)
+      : base(typeof(bool), typeMapping)
     {
       Check.NotNull(match, nameof(match));
       Check.NotNull(against, nameof(against));

@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021, 2022 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,16 +27,10 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.DependencyInjection;
-using MySql.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
-using MySql.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using MySql.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using MySql.EntityFrameworkCore.Infrastructure.Internal;
-using MySql.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.DependencyInjection;
+using MySql.EntityFrameworkCore.Extensions;
+using MySql.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace MySql.EntityFrameworkCore.Design.Internal
 {
@@ -44,14 +38,12 @@ namespace MySql.EntityFrameworkCore.Design.Internal
   {
     public void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
     {
-      serviceCollection
-        .AddSingleton<LoggingDefinitions, MySQLLoggingDefinitions>()
-        .AddSingleton<IRelationalTypeMappingSource, MySQLTypeMappingSource>()
-        .AddSingleton<IDatabaseModelFactory, MySQLDatabaseModelFactory>()
-        .AddSingleton<IProviderConfigurationCodeGenerator, MySQLCodeGenerator>()
-        .AddSingleton<IAnnotationCodeGenerator, MySQLAnnotationCodeGenerator>();
-
-      serviceCollection.TryAddSingleton<IMySQLOptions, MySQLOptions>();
+      serviceCollection.AddEntityFrameworkMySQL();
+      new EntityFrameworkRelationalDesignServicesBuilder(serviceCollection)
+        .TryAdd<IAnnotationCodeGenerator, MySQLAnnotationCodeGenerator>()
+        .TryAdd<IDatabaseModelFactory, MySQLDatabaseModelFactory>()
+        .TryAdd<IProviderConfigurationCodeGenerator, MySQLCodeGenerator>()
+        .TryAddCoreServices();
     }
   }
 }

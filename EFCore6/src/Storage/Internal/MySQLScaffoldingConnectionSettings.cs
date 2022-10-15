@@ -102,8 +102,8 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     protected virtual bool Equals(MySQLScaffoldingConnectionSettings other)
     {
       return CharSet == other.CharSet &&
-             Collation == other.Collation &&
-             Views == other.Views;
+           Collation == other.Collation &&
+           Views == other.Views;
     }
 
     public override bool Equals(object obj)

@@ -33,15 +33,15 @@ namespace MySql.EntityFrameworkCore.Query.Internal
   internal class MySQLMemberTranslatorProvider : RelationalMemberTranslatorProvider
   {
     public MySQLMemberTranslatorProvider([NotNull] RelationalMemberTranslatorProviderDependencies dependencies)
-                : base(dependencies)
+          : base(dependencies)
     {
       var sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
       AddTranslators(
-          new IMemberTranslator[] {
-            new MySQLDateTimeMemberTranslator(sqlExpressionFactory),
-            new MySQLStringMemberTranslator(sqlExpressionFactory)
-          });
+        new IMemberTranslator[] {
+        new MySQLDateTimeMemberTranslator(sqlExpressionFactory),
+        new MySQLStringMemberTranslator(sqlExpressionFactory)
+        });
     }
   }
 }

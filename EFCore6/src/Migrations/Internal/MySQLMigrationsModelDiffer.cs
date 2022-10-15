@@ -45,17 +45,17 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
   internal class MySQLMigrationsModelDiffer : MigrationsModelDiffer
   {
     public MySQLMigrationsModelDiffer(
-                [NotNull] IRelationalTypeMappingSource typeMappingSource,
-                [NotNull] IMigrationsAnnotationProvider migrationsAnnotations,
-                [NotNull] IChangeDetector changeDetector,
-                [NotNull] IUpdateAdapterFactory updateAdapterFactory,
-                [NotNull] CommandBatchPreparerDependencies commandBatchPreparerDependencies)
-                : base(
-                    typeMappingSource,
-                    migrationsAnnotations,
-                    changeDetector,
-                    updateAdapterFactory,
-                    commandBatchPreparerDependencies)
+          [NotNull] IRelationalTypeMappingSource typeMappingSource,
+          [NotNull] IMigrationsAnnotationProvider migrationsAnnotations,
+          [NotNull] IChangeDetector changeDetector,
+          [NotNull] IUpdateAdapterFactory updateAdapterFactory,
+          [NotNull] CommandBatchPreparerDependencies commandBatchPreparerDependencies)
+          : base(
+            typeMappingSource,
+            migrationsAnnotations,
+            changeDetector,
+            updateAdapterFactory,
+            commandBatchPreparerDependencies)
     {
     }
 
@@ -68,14 +68,14 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
         // Ensure that null will be set for the columns default value, if CURRENT_TIMESTAMP has been required,
         // or when the store type of the column does not support default values at all.
         inline = inline ||
-                 (storeType.StoreTypeNameBase == "datetime" ||
-                  storeType.StoreTypeNameBase == "timestamp") &&
-                 (valueGenerationStrategy == MySQLValueGenerationStrategy.IdentityColumn ||
-                  valueGenerationStrategy == MySQLValueGenerationStrategy.ComputedColumn) ||
-                 storeType.StoreTypeNameBase.Contains("text") ||
-                 storeType.StoreTypeNameBase.Contains("blob") ||
-                 storeType.StoreTypeNameBase == "geometry" ||
-                 storeType.StoreTypeNameBase == "json";
+             (storeType.StoreTypeNameBase == "datetime" ||
+              storeType.StoreTypeNameBase == "timestamp") &&
+             (valueGenerationStrategy == MySQLValueGenerationStrategy.IdentityColumn ||
+              valueGenerationStrategy == MySQLValueGenerationStrategy.ComputedColumn) ||
+             storeType.StoreTypeNameBase.Contains("text") ||
+             storeType.StoreTypeNameBase.Contains("blob") ||
+             storeType.StoreTypeNameBase == "geometry" ||
+             storeType.StoreTypeNameBase == "json";
       }
       return base.Add(target, diffContext, inline);
     }

@@ -28,9 +28,9 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Infrastructure;
 using MySql.EntityFrameworkCore.Infrastructure.Internal;
-using MySql.Data.MySqlClient;
 using System;
 
 namespace MySql.EntityFrameworkCore.Internal
@@ -40,16 +40,17 @@ namespace MySql.EntityFrameworkCore.Internal
     private static readonly MySQLSchemaNameTranslator _ignoreSchemaNameTranslator = (_, objectName) => objectName;
     public virtual CharacterSet CharSet { get; private set; }
     public virtual MySqlConnectionStringBuilder ConnectionSettings { get; private set; }
+    public virtual MySQLSchemaNameTranslator? SchemaNameTranslator { get; private set; }
 
     public MySQLOptions()
     {
+      CharSet = new CharacterSet("utf8mb4", 4);
       ConnectionSettings = new MySqlConnectionStringBuilder();
     }
 
     public void Initialize(IDbContextOptions options)
     {
       var mySQLOptions = options.FindExtension<MySQLOptionsExtension>() ?? new MySQLOptionsExtension();
-      CharSet = mySQLOptions.CharSet ?? new CharacterSet("utf8mb4", 4);
       ConnectionSettings = GetConnectionSettings(mySQLOptions);
     }
 
@@ -72,6 +73,5 @@ namespace MySql.EntityFrameworkCore.Internal
 
       throw new InvalidOperationException(RelationalStrings.NoConnectionOrConnectionString);
     }
-    public virtual MySQLSchemaNameTranslator SchemaNameTranslator { get; private set; }
   }
 }

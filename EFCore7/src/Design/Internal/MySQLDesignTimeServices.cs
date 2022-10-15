@@ -27,31 +27,23 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using MySql.EntityFrameworkCore.Diagnostics.Internal;
-using MySql.EntityFrameworkCore.Infrastructure.Internal;
-using MySql.EntityFrameworkCore.Internal;
+using MySql.EntityFrameworkCore.Extensions;
 using MySql.EntityFrameworkCore.Scaffolding.Internal;
-using MySql.EntityFrameworkCore.Storage.Internal;
 
 namespace MySql.EntityFrameworkCore.Design.Internal
 {
   internal class MySQLDesignTimeServices : IDesignTimeServices
   {
-  public void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
-  {
-    serviceCollection
-    .AddSingleton<LoggingDefinitions, MySQLLoggingDefinitions>()
-    .AddSingleton<IRelationalTypeMappingSource, MySQLTypeMappingSource>()
-    .AddSingleton<IDatabaseModelFactory, MySQLDatabaseModelFactory>()
-    .AddSingleton<IProviderConfigurationCodeGenerator, MySQLCodeGenerator>()
-    .AddSingleton<IAnnotationCodeGenerator, MySQLAnnotationCodeGenerator>();
-
-    serviceCollection.TryAddSingleton<IMySQLOptions, MySQLOptions>();
-  }
+    public void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
+    {
+      serviceCollection.AddEntityFrameworkMySQL();
+      new EntityFrameworkRelationalDesignServicesBuilder(serviceCollection)
+        .TryAdd<IAnnotationCodeGenerator, MySQLAnnotationCodeGenerator>()
+        .TryAdd<IDatabaseModelFactory, MySQLDatabaseModelFactory>()
+        .TryAdd<IProviderConfigurationCodeGenerator, MySQLCodeGenerator>()
+        .TryAddCoreServices();
+    }
   }
 }

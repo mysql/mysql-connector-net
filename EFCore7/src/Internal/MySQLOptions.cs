@@ -30,6 +30,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Infrastructure;
 using MySql.EntityFrameworkCore.Infrastructure.Internal;
+using System.Runtime.InteropServices;
 
 namespace MySql.EntityFrameworkCore.Internal
 {
@@ -41,13 +42,13 @@ namespace MySql.EntityFrameworkCore.Internal
 
     public MySQLOptions()
     {
+      CharSet = new CharacterSet("utf8mb4", 4);
       ConnectionSettings = new MySqlConnectionStringBuilder();
     }
 
     public void Initialize(IDbContextOptions options)
     {
       var mySQLOptions = options.FindExtension<MySQLOptionsExtension>() ?? new MySQLOptionsExtension();
-      CharSet = mySQLOptions.CharSet ?? new CharacterSet("utf8mb4", 4);
       ConnectionSettings = GetConnectionSettings(mySQLOptions);
     }
 

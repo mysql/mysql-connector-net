@@ -75,12 +75,24 @@ namespace MySql.EntityFrameworkCore.Migrations
       Check.NotNull(operation, nameof(operation));
       Check.NotNull(builder, nameof(builder));
 
-      if (operation is MySQLCreateDatabaseOperation)
-        Generate((MySQLCreateDatabaseOperation)operation, model, builder);
-      else if (operation is MySQLDropDatabaseOperation)
-        Generate((MySQLDropDatabaseOperation)operation, model!, builder);
-      else
-        base.Generate(operation, model, builder);
+      switch (operation)
+      {
+        case MySQLCreateDatabaseOperation createDatabaseOperation:
+          Generate(createDatabaseOperation, model, builder);
+          break;
+        case MySQLDropDatabaseOperation dropDatabaseOperation:
+          Generate(dropDatabaseOperation, model!, builder);
+          break;
+        case MySQLDropPrimaryKeyAndRecreateForeignKeysOperation dropPrimaryKeyAndRecreateForeignKeysOperation:
+          Generate(dropPrimaryKeyAndRecreateForeignKeysOperation, model, builder);
+          break;
+        case MySQLDropUniqueConstraintAndRecreateForeignKeysOperation dropUniqueConstraintAndRecreateForeignKeysOperation:
+          Generate(dropUniqueConstraintAndRecreateForeignKeysOperation, model, builder);
+          break;
+        default:
+          base.Generate(operation, model, builder);
+          break;
+      }
     }
 
     protected override void Generate(RenameColumnOperation operation, IModel? model, MigrationCommandListBuilder builder)
