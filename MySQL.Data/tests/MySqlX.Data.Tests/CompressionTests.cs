@@ -840,7 +840,7 @@ namespace MySqlX.Data.Tests
         var result4 = session1.SQL("select * from performance_schema.session_status where variable_name='Mysqlx_bytes_received_compressed_payload' ").Execute().FetchOne()[1];
         Assert.IsNotNull(result4);
 
-        if (Convert.ToInt32(result2) == 0 || Convert.ToInt32(result4) == 0)
+        if (Convert.ToInt32(result2) != 0 || Convert.ToInt32(result4) != 0)
           Assert.Fail("Compression failed");
 
         var collection2 = schema.CreateCollection("compressed2");
