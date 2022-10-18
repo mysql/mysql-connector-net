@@ -119,7 +119,6 @@ namespace MySql.Data.Common
     /// </summary>
     private static void Reset()
     {
-      if (_resolver != null)
         _resolver = null;
     }
   }

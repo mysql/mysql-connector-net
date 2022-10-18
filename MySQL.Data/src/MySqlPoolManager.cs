@@ -32,6 +32,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading;
 
 
@@ -46,20 +48,24 @@ namespace MySql.Data.MySqlClient
     private static readonly List<MySqlPool> ClearingPools = new List<MySqlPool>();
     internal const int DEMOTED_TIMEOUT = 120000;
 
-    #region Properties
+#region Properties
+
     /// <summary>
     /// Queue of demoted hosts.
     /// </summary>
     internal static ConcurrentQueue<FailoverServer> DemotedHosts { get; set; }
+
     /// <summary>
     /// List of hosts that will be attempted to connect to.
     /// </summary>
     internal static List<FailoverServer> Hosts { get; set; }
+
     /// <summary>
     /// Timer to be used when a host have been demoted.
     /// </summary>
     internal static Timer DemotedServersTimer { get; set; }
-    #endregion
+
+#endregion
 
     // Timeout in seconds, after which an unused (idle) connection 
     // should be closed.
@@ -67,16 +73,52 @@ namespace MySql.Data.MySqlClient
 
     static MySqlPoolManager()
     {
-      AppDomain.CurrentDomain.ProcessExit += EnsureClearingPools;
-      AppDomain.CurrentDomain.DomainUnload += EnsureClearingPools;
+      AppDomain.CurrentDomain.ProcessExit += Unload;
+      AppDomain.CurrentDomain.DomainUnload += Unload;
+      AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly()).Unloading += DefaultOnUnloading;
+    }
+    
+    private static void DefaultOnUnloading(AssemblyLoadContext obj)
+    {
+      _Unload();
     }
 
-    private static void EnsureClearingPools(object sender, EventArgs e)
+    private static void Unload(object sender, EventArgs e)
+    {
+      _Unload();
+    }
+
+    private static void _Unload()
     {
       ClearAllPools();
+      timer?.Dispose();
+      try
+      {
+        AppDomain.CurrentDomain.ProcessExit -= Unload;
+      }
+      catch
+      {
+      }
+      
+      try
+      {
+        AppDomain.CurrentDomain.DomainUnload -= Unload;
+      }
+      catch
+      {
+      }
+
+      try
+      {
+        AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly()).Unloading -= DefaultOnUnloading;
+      }
+      catch
+      {
+      }
+
     }
 
-    // we add a small amount to the due time to let the cleanup detect
+  // we add a small amount to the due time to let the cleanup detect
     //expired connections in the first cleanup.
     private static Timer timer = new Timer(CleanIdleConnections,
       null, (maxConnectionIdleTime * 1000) + 8000, maxConnectionIdleTime * 1000);
