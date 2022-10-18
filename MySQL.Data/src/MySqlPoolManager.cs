@@ -33,8 +33,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Loader;
 using System.Threading;
+#if !NET452
+using System.Runtime.Loader;
+#endif
 
 
 namespace MySql.Data.MySqlClient
@@ -73,17 +75,21 @@ namespace MySql.Data.MySqlClient
 
     static MySqlPoolManager()
     {
-      AppDomain.CurrentDomain.ProcessExit += Unload;
-      AppDomain.CurrentDomain.DomainUnload += Unload;
-      AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly()).Unloading += DefaultOnUnloading;
+      AppDomain.CurrentDomain.ProcessExit += UnloadAppDomain;
+      AppDomain.CurrentDomain.DomainUnload += UnloadAppDomain;
+#if !NET452
+      AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly()).Unloading += UnloadAssemblyLoadContext;
+#endif
     }
     
-    private static void DefaultOnUnloading(AssemblyLoadContext obj)
+#if !NET452
+    private static void UnloadAssemblyLoadContext(AssemblyLoadContext obj)
     {
       _Unload();
     }
+#endif
 
-    private static void Unload(object sender, EventArgs e)
+    private static void UnloadAppDomain(object sender, EventArgs e)
     {
       _Unload();
     }
@@ -92,30 +98,11 @@ namespace MySql.Data.MySqlClient
     {
       ClearAllPools();
       timer?.Dispose();
-      try
-      {
-        AppDomain.CurrentDomain.ProcessExit -= Unload;
-      }
-      catch
-      {
-      }
-      
-      try
-      {
-        AppDomain.CurrentDomain.DomainUnload -= Unload;
-      }
-      catch
-      {
-      }
-
-      try
-      {
-        AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly()).Unloading -= DefaultOnUnloading;
-      }
-      catch
-      {
-      }
-
+      AppDomain.CurrentDomain.ProcessExit -= UnloadAppDomain;
+      AppDomain.CurrentDomain.DomainUnload -= UnloadAppDomain;
+#if !NET452
+      AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly()).Unloading -= UnloadAssemblyLoadContext;
+#endif
     }
 
   // we add a small amount to the due time to let the cleanup detect
