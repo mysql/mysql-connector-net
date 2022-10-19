@@ -1,0 +1,3 @@
+is_global = true
+build_property.RootNamespace = MySqlX.Data.Tests
+build_property.ProjectDir = D:\Solutions\Mysql.Data\mysql-connector-net\MySQL.Data\tests\MySqlX.Data.Tests\
