@@ -350,7 +350,15 @@ namespace MySql.Data.Common
         s.IOControl(IOControlCode.KeepAliveValues, inOptionValues, null);
         return;
       }
-      catch (NotImplementedException)
+     catch (System.NotSupportedException)
+     {
+        // support Linux
+        socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+        socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveInterval, 1);
+        socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveTime, (int)time);
+        return;
+      }
+     catch (NotImplementedException)
       {
         // Mono throws not implemented currently
       }
