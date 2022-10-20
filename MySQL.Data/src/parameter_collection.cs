@@ -263,19 +263,12 @@ namespace MySql.Data.MySqlClient
         value.ParameterName = String.Format("Parameter{0}", GetNextIndex());
 
       // make sure we don't already have a parameter with this name
-      if (IndexOf(value.ParameterName) >= 0)
+      string paramName = value.ParameterName;
+      string normalizedName = paramName[0] == '@' || paramName[0] == '?' ? paramName.Remove(0, 1) : paramName.Insert(0, "@");
+      if ((IndexOf(paramName) >= 0) || (IndexOf(normalizedName) >= 0) || (IndexOf(normalizedName.Replace("@", "?")) >= 0) ||
+        (paramName.StartsWith("?") ? IndexOf(paramName.Replace("?", "@")) >= 0 : (paramName.StartsWith("@") ? IndexOf(paramName.Replace("@", "?")) >= 0 : IndexOf(paramName) >= 0)))
       {
-        throw new MySqlException(
-            String.Format(Resources.ParameterAlreadyDefined, value.ParameterName));
-      }
-      else
-      {
-        string inComingName = value.ParameterName;
-        if (inComingName[0] == '@' || inComingName[0] == '?')
-          inComingName = inComingName.Substring(1, inComingName.Length - 1);
-        if (IndexOf(inComingName) >= 0)
-          throw new MySqlException(
-              String.Format(Resources.ParameterAlreadyDefined, value.ParameterName));
+        throw new MySqlException(String.Format(Resources.ParameterAlreadyDefined, value.ParameterName));
       }
 
       if (index == null)

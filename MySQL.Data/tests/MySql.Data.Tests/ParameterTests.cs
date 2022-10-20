@@ -194,6 +194,24 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
+    /// Bug #28980952  	MySqlParameterCollection.Add precondition check isn't consistent
+    /// </summary>
+    [TestCase("testParam", "testParam")]
+    [TestCase("testParam", "@testParam")]
+    [TestCase("@testParam", "@testParam")]
+    [TestCase("@testParam", "testParam")]
+    [TestCase("@testParam", "?testParam")]
+    [TestCase("?testParam", "@testParam")]
+    public void AddParameterCheck(string param1, string param2)
+    {
+      using (MySqlCommand cmd = new MySqlCommand())
+      {
+        cmd.Parameters.AddWithValue(param1, 1);
+        Assert.Throws<MySqlException>(() => cmd.Parameters.AddWithValue(param2, 2));
+      }
+    }
+
+    /// <summary>
     /// Bug #32506736  	Can't use MemoryStream as MySqlParameter value
     /// </summary>
     [Test]
