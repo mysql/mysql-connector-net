@@ -49,6 +49,12 @@ namespace MySql.Data.MySqlClient
     {
       MySqlParameter clone = new MySqlParameter(_paramName, _mySqlDbType, Direction, SourceColumn, SourceVersion, _paramValue, SourceColumnNullMapping)
       {
+        Precision= this.Precision,
+        Scale= this.Scale,
+        Size= this.Size,
+        IsNullable= this.IsNullable,
+        DbType= this.DbType,
+        Encoding= this.Encoding,
         _inferType = _inferType
       };
 

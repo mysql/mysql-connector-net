@@ -4,6 +4,7 @@
 - Added support to Kerberos authentication through GSSAPI on Windows clients (WL15341).
 - Improved the implementation for Entity Framework Core 6.0 and 7.0 (WL15333).
 - Fixed a bug affecting precondition checks on the MySqlParameterCollection.Add method (MySQL Bug #93370, Oracle Bug #28980952).
+- Fixed a bug that prevented copying all parameter properties using the MySqlParameter.Clone method (MySQL Bug #92734, Oracle Bug #28777779).
 
 
 8.0.31

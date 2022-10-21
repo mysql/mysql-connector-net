@@ -242,6 +242,42 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
+    /// Bug #28777779  	MySqlParameter.Clone doesn't clone all properties
+    /// </summary>
+    [Test]
+    public void ParameterClone()
+    {
+      var param = new MySqlParameter()
+      {
+        DbType = DbType.Int32,
+        Direction = ParameterDirection.Output,
+        Encoding = System.Text.Encoding.UTF8,
+        IsNullable = true,
+        MySqlDbType = MySqlDbType.Int32,
+        ParameterName = "test",
+        Precision = 3,
+        Scale = 2,
+        Size = 1,
+        SourceColumnNullMapping = true,
+        Value = 1
+      };
+
+      var clonedparam = param.Clone();
+
+      Assert.AreEqual(DbType.Int32,clonedparam.DbType);
+      Assert.AreEqual(ParameterDirection.Output,clonedparam.Direction);
+      Assert.AreEqual(System.Text.Encoding.UTF8,clonedparam.Encoding);
+      Assert.IsTrue(clonedparam.IsNullable);
+      Assert.AreEqual(MySqlDbType.Int32, clonedparam.MySqlDbType);
+      Assert.AreEqual("test", clonedparam.ParameterName);
+      Assert.AreEqual((byte)3, clonedparam.Precision);
+      Assert.AreEqual((byte)2, clonedparam.Scale);
+      Assert.AreEqual(1, clonedparam.Size);
+      Assert.IsTrue(clonedparam.SourceColumnNullMapping);
+      Assert.AreEqual(1, clonedparam.Value);
+    }
+
+    /// <summary>
     /// Bug #7398  	MySqlParameterCollection doesn't allow parameters without filled in names
     /// </summary>
     [Test]
