@@ -1,4 +1,4 @@
-// Copyright © 2006, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2006, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,10 +29,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
 using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -46,8 +46,10 @@ namespace MySql.Data.MySqlClient
     private const string defaultLineTerminator = "\n";
     private const char defaultEscapeCharacter = '\\';
 
-    // fields
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MySqlBulkLoader"/> class using the specified instance of <see cref="MySqlConnection"/>.
+    /// </summary>
+    /// <param name="connection">The <see cref="MySqlConnection"/> that will be used to perform the bulk operation.</param>
     public MySqlBulkLoader(MySqlConnection connection)
     {
       Connection = connection;
@@ -60,7 +62,7 @@ namespace MySql.Data.MySqlClient
       Expressions = new List<string>();
     }
 
-#region Properties
+    #region Properties
 
     /// <summary>
     /// Gets or sets the connection.
@@ -167,13 +169,26 @@ namespace MySql.Data.MySqlClient
     /// <value>The expressions.</value>
     public List<string> Expressions { get; }
 
-#endregion
+    #endregion
 
     /// <summary>
     /// Executes the load operation.
     /// </summary>
     /// <returns>The number of rows inserted.</returns>
     public int Load()
+    {
+      if (string.IsNullOrWhiteSpace(FileName))
+        throw new MySqlException("FileName property of MySqlBulkLoader cannot be null or an empty string.");
+
+      return Load(null);
+    }
+
+    /// <summary>
+    /// Executes the load operation.
+    /// </summary>
+    /// <param name="stream">A <see cref="Stream"/> containing the data to be loaded.</param>
+    /// <returns>The number of rows inserted.</returns>
+    public int Load(Stream stream)
     {
       bool openedConnection = false;
 
@@ -183,31 +198,45 @@ namespace MySql.Data.MySqlClient
       // next we open up the connetion if it is not already open
       if (Connection.State != ConnectionState.Open)
       {
-        openedConnection = true;
         Connection.Open();
+        openedConnection = true;
       }
 
       try
       {
-        string sql = BuildSqlCommand();
-        MySqlCommand cmd = new MySqlCommand(sql, Connection) {CommandTimeout = Timeout};
+        string sql = BuildSqlCommand(stream is not null);
+        Connection.driver.BulkLoaderStream = stream;
+        MySqlCommand cmd = new MySqlCommand(sql, Connection) { CommandTimeout = Timeout };
         return cmd.ExecuteNonQuery();
       }
       finally
       {
+        if (stream is not null)
+          Connection.driver.BulkLoaderStream.Dispose();
+
         if (openedConnection)
           Connection.Close();
       }
     }
 
-#region Async
+    #region Async
     /// <summary>
     /// Asynchronous version of the load operation.
     /// </summary>
     /// <returns>The number of rows inserted.</returns>
     public Task<int> LoadAsync()
     {
-      return LoadAsync(CancellationToken.None);
+      return LoadAsync(null, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Asynchronous version of the load operation.
+    /// </summary>
+    /// <param name="stream">A <see cref="Stream"/> containing the data to be loaded.</param>
+    /// <returns>The number of rows inserted.</returns>
+    public Task<int> LoadAsync(Stream stream)
+    {
+      return LoadAsync(stream, CancellationToken.None);
     }
 
     /// <summary>
@@ -215,14 +244,14 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The number of rows inserted.</returns>
-    public Task<int> LoadAsync(CancellationToken cancellationToken)
+    public Task<int> LoadAsync(Stream stream, CancellationToken cancellationToken)
     {
       var result = new TaskCompletionSource<int>();
       if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
       {
         try
         {
-          int loadResult = Load();
+          int loadResult = Load(stream);
           result.SetResult(loadResult);
         }
         catch (Exception ex)
@@ -236,9 +265,9 @@ namespace MySql.Data.MySqlClient
       }
       return result.Task;
     }
-#endregion
+    #endregion
 
-    private string BuildSqlCommand()
+    private string BuildSqlCommand(bool useStream)
     {
       StringBuilder sql = new StringBuilder("LOAD DATA ");
       if (Priority == MySqlBulkLoaderPriority.Low)
@@ -246,13 +275,20 @@ namespace MySql.Data.MySqlClient
       else if (Priority == MySqlBulkLoaderPriority.Concurrent)
         sql.Append("CONCURRENT ");
 
-      if (Local)
-        sql.Append("LOCAL ");
-      sql.Append("INFILE ");
-      if (Path.DirectorySeparatorChar == '\\')
-        sql.AppendFormat("'{0}' ", FileName.Replace(@"\", @"\\"));
+      if (useStream)
+        sql.Append("LOCAL INFILE 'MySQLTempFile' ");
       else
-        sql.AppendFormat("'{0}' ", FileName);
+      {
+        if (Local)
+          sql.Append("LOCAL ");
+
+        sql.Append("INFILE ");
+
+        if (Path.DirectorySeparatorChar == '\\')
+          sql.AppendFormat("'{0}' ", FileName.Replace(@"\", @"\\"));
+        else
+          sql.AppendFormat("'{0}' ", FileName);
+      }
 
       if (ConflictOption == MySqlBulkLoaderConflictOption.Ignore)
         sql.Append("IGNORE ");
@@ -351,5 +387,4 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     Ignore
   }
-
 }

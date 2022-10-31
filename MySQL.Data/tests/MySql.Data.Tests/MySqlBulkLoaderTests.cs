@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -727,8 +727,6 @@ namespace MySql.Data.MySqlClient.Tests
       Directory.Delete("otherPath");
     }
 
-    #region WL14389
-
     [Test, Description("MySQL Bulk Loader ran with Automation")]
     public void InsertFilesInDatabase()
     {
@@ -763,7 +761,98 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    #endregion WL14389
+    /// <summary>
+    /// Bug21049228 [SUPPORT TO USE (MEMORY-)STREAM FOR BULK LOADING DATA]
+    /// </summary>
+    [Test]
+    public void BulkLoadStream()
+    {
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
 
+      // create the sream to be loaded
+      using MemoryStream stream = new MemoryStream();
+      using StreamWriter sw = new StreamWriter(stream);
+
+      for (int i = 0; i < 200; i++)
+        sw.WriteLine(i + "\t'Test'");
+      sw.Flush();
+
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
+      loader.TableName = "Test";
+      loader.Timeout = 0;
+      loader.Local = true;
+      int count = loader.Load(stream);
+      Assert.AreEqual(200, count);
+
+      DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
+      Assert.AreEqual(200, dt.Rows.Count);
+      Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
+    }
+
+    [Test]
+    public void BulkLoadStream2()
+    {
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))");
+
+      // create the sream to be loaded
+      using MemoryStream stream = new MemoryStream();
+      using StreamWriter sw = new StreamWriter(stream);
+
+      for (int i = 0; i < 100; i++)
+        sw.Write("aaa" + i + ",'Test' xxx");
+      for (int i = 100; i < 200; i++)
+        sw.Write("bbb" + i + ",'Test' xxx");
+      for (int i = 200; i < 300; i++)
+        sw.Write("aaa" + i + ",'Test' xxx");
+      for (int i = 300; i < 400; i++)
+        sw.Write("bbb" + i + ",'Test' xxx");
+      sw.Flush();
+
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
+      loader.TableName = "Test";
+      loader.Timeout = 0;
+      loader.FieldTerminator = ",";
+      loader.LineTerminator = "xxx";
+      loader.LinePrefix = "bbb";
+      loader.Local = true;
+      int count = loader.Load(stream);
+      Assert.AreEqual(200, count);
+
+      using MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
+      Assert.AreEqual(200, Convert.ToInt32(cmd.ExecuteScalar()));
+    }
+
+    [Test]
+    public void BulkLoadStreamColumnOrder()
+    {
+      ExecuteSQL(@"CREATE TABLE Test (id INT NOT NULL, n1 VARCHAR(250), n2 VARCHAR(250), 
+            n3 VARCHAR(250), PRIMARY KEY(id))");
+
+      // create the sream to be loaded
+      using MemoryStream stream = new MemoryStream();
+      using StreamWriter sw = new StreamWriter(stream);
+      for (int i = 0; i < 20; i++)
+        sw.WriteLine(i + ",col3,col2,col1");
+      sw.Flush();
+
+      MySqlBulkLoader loader = new MySqlBulkLoader(Connection);
+      loader.TableName = "Test";
+      loader.Timeout = 0;
+      loader.FieldTerminator = ",";
+      loader.LineTerminator = Environment.NewLine;
+      loader.Columns.Add("id");
+      loader.Columns.Add("n3");
+      loader.Columns.Add("n2");
+      loader.Columns.Add("n1");
+      loader.Local = true;
+      int count = loader.Load(stream);
+      Assert.AreEqual(20, count);
+
+      DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
+      Assert.AreEqual(20, dt.Rows.Count);
+      Assert.AreEqual("col1", dt.Rows[0][1]);
+      Assert.AreEqual("col2", dt.Rows[0][2]);
+      Assert.AreEqual("col3", dt.Rows[0][3].ToString().Trim());
+    }
   }
 }

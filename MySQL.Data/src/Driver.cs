@@ -118,6 +118,8 @@ namespace MySql.Data.MySqlClient
     public bool SupportsQueryAttributes => (handler.Flags & ClientFlags.CLIENT_QUERY_ATTRIBUTES) != 0;
 
     public bool IsPasswordExpired { get; internal set; }
+
+    public Stream BulkLoaderStream { get; set; }
     #endregion
 
     public string Property(string key)
