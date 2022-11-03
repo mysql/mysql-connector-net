@@ -615,9 +615,10 @@ namespace MySql.Data.MySqlClient
         using (Stream fs = owner.BulkLoaderStream ?? new FileStream(filename, FileMode.Open, FileAccess.Read))
         {
           len = fs.Length;
+          fs.Position = 0;
+          
           while (len > 0)
-          {
-            fs.Position = 0;
+          {            
             int count = fs.Read(buffer, 4, (int)(len > 8192 ? 8192 : len));
             stream.SendEntirePacketDirectly(buffer, count);
             len -= count;
