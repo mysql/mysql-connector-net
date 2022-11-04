@@ -35,6 +35,7 @@ using MySql.Data.Common;
 using MySql.Data.Types;
 using System.IO;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace MySql.Data.MySqlClient
 {
@@ -56,6 +57,7 @@ namespace MySql.Data.MySqlClient
     private string lastDatabase;
     private bool disposed;
     private readonly long PingThreshold = 30000;
+    private readonly Regex UseDatabaseRegex = new Regex(@"USE[\n\r\s]+DATABASE", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
 
     /// <summary>
     /// For pooled connections, time when the driver was
@@ -430,6 +432,8 @@ namespace MySql.Data.MySqlClient
 
     public virtual void ExecuteDirect(string sql)
     {
+      if (UseDatabaseRegex.IsMatch(sql))
+        lastDatabase = null;
       MySqlPacket p = new MySqlPacket(Encoding);
       p.WriteString(sql);
       SendQuery(p, 0);
@@ -487,6 +491,10 @@ namespace MySql.Data.MySqlClient
 
     public virtual void ExecuteStatement(MySqlPacket packetToExecute)
     {
+      var query = packetToExecute.Encoding.GetString(packetToExecute.Buffer);
+      if (UseDatabaseRegex.IsMatch(query))
+        lastDatabase = null;
+
       handler.ExecuteStatement(packetToExecute);
       lastUse.Restart();
     }
