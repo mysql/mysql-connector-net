@@ -34,6 +34,7 @@ using System.Text;
 using MySql.Data.Common;
 using MySql.Data.Types;
 using System.IO;
+using System.Diagnostics;
 
 namespace MySql.Data.MySqlClient
 {
@@ -51,7 +52,10 @@ namespace MySql.Data.MySqlClient
     private bool firstResult;
     protected IDriver handler;
     internal MySqlDataReader reader;
+    private Stopwatch lastUse;
+    private string lastDatabase;
     private bool disposed;
+    private readonly long PingThreshold = 30000;
 
     /// <summary>
     /// For pooled connections, time when the driver was
@@ -69,6 +73,7 @@ namespace MySql.Data.MySqlClient
       ConnectionCharSetIndex = -1;
       MaxPacketSize = 1024;
       handler = new NativeDriver(this);
+      lastUse = new Stopwatch();
     }
 
     ~Driver()
@@ -180,6 +185,7 @@ namespace MySql.Data.MySqlClient
           creationTime = DateTime.Now;
           handler.Open();
           IsOpen = true;
+          lastUse.Restart();
           break;
         }
         catch (IOException)
@@ -271,6 +277,7 @@ namespace MySql.Data.MySqlClient
       Encoding = CharSetMap.GetEncoding(charSet ?? "utf-8");
 
       handler.Configure();
+      lastUse.Restart();
     }
 
     /// <summary>
@@ -300,6 +307,7 @@ namespace MySql.Data.MySqlClient
         }
         // Get time zone offset as numerical value
         timeZoneOffset = GetTimeZoneOffset(connection);
+        lastUse.Restart();
         return hash;
       }
       catch (Exception ex)
@@ -316,7 +324,7 @@ namespace MySql.Data.MySqlClient
       string timeZoneString = "0:00";
       if (timeZoneDiff.HasValue)
         timeZoneString = timeZoneDiff.ToString();
-
+      lastUse.Restart();
       return int.Parse(timeZoneString.Substring(0, timeZoneString.IndexOf(':')), CultureInfo.InvariantCulture);
     }
 
@@ -347,6 +355,7 @@ namespace MySql.Data.MySqlClient
           cmd = new MySqlCommand("commit", connection);
           cmd.ExecuteNonQuery();
         }
+        lastUse.Restart();
       }
       catch (Exception ex)
       {
@@ -372,6 +381,7 @@ namespace MySql.Data.MySqlClient
       MySqlInfoMessageEventArgs args = new MySqlInfoMessageEventArgs();
       args.errors = warnings.ToArray();
       connection?.OnInfoMessage(args);
+      lastUse.Restart();
       return warnings;
     }
 
@@ -379,6 +389,7 @@ namespace MySql.Data.MySqlClient
     {
       handler.SendQuery(p, paramsPosition);
       firstResult = true;
+      lastUse.Restart();
     }
 
     public virtual ResultSet NextResult(int statementId, bool force)
@@ -400,12 +411,16 @@ namespace MySql.Data.MySqlClient
 
     protected virtual int GetResult(int statementId, ref int affectedRows, ref long insertedId)
     {
-      return handler.GetResult(ref affectedRows, ref insertedId);
+      var result = handler.GetResult(ref affectedRows, ref insertedId);
+      lastUse.Restart();
+      return result;
     }
 
     public virtual bool FetchDataRow(int statementId, int columns)
     {
-      return handler.FetchDataRow(statementId, columns);
+      var result = handler.FetchDataRow(statementId, columns);
+      lastUse.Restart();
+      return result;
     }
 
     public virtual bool SkipDataRow()
@@ -419,6 +434,7 @@ namespace MySql.Data.MySqlClient
       p.WriteString(sql);
       SendQuery(p, 0);
       NextResult(0, false);
+      lastUse.Restart();
     }
 
     public MySqlField[] GetColumns(int count)
@@ -453,17 +469,26 @@ namespace MySql.Data.MySqlClient
 
     public bool Ping()
     {
-      return handler.Ping();
+      if (lastUse.ElapsedMilliseconds < PingThreshold)
+        return true;
+      var result = handler.Ping();
+      lastUse.Restart();
+      return result;
     }
 
     public virtual void SetDatabase(string dbName)
     {
+      if (dbName == lastDatabase)
+        return;
       handler.SetDatabase(dbName);
+      lastDatabase = dbName;
+      lastUse.Restart();
     }
 
     public virtual void ExecuteStatement(MySqlPacket packetToExecute)
     {
       handler.ExecuteStatement(packetToExecute);
+      lastUse.Restart();
     }
 
 
@@ -496,6 +521,7 @@ namespace MySql.Data.MySqlClient
       {
         ResetTimeout(1000);
         handler.Close(IsOpen);
+        lastUse.Stop();
         // if we are pooling, then release ourselves
         if (ConnectionString.Pooling)
           MySqlPoolManager.RemoveConnection(this);
