@@ -117,10 +117,10 @@ namespace MySql.Data.MySqlClient.Authentication
     /// Throws a <see cref="MySqlException"/> that encapsulates the original exception.
     /// </summary>
     /// <param name="ex">The exception to encapsulate.</param>
-    protected virtual void AuthenticationFailed(Exception ex)
+    protected virtual void AuthenticationFailed(MySqlException ex)
     {
       string msg = String.Format(Resources.AuthenticationFailed, Settings.Server, GetUsername(), PluginName, ex.Message);
-      throw new MySqlException(msg, ex);
+      throw new MySqlException(msg,ex.Number, ex);
     }
 
     /// <summary>

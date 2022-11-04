@@ -6,6 +6,7 @@
 - Fixed a bug affecting precondition checks on the MySqlParameterCollection.Add method (MySQL Bug #93370, Oracle Bug #28980952).
 - Fixed a bug that prevented copying all parameter properties using the MySqlParameter.Clone method (MySQL Bug #92734, Oracle Bug #28777779).
 - Added the support to use a stream for bulk loading data (MySQL Bug #74392, Oracle Bug #21049228). Thanks to Alexander Reinert for the contribution.
+- Fixed a bug that prevented showing the MySqlException.Number property value for authentication-related exceptions (MySQL Bug #78426, Oracle Bug #21830667).
 
 
 8.0.31
