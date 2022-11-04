@@ -137,12 +137,13 @@ namespace MySql.Data.MySqlClient.Tests
     {
       using (MySqlConnection conn = new MySqlConnection(cnnString))
       {
+        var maxConnections = ExecuteScalar("SELECT @@GLOBAL.max_connections;");
         if (exNumber == 1040)
           ExecuteSQL("SET GLOBAL max_connections = 1;");
         MySqlException exDefault = Assert.Throws<MySqlException>(() => conn.Open());
         Assert.AreEqual(exNumber, exDefault.Number);
         if (exNumber == 1040)
-          ExecuteSQL("SET GLOBAL max_connections = 151;");
+          ExecuteSQL($"SET GLOBAL max_connections = {maxConnections};");
       }
     }
   }

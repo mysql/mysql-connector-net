@@ -241,6 +241,14 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
     }
 
+    public object ExecuteScalar(string sql, bool asRoot = false)
+    {
+      var connection = asRoot ? Root : Connection;
+      var cmd = connection.CreateCommand();
+      cmd.CommandText = sql;
+      return cmd.ExecuteScalar();
+    }
+
     public MySqlDataReader ExecuteReader(string sql, bool asRoot = false)
     {
       var conn = asRoot ? Root : Connection;
