@@ -1,4 +1,4 @@
-// Copyright (c) 2014, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2014, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -113,6 +113,7 @@ namespace MySql.Data.EntityFramework.Tests
     public DbSet<ContractAuthor> ContractAuthors { get; set; }
     public DbSet<Company> Companies { get; set; }
     public DbSet<Child> Children { get; set; }
+    public DbSet<LongDataTest> LongDataTests { get; set; }
   }
 
   public class BlogContext : DbContext
@@ -139,5 +140,13 @@ namespace MySql.Data.EntityFramework.Tests
     public int Id { get; set; }
     [StringLength(45)]
     public string Name { get; set; }
+  }
+
+  public class LongDataTest
+  {
+    public int Id { get; set; }
+
+    [StringLength(15)]
+    public string Data { get; set; }
   }
 }

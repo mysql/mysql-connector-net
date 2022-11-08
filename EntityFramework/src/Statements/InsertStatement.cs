@@ -1,4 +1,4 @@
-// Copyright © 2008, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2008, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,8 +26,8 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Text;
 using System.Collections.Generic;
+using System.Text;
 
 namespace MySql.Data.EntityFramework
 {
@@ -48,7 +48,7 @@ namespace MySql.Data.EntityFramework
     {
       // changes sql_mode to allow inserting data without identity columns
       if (ReturningSelect != null && ReturningSelect.Columns.Count > 0)
-        sql.Append("SET SESSION sql_mode='ANSI';");
+        sql.Append("SET SESSION sql_mode = CONCAT(@@SESSION.sql_mode, ',ANSI');");
 
       sql.Append("INSERT INTO ");
       Target.WriteSql(sql);

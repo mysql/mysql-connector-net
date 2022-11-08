@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,12 +26,13 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
+using MySql.Data.MySqlClient;
 using NUnit.Framework;
+using System;
+using System.Data;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Data;
-using MySql.Data.MySqlClient;
 
 namespace MySql.Data.EntityFramework.Tests
 {
@@ -106,7 +107,7 @@ namespace MySql.Data.EntityFramework.Tests
       ExecSQL("CREATE TABLE PrepareAsyncAwaitTest (val1 varchar(20), numbercol int, numbername varchar(50));");
       EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "INSERT INTO PrepareAsyncAwaitTest VALUES(NULL, @number, @text)", Connection = Connection };
       //TODO: Fix me
-//      await cmd.PrepareAsync();
+      //      await cmd.PrepareAsync();
 
       cmd.Parameters.Add(new MySqlParameter("@number", 1));
       cmd.Parameters.Add(new MySqlParameter("@text", "One"));
@@ -131,6 +132,30 @@ namespace MySql.Data.EntityFramework.Tests
       //  ctx.AddTogamingplatform(gp);
       //  ctx.SaveChanges();
       //}
+    }
+
+    /// <summary>
+    /// Bug#22564126 [SERVER SQL_MODE REPLACED WITH ANSI ONLY BY THE CONNECTOR]
+    /// </summary>
+    [Test]
+    public void SqlModeReplacedByANSI()
+    {
+      using (DefaultContext ctx = new DefaultContext(ConnectionString))
+      {
+        ctx.Configuration.ValidateOnSaveEnabled = false;
+
+        LongDataTest longData = new LongDataTest();
+        longData.Data = "This does fit.";
+        ctx.LongDataTests.Add(longData);
+        Assert.IsTrue(ctx.SaveChanges() == 1);
+
+        // Try to insert a value that is larger than the max lenght of the column
+        longData.Data = "This does not fit in the column!!!";
+        ctx.LongDataTests.Add(longData);
+        var ex = Assert.Throws<DbUpdateException>(() => ctx.SaveChanges());
+        Assert.That(ex.InnerException.InnerException is MySqlException);
+        StringAssert.AreEqualIgnoringCase("Data too long for column 'Data' at row 1", ex.InnerException.InnerException.Message);
+      }
     }
   }
 }
