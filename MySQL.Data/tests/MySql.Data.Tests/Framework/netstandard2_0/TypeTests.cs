@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,6 +34,7 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class TypeTests : TestBase
   {
+#if !NET7_0_OR_GREATER
     /// <summary>
     /// Test fix for http://bugs.mysql.com/bug.php?id=40555
     /// Make MySql.Data.Types.MySqlDateTime serializable.
@@ -48,7 +49,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(11, dt.Hour);
       Assert.AreEqual(38, dt.Minute);
       Assert.AreEqual(1, dt.Second);
-      System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = 
+      System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf =
         new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
       MemoryStream ms = new MemoryStream(1024);
       bf.Serialize(ms, dt);
@@ -62,5 +63,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(38, dt.Minute);
       Assert.AreEqual(1, dt.Second);
     }
+#endif
   }
 }
