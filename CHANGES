@@ -8,6 +8,7 @@
 - Added the support to use a stream for bulk loading data (MySQL Bug #74392, Oracle Bug #21049228). Thanks to Alexander Reinert for the contribution.
 - Fixed a bug that prevented showing the MySqlException.Number property value for authentication-related exceptions (MySQL Bug #78426, Oracle Bug #21830667).
 - Fixed a bug that prevented the correct behavior when inserting data by replacing the value of the MySQL Server sql_mode variable with "ANSI" if using Entity Framework 6 (MySQL Bug #79678, Oracle Bug #22564126).
+- Upgraded the EFCore 7 and .NET 7 support from preview to GA version (WL15334).
 
 
 8.0.31

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>MySQL Server database provider for Entity Framework Core.</Description>
-    <TargetFrameworks>net6.0;</TargetFrameworks>    
+    <TargetFrameworks>net6.0;net7.0;</TargetFrameworks>    
     <AssemblyName>MySql.EntityFrameworkCore</AssemblyName>
     <PackageId>MySql.EntityFrameworkCore</PackageId>
     <Nullable>enable</Nullable>
@@ -14,8 +14,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0-rc.2.22472.11" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.0-rc.2.22472.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
