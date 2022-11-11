@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2014, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2014, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,21 +26,21 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.EntityFramework.Tests;
+using MySql.Data.MySqlClient;
+using MySql.EntityFramework.CodeFirst.Tests;
+using MySql.EntityFramework.CodeFirst.Tests.Properties;
+using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Spatial;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using MySql.Data.MySqlClient;
-using System.Collections.Generic;
-using NUnit.Framework;
-using System.Data.Entity.Spatial;
-using MySql.Data.EntityFramework.Tests;
-using MySql.EntityFramework.CodeFirst.Tests.Properties;
-using MySql.EntityFramework.CodeFirst.Tests;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
@@ -1856,7 +1856,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         Assert.AreEqual("Blog_1", context.Blog.First().Title);
       }
     }
-    #region WL14389
+
     [Test, Description("UNION SYNTAX MISSING REQUIRED PARENTHESIS")]
     public void UnionSyntax()
     {
@@ -2214,6 +2214,41 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       }
     }
 
-    #endregion WL14389
+    /// <summary>
+    /// Bug #34498485 [MySQL.Data.EntityFramework does not handle LIKE (Edm.IndexOf) cases]
+    /// </summary>
+    [Test]
+    public void TestListMatchingLike()
+    {
+      using (VehicleDbContext2 context = new VehicleDbContext2())
+      {
+        context.Database.Delete();
+        context.Database.Initialize(true);
+
+        context.Vehicles.Add(new Car2 { Id = 1, Name = "Mustang", Year = 2012, CarProperty = "Car" });
+        context.Vehicles.Add(new Bike2 { Id = 101, Name = "Mountain", Year = 2011, BikeProperty = "Bike" });
+        context.SaveChanges();
+
+        string[] matchText = new string[] { "must", "tan" };
+        var list = context.Vehicles.Where(v => matchText.Any(t => v.Name.Contains(t)));
+        Assert.AreEqual(1, list.Count());
+
+        matchText = new string[] { "mus't", "tan" };
+        list = context.Vehicles.Where(v => matchText.Any(t => v.Name.Contains(t)));
+        Assert.AreEqual(1, list.Count());
+
+        matchText = new string[] { "%" };
+        list = context.Vehicles.Where(v => matchText.Any(t => v.Name.Contains(t)));
+        Assert.AreEqual(0, list.Count());
+
+        matchText = new string[] { "tan" };
+        list = context.Vehicles.Where(v => matchText.Any(t => v.Name.Contains(t)));
+        Assert.AreEqual(1, list.Count());
+
+        matchText = new string[] { "_" };
+        list = context.Vehicles.Where(v => matchText.Any(t => v.Name.Contains(t)));
+        Assert.AreEqual(0, list.Count());
+      }
+    }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2008, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2008, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -673,7 +673,7 @@ namespace MySql.Data.EntityFramework
             {
               // Case LIKE 'pattern%'
               DbConstantExpression c = (DbConstantExpression)fl.Arguments[0];
-              like.Pattern = new LiteralFragment(string.Format("'{0}%'", c.Value.ToString().Replace("'", "''")));
+              like.Pattern = new LiteralFragment(string.Format("'{0}%'", EscapeLikeLiteralValue(c.Value.ToString())));
               return like;
             }
             else if ((fl.Arguments.Count == 2) &&
@@ -686,7 +686,7 @@ namespace MySql.Data.EntityFramework
               if (fr1.Arguments[0] is DbConstantExpression)
               {
                 DbConstantExpression c = (DbConstantExpression)fr1.Arguments[0];
-                like.Pattern = new LiteralFragment(string.Format("'%{0}'", c.Value.ToString().Replace("'", "''")));
+                like.Pattern = new LiteralFragment(string.Format("'%{0}'", EscapeLikeLiteralValue(c.Value.ToString())));
                 like.Argument = fr2.Arguments[0].Accept(this);
                 return like;
               }
@@ -718,7 +718,7 @@ namespace MySql.Data.EntityFramework
               {
                 // Case LIKE '%pattern%'
                 DbConstantExpression c = (DbConstantExpression)fl.Arguments[0];
-                like.Pattern = new LiteralFragment(string.Format("%{0}%", c.Value.ToString()));
+                like.Pattern = new LiteralFragment(string.Format("'%{0}%'", EscapeLikeLiteralValue(c.Value.ToString())));
                 return like;
               }
               else if ((par = fl.Arguments[0] as DbParameterReferenceExpression) != null)
@@ -741,7 +741,7 @@ namespace MySql.Data.EntityFramework
             if (c1.Value == c2.Value)
             {
               like.Argument = fl.Arguments[0].Accept(this);
-              like.Pattern = new LiteralFragment(string.Format("'%{0}'", c1.Value.ToString().Replace("'", "''")));
+              like.Pattern = new LiteralFragment(string.Format("'%{0}'", EscapeLikeLiteralValue(c1.Value.ToString())));
               return like;
             }
           }
@@ -904,7 +904,13 @@ namespace MySql.Data.EntityFramework
       return true;
     }
 
-    #endregion
+    private string EscapeLikeLiteralValue(string s) => s.Replace(@"\", @"\\\\")
+      .Replace("'", @"\'")
+      .Replace("’", @"\'")
+      .Replace(((char)0).ToString(), @"\0")
+      .Replace("%", @"\%")
+      .Replace("_", @"\_");
 
+    #endregion
   }
 }

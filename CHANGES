@@ -9,6 +9,7 @@
 - Fixed a bug that prevented showing the MySqlException.Number property value for authentication-related exceptions (MySQL Bug #78426, Oracle Bug #21830667).
 - Fixed a bug that prevented the correct behavior when inserting data by replacing the value of the MySQL Server sql_mode variable with "ANSI" if using Entity Framework 6 (MySQL Bug #79678, Oracle Bug #22564126).
 - Upgraded the EFCore 7 and .NET 7 support from preview to GA version (WL15334).
+- Fixed a bug that raised an exception when a LINQ query attempted to partially compare items from a string function using LIKE pattern matching (MySQL Bug #103160, Oracle Bug #34498485).
 
 
 8.0.31
