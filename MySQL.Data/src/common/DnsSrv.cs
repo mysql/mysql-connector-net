@@ -117,10 +117,6 @@ namespace MySql.Data.Common
     /// <summary>
     /// Resets the DnsSrvResolver
     /// </summary>
-    private static void Reset()
-    {
-      if (_resolver != null)
-        _resolver = null;
-    }
+    private static void Reset() => _resolver = null;
   }
 }

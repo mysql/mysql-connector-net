@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,8 +32,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
+#if !NET452
+using System.Runtime.Loader;
+#endif
 using System.Threading;
-
 
 namespace MySql.Data.MySqlClient
 {
@@ -54,10 +57,12 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// List of hosts that will be attempted to connect to.
     /// </summary>
+
     internal static List<FailoverServer> Hosts { get; set; }
     /// <summary>
     /// Timer to be used when a host have been demoted.
     /// </summary>
+
     internal static Timer DemotedServersTimer { get; set; }
     #endregion
 
@@ -67,13 +72,29 @@ namespace MySql.Data.MySqlClient
 
     static MySqlPoolManager()
     {
-      AppDomain.CurrentDomain.ProcessExit += EnsureClearingPools;
-      AppDomain.CurrentDomain.DomainUnload += EnsureClearingPools;
+      AppDomain.CurrentDomain.ProcessExit += UnloadAppDomain;
+      AppDomain.CurrentDomain.DomainUnload += UnloadAppDomain;
+
+#if !NET452
+      AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly()).Unloading += UnloadAssemblyLoadContext;
+#endif
     }
 
-    private static void EnsureClearingPools(object sender, EventArgs e)
+#if !NET452
+    private static void UnloadAssemblyLoadContext(AssemblyLoadContext obj) => UnloadPoolManager();
+#endif
+
+    private static void UnloadAppDomain(object sender, EventArgs e) => UnloadPoolManager();
+
+    private static void UnloadPoolManager()
     {
       ClearAllPools();
+      timer?.Dispose();
+      AppDomain.CurrentDomain.ProcessExit -= UnloadAppDomain;
+      AppDomain.CurrentDomain.DomainUnload -= UnloadAppDomain;
+#if !NET452
+      AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly()).Unloading -= UnloadAssemblyLoadContext;
+#endif
     }
 
     // we add a small amount to the due time to let the cleanup detect
@@ -202,7 +223,7 @@ namespace MySql.Data.MySqlClient
       if (DemotedServersTimer != null)
       {
         DemotedServersTimer.Dispose();
-        Hosts?.Clear(); 
+        Hosts?.Clear();
         while (!DemotedHosts.IsEmpty)
           DemotedHosts.TryDequeue(out _);
       }
