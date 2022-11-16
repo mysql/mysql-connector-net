@@ -33,7 +33,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-#if !NET452
+#if !NETFRAMEWORK
 using System.Runtime.Loader;
 #endif
 using System.Threading;
@@ -75,12 +75,12 @@ namespace MySql.Data.MySqlClient
       AppDomain.CurrentDomain.ProcessExit += UnloadAppDomain;
       AppDomain.CurrentDomain.DomainUnload += UnloadAppDomain;
 
-#if !NET452
+#if !NETFRAMEWORK
       AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly()).Unloading += UnloadAssemblyLoadContext;
 #endif
     }
 
-#if !NET452
+#if !NETFRAMEWORK
     private static void UnloadAssemblyLoadContext(AssemblyLoadContext obj) => UnloadPoolManager();
 #endif
 
@@ -92,7 +92,7 @@ namespace MySql.Data.MySqlClient
       timer?.Dispose();
       AppDomain.CurrentDomain.ProcessExit -= UnloadAppDomain;
       AppDomain.CurrentDomain.DomainUnload -= UnloadAppDomain;
-#if !NET452
+#if !NETFRAMEWORK
       AssemblyLoadContext.GetLoadContext(Assembly.GetExecutingAssembly()).Unloading -= UnloadAssemblyLoadContext;
 #endif
     }
