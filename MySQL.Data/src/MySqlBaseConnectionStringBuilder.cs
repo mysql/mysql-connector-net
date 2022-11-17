@@ -450,9 +450,9 @@ namespace MySql.Data.MySqlClient
     /// <param name="connectionString">Connection string.</param>
     /// <param name="isXProtocol">Flag that indicates if the connection is using X Protocol.</param>
     /// <param name="isDefaultPort">Flag that indicates if the default port is used.</param>
-    internal void AnalyzeConnectionString(string connectionString, bool isXProtocol, bool isDefaultPort = true)
+    internal void AnalyzeConnectionString(string connectionString, bool isXProtocol, bool isDefaultPort = true, bool isAnalyzed = false)
     {
-      if (connectionString != null)
+      if (!isAnalyzed && !string.IsNullOrWhiteSpace(connectionString))
       {
         string[] queries = connectionString.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
         bool isDnsSrv = false;

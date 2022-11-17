@@ -108,7 +108,8 @@ namespace MySql.Data.MySqlClient
     public MySqlConnection(string connectionString)
       : this()
     {
-      Settings.AnalyzeConnectionString(connectionString ?? string.Empty, false, false);
+      Settings.AnalyzeConnectionString(connectionString ?? string.Empty, false, false, false);
+      IsConnectionStringAnalyzed= true;
       ConnectionString = connectionString;
     }
 
@@ -271,7 +272,7 @@ namespace MySql.Data.MySqlClient
             newSettings = ConnectionStringCache[value];
             if (null == newSettings || FailoverManager.FailoverGroup == null)
             {
-              newSettings = new MySqlConnectionStringBuilder(value);
+              newSettings = new MySqlConnectionStringBuilder(value, IsConnectionStringAnalyzed);
               ConnectionStringCache.Add(value, newSettings);
             }
           }
@@ -296,6 +297,11 @@ namespace MySql.Data.MySqlClient
     /// Gets a boolean value that indicates whether the password associated to the connection is expired.
     /// </summary>
     public bool IsPasswordExpired => driver.IsPasswordExpired;
+
+    /// <summary>
+    /// Gets a boolean value that indicates wheter the connection string has been analyzed or not.
+    /// </summary>
+    internal bool IsConnectionStringAnalyzed = false;
 
     #endregion
 
@@ -591,7 +597,7 @@ namespace MySql.Data.MySqlClient
         if (driver.HasStatus(ServerStatusFlags.InTransaction))
         {
           MySqlConnection newConn = (MySqlConnection)this.Clone();
-          Driver newDriver = Driver.Create(new MySqlConnectionStringBuilder(newConn.ConnectionString));
+          Driver newDriver = Driver.Create(new MySqlConnectionStringBuilder(newConn.ConnectionString, IsConnectionStringAnalyzed));
 
           lock(newDriver)
           {
@@ -737,7 +743,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="timeout">The length of time (in seconds) to wait for the cancelation of the command execution.</param>
     public void CancelQuery(int timeout)
     {
-      var cb = new MySqlConnectionStringBuilder(Settings.ConnectionString);
+      var cb = new MySqlConnectionStringBuilder(Settings.ConnectionString, IsConnectionStringAnalyzed);
       cb.Pooling = false;
       cb.AutoEnlist = false;
       cb.ConnectionTimeout = (uint)timeout;

@@ -249,9 +249,9 @@ namespace MySql.Data.MySqlClient
     /// Constructor accepting a connection string.
     /// </summary>
     /// <param name="connectionString">The connection string.</param>
-    public MySqlConnectionStringBuilder(string connectionString) : this()
+    public MySqlConnectionStringBuilder(string connectionString, bool isAnalyzed = false) : this()
     {
-      AnalyzeConnectionString(connectionString, false);
+      AnalyzeConnectionString(connectionString, false, isAnalyzed: isAnalyzed);
       lock (this)
       {
         ConnectionString = connectionString;

@@ -194,7 +194,7 @@ namespace MySql.Data.Failover
         connectionString = "server=" + currentHost.Host + ";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';') + 1);
         if (currentHost != null && currentHost.Port != -1)
           connectionString += ";port=" + currentHost.Port;
-        msb = new MySqlConnectionStringBuilder(connectionString);
+        msb = new MySqlConnectionStringBuilder(connectionString, connection.IsConnectionStringAnalyzed);
 
         if ((FailoverGroup.Hosts.Count == 1 && !mySqlPoolManager) ||
           (mySqlPoolManager && MySqlPoolManager.Hosts.Count == 1 && MySqlPoolManager.DemotedHosts.IsEmpty))

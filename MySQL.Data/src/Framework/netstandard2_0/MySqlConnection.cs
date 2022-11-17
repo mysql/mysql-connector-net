@@ -164,6 +164,7 @@ namespace MySql.Data.MySqlClient
       MySqlConnection clone = new MySqlConnection();
       clone.IsClone = true;
       clone.ParentHasbeenOpen = hasBeenOpen;
+      clone.IsConnectionStringAnalyzed = IsConnectionStringAnalyzed;
       string connectionString = Settings.ConnectionString;
       if (connectionString != null)
         clone.ConnectionString = connectionString;
@@ -181,8 +182,8 @@ namespace MySql.Data.MySqlClient
     /// the same password as this connection (unless overridden by <paramref name="connectionString"/>).</returns>
     public MySqlConnection CloneWith(string connectionString)
     {
-      var newBuilder = new MySqlConnectionStringBuilder(connectionString ?? throw new ArgumentNullException(nameof(connectionString)));
-      var currentBuilder = new MySqlConnectionStringBuilder(ConnectionString);
+      var newBuilder = new MySqlConnectionStringBuilder(connectionString ?? throw new ArgumentNullException(nameof(connectionString)), IsConnectionStringAnalyzed);
+      var currentBuilder = new MySqlConnectionStringBuilder(ConnectionString, IsConnectionStringAnalyzed);
       var shouldCopyPassword = newBuilder.Password.Length == 0 && (!newBuilder.PersistSecurityInfo || currentBuilder.PersistSecurityInfo);
 
       if (shouldCopyPassword)
