@@ -42,9 +42,6 @@ namespace MySql.Data.MySqlClient
   internal class StoredProcedure : PreparableStatement
   {
     private string _outSelect;
-
-    // Prefix used for to generate inout or output parameters names
-    internal const string ParameterPrefix = "_cnet_param_";
     private string resolvedCommandText;
 
     public StoredProcedure(MySqlCommand cmd, string text)
@@ -56,8 +53,6 @@ namespace MySql.Data.MySqlClient
     {
       return Parameters?.Cast<MySqlParameter>().FirstOrDefault(p => p.Direction == ParameterDirection.ReturnValue);
     }
-
-    public bool ServerProvidingOutputParameters { get; private set; }
 
     public override string ResolvedCommandText
     {
@@ -374,6 +369,7 @@ namespace MySql.Data.MySqlClient
       if ((reader.CommandBehavior & CommandBehavior.SchemaOnly) != 0) return;
 
       MySqlCommand cmd = new MySqlCommand(_outSelect, command.Connection);
+      cmd.InternallyCreated = true;
       using (MySqlDataReader rdr = cmd.ExecuteReader(reader.CommandBehavior))
       {
         ProcessOutputParameters(rdr);

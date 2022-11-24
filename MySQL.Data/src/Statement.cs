@@ -30,6 +30,10 @@ using MySql.Data.Common;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.Linq;
+using System.Text;
 
 namespace MySql.Data.MySqlClient
 {
@@ -39,6 +43,9 @@ namespace MySql.Data.MySqlClient
     private readonly List<MySqlPacket> _buffers;
     protected string commandText;
     protected int paramsPosition;
+
+    internal const string ParameterPrefix = "_cnet_param_";
+    public virtual bool ServerProvidingOutputParameters { get; internal set; }
 
     private Statement(MySqlCommand cmd)
     {
@@ -75,6 +82,52 @@ namespace MySql.Data.MySqlClient
 
     public virtual void Resolve(bool preparing)
     {
+      if (ResolvedCommandText != null && Parameters.Count == 0) return;
+      if (command.InternallyCreated) return;
+      ServerProvidingOutputParameters = Driver.SupportsOutputParameters && preparing;
+      if (Parameters.Cast<MySqlParameter>().Where(x => x.Direction == ParameterDirection.Output).Any())
+      {
+        string setSql = SetSql(Parameters, preparing);
+        string outSql = CreateOutputSelect(Parameters, preparing);
+        commandText = String.Format("{0}{1}", setSql, outSql);
+      }
+    }
+
+    private string SetSql(MySqlParameterCollection parms, bool preparing)
+    {
+      StringBuilder setSql = new StringBuilder();
+      setSql.Append(commandText);
+      foreach (MySqlParameter p in parms)
+      {
+        if (p.Direction != ParameterDirection.Output) continue;
+
+        string uName = "@" + ParameterPrefix + p.BaseName;
+        setSql.Replace(p.ParameterName, uName);
+      }
+      return setSql.ToString();
+    }
+
+    private string CreateOutputSelect(MySqlParameterCollection parms, bool preparing)
+    {
+      StringBuilder outputSql = new StringBuilder();
+      string delimiter = string.Empty;
+      foreach (MySqlParameter p in parms)
+      {
+        if (p.Direction == ParameterDirection.Output)
+        {
+          string uName = "@" + ParameterPrefix + p.BaseName;
+          outputSql.AppendFormat(CultureInfo.InvariantCulture, "{0}{1}", delimiter, uName);
+          delimiter = ", ";
+        }
+      }
+      if (outputSql.Length == 0) return String.Empty;
+      else if (command.Connection.Settings.AllowBatch && !preparing)
+        return String.Format("; SELECT {0}", outputSql.ToString());
+      else
+      {
+        command.OutSql = String.Format("SELECT {0}", outputSql.ToString());
+        return String.Empty;
+      }
     }
 
     public virtual void Execute()

@@ -264,9 +264,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       var clonedparam = param.Clone();
 
-      Assert.AreEqual(DbType.Int32,clonedparam.DbType);
-      Assert.AreEqual(ParameterDirection.Output,clonedparam.Direction);
-      Assert.AreEqual(System.Text.Encoding.UTF8,clonedparam.Encoding);
+      Assert.AreEqual(DbType.Int32, clonedparam.DbType);
+      Assert.AreEqual(ParameterDirection.Output, clonedparam.Direction);
+      Assert.AreEqual(System.Text.Encoding.UTF8, clonedparam.Encoding);
       Assert.IsTrue(clonedparam.IsNullable);
       Assert.AreEqual(MySqlDbType.Int32, clonedparam.MySqlDbType);
       Assert.AreEqual("test", clonedparam.ParameterName);
@@ -275,6 +275,29 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(1, clonedparam.Size);
       Assert.IsTrue(clonedparam.SourceColumnNullMapping);
       Assert.AreEqual(1, clonedparam.Value);
+    }
+
+    /// <summary>
+    /// Bug #20259756 MysqlParameter direction output does not work for text commands
+    /// </summary>
+    [TestCase(true)]
+    [TestCase(false)]
+    public void ParameterDirectionOutputTextCommand(bool preparedCommand)
+    {
+      using (MySqlCommand cmd = Connection.CreateCommand())
+      {
+        cmd.CommandText = "set @outputParam=1234;";
+        cmd.CommandType = CommandType.Text;
+        MySqlParameter outParam = new MySqlParameter();
+        outParam.ParameterName = "@outputParam";
+        outParam.MySqlDbType = MySqlDbType.Int32;
+        outParam.Direction = ParameterDirection.Output;
+        cmd.Parameters.Add(outParam);
+        if (preparedCommand) cmd.Prepare();
+
+        cmd.ExecuteNonQuery();
+        Assert.AreEqual(1234, cmd.Parameters["@outputParam"].Value);
+      }
     }
 
     /// <summary>

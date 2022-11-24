@@ -33,9 +33,9 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 using System.Text;
-using System.IO;
 
 namespace MySql.Data.MySqlClient
 {
@@ -334,7 +334,7 @@ namespace MySql.Data.MySqlClient
     internal void Serialize(MySqlPacket packet, bool binary, MySqlConnectionStringBuilder settings)
     {
       if (!binary && (_paramValue == null || _paramValue == DBNull.Value))
-        packet.WriteStringNoNull("NULL");
+        packet.WriteStringNoNull("@NULL");
       else
       {
         if (ValueObject.MySqlDbType == MySqlDbType.Guid)

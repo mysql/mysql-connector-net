@@ -28,6 +28,7 @@
 
 using MySql.Data.Common;
 using MySql.Data.MySqlClient.Replication;
+using MySql.Data.Types;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -73,6 +74,7 @@ namespace MySql.Data.MySqlClient
     private bool useDefaultTimeout;
     private static List<string> keywords = null;
     private bool disposed = false;
+    internal const string ParameterPrefix = "_cnet_param_";
 
     /// <summary>
     /// Initializes a new instance of the MySqlCommand class.
@@ -393,6 +395,8 @@ namespace MySql.Data.MySqlClient
       set { Transaction = (MySqlTransaction)value; }
     }
 
+    internal string OutSql { get; set; }
+
     #endregion
 
     #region Methods
@@ -445,6 +449,45 @@ namespace MySql.Data.MySqlClient
         Throw(new MySqlException("There is already an open DataReader associated with this Connection which must be closed first."));
     }
 
+    internal void ProcessOutputParameters(MySqlDataReader reader)
+    {
+      AdjustOutputTypes(reader);
+      if ((reader.CommandBehavior & CommandBehavior.SchemaOnly) != 0)
+        return;
+
+      reader.Read();
+      string prefix = "@" + ParameterPrefix;
+      for (int i = 0; i < reader.FieldCount; i++)
+      {
+        string fieldName = reader.GetName(i);
+        if (fieldName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+          fieldName = fieldName.Remove(0, prefix.Length);
+        MySqlParameter parameter = Parameters.GetParameterFlexible(fieldName, true);
+        parameter.Value = reader.GetValue(i);
+      }
+    }
+
+    private void AdjustOutputTypes(MySqlDataReader reader)
+    {
+      for (int i = 0; i < reader.FieldCount; i++)
+      {
+        string fieldName = reader.GetName(i);
+        if (fieldName.IndexOf(ParameterPrefix) != -1)
+          fieldName = fieldName.Remove(0, ParameterPrefix.Length + 1);
+        MySqlParameter parameter = Parameters.GetParameterFlexible(fieldName, true);
+
+        IMySqlValue v = MySqlField.GetIMySqlValue(parameter.MySqlDbType);
+        if (v is MySqlBit)
+        {
+          MySqlBit bit = (MySqlBit)v;
+          bit.ReadAsString = true;
+          reader.ResultSet.SetValueObject(i, bit);
+        }
+        else
+          reader.ResultSet.SetValueObject(i, v);
+      }
+    }
+
     /// <summary>
     ///  Executes a SQL statement against the connection and returns the number of rows affected.
     /// </summary>
@@ -470,6 +513,26 @@ namespace MySql.Data.MySqlClient
       using (MySqlDataReader reader = ExecuteReader())
       {
         reader.Close();
+        if (!string.IsNullOrEmpty(OutSql) && ((reader.CommandBehavior & CommandBehavior.SchemaOnly) == 0))
+        {
+          if(!IsPrepared)
+          {
+            MySqlCommand cmd = new MySqlCommand(OutSql, Connection);
+            using (MySqlDataReader rdr = cmd.ExecuteReader(reader.CommandBehavior))
+            {
+              ProcessOutputParameters(rdr);
+            }
+          }
+          else
+          {
+            CommandText = OutSql;
+            OutSql = null;
+            using (MySqlDataReader readerPrepared = ExecuteReader())
+            {
+              ProcessOutputParameters(readerPrepared);
+            }
+          }
+        }
         return reader.RecordsAffected;
       }
     }

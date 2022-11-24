@@ -1163,6 +1163,22 @@ namespace MySql.Data.MySqlClient
               // *after* the output parameters resultset
               ResultSet = driver.NextResult(Statement.StatementId, true);
             }
+            else if (ResultSet.IsOutputParameters && Command.CommandType == CommandType.Text && !Command.IsPrepared && !Command.InternallyCreated)
+            {
+              Command.ProcessOutputParameters(this);
+              ResultSet.Close();
+              for (int i = 0; i < ResultSet.Fields.Length; i++)
+              {
+                if (ResultSet.Fields[i].ColumnName.StartsWith("@" + MySqlCommand.ParameterPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                  ResultSet = null;
+                  break;
+                }
+              }
+              if (!Statement.ServerProvidingOutputParameters) return false;
+
+              ResultSet = driver.NextResult(Statement.StatementId, true);
+            }
             ResultSet.Cached = isCaching;
           }
 
