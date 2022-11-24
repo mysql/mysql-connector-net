@@ -39,6 +39,7 @@ namespace MySql.Data.MySqlClient.Tests
   {
     protected override void Cleanup()
     {
+      ExecuteSQL(string.Format("DROP TABLE IF EXISTS `{0}`.TestForeignKey", Connection.Database));
       ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
     }
 
@@ -294,7 +295,7 @@ namespace MySql.Data.MySqlClient.Tests
             }
             break;
         }
-      } 
+      }
     }
 
     /// <summary>
@@ -925,6 +926,38 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.CommandText = "SELECT\tCOUNT(*)\n\t\tFROM\tTest;";
         Assert.AreEqual(1, cmd.ExecuteScalar());
       }
+    }
+
+    /// <summary>
+    /// Bug#30365157 [MYSQLCOMMAND.LASTINSERTEDID RETURNS 0 AFTER EXECUTING MULTIPLE STATEMENTS]
+    /// </summary>
+    [Test]
+    public void LastInsertedIdInMultipleStatements()
+    {
+      ExecuteSQL(@"CREATE TABLE Test (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, Column1 CHAR(100));
+        CREATE TABLE TestForeignKey (foreign_id INT NOT NULL, Column2 CHAR(100), FOREIGN KEY (foreign_id) REFERENCES Test (id));");
+
+      using var cmd = Connection.CreateCommand();
+      cmd.CommandText = "INSERT INTO Test(column1) VALUES ('hello'); "
+      + "INSERT INTO TestForeignKey (foreign_id, column2) VALUES(LAST_INSERT_ID(), 'test');";
+
+      cmd.ExecuteNonQuery();
+      Assert.AreEqual(1, cmd.LastInsertedId);
+
+      cmd.ExecuteNonQuery();
+      Assert.AreEqual(2, cmd.LastInsertedId);
+
+      cmd.CommandText = "SELECT * FROM Test";
+      int id = 1;
+
+      using var reader = cmd.ExecuteReader();
+      while (reader.Read())
+      {
+        Assert.IsTrue(reader.GetInt32(0) == id);
+        id++;
+      }
+
+      Assert.AreEqual(-1, cmd.LastInsertedId);
     }
   }
 }

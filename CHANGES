@@ -11,7 +11,8 @@
 - Upgraded the EFCore 7 and .NET 7 support from preview to GA version (WL15334).
 - Fixed a bug that raised an exception when a LINQ query attempted to partially compare items from a string function using LIKE pattern matching (MySQL Bug #103160, Oracle Bug #34498485).
 - Fixed a bug related to how the unloading of the assembly was handled (MySQL Bug #108837, Oracle Bug #34724334). Thanks to Gabriele Gervasi for the contribution.
-- Fixed how the connection string is analyzed so it does not get analyzed twice (MySQL Bug #102964, Oracle Bug #32680315). 
+- Fixed how the connection string is analyzed so it does not get analyzed twice (MySQL Bug #102964, Oracle Bug #32680315).
+- Fixed a bug that prevented the return of the correct LastInsertedId when executing multiple insert statements in one command (MySQL Bug #97061, Oracle Bug #30365157).
 
 
 8.0.31

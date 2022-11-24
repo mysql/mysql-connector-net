@@ -1168,7 +1168,8 @@ namespace MySql.Data.MySqlClient
 
           if (ResultSet.Size == 0)
           {
-            Command.LastInsertedId = ResultSet.InsertedId;
+            Command.LastInsertedId = Command.LastInsertedId == -1 ? ResultSet.InsertedId : Command.LastInsertedId;
+
             if (affectedRows == -1)
               affectedRows = ResultSet.AffectedRows;
             else
