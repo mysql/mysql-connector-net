@@ -65,7 +65,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.True(reader.Read());
-        Assert.AreEqual(-98, (sbyte)reader.GetByte(0));
+        Assert.Throws<OverflowException>(() => reader.GetByte(0));
         Assert.AreEqual(140, reader.GetByte(1));
         Assert.True(reader.GetBoolean(1));
         Assert.AreEqual(20, Convert.ToInt32(reader.GetUInt32(2)));
@@ -398,7 +398,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (var command = new MySqlCommand(@"INSERT INTO Test(data) VALUES(@data);", Connection))
         {
           command.Parameters.AddWithValue("@data", 1234567).MySqlDbType = MySqlDbType.Int24;
-          if(prepare) command.Prepare();
+          if (prepare) command.Prepare();
           command.ExecuteNonQuery();
         }
       }
@@ -1628,6 +1628,39 @@ namespace MySql.Data.MySqlClient.Tests
       using var reader = cmd.ExecuteReader();
       Assert.IsTrue(reader.Read());
       Assert.AreEqual(value, reader.GetValue(0));
+    }
+
+    /// <summary>
+    /// Bug #31087580	[UNEXPECTED RETURN VALUE GETTING INTEGER FOR TINYINT(1) COLUMN]
+    /// </summary>
+    [TestCase(true, true)]
+    [TestCase(false, true)]
+    [TestCase(true, false)]
+    [TestCase(false, false)]
+    public void GetIntForTinyInt(bool treatAsBool, bool isPrepared)
+    {
+      ExecuteSQL(@"CREATE TABLE Test (value tinyint(1)); INSERT INTO Test VALUES (-2);");
+      string connString = Connection.ConnectionString + $";treattinyasboolean={treatAsBool};";
+
+      using var conn = new MySqlConnection(connString);
+      conn.Open();
+
+      using var cmd = new MySqlCommand("SELECT * FROM Test", conn);
+      if (isPrepared) cmd.Prepare();
+      using var reader = cmd.ExecuteReader();
+      reader.Read();
+
+      Assert.AreEqual(treatAsBool ? 1 : -2, reader.GetSByte(0));
+      Assert.Throws<OverflowException>(() => reader.GetByte(0));
+      Assert.AreEqual(treatAsBool ? 1 : -2, reader.GetInt16(0));
+      Assert.AreEqual(treatAsBool ? 1 : -2, reader.GetInt32(0));
+      Assert.AreEqual(treatAsBool ? 1 : -2, reader.GetInt64(0));
+
+      Assert.AreEqual(treatAsBool ? 1 : -2, reader.GetFieldValue<sbyte>(0));
+      Assert.Throws<OverflowException>(() => reader.GetFieldValue<byte>(0));
+      Assert.AreEqual(treatAsBool ? 1 : -2, reader.GetFieldValue<short>(0));
+      Assert.AreEqual(treatAsBool ? 1 : -2, reader.GetFieldValue<int>(0));
+      Assert.AreEqual(treatAsBool ? 1 : -2, reader.GetFieldValue<long>(0));
     }
   }
 }

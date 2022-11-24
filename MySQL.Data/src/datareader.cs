@@ -305,7 +305,7 @@ namespace MySql.Data.MySqlClient
       if (v is MySqlUByte)
         return ((MySqlUByte)v).Value;
       else
-        return (byte)((MySqlByte)v).Value;
+        return checked((byte)((MySqlByte)v).Value);
     }
 
     /// <summary>
@@ -327,9 +327,9 @@ namespace MySql.Data.MySqlClient
     {
       IMySqlValue v = GetFieldValue(i, false);
       if (v is MySqlByte)
-        return ((MySqlByte)v).Value;
+        return (sbyte)ChangeType(v, i, typeof(sbyte));
       else
-        return (sbyte)((MySqlByte)v).Value;
+        return checked(((MySqlByte)v).Value);
     }
 
     /// <summary>
@@ -1314,6 +1314,44 @@ namespace MySql.Data.MySqlClient
     /// <returns>The value of the column.</returns>
     public override T GetFieldValue<T>(int ordinal)
     {
+      if (typeof(T).Equals(typeof(Stream)))
+        return (T)(object)GetStream(ordinal);
+      if (typeof(T).Equals(typeof(sbyte)))
+        return (T)(object)GetSByte(ordinal);
+      if (typeof(T).Equals(typeof(byte)))
+        return (T)(object)GetByte(ordinal);
+      if (typeof(T).Equals(typeof(short)))
+        return (T)(object)GetInt16(ordinal);
+      if (typeof(T).Equals(typeof(ushort)))
+        return (T)(object)GetUInt16(ordinal);
+      if (typeof(T).Equals(typeof(int)))
+        return (T)(object)GetInt32(ordinal);
+      if (typeof(T).Equals(typeof(uint)))
+        return (T)(object)GetUInt32(ordinal);
+      if (typeof(T).Equals(typeof(long)))
+        return (T)(object)GetInt64(ordinal);
+      if (typeof(T).Equals(typeof(ulong)))
+        return (T)(object)GetUInt64(ordinal);
+      if (typeof(T).Equals(typeof(char)))
+        return (T)(object)GetChar(ordinal);
+      if (typeof(T).Equals(typeof(decimal)))
+        return (T)(object)GetDecimal(ordinal);
+      if (typeof(T).Equals(typeof(float)))
+        return (T)(object)GetFloat(ordinal);
+      if (typeof(T).Equals(typeof(double)))
+        return (T)(object)GetDouble(ordinal);
+      if (typeof(T).Equals(typeof(string)))
+        return (T)(object)GetString(ordinal);
+      if (typeof(T).Equals(typeof(Guid)))
+        return (T)(object)GetGuid(ordinal);
+      if (typeof(T).Equals(typeof(bool)))
+        return (T)(object)GetBoolean(ordinal);
+      if (typeof(T).Equals(typeof(DateTime)))
+        return (T)(object)GetDateTime(ordinal);
+      if (typeof(T).Equals(typeof(TimeSpan)))
+        return (T)(object)GetTimeSpan(ordinal);
+      if (typeof(T).Equals(typeof(MySqlGeometry)))
+        return (T)(object)GetMySqlGeometry(ordinal);
       if (typeof(T).Equals(typeof(DateTimeOffset)))
       {
         var dtValue = new DateTime();
@@ -1321,10 +1359,8 @@ namespace MySql.Data.MySqlClient
         DateTime datetime = result ? dtValue : DateTime.MinValue;
         return (T)Convert.ChangeType(new DateTimeOffset(datetime, TimeSpan.FromHours(0)), typeof(T));
       }
-      else if (typeof(T).Equals(typeof(Stream)))
-        return (T)(object)GetStream(ordinal);
-      else
-        return base.GetFieldValue<T>(ordinal);
+
+      return base.GetFieldValue<T>(ordinal);
     }
 
     private void Throw(Exception ex)

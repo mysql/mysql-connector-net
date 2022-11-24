@@ -13,6 +13,7 @@
 - Fixed a bug related to how the unloading of the assembly was handled (MySQL Bug #108837, Oracle Bug #34724334). Thanks to Gabriele Gervasi for the contribution.
 - Fixed how the connection string is analyzed so it does not get analyzed twice (MySQL Bug #102964, Oracle Bug #32680315).
 - Fixed a bug that prevented the return of the correct LastInsertedId when executing multiple insert statements in one command (MySQL Bug #97061, Oracle Bug #30365157).
+- Fixed a bug that returned an unexpected value when getting an integer from a TINYINT column (MySQL Bug #99091, Oracle Bug #31087580).
 
 
 8.0.31
