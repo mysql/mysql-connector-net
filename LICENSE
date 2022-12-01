@@ -1,6 +1,6 @@
 Licensing Information User Manual
 
-MySQL Connector/NET
+MySQL Connector/NET 8.0
      __________________________________________________________________
 
 Introduction
@@ -8,18 +8,30 @@ Introduction
    This License Information User Manual contains Oracle's product license
    and other licensing information, including licensing information for
    third-party software which may be included in this distribution of
-   MySQL Connector/NET.
+   MySQL Connector/NET 8.0.
 
    Last updated: November 2022
 
 Licensing Information
 
-Product License - MySQL Connector/NET
+   This is a release of MySQL Connector/NET 8.0, brought to you by the
+   MySQL team at Oracle. This software is released under version 2 of the
+   GNU General Public License (GPLv2), as set forth below, with the
+   following additional permissions:
 
-   This is a release of MySQL Connector/NET, the dual-license .NET API for
-   MySQL. For the avoidance of doubt, this particular copy of the software
-   is released under version 2 of the GNU General Public License. MySQL
-   Connector/NET is brought to you by the MySQL team at Oracle.
+   This distribution of MySQL Connector/NET 8.0 is distributed with
+   certain software that is licensed under separate terms, as designated
+   in a particular file or component or in the license documentation.
+   Without limiting your rights under the GPLv2, the authors of MySQL
+   hereby grant you an additional permission to link the program and your
+   derivative works with the separately licensed software that they have
+   included with the program.
+
+   Without limiting the foregoing grant of rights under the GPLv2 and
+   additional permission as to separately licensed software, this
+   Connector is also subject to the Universal FOSS Exception, version 1.0,
+   a copy of which is reproduced below and can also be found along with
+   its FAQ at http://oss.oracle.com/licenses/universal-foss-exception.
 
    Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 
@@ -399,19 +411,62 @@ you may consider it more useful to permit linking proprietary
 applications with the library.  If this is what you want to do, use
 the GNU Lesser General Public License instead of this License.
 
-MySQL FOSS License Exception
+   ======================================================================
+   ======================================================================
 
-   We want free and open source software applications under certain
-   licenses to be able to use the GPL-licensed MySQL Connector/NET despite
-   the fact that not all such FOSS licenses are compatible with version 2
-   of the GNU General Public License. Therefore there are special
-   exceptions to the terms and conditions of the GPLv2 as applied to these
-   client libraries, which are identified and described in more detail in
-   the FOSS License Exception at
-   http://www.mysql.com/about/legal/licensing/foss-exception/.
+The Universal FOSS Exception, Version 1.0
 
-   This software is OSI Certified Open Source Software. OSI Certified is a
-   certification mark of the Open Source Initiative.
+   In addition to the rights set forth in the other license(s) included in
+   the distribution for this software, data, and/or documentation
+   (collectively the "Software", and such licenses collectively with this
+   additional permission the "Software License"), the copyright holders
+   wish to facilitate interoperability with other software, data, and/or
+   documentation distributed with complete corresponding source under a
+   license that is OSI-approved and/or categorized by the FSF as free
+   (collectively "Other FOSS"). We therefore hereby grant the following
+   additional permission with respect to the use and distribution of the
+   Software with Other FOSS, and the constants, function signatures, data
+   structures and other invocation methods used to run or interact with
+   each of them (as to each, such software's "Interfaces"):
+
+    i. The Software's Interfaces may, to the extent permitted by the
+       license of the Other FOSS, be copied into, used and distributed in
+       the Other FOSS in order to enable interoperability, without
+       requiring a change to the license of the Other FOSS other than as
+       to any Interfaces of the Software embedded therein. The Software's
+       Interfaces remain at all times under the Software License,
+       including without limitation as used in the Other FOSS (which upon
+       any such use also then contains a portion of the Software under the
+       Software License).
+
+   ii. The Other FOSS's Interfaces may, to the extent permitted by the
+       license of the Other FOSS, be copied into, used and distributed in
+       the Software in order to enable interoperability, without requiring
+       that such Interfaces be licensed under the terms of the Software
+       License or otherwise altering their original terms, if this does
+       not require any portion of the Software other than such Interfaces
+       to be licensed under the terms other than the Software License.
+
+   iii. If only Interfaces and no other code is copied between the
+       Software and the Other FOSS in either direction, the use and/or
+       distribution of the Software with the Other FOSS shall not be
+       deemed to require that the Other FOSS be licensed under the license
+       of the Software, other than as to any Interfaces of the Software
+       copied into the Other FOSS. This includes, by way of example and
+       without limitation, statically or dynamically linking the Software
+       together with Other FOSS after enabling interoperability using the
+       Interfaces of one or both, and distributing the resulting
+       combination under different licenses for the respective portions
+       thereof. For avoidance of doubt, a license which is OSI-approved or
+       categorized by the FSF as free, includes, for the purpose of this
+       permission, such licenses with additional permissions, and any
+       license that has previously been so approved or categorized as
+       free, even if now deprecated or otherwise no longer recognized as
+       approved or free. Nothing in this additional permission grants any
+       right to distribute any portion of the Software on terms other than
+       those of the Software License or grants any additional permission
+       of any kind for use or distribution of the Software in conjunction
+       with software other than Other FOSS.
 
    ======================================================================
    ======================================================================
@@ -422,43 +477,103 @@ Licenses for Third-Party Components
    may be included with this product. We are thankful to all individuals
    that have created these.
 
-ANTLR 3.3
+Bouncy Castle
 
-ANTLR 3.3
+The Bouncy Castle Cryptographic C# API
 
-ANTLR 3.3 License
-Copyright (c) 2010 Terence Parr
-All rights reserved.
+The Bouncy Castle License
+Copyright (c) 2000-2018 The Legion of the Bouncy Castle Inc.
+(https://www.bouncycastle.org)
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sub license, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+   ======================================================================
+   ======================================================================
+
+Google Protocol Buffers
+
+Copyright 2008 Google Inc.  All rights reserved.
+
 Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+modification, are permitted provided that the following conditions are
+met:
 
-Redistributions of source code must retain the above copyright notice, this
-list of conditions and the following disclaimer.
-Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided with the distribution.
-Neither the name of the author nor the names of its contributors may be used
-to endorse or promote products derived from this software without specific
-prior written permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Code generated by the Protocol Buffer compiler is owned by the owner
+of the input file used when generating it.  This code is not
+standalone and requires a support library to be linked with it.  This
+support library is itself covered by the above license.
 
    ======================================================================
    ======================================================================
 
-Bouncy Castle 1.7
+K4os.Compression.LZ4.Streams
 
-Copyright (c) 2000 - 2011 The Legion Of The Bouncy Castle
-(http://www.bouncycastle.org)
+LICENSE file:
+========
+MIT License
+
+Copyright (c) 2017 Milosz Krajewski
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+------------------------------------------------------------------------------
+4th party dependency
+(https://github.com/MiloszKrajewski/K4os.Hash.xxHash/archive/master.zip):
+LICENSE File (same copyright):
+
+MIT License
+
+Copyright (c) 2017 Milosz Krajewski
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -481,304 +596,66 @@ SOFTWARE.
    ======================================================================
    ======================================================================
 
-Google Protocol Buffers
+ZstdNet and Zstandard
 
-Copyright 2014, Google Inc.
-All rights reserved.
+For ZstdNet software
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the
-following conditions are met:
-
-    * Redistributions of source code must retain the above copyright notice,
-this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-notice, this list of conditions and the following disclaimer in the
-documentation and/or other materials provided with the distribution.
-    * Neither the name of Google Inc. nor the names of its contributors may
-be used to endorse or promote products derived from this software without
-specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-Code generated by the Protocol Buffer compiler is owned by the owner  of the
-input file used when generating it.  This code is not standalone and requires
-a support library to be linked with it.  This support library is itself
-covered by the above license.
-
-   ======================================================================
-   ======================================================================
-
-Google Protocol Buffers - C# Port -
-
-Protocol Buffers - Google's data interchange format
-
-Copyright 2008-2010 Google Inc.  All rights reserved.
-  http://github.com/jskeet/dotnet-protobufs/
-
-Original C++/Java/Python code:
-  http://code.google.com/p/protobuf/
+Copyright (c) 2016-present, SKB Kontur. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
+modification,
+are permitted provided that the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer
-      in the documentation and/or other materials provided with the
-      distribution.
-    * Neither the name of Google Inc. nor the names of its contributors
-      may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+ * Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
 
-   ======================================================================
-   ======================================================================
+ * Neither the name SKB Kontur nor the names of its contributors may be used to
+   endorse or promote products derived from this software without specific
+   prior written permission.
 
-Json.NET (Newtonsoft.Json)
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Copyright (c) 2007 James Newton-King
+For Zstandard software
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-   ======================================================================
-   ======================================================================
-
-RFC 3174 - US Secure Hash Algorithm 1 (SHA1)
-
-RFC 3174 - US Secure Hash Algorithm 1 (SHA1)
-
-Copyright (C) The Internet Society (2001).  All Rights Reserved.
-
-This document and translations of it may be copied and furnished to
-others, and derivative works that comment on or otherwise explain it
-or assist in its implementation may be prepared, copied, published
-and distributed, in whole or in part, without restriction of any
-kind, provided that the above copyright notice and this paragraph are
-included on all such copies and derivative works.  However, this
-document itself may not be modified in any way, such as by removing
-the copyright notice or references to the Internet Society or other
-Internet organizations, except as needed for the purpose of
-developing Internet standards in which case the procedures for
-copyrights defined in the Internet Standards process must be
-followed, or as required to translate it into languages other than
-English.
-
-The limited permissions granted above are perpetual and will not be
-revoked by the Internet Society or its successors or assigns.
-
-This document and the information contained herein is provided on an
-"AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
-TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
-BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
-HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
-MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
-
-Acknowledgement
-Funding for the RFC Editor function is currently provided by the
-Internet Society.
-
-   ======================================================================
-   ======================================================================
-
-ScintillaNET
-
-ScintillaNET
-
-ScintillaNET is based on the Scintilla component by Neil Hodgson.
-
-ScintillaNET is released on this same license.
-
-The ScintillaNET bindings are Copyright 2002-2006 by Garrett Serack
-<gserack@gmail.com>
-
-All Rights Reserved
-
-Permission to use, copy, modify, and distribute this software and its
-documentation for any purpose and without fee is hereby granted, provided
-that the above copyright notice appear in all copies and that both that
-copyright notice and this permission notice appear in supporting
-documentation.
-
-GARRETT SERACK AND ALL EMPLOYERS PAST AND PRESENT DISCLAIM ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL GARRETT SERACK AND ALL
-EMPLOYERS PAST AND PRESENT BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
-OF THIS SOFTWARE.
-
-The license for Scintilla is as follows:
------------------------------------------------------------------------
-Copyright 1998-2006 by Neil Hodgson <neilh@scintilla.org>
-
-All Rights Reserved
-
-Permission to use, copy, modify, and distribute this software and its
-documentation for any purpose and without fee is hereby granted, provided
-that the above copyright notice appear in all copies and that both that
-copyright notice and this permission notice appear in supporting
-documentation.
-
-NEIL HODGSON DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
-ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL NEIL
-HODGSON BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
-DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-   ======================================================================
-   ======================================================================
-
-SSH.NET Library
-
-Copyright (c) 2010, RENCI
-All rights reserved.
+Copyright (c) 2016-present, Facebook, Inc. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
-* Redistributions of source code must retain the above copyright notice, this
-list of conditions and the following disclaimer.
+ * Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
 
-* Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation
-and/or other materials provided with the distribution.
+ * Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
 
-* Neither the name of RENCI nor the names of its contributors may be used to
-endorse or promote products derived from this software without specific prior
-written permission.
+ * Neither the name Facebook nor the names of its contributors may be used to
+   endorse or promote products derived from this software without specific
+   prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-
-   ======================================================================
-   ======================================================================
-
-zlib
-
-Oracle gratefully acknowledges the contributions of Jean-loup Gailly
-and Mark Adler in creating the zlib general purpose compression
-library which is used in this product.
-
-Copyright (C) 1995-2022 Jean-loup Gailly and Mark Adler
-
-  This software is provided 'as-is', without any express or implied
-  warranty.  In no event will the authors be held liable for any damages
-  arising from the use of this software.
-
-  Permission is granted to anyone to use this software for any purpose,
-  including commercial applications, and to alter it and redistribute it
-  freely, subject to the following restrictions:
-
-  1. The origin of this software must not be misrepresented; you must not
-     claim that you wrote the original software. If you use this software
-     in a product, an acknowledgment in the product documentation would be
-     appreciated but is not required.
-  2. Altered source versions must be plainly marked as such, and must not be
-     misrepresented as being the original software.
-  3. This notice may not be removed or altered from any source distribution.
-
-  Jean-loup Gailly        Mark Adler
-  jloup@gzip.org          madler@alumni.caltech.edu
-
-If you use the zlib library in a product, we would appreciate *not* receiving
-lengthy legal documents to sign.  The sources are provided for free but without
-warranty of any kind.  The library has been entirely written by Jean-loup
-Gailly and Mark Adler; it does not include third-party code.
-
-If you redistribute modified sources, we would appreciate that you include in
-the file ChangeLog history information documenting your changes.  Please read
-the FAQ for more information on the distribution of modified source versions.
-
-   ======================================================================
-   ======================================================================
-
-ZLIB.NET
-
-ZLIB.NET
-
-Copyright (c) 2006-2007, ComponentAce
-http://www.componentace.com
-All rights reserved.
-
-Redistribution and use in source and binary forms,
-with or without modification, are permitted provided
-that the following conditions are met:
-
-* Redistributions of source code must retain the
-  above copyright notice, this list of conditions and
-  the following disclaimer.
-* Redistributions in binary form must reproduce the
-  above copyright notice, this list of conditions and
-  the following disclaimer in the documentation and/or
-  other materials provided with the distribution.
-* Neither the name of ComponentAce nor the names of its
-  contributors may be used to endorse or promote products
-  derived from this software without specific prior written
-  permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
-CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
    ======================================================================
    ======================================================================
@@ -830,4 +707,3 @@ Written Offer for Source Code
 
     b. in the case of code licensed under the GPL v3 for as long as Oracle
        offers spare parts or customer support for that product model.
-
