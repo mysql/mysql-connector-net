@@ -15,6 +15,7 @@
 - Fixed a bug that prevented the return of the correct LastInsertedId when executing multiple insert statements in one command (MySQL Bug #97061, Oracle Bug #30365157).
 - Fixed a bug that returned an unexpected value when getting an integer from a TINYINT column (MySQL Bug #99091, Oracle Bug #31087580).
 - Fixed a bug that prevented the correct behavior of Parameters with Output Direction in text commands (MySQL Bug #75267, Oracle Bug #20259756).
+- Fixed a bug that prevented authentication when using the OCI authentication plugin (MySQL Bug #109256, Oracle Bug #34851463).
 
 
 8.0.31
