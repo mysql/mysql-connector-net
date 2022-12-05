@@ -120,7 +120,7 @@ namespace MySql.Data.MySqlClient.Authentication
     protected virtual void AuthenticationFailed(MySqlException ex)
     {
       string msg = String.Format(Resources.AuthenticationFailed, Settings.Server, GetUsername(), PluginName, ex.Message);
-      throw new MySqlException(msg,ex.Number, ex);
+      throw new MySqlException(msg, ex.Number, ex);
     }
 
     /// <summary>
@@ -243,7 +243,9 @@ namespace MySql.Data.MySqlClient.Authentication
       byte b = packet.ReadByte();
       Debug.Assert(b == 0x02);
 
-      NextPlugin(packet).ContinueAuthentication();
+      var nextPlugin = NextPlugin(packet);
+      nextPlugin.CheckConstraints();
+      nextPlugin.ContinueAuthentication();
     }
 
     private void HandleAuthChange(MySqlPacket packet)
@@ -251,7 +253,9 @@ namespace MySql.Data.MySqlClient.Authentication
       byte b = packet.ReadByte();
       Debug.Assert(b == 0xfe);
 
-      NextPlugin(packet).ContinueAuthentication();
+      var nextPlugin = NextPlugin(packet);
+      nextPlugin.CheckConstraints();
+      nextPlugin.ContinueAuthentication();
     }
 
     private MySqlAuthenticationPlugin NextPlugin(MySqlPacket packet)
