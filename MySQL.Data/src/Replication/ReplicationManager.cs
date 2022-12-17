@@ -1,4 +1,4 @@
-// Copyright © 2014, 2020, Oracle and/or its affiliates.
+// Copyright (c) 2014, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,9 +29,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
-using MySql.Data.MySqlClient;
+using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace MySql.Data.MySqlClient.Replication
@@ -73,7 +72,7 @@ namespace MySql.Data.MySqlClient.Replication
     /// <returns>Replication Server Group added</returns>
     internal static ReplicationServerGroup AddGroup(string name, int retryTime)
     {
-      return AddGroup( name, null, retryTime);
+      return AddGroup(name, null, retryTime);
     }
 
     /// <summary>
@@ -142,56 +141,59 @@ namespace MySql.Data.MySqlClient.Replication
     /// <param name="groupName">Group name</param>
     /// <param name="source">True if the server connection to assign must be a source</param>
     /// <param name="connection">MySqlConnection object where the new driver will be assigned</param>
-    internal static void GetNewConnection(string groupName, bool source, MySqlConnection connection)
+    internal static async Task GetNewConnectionAsync(string groupName, bool source, MySqlConnection connection, bool execAsync, CancellationToken cancellationToken)
     {
       do
       {
-        lock (thisLock)
+        SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
+        semaphoreSlim.Wait();
+
+        if (!IsReplicationGroup(groupName)) return;
+
+        ReplicationServerGroup group = GetGroup(groupName);
+        ReplicationServer server = group.GetServer(source, connection.Settings);
+
+        if (server == null)
+          throw new MySqlException(Resources.Replication_NoAvailableServer);
+
+        try
         {
-          if (!IsReplicationGroup(groupName)) return;
-
-          ReplicationServerGroup group = GetGroup(groupName);
-          ReplicationServer server = group.GetServer(source, connection.Settings);
-
-          if (server == null)
-            throw new MySqlException(Resources.Replication_NoAvailableServer);
-
-          try
+          bool isNewServer = false;
+          if (connection.driver == null || !connection.driver.IsOpen)
           {
-            bool isNewServer = false;
-            if (connection.driver == null || !connection.driver.IsOpen)
+            isNewServer = true;
+          }
+          else
+          {
+            MySqlConnectionStringBuilder msb = new MySqlConnectionStringBuilder(server.ConnectionString);
+            if (!msb.Equals(connection.driver.Settings))
             {
               isNewServer = true;
             }
-            else
-            { 
-              MySqlConnectionStringBuilder msb = new MySqlConnectionStringBuilder(server.ConnectionString);
-              if (!msb.Equals(connection.driver.Settings))
-              {
-                isNewServer = true;
-              }
-            }
-            if (isNewServer)
-            {
-              Driver driver = Driver.Create(new MySqlConnectionStringBuilder(server.ConnectionString));
-              connection.driver = driver;
-            }
-            return;
           }
-          catch (MySqlException ex)
+          if (isNewServer)
           {
-            connection.driver = null;
-            server.IsAvailable = false;
-            MySqlTrace.LogError(ex.Number, ex.ToString());
-            if (ex.Number == 1042)
-            {
-              // retry to open a failed connection and update its status
-              group.HandleFailover(server, ex);
-            }
-            else
-              throw;
+            Driver driver = await Driver.CreateAsync(new MySqlConnectionStringBuilder(server.ConnectionString), execAsync, cancellationToken).ConfigureAwait(false);
+            connection.driver = driver;
           }
+          return;
         }
+        catch (MySqlException ex)
+        {
+          connection.driver = null;
+          server.IsAvailable = false;
+          MySqlTrace.LogError(ex.Number, ex.ToString());
+          if (ex.Number == 1042)
+          {
+            // retry to open a failed connection and update its status
+            group.HandleFailover(server, ex);
+          }
+          else
+            throw;
+        }
+
+        semaphoreSlim.Release();
+
       } while (true);
     }
   }

@@ -1,4 +1,4 @@
-// Copyright (c) 2012, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2012, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,6 +29,7 @@
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
@@ -52,12 +53,12 @@ namespace MySql.Data.MySqlClient.Authentication
         base.SetAuthData(data);
     }
 
-    protected override byte[] MoreData(byte[] data)
+    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
     {
       byte[] passBytes = (GetPassword() ?? new byte[1]) as byte[];
       byte[] buffer = new byte[passBytes.Length - 1];
       Array.Copy(passBytes, 1, buffer, 0, passBytes.Length - 1);
-      return buffer;
+      return Task.FromResult<byte[]>(buffer);
     }
 
     public override object GetPassword()

@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
@@ -71,7 +72,7 @@ namespace MySql.Data.MySqlClient.Authentication
       base.SetAuthData(data);
     }
 
-    protected override byte[] MoreData(byte[] data)
+    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
     {
       Dictionary<string, Dictionary<string, string>> profiles = LoadOciConfigProfiles();
       GetOciConfigValues(profiles, out string keyFilePath, out string fingerprint, out string securityTokenFilePath);
@@ -79,7 +80,7 @@ namespace MySql.Data.MySqlClient.Authentication
       string securityToken = LoadSecurityToken(securityTokenFilePath);
       byte[] response = BuildResponse(fingerprint, signedToken, securityToken);
 
-      return response;
+      return Task.FromResult<byte[]>(response);
     }
 
     /// <summary>

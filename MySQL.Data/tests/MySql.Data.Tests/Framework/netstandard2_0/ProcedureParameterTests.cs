@@ -243,7 +243,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       string charset = Version < new Version(8, 0) ? "utf8" : "utf8mb3";
 
-      ExecuteSQL($@"CREATE  PROCEDURE ProcedureParameters4 (name VARCHAR(1200) 
+      ExecuteSQL($@"CREATE PROCEDURE ProcedureParameters4 (name VARCHAR(1200) 
           CHARACTER /* hello*/ SET {charset}) BEGIN SELECT name; END");
 
       string[] restrictions = new string[5];

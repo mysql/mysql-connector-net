@@ -142,7 +142,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           await dbConn.OpenAsync();
           await cmd.ExecuteNonQueryAsync();
-          await dbConn.ChangeDataBaseAsync(Settings.Database);
+          await dbConn.ChangeDatabaseAsync(Settings.Database);
           await dbConn.CloseAsync();
         }
       }

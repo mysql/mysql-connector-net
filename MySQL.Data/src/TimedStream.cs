@@ -1,4 +1,4 @@
-// Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2009, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,6 +29,8 @@
 using MySql.Data.Common;
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -38,7 +40,6 @@ namespace MySql.Data.MySqlClient
   /// typical operation involves several network reads/writes. 
   /// Timeout here is defined as the accumulated duration of all IO operations.
   /// </summary>
-
   internal class TimedStream : Stream
   {
     readonly Stream _baseStream;
@@ -68,7 +69,6 @@ namespace MySql.Data.MySqlClient
       _stopwatch = new LowResolutionStopwatch();
     }
 
-
     /// <summary>
     /// Figure out whether it is necessary to reset timeout on stream.
     /// We track the current value of timeout and try to avoid
@@ -78,24 +78,24 @@ namespace MySql.Data.MySqlClient
     /// reset timeout if current value is slightly greater than the requested
     /// one (within 0.1 second).
     /// </summary>
-
     private bool ShouldResetStreamTimeout(int currentValue, int newValue)
     {
       if (!_baseStream.CanTimeout) return false;
-      if (newValue == System.Threading.Timeout.Infinite
+      if (newValue == Timeout.Infinite
           && currentValue != newValue)
         return true;
       if (newValue > currentValue)
         return true;
       return currentValue >= newValue + 100;
     }
+
     private void StartTimer(IOKind op)
     {
 
       int streamTimeout;
 
-      if (_timeout == System.Threading.Timeout.Infinite)
-        streamTimeout = System.Threading.Timeout.Infinite;
+      if (_timeout == Timeout.Infinite)
+        streamTimeout = Timeout.Infinite;
       else
         streamTimeout = _timeout - (int)_stopwatch.ElapsedMilliseconds;
 
@@ -116,14 +116,15 @@ namespace MySql.Data.MySqlClient
         }
       }
 
-      if (_timeout == System.Threading.Timeout.Infinite)
+      if (_timeout == Timeout.Infinite)
         return;
 
       _stopwatch.Start();
     }
+
     private void StopTimer()
     {
-      if (_timeout == System.Threading.Timeout.Infinite)
+      if (_timeout == Timeout.Infinite)
         return;
 
       _stopwatch.Stop();
@@ -135,22 +136,30 @@ namespace MySql.Data.MySqlClient
       // even after IO completed successfully.
       if (_stopwatch.ElapsedMilliseconds > _timeout)
       {
-        ResetTimeout(System.Threading.Timeout.Infinite);
+        ResetTimeout(Timeout.Infinite);
         throw new TimeoutException("Timeout in IO operation");
       }
     }
+
     public override bool CanRead => _baseStream.CanRead;
 
     public override bool CanSeek => _baseStream.CanSeek;
 
     public override bool CanWrite => _baseStream.CanWrite;
 
-    public override void Flush()
+    public override void Flush() => FlushAsync(false).GetAwaiter().GetResult();
+
+    public override Task FlushAsync(CancellationToken cancellationToken = default) => FlushAsync(true);
+
+    private async Task FlushAsync(bool execAsync)
     {
       try
       {
         StartTimer(IOKind.Write);
-        _baseStream.Flush();
+        if (execAsync)
+          await _baseStream.FlushAsync(CancellationToken.None).ConfigureAwait(false);
+        else
+          _baseStream.Flush();
         StopTimer();
       }
       catch (Exception e)
@@ -174,12 +183,18 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public override int Read(byte[] buffer, int offset, int count)
+    public override int Read(byte[] buffer, int offset, int count) => ReadAsync(buffer, offset, count, false).GetAwaiter().GetResult();
+
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => ReadAsync(buffer, offset, count, true);
+
+    private async Task<int> ReadAsync(byte[] buffer, int offset, int count, bool execAsync)
     {
       try
       {
         StartTimer(IOKind.Read);
-        int retval = _baseStream.Read(buffer, offset, count);
+        int retval = execAsync
+          ? await _baseStream.ReadAsync(buffer, offset, count).ConfigureAwait(false)
+          : _baseStream.Read(buffer, offset, count);
         StopTimer();
         return retval;
       }
@@ -216,12 +231,19 @@ namespace MySql.Data.MySqlClient
       _baseStream.SetLength(value);
     }
 
-    public override void Write(byte[] buffer, int offset, int count)
+    public override void Write(byte[] buffer, int offset, int count) => WriteAsync(buffer, offset, count, false).GetAwaiter().GetResult();
+
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => WriteAsync(buffer, offset, count, true);
+
+    private async Task WriteAsync(byte[] buffer, int offset, int count, bool execAsync)
     {
       try
       {
         StartTimer(IOKind.Write);
-        _baseStream.Write(buffer, offset, count);
+        if (execAsync)
+          await _baseStream.WriteAsync(buffer, offset, count).ConfigureAwait(false);
+        else
+          _baseStream.Write(buffer, offset, count);
         StopTimer();
       }
       catch (Exception e)
@@ -238,6 +260,7 @@ namespace MySql.Data.MySqlClient
       get { return _baseStream.ReadTimeout; }
       set { _baseStream.ReadTimeout = value; }
     }
+
     public override int WriteTimeout
     {
       get { return _baseStream.WriteTimeout; }
@@ -255,13 +278,12 @@ namespace MySql.Data.MySqlClient
 
     public void ResetTimeout(int newTimeout)
     {
-      if (newTimeout == System.Threading.Timeout.Infinite || newTimeout == 0)
-        _timeout = System.Threading.Timeout.Infinite;
+      if (newTimeout == Timeout.Infinite || newTimeout == 0)
+        _timeout = Timeout.Infinite;
       else
         _timeout = newTimeout;
       _stopwatch.Reset();
     }
-
 
     /// <summary>
     /// Common handler for IO exceptions.

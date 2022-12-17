@@ -29,6 +29,7 @@
 using MySql.Data.Types;
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -191,10 +192,10 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Serialize the value of the query attribute.
     /// </summary>
-    internal void Serialize(MySqlPacket packet, bool binary, MySqlConnectionStringBuilder settings)
+    internal async Task SerializeAsync(MySqlPacket packet, bool binary, MySqlConnectionStringBuilder settings, bool execAsync)
     {
       if (!binary && (_attributeValue == null || _attributeValue == DBNull.Value))
-        packet.WriteStringNoNull("NULL");
+        await packet.WriteStringNoNullAsync("NULL", execAsync).ConfigureAwait(false);
       else
       {
         if (ValueObject.MySqlDbType == MySqlDbType.Guid)
@@ -212,7 +213,7 @@ namespace MySql.Data.MySqlClient
           }
           ValueObject = v;
         }
-        ValueObject.WriteValue(packet, binary, _attributeValue, _size);
+        await ValueObject.WriteValueAsync(packet, binary, _attributeValue, _size, execAsync).ConfigureAwait(false);
       }
     }
 

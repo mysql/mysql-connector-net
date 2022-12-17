@@ -49,7 +49,6 @@ using System.Threading;
 
 namespace MySqlX.Sessions
 {
-
   /// <summary>
   /// Implementation class of InternalSession to manage connections using the Xprotocol type object.
   /// </summary>
@@ -85,14 +84,15 @@ namespace MySqlX.Sessions
     {
       bool isUnix = Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix ||
         Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket;
-      _stream = MyNetworkStream.CreateStream(
+
+      _stream = MyNetworkStream.CreateStreamAsync(
         Settings.Server == "127.0.0.1" || Settings.Server == "::1"
             ? "localhost"
             : Settings.Server,
         Settings.ConnectTimeout,
         Settings.Keepalive,
         Settings.Port,
-        isUnix);
+        isUnix, false).GetAwaiter().GetResult();
       _myNetworkStream = (MyNetworkStream)_stream;
       if (_stream == null)
         throw new MySqlException(ResourcesX.UnableToConnect);
@@ -119,7 +119,7 @@ namespace MySqlX.Sessions
       {
         if (_serverSupportsTls)
         {
-          new Ssl(
+          var result = new Ssl(
               Settings.Server,
               Settings.SslMode,
               Settings.CertificateFile,
@@ -131,7 +131,9 @@ namespace MySqlX.Sessions
               Settings.SslKey,
               Settings.TlsVersion,
               Settings.ConnectTimeout)
-              .StartSSL(ref _stream, encoding, Settings.ToString());
+              .StartSSLAsync(_stream, encoding, Settings.ToString(), CancellationToken.None, false).GetAwaiter().GetResult();
+
+          _stream = result.Item2;
 
           if (_readerCompressionController != null && _readerCompressionController.IsCompressionEnabled)
           {

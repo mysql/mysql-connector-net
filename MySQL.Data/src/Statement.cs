@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,6 +34,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -76,20 +77,19 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-    public virtual void Close(MySqlDataReader reader)
-    {
-    }
+    public virtual void Close(MySqlDataReader reader) { }
 
     public virtual void Resolve(bool preparing)
     {
-      if (ResolvedCommandText != null && Parameters.Count == 0) return;
-      if (command.InternallyCreated) return;
-      ServerProvidingOutputParameters = Driver.SupportsOutputParameters && preparing;
-      if (Parameters.Cast<MySqlParameter>().Where(x => x.Direction == ParameterDirection.Output).Any())
+      if (!command.InternallyCreated || !(ResolvedCommandText != null && Parameters.Count == 0))
       {
-        string setSql = SetSql(Parameters, preparing);
-        string outSql = CreateOutputSelect(Parameters, preparing);
-        commandText = String.Format("{0}{1}", setSql, outSql);
+        ServerProvidingOutputParameters = Driver.SupportsOutputParameters && preparing;
+        if (Parameters.Cast<MySqlParameter>().Where(x => x.Direction == ParameterDirection.Output).Any())
+        {
+          string setSql = SetSql(Parameters, preparing);
+          string outSql = CreateOutputSelect(Parameters, preparing);
+          commandText = String.Format("{0}{1}", setSql, outSql);
+        }
       }
     }
 
@@ -111,6 +111,7 @@ namespace MySql.Data.MySqlClient
     {
       StringBuilder outputSql = new StringBuilder();
       string delimiter = string.Empty;
+
       foreach (MySqlParameter p in parms)
       {
         if (p.Direction == ParameterDirection.Output)
@@ -120,7 +121,9 @@ namespace MySql.Data.MySqlClient
           delimiter = ", ";
         }
       }
+
       if (outputSql.Length == 0) return String.Empty;
+
       else if (command.Connection.Settings.AllowBatch && !preparing)
         return String.Format("; SELECT {0}", outputSql.ToString());
       else
@@ -130,25 +133,25 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public virtual void Execute()
+    public virtual async Task ExecuteAsync(bool execAsync)
     {
       // we keep a reference to this until we are done
-      BindParameters();
-      ExecuteNext();
+      await BindParametersAsync(execAsync).ConfigureAwait(false);
+      await ExecuteNextAsync(execAsync).ConfigureAwait(false);
     }
 
-    public virtual bool ExecuteNext()
+    public virtual async Task<bool> ExecuteNextAsync(bool execAsync)
     {
       if (_buffers.Count == 0)
         return false;
 
       MySqlPacket packet = _buffers[0];
-      Driver.SendQuery(packet, paramsPosition);
+      await Driver.SendQueryAsync(packet, paramsPosition, execAsync).ConfigureAwait(false);
       _buffers.RemoveAt(0);
       return true;
     }
 
-    protected virtual void BindParameters()
+    protected async Task BindParametersAsync(bool execAsync)
     {
       MySqlParameterCollection parameters = command.Parameters;
       MySqlAttributeCollection attributes = command.Attributes;
@@ -156,8 +159,8 @@ namespace MySql.Data.MySqlClient
 
       while (true)
       {
-        MySqlPacket packet = BuildQueryAttributesPacket(attributes);
-        InternalBindParameters(ResolvedCommandText, parameters, packet);
+        MySqlPacket packet = await BuildQueryAttributesPacketAsync(attributes, execAsync).ConfigureAwait(false);
+        await InternalBindParametersAsync(ResolvedCommandText, parameters, packet, execAsync).ConfigureAwait(false);
 
         // if we are not batching, then we are done.  This is only really relevant the
         // first time through
@@ -180,10 +183,11 @@ namespace MySql.Data.MySqlClient
           // and attempt to stream the next command
           string text = ResolvedCommandText;
           if (text.StartsWith("(", StringComparison.Ordinal))
-            packet.WriteStringNoNull(", ");
+            await packet.WriteStringNoNullAsync(", ", execAsync).ConfigureAwait(false);
           else
-            packet.WriteStringNoNull("; ");
-          InternalBindParameters(text, batchedCmd.Parameters, packet);
+            await packet.WriteStringNoNullAsync("; ", execAsync).ConfigureAwait(false);
+
+          await InternalBindParametersAsync(text, batchedCmd.Parameters, packet, execAsync).ConfigureAwait(false);
           if ((packet.Length - 4) > Connection.driver.MaxPacketSize)
           {
             //TODO
@@ -202,7 +206,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <param name="attributes">Collection of attributes</param>
     /// <returns>A <see cref="MySqlPacket"/></returns>
-    private MySqlPacket BuildQueryAttributesPacket(MySqlAttributeCollection attributes)
+    private async Task<MySqlPacket> BuildQueryAttributesPacketAsync(MySqlAttributeCollection attributes, bool execAsync)
     {
       MySqlPacket packet;
       packet = new MySqlPacket(Driver.Encoding) { Version = Driver.Version };
@@ -213,7 +217,7 @@ namespace MySql.Data.MySqlClient
       else if (Driver.SupportsQueryAttributes)
       {
         int paramCount = attributes.Count;
-        packet.WriteLength(paramCount); // int<lenenc> parameter_count - Number of parameters
+        await packet.WriteLengthAsync(paramCount, execAsync).ConfigureAwait(false); // int<lenenc> parameter_count - Number of parameters
         packet.WriteByte(1); // int<lenenc> parameter_set_count - Number of parameter sets. Currently always 1
 
         if (paramCount > 0)
@@ -228,8 +232,8 @@ namespace MySql.Data.MySqlClient
           // set type and name for each attribute
           foreach (MySqlAttribute attribute in attributes)
           {
-            packet.WriteInteger(attribute.GetPSType(), 2);
-            packet.WriteLenString(attribute.AttributeName);
+            await packet.WriteIntegerAsync(attribute.GetPSType(), 2, execAsync).ConfigureAwait(false);
+            await packet.WriteLenStringAsync(attribute.AttributeName, execAsync).ConfigureAwait(false);
           }
 
           // set value for each attribute
@@ -238,7 +242,7 @@ namespace MySql.Data.MySqlClient
             MySqlAttribute attr = attributes[i];
             _nullMap[i] = (attr.Value == DBNull.Value || attr.Value == null);
             if (_nullMap[i]) continue;
-            attr.Serialize(packet, true, Connection.Settings);
+            await attr.SerializeAsync(packet, true, Connection.Settings, execAsync).ConfigureAwait(false);
           }
 
           byte[] tempByteArray = new byte[(_nullMap.Length + 7) >> 3];
@@ -252,7 +256,7 @@ namespace MySql.Data.MySqlClient
       return packet;
     }
 
-    private void InternalBindParameters(string sql, MySqlParameterCollection parameters, MySqlPacket packet)
+    private async Task InternalBindParametersAsync(string sql, MySqlParameterCollection parameters, MySqlPacket packet, bool execAsync)
     {
       bool sqlServerMode = command.Connection.Settings.SqlServerMode;
 
@@ -268,7 +272,7 @@ namespace MySql.Data.MySqlClient
       while (token != null)
       {
         // serialize everything that came before the token (i.e. whitespace)
-        packet.WriteStringNoNull(sql.Substring(pos, tokenizer.StartIndex - pos));
+        await packet.WriteStringNoNullAsync(sql.Substring(pos, tokenizer.StartIndex - pos), execAsync).ConfigureAwait(false);
         pos = tokenizer.StopIndex;
 
         if (MySqlTokenizer.IsParameter(token))
@@ -277,7 +281,7 @@ namespace MySql.Data.MySqlClient
             throw new MySqlException(Resources.MixedParameterNamingNotAllowed);
 
           parameters.containsUnnamedParameters = token.Length == 1;
-          if (SerializeParameter(parameters, packet, token, parameterCount))
+          if (await SerializeParameterAsync(parameters, packet, token, parameterCount, execAsync).ConfigureAwait(false))
             token = null;
           parameterCount++;
         }
@@ -286,7 +290,8 @@ namespace MySql.Data.MySqlClient
         {
           if (sqlServerMode && tokenizer.Quoted && token.StartsWith("[", StringComparison.Ordinal))
             token = String.Format("`{0}`", token.Substring(1, token.Length - 2));
-          packet.WriteStringNoNull(token);
+
+          await packet.WriteStringNoNullAsync(token, execAsync).ConfigureAwait(false);
         }
         token = tokenizer.NextToken();
       }
@@ -314,8 +319,7 @@ namespace MySql.Data.MySqlClient
     /// </para>
     /// </remarks>
     /// <returns>True if the parameter was successfully serialized, false otherwise.</returns>
-    private bool SerializeParameter(MySqlParameterCollection parameters,
-                                    MySqlPacket packet, string parmName, int parameterIndex)
+    private async Task<bool> SerializeParameterAsync(MySqlParameterCollection parameters, MySqlPacket packet, string parmName, int parameterIndex, bool execAsync)
     {
       MySqlParameter parameter = null;
 
@@ -338,7 +342,8 @@ namespace MySql.Data.MySqlClient
         throw new MySqlException(
             String.Format(Resources.ParameterMustBeDefined, parmName));
       }
-      parameter.Serialize(packet, false, Connection.Settings);
+
+      await parameter.SerializeAsync(packet, false, Connection.Settings, execAsync).ConfigureAwait(false);
       return true;
     }
   }

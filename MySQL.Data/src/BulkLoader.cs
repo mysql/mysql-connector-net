@@ -180,15 +180,37 @@ namespace MySql.Data.MySqlClient
       if (string.IsNullOrWhiteSpace(FileName))
         throw new MySqlException("FileName property of MySqlBulkLoader cannot be null or an empty string.");
 
-      return Load(null);
+      return LoadAsync(null, false).GetAwaiter().GetResult();
     }
 
     /// <summary>
     /// Executes the load operation.
     /// </summary>
+    /// <param name="stream">A <see cref="Stream"/> object containing the data to be loaded.</param>
+    /// <returns>The number of rows inserted.</returns>
+    public int Load(Stream stream) => LoadAsync(stream, false).GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Asynchronous version of the load operation.
+    /// </summary>
+    /// <returns>The number of rows inserted.</returns>
+    public Task<int> LoadAsync() => LoadAsync(null, true);
+
+    /// <summary>
+    /// Asynchronous version of the load operation that accepts a data stream.
+    /// </summary>
     /// <param name="stream">A <see cref="Stream"/> containing the data to be loaded.</param>
     /// <returns>The number of rows inserted.</returns>
-    public int Load(Stream stream)
+    public Task<int> LoadAsync(Stream stream) => LoadAsync(stream, true);
+
+    /// <summary>
+    /// Executes the load operation asynchronously while the cancellation isn't requested.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows inserted.</returns>
+    public Task<int> LoadAsync(Stream stream, CancellationToken cancellationToken) => LoadAsync(stream, true, cancellationToken);
+
+    private async Task<int> LoadAsync(Stream stream, bool execAsync, CancellationToken cancellationToken = default)
     {
       bool openedConnection = false;
 
@@ -198,7 +220,7 @@ namespace MySql.Data.MySqlClient
       // next we open up the connetion if it is not already open
       if (Connection.State != ConnectionState.Open)
       {
-        Connection.Open();
+        await Connection.OpenAsync(execAsync, cancellationToken).ConfigureAwait(false);
         openedConnection = true;
       }
 
@@ -206,8 +228,8 @@ namespace MySql.Data.MySqlClient
       {
         string sql = BuildSqlCommand(stream is not null);
         Connection.driver.BulkLoaderStream = stream;
-        MySqlCommand cmd = new MySqlCommand(sql, Connection) { CommandTimeout = Timeout };
-        return cmd.ExecuteNonQuery();
+        using MySqlCommand cmd = new MySqlCommand(sql, Connection) { CommandTimeout = Timeout };
+        return await cmd.ExecuteNonQueryAsync(execAsync, cancellationToken).ConfigureAwait(false);
       }
       finally
       {
@@ -215,57 +237,9 @@ namespace MySql.Data.MySqlClient
           Connection.driver.BulkLoaderStream.Dispose();
 
         if (openedConnection)
-          Connection.Close();
+          await Connection.CloseAsync(execAsync).ConfigureAwait(false);
       }
     }
-
-    #region Async
-    /// <summary>
-    /// Asynchronous version of the load operation.
-    /// </summary>
-    /// <returns>The number of rows inserted.</returns>
-    public Task<int> LoadAsync()
-    {
-      return LoadAsync(null, CancellationToken.None);
-    }
-
-    /// <summary>
-    /// Asynchronous version of the load operation.
-    /// </summary>
-    /// <param name="stream">A <see cref="Stream"/> containing the data to be loaded.</param>
-    /// <returns>The number of rows inserted.</returns>
-    public Task<int> LoadAsync(Stream stream)
-    {
-      return LoadAsync(stream, CancellationToken.None);
-    }
-
-    /// <summary>
-    /// Executes the load operation asynchronously while the cancellation isn't requested.
-    /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The number of rows inserted.</returns>
-    public Task<int> LoadAsync(Stream stream, CancellationToken cancellationToken)
-    {
-      var result = new TaskCompletionSource<int>();
-      if (cancellationToken == CancellationToken.None || !cancellationToken.IsCancellationRequested)
-      {
-        try
-        {
-          int loadResult = Load(stream);
-          result.SetResult(loadResult);
-        }
-        catch (Exception ex)
-        {
-          result.SetException(ex);
-        }
-      }
-      else
-      {
-        result.SetCanceled();
-      }
-      return result.Task;
-    }
-    #endregion
 
     private string BuildSqlCommand(bool useStream)
     {

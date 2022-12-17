@@ -29,6 +29,7 @@
 using MySql.Data.MySqlClient;
 using System;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace MySql.Data.Types
 {
@@ -60,7 +61,7 @@ namespace MySql.Data.Types
 
     string IMySqlValue.MySqlTypeName => "TIME";
 
-    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
     {
 #if NET6_0_OR_GREATER
       if (val is TimeOnly)
@@ -81,30 +82,31 @@ namespace MySql.Data.Types
           packet.WriteByte(8);
 
         packet.WriteByte((byte)(negative ? 1 : 0));
-        packet.WriteInteger(ts.Days, 4);
+        await packet.WriteIntegerAsync(ts.Days, 4, execAsync).ConfigureAwait(false);
         packet.WriteByte((byte)ts.Hours);
         packet.WriteByte((byte)ts.Minutes);
         packet.WriteByte((byte)ts.Seconds);
         var microseconds = (int)(ts.Ticks % 10_000_000) / 10;
+
         if (microseconds != 0)
-          packet.WriteInteger(microseconds, 4);
+          await packet.WriteIntegerAsync(microseconds, 4, execAsync).ConfigureAwait(false);
       }
       else
       {
         String s = $"'{(negative ? "-" : "")}{ts.Days} {ts.Hours:00}:{ts.Minutes:00}:{ts.Seconds:00}.{ts.Ticks % 10000000 / 10:000000}'";
 
-        packet.WriteStringNoNull(s);
+        await packet.WriteStringNoNullAsync(s, execAsync).ConfigureAwait(false);
       }
     }
 
 
-    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
     {
       if (nullVal) return new MySqlTimeSpan(true);
 
       if (length >= 0)
       {
-        string value = packet.ReadString(length);
+        string value = await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false);
         ParseMySql(value);
         return this;
       }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,33 +27,43 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
   /// <summary>
-  /// Struct that represents the response OK Packet
+  /// Class that represents the response OK Packet
   /// https://dev.mysql.com/doc/internals/en/packet-OK_Packet.html
   /// </summary>
-  internal struct OkPacket
+  internal class OkPacket
   {
-    internal long AffectedRows { get; }
-    internal long LastInsertId { get; }
-    internal ServerStatusFlags ServerStatusFlags { get; }
-    internal int WarningCount { get; }
-    internal string Info { get; }
-    internal List<SessionTracker> SessionTrackers { get; }
+    internal long AffectedRows { get; private set; }
+    internal long LastInsertId { get; private set; }
+    internal ServerStatusFlags ServerStatusFlags { get; private set; }
+    internal int WarningCount { get; private set; }
+    internal string Info { get; private set; }
+    internal List<SessionTracker> SessionTrackers { get; private set; }
 
     /// <summary>
     /// Creates an instance of the OKPacket object with all of its metadata
     /// </summary>
     /// <param name="packet">The packet to parse</param>
-    internal OkPacket(MySqlPacket packet)
+    public static async Task<OkPacket> CreateAsync(MySqlPacket packet, bool execAsync)
+    {
+      OkPacket okPacket = new OkPacket();
+      await okPacket.InitializeAsync(packet, execAsync).ConfigureAwait(false);
+      return okPacket;
+    }
+
+    private OkPacket() { }
+
+    private async Task InitializeAsync(MySqlPacket packet, bool execAsync)
     {
       AffectedRows = packet.ReadFieldLength(); // affected rows
       LastInsertId = packet.ReadFieldLength(); // last insert-id
       ServerStatusFlags = (ServerStatusFlags)packet.ReadInteger(2); // status flags
       WarningCount = packet.ReadInteger(2); // warning count
-      Info = packet.ReadLenString(); // info
+      Info = await packet.ReadLenStringAsync(execAsync).ConfigureAwait(false); // info
       SessionTrackers = new List<SessionTracker>();
 
       if ((ServerStatusFlags & ServerStatusFlags.SessionStateChanged) != 0)
@@ -72,19 +82,19 @@ namespace MySql.Data.MySqlClient
           switch (type)
           {
             case SessionTrackType.SystemVariables:
-              name = packet.ReadString(packet.ReadByte());
-              value = packet.ReadString(packet.ReadByte());
+              name = await packet.ReadStringAsync(packet.ReadByte(), execAsync).ConfigureAwait(false);
+              value = await packet.ReadStringAsync(packet.ReadByte(), execAsync).ConfigureAwait(false);
               AddTracker(type, name, value);
               break;
             case SessionTrackType.GTIDS:
               packet.ReadByte(); // skip the byte reserved for the encoding specification, see WL#6128 
-              name = packet.ReadString(packet.ReadByte());
+              name = await packet.ReadStringAsync(packet.ReadByte(), execAsync).ConfigureAwait(false);
               AddTracker(type, name, null);
               break;
             case SessionTrackType.Schema:
             case SessionTrackType.TransactionCharacteristics:
             case SessionTrackType.TransactionState:
-              name = packet.ReadString(packet.ReadByte());
+              name = await packet.ReadStringAsync(packet.ReadByte(), execAsync).ConfigureAwait(false);
               AddTracker(type, name, null);
               break;
             case SessionTrackType.StateChange:

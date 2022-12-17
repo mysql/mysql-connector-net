@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,9 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using System;
 using System.Globalization;
-using MySql.Data.MySqlClient;
+using System.Threading.Tasks;
 
 namespace MySql.Data.Types
 {
@@ -58,16 +59,16 @@ namespace MySql.Data.Types
 
     string IMySqlValue.MySqlTypeName => "BIT";
 
-    public void WriteValue(MySqlPacket packet, bool binary, object value, int length)
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object value, int length, bool execAsync)
     {
       ulong v = value as ulong? ?? Convert.ToUInt64(value);
       if (binary)
-        packet.WriteInteger((long)v, 8);
+        await packet.WriteIntegerAsync((long)v, 8, execAsync).ConfigureAwait(false);
       else
-        packet.WriteStringNoNull(v.ToString(CultureInfo.InvariantCulture));
+        await packet.WriteStringNoNullAsync(v.ToString(CultureInfo.InvariantCulture), execAsync).ConfigureAwait(false);
     }
 
-    public IMySqlValue ReadValue(MySqlPacket packet, long length, bool isNull)
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool isNull, bool execAsync)
     {
       this.IsNull = isNull;
       if (isNull)
@@ -77,7 +78,7 @@ namespace MySql.Data.Types
         length = packet.ReadFieldLength();
 
       if (ReadAsString)
-        _value = UInt64.Parse(packet.ReadString(length), CultureInfo.InvariantCulture);
+        _value = UInt64.Parse(await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false), CultureInfo.InvariantCulture);
       else
         _value = (UInt64)packet.ReadBitValue((int)length);
       return this;

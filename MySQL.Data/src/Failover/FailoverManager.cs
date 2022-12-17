@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.Data.Failover
 {
@@ -91,11 +92,10 @@ namespace MySql.Data.Failover
     /// <returns>An <see cref="InternalSession"/> instance if the connection was succesfully established, a <see cref="MySqlException"/> exception is thrown otherwise.</returns>
     internal static InternalSession AttemptConnectionXProtocol(string originalConnectionString, out string connectionString, bool isDefaultPort, Client client = null)
     {
+      connectionString = null;
+
       if (FailoverGroup == null || originalConnectionString == null)
-      {
-        connectionString = null;
         return null;
-      }
 
       if (client != null)
       {
@@ -171,7 +171,7 @@ namespace MySql.Data.Failover
     /// <param name="originalConnectionString">The original connection string set by the user.</param>
     /// <param name="connectionString">An out parameter that stores the updated connection string.</param>
     /// <param name="mySqlPoolManager">A <see cref="MySqlPoolManager"> in case this is a pooling scenario."/></param>
-    internal static void AttemptConnection(MySqlConnection connection, string originalConnectionString, out string connectionString, bool mySqlPoolManager = false)
+    internal static async Task<string> AttemptConnectionAsync(MySqlConnection connection, string originalConnectionString, bool execAsync, CancellationToken cancellationToken, bool mySqlPoolManager = false)
     {
       if (mySqlPoolManager)
         if (MySqlPoolManager.Hosts == null)
@@ -186,11 +186,12 @@ namespace MySql.Data.Failover
       FailoverServer initialHost = currentHost;
       Driver driver = null;
       int attempts = 0;
+      MySqlConnectionStringBuilder msb;
+      string connectionString;
 
       do
       {
         // Attempt to connect to each host by retrieving the next host based on the failover method being used
-        MySqlConnectionStringBuilder msb;
         connectionString = "server=" + currentHost.Host + ";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';') + 1);
         if (currentHost != null && currentHost.Port != -1)
           connectionString += ";port=" + currentHost.Port;
@@ -198,11 +199,11 @@ namespace MySql.Data.Failover
 
         if ((FailoverGroup.Hosts.Count == 1 && !mySqlPoolManager) ||
           (mySqlPoolManager && MySqlPoolManager.Hosts.Count == 1 && MySqlPoolManager.DemotedHosts.IsEmpty))
-          return;
+          return msb.ConnectionString;
 
         try
         {
-          driver = Driver.Create(msb);
+          driver = await Driver.CreateAsync(msb, execAsync, cancellationToken).ConfigureAwait(false);
           if (!mySqlPoolManager)
             connection.driver = driver;
           break;
@@ -233,6 +234,8 @@ namespace MySql.Data.Failover
       // All connection attempts failed.
       if (driver == null)
         throw new MySqlException(Resources.UnableToConnectToHost);
+
+      return msb.ConnectionString;
     }
 
     /// <summary>

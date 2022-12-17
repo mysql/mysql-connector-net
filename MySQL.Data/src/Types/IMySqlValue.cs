@@ -1,4 +1,4 @@
-// Copyright (c) 2004-2008 MySQL AB, 2008-2009 Sun Microsystems, Inc.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,8 +26,9 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using MySql.Data.MySqlClient;
+using System;
+using System.Threading.Tasks;
 
 namespace MySql.Data.Types
 {
@@ -39,8 +40,8 @@ namespace MySql.Data.Types
     Type SystemType { get; }
     string MySqlTypeName { get; }
 
-    void WriteValue(MySqlPacket packet, bool binary, object value, int length);
-    IMySqlValue ReadValue(MySqlPacket packet, long length, bool isNull);
+    Task WriteValueAsync(MySqlPacket packet, bool binary, object value, int length, bool execAsync);
+    Task<IMySqlValue> ReadValueAsync(MySqlPacket packet, long length, bool isNull, bool execAsync);
     void SkipValue(MySqlPacket packet);
   }
 }

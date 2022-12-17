@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,13 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using MySql.Data.MySqlClient;
-
+using System;
+using System.Threading.Tasks;
 
 namespace MySql.Data.Types
 {
-
   internal struct MySqlGuid : IMySqlValue
   {
     public MySqlGuid(byte[] buff)
@@ -61,7 +60,7 @@ namespace MySql.Data.Types
 
     string IMySqlValue.MySqlTypeName => OldGuids ? "BINARY(16)" : "CHAR(36)";
 
-    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
     {
       Guid guid = Guid.Empty;
       string valAsString = val as string;
@@ -85,30 +84,30 @@ namespace MySql.Data.Types
       }
 
       if (OldGuids)
-        WriteOldGuid(packet, guid, binary);
+        await WriteOldGuidAsync(packet, guid, binary, execAsync).ConfigureAwait(false);
       else
       {
         guid.ToString("D");
 
         if (binary)
-          packet.WriteLenString(guid.ToString("D"));
+          await packet.WriteLenStringAsync(guid.ToString("D"), execAsync).ConfigureAwait(false);
         else
-          packet.WriteStringNoNull("'" + MySqlHelper.EscapeString(guid.ToString("D")) + "'");
+          await packet.WriteStringNoNullAsync("'" + MySqlHelper.EscapeString(guid.ToString("D")) + "'", execAsync).ConfigureAwait(false);
       }
     }
 
-    private void WriteOldGuid(MySqlPacket packet, Guid guid, bool binary)
+    private async Task WriteOldGuidAsync(MySqlPacket packet, Guid guid, bool binary, bool execAsync)
     {
       byte[] bytes = guid.ToByteArray();
 
       if (binary)
       {
-        packet.WriteLength(bytes.Length);
-        packet.Write(bytes);
+        await packet.WriteLengthAsync(bytes.Length, execAsync).ConfigureAwait(false);
+        await packet.WriteAsync(bytes, execAsync).ConfigureAwait(false);
       }
       else
       {
-        packet.WriteStringNoNull("_binary ");
+        await packet.WriteStringNoNullAsync("_binary ", execAsync).ConfigureAwait(false);
         packet.WriteByte((byte)'\'');
         EscapeByteArray(bytes, bytes.Length, packet);
         packet.WriteByte((byte)'\'');
@@ -136,19 +135,19 @@ namespace MySql.Data.Types
       }
     }
 
-    private MySqlGuid ReadOldGuid(MySqlPacket packet, long length)
+    private async Task<MySqlGuid> ReadOldGuidAsync(MySqlPacket packet, long length, bool execAsync)
     {
       if (length == -1)
         length = (long)packet.ReadFieldLength();
 
       byte[] buff = new byte[length];
-      packet.Read(buff, 0, (int)length);
+      await packet.ReadAsync(buff, 0, (int)length, execAsync).ConfigureAwait(false);
       MySqlGuid g = new MySqlGuid(buff);
       g.OldGuids = OldGuids;
       return g;
     }
 
-    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
     {
       MySqlGuid g = new MySqlGuid();
       g.IsNull = true;
@@ -156,12 +155,12 @@ namespace MySql.Data.Types
       if (!nullVal)
       {
         if (OldGuids)
-          return ReadOldGuid(packet, length);
+          return await ReadOldGuidAsync(packet, length, execAsync).ConfigureAwait(false);
         string s = String.Empty;
         if (length == -1)
-          s = packet.ReadLenString();
+          s = await packet.ReadLenStringAsync(execAsync).ConfigureAwait(false);
         else
-          s = packet.ReadString(length);
+          s = await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false);
         g.Value = new Guid(s);
         g.IsNull = false;
       }

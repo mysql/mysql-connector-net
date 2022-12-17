@@ -170,14 +170,14 @@ namespace MySql.Data.MySqlClient.Tests
     {
       string connStr = Settings.ConnectionString;
       int threadId;
+
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
         threadId = c.ServerThread;
-        MethodInfo abort = c.GetType().GetMethod("Abort",
-          BindingFlags.NonPublic | BindingFlags.Instance);
-        abort.Invoke(c, null);
+        c.AbortAsync(false).GetAwaiter().GetResult();
       }
+
       using (MySqlConnection c1 = new MySqlConnection(connStr))
       {
         c1.Open();
@@ -464,7 +464,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
         {
           Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
-          if (Platform.IsWindows()) Assert.True(ex.InnerException.GetType() == typeof(System.Net.Sockets.SocketException));
+          if (Platform.IsWindows()) Assert.True(ex.InnerException.GetType() == typeof(ArgumentException));
         }
         Thread.Sleep(50);
       }

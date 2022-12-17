@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,11 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using MySql.Data.Common;
+using System.Threading.Tasks;
 
 
 namespace MySql.Data.MySqlClient
@@ -124,9 +125,11 @@ namespace MySql.Data.MySqlClient
       return (byte)_buffer.ReadByte();
     }
 
-    public int Read(byte[] byteBuffer, int offset, int count)
+    public async Task<int> ReadAsync(byte[] byteBuffer, int offset, int count, bool execAsync)
     {
-      return _buffer.Read(byteBuffer, offset, count);
+      return execAsync
+        ? await _buffer.ReadAsync(byteBuffer, offset, count).ConfigureAwait(false)
+        : _buffer.Read(byteBuffer, offset, count);
     }
 
     public void WriteByte(byte b)
@@ -134,14 +137,17 @@ namespace MySql.Data.MySqlClient
       _buffer.WriteByte(b);
     }
 
-    public void Write(byte[] bytesToWrite)
+    public async Task WriteAsync(byte[] bytesToWrite, bool execAsync)
     {
-      Write(bytesToWrite, 0, bytesToWrite.Length);
+      await WriteAsync(bytesToWrite, 0, bytesToWrite.Length, execAsync).ConfigureAwait(false);
     }
 
-    public void Write(byte[] bytesToWrite, int offset, int countToWrite)
+    public async Task WriteAsync(byte[] bytesToWrite, int offset, int countToWrite, bool execAsync)
     {
-      _buffer.Write(bytesToWrite, offset, countToWrite);
+      if (execAsync)
+        await _buffer.WriteAsync(bytesToWrite, offset, countToWrite).ConfigureAwait(false);
+      else
+        _buffer.Write(bytesToWrite, offset, countToWrite);
     }
 
     public int ReadNBytes()
@@ -261,7 +267,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <param name="v"></param>
     /// <param name="numbytes"></param>
-    public void WriteInteger(long v, int numbytes)
+    public async Task WriteIntegerAsync(long v, int numbytes, bool execAsync)
     {
       long val = v;
 
@@ -272,7 +278,8 @@ namespace MySql.Data.MySqlClient
         _tempBuffer[x] = (byte)(val & 0xff);
         val >>= 8;
       }
-      Write(_tempBuffer, 0, numbytes);
+
+      await WriteAsync(_tempBuffer, 0, numbytes, execAsync).ConfigureAwait(false);
     }
 
     public int ReadPackedInteger()
@@ -289,24 +296,24 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public void WriteLength(long length)
+    public async Task WriteLengthAsync(long length, bool execAsync)
     {
       if (length < 251)
         WriteByte((byte)length);
       else if (length < 65536L)
       {
         WriteByte(252);
-        WriteInteger(length, 2);
+        await WriteIntegerAsync(length, 2, execAsync).ConfigureAwait(false);
       }
       else if (length < 16777216L)
       {
         WriteByte(253);
-        WriteInteger(length, 3);
+        await WriteIntegerAsync(length, 3, execAsync).ConfigureAwait(false);
       }
       else
       {
         WriteByte(254);
-        WriteInteger(length, 8);
+        await WriteIntegerAsync(length, 8, execAsync).ConfigureAwait(false);
       }
     }
 
@@ -314,48 +321,54 @@ namespace MySql.Data.MySqlClient
 
     #region String methods
 
-    public void WriteLenString(string s)
+    public async Task WriteLenStringAsync(string s, bool execAsync)
     {
       byte[] bytes = _encoding.GetBytes(s);
-      WriteLength(bytes.Length);
-      Write(bytes, 0, bytes.Length);
+
+      await WriteLengthAsync(bytes.Length, execAsync).ConfigureAwait(false);
+      await WriteAsync(bytes, 0, bytes.Length, execAsync).ConfigureAwait(false);
     }
 
-    public void WriteStringNoNull(string v)
+    public async Task WriteStringNoNullAsync(string v, bool execAsync)
     {
       byte[] bytes = _encoding.GetBytes(v);
-      Write(bytes, 0, bytes.Length);
+
+      await WriteAsync(bytes, 0, bytes.Length, execAsync).ConfigureAwait(false);
     }
 
-    public void WriteString(string v)
+    public async Task WriteStringAsync(string v, bool execAsync)
     {
-      WriteStringNoNull(v);
+      await WriteStringNoNullAsync(v, execAsync).ConfigureAwait(false);
+
       WriteByte(0);
     }
 
-    public string ReadLenString()
+    public async Task<string> ReadLenStringAsync(bool execAsync)
     {
       long len = ReadPackedInteger();
-      return ReadString(len);
+      return await ReadStringAsync(len, execAsync).ConfigureAwait(false);
     }
 
-    public string ReadAsciiString(long length)
+    public async Task<string> ReadAsciiStringAsync(long length, bool execAsync)
     {
       if (length == 0)
         return String.Empty;
-      //            byte[] buf = new byte[length];
-      Read(_tempBuffer, 0, (int)length);
+
+      await ReadAsync(_tempBuffer, 0, (int)length, execAsync).ConfigureAwait(false);
+
       return Encoding.GetEncoding("us-ascii").GetString(_tempBuffer, 0, (int)length);
-      //return encoding.GetString(tempBuffer, 0, (int)length); //buf.Length);
     }
 
-    public string ReadString(long length)
+    public async Task<string> ReadStringAsync(long length, bool execAsync)
     {
       if (length == 0)
         return String.Empty;
+
       if (_tempBuffer == null || length > _tempBuffer.Length)
         _tempBuffer = new byte[length];
-      Read(_tempBuffer, 0, (int)length);
+
+      await ReadAsync(_tempBuffer, 0, (int)length, execAsync).ConfigureAwait(false);
+
       return _encoding.GetString(_tempBuffer, 0, (int)length);
     }
 

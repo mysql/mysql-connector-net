@@ -33,6 +33,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -79,10 +80,10 @@ namespace MySql.Data.MySqlClient
       return retValue + key.ToString();
     }
 
-    private ProcedureCacheEntry GetParameters(string procName)
+    private async Task<ProcedureCacheEntry> GetParametersAsync(string procName, bool execAsync)
     {
       string procCacheKey = GetCacheKey(procName);
-      ProcedureCacheEntry entry = Connection.ProcedureCache.GetProcedure(Connection, procName, procCacheKey);
+      ProcedureCacheEntry entry = await Connection.ProcedureCache.GetProcedureAsync(Connection, procName, procCacheKey, execAsync).ConfigureAwait(false);
       return entry;
     }
 
@@ -192,12 +193,12 @@ namespace MySql.Data.MySqlClient
       return p;
     }
 
-    private MySqlParameterCollection CheckParameters(string spName)
+    private async Task<MySqlParameterCollection> CheckParametersAsync(string spName, bool execAsync)
     {
       MySqlParameterCollection newParms = new MySqlParameterCollection(command);
       MySqlParameter returnParameter = GetReturnParameter();
 
-      ProcedureCacheEntry entry = GetParameters(spName);
+      ProcedureCacheEntry entry = await GetParametersAsync(spName, execAsync).ConfigureAwait(false);
       if (entry.procedure == null || entry.procedure.Rows.Count == 0)
         throw new InvalidOperationException(String.Format(Resources.RoutineNotFound, spName));
 
@@ -223,7 +224,7 @@ namespace MySql.Data.MySqlClient
       MySqlParameter returnParameter = GetReturnParameter();
 
       MySqlParameterCollection parms = command.Connection.Settings.CheckParameters ?
-          CheckParameters(spName) : Parameters;
+          CheckParametersAsync(spName, false).GetAwaiter().GetResult() : Parameters;
 
       string setSql = SetUserVariables(parms, preparing);
       string callSql = CreateCallStatement(spName, returnParameter, parms);
@@ -364,16 +365,14 @@ namespace MySql.Data.MySqlClient
 
     public override void Close(MySqlDataReader reader)
     {
-      base.Close(reader);
       if (String.IsNullOrEmpty(_outSelect)) return;
       if ((reader.CommandBehavior & CommandBehavior.SchemaOnly) != 0) return;
 
       MySqlCommand cmd = new MySqlCommand(_outSelect, command.Connection);
       cmd.InternallyCreated = true;
+
       using (MySqlDataReader rdr = cmd.ExecuteReader(reader.CommandBehavior))
-      {
         ProcessOutputParameters(rdr);
-      }
     }
   }
 }

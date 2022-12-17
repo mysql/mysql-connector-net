@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -53,7 +54,7 @@ namespace MySql.Data.MySqlClient
       _procHash = new Dictionary<int, ProcedureCacheEntry>(_maxSize);
     }
 
-    public ProcedureCacheEntry GetProcedure(MySqlConnection conn, string spName, string cacheKey)
+    public async Task<ProcedureCacheEntry> GetProcedureAsync(MySqlConnection conn, string spName, string cacheKey, bool execAsync)
     {
       ProcedureCacheEntry proc = null;
 
@@ -68,7 +69,7 @@ namespace MySql.Data.MySqlClient
       }
       if (proc == null)
       {
-        proc = AddNew(conn, spName);
+        proc = await AddNewAsync(conn, spName, execAsync).ConfigureAwait(false);
         conn.PerfMonitor.AddHardProcedureQuery();
         if (conn.Settings.Logging)
           MySqlTrace.LogInformation(conn.ServerThread,
@@ -107,9 +108,9 @@ namespace MySql.Data.MySqlClient
       return retValue + key.ToString();
     }
 
-    private ProcedureCacheEntry AddNew(MySqlConnection connection, string spName)
+    private async Task<ProcedureCacheEntry> AddNewAsync(MySqlConnection connection, string spName, bool execAsync)
     {
-      ProcedureCacheEntry procData = GetProcData(connection, spName);
+      ProcedureCacheEntry procData = await GetProcDataAsync(connection, spName, execAsync).ConfigureAwait(false);
 
       if (_maxSize <= 0) return procData;
 
@@ -134,7 +135,7 @@ namespace MySql.Data.MySqlClient
       _procHash.Remove(oldestHash);
     }
 
-    private static ProcedureCacheEntry GetProcData(MySqlConnection connection, string spName)
+    private static async Task<ProcedureCacheEntry> GetProcDataAsync(MySqlConnection connection, string spName, bool execAsync)
     {
       SplitSchemaAndEntity(spName, out string schema, out string entity);
 
@@ -159,7 +160,7 @@ namespace MySql.Data.MySqlClient
       // know the procedure we care about.
       ISSchemaProvider isp = new ISSchemaProvider(connection);
       string[] rest = isp.CleanRestrictions(restrictions);
-      MySqlSchemaCollection parameters = isp.GetProcedureParameters(rest, proc);
+      MySqlSchemaCollection parameters = await isp.GetProcedureParametersAsync(rest, proc, execAsync).ConfigureAwait(false);
       entry.parameters = parameters;
 
       return entry;

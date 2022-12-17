@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,11 +26,13 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using System;
 using System.IO;
 using System.IO.Compression;
-using MySql.Data.Common;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -131,7 +133,11 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public override int Read(byte[] buffer, int offset, int count)
+    public override int Read(byte[] buffer, int offset, int count) => ReadAsync(buffer, offset, count, false).GetAwaiter().GetResult();
+
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => ReadAsync(buffer, offset, count, true);
+
+    private async Task<int> ReadAsync(byte[] buffer, int offset, int count, bool execAsync)
     {
       if (buffer == null)
         throw new ArgumentNullException(nameof(buffer), Resources.BufferCannotBeNull);
@@ -141,15 +147,19 @@ namespace MySql.Data.MySqlClient
         throw new ArgumentException(Resources.BufferNotLargeEnough, nameof(buffer));
 
       if (inPos == maxInPos)
-        PrepareNextPacket();
+        await PrepareNextPacketAsync(execAsync).ConfigureAwait(false);
 
       int countToRead = Math.Min(count, maxInPos - inPos);
       int countRead;
 
       if (compInStream != null)
-        countRead = compInStream.Read(buffer, offset, countToRead);
+        countRead = execAsync
+          ? await compInStream.ReadAsync(buffer, offset, count).ConfigureAwait(false)
+          : compInStream.Read(buffer, offset, countToRead);
       else
-        countRead = baseStream.Read(buffer, offset, countToRead);
+        countRead = execAsync
+          ? await baseStream.ReadAsync(buffer, offset, count).ConfigureAwait(false)
+          : baseStream.Read(buffer, offset, countToRead);
 
       inPos += countRead;
 
@@ -168,9 +178,9 @@ namespace MySql.Data.MySqlClient
       return countRead;
     }
 
-    private void PrepareNextPacket()
+    private async Task PrepareNextPacketAsync(bool execAsync)
     {
-      MySqlStream.ReadFully(baseStream, lengthBytes, 0, 7);
+      await MySqlStream.ReadFullyAsync(baseStream, lengthBytes, 0, 7, execAsync).ConfigureAwait(false);
       int compressedLength = lengthBytes[0] + (lengthBytes[1] << 8) + (lengthBytes[2] << 16);
       // lengthBytes[3] is seq
       int unCompressedLength = lengthBytes[4] + (lengthBytes[5] << 8) +
@@ -183,7 +193,7 @@ namespace MySql.Data.MySqlClient
       }
       else
       {
-        ReadNextPacket(compressedLength);
+        await ReadNextPacketAsync(compressedLength, execAsync).ConfigureAwait(false);
         MemoryStream ms = new MemoryStream(inBuffer, 2, compressedLength - 2);
         compInStream = new DeflateStream(ms, CompressionMode.Decompress);
       }
@@ -192,16 +202,16 @@ namespace MySql.Data.MySqlClient
       maxInPos = unCompressedLength;
     }
 
-    private void ReadNextPacket(int len)
+    private async Task ReadNextPacketAsync(int len, bool execAsync)
     {
       inBuffer = inBufferRef.Target as byte[];
 
       if (inBuffer == null || inBuffer.Length < len)
         inBuffer = new byte[len];
-      MySqlStream.ReadFully(baseStream, inBuffer, 0, len);
+      await MySqlStream.ReadFullyAsync(baseStream, inBuffer, 0, len, execAsync).ConfigureAwait(false);
     }
 
-    private MemoryStream CompressCache()
+    private async Task<MemoryStream> CompressCacheAsync(bool execAsync)
     {
       // small arrays almost never yeild a benefit from compressing
       if (cache.Length < 50)
@@ -214,10 +224,19 @@ namespace MySql.Data.MySqlClient
       compressedBuffer.WriteByte(0x78);
       compressedBuffer.WriteByte(0x9c);
       var outCompStream = new DeflateStream(compressedBuffer, CompressionMode.Compress, true);
-      outCompStream.Write(cacheBytes, 0, (int)cache.Length);
+
+      if (execAsync)
+        await outCompStream.WriteAsync(cacheBytes, 0, (int)cacheBytes.Length).ConfigureAwait(false);
+      else
+        outCompStream.Write(cacheBytes, 0, (int)cache.Length);
+
       outCompStream.Dispose();
       int adler = IPAddress.HostToNetworkOrder(Adler32(cacheBytes, 0, (int)cache.Length));
-      compressedBuffer.Write(BitConverter.GetBytes(adler), 0, sizeof(uint));
+
+      if (execAsync)
+        await compressedBuffer.WriteAsync(BitConverter.GetBytes(adler), 0, sizeof(uint)).ConfigureAwait(false);
+      else
+        compressedBuffer.Write(BitConverter.GetBytes(adler), 0, sizeof(uint));
 
       // if the compression hasn't helped, then just return null
       if (compressedBuffer.Length >= cache.Length)
@@ -238,7 +257,7 @@ namespace MySql.Data.MySqlClient
       return unchecked((int)((s2 << 16) + s1));
     }
 
-    private void CompressAndSendCache()
+    private async Task CompressAndSendCacheAsync(bool execAsync)
     {
       long compressedLength, uncompressedLength;
 
@@ -249,7 +268,7 @@ namespace MySql.Data.MySqlClient
       cacheBuffer[3] = 0;
 
       // first we compress our current cache
-      MemoryStream compressedBuffer = CompressCache();
+      MemoryStream compressedBuffer = await CompressCacheAsync(execAsync).ConfigureAwait(false);
 
       // now we set our compressed and uncompressed lengths
       // based on if our compression is going to help or not
@@ -284,18 +303,34 @@ namespace MySql.Data.MySqlClient
       buffer[5] = (byte)((uncompressedLength >> 8) & 0xff);
       buffer[6] = (byte)((uncompressedLength >> 16) & 0xff);
 
-      baseStream.Write(buffer, 0, bytesToWrite);
-      baseStream.Flush();
+      if (execAsync)
+      {
+        await baseStream.WriteAsync(buffer, 0, bytesToWrite).ConfigureAwait(false);
+        await baseStream.FlushAsync().ConfigureAwait(false);
+      }
+      else
+      {
+        baseStream.Write(buffer, 0, bytesToWrite);
+        baseStream.Flush();
+      }
+
       cache.SetLength(0);
 
       compressedBuffer?.Dispose();
     }
 
-    public override void Flush()
+    public override void Flush() => FlushAsync(false).GetAwaiter().GetResult();
+
+    public override Task FlushAsync(CancellationToken cancellationToken) => FlushAsync(true);
+
+    private async Task FlushAsync(bool execAsync)
     {
       if (!InputDone()) return;
 
-      CompressAndSendCache();
+      if (execAsync)
+        await CompressAndSendCacheAsync(true).ConfigureAwait(false);
+      else
+        CompressAndSendCacheAsync(false).GetAwaiter().GetResult();
     }
 
     private bool InputDone()
@@ -314,9 +349,16 @@ namespace MySql.Data.MySqlClient
       cache.WriteByte(value);
     }
 
-    public override void Write(byte[] buffer, int offset, int count)
+    public override void Write(byte[] buffer, int offset, int count) => WriteAsync(buffer, offset, count, false).GetAwaiter().GetResult();
+
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => WriteAsync(buffer, offset, count, true);
+
+    private async Task WriteAsync(byte[] buffer, int offset, int count, bool execAsync)
     {
-      cache.Write(buffer, offset, count);
+      if (execAsync)
+        await cache.WriteAsync(buffer, offset, count).ConfigureAwait(false);
+      else
+        cache.Write(buffer, offset, count);
     }
 
     public override long Seek(long offset, SeekOrigin origin)

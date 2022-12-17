@@ -26,6 +26,8 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System.Threading.Tasks;
+
 namespace MySql.Data.MySqlClient.Authentication
 {
   /// <summary>
@@ -35,14 +37,14 @@ namespace MySql.Data.MySqlClient.Authentication
   {
     private byte[] passBytes;
     public override string PluginName => "mysql_clear_password";
-    protected override byte[] MoreData(byte[] data)
+    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
     {
       if ((Settings.SslMode != MySqlSslMode.Disabled &&
       Settings.ConnectionProtocol != MySqlConnectionProtocol.UnixSocket) ||
       (Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket))
       {
         passBytes = System.Text.Encoding.UTF8.GetBytes(GetMFAPassword());
-        return passBytes;
+        return Task.FromResult<byte[]>(passBytes);
       }
       else
       {

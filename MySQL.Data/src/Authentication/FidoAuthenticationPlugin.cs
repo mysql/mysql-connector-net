@@ -30,6 +30,7 @@ using MySql.Data.Authentication.FIDO;
 using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
@@ -54,9 +55,10 @@ namespace MySql.Data.MySqlClient.Authentication
         throw new MySqlException("FIDO registration missing.");
     }
 
-    protected override byte[] MoreData(byte[] data)
+    protected override async Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
     {
-      return SignChallenge();
+      Tuple<int, int, byte[], int, byte[]> response = BuildFidoAssertionStatement();
+      return await SignChallengeAsync(response, execAsync).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -88,9 +90,23 @@ namespace MySql.Data.MySqlClient.Authentication
     }
 
     /// <summary>
-    /// Method to obtains an assertion from a FIDO device.
+    /// Signs the challenge obtained from the FIDO device and returns it to the server.
     /// </summary>
-    private byte[] SignChallenge()
+    private async Task<byte[]> SignChallengeAsync(Tuple<int, int, byte[], int, byte[]> response, bool execAsync)
+    {
+      var challenge = new MySqlPacket(new MemoryStream(response.Item1));
+      await challenge.WriteLengthAsync(response.Item2, execAsync).ConfigureAwait(false);
+      await challenge.WriteAsync(response.Item3, execAsync).ConfigureAwait(false);
+      await challenge.WriteLengthAsync(response.Item4, execAsync).ConfigureAwait(false);
+      await challenge.WriteAsync(response.Item5, execAsync).ConfigureAwait(false);
+
+      return challenge.Buffer;
+    }
+
+    /// <summary>
+    /// Method to obtain an assertion from a FIDO device.
+    /// </summary>
+    private Tuple<int, int, byte[], int, byte[]> BuildFidoAssertionStatement()
     {
       string devicePath;
 
@@ -118,13 +134,9 @@ namespace MySql.Data.MySqlClient.Authentication
           int responseLength = fidoAssertionStatement.SignatureLen + fidoAssertionStatement.AuthDataLen +
             GetLengthSize((ulong)fidoAssertionStatement.SignatureLen) + GetLengthSize((ulong)fidoAssertionStatement.AuthDataLen);
 
-          var response = new MySqlPacket(new MemoryStream(responseLength));
-          response.WriteLength(fidoAssertionStatement.AuthDataLen);
-          response.Write(fidoAssertionStatement.AuthData.ToArray());
-          response.WriteLength(fidoAssertionStatement.SignatureLen);
-          response.Write(fidoAssertionStatement.Signature.ToArray());
-
-          return response.Buffer;
+          return new Tuple<int, int, byte[], int, byte[]>(responseLength,
+            fidoAssertionStatement.AuthDataLen, fidoAssertionStatement.AuthData.ToArray(),
+            fidoAssertionStatement.SignatureLen, fidoAssertionStatement.Signature.ToArray());
         }
       }
     }

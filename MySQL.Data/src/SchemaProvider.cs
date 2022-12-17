@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,6 +37,8 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -50,21 +52,22 @@ namespace MySql.Data.MySqlClient
       connection = connectionToUse;
     }
 
-    public virtual MySqlSchemaCollection GetSchema(string collection, String[] restrictions)
+    public MySqlSchemaCollection GetSchema(string collection, String[] restrictions) => GetSchemaAsync(collection, restrictions, false).GetAwaiter().GetResult();
+
+    public async Task<MySqlSchemaCollection> GetSchemaAsync(string collection, String[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       if (connection.State != ConnectionState.Open)
         throw new MySqlException("GetSchema can only be called on an open connection.");
 
       collection = StringUtility.ToUpperInvariant(collection);
-
-      MySqlSchemaCollection c = GetSchemaInternal(collection, restrictions);
+      MySqlSchemaCollection c = await GetSchemaInternalAsync(collection, restrictions, execAsync, cancellationToken).ConfigureAwait(false);
 
       if (c == null)
         throw new ArgumentException("Invalid collection name");
       return c;
     }
 
-    public virtual MySqlSchemaCollection GetDatabases(string[] restrictions)
+    public virtual async Task<MySqlSchemaCollection> GetDatabasesAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       Regex regex = null;
       int caseSetting = Int32.Parse(connection.driver.Property("lower_case_table_names"), CultureInfo.InvariantCulture);
@@ -79,7 +82,7 @@ namespace MySql.Data.MySqlClient
           sql = sql + " LIKE '" + restrictions[0] + "'";
       }
 
-      MySqlSchemaCollection c = QueryCollection("Databases", sql);
+      MySqlSchemaCollection c = await QueryCollectionAsync("Databases", sql, execAsync, cancellationToken).ConfigureAwait(false);
 
       if (caseSetting != 0 && restrictions != null && restrictions.Length >= 1 && restrictions[0] != null)
         regex = new Regex(restrictions[0], RegexOptions.IgnoreCase);
@@ -97,7 +100,7 @@ namespace MySql.Data.MySqlClient
       return c2;
     }
 
-    public virtual MySqlSchemaCollection GetTables(string[] restrictions)
+    public virtual async Task<MySqlSchemaCollection> GetTablesAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       MySqlSchemaCollection c = new MySqlSchemaCollection("Tables");
       c.AddColumn("TABLE_CATALOG", typeof(string));
@@ -127,17 +130,18 @@ namespace MySql.Data.MySqlClient
       string[] dbRestriction = new string[4];
       if (restrictions != null && restrictions.Length >= 2)
         dbRestriction[0] = restrictions[1];
-      MySqlSchemaCollection databases = GetDatabases(dbRestriction);
+
+      MySqlSchemaCollection databases = await GetDatabasesAsync(dbRestriction, execAsync, cancellationToken).ConfigureAwait(false);
 
       if (restrictions != null)
-        Array.Copy(restrictions, dbRestriction,
-               Math.Min(dbRestriction.Length, restrictions.Length));
+        Array.Copy(restrictions, dbRestriction, Math.Min(dbRestriction.Length, restrictions.Length));
 
       foreach (MySqlSchemaRow row in databases.Rows)
       {
         dbRestriction[1] = row["SCHEMA_NAME"].ToString();
-        FindTables(c, dbRestriction);
+        await FindTablesAsync(c, dbRestriction, execAsync, cancellationToken).ConfigureAwait(false);
       }
+
       return c;
     }
 
@@ -154,7 +158,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public virtual MySqlSchemaCollection GetColumns(string[] restrictions)
+    public virtual async Task<MySqlSchemaCollection> GetColumnsAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       MySqlSchemaCollection c = new MySqlSchemaCollection("Columns");
       c.AddColumn("TABLE_CATALOG", typeof(string));
@@ -185,27 +189,26 @@ namespace MySql.Data.MySqlClient
         columnName = restrictions[3];
         restrictions[3] = null;
       }
-      MySqlSchemaCollection tables = GetTables(restrictions);
+
+      MySqlSchemaCollection tables = await GetTablesAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
 
       foreach (MySqlSchemaRow row in tables.Rows)
-        LoadTableColumns(c, row["TABLE_SCHEMA"].ToString(),
-                 row["TABLE_NAME"].ToString(), columnName);
+        await LoadTableColumnsAsync(c, row["TABLE_SCHEMA"].ToString(), row["TABLE_NAME"].ToString(), columnName, execAsync, cancellationToken).ConfigureAwait(false);
 
       QuoteDefaultValues(c);
       return c;
     }
 
-    private void LoadTableColumns(MySqlSchemaCollection schemaCollection, string schema,
-                    string tableName, string columnRestriction)
+    private async Task LoadTableColumnsAsync(MySqlSchemaCollection schemaCollection, string schema, string tableName, string columnRestriction,
+      bool execAsync, CancellationToken cancellationToken = default)
     {
-      string sql = String.Format("SHOW FULL COLUMNS FROM `{0}`.`{1}`",
-                     schema, tableName);
-      MySqlCommand cmd = new MySqlCommand(sql, connection);
+      string sql = String.Format("SHOW FULL COLUMNS FROM `{0}`.`{1}`", schema, tableName);
+      using MySqlCommand cmd = new MySqlCommand(sql, connection);
 
       int pos = 1;
-      using (MySqlDataReader reader = cmd.ExecuteReader())
+      using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
       {
-        while (reader.Read())
+        while (await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false))
         {
           string colName = reader.GetString(0);
           if (columnRestriction != null && colName != columnRestriction)
@@ -264,7 +267,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public virtual MySqlSchemaCollection GetIndexes(string[] restrictions)
+    public virtual async Task<MySqlSchemaCollection> GetIndexesAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("Indexes");
       dt.AddColumn("INDEX_CATALOG", typeof(string));
@@ -281,14 +284,14 @@ namespace MySql.Data.MySqlClient
       string[] tableRestrictions = new string[Math.Max(max, 4)];
       restrictions?.CopyTo(tableRestrictions, 0);
       tableRestrictions[3] = "BASE TABLE";
-      MySqlSchemaCollection tables = GetTables(tableRestrictions);
+      MySqlSchemaCollection tables = await GetTablesAsync(tableRestrictions, execAsync, cancellationToken).ConfigureAwait(false);
 
       foreach (MySqlSchemaRow table in tables.Rows)
       {
         string sql = String.Format("SHOW INDEX FROM `{0}`.`{1}`",
           MySqlHelper.DoubleQuoteString((string)table["TABLE_SCHEMA"]),
           MySqlHelper.DoubleQuoteString((string)table["TABLE_NAME"]));
-        MySqlSchemaCollection indexes = QueryCollection("indexes", sql);
+        MySqlSchemaCollection indexes = await QueryCollectionAsync("indexes", sql, execAsync, cancellationToken).ConfigureAwait(false);
 
         foreach (MySqlSchemaRow index in indexes.Rows)
         {
@@ -316,7 +319,7 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
-    public virtual MySqlSchemaCollection GetIndexColumns(string[] restrictions)
+    public virtual async Task<MySqlSchemaCollection> GetIndexColumnsAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("IndexColumns");
       dt.AddColumn("INDEX_CATALOG", typeof(string));
@@ -332,16 +335,15 @@ namespace MySql.Data.MySqlClient
       if (restrictions != null)
         restrictions.CopyTo(tableRestrictions, 0);
       tableRestrictions[3] = "BASE TABLE";
-      MySqlSchemaCollection tables = GetTables(tableRestrictions);
+      MySqlSchemaCollection tables = await GetTablesAsync(tableRestrictions, execAsync, cancellationToken).ConfigureAwait(false);
 
       foreach (MySqlSchemaRow table in tables.Rows)
       {
-        string sql = String.Format("SHOW INDEX FROM `{0}`.`{1}`",
-                       table["TABLE_SCHEMA"], table["TABLE_NAME"]);
-        MySqlCommand cmd = new MySqlCommand(sql, connection);
-        using (MySqlDataReader reader = cmd.ExecuteReader())
+        string sql = String.Format("SHOW INDEX FROM `{0}`.`{1}`", table["TABLE_SCHEMA"], table["TABLE_NAME"]);
+        using MySqlCommand cmd = new MySqlCommand(sql, connection);
+        using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
         {
-          while (reader.Read())
+          while (await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false))
           {
             string key_name = GetString(reader, reader.GetOrdinal("KEY_NAME"));
             string col_name = GetString(reader, reader.GetOrdinal("COLUMN_NAME"));
@@ -368,7 +370,7 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
-    public virtual MySqlSchemaCollection GetForeignKeys(string[] restrictions)
+    public virtual async Task<MySqlSchemaCollection> GetForeignKeysAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("Foreign Keys");
       dt.AddColumn("CONSTRAINT_CATALOG", typeof(string));
@@ -394,17 +396,17 @@ namespace MySql.Data.MySqlClient
         restrictions[3] = null;
       }
 
-      MySqlSchemaCollection tables = GetTables(restrictions);
+      MySqlSchemaCollection tables = await GetTablesAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
 
       // now for each table retrieved, we call our helper function to
       // parse it's foreign keys
       foreach (MySqlSchemaRow table in tables.Rows)
-        GetForeignKeysOnTable(dt, table, keyName, false);
+        await GetForeignKeysOnTableAsync(dt, table, keyName, false, execAsync, cancellationToken).ConfigureAwait(false);
 
       return dt;
     }
 
-    public virtual MySqlSchemaCollection GetForeignKeyColumns(string[] restrictions)
+    public virtual async Task<MySqlSchemaCollection> GetForeignKeyColumnsAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("Foreign Keys");
       dt.AddColumn("CONSTRAINT_CATALOG", typeof(string));
@@ -430,20 +432,21 @@ namespace MySql.Data.MySqlClient
         restrictions[3] = null;
       }
 
-      MySqlSchemaCollection tables = GetTables(restrictions);
+      MySqlSchemaCollection tables = await GetTablesAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
 
       // now for each table retrieved, we call our helper function to
       // parse it's foreign keys
       foreach (MySqlSchemaRow table in tables.Rows)
-        GetForeignKeysOnTable(dt, table, keyName, true);
+        await GetForeignKeysOnTableAsync(dt, table, keyName, true, execAsync, cancellationToken).ConfigureAwait(false);
       return dt;
     }
 
 
-    private string GetSqlMode()
+    private async Task<string> GetSqlModeAsync(bool execAsync, CancellationToken cancellationToken = default)
     {
-      MySqlCommand cmd = new MySqlCommand("SELECT @@SQL_MODE", connection);
-      return cmd.ExecuteScalar().ToString();
+      using MySqlCommand cmd = new MySqlCommand("SELECT @@SQL_MODE", connection);
+      var result = await cmd.ExecuteScalarAsync(execAsync, cancellationToken).ConfigureAwait(false);
+      return result.ToString();
     }
 
     #region Foreign Key routines
@@ -459,21 +462,20 @@ namespace MySql.Data.MySqlClient
     /// <param name="tableToParse">The table to get the foeign key info for.</param>
     /// <param name="filterName">Only get foreign keys that match this name.</param>
     /// <param name="includeColumns">Should column information be included in the table.</param>
-    private void GetForeignKeysOnTable(MySqlSchemaCollection fkTable, MySqlSchemaRow tableToParse,
-                       string filterName, bool includeColumns)
+    private async Task GetForeignKeysOnTableAsync(MySqlSchemaCollection fkTable, MySqlSchemaRow tableToParse,
+                       string filterName, bool includeColumns, bool execAsync, CancellationToken cancellationToken = default)
     {
-      string sqlMode = GetSqlMode();
+      string sqlMode = await GetSqlModeAsync(execAsync, cancellationToken).ConfigureAwait(false);
 
       if (filterName != null)
         filterName = StringUtility.ToLowerInvariant(filterName);
 
-      string sql = string.Format("SHOW CREATE TABLE `{0}`.`{1}`",
-                     tableToParse["TABLE_SCHEMA"], tableToParse["TABLE_NAME"]);
+      string sql = string.Format("SHOW CREATE TABLE `{0}`.`{1}`", tableToParse["TABLE_SCHEMA"], tableToParse["TABLE_NAME"]);
       string lowerBody = null, body = null;
-      MySqlCommand cmd = new MySqlCommand(sql, connection);
-      using (MySqlDataReader reader = cmd.ExecuteReader())
+      using MySqlCommand cmd = new MySqlCommand(sql, connection);
+      using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
       {
-        reader.Read();
+        await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false);
         body = reader.GetString(1);
         lowerBody = StringUtility.ToLowerInvariant(body);
       }
@@ -571,20 +573,20 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-    public virtual MySqlSchemaCollection GetUsers(string[] restrictions)
+    public async Task<MySqlSchemaCollection> GetUsersAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       StringBuilder sb = new StringBuilder("SELECT Host, User FROM mysql.user");
       if (restrictions != null && restrictions.Length > 0)
         sb.AppendFormat(CultureInfo.InvariantCulture, " WHERE User LIKE '{0}'", restrictions[0]);
 
-      MySqlSchemaCollection c = QueryCollection("Users", sb.ToString());
+      MySqlSchemaCollection c = await QueryCollectionAsync("Users", sb.ToString(), execAsync, cancellationToken).ConfigureAwait(false);
       c.Columns[0].Name = "HOST";
       c.Columns[1].Name = "USERNAME";
 
       return c;
     }
 
-    public virtual MySqlSchemaCollection GetProcedures(string[] restrictions)
+    public virtual async Task<MySqlSchemaCollection> GetProceduresAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       MySqlSchemaCollection dt = new MySqlSchemaCollection("Procedures");
       dt.AddColumn("SPECIFIC_NAME", typeof(string));
@@ -626,10 +628,10 @@ namespace MySql.Data.MySqlClient
               " AND routine_type LIKE '{0}'", restrictions[3]);
         }
 
-        MySqlCommand cmd = new MySqlCommand(sql.ToString(), connection);
-        using (MySqlDataReader reader = cmd.ExecuteReader())
+        using MySqlCommand cmd = new MySqlCommand(sql.ToString(), connection);
+        using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
         {
-          while (reader.Read())
+          while (await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false))
           {
             MySqlSchemaRow row = dt.AddRow();
             row["SPECIFIC_NAME"] = reader.GetString("specific_name");
@@ -673,10 +675,10 @@ namespace MySql.Data.MySqlClient
               " AND type LIKE '{0}'", restrictions[3]);
         }
 
-        MySqlCommand cmd = new MySqlCommand(sql.ToString(), connection);
-        using (MySqlDataReader reader = cmd.ExecuteReader())
+        using MySqlCommand cmd = new MySqlCommand(sql.ToString(), connection);
+        using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
         {
-          while (reader.Read())
+          while (await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false))
           {
             MySqlSchemaRow row = dt.AddRow();
             row["SPECIFIC_NAME"] = reader.GetString("specific_name");
@@ -919,27 +921,22 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private void FindTables(MySqlSchemaCollection schema, string[] restrictions)
+    private async Task FindTablesAsync(MySqlSchemaCollection schema, string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       StringBuilder sql = new StringBuilder();
       StringBuilder where = new StringBuilder();
-      sql.AppendFormat(CultureInfo.InvariantCulture,
-               "SHOW TABLE STATUS FROM `{0}`", restrictions[1]);
-      if (restrictions != null && restrictions.Length >= 3 &&
-        restrictions[2] != null)
-        where.AppendFormat(CultureInfo.InvariantCulture,
-                   " LIKE '{0}'", restrictions[2]);
+      sql.AppendFormat(CultureInfo.InvariantCulture, "SHOW TABLE STATUS FROM `{0}`", restrictions[1]);
+
+      if (restrictions != null && restrictions.Length >= 3 && restrictions[2] != null)
+        where.AppendFormat(CultureInfo.InvariantCulture, " LIKE '{0}'", restrictions[2]);
+
       sql.Append(where.ToString());
+      string table_type = restrictions[1].ToLower() == "information_schema" ? "SYSTEM VIEW" : "BASE TABLE";
+      using MySqlCommand cmd = new MySqlCommand(sql.ToString(), connection);
 
-      string table_type = restrictions[1].ToLower() == "information_schema"
-                  ?
-                "SYSTEM VIEW"
-                  : "BASE TABLE";
-
-      MySqlCommand cmd = new MySqlCommand(sql.ToString(), connection);
-      using (MySqlDataReader reader = cmd.ExecuteReader())
+      using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
       {
-        while (reader.Read())
+        while (await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false))
         {
           MySqlSchemaRow row = schema.AddRow();
           row["TABLE_CATALOG"] = null;
@@ -974,7 +971,7 @@ namespace MySql.Data.MySqlClient
       return reader.GetString(index);
     }
 
-    public virtual MySqlSchemaCollection GetUDF(string[] restrictions)
+    public async Task<MySqlSchemaCollection> GetUDFAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       string sql = "SELECT name,ret,dl FROM mysql.func";
       if (restrictions?.Length >= 1 && !String.IsNullOrEmpty(restrictions[0]))
@@ -985,12 +982,13 @@ namespace MySql.Data.MySqlClient
       dt.AddColumn("RETURN_TYPE", typeof(int));
       dt.AddColumn("LIBRARY_NAME", typeof(string));
 
-      MySqlCommand cmd = new MySqlCommand(sql, connection);
+      using MySqlCommand cmd = new MySqlCommand(sql, connection);
+
       try
       {
-        using (MySqlDataReader reader = cmd.ExecuteReader())
+        using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
         {
-          while (reader.Read())
+          while (await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false))
           {
             MySqlSchemaRow row = dt.AddRow();
             row[0] = reader.GetString(0);
@@ -1009,7 +1007,7 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
-    protected virtual MySqlSchemaCollection GetSchemaInternal(string collection, string[] restrictions)
+    protected virtual async Task<MySqlSchemaCollection> GetSchemaInternalAsync(string collection, string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       switch (collection)
       {
@@ -1027,11 +1025,11 @@ namespace MySql.Data.MySqlClient
 
         // collections specific to our provider
         case "USERS":
-          return GetUsers(restrictions);
+          return await GetUsersAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
         case "DATABASES":
-          return GetDatabases(restrictions);
+          return await GetDatabasesAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
         case "UDF":
-          return GetUDF(restrictions);
+          return await GetUDFAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
       }
 
       // if we have a current database and our users have
@@ -1049,17 +1047,17 @@ namespace MySql.Data.MySqlClient
       switch (collection)
       {
         case "TABLES":
-          return GetTables(restrictions);
+          return await GetTablesAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
         case "COLUMNS":
-          return GetColumns(restrictions);
+          return await GetColumnsAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
         case "INDEXES":
-          return GetIndexes(restrictions);
+          return await GetIndexesAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
         case "INDEXCOLUMNS":
-          return GetIndexColumns(restrictions);
+          return await GetIndexColumnsAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
         case "FOREIGN KEYS":
-          return GetForeignKeys(restrictions);
+          return await GetForeignKeysAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
         case "FOREIGN KEY COLUMNS":
-          return GetForeignKeyColumns(restrictions);
+          return await GetForeignKeyColumnsAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
       }
       return null;
     }
@@ -1081,18 +1079,18 @@ namespace MySql.Data.MySqlClient
       return restrictions;
     }
 
-    protected MySqlSchemaCollection QueryCollection(string name, string sql)
+    protected async Task<MySqlSchemaCollection> QueryCollectionAsync(string name, string sql, bool execAsync, CancellationToken cancellationToken = default)
     {
       MySqlSchemaCollection c = new MySqlSchemaCollection(name);
-      MySqlCommand cmd = new MySqlCommand(sql, connection);
-      MySqlDataReader reader = cmd.ExecuteReader();
+      using MySqlCommand cmd = new MySqlCommand(sql, connection);
+      using MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false);
 
       for (int i = 0; i < reader.FieldCount; i++)
         c.AddColumn(reader.GetName(i), reader.GetFieldType(i));
 
       using (reader)
       {
-        while (reader.Read())
+        while (await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false))
         {
           MySqlSchemaRow row = c.AddRow();
           for (int i = 0; i < reader.FieldCount; i++)

@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2022, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,8 +26,9 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using MySql.Data.MySqlClient;
+using System;
+using System.Threading.Tasks;
 
 namespace MySql.Data.Types
 {
@@ -78,7 +79,7 @@ namespace MySql.Data.Types
       }
     }
 
-    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
     {
       byte[] buffToWrite = (val as byte[]);
       if (buffToWrite == null)
@@ -98,7 +99,7 @@ namespace MySql.Data.Types
       }
 
       // we assume zero or maxsize length means write all of the value
-      if (length == 0 || buffToWrite.Length < length )
+      if (length == 0 || buffToWrite.Length < length)
         length = buffToWrite.Length;
 
       if (buffToWrite == null)
@@ -106,12 +107,12 @@ namespace MySql.Data.Types
 
       if (binary)
       {
-        packet.WriteLength(length);
-        packet.Write(buffToWrite, 0, length);
+        await packet.WriteLengthAsync(length, execAsync).ConfigureAwait(false);
+        await packet.WriteAsync(buffToWrite, 0, length, execAsync).ConfigureAwait(false);
       }
       else
       {
-        packet.WriteStringNoNull("_binary ");
+        await packet.WriteStringNoNullAsync("_binary ", execAsync).ConfigureAwait(false);
         packet.WriteByte((byte)'\'');
         EscapeByteArray(buffToWrite, length, packet);
         packet.WriteByte((byte)'\'');
@@ -139,7 +140,7 @@ namespace MySql.Data.Types
       }
     }
 
-    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
     {
       MySqlBinary b;
       if (nullVal)
@@ -150,7 +151,7 @@ namespace MySql.Data.Types
           length = (long)packet.ReadFieldLength();
 
         byte[] newBuff = new byte[length];
-        packet.Read(newBuff, 0, (int)length);
+        await packet.ReadAsync(newBuff, 0, (int)length, execAsync).ConfigureAwait(false);
         b = new MySqlBinary(_type, newBuff);
       }
       return b;
@@ -167,7 +168,7 @@ namespace MySql.Data.Types
     public static void SetDSInfo(MySqlSchemaCollection sc)
     {
       string[] types = new string[] { "BLOB", "TINYBLOB", "MEDIUMBLOB", "LONGBLOB", "BINARY", "VARBINARY" };
-      MySqlDbType[] dbtype = new MySqlDbType[] { MySqlDbType.Blob, 
+      MySqlDbType[] dbtype = new MySqlDbType[] { MySqlDbType.Blob,
                 MySqlDbType.TinyBlob, MySqlDbType.MediumBlob, MySqlDbType.LongBlob, MySqlDbType.Binary, MySqlDbType.VarBinary };
       long[] sizes = new long[] { 65535L, 255L, 16777215L, 4294967295L, 255L, 65535L };
       string[] format = new string[] { null, null, null, null, "binary({0})", "varbinary({0})" };

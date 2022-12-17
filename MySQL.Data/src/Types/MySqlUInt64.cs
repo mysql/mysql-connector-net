@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2019 Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,9 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using System;
 using System.Globalization;
-using MySql.Data.MySqlClient;
+using System.Threading.Tasks;
 
 namespace MySql.Data.Types
 {
@@ -63,16 +64,16 @@ namespace MySql.Data.Types
       get { return "BIGINT"; }
     }
 
-    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
     {
       ulong v = val as ulong? ?? Convert.ToUInt64(val);
       if (binary)
-        packet.WriteInteger((long)v, 8);
+        await packet.WriteIntegerAsync((long)v, 8, execAsync).ConfigureAwait(false);
       else
-        packet.WriteStringNoNull(v.ToString(CultureInfo.InvariantCulture));
+        await packet.WriteStringNoNullAsync(v.ToString(CultureInfo.InvariantCulture), execAsync).ConfigureAwait(false);
     }
 
-    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
     {
       if (nullVal)
         return new MySqlUInt64(true);
@@ -80,7 +81,7 @@ namespace MySql.Data.Types
       if (length == -1)
         return new MySqlUInt64(packet.ReadULong(8));
       else
-        return new MySqlUInt64(UInt64.Parse(packet.ReadString(length), CultureInfo.InvariantCulture));
+        return new MySqlUInt64(UInt64.Parse(await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false), CultureInfo.InvariantCulture));
     }
 
     void IMySqlValue.SkipValue(MySqlPacket packet)

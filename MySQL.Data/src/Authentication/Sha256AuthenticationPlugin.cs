@@ -29,6 +29,7 @@
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
@@ -44,11 +45,11 @@ namespace MySql.Data.MySqlClient.Authentication
 
     public override string PluginName => "sha256_password";
 
-    protected override byte[] MoreData(byte[] data)
+    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
     {
       rawPubkey = data;
       byte[] buffer = GetNonLengthEncodedPassword();
-      return buffer;
+      return Task.FromResult<byte[]>(buffer);
     }
 
     public override object GetPassword()

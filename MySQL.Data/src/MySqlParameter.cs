@@ -36,6 +36,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -47,7 +48,7 @@ namespace MySql.Data.MySqlClient
   /// You can read more about it <see href="https://dev.mysql.com/doc/connector-net/en/connector-net-tutorials-parameters.html">here</see>.
   /// </remarks>
   [TypeConverter(typeof(MySqlParameterConverter))]
-  public sealed partial class MySqlParameter : DbParameter, IDbDataParameter
+  public sealed class MySqlParameter : DbParameter, IDbDataParameter, ICloneable
   {
     private const int UNSIGNED_MASK = 0x8000;
     private object _paramValue;
@@ -289,7 +290,39 @@ namespace MySql.Data.MySqlClient
       }
     }
 
+    /// <summary>
+    /// Gets or sets the <see cref="DataRowVersion"/> value to use when loading <see cref="Value"/>.
+    /// </summary>
+    [Category("Data")]
+    public override DataRowVersion SourceVersion { get; set; }
+
     #endregion
+
+    /// <summary>
+    /// Clones this object.
+    /// </summary>
+    /// <returns>An object that is a clone of this object.</returns>
+    public MySqlParameter Clone()
+    {
+      MySqlParameter clone = new MySqlParameter(_paramName, _mySqlDbType, Direction, SourceColumn, SourceVersion, _paramValue, SourceColumnNullMapping)
+      {
+        Precision = this.Precision,
+        Scale = this.Scale,
+        Size = this.Size,
+        IsNullable = this.IsNullable,
+        DbType = this.DbType,
+        Encoding = this.Encoding,
+        _inferType = _inferType
+      };
+
+      // if we have not had our type set yet then our clone should not either
+      return clone;
+    }
+
+    object ICloneable.Clone()
+    {
+      return this.Clone();
+    }
 
     private void SetParameterName(string name)
     {
@@ -331,10 +364,10 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    internal void Serialize(MySqlPacket packet, bool binary, MySqlConnectionStringBuilder settings)
+    internal async Task SerializeAsync(MySqlPacket packet, bool binary, MySqlConnectionStringBuilder settings, bool execAsync)
     {
       if (!binary && (_paramValue == null || _paramValue == DBNull.Value))
-        packet.WriteStringNoNull("@NULL");
+        await packet.WriteStringNoNullAsync("@NULL", execAsync).ConfigureAwait(false);
       else
       {
         if (ValueObject.MySqlDbType == MySqlDbType.Guid)
@@ -352,7 +385,8 @@ namespace MySql.Data.MySqlClient
           }
           ValueObject = v;
         }
-        ValueObject.WriteValue(packet, binary, _paramValue, Size);
+
+        await ValueObject.WriteValueAsync(packet, binary, _paramValue, Size, execAsync).ConfigureAwait(false);
       }
     }
 
@@ -429,7 +463,6 @@ namespace MySql.Data.MySqlClient
     {
       _inferType = true;
     }
-
 
     void SetDbTypeFromMySqlDbType()
     {
@@ -597,41 +630,38 @@ namespace MySql.Data.MySqlClient
     }
   }
 
-
-
   internal class MySqlParameterConverter : TypeConverter
   {
-
     public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
     {
       if (destinationType == typeof(System.ComponentModel.Design.Serialization.InstanceDescriptor))
-      {
         return true;
-      }
 
       // Always call the base to see if it can perform the conversion.
       return base.CanConvertTo(context, destinationType);
     }
 
-    public override object ConvertTo(ITypeDescriptorContext context,
-                                     CultureInfo culture, object value, Type destinationType)
+    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
     {
       if (destinationType == typeof(System.ComponentModel.Design.Serialization.InstanceDescriptor))
       {
         ConstructorInfo ci = typeof(MySqlParameter).GetConstructor(
-            new[]
-                            {
-                                typeof (string), typeof (MySqlDbType), typeof (int), typeof (ParameterDirection),
-                                typeof (bool), typeof (byte), typeof (byte), typeof (string),
-                                typeof (object)
-                            });
+          new[]
+            {
+              typeof (string), typeof (MySqlDbType), typeof (int), typeof (ParameterDirection),
+              typeof (bool), typeof (byte), typeof (byte), typeof (string),
+              typeof (object)
+            });
+
         MySqlParameter p = (MySqlParameter)value;
-        return new System.ComponentModel.Design.Serialization.InstanceDescriptor(ci, new object[]
-                                                          {
-                                                              p.ParameterName, p.DbType, p.Size, p.Direction,
-                                                              p.IsNullable, p.Precision,
-                                                              p.Scale, p.SourceColumn, p.Value
-                                                          });
+
+        return new System.ComponentModel.Design.Serialization.InstanceDescriptor(ci,
+          new object[]
+            {
+              p.ParameterName, p.DbType, p.Size, p.Direction,
+              p.IsNullable, p.Precision,
+              p.Scale, p.SourceColumn, p.Value
+            });
       }
 
       // Always call base, even if you can't convert.

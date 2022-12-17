@@ -32,6 +32,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -89,54 +91,54 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
-    public override MySqlSchemaCollection GetDatabases(string[] restrictions)
+    public override async Task<MySqlSchemaCollection> GetDatabasesAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       string[] keys = new string[1];
       keys[0] = "SCHEMA_NAME";
-      MySqlSchemaCollection dt = Query("SCHEMATA", "", keys, restrictions);
+      MySqlSchemaCollection dt = await QueryAsync("SCHEMATA", "", keys, restrictions, execAsync, cancellationToken).ConfigureAwait(false);
       dt.Columns[1].Name = "database_name";
       dt.Name = "Databases";
       return dt;
     }
 
-    public override MySqlSchemaCollection GetTables(string[] restrictions)
+    public override async Task<MySqlSchemaCollection> GetTablesAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       string[] keys = new string[4];
       keys[0] = "TABLE_CATALOG";
       keys[1] = "TABLE_SCHEMA";
       keys[2] = "TABLE_NAME";
       keys[3] = "TABLE_TYPE";
-      MySqlSchemaCollection dt = Query("TABLES", "TABLE_TYPE != 'VIEW'", keys, restrictions);
+      MySqlSchemaCollection dt = await QueryAsync("TABLES", "TABLE_TYPE != 'VIEW'", keys, restrictions, execAsync, cancellationToken).ConfigureAwait(false);
       dt.Name = "Tables";
       return dt;
     }
 
-    public override MySqlSchemaCollection GetColumns(string[] restrictions)
+    public override async Task<MySqlSchemaCollection> GetColumnsAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       string[] keys = new string[4];
       keys[0] = "TABLE_CATALOG";
       keys[1] = "TABLE_SCHEMA";
       keys[2] = "TABLE_NAME";
       keys[3] = "COLUMN_NAME";
-      MySqlSchemaCollection dt = Query("COLUMNS", null, keys, restrictions);
+      MySqlSchemaCollection dt = await QueryAsync("COLUMNS", null, keys, restrictions, execAsync, cancellationToken).ConfigureAwait(false);
       dt.RemoveColumn("CHARACTER_OCTET_LENGTH");
       dt.Name = "Columns";
       QuoteDefaultValues(dt);
       return dt;
     }
 
-    private MySqlSchemaCollection GetViews(string[] restrictions)
+    private async Task<MySqlSchemaCollection> GetViewsAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       string[] keys = new string[3];
       keys[0] = "TABLE_CATALOG";
       keys[1] = "TABLE_SCHEMA";
       keys[2] = "TABLE_NAME";
-      MySqlSchemaCollection dt = Query("VIEWS", null, keys, restrictions);
+      MySqlSchemaCollection dt = await QueryAsync("VIEWS", null, keys, restrictions, execAsync, cancellationToken).ConfigureAwait(false);
       dt.Name = "Views";
       return dt;
     }
 
-    private MySqlSchemaCollection GetViewColumns(string[] restrictions)
+    private async Task<MySqlSchemaCollection> GetViewColumnsAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       StringBuilder where = new StringBuilder();
       StringBuilder sql = new StringBuilder(
@@ -162,7 +164,7 @@ namespace MySql.Data.MySqlClient
       }
       if (where.Length > 0)
         sql.AppendFormat(CultureInfo.InvariantCulture, " WHERE {0}", where);
-      MySqlSchemaCollection dt = GetTable(sql.ToString());
+      MySqlSchemaCollection dt = await GetTableAsync(sql.ToString(), execAsync, cancellationToken).ConfigureAwait(false);
       dt.Name = "ViewColumns";
       dt.Columns[0].Name = "VIEW_CATALOG";
       dt.Columns[1].Name = "VIEW_SCHEMA";
@@ -171,14 +173,14 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
-    private MySqlSchemaCollection GetTriggers(string[] restrictions)
+    private async Task<MySqlSchemaCollection> GetTriggersAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       string[] keys = new string[4];
       keys[0] = "TRIGGER_CATALOG";
       keys[1] = "TRIGGER_SCHEMA";
       keys[2] = "EVENT_OBJECT_TABLE";
       keys[3] = "TRIGGER_NAME";
-      MySqlSchemaCollection dt = Query("TRIGGERS", null, keys, restrictions);
+      MySqlSchemaCollection dt = await QueryAsync("TRIGGERS", null, keys, restrictions, execAsync, cancellationToken).ConfigureAwait(false);
       dt.Name = "Triggers";
       return dt;
     }
@@ -190,12 +192,12 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <param name="restrictions"></param>
     /// <returns></returns>
-    public override MySqlSchemaCollection GetProcedures(string[] restrictions)
+    public override async Task<MySqlSchemaCollection> GetProceduresAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       try
       {
         if (connection.Settings.HasProcAccess)
-          return base.GetProcedures(restrictions);
+          return await base.GetProceduresAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
       }
       catch (MySqlException ex)
       {
@@ -211,32 +213,32 @@ namespace MySql.Data.MySqlClient
       keys[2] = "ROUTINE_NAME";
       keys[3] = "ROUTINE_TYPE";
 
-      MySqlSchemaCollection dt = Query("ROUTINES", null, keys, restrictions);
+      MySqlSchemaCollection dt = await QueryAsync("ROUTINES", null, keys, restrictions, execAsync, cancellationToken).ConfigureAwait(false);
       dt.Name = "Procedures";
       return dt;
     }
 
-    private MySqlSchemaCollection GetProceduresWithParameters(string[] restrictions)
+    private async Task<MySqlSchemaCollection> GetProceduresWithParametersAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
-      MySqlSchemaCollection dt = GetProcedures(restrictions);
+      MySqlSchemaCollection dt = await GetProceduresAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
       dt.AddColumn("ParameterList", typeof(string));
 
       foreach (MySqlSchemaRow row in dt.Rows)
       {
-        row["ParameterList"] = GetProcedureParameterLine(row);
+        row["ParameterList"] = await GetProcedureParameterLineAsync(row, execAsync, cancellationToken).ConfigureAwait(false);
       }
       return dt;
     }
 
-    private string GetProcedureParameterLine(MySqlSchemaRow isRow)
+    private async Task<string> GetProcedureParameterLineAsync(MySqlSchemaRow isRow, bool execAsync, CancellationToken cancellationToken = default)
     {
       string sql = "SHOW CREATE {0} `{1}`.`{2}`";
       sql = String.Format(sql, isRow["ROUTINE_TYPE"], isRow["ROUTINE_SCHEMA"],
           isRow["ROUTINE_NAME"]);
-      MySqlCommand cmd = new MySqlCommand(sql, connection);
-      using (MySqlDataReader reader = cmd.ExecuteReader())
+      using MySqlCommand cmd = new MySqlCommand(sql, connection);
+      using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
       {
-        reader.Read();
+        await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false);
 
         // if we are not the owner of this proc or have permissions
         // then we will get null for the body
@@ -270,7 +272,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private MySqlSchemaCollection GetParametersForRoutineFromIS(string[] restrictions)
+    private async Task<MySqlSchemaCollection> GetParametersForRoutineFromexecAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       string[] keys = new string[5];
       keys[0] = "SPECIFIC_CATALOG";
@@ -285,7 +287,7 @@ namespace MySql.Data.MySqlClient
       if (!String.IsNullOrEmpty(where))
         sql.AppendFormat(CultureInfo.InvariantCulture, " WHERE {0}", where);
 
-      MySqlSchemaCollection coll = QueryCollection("parameters", sql.ToString());
+      MySqlSchemaCollection coll = await QueryCollectionAsync("parameters", sql.ToString(), execAsync, cancellationToken).ConfigureAwait(false);
 
       if ((coll.Rows.Count != 0) && ((string)coll.Rows[0]["routine_type"] == "FUNCTION"))
       {
@@ -297,7 +299,7 @@ namespace MySql.Data.MySqlClient
       return coll;
     }
 
-    private MySqlSchemaCollection GetParametersFromIS(string[] restrictions, MySqlSchemaCollection routines)
+    private async Task<MySqlSchemaCollection> GetParametersFromexecAsync(string[] restrictions, MySqlSchemaCollection routines, bool execAsync, CancellationToken cancellationToken = default)
     {
       MySqlSchemaCollection parms = null;
 
@@ -305,17 +307,17 @@ namespace MySql.Data.MySqlClient
       {
         if (restrictions == null)
         {
-          parms = QueryCollection("parameters", "SELECT * FROM INFORMATION_SCHEMA.PARAMETERS WHERE 1=2");
+          parms = await QueryCollectionAsync("parameters", "SELECT * FROM INFORMATION_SCHEMA.PARAMETERS WHERE 1=2", execAsync, cancellationToken).ConfigureAwait(false);
         }
         else
-          parms = GetParametersForRoutineFromIS(restrictions);
+          parms = await GetParametersForRoutineFromexecAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
       }
       else foreach (MySqlSchemaRow routine in routines.Rows)
         {
           if (restrictions != null && restrictions.Length >= 3)
             restrictions[2] = routine["ROUTINE_NAME"].ToString();
 
-          parms = GetParametersForRoutineFromIS(restrictions);
+          parms = await GetParametersForRoutineFromexecAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
         }
       parms.Name = "Procedure Parameters";
       return parms;
@@ -347,8 +349,8 @@ namespace MySql.Data.MySqlClient
     /// Restrictions supported are:
     /// schema, name, type, parameter name
     /// </summary>
-    public virtual MySqlSchemaCollection GetProcedureParameters(string[] restrictions,
-        MySqlSchemaCollection routines)
+    public virtual async Task<MySqlSchemaCollection> GetProcedureParametersAsync(string[] restrictions,
+        MySqlSchemaCollection routines, bool execAsync, CancellationToken cancellationToken = default)
     {
       bool is55 = connection.driver.Version.isAtLeast(5, 5, 3);
 
@@ -356,7 +358,7 @@ namespace MySql.Data.MySqlClient
       {
         // we want to avoid using IS if  we can as it is painfully slow
         MySqlSchemaCollection dt = CreateParametersTable();
-        GetParametersFromShowCreate(dt, restrictions, routines);
+        await GetParametersFromShowCreateAsync(dt, restrictions, routines, execAsync, cancellationToken).ConfigureAwait(false);
         return dt;
       }
       catch (Exception)
@@ -364,30 +366,30 @@ namespace MySql.Data.MySqlClient
         if (!is55) throw;
 
         // we get here by not having access and we are on 5.5 or later so just use IS
-        return GetParametersFromIS(restrictions, routines);
+        return await GetParametersFromexecAsync(restrictions, routines, execAsync, cancellationToken).ConfigureAwait(false);
       }
     }
 
-    protected override MySqlSchemaCollection GetSchemaInternal(string collection, string[] restrictions)
+    protected override async Task<MySqlSchemaCollection> GetSchemaInternalAsync(string collection, string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
-      MySqlSchemaCollection dt = base.GetSchemaInternal(collection, restrictions);
+      MySqlSchemaCollection dt = await base.GetSchemaInternalAsync(collection, restrictions, execAsync, cancellationToken).ConfigureAwait(false);
       if (dt != null)
         return dt;
 
       switch (collection)
       {
         case "VIEWS":
-          return GetViews(restrictions);
+          return await GetViewsAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
         case "PROCEDURES":
-          return GetProcedures(restrictions);
+          return await GetProceduresAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
         case "PROCEDURES WITH PARAMETERS":
-          return GetProceduresWithParameters(restrictions);
+          return await GetProceduresWithParametersAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
         case "PROCEDURE PARAMETERS":
-          return GetProcedureParameters(restrictions, null);
+          return await GetProcedureParametersAsync(restrictions, null, execAsync, cancellationToken).ConfigureAwait(false);
         case "TRIGGERS":
-          return GetTriggers(restrictions);
+          return await GetTriggersAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
         case "VIEWCOLUMNS":
-          return GetViewColumns(restrictions);
+          return await GetViewColumnsAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
       }
       return null;
     }
@@ -410,8 +412,7 @@ namespace MySql.Data.MySqlClient
       return where.ToString();
     }
 
-    private MySqlSchemaCollection Query(string tableName, string initialWhere,
-        string[] keys, string[] values)
+    private async Task<MySqlSchemaCollection> QueryAsync(string tableName, string initialWhere, string[] keys, string[] values, bool execAsync, CancellationToken cancellationToken = default)
     {
       StringBuilder query = new StringBuilder("SELECT * FROM INFORMATION_SCHEMA.");
       query.Append(tableName);
@@ -424,14 +425,14 @@ namespace MySql.Data.MySqlClient
       if (tableName.Equals("COLUMNS", StringComparison.OrdinalIgnoreCase))
         query.Append(" ORDER BY ORDINAL_POSITION");
 
-      return GetTable(query.ToString());
+      return await GetTableAsync(query.ToString(), execAsync, cancellationToken).ConfigureAwait(false);
     }
 
-    private MySqlSchemaCollection GetTable(string sql)
+    private async Task<MySqlSchemaCollection> GetTableAsync(string sql, bool execAsync, CancellationToken cancellationToken = default)
     {
       MySqlSchemaCollection c = new MySqlSchemaCollection();
-      MySqlCommand cmd = new MySqlCommand(sql, connection);
-      MySqlDataReader reader = cmd.ExecuteReader();
+      using MySqlCommand cmd = new MySqlCommand(sql, connection);
+      MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false);
 
       // add columns
       for (int i = 0; i < reader.FieldCount; i++)
@@ -439,20 +440,21 @@ namespace MySql.Data.MySqlClient
 
       using (reader)
       {
-        while (reader.Read())
+        while (await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false))
         {
           MySqlSchemaRow row = c.AddRow();
           for (int i = 0; i < reader.FieldCount; i++)
             row[i] = reader.GetValue(i);
         }
       }
+
       return c;
     }
 
-    public override MySqlSchemaCollection GetForeignKeys(string[] restrictions)
+    public override async Task<MySqlSchemaCollection> GetForeignKeysAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       if (!connection.driver.Version.isAtLeast(5, 1, 16))
-        return base.GetForeignKeys(restrictions);
+        return await base.GetForeignKeysAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
 
       string sql = @"SELECT rc.constraint_catalog, rc.constraint_schema,
                 rc.constraint_name, kcu.table_catalog, kcu.table_schema, rc.table_name,
@@ -479,13 +481,13 @@ namespace MySql.Data.MySqlClient
 
       sql += where.ToString();
 
-      return GetTable(sql);
+      return await GetTableAsync(sql, execAsync, cancellationToken).ConfigureAwait(false);
     }
 
-    public override MySqlSchemaCollection GetForeignKeyColumns(string[] restrictions)
+    public override async Task<MySqlSchemaCollection> GetForeignKeyColumnsAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       if (!connection.driver.Version.isAtLeast(5, 0, 6))
-        return base.GetForeignKeyColumns(restrictions);
+        return await base.GetForeignKeyColumnsAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
 
       string sql = @"SELECT kcu.* FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu
                 WHERE kcu.referenced_table_name IS NOT NULL";
@@ -503,18 +505,18 @@ namespace MySql.Data.MySqlClient
 
       sql += where.ToString();
 
-      return GetTable(sql);
+      return await GetTableAsync(sql, execAsync, cancellationToken).ConfigureAwait(false);
     }
 
     #region Procedures Support Routines
-    internal void GetParametersFromShowCreate(MySqlSchemaCollection parametersTable,
-        string[] restrictions, MySqlSchemaCollection routines)
+    internal async Task GetParametersFromShowCreateAsync(MySqlSchemaCollection parametersTable,
+        string[] restrictions, MySqlSchemaCollection routines, bool execAsync, CancellationToken cancellationToken = default)
     {
       // this allows us to pass in a pre-populated routines table
       // and avoid the querying for them again.
       // we use this when calling a procedure or function
       if (routines == null)
-        routines = GetSchema("procedures", restrictions);
+        routines = await GetSchemaAsync("procedures", restrictions, execAsync, cancellationToken).ConfigureAwait(false);
 
       MySqlCommand cmd = connection.CreateCommand();
 
@@ -527,27 +529,27 @@ namespace MySql.Data.MySqlClient
         try
         {
           string nameToRestrict = null;
-          if (restrictions != null && restrictions.Length == 5 &&
-              restrictions[4] != null)
+          string body;
+
+          if (restrictions != null && restrictions.Length == 5 && restrictions[4] != null)
             nameToRestrict = restrictions[4];
-          using (MySqlDataReader reader = cmd.ExecuteReader())
+
+          using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
           {
-            reader.Read();
-            string body = reader.GetString(2);
-            reader.Close();
-            ParseProcedureBody(parametersTable, body, routine, nameToRestrict);
+            await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false);
+            body = reader.GetString(2);
           }
+
+          await ParseProcedureBodyAsync(parametersTable, body, routine, nameToRestrict, execAsync, cancellationToken).ConfigureAwait(false);
         }
         catch (System.Data.SqlTypes.SqlNullValueException snex)
         {
-          throw new InvalidOperationException(
-              String.Format(Resources.UnableToRetrieveParameters, routine["ROUTINE_NAME"]), snex);
+          throw new InvalidOperationException(String.Format(Resources.UnableToRetrieveParameters, routine["ROUTINE_NAME"]), snex);
         }
       }
     }
 
-    private void ParseProcedureBody(MySqlSchemaCollection parametersTable, string body,
-        MySqlSchemaRow row, string nameToRestrict)
+    private async Task ParseProcedureBodyAsync(MySqlSchemaCollection parametersTable, string body, MySqlSchemaRow row, string nameToRestrict, bool execAsync, CancellationToken cancellationToken = default)
     {
       List<string> modes = new List<string>(new string[3] { "IN", "OUT", "INOUT" });
 
@@ -594,7 +596,7 @@ namespace MySql.Data.MySqlClient
         parmRow["PARAMETER_NAME"] = token;
 
         // now parse data type
-        token = ParseDataType(parmRow, tokenizer);
+        token = await ParseDataTypeAsync(parmRow, tokenizer, execAsync, cancellationToken).ConfigureAwait(false);
         if (token == ",")
           token = tokenizer.NextToken();
 
@@ -612,7 +614,7 @@ namespace MySql.Data.MySqlClient
       {
         MySqlSchemaRow parameterRow = parametersTable.Rows[0];
         parameterRow["PARAMETER_NAME"] = "RETURN_VALUE";
-        ParseDataType(parameterRow, tokenizer);
+        await ParseDataTypeAsync(parameterRow, tokenizer, execAsync, cancellationToken).ConfigureAwait(false);
       }
     }
 
@@ -632,7 +634,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     ///  Parses out the elements of a procedure parameter data type.
     /// </summary>
-    private string ParseDataType(MySqlSchemaRow row, MySqlTokenizer tokenizer)
+    private async Task<string> ParseDataTypeAsync(MySqlSchemaRow row, MySqlTokenizer tokenizer, bool execAsync, CancellationToken cancellationToken = default)
     {
       StringBuilder dtd = new StringBuilder(
           StringUtility.ToUpperInvariant(tokenizer.NextToken()));
@@ -679,8 +681,8 @@ namespace MySql.Data.MySqlClient
       // now default the collation if one wasn't given
       if (string.IsNullOrEmpty((string)row["COLLATION_NAME"]) &&
           !string.IsNullOrEmpty((string)row["CHARACTER_SET_NAME"]))
-        row["COLLATION_NAME"] = CharSetMap.GetDefaultCollation(
-            row["CHARACTER_SET_NAME"].ToString(), connection);
+        row["COLLATION_NAME"] = await CharSetMap.GetDefaultCollationAsync(
+            row["CHARACTER_SET_NAME"].ToString(), connection, execAsync, cancellationToken).ConfigureAwait(false);
 
       // now set the octet length
       if (row["CHARACTER_MAXIMUM_LENGTH"] != null)
@@ -688,7 +690,7 @@ namespace MySql.Data.MySqlClient
         if (row["CHARACTER_SET_NAME"] == null)
           row["CHARACTER_SET_NAME"] = "";
         row["CHARACTER_OCTET_LENGTH"] =
-            CharSetMap.GetMaxLength((string)row["CHARACTER_SET_NAME"], connection) *
+            await CharSetMap.GetMaxLengthAsync((string)row["CHARACTER_SET_NAME"], connection, execAsync, cancellationToken).ConfigureAwait(false) *
             (int)row["CHARACTER_MAXIMUM_LENGTH"];
       }
 

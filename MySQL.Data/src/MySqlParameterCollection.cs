@@ -29,6 +29,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Common;
 
 namespace MySql.Data.MySqlClient
@@ -41,6 +42,10 @@ namespace MySql.Data.MySqlClient
   ///  The number of the parameters in the collection must be equal to the number of
   ///  parameter placeholders within the command text, or an exception will be generated.
   ///</remarks>
+#if NET452
+  [Editor("MySql.Data.MySqlClient.Design.DBParametersEditor,MySql.Design", typeof(System.Drawing.Design.UITypeEditor))]
+#endif
+  [ListBindable(true)]
   public sealed partial class MySqlParameterCollection : DbParameterCollection
   {
     readonly List<MySqlParameter> _items = new List<MySqlParameter>();
@@ -61,6 +66,30 @@ namespace MySql.Data.MySqlClient
     /// Gets the number of MySqlParameter objects in the collection.
     /// </summary>
     public override int Count => _items.Count;
+
+    /// <summary>
+    /// Gets a value that indicates whether the <see cref="MySqlParameterCollection"/> object has a fixed size. 
+    /// </summary>
+    public override bool IsFixedSize
+    {
+      get { return (_items as IList).IsFixedSize; }
+    }
+
+    /// <summary>
+    /// Gets a value that indicates whether the <see cref="MySqlParameterCollection"/> object is read-only. 
+    /// </summary>
+    public override bool IsReadOnly
+    {
+      get { return (_items as IList).IsReadOnly; }
+    }
+
+    /// <summary>
+    /// Gets a value that indicates whether the <see cref="MySqlParameterCollection"/> object is synchronized. 
+    /// </summary>
+    public override bool IsSynchronized
+    {
+      get { return (_items as IList).IsSynchronized; }
+    }
 
     #region Public Methods
 

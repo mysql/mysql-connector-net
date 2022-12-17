@@ -1,4 +1,4 @@
-// Copyright (c) 2009, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2009, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,12 +26,13 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
-using MySql.Data.Common;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -48,21 +49,21 @@ namespace MySql.Data.MySqlClient
       driverId = Interlocked.Increment(ref driverCounter);
     }
 
-    public override void Open()
+    public override async Task OpenAsync(bool execAsync, CancellationToken cancellationToken)
     {
-      base.Open();
+      await base.OpenAsync(execAsync, cancellationToken).ConfigureAwait(false);
       MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.ConnectionOpened,
           Resources.TraceOpenConnection, driverId, Settings.ConnectionString, ThreadID);
     }
 
-    public override void Close()
+    public override async Task CloseAsync(bool execAsync)
     {
-      base.Close();
+      await base.CloseAsync(execAsync);
       MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.ConnectionClosed,
           Resources.TraceCloseConnection, driverId);
     }
 
-    public override void SendQuery(MySqlPacket p, int paramsPosition)
+    public override async Task SendQueryAsync(MySqlPacket p, int paramsPosition, bool execAsync)
     {
       rowSizeInBytes = 0;
       string cmdText = Encoding.GetString(p.Buffer, paramsPosition, p.Length - paramsPosition);
@@ -75,7 +76,7 @@ namespace MySql.Data.MySqlClient
         cmdText = cmdText.Substring(0, 300);
       }
 
-      base.SendQuery(p, paramsPosition);
+      await base.SendQueryAsync(p, paramsPosition, execAsync).ConfigureAwait(false);
 
       MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.QueryOpened,
           Resources.TraceQueryOpened, driverId, ThreadID, cmdText);
@@ -84,15 +85,19 @@ namespace MySql.Data.MySqlClient
             Resources.TraceQueryNormalized, driverId, ThreadID, normalizedQuery);
     }
 
-    protected override int GetResult(int statementId, ref int affectedRows, ref long insertedId)
+    protected override async Task<Tuple<int, int, long>> GetResultAsync(int statementId, int affectedRows, long insertedId, bool execAsync)
     {
       try
       {
-        int fieldCount = base.GetResult(statementId, ref affectedRows, ref insertedId);
+        var result = await base.GetResultAsync(statementId, affectedRows, insertedId, execAsync).ConfigureAwait(false);
+        int fieldCount = result.Item1;
+        affectedRows = result.Item2;
+        insertedId = result.Item3;
+
         MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.ResultOpened,
             Resources.TraceResult, driverId, fieldCount, affectedRows, insertedId);
 
-        return fieldCount;
+        return new Tuple<int, int, long>(fieldCount, affectedRows, insertedId);
       }
       catch (MySqlException ex)
       {
@@ -103,7 +108,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public override ResultSet NextResult(int statementId, bool force)
+    public override async Task<ResultSet> NextResultAsync(int statementId, bool force, bool execAsync)
     {
       // first let's see if we already have a resultset on this statementId
       if (activeResult != null)
@@ -118,35 +123,36 @@ namespace MySql.Data.MySqlClient
         activeResult = null;
       }
 
-      activeResult = base.NextResult(statementId, force);
+      activeResult = await base.NextResultAsync(statementId, force, execAsync).ConfigureAwait(false);
       return activeResult;
     }
 
-    public override int PrepareStatement(string sql, ref MySqlField[] parameters)
+    public override async Task<Tuple<int, MySqlField[]>> PrepareStatementAsync(string sql, bool execAsync)
     {
-      int statementId = base.PrepareStatement(sql, ref parameters);
+      var result = await base.PrepareStatementAsync(sql, execAsync).ConfigureAwait(false);
+      int statementId = result.Item1;
       MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.StatementPrepared,
           Resources.TraceStatementPrepared, driverId, sql, statementId);
-      return statementId;
+      return new Tuple<int, MySqlField[]>(result.Item1, result.Item2);
     }
 
-    public override void CloseStatement(int id)
+    public override async Task CloseStatementAsync(int id, bool execAsync)
     {
-      base.CloseStatement(id);
+      await base.CloseStatementAsync(id, execAsync).ConfigureAwait(false);
       MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.StatementClosed,
           Resources.TraceStatementClosed, driverId, id);
     }
 
-    public override void SetDatabase(string dbName)
+    public override async Task SetDatabaseAsync(string dbName, bool execAsync)
     {
-      base.SetDatabase(dbName);
+      await base.SetDatabaseAsync(dbName, execAsync);
       MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.NonQuery,
           Resources.TraceSetDatabase, driverId, dbName);
     }
 
-    public override void ExecuteStatement(MySqlPacket packetToExecute)
+    public override async Task ExecuteStatementAsync(MySqlPacket packetToExecute, bool execAsync)
     {
-      base.ExecuteStatement(packetToExecute);
+      await base.ExecuteStatementAsync(packetToExecute, execAsync).ConfigureAwait(false);
       int pos = packetToExecute.Position;
       packetToExecute.Position = 1;
       int statementId = packetToExecute.ReadInteger(4);
@@ -156,11 +162,11 @@ namespace MySql.Data.MySqlClient
           Resources.TraceStatementExecuted, driverId, statementId, ThreadID);
     }
 
-    public override bool FetchDataRow(int statementId, int columns)
+    public override async Task<bool> FetchDataRowAsync(int statementId, int columns, bool execAsync)
     {
       try
       {
-        bool b = base.FetchDataRow(statementId, columns);
+        bool b = await base.FetchDataRowAsync(statementId, columns, execAsync).ConfigureAwait(false);
         if (b)
           rowSizeInBytes += (handler as NativeDriver).Packet.Length;
         return b;
@@ -173,20 +179,19 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public override void CloseQuery(MySqlConnection connection, int statementId)
+    public override async Task CloseQueryAsync(MySqlConnection connection, int statementId, bool execAsync)
     {
-      base.CloseQuery(connection, statementId);
-
-      MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.QueryClosed,
-          Resources.TraceQueryDone, driverId);
+      await base.CloseQueryAsync(connection, statementId, execAsync).ConfigureAwait(false);
+      MySqlTrace.TraceEvent(TraceEventType.Information, MySqlTraceEventType.QueryClosed, Resources.TraceQueryDone, driverId);
     }
 
-    public override List<MySqlError> ReportWarnings(MySqlConnection connection)
+    public override async Task<List<MySqlError>> ReportWarningsAsync(MySqlConnection connection, bool execAsync)
     {
-      List<MySqlError> warnings = base.ReportWarnings(connection);
+      List<MySqlError> warnings = await base.ReportWarningsAsync(connection, execAsync).ConfigureAwait(false);
+
       foreach (MySqlError warning in warnings)
-        MySqlTrace.TraceEvent(TraceEventType.Warning, MySqlTraceEventType.Warning,
-            Resources.TraceWarning, driverId, warning.Level, warning.Code, warning.Message);
+        MySqlTrace.TraceEvent(TraceEventType.Warning, MySqlTraceEventType.Warning, Resources.TraceWarning, driverId, warning.Level, warning.Code, warning.Message);
+
       return warnings;
     }
 

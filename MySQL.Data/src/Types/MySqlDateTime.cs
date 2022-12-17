@@ -30,10 +30,10 @@ using MySql.Data.Common;
 using MySql.Data.MySqlClient;
 using System;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace MySql.Data.Types
 {
-
   /// <summary>
   /// Represents a datetime data type object in a MySql database.
   /// </summary>
@@ -225,8 +225,7 @@ namespace MySql.Data.Types
       }
     }
 
-
-    private void SerializeText(MySqlPacket packet, MySqlDateTime value)
+    private async Task SerializeTextAsync(MySqlPacket packet, MySqlDateTime value, bool execAsync)
     {
       var val = String.Format("{0:0000}-{1:00}-{2:00}",
         value.Year, value.Month, value.Day);
@@ -237,10 +236,10 @@ namespace MySql.Data.Types
           : $"{val} {value.Hour:00}:{value.Minute:00}:{value.Second:00}";
       }
 
-      packet.WriteStringNoNull("timestamp('" + val + "')");
+      await packet.WriteStringNoNullAsync("timestamp('" + val + "')", execAsync).ConfigureAwait(false);
     }
 
-    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object value, int length)
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object value, int length, bool execAsync)
     {
       MySqlDateTime dtValue;
 
@@ -263,7 +262,7 @@ namespace MySql.Data.Types
 
       if (!binary)
       {
-        SerializeText(packet, dtValue);
+        await SerializeTextAsync(packet, dtValue, execAsync).ConfigureAwait(false);
         return;
       }
 
@@ -272,9 +271,10 @@ namespace MySql.Data.Types
       else
         packet.WriteByte(7);
 
-      packet.WriteInteger(dtValue.Year, 2);
+      await packet.WriteIntegerAsync(dtValue.Year, 2, execAsync).ConfigureAwait(false);
       packet.WriteByte((byte)dtValue.Month);
       packet.WriteByte((byte)dtValue.Day);
+
       if (_type == MySqlDbType.Date)
       {
         packet.WriteByte(0);
@@ -335,14 +335,13 @@ namespace MySql.Data.Types
       return new MySqlDateTime(_type, year, month, day, hour, minute, second, microsecond);
     }
 
-    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
     {
-
       if (nullVal) return new MySqlDateTime(_type, true);
 
       if (length >= 0)
       {
-        string value = packet.ReadString(length);
+        string value = await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false);
         return ParseMySql(value);
       }
 
@@ -378,7 +377,7 @@ namespace MySql.Data.Types
       packet.Position += len;
     }
 
-#endregion
+    #endregion
 
     /// <summary>Returns this value as a DateTime</summary>
     public DateTime GetDateTime()
@@ -482,7 +481,7 @@ namespace MySql.Data.Types
       }
     }
 
-#region IComparable Members
+    #region IComparable Members
 
     int IComparable.CompareTo(object obj)
     {
@@ -512,9 +511,9 @@ namespace MySql.Data.Types
       return 0;
     }
 
-#endregion
+    #endregion
 
-#region IConvertible Members
+    #region IConvertible Members
     DateTime IConvertible.ToDateTime(IFormatProvider provider)
     {
       return GetDateTime();
@@ -550,7 +549,7 @@ namespace MySql.Data.Types
     long IConvertible.ToInt64(IFormatProvider provider) => throw new InvalidCastException();
     decimal IConvertible.ToDecimal(IFormatProvider provider) => throw new InvalidCastException();
     uint IConvertible.ToUInt32(IFormatProvider provider) => throw new InvalidCastException();
-#endregion
+    #endregion
 
   }
 }

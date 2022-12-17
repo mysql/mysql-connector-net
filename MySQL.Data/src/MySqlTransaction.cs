@@ -29,6 +29,8 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -174,7 +176,21 @@ namespace MySql.Data.MySqlClient
     /// <remarks>
     ///  The <see cref="Commit"/> method is equivalent to the MySQL SQL statement COMMIT.
     /// </remarks>
-    public override void Commit()
+    public override void Commit() => CommitAsync(false).GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Asynchronously commits the database transaction.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+#if NETFRAMEWORK || NETSTANDARD2_0
+    public Task CommitAsync(CancellationToken cancellationToken = default)
+#else
+    public override Task CommitAsync(CancellationToken cancellationToken = default)
+#endif
+    => CommitAsync(true, cancellationToken);
+
+    private async Task CommitAsync(bool execAsync, CancellationToken cancellationToken = default)
     {
       if (Connection == null || (Connection.State != ConnectionState.Open && !Connection.SoftClosed))
         throw new InvalidOperationException("Connection must be valid and open to commit transaction");
@@ -182,7 +198,7 @@ namespace MySql.Data.MySqlClient
         throw new InvalidOperationException("Transaction has already been committed or is not pending");
       using (MySqlCommand cmd = new MySqlCommand("COMMIT", Connection))
       {
-        cmd.ExecuteNonQuery();
+        await cmd.ExecuteNonQueryAsync(execAsync, cancellationToken).ConfigureAwait(false);
         open = false;
       }
     }
@@ -196,7 +212,21 @@ namespace MySql.Data.MySqlClient
     ///  (after BeginTransaction has been called, but before Commit is
     ///  called).
     /// </remarks>
-    public override void Rollback()
+    public override void Rollback() => RollbackAsync(false).GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Asynchronously rolls back a transaction from a pending state.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+#if NETFRAMEWORK || NETSTANDARD2_0
+    public Task RollbackAsync(CancellationToken cancellationToken = default)
+#else
+    public override Task RollbackAsync(CancellationToken cancellationToken = default)
+#endif
+    => RollbackAsync(true, cancellationToken);
+
+    private async Task RollbackAsync(bool execAsync, CancellationToken cancellationToken = default)
     {
       if (Connection == null || (Connection.State != ConnectionState.Open && !Connection.SoftClosed))
         throw new InvalidOperationException("Connection must be valid and open to rollback transaction");
@@ -204,7 +234,7 @@ namespace MySql.Data.MySqlClient
         throw new InvalidOperationException("Transaction has already been rolled back or is not pending");
       using (MySqlCommand cmd = new MySqlCommand("ROLLBACK", Connection))
       {
-        cmd.ExecuteNonQuery();
+        await cmd.ExecuteNonQueryAsync(execAsync, cancellationToken).ConfigureAwait(false);
         open = false;
       }
     }

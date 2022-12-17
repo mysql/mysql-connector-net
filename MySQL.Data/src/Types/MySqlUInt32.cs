@@ -26,9 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using System;
 using System.Globalization;
-using MySql.Data.MySqlClient;
+using System.Threading.Tasks;
 
 namespace MySql.Data.Types
 {
@@ -73,16 +74,16 @@ namespace MySql.Data.Types
       get { return _is24Bit ? "MEDIUMINT" : "INT"; }
     }
 
-    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object v, int length)
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object v, int length, bool execAsync)
     {
       uint val = v as uint? ?? Convert.ToUInt32(v);
       if (binary)
-        packet.WriteInteger((long)val, 4);
+        await packet.WriteIntegerAsync((long)val, 4, execAsync).ConfigureAwait(false);
       else
-        packet.WriteStringNoNull(val.ToString(CultureInfo.InvariantCulture));
+        await packet.WriteStringNoNullAsync(val.ToString(CultureInfo.InvariantCulture), execAsync).ConfigureAwait(false);
     }
 
-    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
     {
       if (nullVal)
         return new MySqlUInt32((this as IMySqlValue).MySqlDbType, true);
@@ -92,7 +93,7 @@ namespace MySql.Data.Types
                      (uint)packet.ReadInteger(4));
       else
         return new MySqlUInt32((this as IMySqlValue).MySqlDbType,
-                     UInt32.Parse(packet.ReadString(length), NumberStyles.Any, CultureInfo.InvariantCulture));
+                     UInt32.Parse(await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false), NumberStyles.Any, CultureInfo.InvariantCulture));
     }
 
     void IMySqlValue.SkipValue(MySqlPacket packet)
@@ -105,12 +106,12 @@ namespace MySql.Data.Types
     internal static void SetDSInfo(MySqlSchemaCollection sc)
     {
       string[] types = new string[] { "MEDIUMINT", "INT" };
-      MySqlDbType[] dbtype = new MySqlDbType[] { MySqlDbType.UInt24, 
+      MySqlDbType[] dbtype = new MySqlDbType[] { MySqlDbType.UInt24,
                 MySqlDbType.UInt32 };
 
       // we use name indexing because this method will only be called
       // when GetSchema is called for the DataSourceInformation 
-      // collection and then it wil be cached.
+      // collection and then it will be cached.
       for (int x = 0; x < types.Length; x++)
       {
         MySqlSchemaRow row = sc.AddRow();

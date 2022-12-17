@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,6 +30,8 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -85,11 +87,29 @@ namespace MySql.Data.MySqlClient
       socket = pSocket;
     }
 
-    public void Close()
+
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+    public async Task CloseAsync(bool execAsync)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     {
+#if !(NETSTANDARD2_0 || NETFRAMEWORK)
+      if (execAsync)
+      {
+        await outStream.DisposeAsync().ConfigureAwait(false);
+        await inStream.DisposeAsync().ConfigureAwait(false);
+        timedStream.Close();
+      }
+      else
+      {
+        outStream.Dispose();
+        inStream.Dispose();
+        timedStream.Close();
+      }
+#else
       outStream.Dispose();
       inStream.Dispose();
       timedStream.Close();
+#endif
     }
 
     #region Properties
@@ -131,14 +151,14 @@ namespace MySql.Data.MySqlClient
     /// ReadPacket is called by NativeDriver to start reading the next
     /// packet on the stream.
     /// </summary>
-    public MySqlPacket ReadPacket()
+    public async Task<MySqlPacket> ReadPacketAsync(bool execAsync)
     {
       //Debug.Assert(packet.Position == packet.Length);
 
       // make sure we have read all the data from the previous packet
       //Debug.Assert(HasMoreData == false, "HasMoreData is true in OpenPacket");
 
-      LoadPacket();
+      await LoadPacketAsync(execAsync).ConfigureAwait(false);
 
       // now we check if this packet is a server error
       if (packet.Buffer[0] == 0xff)
@@ -146,7 +166,7 @@ namespace MySql.Data.MySqlClient
         packet.ReadByte();  // read off the 0xff
 
         int code = packet.ReadInteger(2);
-        string msg = String.Empty;
+        string msg;
 
         if (packet.Version.isAtLeast(5, 5, 0))
           msg = packet.ReadString(Encoding.UTF8);
@@ -179,17 +199,19 @@ namespace MySql.Data.MySqlClient
     /// <param name="buffer"> Array to store bytes read from the stream </param>
     /// <param name="offset">The offset in buffer at which to begin storing the data read from the current stream. </param>
     /// <param name="count">Number of bytes to read</param>
-    internal static void ReadFully(Stream stream, byte[] buffer, int offset, int count)
+    internal static async Task ReadFullyAsync(Stream stream, byte[] buffer, int offset, int count, bool execAsync)
     {
       int numRead = 0;
       int numToRead = count;
       while (numToRead > 0)
       {
-        int read = stream.Read(buffer, offset + numRead, numToRead);
+        int read = execAsync
+          ? await stream.ReadAsync(buffer, offset + numRead, numToRead, CancellationToken.None).ConfigureAwait(false)
+          : stream.Read(buffer, offset + numRead, numToRead);
+
         if (read == 0)
-        {
           throw new EndOfStreamException();
-        }
+
         numRead += read;
         numToRead -= read;
       }
@@ -198,7 +220,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// LoadPacket loads up and decodes the header of the incoming packet.
     /// </summary>
-    public void LoadPacket()
+    public async Task LoadPacketAsync(bool execAsync)
     {
       try
       {
@@ -206,14 +228,14 @@ namespace MySql.Data.MySqlClient
         int offset = 0;
         while (true)
         {
-          ReadFully(inStream, packetHeader, 0, 4);
+          await ReadFullyAsync(inStream, packetHeader, 0, 4, execAsync).ConfigureAwait(false);
           sequenceByte = (byte)(packetHeader[3] + 1);
           int length = (int)(packetHeader[0] + (packetHeader[1] << 8) +
               (packetHeader[2] << 16));
 
           // make roo for the next block
           packet.Length += length;
-          ReadFully(inStream, packet.Buffer, offset, length);
+          await ReadFullyAsync(inStream, packet.Buffer, offset, length, execAsync).ConfigureAwait(false);
           offset += length;
 
           // if this block was < maxBlock then it's last one in a multipacket series
@@ -227,7 +249,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public void SendPacket(MySqlPacket packet)
+    public async Task SendPacketAsync(MySqlPacket packet, bool execAsync)
     {
       byte[] buffer = packet.Buffer;
       int length = packet.Position - 4;
@@ -243,25 +265,43 @@ namespace MySql.Data.MySqlClient
         buffer[offset + 1] = (byte)((lenToSend >> 8) & 0xff);
         buffer[offset + 2] = (byte)((lenToSend >> 16) & 0xff);
         buffer[offset + 3] = sequenceByte++;
+
         if (Socket != null && Socket.Available > 0)
+          await ReadPacketAsync(execAsync).ConfigureAwait(false);
+
+        if (execAsync)
         {
-          ReadPacket();
+          await outStream.WriteAsync(buffer, offset, lenToSend + 4).ConfigureAwait(false);
+          await outStream.FlushAsync().ConfigureAwait(false);
         }
-        outStream.Write(buffer, offset, lenToSend + 4);
-        outStream.Flush();
+        else
+        {
+          outStream.Write(buffer, offset, lenToSend + 4);
+          outStream.Flush();
+        }
+
         length -= lenToSend;
         offset += lenToSend;
       } while (length > 0);
     }
 
-    public void SendEntirePacketDirectly(byte[] buffer, int count)
+    public async Task SendEntirePacketDirectlyAsync(byte[] buffer, int count, bool execAsync)
     {
       buffer[0] = (byte)(count & 0xff);
       buffer[1] = (byte)((count >> 8) & 0xff);
       buffer[2] = (byte)((count >> 16) & 0xff);
       buffer[3] = sequenceByte++;
-      outStream.Write(buffer, 0, count + 4);
-      outStream.Flush();
+
+      if (execAsync)
+      {
+        await outStream.WriteAsync(buffer, 0, count + 4).ConfigureAwait(false);
+        await outStream.FlushAsync().ConfigureAwait(false);
+      }
+      else
+      {
+        outStream.Write(buffer, 0, count + 4);
+        outStream.Flush();
+      }
     }
 
     #endregion

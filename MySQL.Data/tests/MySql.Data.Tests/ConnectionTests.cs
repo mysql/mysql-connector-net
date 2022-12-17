@@ -173,7 +173,7 @@ namespace MySql.Data.MySqlClient.Tests
       connStr.Server = "badHostName";
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
       var ex = Assert.Throws<MySqlException>(() => c.Open());
-      if (Platform.IsWindows()) Assert.IsTrue(ex.InnerException.GetType() == typeof(System.Net.Sockets.SocketException));
+      if (Platform.IsWindows()) Assert.IsTrue(ex.InnerException.GetType() == typeof(ArgumentException));
     }
 
     /// <summary>
@@ -323,7 +323,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL(String.Format(
         "CREATE TABLE `{0}`.`footest` (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME,  `multi word` int, PRIMARY KEY(id))", dbName), true);
 
-      await Connection.ChangeDataBaseAsync(dbName);
+      await Connection.ChangeDatabaseAsync(dbName);
 
       var cmd = Connection.CreateCommand();
       cmd.CommandText = "SELECT COUNT(*) FROM footest";
@@ -587,7 +587,7 @@ namespace MySql.Data.MySqlClient.Tests
       connection.Open();
       Assert.AreEqual(ConnectionState.Open, connection.State);
 
-      connection.Abort();
+      connection.AbortAsync(false).GetAwaiter().GetResult();
       Assert.AreEqual(ConnectionState.Closed, connection.State);
 
       connection.Open();
@@ -1473,7 +1473,7 @@ namespace MySql.Data.MySqlClient.Tests
       using var cts = new CancellationTokenSource();
       cts.Cancel();
 
-      Assert.ThrowsAsync<TaskCanceledException>(async () => await conn.OpenAsync(cts.Token));
+      Assert.ThrowsAsync<OperationCanceledException>(async () => await conn.OpenAsync(cts.Token));
     }
 
     #region Methods

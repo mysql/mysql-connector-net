@@ -34,6 +34,7 @@ using System.Data.Common;
 using System.Globalization;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -48,14 +49,14 @@ namespace MySql.Data.MySqlClient
   ///  <para>
   ///    While the <see cref="MySqlDataReader"/> is in use, the associated <see cref="MySqlConnection"/>
   ///    is busy serving the <see cref="MySqlDataReader"/>, and no other operations can be performed
-  ///    on the <B>MySqlConnection</B> other than closing it. This is the case until the
+  ///    on the <see cref="MySqlConnection"/> other than closing it. This is the case until the
   ///    <see cref="Close"/> method of the <see cref="MySqlDataReader"/> is called.
   ///  </para>
   ///  <para>
   ///    <see cref="IsClosed"/> and <see cref="RecordsAffected"/>
   ///    are the only properties that you can call after the <see cref="MySqlDataReader"/> is
   ///    closed. Though the <see cref="RecordsAffected"/> property may be accessed at any time
-  ///    while the <see cref="MySqlDataReader"/> exists, always call <B>Close</B> before returning
+  ///    while the <see cref="MySqlDataReader"/> exists, always call <see cref="Close"/> before returning
   ///    the value of <see cref="RecordsAffected"/> to ensure an accurate return value.
   ///  </para>
   ///  <para>
@@ -66,7 +67,7 @@ namespace MySql.Data.MySqlClient
   ///    returned by methods such as <see cref="GetValue"/>.
   ///  </para>
   /// </remarks>
-  public sealed partial class MySqlDataReader : DbDataReader, IDataReader, IDataRecord, IDisposable
+  public sealed class MySqlDataReader : DbDataReader, IDataReader, IDataRecord, IDisposable
   {
     // The DataReader should always be open when returned to the user.
     private bool _isOpen = true;
@@ -99,12 +100,8 @@ namespace MySql.Data.MySqlClient
       affectedRows = -1;
       this.Statement = statement;
 
-      if (cmd.CommandType == CommandType.StoredProcedure
-        && cmd.UpdatedRowSource == UpdateRowSource.FirstReturnedRecord
-      )
-      {
+      if (cmd.CommandType == CommandType.StoredProcedure && cmd.UpdatedRowSource == UpdateRowSource.FirstReturnedRecord)
         _disableZeroAffectedRows = true;
-      }
     }
 
     #region Properties
@@ -124,7 +121,7 @@ namespace MySql.Data.MySqlClient
     public override int FieldCount => ResultSet?.Size ?? 0;
 
     /// <summary>
-    /// Gets a value indicating whether the MySqlDataReader contains one or more rows.
+    /// Gets a value indicating whether the <see cref="MySqlDataReader"/> contains one or more rows.
     /// </summary>
     /// <returns>true if the <see cref="MySqlDataReader"/> contains one or more rows; otherwise false.</returns>
     public override bool HasRows => ResultSet?.HasRows ?? false;
@@ -173,7 +170,7 @@ namespace MySql.Data.MySqlClient
     public override object this[String name] => this[GetOrdinal(name)];
 
     /// <summary>
-    /// Gets a value indicating the depth of nesting for the current row.  This method is not 
+    /// Gets a value indicating the depth of nesting for the current row. This method is not 
     /// supported currently and always returns 0.
     /// </summary>
     /// <returns>The depth of nesting for the current row.</returns>
@@ -182,9 +179,19 @@ namespace MySql.Data.MySqlClient
     #endregion
 
     /// <summary>
-    /// Closes the MySqlDataReader object.
+    /// Closes the <see cref="MySqlDataReader"/> object.
     /// </summary>
-    public override void Close()
+    public override void Close() => CloseAsync(false).GetAwaiter().GetResult();
+
+#if NETSTANDARD2_1 || NET6_0_OR_GREATER
+    /// <summary>
+    /// Asynchronously closes the <see cref="MySqlDataReader"/> object.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public override Task CloseAsync() => CloseAsync(true);
+#endif
+
+    internal async Task CloseAsync(bool execAsync)
     {
       if (!_isOpen) return;
 
@@ -197,7 +204,7 @@ namespace MySql.Data.MySqlClient
         // Temporarily change to Default behavior to allow NextResult to finish properly.
         if (!originalBehavior.Equals(CommandBehavior.SchemaOnly))
           CommandBehavior = CommandBehavior.Default;
-        while (NextResult()) { }
+        while (await NextResultAsync(execAsync, CancellationToken.None).ConfigureAwait(false)) { }
       }
       catch (MySqlException ex)
       {
@@ -214,7 +221,7 @@ namespace MySql.Data.MySqlClient
           for (Exception exception = ex; exception != null;
             exception = exception.InnerException)
           {
-            if (exception is System.IO.IOException)
+            if (exception is IOException)
             {
               isIOException = true;
               break;
@@ -227,7 +234,7 @@ namespace MySql.Data.MySqlClient
           }
         }
       }
-      catch (System.IO.IOException)
+      catch (IOException)
       {
         // eat, on the same reason we eat IO exceptions wrapped into 
         // MySqlExceptions reasons, described above.
@@ -238,19 +245,19 @@ namespace MySql.Data.MySqlClient
         _connection.Reader = null;
         CommandBehavior = originalBehavior;
       }
-      // we now give the command a chance to terminate.  In the case of
+      // we now give the command a chance to terminate. In the case of
       // stored procedures it needs to update out and inout parameters
-      Command.Close(this);
+      await Command.CloseAsync(this, execAsync).ConfigureAwait(false);
       CommandBehavior = CommandBehavior.Default;
 
       if (this.Command.Canceled && _connection.driver.Version.isAtLeast(5, 1, 0))
       {
         // Issue dummy command to clear kill flag
-        ClearKillFlag();
+        await ClearKillFlagAsync(execAsync).ConfigureAwait(false);
       }
 
       if (shouldCloseConnection)
-        _connection.Close();
+        await _connection.CloseAsync().ConfigureAwait(false);
 
       Command = null;
       _connection.IsInUse = false;
@@ -1103,150 +1110,6 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Advances the data reader to the next result, when reading the results of batch SQL statements.
-    /// </summary>
-    /// <returns>true if there are more result sets; otherwise false.</returns>
-    public override bool NextResult()
-    {
-      if (!_isOpen)
-        Throw(new MySqlException(Resources.NextResultIsClosed));
-
-      bool isCaching = Command.CommandType == CommandType.TableDirect && Command.EnableCaching &&
-        (CommandBehavior & CommandBehavior.SequentialAccess) == 0;
-
-      // this will clear out any unread data
-      if (ResultSet != null)
-      {
-        ResultSet.Close();
-        if (isCaching)
-          TableCache.AddToCache(Command.CommandText, ResultSet);
-      }
-
-      // single result means we only return a single resultset.  If we have already
-      // returned one, then we return false
-      // TableDirect is basically a select * from a single table so it will generate
-      // a single result also
-      if (ResultSet != null &&
-        ((CommandBehavior & CommandBehavior.SingleResult) != 0 || isCaching))
-        return false;
-
-      // next load up the next resultset if any
-      try
-      {
-        do
-        {
-          ResultSet = null;
-          // if we are table caching, then try to retrieve the resultSet from the cache
-          if (isCaching)
-            ResultSet = TableCache.RetrieveFromCache(Command.CommandText,
-              Command.CacheAge);
-
-          if (ResultSet == null)
-          {
-            ResultSet = driver.NextResult(Statement.StatementId, false);
-            if (ResultSet == null) return false;
-            if (ResultSet.IsOutputParameters && Command.CommandType == CommandType.StoredProcedure)
-            {
-              StoredProcedure sp = Statement as StoredProcedure;
-              sp.ProcessOutputParameters(this);
-              ResultSet.Close();
-              for (int i = 0; i < ResultSet.Fields.Length; i++)
-              {
-                if (ResultSet.Fields[i].ColumnName.StartsWith("@" + StoredProcedure.ParameterPrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                  ResultSet = null;
-                  break;
-                }
-              }
-              if (!sp.ServerProvidingOutputParameters) return false;
-              // if we are using server side output parameters then we will get our ok packet
-              // *after* the output parameters resultset
-              ResultSet = driver.NextResult(Statement.StatementId, true);
-            }
-            else if (ResultSet.IsOutputParameters && Command.CommandType == CommandType.Text && !Command.IsPrepared && !Command.InternallyCreated)
-            {
-              Command.ProcessOutputParameters(this);
-              ResultSet.Close();
-              for (int i = 0; i < ResultSet.Fields.Length; i++)
-              {
-                if (ResultSet.Fields[i].ColumnName.StartsWith("@" + MySqlCommand.ParameterPrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                  ResultSet = null;
-                  break;
-                }
-              }
-              if (!Statement.ServerProvidingOutputParameters) return false;
-
-              ResultSet = driver.NextResult(Statement.StatementId, true);
-            }
-            ResultSet.Cached = isCaching;
-          }
-
-          if (ResultSet.Size == 0)
-          {
-            Command.LastInsertedId = Command.LastInsertedId == -1 ? ResultSet.InsertedId : Command.LastInsertedId;
-
-            if (affectedRows == -1)
-              affectedRows = ResultSet.AffectedRows;
-            else
-              affectedRows += ResultSet.AffectedRows;
-          }
-        } while (ResultSet.Size == 0);
-
-        return true;
-      }
-      catch (MySqlException ex)
-      {
-        if (ex.IsFatal)
-          _connection.Abort();
-        if (ex.Number == 0)
-          throw new MySqlException(Resources.FatalErrorReadingResult, ex);
-        if ((CommandBehavior & CommandBehavior.CloseConnection) != 0)
-          Close();
-        throw;
-      }
-    }
-
-    /// <summary>
-    /// Advances the <see cref="MySqlDataReader"/> to the next record.
-    /// </summary>
-    /// <returns>true if there are more rows; otherwise false.</returns>
-    public override bool Read()
-    {
-      if (!_isOpen)
-        Throw(new MySqlException("Invalid attempt to Read when reader is closed."));
-      if (ResultSet == null)
-        return false;
-
-      try
-      {
-        return ResultSet.NextRow(CommandBehavior);
-      }
-      catch (TimeoutException tex)
-      {
-        _connection.HandleTimeoutOrThreadAbort(tex);
-        throw; // unreached
-      }
-      catch (ThreadAbortException taex)
-      {
-        _connection.HandleTimeoutOrThreadAbort(taex);
-        throw;
-      }
-      catch (MySqlException ex)
-      {
-        if (ex.IsFatal)
-          _connection.Abort();
-
-        if (ex.IsQueryAborted)
-        {
-          throw;
-        }
-
-        throw new MySqlException(Resources.FatalErrorDuringRead, ex);
-      }
-    }
-
-    /// <summary>
     /// Gets the value of the specified column as a <see cref="MySqlGeometry"/>.
     /// </summary>
     /// <param name="i">The index of the colum.</param>
@@ -1299,27 +1162,6 @@ namespace MySql.Data.MySqlClient
       }
 
       return v;
-    }
-
-
-    private void ClearKillFlag()
-    {
-      // This query will silently crash because of the Kill call that happened before.
-      string dummyStatement = "SELECT * FROM bogus_table LIMIT 0"; /* dummy query used to clear kill flag */
-      MySqlCommand dummyCommand = new MySqlCommand(dummyStatement, _connection) { InternallyCreated = true };
-
-      try
-      {
-        dummyCommand.ExecuteReader(); // ExecuteReader catches the exception and returns null, which is expected.
-      }
-      catch (MySqlException ex)
-      {
-        int[] errors = { (int)MySqlErrorCode.NoSuchTable, (int)MySqlErrorCode.TableAccessDenied, (int)MySqlErrorCode.UnknownTable };
-        if (Array.IndexOf(errors, (int)ex.Number) < 0)
-        {
-          throw;
-        }
-      }
     }
 
     /// <summary>
@@ -1379,6 +1221,252 @@ namespace MySql.Data.MySqlClient
       return base.GetFieldValue<T>(ordinal);
     }
 
+    /// <summary>
+    /// Describes the column metadata of the <see cref="MySqlDataReader"/>.
+    /// </summary>
+    /// <returns>A <see cref="DataTable"/> object.</returns>
+    public override DataTable GetSchemaTable()
+    {
+      // Only Results from SQL SELECT Queries 
+      // get a DataTable for schema of the result
+      // otherwise, DataTable is null reference
+      if (FieldCount == 0) return null;
+
+      DataTable dataTableSchema = new DataTable("SchemaTable");
+
+      dataTableSchema.Columns.Add("ColumnName", typeof(string));
+      dataTableSchema.Columns.Add("ColumnOrdinal", typeof(int));
+      dataTableSchema.Columns.Add("ColumnSize", typeof(int));
+      dataTableSchema.Columns.Add("NumericPrecision", typeof(int));
+      dataTableSchema.Columns.Add("NumericScale", typeof(int));
+      dataTableSchema.Columns.Add("IsUnique", typeof(bool));
+      dataTableSchema.Columns.Add("IsKey", typeof(bool));
+      DataColumn dc = dataTableSchema.Columns["IsKey"];
+      dc.AllowDBNull = true; // IsKey can have a DBNull
+      dataTableSchema.Columns.Add("BaseCatalogName", typeof(string));
+      dataTableSchema.Columns.Add("BaseColumnName", typeof(string));
+      dataTableSchema.Columns.Add("BaseSchemaName", typeof(string));
+      dataTableSchema.Columns.Add("BaseTableName", typeof(string));
+      dataTableSchema.Columns.Add("DataType", typeof(Type));
+      dataTableSchema.Columns.Add("AllowDBNull", typeof(bool));
+      dataTableSchema.Columns.Add("ProviderType", typeof(int));
+      dataTableSchema.Columns.Add("IsAliased", typeof(bool));
+      dataTableSchema.Columns.Add("IsExpression", typeof(bool));
+      dataTableSchema.Columns.Add("IsIdentity", typeof(bool));
+      dataTableSchema.Columns.Add("IsAutoIncrement", typeof(bool));
+      dataTableSchema.Columns.Add("IsRowVersion", typeof(bool));
+      dataTableSchema.Columns.Add("IsHidden", typeof(bool));
+      dataTableSchema.Columns.Add("IsLong", typeof(bool));
+      dataTableSchema.Columns.Add("IsReadOnly", typeof(bool));
+
+      int ord = 1;
+      for (int i = 0; i < FieldCount; i++)
+      {
+        MySqlField f = ResultSet.Fields[i];
+        DataRow r = dataTableSchema.NewRow();
+        r["ColumnName"] = f.ColumnName;
+        r["ColumnOrdinal"] = ord++;
+        r["ColumnSize"] = f.IsTextField ? f.ColumnLength / f.MaxLength : f.ColumnLength;
+        int prec = f.Precision;
+        int pscale = f.Scale;
+        if (prec != -1)
+          r["NumericPrecision"] = (short)prec;
+        if (pscale != -1)
+          r["NumericScale"] = (short)pscale;
+        r["DataType"] = GetFieldType(i);
+        r["ProviderType"] = (int)f.Type;
+        r["IsLong"] = f.IsBlob && (f.ColumnLength > 255 || f.ColumnLength == -1);
+        r["AllowDBNull"] = f.AllowsNull;
+        r["IsReadOnly"] = false;
+        r["IsRowVersion"] = false;
+        r["IsUnique"] = false;
+        r["IsKey"] = f.IsPrimaryKey;
+        r["IsAutoIncrement"] = f.IsAutoIncrement;
+        r["BaseSchemaName"] = f.DatabaseName;
+        r["BaseCatalogName"] = null;
+        r["BaseTableName"] = f.RealTableName;
+        r["BaseColumnName"] = f.OriginalColumnName;
+
+        dataTableSchema.Rows.Add(r);
+      }
+
+      return dataTableSchema;
+    }
+
+    /// <summary>
+    /// Advances the data reader to the next result when reading the results of batch SQL statements.
+    /// </summary>
+    /// <returns><see langword="true"/> if there are more result sets; otherwise <see langword="false"/>.</returns>
+    public override bool NextResult() => NextResultAsync(false, CancellationToken.None).GetAwaiter().GetResult();
+
+    public override Task<bool> NextResultAsync(CancellationToken cancellationToken) => NextResultAsync(true, cancellationToken);
+
+    internal async Task<bool> NextResultAsync(bool execAsync, CancellationToken cancellationToken)
+    {
+      if (!_isOpen)
+        Throw(new MySqlException(Resources.NextResultIsClosed));
+
+      bool isCaching = Command.CommandType == CommandType.TableDirect && Command.EnableCaching &&
+        (CommandBehavior & CommandBehavior.SequentialAccess) == 0;
+
+      // this will clear out any unread data
+      if (ResultSet != null)
+      {
+        await ResultSet.CloseAsync(execAsync).ConfigureAwait(false);
+        if (isCaching)
+          TableCache.AddToCache(Command.CommandText, ResultSet);
+      }
+
+      // single result means we only return a single resultset.  If we have already
+      // returned one, then we return false
+      // TableDirect is basically a select * from a single table so it will generate
+      // a single result also
+      if (ResultSet != null &&
+        ((CommandBehavior & CommandBehavior.SingleResult) != 0 || isCaching))
+        return false;
+
+      // next load up the next resultset if any
+      try
+      {
+        do
+        {
+          ResultSet = null;
+          // if we are table caching, then try to retrieve the resultSet from the cache
+          if (isCaching)
+            ResultSet = TableCache.RetrieveFromCache(Command.CommandText, Command.CacheAge);
+
+          if (ResultSet == null)
+          {
+            ResultSet = await driver.NextResultAsync(Statement.StatementId, false, execAsync).ConfigureAwait(false);
+
+            if (ResultSet == null) return false;
+
+            if (ResultSet.IsOutputParameters && Command.CommandType == CommandType.StoredProcedure)
+            {
+              StoredProcedure sp = Statement as StoredProcedure;
+              sp.ProcessOutputParameters(this);
+              await ResultSet.CloseAsync(execAsync).ConfigureAwait(false);
+
+              for (int i = 0; i < ResultSet.Fields.Length; i++)
+              {
+                if (ResultSet.Fields[i].ColumnName.StartsWith("@" + StoredProcedure.ParameterPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                  ResultSet = null;
+                  break;
+                }
+              }
+
+              if (!sp.ServerProvidingOutputParameters) return false;
+              // if we are using server side output parameters then we will get our ok packet
+              // *after* the output parameters resultset
+              ResultSet = await driver.NextResultAsync(Statement.StatementId, true, execAsync).ConfigureAwait(false);
+            }
+            else if (ResultSet.IsOutputParameters && Command.CommandType == CommandType.Text && !Command.IsPrepared && !Command.InternallyCreated)
+            {
+              Command.ProcessOutputParameters(this);
+              await ResultSet.CloseAsync(execAsync).ConfigureAwait(false);
+
+              for (int i = 0; i < ResultSet.Fields.Length; i++)
+              {
+                if (ResultSet.Fields[i].ColumnName.StartsWith("@" + MySqlCommand.ParameterPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                  ResultSet = null;
+                  break;
+                }
+              }
+
+              if (!Statement.ServerProvidingOutputParameters) return false;
+
+              ResultSet = await driver.NextResultAsync(Statement.StatementId, true, execAsync).ConfigureAwait(false);
+            }
+            ResultSet.Cached = isCaching;
+          }
+
+          if (ResultSet.Size == 0)
+          {
+            Command.LastInsertedId = Command.LastInsertedId == -1 ? ResultSet.InsertedId : Command.LastInsertedId;
+
+            if (affectedRows == -1)
+              affectedRows = ResultSet.AffectedRows;
+            else
+              affectedRows += ResultSet.AffectedRows;
+          }
+        } while (ResultSet.Size == 0);
+
+        return true;
+      }
+      catch (MySqlException ex)
+      {
+        if (ex.IsFatal)
+          await _connection.AbortAsync(execAsync, CancellationToken.None).ConfigureAwait(false);
+        if (ex.Number == 0)
+          throw new MySqlException(Resources.FatalErrorReadingResult, ex);
+        if ((CommandBehavior & CommandBehavior.CloseConnection) != 0)
+          await CloseAsync(execAsync).ConfigureAwait(false);
+        throw;
+      }
+    }
+
+    /// <summary>
+    /// Advances the <see cref="MySqlDataReader"/> to the next record.
+    /// </summary>
+    /// <returns>true if there are more rows; otherwise false.</returns>
+    public override bool Read() => ReadAsync(false, CancellationToken.None).GetAwaiter().GetResult();
+
+    public override Task<bool> ReadAsync(CancellationToken cancellationToken) => ReadAsync(true, cancellationToken);
+
+    internal async Task<bool> ReadAsync(bool execAsync, CancellationToken cancellationToken = default)
+    {
+      if (!_isOpen)
+        Throw(new MySqlException("Invalid attempt to Read when reader is closed."));
+      if (ResultSet == null)
+        return false;
+
+      try
+      {
+        return await ResultSet.NextRowAsync(CommandBehavior, execAsync).ConfigureAwait(false);
+      }
+      catch (TimeoutException tex)
+      {
+        await _connection.HandleTimeoutOrThreadAbortAsync(tex, execAsync, cancellationToken).ConfigureAwait(false);
+        throw; // unreached
+      }
+      catch (ThreadAbortException taex)
+      {
+        await _connection.HandleTimeoutOrThreadAbortAsync(taex, execAsync, cancellationToken).ConfigureAwait(false);
+        throw;
+      }
+      catch (MySqlException ex)
+      {
+        if (ex.IsFatal)
+          await _connection.AbortAsync(execAsync, cancellationToken).ConfigureAwait(false);
+
+        if (ex.IsQueryAborted)
+          throw;
+
+        throw new MySqlException(Resources.FatalErrorDuringRead, ex);
+      }
+    }
+
+    private async Task ClearKillFlagAsync(bool execAsync)
+    {
+      // This query will silently crash because of the Kill call that happened before.
+      string dummyStatement = "SELECT * FROM bogus_table LIMIT 0"; /* dummy query used to clear kill flag */
+      MySqlCommand dummyCommand = new MySqlCommand(dummyStatement, _connection) { InternallyCreated = true };
+
+      try
+      {
+        await dummyCommand.ExecuteReaderAsync(default, execAsync).ConfigureAwait(false); // ExecuteReader catches the exception and returns null, which is expected.
+      }
+      catch (MySqlException ex)
+      {
+        int[] errors = { (int)MySqlErrorCode.NoSuchTable, (int)MySqlErrorCode.TableAccessDenied, (int)MySqlErrorCode.UnknownTable };
+
+        if (Array.IndexOf(errors, (int)ex.Number) < 0)
+          throw;
+      }
+    }
+
     private void Throw(Exception ex)
     {
       _connection?.Throw(ex);
@@ -1388,18 +1476,36 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Releases all resources used by the current instance of the <see cref="MySqlDataReader"/> class.
     /// </summary>
-    public new void Dispose()
+#if NETFRAMEWORK || NETSTANDARD2_0
+    public Task DisposeAsync() => DisposeAsync(true);
+#else
+    /// <summary>
+    /// Releases all resources used by the current instance of the <see cref="MySqlDataReader"/> class.
+    /// </summary>
+    public override ValueTask DisposeAsync() => DisposeAsync(true);
+#endif
+
+    protected override void Dispose(bool disposing)
     {
-      Dispose(true);
-      GC.SuppressFinalize(this);
+      try
+      {
+        if (disposing)
+          DisposeAsync(false).GetAwaiter().GetResult();
+      }
+      finally
+      {
+        base.Dispose(disposing);
+      }
     }
 
-    internal new void Dispose(bool disposing)
+#if NETFRAMEWORK || NETSTANDARD2_0
+    internal async Task DisposeAsync(bool execAsync)
+#else
+    internal async ValueTask DisposeAsync(bool execAsync)
+#endif
     {
-      if (disposing)
-      {
-        Close();
-      }
+      await CloseAsync(execAsync).ConfigureAwait(false);
+      GC.SuppressFinalize(this);
     }
 
     #region Destructor

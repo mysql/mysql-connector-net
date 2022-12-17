@@ -29,6 +29,7 @@
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
@@ -53,7 +54,7 @@ namespace MySql.Data.MySqlClient.Authentication
       else base.SetAuthData(data);
     }
 
-    protected override byte[] MoreData(byte[] data)
+    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
     {
       rawPubkey = data;
 
@@ -63,16 +64,16 @@ namespace MySql.Data.MySqlClient.Authentication
         byte[] scramble = GetPassword() as byte[];
         byte[] buffer = new byte[scramble.Length - 1];
         Array.Copy(scramble, 1, buffer, 0, scramble.Length - 1);
-        return buffer;
+        return Task.FromResult<byte[]>(buffer);
       }
       // Fast authentication.
       else if (data[0] == 3)
       {
         _authStage = AuthStage.FAST_AUTH;
-        return null;
+        return Task.FromResult<byte[]>(null);
       }
       else
-        return GeneratePassword() as byte[];
+        return Task.FromResult<byte[]>(GeneratePassword());
     }
 
     /// <summary>

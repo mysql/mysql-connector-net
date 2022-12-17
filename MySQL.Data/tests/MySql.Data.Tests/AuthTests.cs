@@ -1546,7 +1546,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       OciAuthenticationPlugin plugin = new OciAuthenticationPlugin();
 
-      string exMsg = Assert.Throws<MySqlException>(() => plugin.Authenticate(false)).Message;
+      string exMsg = Assert.Throws<MySqlException>(() => plugin.AuthenticateAsync(false, false).GetAwaiter().GetResult()).Message;
       StringAssert.AreEqualIgnoringCase(Resources.OciSDKNotFound, exMsg);
     }
 

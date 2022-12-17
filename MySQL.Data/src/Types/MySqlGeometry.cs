@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,9 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.MySqlClient;
 using System;
 using System.Globalization;
-using MySql.Data.MySqlClient;
+using System.Threading.Tasks;
 
 namespace MySql.Data.Types
 {
@@ -178,7 +179,7 @@ namespace MySql.Data.Types
 
     string IMySqlValue.MySqlTypeName => "GEOMETRY";
 
-    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
     {
       byte[] buffToWrite = null;
 
@@ -210,13 +211,13 @@ namespace MySql.Data.Types
 
       if (!binary)
       {
-        packet.WriteStringNoNull("_binary ");
+        await packet.WriteStringNoNullAsync("_binary ", execAsync).ConfigureAwait(false);
         packet.WriteByte((byte)'\'');
         EscapeByteArray(result, GEOMETRY_LENGTH, packet);
         packet.WriteByte((byte)'\'');
       }
       else
-        packet.WriteLenString(val.ToString());
+        await packet.WriteLenStringAsync(val.ToString(), execAsync).ConfigureAwait(false);
     }
 
     private static void EscapeByteArray(byte[] bytes, int length, MySqlPacket packet)
@@ -240,7 +241,7 @@ namespace MySql.Data.Types
       }
     }
 
-    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
     {
       MySqlGeometry g;
       if (nullVal)
@@ -251,7 +252,7 @@ namespace MySql.Data.Types
           length = (long)packet.ReadFieldLength();
 
         byte[] newBuff = new byte[length];
-        packet.Read(newBuff, 0, (int)length);
+        await packet.ReadAsync(newBuff, 0, (int)length, execAsync).ConfigureAwait(false);
         g = new MySqlGeometry(_type, newBuff);
       }
       return g;

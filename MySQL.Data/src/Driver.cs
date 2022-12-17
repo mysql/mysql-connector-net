@@ -26,21 +26,23 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Common;
+using MySql.Data.Types;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Security;
 using System.Text;
-using MySql.Data.Common;
-using MySql.Data.Types;
-using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
   /// <summary>
   /// Summary description for BaseDriver.
   /// </summary>
-  internal partial class Driver : IDisposable
+  internal class Driver : IDisposable
   {
     protected Encoding encoding;
     protected MySqlConnectionStringBuilder ConnectionString;
@@ -73,7 +75,7 @@ namespace MySql.Data.MySqlClient
 
     ~Driver()
     {
-      Dispose(false);
+      DisposeAsync(false, false).GetAwaiter().GetResult();
     }
 
     #region Properties
@@ -134,7 +136,7 @@ namespace MySql.Data.MySqlClient
              ts.TotalSeconds > Settings.ConnectionLifeTime;
     }
 
-    public static Driver Create(MySqlConnectionStringBuilder settings)
+    public static async Task<Driver> CreateAsync(MySqlConnectionStringBuilder settings, bool execAsync, CancellationToken cancellationToken)
     {
       Driver d = null;
 
@@ -145,23 +147,34 @@ namespace MySql.Data.MySqlClient
       }
       catch (TypeInitializationException ex)
       {
-        if (!(ex.InnerException is SecurityException))
+        if (ex.InnerException is not SecurityException)
           throw;
         //Only rethrow if InnerException is not a SecurityException. If it is a SecurityException then 
         //we couldn't initialize MySqlTrace because we don't have unmanaged code permissions. 
       }
-      if (d == null)
-        d = new Driver(settings);
+
+      d ??= new Driver(settings);
+
+      CancellationTokenSource connTimeoutSource = null;
+      CancellationTokenSource linkedSource = null;
+
+      if (settings.ConnectionTimeout != 0)
+        connTimeoutSource = new CancellationTokenSource((int)settings.ConnectionTimeout * 1000);
+
+      if (cancellationToken.CanBeCanceled && connTimeoutSource is not null)
+        linkedSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, connTimeoutSource.Token);
+
+      var connToken = linkedSource?.Token ?? connTimeoutSource?.Token ?? cancellationToken;
 
       //this try was added as suggested fix submitted on MySql Bug 72025, socket connections are left in CLOSE_WAIT status when connector fails to open a new connection.
       //the bug is present when the client try to get more connections that the server support or has configured in the max_connections variable.
       try
       {
-        d.Open();
+        await d.OpenAsync(execAsync, connToken).ConfigureAwait(false);
       }
       catch
       {
-        d.Dispose();
+        await d.CloseAsync(execAsync).ConfigureAwait(false);
         throw;
       }
       return d;
@@ -172,7 +185,7 @@ namespace MySql.Data.MySqlClient
       return (handler.ServerStatus & flag) != 0;
     }
 
-    public virtual void Open()
+    public virtual async Task OpenAsync(bool execAsync, CancellationToken cancellationToken)
     {
       int count = 0;
       do
@@ -180,7 +193,7 @@ namespace MySql.Data.MySqlClient
         try
         {
           creationTime = DateTime.Now;
-          handler.Open();
+          await handler.OpenAsync(execAsync, cancellationToken).ConfigureAwait(false);
           IsOpen = true;
           break;
         }
@@ -191,12 +204,12 @@ namespace MySql.Data.MySqlClient
       } while (true);
     }
 
-    public virtual void Close()
+    public virtual async Task CloseAsync(bool execAsync)
     {
-      Dispose();
+      await DisposeAsync(true, execAsync).ConfigureAwait(false);
     }
 
-    public virtual void Configure(MySqlConnection connection)
+    public virtual async Task ConfigureAsync(MySqlConnection connection, bool execAsync, CancellationToken cancellationToken)
     {
       bool firstConfigure = false;
 
@@ -213,13 +226,13 @@ namespace MySql.Data.MySqlClient
           if (Pool != null && Settings.CacheServerProperties)
           {
             if (Pool.ServerProperties == null)
-              Pool.ServerProperties = LoadServerProperties(connection);
+              Pool.ServerProperties = await LoadServerPropertiesAsync(connection, execAsync, cancellationToken).ConfigureAwait(false);
             serverProps = Pool.ServerProperties;
           }
           else
-            serverProps = LoadServerProperties(connection);
+            serverProps = await LoadServerPropertiesAsync(connection, execAsync, cancellationToken).ConfigureAwait(false);
 
-          LoadCharacterSets(connection);
+          await LoadCharacterSetsAsync(connection, execAsync, cancellationToken).ConfigureAwait(false);
         }
         catch (MySqlException ex)
         {
@@ -263,12 +276,12 @@ namespace MySql.Data.MySqlClient
       if ((clientCharSet != null && clientCharSet.ToString() != charSet) ||
         (connCharSet != null && connCharSet.ToString() != charSet))
       {
-        MySqlCommand setNamesCmd = new MySqlCommand("SET NAMES " + charSet, connection);
+        using MySqlCommand setNamesCmd = new MySqlCommand("SET NAMES " + charSet, connection);
         setNamesCmd.InternallyCreated = true;
-        setNamesCmd.ExecuteNonQuery();
+        await setNamesCmd.ExecuteNonQueryAsync(execAsync, cancellationToken).ConfigureAwait(false);
       }
       // sets character_set_results to null to return values in their original character set
-      charSetCmd.ExecuteNonQuery();
+      await charSetCmd.ExecuteNonQueryAsync(execAsync, cancellationToken).ConfigureAwait(false);
 
       Encoding = CharSetMap.GetEncoding(charSet ?? "utf-8");
 
@@ -280,7 +293,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <param name="connection"></param>
     /// <returns></returns>
-    private Dictionary<string, string> LoadServerProperties(MySqlConnection connection)
+    private async Task<Dictionary<string, string>> LoadServerPropertiesAsync(MySqlConnection connection, bool execAsync, CancellationToken cancellationToken)
     {
       // load server properties
       Dictionary<string, string> hash = new Dictionary<string, string>();
@@ -288,9 +301,9 @@ namespace MySql.Data.MySqlClient
         @@character_set_connection, @@license, @@sql_mode, @@lower_case_table_names, @@autocommit;", connection);
       try
       {
-        using (MySqlDataReader reader = cmd.ExecuteReader())
+        using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
         {
-          while (reader.Read())
+          while (await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false))
           {
             for (int i = 0; i <= reader.FieldCount - 1; i++)
             {
@@ -301,7 +314,7 @@ namespace MySql.Data.MySqlClient
           }
         }
         // Get time zone offset as numerical value
-        timeZoneOffset = GetTimeZoneOffset(connection);
+        timeZoneOffset = await GetTimeZoneOffsetAsync(connection, execAsync, cancellationToken).ConfigureAwait(false);
         return hash;
       }
       catch (Exception ex)
@@ -311,10 +324,10 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private int GetTimeZoneOffset(MySqlConnection con)
+    private async Task<int> GetTimeZoneOffsetAsync(MySqlConnection con, bool execAsync, CancellationToken cancellationToken)
     {
       MySqlCommand cmd = new MySqlCommand("SELECT TIMEDIFF(NOW(), UTC_TIMESTAMP())", con);
-      TimeSpan? timeZoneDiff = cmd.ExecuteScalar() as TimeSpan?;
+      TimeSpan? timeZoneDiff = await cmd.ExecuteScalarAsync(execAsync, cancellationToken).ConfigureAwait(false) as TimeSpan?;
       string timeZoneString = "0:00";
       if (timeZoneDiff.HasValue)
         timeZoneString = timeZoneDiff.ToString();
@@ -326,7 +339,7 @@ namespace MySql.Data.MySqlClient
     /// Loads all the current character set names and ids for this server 
     /// into the charSets hashtable
     /// </summary>
-    private void LoadCharacterSets(MySqlConnection connection)
+    private async Task LoadCharacterSetsAsync(MySqlConnection connection, bool execAsync, CancellationToken cancellationToken)
     {
       serverProps.TryGetValue("autocommit", out var serverAutocommit);
       MySqlCommand cmd = new MySqlCommand("SHOW COLLATION", connection);
@@ -334,10 +347,10 @@ namespace MySql.Data.MySqlClient
       // now we load all the currently active collations
       try
       {
-        using (MySqlDataReader reader = cmd.ExecuteReader())
+        using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
         {
           CharacterSets = new Dictionary<int, string>();
-          while (reader.Read())
+          while (await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false))
           {
             CharacterSets[Convert.ToInt32(reader["id"], NumberFormatInfo.InvariantInfo)] =
               reader.GetString(reader.GetOrdinal("charset"));
@@ -347,7 +360,7 @@ namespace MySql.Data.MySqlClient
         if (Convert.ToInt32(serverAutocommit) == 0 && Version.isAtLeast(8, 0, 0))
         {
           cmd = new MySqlCommand("commit", connection);
-          cmd.ExecuteNonQuery();
+          await cmd.ExecuteNonQueryAsync(execAsync, cancellationToken).ConfigureAwait(false);
         }
       }
       catch (Exception ex)
@@ -357,18 +370,15 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public virtual List<MySqlError> ReportWarnings(MySqlConnection connection)
+    public virtual async Task<List<MySqlError>> ReportWarningsAsync(MySqlConnection connection, bool execAsync)
     {
       List<MySqlError> warnings = new List<MySqlError>();
 
       MySqlCommand cmd = new MySqlCommand("SHOW WARNINGS", connection) { InternallyCreated = true };
-      using (MySqlDataReader reader = cmd.ExecuteReader())
+      using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(System.Data.CommandBehavior.Default, execAsync, CancellationToken.None).ConfigureAwait(false))
       {
-        while (reader.Read())
-        {
-          warnings.Add(new MySqlError(reader.GetString(0),
-                        reader.GetInt32(1), reader.GetString(2)));
-        }
+        while (await reader.ReadAsync(execAsync).ConfigureAwait(false))
+          warnings.Add(new MySqlError(reader.GetString(0), reader.GetInt32(1), reader.GetString(2)));
       }
 
       MySqlInfoMessageEventArgs args = new MySqlInfoMessageEventArgs();
@@ -377,13 +387,13 @@ namespace MySql.Data.MySqlClient
       return warnings;
     }
 
-    public virtual void SendQuery(MySqlPacket p, int paramsPosition)
+    public virtual async Task SendQueryAsync(MySqlPacket p, int paramsPosition, bool execAsync)
     {
-      handler.SendQuery(p, paramsPosition);
+      await handler.SendQueryAsync(p, execAsync, paramsPosition).ConfigureAwait(false);
       firstResult = true;
     }
 
-    public virtual ResultSet NextResult(int statementId, bool force)
+    public virtual async Task<ResultSet> NextResultAsync(int statementId, bool force, bool execAsync)
     {
       if (!force && !firstResult && !HasStatus(ServerStatusFlags.AnotherQuery | ServerStatusFlags.MoreResults))
         return null;
@@ -391,56 +401,57 @@ namespace MySql.Data.MySqlClient
 
       int affectedRows = -1;
       long insertedId = -1;
-      int fieldCount = GetResult(statementId, ref affectedRows, ref insertedId);
+      var result = await GetResultAsync(statementId, affectedRows, insertedId, execAsync).ConfigureAwait(false);
+      int fieldCount = result.Item1;
       if (fieldCount == -1)
         return null;
       if (fieldCount > 0)
-        return new ResultSet(this, statementId, fieldCount);
+        return await ResultSet.CreateResultSetAsync(this, statementId, fieldCount, execAsync).ConfigureAwait(false);
       else
-        return new ResultSet(affectedRows, insertedId);
+        return new ResultSet(result.Item2, result.Item3);
     }
 
-    protected virtual int GetResult(int statementId, ref int affectedRows, ref long insertedId)
+    protected virtual async Task<Tuple<int, int, long>> GetResultAsync(int statementId, int affectedRows, long insertedId, bool execAsync)
     {
-      return handler.GetResult(ref affectedRows, ref insertedId);
+      return await handler.GetResultAsync(affectedRows, insertedId, execAsync).ConfigureAwait(false);
     }
 
-    public virtual bool FetchDataRow(int statementId, int columns)
+    public virtual async Task<bool> FetchDataRowAsync(int statementId, int columns, bool execAsync)
     {
-      return handler.FetchDataRow(statementId, columns);
+      return await handler.FetchDataRowAsync(statementId, columns, execAsync).ConfigureAwait(false);
     }
 
-    public virtual bool SkipDataRow()
+    public virtual async Task<bool> SkipDataRowAsync(bool execAsync)
     {
-      return FetchDataRow(-1, 0);
+      return await FetchDataRowAsync(-1, 0, execAsync).ConfigureAwait(false);
     }
 
-    public virtual void ExecuteDirect(string sql)
+    public virtual async Task ExecuteDirectAsync(string sql, bool execAsync)
     {
       MySqlPacket p = new MySqlPacket(Encoding);
-      p.WriteString(sql);
-      SendQuery(p, 0);
-      NextResult(0, false);
+      await p.WriteStringAsync(sql, execAsync).ConfigureAwait(false);
+      await SendQueryAsync(p, 0, execAsync).ConfigureAwait(false);
+      await NextResultAsync(0, false, execAsync).ConfigureAwait(false);
     }
 
-    public MySqlField[] GetColumns(int count)
+    public async Task<MySqlField[]> GetColumnsAsync(int count, bool execAsync)
     {
       MySqlField[] fields = new MySqlField[count];
       for (int i = 0; i < count; i++)
         fields[i] = new MySqlField(this);
-      handler.GetColumnsData(fields);
+      await handler.GetColumnsDataAsync(fields, execAsync).ConfigureAwait(false);
 
       return fields;
     }
 
-    public virtual int PrepareStatement(string sql, ref MySqlField[] parameters)
+    public virtual async Task<Tuple<int, MySqlField[]>> PrepareStatementAsync(string sql, bool execAsync)
     {
-      return handler.PrepareStatement(sql, ref parameters);
+      return await handler.PrepareStatementAsync(sql, execAsync).ConfigureAwait(false);
     }
 
-    public IMySqlValue ReadColumnValue(int index, MySqlField field, IMySqlValue value)
+    public async Task<IMySqlValue> ReadColumnValueAsync(int index, MySqlField field, IMySqlValue value, bool execAsync)
     {
-      return handler.ReadColumnValue(index, field, value);
+      return await handler.ReadColumnValueAsync(index, field, value, execAsync).ConfigureAwait(false);
     }
 
     public void SkipColumnValue(IMySqlValue valObject)
@@ -453,51 +464,50 @@ namespace MySql.Data.MySqlClient
       handler.ResetTimeout(timeoutMilliseconds);
     }
 
-    public bool Ping()
+    public async Task<bool> PingAsync(bool execAsync)
     {
-      return handler.Ping();
+      return await handler.PingAsync(execAsync).ConfigureAwait(false);
     }
 
-    public virtual void SetDatabase(string dbName)
+    public virtual async Task SetDatabaseAsync(string dbName, bool execAsync)
     {
-      handler.SetDatabase(dbName);
+      await handler.SetDatabaseAsync(dbName, execAsync).ConfigureAwait(false);
     }
 
-    public virtual void ExecuteStatement(MySqlPacket packetToExecute)
+    public virtual async Task ExecuteStatementAsync(MySqlPacket packetToExecute, bool execAsync)
     {
-      handler.ExecuteStatement(packetToExecute);
+      await handler.ExecuteStatementAsync(packetToExecute, execAsync).ConfigureAwait(false);
     }
 
 
-    public virtual void CloseStatement(int id)
+    public virtual async Task CloseStatementAsync(int id, bool execAsync)
     {
-      handler.CloseStatement(id);
+      await handler.CloseStatementAsync(id, execAsync).ConfigureAwait(false);
     }
 
-    public virtual void Reset()
+    public virtual async Task ResetAsync(bool execAsync)
     {
-      handler.Reset();
+      await handler.ResetAsync(execAsync).ConfigureAwait(false);
     }
 
-    public virtual void CloseQuery(MySqlConnection connection, int statementId)
+    public virtual async Task CloseQueryAsync(MySqlConnection connection, int statementId, bool execAsync)
     {
       if (handler.WarningCount > 0)
-        ReportWarnings(connection);
+        await ReportWarningsAsync(connection, execAsync).ConfigureAwait(false);
     }
 
     #region IDisposable Members
 
-    protected virtual void Dispose(bool disposing)
+    protected virtual async Task DisposeAsync(bool disposing, bool execAsync)
     {
       if (disposed)
         return;
 
       // Avoid cyclic calls to Dispose.
-      disposed = true;
       try
       {
         ResetTimeout(1000);
-        handler.Close(IsOpen);
+        await handler.CloseAsync(IsOpen, execAsync).ConfigureAwait(false);
         // if we are pooling, then release ourselves
         if (ConnectionString.Pooling)
           MySqlPoolManager.RemoveConnection(this);
@@ -515,6 +525,7 @@ namespace MySql.Data.MySqlClient
       }
       finally
       {
+        disposed = true;
         reader = null;
         IsOpen = false;
       }
@@ -522,7 +533,7 @@ namespace MySql.Data.MySqlClient
 
     public void Dispose()
     {
-      Dispose(true);
+      DisposeAsync(true, false).GetAwaiter().GetResult();
       GC.SuppressFinalize(this);
     }
 
@@ -536,20 +547,20 @@ namespace MySql.Data.MySqlClient
     ServerStatusFlags ServerStatus { get; }
     ClientFlags Flags { get; }
     void Configure();
-    void Open();
-    void SendQuery(MySqlPacket packet, int paramsPosition = 0);
-    void Close(bool isOpen);
-    bool Ping();
-    int GetResult(ref int affectedRows, ref long insertedId);
-    bool FetchDataRow(int statementId, int columns);
-    int PrepareStatement(string sql, ref MySqlField[] parameters);
-    void ExecuteStatement(MySqlPacket packet);
-    void CloseStatement(int statementId);
-    void SetDatabase(string dbName);
-    void Reset();
-    IMySqlValue ReadColumnValue(int index, MySqlField field, IMySqlValue valObject);
+    Task OpenAsync(bool execAsync, CancellationToken cancellationToken);
+    Task SendQueryAsync(MySqlPacket packet, bool execAsync, int paramsPosition = 0);
+    Task CloseAsync(bool isOpen, bool execAsync);
+    Task<bool> PingAsync(bool execAsync);
+    Task<Tuple<int, int, long>> GetResultAsync(int affectedRows, long insertedId, bool execAsync);
+    Task<bool> FetchDataRowAsync(int statementId, int columns, bool execAsync);
+    Task<Tuple<int, MySqlField[]>> PrepareStatementAsync(string sql, bool execAsync);
+    Task ExecuteStatementAsync(MySqlPacket packet, bool execAsync);
+    Task CloseStatementAsync(int statementId, bool execAsync);
+    Task SetDatabaseAsync(string dbName, bool execAsync);
+    Task ResetAsync(bool execAsync);
+    Task<IMySqlValue> ReadColumnValueAsync(int index, MySqlField field, IMySqlValue valObject, bool execAsync);
     void SkipColumnValue(IMySqlValue valueObject);
-    void GetColumnsData(MySqlField[] columns);
+    Task GetColumnsDataAsync(MySqlField[] columns, bool execAsync);
     void ResetTimeout(int timeout);
     int WarningCount { get; }
   }

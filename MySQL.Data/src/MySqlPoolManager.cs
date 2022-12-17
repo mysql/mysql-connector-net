@@ -37,6 +37,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 #endif
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -88,7 +89,7 @@ namespace MySql.Data.MySqlClient
 
     private static void UnloadPoolManager()
     {
-      ClearAllPools();
+      ClearAllPoolsAsync(false).GetAwaiter().GetResult();
       timer?.Dispose();
       AppDomain.CurrentDomain.ProcessExit -= UnloadAppDomain;
       AppDomain.CurrentDomain.DomainUnload -= UnloadAppDomain;
@@ -132,25 +133,26 @@ namespace MySql.Data.MySqlClient
 
       return key;
     }
-    public static MySqlPool GetPool(MySqlConnectionStringBuilder settings)
+
+    public static async Task<MySqlPool> GetPoolAsync(MySqlConnectionStringBuilder settings, bool execAsync, CancellationToken cancellationToken)
     {
       string text = GetKey(settings);
 
-      lock (Pools)
+      SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
+      semaphoreSlim.Wait(CancellationToken.None);
+      MySqlPool pool;
+      Pools.TryGetValue(text, out pool);
+
+      if (pool == null)
       {
-        MySqlPool pool;
-        Pools.TryGetValue(text, out pool);
-
-        if (pool == null)
-        {
-          pool = new MySqlPool(settings);
-          Pools.Add(text, pool);
-        }
-        else
-          pool.Settings = settings;
-
-        return pool;
+        pool = await MySqlPool.CreateMySqlPoolAsync(settings, execAsync, cancellationToken).ConfigureAwait(false);
+        Pools.Add(text, pool);
       }
+      else
+        pool.Settings = settings;
+
+      semaphoreSlim.Release();
+      return pool;
     }
 
     public static void RemoveConnection(Driver driver)
@@ -162,16 +164,16 @@ namespace MySql.Data.MySqlClient
       pool?.RemoveConnection(driver);
     }
 
-    public static void ReleaseConnection(Driver driver)
+    public static async Task ReleaseConnectionAsync(Driver driver, bool execAsync)
     {
       Debug.Assert(driver != null);
 
       MySqlPool pool = driver.Pool;
 
-      pool?.ReleaseConnection(driver);
+      await pool?.ReleaseConnectionAsync(driver, execAsync);
     }
 
-    public static void ClearPool(MySqlConnectionStringBuilder settings)
+    public static async Task ClearPoolAsync(MySqlConnectionStringBuilder settings, bool execAsync)
     {
       Debug.Assert(settings != null);
       string text;
@@ -185,40 +187,45 @@ namespace MySql.Data.MySqlClient
         // This can be ignored.
         return;
       }
-      ClearPoolByText(text);
+
+      await ClearPoolByTextAsync(text, execAsync).ConfigureAwait(false);
     }
 
-    private static void ClearPoolByText(string key)
+    private static async Task ClearPoolByTextAsync(string key, bool execAsync)
     {
-      lock (Pools)
-      {
-        // if pools doesn't have it, then this pool must already have been cleared
-        if (!Pools.ContainsKey(key)) return;
+      SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
+      semaphoreSlim.Wait();
 
-        // add the pool to our list of pools being cleared
-        MySqlPool pool = (Pools[key] as MySqlPool);
-        ClearingPools.Add(pool);
+      // if pools doesn't have it, then this pool must already have been cleared
+      if (!Pools.ContainsKey(key)) return;
 
-        // now tell the pool to clear itself
-        pool.Clear();
+      // add the pool to our list of pools being cleared
+      MySqlPool pool = (Pools[key] as MySqlPool);
+      ClearingPools.Add(pool);
 
-        // and then remove the pool from the active pools list
-        Pools.Remove(key);
-      }
+      // now tell the pool to clear itself
+      await pool.ClearAsync(execAsync).ConfigureAwait(false);
+
+      // and then remove the pool from the active pools list
+      Pools.Remove(key);
+
+      semaphoreSlim.Release();
     }
 
-    public static void ClearAllPools()
+    public static async Task ClearAllPoolsAsync(bool execAsync)
     {
-      lock (Pools)
-      {
-        // Create separate keys list.
-        List<string> keys = new List<string>(Pools.Count);
-        keys.AddRange(Pools.Keys);
+      SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
+      semaphoreSlim.Wait();
 
-        // Remove all pools by key.
-        foreach (string key in keys)
-          ClearPoolByText(key);
-      }
+      // Create separate keys list.
+      List<string> keys = new List<string>(Pools.Count);
+      keys.AddRange(Pools.Keys);
+
+      // Remove all pools by key.
+      foreach (string key in keys)
+        await ClearPoolByTextAsync(key, execAsync).ConfigureAwait(false);
+
+      semaphoreSlim.Release();
 
       if (DemotedServersTimer != null)
       {
@@ -238,9 +245,10 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Remove drivers that have been idle for too long.
     /// </summary>
-    public static void CleanIdleConnections(object obj)
+    public static async void CleanIdleConnections(object obj)
     {
       List<Driver> oldDrivers = new List<Driver>();
+
       lock (Pools)
       {
         foreach (MySqlPool pool in Pools.Keys.Select(key => Pools[key]))
@@ -248,9 +256,10 @@ namespace MySql.Data.MySqlClient
           oldDrivers.AddRange(pool.RemoveOldIdleConnections());
         }
       }
+
       foreach (Driver driver in oldDrivers)
       {
-        driver.Close();
+        await driver.CloseAsync(false).ConfigureAwait(false);
       }
     }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2012, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2012, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,6 +28,7 @@
 
 using MySql.Data.Authentication.SSPI;
 using System;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
@@ -68,17 +69,17 @@ namespace MySql.Data.MySqlClient.Authentication
       get { return "authentication_windows_client"; }
     }
 
-    protected override byte[] MoreData(byte[] moreData)
+    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
     {
-      if (moreData == null)
+      if (data == null)
         securityContext = new SspiSecurityContext(new SspiCredentials("Negotiate"));
 
-      var status = securityContext.InitializeSecurityContext(out byte[] clientBlob, moreData, targetName);
+      var status = securityContext.InitializeSecurityContext(out byte[] clientBlob, data, targetName);
 
       if (status == ContextStatus.Accepted)
         securityContext.Dispose();
 
-      return clientBlob;
+      return Task.FromResult<byte[]>(clientBlob);
     }
   }
 }

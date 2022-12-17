@@ -30,6 +30,7 @@ using MySql.Data.Authentication.GSSAPI;
 using MySql.Data.Authentication.SSPI;
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
@@ -99,12 +100,12 @@ namespace MySql.Data.MySqlClient.Authentication
       return posAt < 0 ? Username : Username.Substring(0, posAt);
     }
 
-    protected override byte[] MoreData(byte[] data)
+    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
     {
       if (Settings.KerberosAuthMode == KerberosAuthMode.GSSAPI)
-        return GssapiMode(data);
+        return Task.FromResult<byte[]>(GssapiMode(data));
       else
-        return SspiMode(data);
+        return Task.FromResult<byte[]>(SspiMode(data));
     }
 
     private byte[] SspiMode(byte[] data)

@@ -32,6 +32,7 @@ using MySql.Data.Common;
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
@@ -65,12 +66,12 @@ namespace MySql.Data.MySqlClient.Authentication
       }
     }
 
-    protected override byte[] MoreData(byte[] data)
+    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
     {
       if (_mechanismName == "GSSAPI")
-        return gssapiMechanism.Challenge(data);
+        return Task.FromResult<byte[]>(gssapiMechanism.Challenge(data));
       else
-        return scramMechanism.Challenge(data);
+        return Task.FromResult<byte[]>(scramMechanism.Challenge(data));
     }
 
     /// <summary>

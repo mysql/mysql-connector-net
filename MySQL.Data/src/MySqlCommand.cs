@@ -38,6 +38,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -404,9 +405,6 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Attempts to cancel the execution of a currently active command
     /// </summary>
-    /// <remarks>
-    /// Cancelling a currently active query only works with MySQL versions 5.0.0 and higher.
-    /// </remarks>
     public override void Cancel()
     {
       if ((connection?.State ?? ConnectionState.Closed) != ConnectionState.Closed)
@@ -420,10 +418,9 @@ namespace MySql.Data.MySqlClient
     /// Creates a new instance of a <see cref="MySqlParameter"/> object.
     /// </summary>
     /// <remarks>
-    /// This method is a strongly-typed version of <see cref="System.Data.IDbCommand.CreateParameter"/>.
+    /// This method is a strongly-typed version of <see cref="IDbCommand.CreateParameter"/>.
     /// </remarks>
     /// <returns>A <see cref="MySqlParameter"/> object.</returns>
-    /// 
     public new MySqlParameter CreateParameter()
     {
       return (MySqlParameter)CreateDbParameter();
@@ -472,11 +469,13 @@ namespace MySql.Data.MySqlClient
       for (int i = 0; i < reader.FieldCount; i++)
       {
         string fieldName = reader.GetName(i);
+
         if (fieldName.IndexOf(ParameterPrefix) != -1)
           fieldName = fieldName.Remove(0, ParameterPrefix.Length + 1);
-        MySqlParameter parameter = Parameters.GetParameterFlexible(fieldName, true);
 
+        MySqlParameter parameter = Parameters.GetParameterFlexible(fieldName, true);
         IMySqlValue v = MySqlField.GetIMySqlValue(parameter.MySqlDbType);
+
         if (v is MySqlBit)
         {
           MySqlBit bit = (MySqlBit)v;
@@ -501,7 +500,16 @@ namespace MySql.Data.MySqlClient
     ///  of rows affected by the command. For all other types of statements, the return
     ///  value is -1.
     /// </remarks>
-    public override int ExecuteNonQuery()
+    public override int ExecuteNonQuery() => ExecuteNonQueryAsync(false, CancellationToken.None).GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Asynchronous version of <see cref="ExecuteNonQuery"/>.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken) => ExecuteNonQueryAsync(true, cancellationToken);
+
+    internal async Task<int> ExecuteNonQueryAsync(bool execAsync, CancellationToken cancellationToken = default)
     {
       int records = -1;
 
@@ -510,27 +518,25 @@ namespace MySql.Data.MySqlClient
         return records;
 
       // ok, none of our interceptors handled this so we default
-      using (MySqlDataReader reader = ExecuteReader())
+      using (MySqlDataReader reader = await ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
       {
         reader.Close();
         if (!string.IsNullOrEmpty(OutSql) && ((reader.CommandBehavior & CommandBehavior.SchemaOnly) == 0))
         {
-          if(!IsPrepared)
+          if (!IsPrepared)
           {
             MySqlCommand cmd = new MySqlCommand(OutSql, Connection);
-            using (MySqlDataReader rdr = cmd.ExecuteReader(reader.CommandBehavior))
-            {
+
+            using (MySqlDataReader rdr = await cmd.ExecuteReaderAsync(reader.CommandBehavior, execAsync, cancellationToken).ConfigureAwait(false))
               ProcessOutputParameters(rdr);
-            }
           }
           else
           {
             CommandText = OutSql;
             OutSql = null;
-            using (MySqlDataReader readerPrepared = ExecuteReader())
-            {
+
+            using (MySqlDataReader readerPrepared = await ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
               ProcessOutputParameters(readerPrepared);
-            }
           }
         }
         return reader.RecordsAffected;
@@ -545,45 +551,44 @@ namespace MySql.Data.MySqlClient
       commandTimer = null;
     }
 
-    internal void Close(MySqlDataReader reader)
+    internal async Task CloseAsync(MySqlDataReader reader, bool execAsync)
     {
       statement?.Close(reader);
-      ResetSqlSelectLimit();
-      if (statement != null)
-        connection?.driver?.CloseQuery(connection, statement.StatementId);
-      ClearCommandTimer();
-    }
+      await ResetSqlSelectLimitAsync(execAsync).ConfigureAwait(false);
 
-    protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
-    {
-      return ExecuteReader(behavior);
+      if (statement != null && connection?.driver != null)
+        await connection.driver.CloseQueryAsync(connection, statement.StatementId, execAsync).ConfigureAwait(false);
+
+      ClearCommandTimer();
     }
 
     /// <summary>
     /// Reset reader to null, to avoid "There is already an open data reader"
     /// on the next ExecuteReader(). Used in error handling scenarios.
     /// </summary>
-    private void ResetReader()
+    private async Task ResetReaderAsync(bool execAsync)
     {
       if (connection?.Reader == null) return;
 
-      connection.Reader.Close();
+      await connection.Reader.CloseAsync(execAsync).ConfigureAwait(false);
       connection.Reader = null;
     }
 
     /// <summary>
     /// Reset SQL_SELECT_LIMIT that could have been modified by CommandBehavior.
     /// </summary>
-    internal void ResetSqlSelectLimit()
+    internal async Task ResetSqlSelectLimitAsync(bool execAsync)
     {
       // if we are supposed to reset the sql select limit, do that here
       if (!resetSqlSelect) return;
 
       resetSqlSelect = false;
-      MySqlCommand command = new MySqlCommand("SET SQL_SELECT_LIMIT=DEFAULT", connection);
+      MySqlCommand command = new MySqlCommand("SET SQL_SELECT_LIMIT = DEFAULT", connection);
       command.InternallyCreated = true;
-      command.ExecuteNonQuery();
+      await command.ExecuteNonQueryAsync(execAsync).ConfigureAwait(false);
     }
+
+    protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) => ExecuteReader(behavior);
 
     /// <summary>
     ///  Sends the <see cref="CommandText"/> value to <see cref="MySqlConnection"/>
@@ -601,13 +606,10 @@ namespace MySql.Data.MySqlClient
     ///    While <see cref="MySqlDataReader"/> is in use, the associated
     ///    instance of <see cref="MySqlConnection"/> is busy serving it
     ///    and no other operations can be performed on <see cref="MySqlConnection"/>, other than closing it.
-    ///    This is the case until the <see cref="MySqlDataReader.Close"/> method of <b>MySqlDataReader</b> is called.
+    ///    This is the case until the <see cref="MySqlDataReader.Close"/> method of <see cref="MySqlDataReader"/> is called.
     ///  </para>
     /// </remarks>
-    public new MySqlDataReader ExecuteReader()
-    {
-      return ExecuteReader(CommandBehavior.Default);
-    }
+    public new MySqlDataReader ExecuteReader() => ExecuteReaderAsync(CommandBehavior.Default, false, CancellationToken.None).GetAwaiter().GetResult();
 
     /// <summary>
     ///  Sends the <see cref="CommandText"/> to the <see cref="MySqlConnection">Connection</see>,
@@ -622,8 +624,8 @@ namespace MySql.Data.MySqlClient
     ///    <b>ExecuteReader</b>.
     ///  </para>
     ///  <para>
-    ///    If the <b>MySqlDataReader</b> object is created with <b>CommandBehavior</b> set to
-    ///    <b>CloseConnection</b>, closing the <b>MySqlDataReader</b> instance closes the connection
+    ///    If the <see cref="MySqlDataReader"/> object is created with <b>CommandBehavior</b> set to
+    ///    <b>CloseConnection</b>, closing the <see cref="MySqlDataReader"/> instance closes the connection
     ///    automatically.
     ///  </para>
     ///  <note>
@@ -637,10 +639,30 @@ namespace MySql.Data.MySqlClient
     /// <returns>
     ///  A <see cref="MySqlDataReader"/> object.
     /// </returns>
-    public new MySqlDataReader ExecuteReader(CommandBehavior behavior)
+    public new MySqlDataReader ExecuteReader(CommandBehavior behavior) => ExecuteReaderAsync(behavior, false, CancellationToken.None).GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Asynchronous version of <see cref="ExecuteReader(CommandBehavior)"/>.
+    /// </summary>
+    /// <param name="behavior">One of the <see cref="CommandBehavior"/> values.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public new Task<MySqlDataReader> ExecuteReaderAsync(CommandBehavior behavior) => ExecuteReaderAsync(behavior, true, CancellationToken.None);
+
+    /// <summary>
+    /// Asynchronous version of <see cref="ExecuteReader(CommandBehavior)"/> with a cancellation token.
+    /// </summary>
+    /// <param name="behavior">One of the <see cref="CommandBehavior"/> values.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public new Task<MySqlDataReader> ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken) => ExecuteReaderAsync(behavior, true, cancellationToken);
+
+    protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken) => await ExecuteReaderAsync(behavior, true, cancellationToken).ConfigureAwait(false);
+
+    internal async Task<MySqlDataReader> ExecuteReaderAsync(CommandBehavior behavior, bool execAsync, CancellationToken cancellationToken = default)
     {
       // give our interceptors a shot at it first
       MySqlDataReader interceptedReader = null;
+
       if (connection?.commandInterceptor != null && connection.commandInterceptor.ExecuteReader(CommandText, behavior, ref interceptedReader))
         return interceptedReader;
 
@@ -657,154 +679,150 @@ namespace MySql.Data.MySqlClient
 
       // Load balancing getting a new connection
       if (connection.hasBeenOpen && !driver.HasStatus(ServerStatusFlags.InTransaction))
+        await ReplicationManager.GetNewConnectionAsync(connection.Settings.Server, !IsReadOnlyCommand(sql), connection, execAsync, cancellationToken).ConfigureAwait(false);
+
+      SemaphoreSlim semaphoreSlim = new(1);
+      semaphoreSlim.Wait();
+
+      // We have to recheck that there is no reader, after we got the lock
+      if (connection.Reader != null)
+        Throw(new MySqlException(Resources.DataReaderOpen));
+
+      System.Transactions.Transaction curTrans = System.Transactions.Transaction.Current;
+
+      if (curTrans != null)
       {
-        ReplicationManager.GetNewConnection(connection.Settings.Server, !IsReadOnlyCommand(sql), connection);
+        bool inRollback = false;
+        //TODO: ADD support for 452 and 46X
+        if (driver.currentTransaction != null)
+          inRollback = driver.currentTransaction.InRollback;
+
+        if (!inRollback)
+        {
+          System.Transactions.TransactionStatus status = System.Transactions.TransactionStatus.InDoubt;
+          try
+          {
+            // in some cases (during state transitions) this throws
+            // an exception. Ignore exceptions, we're only interested 
+            // whether transaction was aborted or not.
+            status = curTrans.TransactionInformation.Status;
+          }
+          catch (System.Transactions.TransactionException) { }
+
+          if (status == System.Transactions.TransactionStatus.Aborted)
+            Throw(new System.Transactions.TransactionAbortedException());
+        }
       }
 
-      lock (driver)
+      commandTimer = new CommandTimer(connection, CommandTimeout);
+      LastInsertedId = -1;
+
+      if (CommandType == CommandType.TableDirect)
+        sql = "SELECT * FROM " + sql;
+      else if (CommandType == CommandType.Text)
+      {
+        // validates single word statetment (maybe is a stored procedure call)
+        if (sql.IndexOf(" ") == -1)
+        {
+          if (AddCallStatement(sql))
+            sql = "call " + sql;
+        }
+      }
+
+      // if we are on a replicated connection, we are only allow readonly statements
+      if (connection.Settings.Replication && !InternallyCreated)
+        EnsureCommandIsReadOnly(sql);
+
+      if (statement == null || !statement.IsPrepared)
+      {
+        if (CommandType == CommandType.StoredProcedure)
+          statement = new StoredProcedure(this, sql);
+        else
+          statement = new PreparableStatement(this, sql);
+      }
+
+      // stored procs are the only statement type that need do anything during resolve
+      statement.Resolve(false);
+
+      // Now that we have completed our resolve step, we can handle our
+      // command behaviors
+      await HandleCommandBehaviorsAsync(execAsync, behavior).ConfigureAwait(false);
+
+      try
+      {
+        MySqlDataReader reader = new MySqlDataReader(this, statement, behavior);
+        connection.Reader = reader;
+        Canceled = false;
+        // execute the statement
+        await statement.ExecuteAsync(execAsync).ConfigureAwait(false);
+        // wait for data to return
+        await reader.NextResultAsync(execAsync, cancellationToken).ConfigureAwait(false);
+        success = true;
+        return reader;
+      }
+      catch (TimeoutException tex)
+      {
+        await connection.HandleTimeoutOrThreadAbortAsync(tex, execAsync).ConfigureAwait(false);
+        throw; //unreached
+      }
+      catch (ThreadAbortException taex)
+      {
+        await connection.HandleTimeoutOrThreadAbortAsync(taex, execAsync).ConfigureAwait(false);
+        throw;
+      }
+      catch (IOException ioex)
+      {
+        await connection.AbortAsync(execAsync).ConfigureAwait(false); // Closes connection without returning it to the pool
+        throw new MySqlException(Resources.FatalErrorDuringExecute, ioex);
+      }
+      catch (MySqlException ex)
       {
 
-        // We have to recheck that there is no reader, after we got the lock
-        if (connection.Reader != null)
-        {
-          Throw(new MySqlException(Resources.DataReaderOpen));
-        }
-
-        System.Transactions.Transaction curTrans = System.Transactions.Transaction.Current;
-
-        if (curTrans != null)
-        {
-          bool inRollback = false;
-          //TODO: ADD support for 452 and 46X
-          if (driver.currentTransaction != null)
-            inRollback = driver.currentTransaction.InRollback;
-          if (!inRollback)
-          {
-            System.Transactions.TransactionStatus status = System.Transactions.TransactionStatus.InDoubt;
-            try
-            {
-              // in some cases (during state transitions) this throws
-              // an exception. Ignore exceptions, we're only interested 
-              // whether transaction was aborted or not.
-              status = curTrans.TransactionInformation.Status;
-            }
-            catch (System.Transactions.TransactionException)
-            {
-            }
-            if (status == System.Transactions.TransactionStatus.Aborted)
-              Throw(new System.Transactions.TransactionAbortedException());
-          }
-        }
-
-        commandTimer = new CommandTimer(connection, CommandTimeout);
-
-        LastInsertedId = -1;
-
-        if (CommandType == CommandType.TableDirect)
-          sql = "SELECT * FROM " + sql;
-        else if (CommandType == CommandType.Text)
-        {
-          // validates single word statetment (maybe is a stored procedure call)
-          if (sql.IndexOf(" ") == -1)
-          {
-            if (AddCallStatement(sql))
-              sql = "call " + sql;
-          }
-        }
-
-        // if we are on a replicated connection, we are only allow readonly statements
-        if (connection.Settings.Replication && !InternallyCreated)
-          EnsureCommandIsReadOnly(sql);
-
-        if (statement == null || !statement.IsPrepared)
-        {
-          if (CommandType == CommandType.StoredProcedure)
-            statement = new StoredProcedure(this, sql);
-          else
-            statement = new PreparableStatement(this, sql);
-        }
-
-        // stored procs are the only statement type that need do anything during resolve
-        statement.Resolve(false);
-
-        // Now that we have completed our resolve step, we can handle our
-        // command behaviors
-        HandleCommandBehaviors(behavior);
+        if (ex.InnerException is TimeoutException)
+          throw; // already handled
 
         try
         {
-          MySqlDataReader reader = new MySqlDataReader(this, statement, behavior);
-          connection.Reader = reader;
-          Canceled = false;
-          // execute the statement
-          statement.Execute();
-          // wait for data to return
-          reader.NextResult();
-          success = true;
-          return reader;
+          await ResetReaderAsync(execAsync).ConfigureAwait(false);
+          await ResetSqlSelectLimitAsync(execAsync).ConfigureAwait(false);
         }
-        catch (TimeoutException tex)
+        catch (Exception)
         {
-          connection.HandleTimeoutOrThreadAbort(tex);
-          throw; //unreached
+          // Reset SqlLimit did not work, connection is hosed.
+          await Connection.AbortAsync(execAsync).ConfigureAwait(false);
+          throw new MySqlException(ex.Message, true, ex);
         }
-        catch (ThreadAbortException taex)
-        {
-          connection.HandleTimeoutOrThreadAbort(taex);
-          throw;
-        }
-        catch (IOException ioex)
-        {
-          connection.Abort(); // Closes connection without returning it to the pool
-          throw new MySqlException(Resources.FatalErrorDuringExecute, ioex);
-        }
-        catch (MySqlException ex)
-        {
 
-          if (ex.InnerException is TimeoutException)
-            throw; // already handled
-
-          try
+        // if we caught an exception because of a cancel, then just return null
+        if (ex.IsQueryAborted)
+          return null;
+        if (ex.IsFatal)
+          await Connection.CloseAsync(execAsync).ConfigureAwait(false);
+        if (ex.Number == 0)
+          throw new MySqlException(Resources.FatalErrorDuringExecute, ex);
+        throw;
+      }
+      finally
+      {
+        if (connection != null)
+        {
+          if (connection.Reader == null)
           {
-            ResetReader();
-            ResetSqlSelectLimit();
+            // Something went seriously wrong,  and reader would not
+            // be able to clear timeout on closing.
+            // So we clear timeout here.
+            ClearCommandTimer();
           }
-          catch (Exception)
+          if (!success)
           {
-            // Reset SqlLimit did not work, connection is hosed.
-            Connection.Abort();
-            throw new MySqlException(ex.Message, true, ex);
-          }
-
-          // if we caught an exception because of a cancel, then just return null
-          if (ex.IsQueryAborted)
-            return null;
-          if (ex.IsFatal)
-            Connection.Close();
-          if (ex.Number == 0)
-            throw new MySqlException(Resources.FatalErrorDuringExecute, ex);
-          throw;
-        }
-        finally
-        {
-          if (connection != null)
-          {
-            if (connection.Reader == null)
-            {
-              // Something went seriously wrong,  and reader would not
-              // be able to clear timeout on closing.
-              // So we clear timeout here.
-              ClearCommandTimer();
-            }
-            if (!success)
-            {
-              // ExecuteReader failed.Close Reader and set to null to 
-              // prevent subsequent errors with DataReaderOpen
-              ResetReader();
-            }
+            // ExecuteReader failed.Close Reader and set to null to 
+            // prevent subsequent errors with DataReaderOpen
+            await ResetReaderAsync(execAsync).ConfigureAwait(false);
           }
         }
       }
+
+      semaphoreSlim.Release();
     }
 
     private void EnsureCommandIsReadOnly(string sql)
@@ -823,7 +841,6 @@ namespace MySql.Data.MySqlClient
         && !(sql.EndsWith("for update") || sql.EndsWith("lock in share mode"));
     }
 
-
     /// <summary>
     ///  Executes the query, and returns the first column of the first row in the
     ///  result set returned by the query. Extra columns or rows are ignored.
@@ -840,41 +857,73 @@ namespace MySql.Data.MySqlClient
     ///    to generate the single value using the data returned by a <see cref="MySqlDataReader"/>
     ///  </para>
     /// </remarks>
-    public override object ExecuteScalar()
+    public override object ExecuteScalar() => ExecuteScalarAsync(false, CancellationToken.None).GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Asynchronous version of <see cref="ExecuteScalar"/>.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public override Task<object> ExecuteScalarAsync(CancellationToken cancellationToken) => ExecuteScalarAsync(true, cancellationToken);
+
+    internal async Task<object> ExecuteScalarAsync(bool execAsync, CancellationToken cancellationToken)
     {
       LastInsertedId = -1;
       object val = null;
 
       // give our interceptors a shot at it first
-      if (connection != null &&
-          connection.commandInterceptor.ExecuteScalar(CommandText, ref val))
+      if (connection != null && connection.commandInterceptor.ExecuteScalar(CommandText, ref val))
         return val;
 
-      using (MySqlDataReader reader = ExecuteReader())
+      using (MySqlDataReader reader = await ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
       {
-        if (reader.Read())
+        if (await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false))
           val = reader.GetValue(0);
       }
 
       return val;
     }
 
-    private void HandleCommandBehaviors(CommandBehavior behavior)
+    private async Task HandleCommandBehaviorsAsync(bool execAsync, CommandBehavior behavior)
     {
       if ((behavior & CommandBehavior.SchemaOnly) != 0)
       {
-        new MySqlCommand("SET SQL_SELECT_LIMIT=0", connection).ExecuteNonQuery();
+        var cmd = new MySqlCommand("SET SQL_SELECT_LIMIT = 0", connection);
+        await cmd.ExecuteNonQueryAsync(execAsync, CancellationToken.None).ConfigureAwait(false);
         resetSqlSelect = true;
       }
       else if ((behavior & CommandBehavior.SingleRow) != 0)
       {
-        new MySqlCommand("SET SQL_SELECT_LIMIT=1", connection).ExecuteNonQuery();
+        var cmd = new MySqlCommand("SET SQL_SELECT_LIMIT = 1", connection);
+        await cmd.ExecuteNonQueryAsync(execAsync, CancellationToken.None).ConfigureAwait(false);
         resetSqlSelect = true;
       }
     }
 
-    private void Prepare(int cursorPageSize)
+    /// <summary>
+    ///  Creates a prepared version of the command on an instance of MySQL Server.
+    /// </summary>
+    public override void Prepare() => PrepareAsync(false, CancellationToken.None).GetAwaiter().GetResult();
+
+#if NETFRAMEWORK || NETSTANDARD2_0
+    /// <summary>
+    ///  Asynchronously creates a prepared version of the command on an instance of MySQL Server.
+    /// </summary>
+    public Task PrepareAsync(CancellationToken cancellationToken = default) => PrepareAsync(true, cancellationToken);
+#else
+    /// <summary>
+    ///  Asynchronously creates a prepared version of the command on an instance of MySQL Server.
+    /// </summary>
+    public override Task PrepareAsync(CancellationToken cancellationToken = default) => PrepareAsync(true, cancellationToken);
+#endif
+
+    private async Task PrepareAsync(bool execAsync, CancellationToken cancellationToken)
     {
+      if (connection == null)
+        Throw(new InvalidOperationException("The connection property has not been set."));
+      if (connection.State != ConnectionState.Open)
+        Throw(new InvalidOperationException("The connection is not open."));
+
       using (new CommandTimer(Connection, CommandTimeout))
       {
         // if the length of the command text is zero, then just return
@@ -886,21 +935,8 @@ namespace MySql.Data.MySqlClient
         statement = CommandType == CommandType.StoredProcedure ? new StoredProcedure(this, CommandText) : new PreparableStatement(this, CommandText);
 
         statement.Resolve(true);
-        statement.Prepare();
+        await statement.PrepareAsync(execAsync).ConfigureAwait(false);
       }
-    }
-
-    /// <summary>
-    ///  Creates a prepared version of the command on an instance of MySQL Server.
-    /// </summary>
-    public override void Prepare()
-    {
-      if (connection == null)
-        Throw(new InvalidOperationException("The connection property has not been set."));
-      if (connection.State != ConnectionState.Open)
-        Throw(new InvalidOperationException("The connection is not open."));
-
-      Prepare(0);
     }
 
     /// <summary>
@@ -928,6 +964,7 @@ namespace MySql.Data.MySqlClient
 
       return clone;
     }
+
     #endregion
 
     #region Async Methods
@@ -937,6 +974,7 @@ namespace MySql.Data.MySqlClient
     internal AsyncDelegate Caller;
     internal Exception thrownException;
 
+    [Obsolete]
     internal object AsyncExecuteWrapper(int type, CommandBehavior behavior)
     {
       thrownException = null;
@@ -962,6 +1000,7 @@ namespace MySql.Data.MySqlClient
     /// or both; this value is also needed when invoking EndExecuteReader, 
     /// which returns a <see cref="MySqlDataReader"/> instance that can be used to retrieve 
     /// the returned rows.</returns>
+    [Obsolete]
     public IAsyncResult BeginExecuteReader()
     {
       return BeginExecuteReader(CommandBehavior.Default);
@@ -978,6 +1017,7 @@ namespace MySql.Data.MySqlClient
     /// or both; this value is also needed when invoking EndExecuteReader, 
     /// which returns a <see cref="MySqlDataReader"/> instance that can be used to retrieve 
     /// the returned rows.</returns>
+    [Obsolete]
     public IAsyncResult BeginExecuteReader(CommandBehavior behavior)
     {
       if (Caller != null)
@@ -995,6 +1035,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="result">The <see cref="IAsyncResult"/> returned by the call to 
     /// <see cref="BeginExecuteReader()"/>.</param>
     /// <returns>A <b>MySqlDataReader</b> object that can be used to retrieve the requested rows. </returns>
+    [Obsolete]
     public MySqlDataReader EndExecuteReader(IAsyncResult result)
     {
       result.AsyncWaitHandle.WaitOne();
@@ -1018,6 +1059,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>An <see cref="IAsyncResult"/> that can be used to poll or wait for results, 
     /// or both; this value is also needed when invoking <see cref="EndExecuteNonQuery"/>, 
     /// which returns the number of affected rows. </returns>
+    [Obsolete]
     public IAsyncResult BeginExecuteNonQuery(AsyncCallback callback, object stateObject)
     {
       if (Caller != null)
@@ -1036,6 +1078,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>An <see cref="IAsyncResult"/> that can be used to poll or wait for results, 
     /// or both; this value is also needed when invoking <see cref="EndExecuteNonQuery"/>, 
     /// which returns the number of affected rows. </returns>
+    [Obsolete]
     public IAsyncResult BeginExecuteNonQuery()
     {
       if (Caller != null)
@@ -1052,6 +1095,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="asyncResult">The <see cref="IAsyncResult"/> returned by the call 
     /// to <see cref="BeginExecuteNonQuery()"/>.</param>
     /// <returns></returns>
+    [Obsolete]
     public int EndExecuteNonQuery(IAsyncResult asyncResult)
     {
       asyncResult.AsyncWaitHandle.WaitOne();
@@ -1065,59 +1109,7 @@ namespace MySql.Data.MySqlClient
 
     #region Private Methods
 
-    /*		private ArrayList PrepareSqlBuffers(string sql)
-                {
-                    ArrayList buffers = new ArrayList();
-                    MySqlStreamWriter writer = new MySqlStreamWriter(new MemoryStream(), connection.Encoding);
-                    writer.Version = connection.driver.Version;
-
-                    // if we are executing as a stored procedure, then we need to add the call
-                    // keyword.
-                    if (CommandType == CommandType.StoredProcedure)
-                    {
-                        if (storedProcedure == null)
-                            storedProcedure = new StoredProcedure(this);
-                        sql = storedProcedure.Prepare( CommandText );
-                    }
-
-                    // tokenize the SQL
-                    sql = sql.TrimStart(';').TrimEnd(';');
-                    ArrayList tokens = TokenizeSql( sql );
-
-                    foreach (string token in tokens)
-                    {
-                        if (token.Trim().Length == 0) continue;
-                        if (token == ";" && ! connection.driver.SupportsBatch)
-                        {
-                            MemoryStream ms = (MemoryStream)writer.Stream;
-                            if (ms.Length > 0)
-                                buffers.Add( ms );
-
-                            writer = new MySqlStreamWriter(new MemoryStream(), connection.Encoding);
-                            writer.Version = connection.driver.Version;
-                            continue;
-                        }
-                        else if (token[0] == parameters.ParameterMarker) 
-                        {
-                            if (SerializeParameter(writer, token)) continue;
-                        }
-
-                        // our fall through case is to write the token to the byte stream
-                        writer.WriteStringNoNull(token);
-                    }
-
-                    // capture any buffer that is left over
-                    MemoryStream mStream = (MemoryStream)writer.Stream;
-                    if (mStream.Length > 0)
-                        buffers.Add( mStream );
-
-                    return buffers;
-                }*/
-
-    internal long EstimatedSize()
-    {
-      return CommandText.Length + Parameters.Cast<MySqlParameter>().Sum(parameter => parameter.EstimatedSize());
-    }
+    internal long EstimatedSize() => CommandText.Length + Parameters.Cast<MySqlParameter>().Sum(parameter => parameter.EstimatedSize());
 
     /// <summary>
     /// Verifies if a query is valid even if it has not spaces or is a stored procedure call
@@ -1233,18 +1225,25 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     protected override void Dispose(bool disposing)
     {
-      if (disposed)
-        return;
-
-      if (!disposing)
+      if (disposed || !disposing)
         return;
 
       if (statement != null && statement.IsPrepared)
-        statement.CloseStatement();
+        statement.CloseStatementAsync(false).GetAwaiter().GetResult();
 
       base.Dispose(disposing);
 
       disposed = true;
+    }
+
+#if NETFRAMEWORK || NETSTANDARD2_0
+    public Task DisposeAsync()
+#else
+    public override ValueTask DisposeAsync()
+#endif
+    {
+      Dispose(true);
+      return default;
     }
   }
 }

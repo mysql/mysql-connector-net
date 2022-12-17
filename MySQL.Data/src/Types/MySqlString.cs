@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,8 +26,9 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using MySql.Data.MySqlClient;
+using System;
+using System.Threading.Tasks;
 
 namespace MySql.Data.Types
 {
@@ -63,8 +64,7 @@ namespace MySql.Data.Types
 
     string IMySqlValue.MySqlTypeName => _type == MySqlDbType.Set ? "SET" : _type == MySqlDbType.Enum ? "ENUM" : "VARCHAR";
 
-
-    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
     {
       string v = val.ToString();
       if (length > 0)
@@ -74,21 +74,21 @@ namespace MySql.Data.Types
       }
 
       if (binary)
-        packet.WriteLenString(v);
+        await packet.WriteLenStringAsync(v, execAsync).ConfigureAwait(false);
       else
-        packet.WriteStringNoNull("'" + MySqlHelper.EscapeString(v) + "'");
+        await packet.WriteStringNoNullAsync("'" + MySqlHelper.EscapeString(v) + "'", execAsync).ConfigureAwait(false);
     }
 
-    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
     {
       if (nullVal)
         return new MySqlString(_type, true);
 
       string s = String.Empty;
       if (length == -1)
-        s = packet.ReadLenString();
+        s = await packet.ReadLenStringAsync(execAsync).ConfigureAwait(false);
       else
-        s = packet.ReadString(length);
+        s = await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false);
       MySqlString str = new MySqlString(_type, s);
       return str;
     }
@@ -103,11 +103,11 @@ namespace MySql.Data.Types
 
     internal static void SetDSInfo(MySqlSchemaCollection sc)
     {
-      string[] types = new string[] { "CHAR", "NCHAR", "VARCHAR", "NVARCHAR", "SET", 
+      string[] types = new string[] { "CHAR", "NCHAR", "VARCHAR", "NVARCHAR", "SET",
                 "ENUM", "TINYTEXT", "TEXT", "MEDIUMTEXT", "LONGTEXT" };
       MySqlDbType[] dbtype = new MySqlDbType[] { MySqlDbType.String, MySqlDbType.String,
-                MySqlDbType.VarChar, MySqlDbType.VarChar, MySqlDbType.Set, MySqlDbType.Enum, 
-                MySqlDbType.TinyText, MySqlDbType.Text, MySqlDbType.MediumText, 
+                MySqlDbType.VarChar, MySqlDbType.VarChar, MySqlDbType.Set, MySqlDbType.Enum,
+                MySqlDbType.TinyText, MySqlDbType.Text, MySqlDbType.MediumText,
                 MySqlDbType.LongText };
 
       // we use name indexing because this method will only be called

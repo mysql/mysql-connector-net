@@ -1,4 +1,4 @@
-// Copyright (c) 2009, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2009, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,6 +30,7 @@ using MySql.Data.MySqlClient;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MySql.Data.Common
@@ -124,7 +125,11 @@ namespace MySql.Data.Common
       throw (e);
     }
 
-    public override int Read(byte[] buffer, int offset, int count)
+    public override int Read(byte[] buffer, int offset, int count) => ReadAsync(buffer, offset, count, CancellationToken.None, false).GetAwaiter().GetResult();
+
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => ReadAsync(buffer, offset, count, cancellationToken, true);
+
+    private async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken, bool execAsync)
     {
       int retry = 0;
       Exception exception = null;
@@ -132,7 +137,10 @@ namespace MySql.Data.Common
       {
         try
         {
-          return base.Read(buffer, offset, count);
+          if (execAsync)
+            return await base.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
+          else
+            return base.Read(buffer, offset, count);
         }
         catch (Exception e)
         {
@@ -167,7 +175,11 @@ namespace MySql.Data.Common
       throw exception;
     }
 
-    public override void Write(byte[] buffer, int offset, int count)
+    public override void Write(byte[] buffer, int offset, int count) => WriteAsync(buffer, offset, count, CancellationToken.None, false);
+
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => WriteAsync(buffer, offset, count, cancellationToken, true);
+
+    public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken, bool execAsync)
     {
       int retry = 0;
       Exception exception = null;
@@ -175,7 +187,10 @@ namespace MySql.Data.Common
       {
         try
         {
-          base.Write(buffer, offset, count);
+          if (execAsync)
+            await base.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
+          else
+            base.Write(buffer, offset, count);
           return;
         }
         catch (Exception e)
@@ -188,7 +203,11 @@ namespace MySql.Data.Common
       throw exception;
     }
 
-    public override void Flush()
+    public override void Flush() => FlushAsync(CancellationToken.None, false).GetAwaiter().GetResult();
+
+    public override Task FlushAsync(CancellationToken cancellationToken) => FlushAsync(cancellationToken, true);
+
+    private async Task FlushAsync(CancellationToken cancellationToken, bool execAsync)
     {
       int retry = 0;
       Exception exception = null;
@@ -196,7 +215,10 @@ namespace MySql.Data.Common
       {
         try
         {
-          base.Flush();
+          if (execAsync)
+            await base.FlushAsync(cancellationToken).ConfigureAwait(false);
+          else
+            base.Flush();
           return;
         }
         catch (Exception e)
@@ -211,13 +233,13 @@ namespace MySql.Data.Common
 
     #region Create Code
 
-    public static MyNetworkStream CreateStream(string server, uint connectionTimeout, uint keepAlive, uint port, bool unix)
+    public static async Task<MyNetworkStream> CreateStreamAsync(string server, uint connectionTimeout, uint keepAlive, uint port, bool unix, bool execAsync)
     {
-      if (unix) return new MyNetworkStream(StreamCreator.GetUnixSocket(server, connectionTimeout, keepAlive), true);
+      if (unix) return new MyNetworkStream(await StreamCreator.GetUnixSocketAsync(server, connectionTimeout, keepAlive, CancellationToken.None, execAsync).ConfigureAwait(false), true);
 
       MyNetworkStream stream = null;
-
       IPHostEntry ipHE = GetHostEntry(server);
+
       foreach (IPAddress address in ipHE.AddressList)
       {
         try

@@ -32,6 +32,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -63,15 +64,16 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-    public virtual void Prepare()
+    public async Task PrepareAsync(bool execAsync)
     {
       // strip out names from parameter markers
       string text;
       List<string> parameterNames = PrepareCommandText(out text);
 
       // ask our connection to send the prepare command
-      MySqlField[] paramList = null;
-      StatementId = Driver.PrepareStatement(text, ref paramList);
+      var result = await Driver.PrepareStatementAsync(text, execAsync).ConfigureAwait(false);
+      StatementId = result.Item1;
+      MySqlField[] paramList = result.Item2;
 
       // now we need to assign our field names since we stripped them out
       // for the prepare
@@ -93,11 +95,11 @@ namespace MySql.Data.MySqlClient
 
       // write out some values that do not change run to run
       _packet.WriteByte(0);
-      _packet.WriteInteger(StatementId, 4);
+      await _packet.WriteIntegerAsync(StatementId, 4, execAsync).ConfigureAwait(false);
       // flags; if server supports query attributes, then set PARAMETER_COUNT_AVAILABLE (0x08) in the flags block
       int flags = Driver.SupportsQueryAttributes && Driver.Version.isAtLeast(8, 0, 26) ? PARAMETER_COUNT_AVAILABLE : 0;
-      _packet.WriteInteger(flags, 1);
-      _packet.WriteInteger(1, 4); // iteration count; 1 for 4.1
+      await _packet.WriteIntegerAsync(flags, 1, execAsync).ConfigureAwait(false);
+      await _packet.WriteIntegerAsync(1, 4, execAsync).ConfigureAwait(false); // iteration count; 1 for 4.1
       int num_params = paramList != null ? paramList.Length : 0;
       // we don't send QA with PS when MySQL Server is not at least 8.0.26
       if (!Driver.Version.isAtLeast(8, 0, 26) && Attributes.Count > 0)
@@ -114,7 +116,7 @@ namespace MySql.Data.MySqlClient
         if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
         {
           paramCount += Attributes.Count;
-          _packet.WriteLength(paramCount);
+          await _packet.WriteLengthAsync(paramCount, execAsync).ConfigureAwait(false);
         }
 
         if (paramCount > 0)
@@ -130,22 +132,22 @@ namespace MySql.Data.MySqlClient
           foreach (MySqlParameter p in _parametersToSend)
           {
             // parameter type
-            _packet.WriteInteger(p.GetPSType(), 2);
+            await _packet.WriteIntegerAsync(p.GetPSType(), 2, execAsync).ConfigureAwait(false);
 
             // parameter name
             if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
-              _packet.WriteLenString(String.Empty);
+              await _packet.WriteLenStringAsync(String.Empty, execAsync).ConfigureAwait(false);
           }
 
           // write out the attributes types and names
           foreach (MySqlAttribute a in Attributes)
           {
             // attribute type
-            _packet.WriteInteger(a.GetPSType(), 2);
+            await _packet.WriteIntegerAsync(a.GetPSType(), 2, execAsync).ConfigureAwait(false);
 
             // attribute name
             if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
-              _packet.WriteLenString(a.AttributeName);
+              await _packet.WriteLenStringAsync(a.AttributeName, execAsync).ConfigureAwait(false);
           }
         }
       }
@@ -153,12 +155,12 @@ namespace MySql.Data.MySqlClient
       _dataPosition = _packet.Position;
     }
 
-    public override void Execute()
+    public override async Task ExecuteAsync(bool execAsync)
     {
       // if we are not prepared, then call down to our base
       if (!IsPrepared)
       {
-        base.Execute();
+        await base.ExecuteAsync(execAsync).ConfigureAwait(false);
         return;
       }
 
@@ -173,7 +175,7 @@ namespace MySql.Data.MySqlClient
             p.Direction == ParameterDirection.Output;
         if (_nullMap[i]) continue;
         _packet.Encoding = p.Encoding;
-        p.Serialize(_packet, true, Connection.Settings);
+        await p.SerializeAsync(_packet, true, Connection.Settings, execAsync).ConfigureAwait(false);
       }
 
       // // set value for each attribute
@@ -182,7 +184,7 @@ namespace MySql.Data.MySqlClient
         MySqlAttribute attr = Attributes[i];
         _nullMap[i] = (attr.Value == DBNull.Value || attr.Value == null);
         if (_nullMap[i]) continue;
-        attr.Serialize(_packet, true, Connection.Settings);
+        await attr.SerializeAsync(_packet, true, Connection.Settings, execAsync).ConfigureAwait(false);
       }
 
       if (_nullMap != null)
@@ -195,13 +197,13 @@ namespace MySql.Data.MySqlClient
 
       ExecutionCount++;
 
-      Driver.ExecuteStatement(_packet);
+      await Driver.ExecuteStatementAsync(_packet, execAsync).ConfigureAwait(false);
     }
 
-    public override bool ExecuteNext()
+    public override async Task<bool> ExecuteNextAsync(bool execAsync)
     {
       if (!IsPrepared)
-        return base.ExecuteNext();
+        return await base.ExecuteNextAsync(execAsync).ConfigureAwait(false);
       return false;
     }
 
@@ -245,11 +247,11 @@ namespace MySql.Data.MySqlClient
       return parameterMap;
     }
 
-    public virtual void CloseStatement()
+    public virtual async Task CloseStatementAsync(bool execAsync)
     {
       if (!IsPrepared) return;
 
-      Driver.CloseStatement(StatementId);
+      await Driver.CloseStatementAsync(StatementId, execAsync).ConfigureAwait(false);
       StatementId = 0;
     }
   }

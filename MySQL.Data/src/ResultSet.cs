@@ -1,4 +1,4 @@
-﻿// Copyright © 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+﻿// Copyright (c) 2009, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,11 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.Types;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using MySql.Data.Types;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient
 {
@@ -54,22 +55,33 @@ namespace MySql.Data.MySqlClient
       _readDone = true;
     }
 
-    public ResultSet(Driver d, int statementId, int numCols)
+    public static async Task<ResultSet> CreateResultSetAsync(Driver d, int statementId, int numCols, bool execAsync)
+    {
+      ResultSet resultSet = new ResultSet(d, statementId);
+      await resultSet.InitializeAsync(numCols, execAsync).ConfigureAwait(false);
+      return resultSet;
+    }
+
+    private ResultSet(Driver d, int statementId)
     {
       AffectedRows = -1;
       InsertedId = -1;
       _driver = d;
       _statementId = statementId;
       _rowIndex = -1;
-      LoadColumns(numCols);
+    }
+
+    private async Task InitializeAsync(int numCols, bool execAsync)
+    {
+      await LoadColumnsAsync(numCols, execAsync).ConfigureAwait(false);
       IsOutputParameters = IsOutputParameterResultSet();
-      HasRows = GetNextRow();
+      HasRows = await GetNextRowAsync(execAsync).ConfigureAwait(false);
       _readDone = !HasRows;
     }
 
-#region Properties
+    #region Properties
 
-    public bool HasRows { get; }
+    public bool HasRows { get; private set; }
 
     public int Size => Fields?.Length ?? 0;
 
@@ -98,7 +110,7 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-#endregion
+    #endregion
 
     /// <summary>
     /// return the ordinal for the given column name
@@ -110,7 +122,7 @@ namespace MySql.Data.MySqlClient
       int ordinal;
 
       // quick hash lookup using CI hash
-      if (_fieldHashCi.TryGetValue( name, out ordinal ))
+      if (_fieldHashCi.TryGetValue(name, out ordinal))
         return ordinal;
 
       // Throw an exception if the ordinal cannot be found.
@@ -139,7 +151,7 @@ namespace MySql.Data.MySqlClient
             throw new MySqlException(Resources.ReadingPriorColumnUsingSeqAccess);
           while (_seqIndex < (index - 1))
             _driver.SkipColumnValue(Values[++_seqIndex]);
-          Values[index] = _driver.ReadColumnValue(index, Fields[index], Values[index]);
+          Values[index] = _driver.ReadColumnValueAsync(index, Fields[index], Values[index], false).GetAwaiter().GetResult();
           _seqIndex = index;
         }
 
@@ -147,16 +159,17 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private bool GetNextRow()
+    private async Task<bool> GetNextRowAsync(bool execAsync)
     {
-      bool fetched = _driver.FetchDataRow(_statementId, Size);
+      bool fetched = await _driver.FetchDataRowAsync(_statementId, Size, execAsync).ConfigureAwait(false);
+
       if (fetched)
         TotalRows++;
+
       return fetched;
     }
 
-
-    public bool NextRow(CommandBehavior behavior)
+    public async Task<bool> NextRowAsync(CommandBehavior behavior, bool execAsync)
     {
       if (_readDone)
       {
@@ -173,10 +186,10 @@ namespace MySql.Data.MySqlClient
       // if we are at row index >= 0 then we need to fetch the data row and load it
       if (_rowIndex >= 0)
       {
-        bool fetched = false;
+        bool fetched;
         try
         {
-          fetched = GetNextRow();
+          fetched = await GetNextRowAsync(execAsync).ConfigureAwait(false);
         }
         catch (MySqlException ex)
         {
@@ -195,7 +208,9 @@ namespace MySql.Data.MySqlClient
         }
       }
 
-      if (!_isSequential) ReadColumnData(false);
+      if (!_isSequential)
+        await ReadColumnDataAsync(false, execAsync).ConfigureAwait(false);
+
       _rowIndex++;
       return true;
     }
@@ -213,7 +228,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Closes the current resultset, dumping any data still on the wire
     /// </summary>
-    public void Close()
+    public async Task CloseAsync(bool execAsync)
     {
       if (!_readDone)
       {
@@ -223,7 +238,7 @@ namespace MySql.Data.MySqlClient
           SkippedRows++;
         try
         {
-          while (_driver.IsOpen && _driver.SkipDataRow())
+          while (_driver.IsOpen && await _driver.SkipDataRowAsync(execAsync).ConfigureAwait(false))
           {
             TotalRows++;
             SkippedRows++;
@@ -284,9 +299,9 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Loads the column metadata for the current resultset
     /// </summary>
-    private void LoadColumns(int numCols)
+    private async Task LoadColumnsAsync(int numCols, bool execAsync)
     {
-      Fields = _driver.GetColumns(numCols);
+      Fields = await _driver.GetColumnsAsync(numCols, execAsync).ConfigureAwait(false);
 
       Values = new IMySqlValue[numCols];
       _uaFieldsUsed = new bool[numCols];
@@ -301,10 +316,10 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private void ReadColumnData(bool outputParms)
+    private async Task ReadColumnDataAsync(bool outputParms, bool execAsync)
     {
       for (int i = 0; i < Size; i++)
-        Values[i] = _driver.ReadColumnValue(i, Fields[i], Values[i]);
+        Values[i] = await _driver.ReadColumnValueAsync(i, Fields[i], Values[i], execAsync).ConfigureAwait(false);
 
       // if we are caching then we need to save a copy of this row of data values
       if (Cached)
@@ -314,8 +329,9 @@ namespace MySql.Data.MySqlClient
       // params with TableDirect commands
       if (!outputParms) return;
 
-      bool rowExists = _driver.FetchDataRow(_statementId, Fields.Length);
+      bool rowExists = await _driver.FetchDataRowAsync(_statementId, Fields.Length, execAsync).ConfigureAwait(false);
       _rowIndex = 0;
+
       if (rowExists)
         throw new MySqlException(Resources.MoreThanOneOPRow);
     }
