@@ -817,6 +817,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to OCI configuration profile not found..
+        /// </summary>
+        internal static string OciConfigProfileNotFound {
+            get {
+                return ResourceManager.GetString("OciConfigProfileNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OCI configuration file does not contain a &apos;fingerprint&apos; or &apos;key_file&apos; entry..
         /// </summary>
         internal static string OciEntryNotFound {
@@ -849,6 +858,24 @@ namespace MySql.Data {
         internal static string OciSDKNotFound {
             get {
                 return ResourceManager.GetString("OciSDKNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Security token file could not be found at location given by OCI configuration entry &apos;security_token_file&apos;..
+        /// </summary>
+        internal static string OciSecurityTokenDoesNotExists {
+            get {
+                return ResourceManager.GetString("OciSecurityTokenDoesNotExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The size of the OCI security token file exceeds the maximum value of 10KB allowed..
+        /// </summary>
+        internal static string OciSecurityTokenFileExceeds10KB {
+            get {
+                return ResourceManager.GetString("OciSecurityTokenFileExceeds10KB", resourceCulture);
             }
         }
         

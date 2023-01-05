@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2016, 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2016, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -1392,6 +1392,7 @@ namespace MySql.Data.MySqlClient.Tests
     #region OCI IAM Authentication
     /// <summary>
     /// WL14708 - Support OCI IAM authentication
+    /// WL15489 - Support OCI Ephemeral key-based authentication
     /// This test require to have a server running in the OCI and have at least one user configured with 
     /// the authentication_oci authentication plugin (see server WL11102 for further details)
     /// </summary>
@@ -1410,7 +1411,8 @@ namespace MySql.Data.MySqlClient.Tests
         UserID = userName,
         Server = host,
         Port = port,
-        OciConfigFile = configFilePath
+        OciConfigFile = configFilePath,
+        OciConfigProfile = "TEST" // when using ephemeral key-based auth
       };
 
       using (var conn = new MySqlConnection(connStringBuilder.ConnectionString))
@@ -1431,7 +1433,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       OciAuthenticationPlugin plugin = new OciAuthenticationPlugin();
       string keyFileInvalidPath = "C:\\invalid\\Path";
-      string exMsg = Assert.Throws<MySqlException>(() => plugin.SignData(new byte[0], keyFileInvalidPath, "")).Message;
+      string exMsg = Assert.Throws<MySqlException>(() => OciAuthenticationPlugin.SignData(new byte[0], keyFileInvalidPath)).Message;
       StringAssert.AreEqualIgnoringCase(Resources.OciKeyFileDoesNotExists, exMsg);
     }
 
@@ -1439,6 +1441,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       public Dictionary<string, Dictionary<string, string>> profiles { get; set; }
       public bool missingEntry { get; set; }
+      public string ociProfile { get; set; }
     }
 
     [DatapointSource]
@@ -1447,24 +1450,25 @@ namespace MySql.Data.MySqlClient.Tests
       // does not contain key_file entry
       new Profiles{
         profiles = new Dictionary<string, Dictionary<string, string>>() {
-          { "DEFAULT", new Dictionary<string, string>(){ { "fingerprint", "11:22:33:44:55:66:77" } } },
-          { "TEST", new Dictionary<string, string>(){ { "key_file", "keyFilePath" } } }
+          { "DEFAULT", new Dictionary<string, string>(){ { "fingerprint", "11:22:33:44:55:66:77" } } }
         },
-        missingEntry = true
+        missingEntry = true,
+        ociProfile = "DEFAULT"
       },
             // does not contain fingerprint entry
       new Profiles{
         profiles = new Dictionary<string, Dictionary<string, string>>() {
-          { "DEFAULT", new Dictionary<string, string>(){ { "key_file", "keyFilePath" } } },
-          { "TEST", new Dictionary<string, string>(){ { "fingerprint", "11:22:33:44:55:66:77" } } }
+          { "TEST", new Dictionary<string, string>(){ { "key_file", "keyFilePath" } } }
         },
-        missingEntry = true
+        missingEntry = true,
+        ociProfile = "TEST"
       },
       // points to a invalid private key file
       new Profiles{
         profiles = new Dictionary<string, Dictionary<string, string>>() {
           { "DEFAULT", new Dictionary<string, string>(){ { "key_file", System.IO.Path.Combine(TestContext.CurrentContext.TestDirectory.Substring(0, TestContext.CurrentContext.TestDirectory.LastIndexOf("bin")), "Resources", "my.ini") }, { "fingerprint", "11:22:33:44:55:66:77" } } }
-        }
+        },
+        ociProfile ="DEFAULT"
       }
     };
 
@@ -1472,17 +1476,18 @@ namespace MySql.Data.MySqlClient.Tests
     public void ValidatesEntries(Profiles profiles)
     {
       OciAuthenticationPlugin plugin = new OciAuthenticationPlugin();
+      plugin._ociConfigProfile = profiles.ociProfile;
       string exMsg;
 
       if (profiles.missingEntry)
       {
-        exMsg = Assert.Throws<MySqlException>(() => plugin.GetValues(profiles.profiles, out string keyFile, out string fingerprint)).Message;
+        exMsg = Assert.Throws<MySqlException>(() => plugin.GetOciConfigValues(profiles.profiles, out string keyFile, out string fingerprint, out string securityTokenFilePath)).Message;
         StringAssert.AreEqualIgnoringCase(Resources.OciEntryNotFound, exMsg);
       }
       else
       {
-        plugin.GetValues(profiles.profiles, out string keyFile, out string fingerprint);
-        exMsg = Assert.Throws<MySqlException>(() => plugin.SignData(new byte[0], keyFile, fingerprint)).Message;
+        plugin.GetOciConfigValues(profiles.profiles, out string keyFile, out string fingerprint, out string securityTokenFilePath);
+        exMsg = Assert.Throws<MySqlException>(() => OciAuthenticationPlugin.SignData(new byte[0], keyFile)).Message;
         StringAssert.AreEqualIgnoringCase(Resources.OciInvalidKeyFile, exMsg);
       }
     }
@@ -1492,15 +1497,17 @@ namespace MySql.Data.MySqlClient.Tests
     {
       Dictionary<string, Dictionary<string, string>> profiles = new();
       Dictionary<string, string> valuesDefault = new() { { "fingerprint", "11:22:33:44:55:66" } };
-      Dictionary<string, string> valuesTest = new() { { "key_file", "keyFilePath" }, { "fingerprint", "66:55:44:33:22:11" } };
+      Dictionary<string, string> valuesTest = new() { { "key_file", "keyFilePath" }, { "fingerprint", "66:55:44:33:22:11" }, { "security_token_file", "securityTokenFilePath" } };
       profiles.Add("DEFAULT", valuesDefault);
       profiles.Add("TEST", valuesTest);
 
       OciAuthenticationPlugin plugin = new OciAuthenticationPlugin();
-      plugin.GetValues(profiles, out string keyFilePath, out string fingerprint);
+      plugin._ociConfigProfile = "TEST";
+      plugin.GetOciConfigValues(profiles, out string keyFilePath, out string fingerprint, out string securityTokenFilePath);
 
       StringAssert.AreEqualIgnoringCase("keyFilePath", keyFilePath);
       StringAssert.AreEqualIgnoringCase("66:55:44:33:22:11", fingerprint);
+      StringAssert.AreEqualIgnoringCase("securityTokenFilePath", securityTokenFilePath);
     }
 
     [DatapointSource]
@@ -1541,6 +1548,38 @@ namespace MySql.Data.MySqlClient.Tests
 
       string exMsg = Assert.Throws<MySqlException>(() => plugin.Authenticate(false)).Message;
       StringAssert.AreEqualIgnoringCase(Resources.OciSDKNotFound, exMsg);
+    }
+
+    [Test]
+    [Ignore("This test requires the OCI SDK for .NET")]
+    public void NonExistingConfigProfile()
+    {
+      string userName = "cnetuser1";
+      string host = "100.101.74.201";
+      uint port = 3307;
+      string configProfile = "NonExistentProfile";
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = userName,
+        Server = host,
+        Port = port,
+        OciConfigProfile = configProfile
+      };
+
+      using (var conn = new MySqlConnection(connStringBuilder.ConnectionString))
+      {
+        string exMsg = Assert.Throws<MySqlException>(() => conn.Open()).Message;
+        StringAssert.AreEqualIgnoringCase(Resources.OciConfigProfileNotFound, exMsg);
+      }
+    }
+
+    [Test]
+    [Ignore("This test requires to have a 'security_token_file' larger than 10KB")]
+    public void SecurityTokenLargerThan10KB()
+    {
+      string securityTokenPath = "C:\\largePayload";
+      Assert.Throws<MySqlException>(() => OciAuthenticationPlugin.LoadSecurityToken(securityTokenPath));
     }
     #endregion
 

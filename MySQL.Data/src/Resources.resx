@@ -672,4 +672,13 @@
   <data name="TlsUnsupportedVersions" xml:space="preserve">
     <value>TLS protocols TLSv1 and TLSv1.1 are no longer supported. Accepted values are TLSv1.2 and TLSv1.3</value>
   </data>
+  <data name="OciSecurityTokenFileExceeds10KB" xml:space="preserve">
+    <value>The size of the OCI security token file exceeds the maximum value of 10KB allowed.</value>
+  </data>
+  <data name="OciConfigProfileNotFound" xml:space="preserve">
+    <value>OCI configuration profile not found.</value>
+  </data>
+  <data name="OciSecurityTokenDoesNotExists" xml:space="preserve">
+    <value>Secutiry token file could not be found at location given by OCI configuration entry 'security_token_file'.</value>
+  </data>
 </root>

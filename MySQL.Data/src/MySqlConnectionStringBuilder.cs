@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -37,7 +37,7 @@ namespace MySql.Data.MySqlClient
 {
   /// <summary>
   /// Aids in the creation of connection strings by exposing the connection options as properties.
-  /// Contains connection options specific to the Classic protocol.
+  /// Contains connection options specific to the Classic MySQL protocol.
   /// </summary>
   public sealed class MySqlConnectionStringBuilder : MySqlBaseConnectionStringBuilder
   {
@@ -46,7 +46,8 @@ namespace MySql.Data.MySqlClient
       // Add options shared between classic and X protocols from base class.
       Options = MySqlBaseConnectionStringBuilder.Options.Clone();
 
-      // Server options
+      #region ServerOptions
+
       Options.Add(new MySqlConnectionStringOption("pipe", "pipe name,pipename", typeof(string), "MYSQL", false,
         (msb, sender, value) =>
         {
@@ -100,7 +101,10 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("allowloadlocalinfile", "allow load local infile", typeof(bool), false, false));
       Options.Add(new MySqlConnectionStringOption("allowloadlocalinfileinpath", "allow load local infile in path", typeof(string), string.Empty, false));
 
-      // Authentication options.
+      #endregion
+
+      #region AuthenticationOptions
+
       Options.Add(new MySqlConnectionStringOption("persistsecurityinfo", "persist security info", typeof(bool), false, false,
         (msb, sender, value) => { msb.SetValue("persistsecurityinfo", value); }, (msb, sender) => msb.PersistSecurityInfo));
       Options.Add(new MySqlConnectionStringOption("integratedsecurity", "integrated security", typeof(bool), false, false,
@@ -129,7 +133,8 @@ namespace MySql.Data.MySqlClient
           msb.SetValue("defaultauthenticationplugin", value);
         },
         (msb, sender) => msb.DefaultAuthenticationPlugin));
-      Options.Add(new MySqlConnectionStringOption("ociconfigfile", null, typeof(string), string.Empty, false));
+      Options.Add(new MySqlConnectionStringOption("ociconfigfile", "oci config file", typeof(string), string.Empty, false));
+      Options.Add(new MySqlConnectionStringOption("ociconfigprofile", "oci config profile", typeof(string), "DEFAULT", false));
       Options.Add(new MySqlConnectionStringOption("kerberosauthmode", "kerberos auth mode", typeof(KerberosAuthMode), Platform.IsWindows() ? KerberosAuthMode.AUTO : KerberosAuthMode.GSSAPI, false,
         (msb, sender, value) =>
         {
@@ -140,7 +145,10 @@ namespace MySql.Data.MySqlClient
         },
         (msb, sender) => msb.KerberosAuthMode));
 
-      // Other properties.
+      #endregion
+
+      #region OtherProperties
+
       Options.Add(new MySqlConnectionStringOption("autoenlist", "auto enlist", typeof(bool), true, false,
         (msb, sender, value) => { msb.SetValue("autoenlist", value); }, (msb, sender) => msb.AutoEnlist));
       Options.Add(new MySqlConnectionStringOption("includesecurityasserts", "include security asserts", typeof(bool), false, false,
@@ -204,7 +212,10 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("commandinterceptors", "command interceptors", typeof(string), null, false,
         (msb, sender, value) => { msb.SetValue("commandinterceptors", value); }, (msb, sender) => msb.CommandInterceptors));
 
-      // Pooling options.
+      #endregion
+
+      #region PoolingOptions
+
       Options.Add(new MySqlConnectionStringOption("connectionlifetime", "connection lifetime", typeof(uint), (uint)0, false,
         (msb, sender, value) => { msb.SetValue("connectionlifetime", value); }, (msb, sender) => msb.ConnectionLifeTime));
       Options.Add(new MySqlConnectionStringOption("pooling", null, typeof(bool), true, false,
@@ -218,13 +229,18 @@ namespace MySql.Data.MySqlClient
       Options.Add(new MySqlConnectionStringOption("cacheserverproperties", "cache server properties", typeof(bool), false, false,
         (msb, sender, value) => { msb.SetValue("cacheserverproperties", value); }, (msb, sender) => msb.CacheServerProperties));
 
-      // Language and charset options.
+      #endregion
+
+      #region LanguageCharsetOptions
+
       Options.Add(new MySqlConnectionStringOption("treatblobsasutf8", "treat blobs as utf8", typeof(bool), false, false,
         (msb, sender, value) => { msb.SetValue("treatblobsasutf8", value); }, (msb, sender) => msb.TreatBlobsAsUTF8));
       Options.Add(new MySqlConnectionStringOption("blobasutf8includepattern", null, typeof(string), "", false,
         (msb, sender, value) => { msb.SetValue("blobasutf8includepattern", value); }, (msb, sender) => msb.BlobAsUTF8IncludePattern));
       Options.Add(new MySqlConnectionStringOption("blobasutf8excludepattern", null, typeof(string), "", false,
         (msb, sender, value) => { msb.SetValue("blobasutf8excludepattern", value); }, (msb, sender) => msb.BlobAsUTF8ExcludePattern));
+
+      #endregion
     }
 
     /// <summary>
@@ -474,11 +490,11 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets the OCI config file location.
+    /// Gets or sets the OCI configuration file location.
     /// </summary>
     /// <remarks>
-    /// The default values vary depending on the OS. On Windows systems the value is '%HOMEDRIVE%%HOMEPATH%\.oci\config' 
-    /// and for Linux/MacOS systems it is '~/.oci/config'.
+    /// The default values vary depending on the operating system. On Windows systems the value is '%HOMEDRIVE%%HOMEPATH%\.oci\config'.
+    /// For Linux and macOS systems it is '~/.oci/config'.
     /// </remarks>
     [Category("Authentication")]
     [DisplayName("OciConfigFile")]
@@ -490,11 +506,26 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets the API to be used in Kerberos authentication.
+    /// Gets or sets the profile to use from the OCI configuration file.
+    /// </summary>
+    /// <remarks>
+    /// The default value is "DEFAULT".
+    /// </remarks>
+    [Category("Authentication")]
+    [DisplayName("OciConfigProfile")]
+    [Description("Specifies the profile to use from the OCI configuration file location.")]
+    public string OciConfigProfile
+    {
+      get { return (string)values["ociconfigprofile"]; }
+      set { SetValue("ociconfigprofile", value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the mode value to be used in Kerberos authentication.
     /// </summary>
     /// <remarks>
     /// If <see cref="KerberosAuthMode.AUTO"/> (default value) is used, then it will try to log in using <see cref="KerberosAuthMode.SSPI"/>
-    /// and then fallback to <see cref="KerberosAuthMode.GSSAPI"/> in case of error.
+    /// and then fallback to <see cref="KerberosAuthMode.GSSAPI"/> mode value in case of error.
     /// </remarks>
     [Category("Authentication")]
     [DisplayName("KerberosAuthMode")]

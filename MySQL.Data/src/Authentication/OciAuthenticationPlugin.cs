@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -45,10 +45,11 @@ namespace MySql.Data.MySqlClient.Authentication
   {
     public override string PluginName => "authentication_oci_client";
     private Assembly _ociAssembly;
+    internal string _ociConfigProfile;
 
-    private const string DEFAULT_PROFILE = "DEFAULT";
     private const string KEY_FILE = "key_file";
     private const string FINGERPRINT = "fingerprint";
+    private const string SECURITY_TOKEN_FILE = "security_token_file";
 
     /// <summary>
     /// Verify that OCI .NET SDK is referenced.
@@ -72,7 +73,22 @@ namespace MySql.Data.MySqlClient.Authentication
 
     protected override byte[] MoreData(byte[] data)
     {
+      Dictionary<string, Dictionary<string, string>> profiles = LoadOciConfigProfiles();
+      GetOciConfigValues(profiles, out string keyFilePath, out string fingerprint, out string securityTokenFilePath);
+      string signedToken = SignData(AuthenticationData, keyFilePath);
+      string securityToken = LoadSecurityToken(securityTokenFilePath);
+      byte[] response = BuildResponse(fingerprint, signedToken, securityToken);
+
+      return response;
+    }
+
+    /// <summary>
+    /// Loads the profiles from the OCI config file.
+    /// </summary>
+    internal Dictionary<string, Dictionary<string, string>> LoadOciConfigProfiles()
+    {
       string ociConfigPath = Settings.OciConfigFile;
+      _ociConfigProfile = Settings.OciConfigProfile;
       var configFileReaderType = _ociAssembly.GetType("Oci.Common.ConfigFileReader");
       Dictionary<string, Dictionary<string, string>> profiles;
 
@@ -84,46 +100,39 @@ namespace MySql.Data.MySqlClient.Authentication
 
       try
       {
-        MethodInfo methodInfo = configFileReaderType.GetMethod("Parse", new Type[] { typeof(string) });
-        var configFile = methodInfo.Invoke(null, new object[] { ociConfigPath });
+        MethodInfo methodInfo = configFileReaderType.GetMethod("Parse", new Type[] { typeof(string), typeof(string) });
+        var configFile = methodInfo.Invoke(null, new object[] { ociConfigPath, _ociConfigProfile });
         profiles = (Dictionary<string, Dictionary<string, string>>)configFile.GetType().GetMethod("GetConfiguration").Invoke(configFile, null);
       }
       catch (Exception ex)
       {
-        throw new MySqlException(Resources.OciConfigFileNotFound, ex);
+        switch (ex.InnerException)
+        {
+          case IOException:
+            throw new MySqlException(Resources.OciConfigFileNotFound, ex);
+          case ArgumentException:
+            throw new MySqlException(Resources.OciConfigProfileNotFound, ex);
+          default:
+            throw new MySqlException(string.Format(Resources.AuthenticationFailed, Settings.Server, Settings.UserID, ex.InnerException));
+        }
       }
 
-      GetValues(profiles, out string keyFilePath, out string fingerprint);
-      byte[] signedToken = SignData(AuthenticationData, keyFilePath, fingerprint);
-
-      return signedToken;
+      return profiles;
     }
 
     /// <summary>
-    /// Get the values for the key_file and fingerprint entries.
+    /// Get the values for the key_file, fingerprint and security_token_file entries.
     /// </summary>
-    internal void GetValues(Dictionary<string, Dictionary<string, string>> profiles, out string keyFilePath, out string fingerprint)
+    internal void GetOciConfigValues(Dictionary<string, Dictionary<string, string>> profiles, out string keyFilePath, out string fingerprint, out string securityTokenFilePath)
     {
-      keyFilePath = string.Empty;
-      fingerprint = string.Empty;
+      profiles.TryGetValue(_ociConfigProfile, out Dictionary<string, string> profileData);
 
-      if (profiles.ContainsKey(DEFAULT_PROFILE) && profiles[DEFAULT_PROFILE].ContainsKey(KEY_FILE)
-        && profiles[DEFAULT_PROFILE].ContainsKey(FINGERPRINT))
-      {
-        keyFilePath = profiles[DEFAULT_PROFILE][KEY_FILE];
-        fingerprint = profiles[DEFAULT_PROFILE][FINGERPRINT];
-      }
-      else
-      {
-        foreach (var profile in profiles)
-        {
-          if (profile.Value.ContainsKey(KEY_FILE) && profile.Value.ContainsKey(FINGERPRINT))
-          {
-            keyFilePath = profile.Value[KEY_FILE];
-            fingerprint = profile.Value[FINGERPRINT];
-          }
-        }
-      }
+      keyFilePath = profileData.TryGetValue(KEY_FILE, out string keyFilePathValue)
+        ? keyFilePathValue : string.Empty;
+      fingerprint = profileData.TryGetValue(FINGERPRINT, out string fingerprintValue)
+        ? fingerprintValue : string.Empty;
+      securityTokenFilePath = profileData.TryGetValue(SECURITY_TOKEN_FILE, out string securityTokenFilePathValue)
+        ? securityTokenFilePathValue : string.Empty;
 
       if (string.IsNullOrEmpty(keyFilePath) || string.IsNullOrEmpty(fingerprint))
         throw new MySqlException(Resources.OciEntryNotFound);
@@ -132,20 +141,18 @@ namespace MySql.Data.MySqlClient.Authentication
     /// <summary>
     /// Sign nonce sent by server using SHA256 algorithm and the private key provided by the user.
     /// </summary>
-    internal byte[] SignData(byte[] data, string keyFilePath, string fingerprint)
+    internal static string SignData(byte[] data, string keyFilePath)
     {
       // Init algorithm
       RsaDigestSigner signer256 = new RsaDigestSigner(new Sha256Digest());
       RsaPrivateCrtKeyParameters rsaPrivate;
 
-      // Read key file
+      // Read key file and security token
       try
       {
-        using (var reader = File.OpenText(keyFilePath))
-        {
-          PemReader pemReader = new PemReader(reader);
-          rsaPrivate = (RsaPrivateCrtKeyParameters)pemReader.ReadObject();
-        }
+        using StreamReader reader = File.OpenText(keyFilePath);
+        PemReader pemReader = new PemReader(reader);
+        rsaPrivate = (RsaPrivateCrtKeyParameters)pemReader.ReadObject();
       }
       catch (Exception ex)
       {
@@ -153,7 +160,7 @@ namespace MySql.Data.MySqlClient.Authentication
       }
 
       if (rsaPrivate == null)
-        throw new MySqlException(Resources.OciInvalidKeyFile);
+        throw new MySqlException(Resources.OciInvalidKeyFile);      
 
       // Populate with key 
       signer256.Init(true, rsaPrivate);
@@ -164,10 +171,54 @@ namespace MySql.Data.MySqlClient.Authentication
       // Base 64 encode the sig so its 8-bit clean
       string signedString = Convert.ToBase64String(sig);
 
-      string payload = "{ \"fingerprint\" : \"" + fingerprint + "\" , \"signature\": \"" + signedString + "\" }";
-      byte[] result = Encoding.UTF8.GetBytes(payload);
+      return signedString;
+    }
 
-      return result;
+    /// <summary>
+    /// Reads the security token file and verify it does not exceed the maximum value of 10KB.
+    /// </summary>
+    /// <param name="securityTokenFilePath">The path to the security token.</param>
+    internal static string LoadSecurityToken(string securityTokenFilePath)
+    {
+      byte[] securityToken = new byte[0];
+
+      try
+      {
+        if (!string.IsNullOrWhiteSpace(securityTokenFilePath))
+        {
+          using var reader = File.OpenRead(securityTokenFilePath);
+
+          if (reader.Length > 10240)
+            throw new MySqlException(Resources.OciSecurityTokenFileExceeds10KB);
+
+          securityToken = new byte[reader.Length];
+          reader.Read(securityToken, 0, securityToken.Length);
+        }
+      }
+      catch (FileNotFoundException ex)
+      {
+        throw new MySqlException(Resources.OciSecurityTokenDoesNotExists, ex);
+      }
+      catch (MySqlException ex)
+      {
+        throw ex;
+      }
+
+      return Encoding.UTF8.GetString(securityToken);
+    }
+
+    /// <summary>
+    /// Wraps up the fingerprint, signature and the token into a JSON format and encode it to a byte array.
+    /// </summary>
+    /// <returns>The response packet that will be sent to the server.</returns>
+    internal static byte[] BuildResponse(string fingerprint, string signature, string token)
+    {
+      string payload = 
+        "{ \"fingerprint\" : \"" + fingerprint + "\" ," +
+        " \"signature\": \"" + signature + "\"," +
+        " \"token\": \"" + token + "\" }";
+
+      return Encoding.UTF8.GetBytes(payload);
     }
   }
 }
