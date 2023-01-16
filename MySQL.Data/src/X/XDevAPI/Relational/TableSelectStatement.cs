@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,19 +26,19 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Collections.Generic;
+using MySql.Data;
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
 using System;
-using MySql.Data.MySqlClient;
-using MySql.Data;
+using System.Collections.Generic;
 
 namespace MySqlX.XDevAPI.Relational
 {
   /// <summary>
   /// Represents a chaining table select statement.
   /// </summary>
-  public class TableSelectStatement : FilterableStatement<TableSelectStatement, Table, RowResult>
+  public class TableSelectStatement : FilterableStatement<TableSelectStatement, Table, RowResult, String>
   {
     internal FindParams findParams = new FindParams();
 
@@ -65,7 +65,7 @@ namespace MySqlX.XDevAPI.Relational
     /// <exception cref="MySqlException">The server version is lower than 8.0.3.</exception>
     public TableSelectStatement LockShared(LockContention lockOption = LockContention.Default)
     {
-      if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8,0,3))
+      if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3))
         throw new MySqlException(string.Format(ResourcesX.FunctionalityNotSupported, "8.0.3"));
 
       findParams.Locking = Protocol.X.RowLock.SharedLock;
@@ -82,7 +82,7 @@ namespace MySqlX.XDevAPI.Relational
     /// <exception cref="MySqlException">The server version is lower than 8.0.3.</exception>
     public TableSelectStatement LockExclusive(LockContention lockOption = LockContention.Default)
     {
-      if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8,0,3))
+      if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3))
         throw new MySqlException(string.Format(ResourcesX.FunctionalityNotSupported, "8.0.3"));
 
       findParams.Locking = Protocol.X.RowLock.ExclusiveLock;

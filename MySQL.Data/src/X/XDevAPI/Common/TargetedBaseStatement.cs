@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,7 +33,8 @@ namespace MySqlX.XDevAPI.Common
   /// </summary>
   /// <typeparam name="TTarget">The database object.</typeparam>
   /// <typeparam name="TResult">The execution result.</typeparam>
-  public abstract class TargetedBaseStatement<TTarget, TResult> : BaseStatement<TResult>
+  /// <typeparam name="TType">The type of the implemented object.</typeparam>
+  public abstract class TargetedBaseStatement<TTarget, TResult, TType> : BaseStatement<TResult, TType>
     where TTarget : DatabaseObject
     where TResult : BaseResult
   {

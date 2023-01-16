@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -36,15 +36,16 @@ namespace MySqlX.XDevAPI.CRUD
 {
   /// <summary>
   /// Implementation class for CRUD statements with collections using an index.
+  /// <typeparam name="T"></typeparam>
   /// </summary> 
-  public class CreateCollectionIndexStatement : CrudStatement<Result>
+  public class CreateCollectionIndexStatement<T> : CrudStatement<Result, T>
   {
     internal CreateIndexParams createIndexParams;
 
-    internal CreateCollectionIndexStatement(Collection collection, string indexName, DbDoc indexDefinition) : base(collection)
+    internal CreateCollectionIndexStatement(Collection<T> collection, string indexName, DbDoc indexDefinition) : base(collection)
     {
       // Fields allowed at the root level.
-      var allowedFields = new string[]{ "fields", "type" };
+      var allowedFields = new string[] { "fields", "type" };
 
       // Fields allowed for embedded documents.
       var allowedInternalFields = new string[] { "field", "type", "required", "options", "srid", "array" };
@@ -54,7 +55,7 @@ namespace MySqlX.XDevAPI.CRUD
         throw new FormatException(string.Format(ResourcesX.MandatoryFieldNotFound, allowedFields[0]));
 
       // Validate that fields on the root level are allowed.
-      foreach(var field in indexDefinition.values)
+      foreach (var field in indexDefinition.values)
       {
         if (!allowedFields.Contains(field.Key))
           throw new FormatException(string.Format(ResourcesX.UnexpectedField, field.Key));
@@ -73,7 +74,7 @@ namespace MySqlX.XDevAPI.CRUD
         if (!field.ContainsKey(allowedInternalFields[1]))
           throw new FormatException(string.Format(ResourcesX.MandatoryFieldNotFound, allowedInternalFields[1]));
 
-        foreach(var internalField in field)
+        foreach (var internalField in field)
         {
           if (!allowedInternalFields.Contains(internalField.Key))
             throw new FormatException(string.Format(ResourcesX.UnexpectedField, internalField.Key));

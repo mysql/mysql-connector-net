@@ -1,6 +1,7 @@
 8.0.33
 - Added support for OCI ephemeral key-based authentication (WL15489).
 - Re implemented the asynchronous methods for the Classic protocol (WL15484).
+- Added support for mapping documents to custom types using X DevAPI (WL15476).
 
 
 8.0.32

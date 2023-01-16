@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,13 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using MySqlX.Serialization;
-using MySqlX.Common;
-using System.Collections.Generic;
-using System;
 using MySql.Data;
-using System.Collections;
-using System.Linq;
+using MySqlX.Serialization;
+using System;
+using System.Collections.Generic;
 
 namespace MySqlX.XDevAPI.Common
 {
@@ -42,8 +39,9 @@ namespace MySqlX.XDevAPI.Common
   /// <typeparam name="T">The filterable statement.</typeparam>
   /// <typeparam name="TTarget">The database object.</typeparam>
   /// <typeparam name="TResult">The type of result.</typeparam>
-  public abstract class FilterableStatement<T, TTarget, TResult> : TargetedBaseStatement<TTarget, TResult>
-    where T : FilterableStatement<T, TTarget, TResult>
+  /// <typeparam name="TDoc">The type of the implemented object.</typeparam>
+  public abstract class FilterableStatement<T, TTarget, TResult, TDoc> : TargetedBaseStatement<TTarget, TResult, TDoc>
+    where T : FilterableStatement<T, TTarget, TResult, TDoc>
     where TTarget : DatabaseObject
     where TResult : BaseResult
   {

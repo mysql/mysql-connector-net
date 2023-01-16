@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2018, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -122,7 +122,7 @@ namespace MySqlX.Data.Tests
       InitCollection();
       Collection coll = GetCollection();
       var findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
-      DocResult doc = ExecuteFindStatement(findStmt);
+      var doc = ExecuteFindStatement(findStmt);
       Assert.AreEqual("Book 1", doc.FetchAll()[0]["title"].ToString());
       Assert.False(findStmt._isPrepared);
       ValidatePreparedStatements(0, 0, null);
@@ -145,7 +145,7 @@ namespace MySqlX.Data.Tests
       Collection coll = GetCollection();
       var findStmt = coll.Find("_id = 1");
 
-      DocResult foundDoc = ExecuteFindStatement(findStmt);
+      var foundDoc = ExecuteFindStatement(findStmt);
       Assert.AreEqual("Book 1", foundDoc.FetchAll()[0]["title"].ToString());
       Assert.False(findStmt._isPrepared);
       ValidatePreparedStatements(0, 0, null);
@@ -159,7 +159,7 @@ namespace MySqlX.Data.Tests
 
       for (int i = 1; i <= _docs.Length; i++)
       {
-        DocResult foundDoc2 = ExecuteFindStatement(findStmt.Where($"_id = {i}"));
+        var foundDoc2 = ExecuteFindStatement(findStmt.Where($"_id = {i}"));
         Assert.AreEqual($"Book {i}", foundDoc2.FetchAll()[0]["title"].ToString());
         Assert.False(findStmt._isPrepared);
       }
@@ -180,7 +180,7 @@ namespace MySqlX.Data.Tests
 
         var findStmt = coll.Find($"_id = 1");
 
-        DocResult foundDoc = ExecuteFindStatement(findStmt);
+        var foundDoc = ExecuteFindStatement(findStmt);
         Assert.AreEqual("Book 1", foundDoc.FetchAll()[0]["title"].ToString());
         Assert.False(findStmt._isPrepared);
         ValidatePreparedStatements(0, 0, null, threadId);
@@ -456,7 +456,7 @@ namespace MySqlX.Data.Tests
       {
         ((Session)coll.Session).SQL("SET GLOBAL max_prepared_stmt_count=0").Execute();
         var findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
-        DocResult doc = ExecuteFindStatement(findStmt);
+        var doc = ExecuteFindStatement(findStmt);
         Assert.AreEqual("Book 1", doc.FetchAll()[0]["title"].ToString());
         Assert.False(findStmt._isPrepared);
         Assert.True(findStmt.Session.SupportsPreparedStatements);
@@ -546,7 +546,7 @@ namespace MySqlX.Data.Tests
           Assert.IsNotEmpty(connectionID1);
         }
         var findStmt = col.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
-        DocResult doc = ExecuteFindStatement(findStmt);
+        var doc = ExecuteFindStatement(findStmt);
         Assert.AreEqual("Book 1", doc.FetchAll()[0]["title"].ToString());
         ValidatePreparedStatements(0, 0, null);
         for (int i = 1; i < _docs.Length; i++)
@@ -623,7 +623,7 @@ namespace MySqlX.Data.Tests
               "WHERE PROCESSLIST_ID=CONNECTION_ID()").Execute().FetchOne()[0].ToString();
           Collection coll = mySession.GetSchema(schemaName).GetCollection(_collectionName);
           var findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
-          DocResult doc = ExecuteFindStatement(findStmt);
+          var doc = ExecuteFindStatement(findStmt);
           Assert.AreEqual("Book 1", doc.FetchAll()[0]["title"].ToString());
           ValidatePreparedStatements(0, 0, null, threadId);
 
@@ -657,11 +657,11 @@ namespace MySqlX.Data.Tests
       Collection coll2 = mySession2.GetSchema(schemaName).GetCollection(_collectionName);
       var findStmt1 = coll1.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
       var findStmt2 = coll2.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
-      DocResult doc1 = ExecuteFindStatement(findStmt1);
+      var doc1 = ExecuteFindStatement(findStmt1);
       Assert.AreEqual("Book 1", doc1.FetchAll()[0]["title"].ToString());
       ValidatePreparedStatements(0, 0, null, threadId1);
 
-      DocResult doc2 = ExecuteFindStatement(findStmt2);
+      var doc2 = ExecuteFindStatement(findStmt2);
       Assert.AreEqual("Book 1", doc2.FetchAll()[0]["title"].ToString());
       ValidatePreparedStatements(0, 0, null, threadId2);
 
@@ -699,7 +699,7 @@ namespace MySqlX.Data.Tests
       {
         ((Session)coll.Session).SQL("SET GLOBAL max_prepared_stmt_count=1").Execute();
         var findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", 1).Bind("pages", 20);
-        DocResult doc = ExecuteFindStatement(findStmt);
+        var doc = ExecuteFindStatement(findStmt);
         Assert.AreEqual("Book 1", doc.FetchAll()[0]["title"].ToString());
 
         ValidatePreparedStatements(0, 0, null);
@@ -767,7 +767,7 @@ namespace MySqlX.Data.Tests
       Collection coll = GetCollection();
       Assert.AreEqual(4, coll.Count());
       var findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", "1").Bind("pages", 20);
-      DocResult doc = ExecuteFindStatement(findStmt);
+      var doc = ExecuteFindStatement(findStmt);
       findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", "2").Bind("pages", 30);
       doc = ExecuteFindStatement(findStmt);
       var remStatement = coll.Remove("$._id == :id").Sort().Limit(2);

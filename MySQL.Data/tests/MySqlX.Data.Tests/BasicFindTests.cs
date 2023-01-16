@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -52,7 +52,7 @@ namespace MySqlX.Data.Tests
       Result r = ExecuteAddStatement(coll.Add(docs));
       Assert.AreEqual(4, r.AffectedItemsCount);
 
-      DocResult foundDocs = ExecuteFindStatement(coll.Find("pages > 20"));
+      var foundDocs = ExecuteFindStatement(coll.Find("pages > 20"));
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Current["title"].ToString() == "Book 2");
       Assert.True(foundDocs.Next());
@@ -76,7 +76,7 @@ namespace MySqlX.Data.Tests
       Result r = ExecuteAddStatement(coll.Add(docs));
       Assert.AreEqual(4, r.AffectedItemsCount);
 
-      DocResult foundDocs = ExecuteFindStatement(coll.Find("pages > 20").Sort("pages DESC"));
+      var foundDocs = ExecuteFindStatement(coll.Find("pages > 20").Sort("pages DESC"));
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Current["title"].ToString() == "Book 4");
       Assert.True(foundDocs.Next());
@@ -100,7 +100,7 @@ namespace MySqlX.Data.Tests
       Result r = ExecuteAddStatement(coll.Add(docs));
       Assert.AreEqual(4, r.AffectedItemsCount);
 
-      DocResult foundDocs = ExecuteFindStatement(coll.Find("pages > 20").Limit(1));
+      var foundDocs = ExecuteFindStatement(coll.Find("pages > 20").Limit(1));
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Current["title"].ToString() == "Book 2");
       Assert.False(foundDocs.Next());
@@ -128,7 +128,7 @@ namespace MySqlX.Data.Tests
       Result r = ExecuteAddStatement(coll.Add(docs));
       Assert.AreEqual(4, r.AffectedItemsCount);
 
-      DocResult foundDocs = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40));
+      var foundDocs = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40));
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Current["title"].ToString() == "Book 3");
       Assert.False(foundDocs.Next());
@@ -149,7 +149,7 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(4, r.AffectedItemsCount);
 
       DbDoc docParams = new DbDoc(new { pages1 = 30, pages2 = 40 });
-      DocResult foundDocs = ExecuteFindStatement(coll.Find("pages = :Pages1 || pages = :Pages2").Bind(docParams));
+      var foundDocs = ExecuteFindStatement(coll.Find("pages = :Pages1 || pages = :Pages2").Bind(docParams));
       Assert.True(foundDocs.Next());
       Assert.AreEqual("Book 2", foundDocs.Current["title"]);
       Assert.True(foundDocs.Next());
@@ -172,7 +172,7 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(4, r.AffectedItemsCount);
 
       var jsonParams = new { pages1 = 30, pages2 = 40 };
-      DocResult foundDocs = ExecuteFindStatement(coll.Find("pages = :Pages1 || pages = :Pages2").Bind(jsonParams));
+      var foundDocs = ExecuteFindStatement(coll.Find("pages = :Pages1 || pages = :Pages2").Bind(jsonParams));
       Assert.True(foundDocs.Next());
       Assert.AreEqual("Book 2", foundDocs.Current["title"]);
       Assert.True(foundDocs.Next());
@@ -195,7 +195,7 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(4, r.AffectedItemsCount);
 
       var jsonParams = "{ \"pages1\" : 30, \"pages2\" : 40 }";
-      DocResult foundDocs = ExecuteFindStatement(coll.Find("pages = :Pages1 || pages = :Pages2").Bind(jsonParams));
+      var foundDocs = ExecuteFindStatement(coll.Find("pages = :Pages1 || pages = :Pages2").Bind(jsonParams));
       Assert.True(foundDocs.Next());
       Assert.AreEqual("Book 2", foundDocs.Current["title"]);
       Assert.True(foundDocs.Next());
@@ -236,7 +236,7 @@ namespace MySqlX.Data.Tests
         Collection coll2 = session2.GetSchema("test").GetCollection("test");
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
-        DocResult docResult = ExecuteFindStatement(coll.Find("_id = 1").LockShared());
+        var docResult = ExecuteFindStatement(coll.Find("_id = 1").LockShared());
         Assert.That(docResult.FetchAll(), Has.One.Items);
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
@@ -272,7 +272,7 @@ namespace MySqlX.Data.Tests
         Collection coll2 = session2.GetSchema("test").GetCollection("test");
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
-        DocResult docResult = ExecuteFindStatement(coll.Find("_id = 1").LockShared());
+        var docResult = ExecuteFindStatement(coll.Find("_id = 1").LockShared());
         Assert.That(docResult.FetchAll(), Has.One.Items);
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
@@ -315,7 +315,7 @@ namespace MySqlX.Data.Tests
         Collection coll2 = session2.GetSchema("test").GetCollection("test");
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
-        DocResult docResult = ExecuteFindStatement(coll.Find("_id = 1").LockExclusive());
+        var docResult = ExecuteFindStatement(coll.Find("_id = 1").LockExclusive());
         Assert.That(docResult.FetchAll(), Has.One.Items);
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
@@ -358,7 +358,7 @@ namespace MySqlX.Data.Tests
         Collection coll2 = session2.GetSchema("test").GetCollection("test");
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
-        DocResult docResult = ExecuteFindStatement(coll.Find("_id = 1").LockExclusive());
+        var docResult = ExecuteFindStatement(coll.Find("_id = 1").LockExclusive());
         Assert.That(docResult.FetchAll(), Has.One.Items);
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
@@ -400,7 +400,7 @@ namespace MySqlX.Data.Tests
         Collection coll2 = session2.GetSchema("test").GetCollection("test");
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
-        DocResult docResult = ExecuteFindStatement(coll.Find("_id in (1, 3)").LockShared());
+        var docResult = ExecuteFindStatement(coll.Find("_id in (1, 3)").LockShared());
         Assert.AreEqual(2, docResult.FetchAll().Count);
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
@@ -443,7 +443,7 @@ namespace MySqlX.Data.Tests
         Collection coll2 = session2.GetSchema("test").GetCollection("test");
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
-        DocResult docResult = ExecuteFindStatement(coll.Find("_id = 1").LockExclusive());
+        var docResult = ExecuteFindStatement(coll.Find("_id = 1").LockExclusive());
         Assert.That(docResult.FetchAll(), Has.One.Items);
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
@@ -630,7 +630,7 @@ namespace MySqlX.Data.Tests
       {
         var coll1 = s1.GetSchema(schemaName).GetCollection(collectionName);
         s1.StartTransaction();
-        DocResult r1 = ExecuteFindStatement(coll1.Find("_id = :id").Bind("id", 1).LockExclusive());
+        var r1 = ExecuteFindStatement(coll1.Find("_id = :id").Bind("id", 1).LockExclusive());
         Assert.That(r1.FetchAll(), Has.One.Items);
 
         // second session tries to read the locked row
@@ -851,7 +851,7 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(4, r.AffectedItemsCount);
 
       var findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", $"{prefix}3{suffix}").Bind("pages", 40);
-      DocResult doc = ExecuteFindStatement(findStmt);
+      var doc = ExecuteFindStatement(findStmt);
       var books = doc.FetchAll();
       Assert.That(books, Has.One.Items);
       Assert.AreEqual($"{prefix}3{suffix}", books[0]["_id"]);
@@ -1455,7 +1455,7 @@ namespace MySqlX.Data.Tests
 
         session2.SQL("START TRANSACTION").Execute();
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
-        DocResult docResult = null;
+        DocResult<DbDoc> docResult = null;
         switch (lockMode)
         {
           case LockMode.Exclusive:
@@ -2064,7 +2064,7 @@ namespace MySqlX.Data.Tests
       for (int i = 0; i < splName.Length; i++)
       {
         coll.Add("{\"" + splName[i] + "\":\"data" + i + "\",\"ID\":" + i + "}").Execute();
-        DocResult docs2 = coll.Find("$.ID OVERLAPS " + i).Fields("$.`" + splName[i] + "` as col1,$.ID as Id").Execute();
+        var docs2 = coll.Find("$.ID OVERLAPS " + i).Fields("$.`" + splName[i] + "` as col1,$.ID as Id").Execute();
         var res2 = docs2.FetchOne();
         Assert.AreEqual(i.ToString(), res2["Id"].ToString(), "Matching the ID");
         if (i == 30)

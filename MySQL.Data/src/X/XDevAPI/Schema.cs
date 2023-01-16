@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,13 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
-using MySql.Data;
-using System.Linq;
 
 namespace MySqlX.XDevAPI
 {
@@ -123,7 +122,7 @@ namespace MySqlX.XDevAPI
     /// <returns>A <see cref="Collection"/> object matching the given name.</returns>
     public Collection GetCollection(string name, bool ValidateExistence = false)
     {
-      Collection c = new Collection<DbDoc>(this, name);
+      Collection c = new Collection(this, name);
       if (ValidateExistence)
       {
         ValidateOpenSession();
@@ -136,12 +135,19 @@ namespace MySqlX.XDevAPI
     /// <summary>
     /// Gets a typed collection object. This is useful for using domain objects.
     /// </summary>
-    /// <typeparam name="T">The type of collection returned.</typeparam>
     /// <param name="name">The name of collection to get.</param>
-    /// <returns>A generic <see cref="Collection"/> object set with the given name.</returns>
-    public Collection<T> GetCollection<T>(string name)
+    /// <returns>A generic <see cref="Collection{T}"/> object set with the given name.</returns>
+    public Collection<T> GetCollection<T>(string name, bool ValidateExistence = false)
     {
-      return new Collection<T>(this, name);
+      Collection<T> c = new Collection<T>(this, name);
+
+      if (ValidateExistence)
+      {
+        ValidateOpenSession();
+        if (!c.ExistsInDatabase())
+          throw new MySqlException(String.Format("Collection '{0}' does not exist.", name));
+      }
+      return c;
     }
 
     /// <summary>
@@ -169,7 +175,7 @@ namespace MySqlX.XDevAPI
     #region Create Functions
 
     /// <summary>
-    /// Creates a collection.
+    /// Creates a <see cref="Collection"/>.
     /// </summary>
     /// <param name="collectionName">The name of the collection to create.</param>
     /// <param name="ReuseExisting">If false, throws an exception if the collection exists.</param>
@@ -204,7 +210,7 @@ namespace MySqlX.XDevAPI
     }
 
     /// <summary>
-    /// Creates a collection including a schema validation.
+    /// Creates a <see cref="Collection"/> including a schema validation.
     /// </summary>
     /// <param name="collectionName">The name of the collection to create.</param>
     /// <param name="options">This object hold the parameters required to create the collection.</param>
@@ -224,7 +230,7 @@ namespace MySqlX.XDevAPI
       {
         XDevAPI.Session.ThrowSessionClosedByServerException(ex, Session);
       }
-      catch (MySqlException ex_1) when(ex_1.Code==5015)
+      catch (MySqlException ex_1) when (ex_1.Code == 5015)
       {
         var msg = string.Format("{0}{1}{2}", ex_1.Message, ", ", ResourcesX.SchemaCreateCollectionMsg);
         throw new MySqlException(msg);
@@ -286,7 +292,7 @@ namespace MySqlX.XDevAPI
       try
       {
         ValidateOpenSession();
-        Collection c = GetCollection(name);
+        Collection<DbDoc> c = GetCollection(name);
         if (!c.ExistsInDatabase()) return;
         Session.XSession.DropCollection(Name, name);
       }

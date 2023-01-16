@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,15 +26,15 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
 using MySqlX.XDevAPI.Common;
+using System;
 
 namespace MySqlX.XDevAPI.Relational
 {
   /// <summary>
   /// Represents a chaining table delete statement.
   /// </summary>
-  public class TableDeleteStatement : FilterableStatement<TableDeleteStatement, Table, Result>
+  public class TableDeleteStatement : FilterableStatement<TableDeleteStatement, Table, Result, String>
   {
     internal TableDeleteStatement(Table table, string condition) : base(table, condition)
     {

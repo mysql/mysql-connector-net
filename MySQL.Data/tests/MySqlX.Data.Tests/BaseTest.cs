@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -182,17 +182,17 @@ namespace MySqlX.Data.Tests
       }
     }
 
-    protected Result ExecuteAddStatement(AddStatement stmt)
+    protected Result ExecuteAddStatement(AddStatement<DbDoc> stmt)
     {
       return stmt.Execute();
     }
 
-    protected Result ExecuteModifyStatement(ModifyStatement stmt)
+    protected Result ExecuteModifyStatement(ModifyStatement<DbDoc> stmt)
     {
       return stmt.Execute();
     }
 
-    protected DocResult ExecuteFindStatement(FindStatement stmt)
+    protected DocResult<DbDoc> ExecuteFindStatement(FindStatement<DbDoc> stmt)
     {
       return stmt.Execute();
     }
@@ -202,7 +202,7 @@ namespace MySqlX.Data.Tests
       return stmt.Execute();
     }
 
-    protected Result ExecuteRemoveStatement(RemoveStatement stmt)
+    protected Result ExecuteRemoveStatement(RemoveStatement<DbDoc> stmt)
     {
       return stmt.Execute();
     }

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -65,7 +65,7 @@ namespace MySqlX.Data.Tests
       // now roll it back
       coll.Session.Commit();
 
-      DocResult foundDocs = ExecuteFindStatement(coll.Find());
+      var foundDocs = ExecuteFindStatement(coll.Find());
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Next());
       Assert.True(foundDocs.Next());
@@ -94,7 +94,7 @@ namespace MySqlX.Data.Tests
       // now roll it back
       coll.Session.Rollback();
 
-      DocResult foundDocs = ExecuteFindStatement(coll.Find());
+      var foundDocs = ExecuteFindStatement(coll.Find());
       Assert.False(foundDocs.Next());
     }
 
@@ -479,7 +479,7 @@ namespace MySqlX.Data.Tests
       coll.Session.Rollback();
       Assert.AreEqual(6, coll.Count());
 
-      DocResult foundDocs = coll.Find().Execute();
+      var foundDocs = coll.Find().Execute();
       Assert.IsNotNull(foundDocs);
     }
 
@@ -778,7 +778,7 @@ namespace MySqlX.Data.Tests
       // now Commit Again
       coll.Session.Commit();
 
-      DocResult foundDocs = coll.Find().Execute();
+      var foundDocs = coll.Find().Execute();
       Assert.AreEqual(true, foundDocs.Next(), "Matching");
       Assert.AreEqual(true, foundDocs.Next(), "Matching");
       Assert.AreEqual(true, foundDocs.Next(), "Matching");
@@ -829,7 +829,7 @@ namespace MySqlX.Data.Tests
       // now Rollback
       coll.Session.Rollback();
 
-      DocResult foundDocs = coll.Find().Execute();
+      var foundDocs = coll.Find().Execute();
       Assert.AreEqual(false, foundDocs.Next(), "Matching");
 
     }
@@ -888,7 +888,7 @@ namespace MySqlX.Data.Tests
       // now Rollback Again
       coll.Session.Rollback();
 
-      DocResult foundDocs = coll.Find().Execute();
+      var foundDocs = coll.Find().Execute();
       Assert.AreEqual(false, foundDocs.Next(), "Matching");
 
     }
@@ -934,7 +934,7 @@ namespace MySqlX.Data.Tests
       // now Rollback
       coll.Session.Rollback();
 
-      DocResult foundDocs = coll.Find().Execute();
+      var foundDocs = coll.Find().Execute();
       Assert.AreEqual(true, foundDocs.Next(), "Matching");
       Assert.AreEqual(true, foundDocs.Next(), "Matching");
       Assert.AreEqual(true, foundDocs.Next(), "Matching");
@@ -981,7 +981,7 @@ namespace MySqlX.Data.Tests
       Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
       //now Commit
       coll.Session.Commit();
-      DocResult foundDocs = coll.Find().Execute();
+      var foundDocs = coll.Find().Execute();
       Assert.AreEqual(true, foundDocs.Next(), "Matching");
       Assert.AreEqual(true, foundDocs.Next(), "Matching");
       Assert.AreEqual(true, foundDocs.Next(), "Matching");

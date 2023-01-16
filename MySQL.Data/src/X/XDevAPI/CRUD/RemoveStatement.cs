@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -33,10 +33,11 @@ namespace MySqlX.XDevAPI.CRUD
 {
   /// <summary>
   /// Represents a chaining collection remove statement.
+  /// <typeparam name="T"/>
   /// </summary>
-  public class RemoveStatement : FilterableStatement<RemoveStatement, Collection, Result>
+  public class RemoveStatement<T> : FilterableStatement<RemoveStatement<T>, Collection<T>, Result, T>
   {
-    internal RemoveStatement(Collection collection, string condition) : base(collection, condition)
+    internal RemoveStatement(Collection<T> collection, string condition) : base(collection, condition)
     {
     }
 
@@ -46,7 +47,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// </summary>
     /// <param name="order">The order criteria.</param>
     /// <returns>A generic object representing the implementing statement type.</returns>
-    public RemoveStatement Sort(params string[] order)
+    public RemoveStatement<T> Sort(params string[] order)
     {
       FilterData.OrderBy = order;
       SetChanged();
@@ -59,7 +60,7 @@ namespace MySqlX.XDevAPI.CRUD
     /// <param name="condition">The Where condition.</param>
     /// <returns>The implementing statement type.</returns>
     [Obsolete("Where(string condition) has been deprecated since version 8.0.17.")]
-    public new RemoveStatement Where(string condition)
+    public new RemoveStatement<T> Where(string condition)
     {
       return base.Where(condition);
     }

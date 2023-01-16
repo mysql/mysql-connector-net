@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -65,11 +65,11 @@ namespace MySqlX.XDevAPI
         else
           values = ParseObject(val);
       }
-      catch(Exception exception)
+      catch (Exception exception)
       {
         // Throw message indicating the format of the Json document is invalid and append the message
         // returned by the Json parser.
-        throw(new Exception(string.Format(ResourcesX.InvalidJsonDocument, exception.Message)));
+        throw (new Exception(string.Format(ResourcesX.InvalidJsonDocument, exception.Message)));
       }
     }
 
@@ -88,7 +88,7 @@ namespace MySqlX.XDevAPI
     /// </summary>
     public object Id
     {
-      get { return values["_id"];  }
+      get { return values["_id"]; }
       internal set { SetValue("_id", value); }
     }
 
@@ -120,9 +120,9 @@ namespace MySqlX.XDevAPI
     private object GetValue(string path)
     {
       string[] levels = path.Split('.');
-      Dictionary<string,object> dic = values;
+      Dictionary<string, object> dic = values;
       object returnValue = null;
-      foreach(string level in levels)
+      foreach (string level in levels)
       {
         if (!dic.ContainsKey(level))
           throw new InvalidOperationException(
@@ -154,13 +154,13 @@ namespace MySqlX.XDevAPI
         values[key] = (val as DbDoc).values;
       else if (val is Dictionary<string, object>)
         values[key] = val;
-      else if (val!=null && val.GetType().Namespace != "System")
+      else if (val != null && val.GetType().Namespace != "System")
         values[key] = ParseObject(val);
       else
         values[key] = val;
     }
 
-    private Dictionary<string,object>[] GetArrayValues(IEnumerable value)
+    private Dictionary<string, object>[] GetArrayValues(IEnumerable value)
     {
       List<Dictionary<string, object>> values = new List<Dictionary<string, object>>();
       foreach (object o in value)
@@ -197,9 +197,9 @@ namespace MySqlX.XDevAPI
 
     private string GetValue(object val, int ident)
     {
-      if (val==null) return null;
+      if (val == null) return null;
 
-      if(val.GetType().IsArray)
+      if (val.GetType().IsArray)
       {
 
         StringBuilder values = new StringBuilder("[");
@@ -221,7 +221,7 @@ namespace MySqlX.XDevAPI
         return DictToString(val as Dictionary<string, object>, ident + 2);
       else if (val is MySqlExpression)
       {
-        var expression = (MySqlExpression) val;
+        var expression = (MySqlExpression)val;
         return expression.value;
       }
 
@@ -249,12 +249,12 @@ namespace MySqlX.XDevAPI
         if (!dict2.ContainsKey(key)) return false;
         object val = dict1[key];
         object val2 = dict2[key];
-        if(val is Dictionary<TKey, TValue>[] && val2 is Dictionary<TKey, TValue>[])
+        if (val is Dictionary<TKey, TValue>[] && val2 is Dictionary<TKey, TValue>[])
         {
           Dictionary<TKey, TValue>[] valArray1 = (Dictionary<TKey, TValue>[])val;
           Dictionary<TKey, TValue>[] valArray2 = (Dictionary<TKey, TValue>[])val2;
           if (valArray1.Length != valArray2.Length) return false;
-          for(int i = 0; i < valArray1.Length; i++)
+          for (int i = 0; i < valArray1.Length; i++)
           {
             if (!CompareDictionaries<TKey, TValue>(valArray1[i], valArray2[i])) return false;
           }

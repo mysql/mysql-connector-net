@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,14 +30,13 @@ using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Common;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MySqlX.XDevAPI.Relational
 {
   /// <summary>
   /// Represents a sql statement.
   /// </summary>
-  public class SqlStatement : BaseStatement<SqlResult>
+  public class SqlStatement : BaseStatement<SqlResult, String>
   {
     /// <summary>
     /// Initializes a new instance of the SqlStament class bassed on the session and sql statement.
@@ -68,7 +67,7 @@ namespace MySqlX.XDevAPI.Relational
       try
       {
         ValidateOpenSession();
-        result= GetSQLResult(this);
+        result = GetSQLResult(this);
       }
       catch (MySqlException ex)
       {

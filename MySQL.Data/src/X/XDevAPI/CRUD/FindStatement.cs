@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -36,12 +36,13 @@ namespace MySqlX.XDevAPI.CRUD
 {
   /// <summary>
   /// Represents a chaining collection find statement.
+  /// <typeparam name="T"/>
   /// </summary>
-  public class FindStatement : FilterableStatement<FindStatement, Collection, DocResult>
+  public class FindStatement<T> : FilterableStatement<FindStatement<T>, Collection<T>, DocResult<T>, T>
   {
     internal FindParams findParams = new FindParams();
 
-    internal FindStatement(Collection c, string condition) : base(c, condition)
+    internal FindStatement(Collection<T> c, string condition) : base(c, condition)
     {
     }
 
@@ -49,8 +50,8 @@ namespace MySqlX.XDevAPI.CRUD
     /// List of column projections that shall be returned.
     /// </summary>
     /// <param name="columns">List of columns.</param>
-    /// <returns>This <see cref="FindStatement"/> object set with the specified columns or fields.</returns>
-    public FindStatement Fields(params string[] columns)
+    /// <returns>This <see cref="FindStatement{T}"/> object set with the specified columns or fields.</returns>
+    public FindStatement<T> Fields(params string[] columns)
     {
       if (columns == null)
         return this;
@@ -70,8 +71,8 @@ namespace MySqlX.XDevAPI.CRUD
     /// <summary>
     /// Executes the Find statement.
     /// </summary>
-    /// <returns>A <see cref="DocResult"/> object containing the results of execution and data.</returns>
-    public override DocResult Execute()
+    /// <returns>A <see cref="DocResult{T}"/> object containing the results of execution and data.</returns>
+    public override DocResult<T> Execute()
     {
       return Execute(Target.Session.XSession.FindDocs, this);
     }
@@ -80,9 +81,9 @@ namespace MySqlX.XDevAPI.CRUD
     /// Locks matching rows against updates.
     /// </summary>
     /// <param name="lockOption">Optional row <see cref="LockContention">lock option</see> to use.</param>
-    /// <returns>This same <see cref="FindStatement"/> object set with the lock shared option.</returns>
+    /// <returns>This same <see cref="FindStatement{T}"/> object set with the lock shared option.</returns>
     /// <exception cref="MySqlException">The server version is lower than 8.0.3.</exception>
-    public FindStatement LockShared(LockContention lockOption = LockContention.Default)
+    public FindStatement<T> LockShared(LockContention lockOption = LockContention.Default)
     {
       if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3))
         throw new MySqlException(string.Format(ResourcesX.FunctionalityNotSupported, "8.0.3"));
@@ -97,9 +98,9 @@ namespace MySqlX.XDevAPI.CRUD
     /// Locks matching rows so no other transaction can read or write to it.
     /// </summary>
     /// <param name="lockOption">Optional row <see cref="LockContention">lock option</see> to use.</param>
-    /// <returns>This same <see cref="FindStatement"/> object set with the lock exclusive option.</returns>
+    /// <returns>This same <see cref="FindStatement{T}"/> object set with the lock exclusive option.</returns>
     /// <exception cref="MySqlException">The server version is lower than 8.0.3.</exception>
-    public FindStatement LockExclusive(LockContention lockOption = LockContention.Default)
+    public FindStatement<T> LockExclusive(LockContention lockOption = LockContention.Default)
     {
       if (!this.Session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3))
         throw new MySqlException(string.Format(ResourcesX.FunctionalityNotSupported, "8.0.3"));
@@ -114,8 +115,8 @@ namespace MySqlX.XDevAPI.CRUD
     /// Sets the collection aggregation.
     /// </summary>
     /// <param name="groupBy">The field list for aggregation.</param>
-    /// <returns>This same <see cref="FindStatement"/> object set with the specified group-by criteria.</returns>
-    public FindStatement GroupBy(params string[] groupBy)
+    /// <returns>This same <see cref="FindStatement{T}"/> object set with the specified group-by criteria.</returns>
+    public FindStatement<T> GroupBy(params string[] groupBy)
     {
       if (groupBy == null)
         return this;
@@ -136,8 +137,8 @@ namespace MySqlX.XDevAPI.CRUD
     /// Filters criteria for aggregated groups.
     /// </summary>
     /// <param name="having">The filter criteria for aggregated groups.</param>
-    /// <returns>This same <see cref="FindStatement"/> object set with the specified filter criteria.</returns>
-    public FindStatement Having(string having)
+    /// <returns>This same <see cref="FindStatement{T}"/> object set with the specified filter criteria.</returns>
+    public FindStatement<T> Having(string having)
     {
       findParams.GroupByCritieria = having;
       SetChanged();
@@ -149,8 +150,8 @@ namespace MySqlX.XDevAPI.CRUD
     /// "order ASC"  or "pages DESC, age ASC".
     /// </summary>
     /// <param name="order">The order criteria.</param>
-    /// <returns>A generic object representing the implementing statement type.</returns>
-    public FindStatement Sort(params string[] order)
+    /// <returns>This same <see cref="FindStatement{T}"/> object set with the specified order criteria.</returns>
+    public FindStatement<T> Sort(params string[] order)
     {
       FilterData.OrderBy = order;
       SetChanged();
@@ -161,9 +162,9 @@ namespace MySqlX.XDevAPI.CRUD
     /// Enables the setting of Where condition for this operation.
     /// </summary>
     /// <param name="condition">The Where condition.</param>
-    /// <returns>The implementing statement type.</returns>
+    /// <returns>This same <see cref="FindStatement{T}"/> object set with the specified condition criteria.</returns>    
     [Obsolete("Where(string condition) has been deprecated since version 8.0.17.")]
-    public new FindStatement Where(string condition)
+    public new FindStatement<T> Where(string condition)
     {
       return base.Where(condition);
     }

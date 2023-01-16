@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
 // published by the Free Software Foundation.
@@ -29,7 +29,6 @@ using MySql.Data;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
-using MySqlX.XDevAPI.CRUD;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -436,7 +435,7 @@ namespace MySqlX.Data.Tests
       ExecuteModifyStatement(collection.Modify("true").ArrayAppend("x", true));
       ExecuteModifyStatement(collection.Modify("true").ArrayAppend("x", null));
       ExecuteModifyStatement(collection.Modify("true").ArrayAppend("x", " "));
-      DocResult result = ExecuteFindStatement(collection.Find());
+      var result = ExecuteFindStatement(collection.Find());
       DbDoc document = result.FetchOne();
       var x = (object[])document.values["x"];
 

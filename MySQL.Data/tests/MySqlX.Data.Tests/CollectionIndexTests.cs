@@ -1,4 +1,4 @@
-// Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -1148,7 +1148,7 @@ namespace MySqlX.Data.Tests
       coll.Add("{\"intField\" : 18, \"uintField\" : [51,52,53], \"dateField\" : \"2019-1-1\", \"datetimeField\" : \"9999-12-31 23:59:59\", \"charField\" : \"abcd1\", \"binaryField\" : \"abcd1\", \"timeField\" : \"10.30\", \"decimalField\" : [51.2, 57.6, 55.8]}").Execute();
       coll.Add("{\"intField\" : 18, \"uintField\" : [51,52,53], \"dateField\" : \"2019-1-1\", \"datetimeField\" : \"9999-12-31 23:59:59\", \"charField\" : \"abcd1\", \"binaryField\" : \"abcd1\", \"timeField\" : \"10.30\", \"decimalField\" : 57.6}").Execute();
       var cFind = coll.Find(":decimalField in $.decimalField");
-      DocResult docs = cFind.Bind("decimalField", 57.6).Execute();
+      var docs = cFind.Bind("decimalField", 57.6).Execute();
       DbDoc doc = docs.FetchOne();
       var findStatement = coll.Find("57.6");
       var res1 = findStatement.Execute().FetchAll();

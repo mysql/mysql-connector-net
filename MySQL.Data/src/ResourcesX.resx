@@ -337,4 +337,7 @@ different from the matched document.</value>
   <data name="DocPathNullOrEmpty" xml:space="preserve">
     <value>The document path cannot be null or an empty string.</value>
   </data>
+  <data name="CustomTypeNotSupported" xml:space="preserve">
+    <value>Custom type mapping is only supported from .NET Core 3.1 and later.</value>
+  </data>
 </root>

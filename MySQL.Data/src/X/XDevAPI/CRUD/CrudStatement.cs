@@ -1,4 +1,4 @@
-// Copyright © 2015, 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,8 +26,11 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-
+using System;
 using System.Collections.Generic;
+#if !NETFRAMEWORK
+using System.Text.Json;
+#endif
 using MySqlX.XDevAPI.Common;
 
 namespace MySqlX.XDevAPI.CRUD
@@ -36,26 +39,31 @@ namespace MySqlX.XDevAPI.CRUD
   /// Represents a collection statement.
   /// </summary>
   /// <typeparam name="TResult"></typeparam>
-  public abstract class CrudStatement<TResult> : TargetedBaseStatement<Collection, TResult>
+  /// <typeparam name="T"></typeparam>
+  public abstract class CrudStatement<TResult, T> : TargetedBaseStatement<Collection<T>, TResult, T>
     where TResult : Result
   {
-    internal CrudStatement(Collection collection) : base(collection)
+    internal CrudStatement(Collection<T> collection) : base(collection)
     {
     }
 
     /// <summary>
-    /// Converts base <see cref="System.Object"/>s into <see cref="DbDoc"/> objects. 
+    /// Converts base <see cref="System.Object"/>s into <see cref="{T}"/> objects. 
     /// </summary>
-    /// <param name="items">Array of objects to be converted to <see cref="DbDoc"/> objects.</param>
-    /// <returns>An enumerable collection of <see cref="DbDoc"/> objects.</returns>
-    protected IEnumerable<DbDoc> GetDocs(object[] items)
+    /// <param name="items">Array of objects to be converted to <see cref="{T}"/> objects.</param>
+    /// <returns>An enumerable collection of <see cref="{T}"/ objects.</returns>
+    protected IEnumerable<T> GetDocs(object[] items)
     {
       foreach (object item in items)
       {
-        DbDoc d = item is DbDoc ? item as DbDoc : new DbDoc(item);
-        yield return d;
+        if (typeof(T).Name == "DbDoc")
+        {
+          DbDoc d = item is DbDoc ? item as DbDoc : new DbDoc(item);
+          yield return (T)Convert.ChangeType(d, typeof(T));
+        }
+        else
+          yield return (T)item;
       }
     }
-
   }
 }

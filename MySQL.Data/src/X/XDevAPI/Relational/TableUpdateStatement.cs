@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates. 
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -30,16 +30,13 @@ using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MySqlX.XDevAPI.Relational
 {
   /// <summary>
   /// Represents a chaining table update statement.
   /// </summary>
-  public class TableUpdateStatement : FilterableStatement<TableUpdateStatement, Table, Result>
+  public class TableUpdateStatement : FilterableStatement<TableUpdateStatement, Table, Result, String>
   {
     internal List<UpdateSpec> updates = new List<UpdateSpec>();
 

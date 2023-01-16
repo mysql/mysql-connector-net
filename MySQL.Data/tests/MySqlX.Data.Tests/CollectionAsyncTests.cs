@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -50,7 +50,7 @@ namespace MySqlX.Data.Tests
         tasksList.Add(coll.Add(string.Format(@"{{ ""_id"": {0}, ""foo"": {0} }}", i)).ExecuteAsync());
       }
 
-      Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2));
+      Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(1));
 
       var count = session.SQL("SELECT COUNT(*) FROM test.test").Execute().FetchOne()[0];
       Assert.AreEqual(count, coll.Count());
@@ -70,7 +70,7 @@ namespace MySqlX.Data.Tests
       }
       var result = ExecuteAddStatement(addStatement);
 
-      List<Task<DocResult>> tasksList = new List<Task<DocResult>>();
+      List<Task<DocResult<DbDoc>>> tasksList = new List<Task<DocResult<DbDoc>>>();
 
       for (int i = 1; i <= docs; i++)
       {
@@ -78,7 +78,7 @@ namespace MySqlX.Data.Tests
       }
 
       Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
-      foreach (Task<DocResult> task in tasksList)
+      foreach (Task<DocResult<DbDoc>> task in tasksList)
       {
         var doc = task.Result.FetchOne();
         string value = task.Result.Current["age"].ToString();
@@ -87,8 +87,6 @@ namespace MySqlX.Data.Tests
       }
       Assert.AreEqual(docs, validator.Count);
     }
-
-    #region WL14389
 
     [Test, Description("Create valid index using a document field type of array and setting array to true/with single key on all possible datatypes concurrently)")]
     public async Task IndexArrayMultiThreading()
@@ -132,8 +130,5 @@ namespace MySqlX.Data.Tests
                                                         "{\"field\": \"$.datetimeField\", \"type\": \"DATETIME\", \"array\": false}]}");
       return 1;
     }
-
-    #endregion WL14389
-
   }
 }

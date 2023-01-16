@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -43,6 +43,7 @@ using MySqlX.Communication;
 using MySqlX.Data;
 using MySqlX.DataAccess;
 using MySqlX.Protocol.X;
+using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.CRUD;
 using System;
@@ -50,6 +51,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+#if !NETFRAMEWORK
+using System.Text.Json;
+#endif
 using static Mysqlx.Datatypes.Object.Types;
 
 namespace MySqlX.Protocol
@@ -594,7 +598,19 @@ namespace MySqlX.Protocol
           if (field is null)
             typedRow.Field.Add(ExprUtil.BuildLiteralNullScalar());
           else
-            typedRow.Field.Add(ExprUtil.BuildLiteralScalar(Convert.ToString(field)));
+          {
+            if (field is DbDoc || field.GetType().Namespace == "System")
+              typedRow.Field.Add(ExprUtil.BuildLiteralScalar(Convert.ToString(field)));
+            else
+            {
+#if !NETFRAMEWORK
+              string jsonString = JsonSerializer.Serialize(field);
+              typedRow.Field.Add(ExprUtil.BuildLiteralScalar(jsonString));
+#else
+              throw new MySqlException(ResourcesX.CustomTypeNotSupported);
+#endif
+            }
+          }
 
         msg.Row.Add(typedRow);
       }

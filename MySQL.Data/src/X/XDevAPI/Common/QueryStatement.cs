@@ -1,4 +1,4 @@
-// Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,14 +28,10 @@
 
 using MySqlX.XDevAPI.CRUD;
 using MySqlX.XDevAPI.Relational;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MySqlX.XDevAPI.Common
 {
-  internal class QueryStatement
+  internal class QueryStatement<T>
   {
     internal string schema;
     internal string collection;
@@ -43,10 +39,10 @@ namespace MySqlX.XDevAPI.Common
     internal FilterParams filter;
     internal FindParams findParams;
     internal TableSelectStatement selectStatement;
-    internal FindStatement findStatement;
+    internal FindStatement<T> findStatement;
 
 
-    public QueryStatement(FindStatement statement)
+    public QueryStatement(FindStatement<T> statement)
     {
       this.findStatement = statement;
       SetValues(statement.Target, statement.FilterData, null, false);

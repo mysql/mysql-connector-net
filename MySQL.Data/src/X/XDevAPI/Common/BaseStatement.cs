@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,8 @@ namespace MySqlX.XDevAPI.Common
   /// Base abstract class for API statement.
   /// </summary>
   /// <typeparam name="TResult"></typeparam>
-  public abstract class BaseStatement<TResult> where TResult : BaseResult
+  /// <typeparam name="TType"></typeparam>
+  public abstract class BaseStatement<TResult, TType> where TResult : BaseResult
   {
     // Prepared statements flags
     internal bool _hasChanged, _isPrepared;
@@ -76,9 +77,9 @@ namespace MySqlX.XDevAPI.Common
       return await Task.Factory.StartNew<TResult>(() =>
       {
         var result = Execute();
-        if (result is BufferingResult<DbDoc>)
+        if (result is BufferingResult<TType>)
         {
-          (result as BufferingResult<DbDoc>).FetchAll();
+          (result as BufferingResult<TType>).FetchAll();
         }
         else if (result is BufferingResult<Row>)
         {
@@ -139,7 +140,7 @@ namespace MySqlX.XDevAPI.Common
           // Create prepared statement
           try
           {
-            _stmtId = Session.XSession.PrepareStatement<TResult>(this);
+            _stmtId = Session.XSession.PrepareStatement<TResult, TType>(this);
             _isPrepared = true;
           }
           catch (MySqlException ex)
@@ -155,7 +156,7 @@ namespace MySqlX.XDevAPI.Common
           }
         }
         // Execute prepared statement
-        return Session.XSession.ExecutePreparedStatement<TResult>(_stmtId, args);
+        return Session.XSession.ExecutePreparedStatement<TResult, TType>(_stmtId, args);
       }
     }
   }

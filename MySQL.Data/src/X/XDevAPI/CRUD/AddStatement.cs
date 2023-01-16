@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,37 +26,36 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Collections.Generic;
 using MySqlX.XDevAPI.Common;
-using System.Linq;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MySqlX.XDevAPI.CRUD
 {
   /// <summary>
   /// Represents a chaining collection insert statement.
+  /// <typeparam name="T"></typeparam>
   /// </summary>
-  public class AddStatement : CrudStatement<Result>
+  public class AddStatement<T> : CrudStatement<Result, T>
   {
-    private List<DbDoc> _DbDocs = new List<DbDoc>();
+    private List<T> _Docs = new List<T>();
     internal bool upsert;
 
-    internal AddStatement(Collection collection) : base(collection)
-    {
-    }
+    internal AddStatement(Collection<T> collection) : base(collection) { }
 
     /// <summary>
     /// Adds documents to the collection.
     /// </summary>
     /// <param name="items">The documents to add.</param>
-    /// <returns>This <see cref="AddStatement"/> object.</returns>
+    /// <returns>This <see cref="AddStatement{T}"/> object.</returns>
     /// <exception cref="ArgumentNullException">The <paramref name="items"/> array is null.</exception>
-    public AddStatement Add(params object[] items)
+    public AddStatement<T> Add(params object[] items)
     {
       if (items == null)
         throw new ArgumentNullException();
 
-      _DbDocs.AddRange(GetDocs(items));
+      _Docs.AddRange(GetDocs(items));
       return this;
     }
 
@@ -67,23 +66,11 @@ namespace MySqlX.XDevAPI.CRUD
     public override Result Execute()
     {
       ValidateOpenSession();
-      if (_DbDocs.Count == 0)
+      if (_Docs.Count == 0)
         return new Result(null);
 
       //List<string> newIds = AssignIds();
-      return Target.Session.XSession.Insert(Target, _DbDocs.ToArray(), null, upsert);
+      return Target.Session.XSession.Insert(Target, _Docs.Cast<object>().ToArray(), null, upsert);
     }
-
-    //private List<string> AssignIds()
-    //{
-    //  List<string> newIds = new List<string>();
-    //  foreach (DbDoc doc in _DbDocs)
-    //  {
-    //    doc.EnsureId();
-    //    newIds.Add(doc.Id.ToString());
-    //  }
-
-    //  return newIds;
-    //}
   }
 }

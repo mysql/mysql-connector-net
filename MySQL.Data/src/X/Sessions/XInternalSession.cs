@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -644,7 +644,7 @@ namespace MySqlX.Sessions
         new KeyValuePair<string, object>("name", collectionName));
     }
 
-    public Result CreateCollectionIndex(CreateCollectionIndexStatement statement)
+    public Result CreateCollectionIndex<T>(CreateCollectionIndexStatement<T> statement)
     {
       List<KeyValuePair<string, object>> args = new List<KeyValuePair<string, object>>();
       args.Add(new KeyValuePair<string, object>("name", statement.createIndexParams.IndexName));
@@ -786,13 +786,13 @@ namespace MySqlX.Sessions
       return new RowResult(this);
     }
 
-    public Result Insert(Collection collection, DbDoc[] json, List<string> newIds, bool upsert)
+    public Result Insert<T>(Collection<T> collection, object[] json, List<string> newIds, bool upsert)
     {
       _protocol.SendInsert(collection.Schema.Name, false, collection.Name, json, null, upsert);
       return new Result(this);
     }
 
-    public Result DeleteDocs(RemoveStatement rs)
+    public Result DeleteDocs<T>(RemoveStatement<T> rs)
     {
       _protocol.SendDelete(rs.Target.Schema.Name, rs.Target.Name, false, rs.FilterData);
       return new Result(this);
@@ -806,7 +806,7 @@ namespace MySqlX.Sessions
       return new Result(this);
     }
 
-    public Result ModifyDocs(ModifyStatement ms)
+    public Result ModifyDocs<T>(ModifyStatement<T> ms)
     {
       _protocol.SendUpdate(ms.Target.Schema.Name, ms.Target.Name, false, ms.FilterData, ms.Updates);
       return new Result(this);
@@ -821,10 +821,10 @@ namespace MySqlX.Sessions
       return new Result(this);
     }
 
-    public DocResult FindDocs(FindStatement fs)
+    public DocResult<T> FindDocs<T>(FindStatement<T> fs)
     {
       _protocol.SendFind(fs.Target.Schema.Name, fs.Target.Name, false, fs.FilterData, fs.findParams);
-      DocResult result = new DocResult(this);
+      DocResult<T> result = new DocResult<T>(this);
       return result;
     }
 
@@ -874,144 +874,147 @@ namespace MySqlX.Sessions
         _protocol.SendResetSession((bool)_sessionResetNoReauthentication);
         _protocol.ReadOk();
       }
-
     }
 
-    public int PrepareStatement<TResult>(BaseStatement<TResult> statement)
+    public int PrepareStatement<TResult, TDoc>(BaseStatement<TResult, TDoc> statement)
       where TResult : BaseResult
     {
       int stmtId = Interlocked.Increment(ref _stmtId);
-      switch (statement.GetType().Name)
+      string stmtType = statement.GetType().Name;
+
+      if (stmtType == typeof(FindStatement<>).Name)
       {
-        case nameof(FindStatement):
-          FindStatement fs = statement as FindStatement;
-          Debug.Assert(fs != null);
-          _protocol.SendPrepareStatement(
-            (uint)stmtId,
-            DataAccess.PreparedStatementType.Find,
-            fs.Target.Schema.Name,
-            fs.Target.Name,
-            false,
-            fs.FilterData,
-            fs.findParams);
-          break;
-
-        case nameof(TableSelectStatement):
-          TableSelectStatement ss = statement as TableSelectStatement;
-          Debug.Assert(ss != null);
-          _protocol.SendPrepareStatement(
-            (uint)stmtId,
-            DataAccess.PreparedStatementType.Find,
-            ss.Target.Schema.Name,
-            ss.Target.Name,
-            true,
-            ss.FilterData,
-            ss.findParams);
-          break;
-
-        case nameof(ModifyStatement):
-          ModifyStatement ms = statement as ModifyStatement;
-          Debug.Assert(ms != null);
-          _protocol.SendPrepareStatement(
-            (uint)stmtId,
-            DataAccess.PreparedStatementType.Update,
-            ms.Target.Schema.Name,
-            ms.Target.Name,
-            false,
-            ms.FilterData,
-            null,
-            ms.Updates);
-          break;
-
-        case nameof(TableUpdateStatement):
-          TableUpdateStatement us = statement as TableUpdateStatement;
-          Debug.Assert(us != null);
-          _protocol.SendPrepareStatement(
-            (uint)stmtId,
-            DataAccess.PreparedStatementType.Update,
-            us.Target.Schema.Name,
-            us.Target.Name,
-            true,
-            us.FilterData,
-            null,
-            us.updates);
-          break;
-
-        case nameof(RemoveStatement):
-          RemoveStatement rs = statement as RemoveStatement;
-          Debug.Assert(rs != null);
-          _protocol.SendPrepareStatement(
-            (uint)stmtId,
-            DataAccess.PreparedStatementType.Delete,
-            rs.Target.Schema.Name,
-            rs.Target.Name,
-            false,
-            rs.FilterData,
-            null);
-          break;
-
-        case nameof(TableDeleteStatement):
-          TableDeleteStatement ds = statement as TableDeleteStatement;
-          Debug.Assert(ds != null);
-          _protocol.SendPrepareStatement(
-            (uint)stmtId,
-            DataAccess.PreparedStatementType.Delete,
-            ds.Target.Schema.Name,
-            ds.Target.Name,
-            true,
-            ds.FilterData,
-            null);
-          break;
-
-        case nameof(TableInsertStatement):
-          TableInsertStatement insert = statement as TableInsertStatement;
-          Debug.Assert(insert != null);
-          _protocol.SendPrepareStatement(
-            (uint)stmtId,
-            DataAccess.PreparedStatementType.Insert,
-            insert.Target.Schema.Name,
-            insert.Target.Name,
-            true,
-            null,
-            null,
-            null,
-            insert.values.ToArray(),
-            insert.fields,
-            false);
-          break;
-
-        case nameof(SqlStatement):
-          SqlStatement sqlStatement = statement as SqlStatement;
-          Debug.Assert(sqlStatement != null);
-          _protocol.SendPrepareStatement(
-            (uint)stmtId,
-            DataAccess.PreparedStatementType.SqlStatement,
-            null,
-            null,
-            true,
-            null,
-            null,
-            null,
-            sqlStatement.parameters.ToArray(),
-            null,
-            false,
-            sqlStatement.SQL);
-          break;
-
-        default:
-          throw new NotSupportedException(statement.GetType().Name);
+        FindStatement<TDoc> fs = statement as FindStatement<TDoc>;
+        string s = typeof(TDoc).Name;
+        Debug.Assert(fs != null);
+        _protocol.SendPrepareStatement(
+          (uint)stmtId,
+          DataAccess.PreparedStatementType.Find,
+          fs.Target.Schema.Name,
+          fs.Target.Name,
+          false,
+          fs.FilterData,
+          fs.findParams);
       }
+      else if (stmtType == typeof(TableSelectStatement).Name)
+      {
+        TableSelectStatement ss = statement as TableSelectStatement;
+        Debug.Assert(ss != null);
+        _protocol.SendPrepareStatement(
+          (uint)stmtId,
+          DataAccess.PreparedStatementType.Find,
+          ss.Target.Schema.Name,
+          ss.Target.Name,
+          true,
+          ss.FilterData,
+          ss.findParams);
+      }
+      else if (stmtType == typeof(ModifyStatement<>).Name)
+      {
+        ModifyStatement<TDoc> ms = statement as ModifyStatement<TDoc>;
+        Debug.Assert(ms != null);
+        _protocol.SendPrepareStatement(
+          (uint)stmtId,
+          DataAccess.PreparedStatementType.Update,
+          ms.Target.Schema.Name,
+          ms.Target.Name,
+          false,
+          ms.FilterData,
+          null,
+          ms.Updates);
+      }
+      else if (stmtType == typeof(TableUpdateStatement).Name)
+      {
+        TableUpdateStatement us = statement as TableUpdateStatement;
+        Debug.Assert(us != null);
+        _protocol.SendPrepareStatement(
+          (uint)stmtId,
+          DataAccess.PreparedStatementType.Update,
+          us.Target.Schema.Name,
+          us.Target.Name,
+          true,
+          us.FilterData,
+          null,
+          us.updates);
+      }
+      else if (stmtType == typeof(RemoveStatement<>).Name)
+      {
+        string s = typeof(TDoc).Name;
+        RemoveStatement<TDoc> rs = statement as RemoveStatement<TDoc>;
+        Debug.Assert(rs != null);
+        _protocol.SendPrepareStatement(
+          (uint)stmtId,
+          DataAccess.PreparedStatementType.Delete,
+          rs.Target.Schema.Name,
+          rs.Target.Name,
+          false,
+          rs.FilterData,
+          null);
+      }
+      else if (stmtType == typeof(TableDeleteStatement).Name)
+      {
+        TableDeleteStatement ds = statement as TableDeleteStatement;
+        Debug.Assert(ds != null);
+        _protocol.SendPrepareStatement(
+          (uint)stmtId,
+          DataAccess.PreparedStatementType.Delete,
+          ds.Target.Schema.Name,
+          ds.Target.Name,
+          true,
+          ds.FilterData,
+          null);
+      }
+      else if (stmtType == typeof(TableInsertStatement).Name)
+      {
+        TableInsertStatement insert = statement as TableInsertStatement;
+        Debug.Assert(insert != null);
+        _protocol.SendPrepareStatement(
+          (uint)stmtId,
+          DataAccess.PreparedStatementType.Insert,
+          insert.Target.Schema.Name,
+          insert.Target.Name,
+          true,
+          null,
+          null,
+          null,
+          insert.values.ToArray(),
+          insert.fields,
+          false);
+      }
+      else if (stmtType == typeof(SqlStatement).Name)
+      {
+        SqlStatement sqlStatement = statement as SqlStatement;
+        Debug.Assert(sqlStatement != null);
+        _protocol.SendPrepareStatement(
+          (uint)stmtId,
+          DataAccess.PreparedStatementType.SqlStatement,
+          null,
+          null,
+          true,
+          null,
+          null,
+          null,
+          sqlStatement.parameters.ToArray(),
+          null,
+          false,
+          sqlStatement.SQL);
+      }
+      else
+      {
+        throw new NotSupportedException(statement.GetType().Name);
+      }
+
       _preparedStatements.Add(stmtId);
       return stmtId;
     }
 
-    public TResult ExecutePreparedStatement<TResult>(int stmtId, IEnumerable args)
+    public TResult ExecutePreparedStatement<TResult, TDoc>(int stmtId, IEnumerable args)
       where TResult : BaseResult
     {
       _protocol.SendExecutePreparedStatement((uint)stmtId, args);
       BaseResult result = null;
-      if (typeof(TResult) == typeof(DocResult))
-        result = new DocResult(this);
+      if (typeof(TResult) == typeof(DocResult<TDoc>))
+        result = new DocResult<TDoc>(this);
       else if (typeof(TResult) == typeof(RowResult))
         result = new RowResult(this);
       else if (typeof(TResult) == typeof(SqlResult))
