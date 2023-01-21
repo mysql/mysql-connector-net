@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -387,7 +387,7 @@ namespace MySql.Data.MySqlClient
     public MySqlTransaction BeginTransaction(IsolationLevel isolationLevel, string scope = "") => BeginTransactionAsync(false, isolationLevel, CancellationToken.None, scope).GetAwaiter().GetResult();
 
     /// <summary>
-    /// Asynchronous version of <see cref="BeginTransaction"/>.
+    /// Asynchronous version of <see cref="BeginTransaction()"/>.
     /// </summary>
     /// <returns>A <see cref="MySqlTransaction"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
@@ -395,7 +395,7 @@ namespace MySql.Data.MySqlClient
 
 #if NETSTANDARD2_0 || NETFRAMEWORK
     /// <summary>
-    /// Asynchronous version of <see cref="BeginTransaction"/>.
+    /// Asynchronous version of <see cref="BeginTransaction()"/>.
     /// </summary>
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A <see cref="MySqlTransaction"/> representing the new transaction.</returns>
@@ -403,15 +403,16 @@ namespace MySql.Data.MySqlClient
     public ValueTask<MySqlTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => BeginTransactionAsync(true, IsolationLevel.RepeatableRead, cancellationToken);
 
     /// <summary>
-    /// Asynchronous version of <see cref="BeginTransaction"/>.
+    /// Asynchronous version of <see cref="BeginDbTransaction(IsolationLevel)"/>.
     /// </summary>
     /// <param name="isolationLevel">Specifies the <see cref="IsolationLevel"/> for the transaction.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A <see cref="ValueTask{MySqlTransaction}"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
     public ValueTask<MySqlTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => BeginTransactionAsync(true, isolationLevel, cancellationToken);
 #else
     /// <summary>
-    /// Asynchronous version of <see cref="BeginTransaction"/>.
+    /// Asynchronous version of <see cref="BeginTransaction()"/>.
     /// </summary>
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A <see cref="MySqlTransaction"/> representing the new transaction.</returns>
@@ -419,7 +420,7 @@ namespace MySql.Data.MySqlClient
     public new ValueTask<MySqlTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => BeginTransactionAsync(true, IsolationLevel.RepeatableRead, cancellationToken);
 
     /// <summary>
-    /// Asynchronous version of <see cref="BeginTransaction"/>.
+    /// Asynchronous version of <see cref="BeginDbTransaction(IsolationLevel)"/>.
     /// </summary>
     /// <param name="isolationLevel">Specifies the <see cref="IsolationLevel"/> for the transaction.</param>
     /// <returns>A <see cref="ValueTask{MySqlTransaction}"/> representing the new transaction.</returns>
@@ -427,15 +428,16 @@ namespace MySql.Data.MySqlClient
     public ValueTask<MySqlTransaction> BeginTransactionAsync(IsolationLevel isolationLevel) => BeginTransactionAsync(true, isolationLevel, CancellationToken.None);
 
     /// <summary>
-    /// Asynchronous version of <see cref="BeginTransaction"/>.
+    /// Asynchronous version of <see cref="BeginDbTransaction(IsolationLevel)"/>.
     /// </summary>
     /// <param name="isolationLevel">Specifies the <see cref="IsolationLevel"/> for the transaction.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A <see cref="ValueTask{MySqlTransaction}"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
     public new ValueTask<MySqlTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => BeginTransactionAsync(true, isolationLevel, cancellationToken);
 
     /// <summary>
-    /// Asynchronous version of <see cref="BeginTransaction"/>.
+    /// Asynchronous version of <see cref="BeginDbTransaction(IsolationLevel)"/>.
     /// </summary>
     /// <param name="isolationLevel">Specifies the <see cref="IsolationLevel"/> for the transaction.</param>
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
@@ -479,10 +481,10 @@ namespace MySql.Data.MySqlClient
           break;
       }
 
-      cmd.ExecuteNonQuery();
+      await cmd.ExecuteNonQueryAsync(execAsync, cancellationToken).ConfigureAwait(false);
       cmd.CommandText = "BEGIN";
       cmd.CommandType = CommandType.Text;
-      cmd.ExecuteNonQuery();
+      await cmd.ExecuteNonQueryAsync(execAsync, cancellationToken).ConfigureAwait(false);
 
       MySqlTransaction t = new MySqlTransaction(this, isolationLevel);
       return t;
@@ -880,6 +882,7 @@ namespace MySql.Data.MySqlClient
     /// Asynchronous version of the <see cref="CancelQuery(int)"/> method.
     /// </summary>
     /// <param name="timeout">The length of time (in seconds) to wait for the cancellation of the command execution.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public Task CancelQueryAsync(int timeout, CancellationToken cancellationToken) => CancelQueryAsync(timeout, true, cancellationToken);
 
     private async Task CancelQueryAsync(int timeout, bool execAsync, CancellationToken cancellationToken)
@@ -931,7 +934,7 @@ namespace MySql.Data.MySqlClient
     public override DataTable GetSchema(string collectionName, string[] restrictionValues) => GetSchemaAsync(false, collectionName, restrictionValues).GetAwaiter().GetResult();
 
     /// <summary>
-    /// Asynchronous version of <see cref="GetSchema"/>.
+    /// Asynchronous version of <see cref="GetSchema()"/>.
     /// </summary>
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
@@ -991,6 +994,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <param name="collectionName">The name of the collection.</param>
     /// <param name="restrictionValues">The values to restrict.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of schema objects.</returns>
     public Task<MySqlSchemaCollection> GetSchemaCollectionAsync(string collectionName, string[] restrictionValues, CancellationToken cancellationToken = default) => GetSchemaCollectionAsync(collectionName, restrictionValues, true, cancellationToken);
 
@@ -1000,6 +1004,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="collectionName">The name of the collection.</param>
     /// <param name="restrictionValues">The values to restrict.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
     /// <returns>A collection of schema objects.</returns>
     private async Task<MySqlSchemaCollection> GetSchemaCollectionAsync(string collectionName, string[] restrictionValues, bool execAsync, CancellationToken cancellationToken)
     {

@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Notice {
 
   /// <summary>Holder for reflection information generated from mysqlx_notice.proto</summary>
-  public static partial class MysqlxNoticeReflection {
+  internal static partial class MysqlxNoticeReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_notice.proto</summary>
@@ -105,7 +105,7 @@ namespace Mysqlx.Notice {
   ///| @ref Mysqlx::Notice::GroupReplicationStateChanged | 4     |
   ///| @ref Mysqlx::Notice::ServerHello                  | 5     |
   /// </summary>
-  public sealed partial class Frame : pb::IMessage<Frame>
+  internal sealed partial class Frame : pb::IMessage<Frame>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -471,7 +471,7 @@ namespace Mysqlx.Notice {
   ///| ``.type``                         | 1                       |
   ///| ``.scope``                        | ``local`` or ``global`` |
   /// </summary>
-  public sealed partial class Warning : pb::IMessage<Warning>
+  internal sealed partial class Warning : pb::IMessage<Warning>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -818,7 +818,7 @@ namespace Mysqlx.Notice {
   ///| ``.type``                         | 2        |
   ///| ``.scope``                        | ``local``|
   /// </summary>
-  public sealed partial class SessionVariableChanged : pb::IMessage<SessionVariableChanged>
+  internal sealed partial class SessionVariableChanged : pb::IMessage<SessionVariableChanged>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1073,7 +1073,7 @@ namespace Mysqlx.Notice {
 
   }
 
-  public sealed partial class SessionStateChanged : pb::IMessage<SessionStateChanged>
+  internal sealed partial class SessionStateChanged : pb::IMessage<SessionStateChanged>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1345,7 +1345,7 @@ namespace Mysqlx.Notice {
   ///|``.type``                          | 4          |
   ///|``.scope``                         | ``global`` |
   /// </summary>
-  public sealed partial class GroupReplicationStateChanged : pb::IMessage<GroupReplicationStateChanged>
+  internal sealed partial class GroupReplicationStateChanged : pb::IMessage<GroupReplicationStateChanged>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1632,7 +1632,7 @@ namespace Mysqlx.Notice {
   ///|``.type``                          | 5          |
   ///|``.scope``                         | ``global`` |
   /// </summary>
-  public sealed partial class ServerHello : pb::IMessage<ServerHello>
+  internal sealed partial class ServerHello : pb::IMessage<ServerHello>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif

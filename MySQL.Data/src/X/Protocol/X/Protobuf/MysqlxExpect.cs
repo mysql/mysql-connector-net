@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,11 +40,11 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Expect {
 
   /// <summary>Holder for reflection information generated from mysqlx_expect.proto</summary>
-  public static partial class MysqlxExpectReflection {
+  internal static partial class MysqlxExpectReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_expect.proto</summary>
-    public static pbr::FileDescriptor Descriptor {
+    internal static pbr::FileDescriptor Descriptor {
       get { return descriptor; }
     }
     private static pbr::FileDescriptor descriptor;
@@ -86,7 +86,7 @@ namespace Mysqlx.Expect {
   ///
   ///@returns @ref Mysqlx::Ok on success, @ref Mysqlx::Error on error
   /// </summary>
-  public sealed partial class Open : pb::IMessage<Open>
+  internal sealed partial class Open : pb::IMessage<Open>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -689,7 +689,7 @@ namespace Mysqlx.Expect {
   ///
   ///@returns @ref Mysqlx::Ok on success,  @ref Mysqlx::Error on error
   /// </summary>
-  public sealed partial class Close : pb::IMessage<Close>
+  internal sealed partial class Close : pb::IMessage<Close>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif

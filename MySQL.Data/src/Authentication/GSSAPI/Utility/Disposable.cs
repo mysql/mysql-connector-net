@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020, Oracle and/or its affiliates.
+﻿// Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -48,12 +48,12 @@ namespace MySql.Data.Authentication.GSSAPI.Utility
         From(value, null, disposeAction);
 
     /// <summary>
-    /// Automatic dynamic disposable storing <paramref name="value"/>, <paramref name="disposable"/> will be disposed
+    /// Automatic dynamic disposable storing <paramref name="loader"/>, <paramref name="disposable"/> will be disposed
     /// </summary>
     public static Disposable<T> From<T, D>(D disposable, Func<D, T> loader) where D : IDisposable =>
         From(loader(disposable), disposable);
     /// <summary>
-    /// Automatic dynamic disposable storing <paramref name="value"/>, <paramref name="disposable"/> will be disposed
+    /// Automatic dynamic disposable storing <paramref name="loader"/>, <paramref name="disposable"/> will be disposed
     /// </summary>
     public static Disposable<T> From<T, D>(D disposable, Func<D, T> loader, Action<T> disposer) where D : IDisposable =>
         From(loader(disposable), disposable);

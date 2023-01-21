@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -51,7 +51,7 @@ namespace MySql.Data.Authentication.GSSAPI
     /// </summary>
     /// <param name="username">username</param>
     /// <param name="password">password</param>
-    /// <param name="host">host</param>
+    /// <param name="krbServicePrincipal">host</param>
     public GssapiMechanism(string username, string password, string krbServicePrincipal = null)
     {
       // Gets the Service Principal Name from the Kerberos configuration file.
@@ -107,7 +107,7 @@ namespace MySql.Data.Authentication.GSSAPI
     /// <summary>
     /// Security context already established.
     /// </summary>
-    /// <param name="message">A byte array containing the challenge data from the server</param>
+    /// <param name="data">A byte array containing the challenge data from the server</param>
     /// <returns>A non-null byte array containing the response to be sent to the server</returns>
     internal byte[] DoFinalHandshake(byte[] data)
     {

@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
   ///     not used in application code.
   ///   </para>
   /// </summary>
-  public class MySQLDateTypeMapping : RelationalTypeMapping
+  internal class MySQLDateTypeMapping : RelationalTypeMapping
   {
     private readonly bool _isDefaultValueCompatible;
 

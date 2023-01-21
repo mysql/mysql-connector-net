@@ -1,4 +1,4 @@
-// Copyright (c) 2012, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2012, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -58,9 +58,11 @@ namespace MySql.Data.MySqlClient.Authentication
     /// <summary>
     /// This is a factory method that is used only internally.  It creates an auth plugin based on the method type
     /// </summary>
-    /// <param name="method"></param>
-    /// <param name="driver"></param>
-    /// <param name="authData"></param>
+    /// <param name="method">Authentication method.</param>
+    /// <param name="driver">The driver.</param>
+    /// <param name="authData">The authentication data.</param>
+    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
+    /// <param name="mfaIteration">MultiFactorAuthentication iteration.</param>
     /// <returns></returns>
     internal static async Task<MySqlAuthenticationPlugin> GetPluginAsync(string method, NativeDriver driver, byte[] authData, bool execAsync, int mfaIteration = 1)
     {
@@ -136,6 +138,7 @@ namespace MySql.Data.MySqlClient.Authentication
     /// Defines the behavior when more data is required from the server.
     /// </summary>
     /// <param name="data">The data returned by the server.</param>
+    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
     /// <returns>The data to return to the server.</returns>
     /// <remarks>This method is intended to be overriden.</remarks>
     protected virtual Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)

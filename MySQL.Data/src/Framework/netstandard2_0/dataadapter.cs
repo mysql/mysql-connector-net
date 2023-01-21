@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -594,7 +594,7 @@ namespace MySql.Data.MySqlClient
     #region Async
     #region Fill
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill records with.</param>
     /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataSet"/>.</returns>
@@ -604,7 +604,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill records with.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -632,7 +632,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataTable)"/> method.
     /// </summary>
     /// <param name="dataTable">The name of the <see cref="DataTable"/> to use for table mapping.</param>
     /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
@@ -642,7 +642,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataTable)"/> method.
     /// </summary>
     /// <param name="dataTable">The name of the <see cref="DataTable"/> to use for table mapping.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -670,7 +670,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet, string)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
     /// <param name="srcTable">The name of the source table to use for table mapping.</param>
@@ -681,7 +681,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet, string)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
     /// <param name="srcTable">The name of the source table to use for table mapping.</param>
@@ -710,7 +710,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataTable)"/> method.
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable"/> to fill with records.</param>
     /// <param name="dataReader">An instance of <see cref="IDataReader"/>.</param>
@@ -721,7 +721,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataTable)"/> method.
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable"/> to fill with records.</param>
     /// <param name="dataReader">An instance of <see cref="IDataReader"/>.</param>
@@ -750,7 +750,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataTable, IDbCommand, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable"/> to fill with records.</param>
     /// <param name="command">The SQL SELECT statement used to retrieve rows from the data source.</param>
@@ -762,7 +762,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataTable, IDbCommand, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable"/> to fill with records.</param>
     /// <param name="command">The SQL SELECT statement used to retrieve rows from the data source.</param>
@@ -792,7 +792,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(int, int, DataTable[])"/> method.
     /// </summary>
     /// <param name="startRecord">The start record.</param>
     /// <param name="maxRecords">The max number of affected records.</param>
@@ -804,7 +804,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(int, int, DataTable[])"/> method.
     /// </summary>
     /// <param name="startRecord">The start record.</param>
     /// <param name="maxRecords">The max number of affected records.</param>
@@ -834,7 +834,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
     /// <param name="startRecord">The start record.</param>
@@ -847,7 +847,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
     /// <param name="startRecord">The start record.</param>
@@ -878,7 +878,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
     /// <param name="srcTable">The name of the source table to use for table mapping.</param>
@@ -892,7 +892,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
     /// <param name="srcTable">The name of the source table to use for table mapping.</param>
@@ -924,7 +924,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataTable[], int, int, IDbCommand, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataTables">The <see cref="DataTable"/>s to fill with records.</param>
     /// <param name="startRecord">The start record.</param>
@@ -938,7 +938,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataTable[], int, int, IDbCommand, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataTables">The <see cref="DataTable"/>s to fill with records.</param>
     /// <param name="startRecord">The start record.</param>
@@ -970,7 +970,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string, IDbCommand, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
     /// <param name="startRecord">The start record.</param>
@@ -985,7 +985,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.Fill"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string, IDbCommand, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
     /// <param name="startRecord">The start record.</param>
@@ -1021,7 +1021,7 @@ namespace MySql.Data.MySqlClient
 
     #region FillSchema
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.FillSchema"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType)"/> method.
     /// </summary>
     /// <param name="dataSet">DataSet to use.</param>
     /// <param name="schemaType">Schema type to use.</param>
@@ -1032,7 +1032,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.FillSchema"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType)"/> method.
     /// </summary>
     /// <param name="dataSet">DataSet to use.</param>
     /// <param name="schemaType">Schema type to use.</param>
@@ -1061,7 +1061,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.FillSchema"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, string)"/> method.
     /// </summary>
     /// <param name="dataSet">DataSet to use.</param>
     /// <param name="schemaType">Schema type to use.</param>
@@ -1073,7 +1073,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.FillSchema"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, string)"/> method.
     /// </summary>
     /// <param name="dataSet">DataSet to use.</param>
     /// <param name="schemaType">Schema type to use.</param>
@@ -1103,7 +1103,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.FillSchema"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, string)"/> method.
     /// </summary>
     /// <param name="dataSet">DataSet to use.</param>
     /// <param name="schemaType">Schema type to use.</param>
@@ -1116,7 +1116,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.FillSchema"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, string)"/> method.
     /// </summary>
     /// <param name="dataSet">DataSet to use.</param>
     /// <param name="schemaType">Schema type to use.</param>
@@ -1147,7 +1147,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.FillSchema"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, IDbCommand, string, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataSet">DataSet to use.</param>
     /// <param name="schemaType">Schema type to use.</param>
@@ -1161,7 +1161,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.FillSchema"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, IDbCommand, string, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataSet">DataSet to use.</param>
     /// <param name="schemaType">Schema type to use.</param>
@@ -1193,7 +1193,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.FillSchema"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType)"/> method.
     /// </summary>
     /// <param name="dataTable">DataTable to use.</param>
     /// <param name="schemaType">Schema type to use.</param>
@@ -1204,7 +1204,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Async version of FillSchema
+    /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType)"/> method.
     /// </summary>
     /// <param name="dataTable">DataTable to use.</param>
     /// <param name="schemaType">Schema type to use.</param>
@@ -1233,7 +1233,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.FillSchema"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType)"/> method.
     /// </summary>
     /// <param name="dataTable">DataTable to use.</param>
     /// <param name="schemaType">Schema type to use.</param>
@@ -1245,7 +1245,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.FillSchema"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType)"/> method.
     /// </summary>
     /// <param name="dataTable">DataTable to use.</param>
     /// <param name="schemaType">Schema type to use.</param>
@@ -1275,7 +1275,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.FillSchema"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType, IDbCommand, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataTable">DataTable to use.</param>
     /// <param name="schemaType">Schema type to use.</param>
@@ -1288,7 +1288,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronous version of the <see cref="DataAdapter.FillSchema"/> method.
+    /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType, IDbCommand, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataTable">DataTable to use.</param>
     /// <param name="schemaType">Schema type to use.</param>

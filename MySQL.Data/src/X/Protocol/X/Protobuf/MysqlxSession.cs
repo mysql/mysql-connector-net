@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Session {
 
   /// <summary>Holder for reflection information generated from mysqlx_session.proto</summary>
-  public static partial class MysqlxSessionReflection {
+  internal static partial class MysqlxSessionReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_session.proto</summary>
@@ -81,7 +81,7 @@ namespace Mysqlx.Session {
   ///
   ///@returns @ref Mysqlx::Session::AuthenticateContinue
   /// </summary>
-  public sealed partial class AuthenticateStart : pb::IMessage<AuthenticateStart>
+  internal sealed partial class AuthenticateStart : pb::IMessage<AuthenticateStart>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -402,7 +402,7 @@ namespace Mysqlx.Session {
   ///
   ///@returns Mysqlx::Session::AuthenticateContinue
   /// </summary>
-  public sealed partial class AuthenticateContinue : pb::IMessage<AuthenticateContinue>
+  internal sealed partial class AuthenticateContinue : pb::IMessage<AuthenticateContinue>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -612,7 +612,7 @@ namespace Mysqlx.Session {
   ///*
   ///Sent by the server after successful authentication.
   /// </summary>
-  public sealed partial class AuthenticateOk : pb::IMessage<AuthenticateOk>
+  internal sealed partial class AuthenticateOk : pb::IMessage<AuthenticateOk>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -824,7 +824,7 @@ namespace Mysqlx.Session {
   ///
   ///@returns @ref Mysqlx::Ok
   /// </summary>
-  public sealed partial class Reset : pb::IMessage<Reset>
+  internal sealed partial class Reset : pb::IMessage<Reset>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1040,7 +1040,7 @@ namespace Mysqlx.Session {
   ///
   ///@returns @ref Mysqlx::Ok
   /// </summary>
-  public sealed partial class Close : pb::IMessage<Close>
+  internal sealed partial class Close : pb::IMessage<Close>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif

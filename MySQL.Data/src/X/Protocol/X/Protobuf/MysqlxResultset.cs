@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Resultset {
 
   /// <summary>Holder for reflection information generated from mysqlx_resultset.proto</summary>
-  public static partial class MysqlxResultsetReflection {
+  internal static partial class MysqlxResultsetReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_resultset.proto</summary>
@@ -101,7 +101,7 @@ namespace Mysqlx.Resultset {
   ///like image manipulation, seeking into complex types in BLOBs, ... more
   ///types will be added.
   /// </summary>
-  public enum ContentType_BYTES {
+  internal enum ContentType_BYTES {
     [pbr::OriginalName("GEOMETRY")] Geometry = 1,
     [pbr::OriginalName("JSON")] Json = 2,
     [pbr::OriginalName("XML")] Xml = 3,
@@ -116,7 +116,7 @@ namespace Mysqlx.Resultset {
   ///|DATE     |0x0001 |DATETIME contains only date part           |
   ///|DATETIME |0x0002 |DATETIME contains both date and time parts |
   /// </summary>
-  public enum ContentType_DATETIME {
+  internal enum ContentType_DATETIME {
     [pbr::OriginalName("DATE")] Date = 1,
     [pbr::OriginalName("DATETIME")] Datetime = 2,
   }
@@ -128,7 +128,7 @@ namespace Mysqlx.Resultset {
   ///*
   ///Resultsets are finished, OUT paramset is next:
   /// </summary>
-  public sealed partial class FetchDoneMoreOutParams : pb::IMessage<FetchDoneMoreOutParams>
+  internal sealed partial class FetchDoneMoreOutParams : pb::IMessage<FetchDoneMoreOutParams>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -284,7 +284,7 @@ namespace Mysqlx.Resultset {
   ///*
   ///Resultset and out-params are finished, but more resultsets available
   /// </summary>
-  public sealed partial class FetchDoneMoreResultsets : pb::IMessage<FetchDoneMoreResultsets>
+  internal sealed partial class FetchDoneMoreResultsets : pb::IMessage<FetchDoneMoreResultsets>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -440,7 +440,7 @@ namespace Mysqlx.Resultset {
   ///*
   ///All resultsets are finished
   /// </summary>
-  public sealed partial class FetchDone : pb::IMessage<FetchDone>
+  internal sealed partial class FetchDone : pb::IMessage<FetchDone>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -596,7 +596,7 @@ namespace Mysqlx.Resultset {
   ///*
   ///Cursor is opened; still, the execution of PrepFetch or PrepExecute ended
   /// </summary>
-  public sealed partial class FetchSuspended : pb::IMessage<FetchSuspended>
+  internal sealed partial class FetchSuspended : pb::IMessage<FetchSuspended>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1075,7 +1075,7 @@ namespace Mysqlx.Resultset {
   ///
   ///-  ``[8] 0x03 F O O 0x03 B A R`` - a set with 2 items: FOO,BAR
   /// </summary>
-  public sealed partial class ColumnMetaData : pb::IMessage<ColumnMetaData>
+  internal sealed partial class ColumnMetaData : pb::IMessage<ColumnMetaData>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1946,7 +1946,7 @@ namespace Mysqlx.Resultset {
   ///``ColumnMetadata``, as specified in the @ref Mysqlx::Resultset::ColumnMetaData
   ///description.
   /// </summary>
-  public sealed partial class Row : pb::IMessage<Row>
+  internal sealed partial class Row : pb::IMessage<Row>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif

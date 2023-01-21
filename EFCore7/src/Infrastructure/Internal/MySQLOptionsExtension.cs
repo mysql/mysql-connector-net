@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -45,31 +45,47 @@ namespace MySql.EntityFrameworkCore.Infrastructure.Internal
     private CharacterSet? _charset;
 
     /// <summary>
-    /// Constructor of <see cref="MySQLOptionsExtension"/>
+    /// Constructor of <see cref="MySQLOptionsExtension"/>.
     /// </summary>
     public MySQLOptionsExtension()
     {
     }
 
+    /// <summary>
+    /// Creates a <see cref="MySQLOptionsExtension"/> based on another <see cref="MySQLOptionsExtension"/>.
+    /// </summary>
+    /// <param name="copyFrom">The <see cref="MySQLOptionsExtension"/> to copy.</param>
     public MySQLOptionsExtension(MySQLOptionsExtension copyFrom)
       : base(copyFrom)
     {
       _charset = copyFrom._charset;
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Information/metadata about the extension.
+    /// </summary>
+    /// <value>The information/metadata.</value>
     public override DbContextOptionsExtensionInfo Info
     => _info ??= new ExtensionInfo(this);
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Clones a <see cref="MySQLOptionsExtension"/> object.
+    /// </summary>
+    /// <returns>A clone of this instance, which can be modified before being returned as immutable.</returns>
     protected override RelationalOptionsExtension Clone()
     => new MySQLOptionsExtension(this);
 
+    /// <summary>
+    /// The <see cref="CharacterSet"/> to use.
+    /// </summary>
+    /// <value>The character set.</value>
     public virtual CharacterSet? CharSet => _charset;
 
     /// <summary>
     ///   Returns a copy of the current instance configured with the specified character set.
     /// </summary>
+    /// <param name="charSet">The <see cref="CharacterSet"/> to use.</param>
+    /// <returns>A <see cref="MySQLOptionsExtension"/> object with the specified <paramref name="charSet"/>.</returns>
     public MySQLOptionsExtension WithCharSet(CharacterSet charSet)
     {
       var clone = (MySQLOptionsExtension)Clone();
@@ -79,7 +95,10 @@ namespace MySql.EntityFrameworkCore.Infrastructure.Internal
       return clone;
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Adds the services required to make the selected options work.
+    /// </summary>
+    /// <param name="services">The collection to add services to.</param>
     public override void ApplyServices(IServiceCollection services)
       => services.AddEntityFrameworkMySQL();
 

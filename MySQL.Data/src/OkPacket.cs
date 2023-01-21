@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -48,6 +48,7 @@ namespace MySql.Data.MySqlClient
     /// Creates an instance of the OKPacket object with all of its metadata
     /// </summary>
     /// <param name="packet">The packet to parse</param>
+    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
     public static async Task<OkPacket> CreateAsync(MySqlPacket packet, bool execAsync)
     {
       OkPacket okPacket = new OkPacket();

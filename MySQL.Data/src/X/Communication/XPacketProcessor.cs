@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -83,7 +83,7 @@ namespace MySql.Data.X.Communication
     /// Creates a new instance of XPacketProcessor.
     /// </summary>
     /// <param name="stream">The stream to be used as communication channel.</param>
-    /// <param name="stream">The XCompressionController to be used for compression actions.</param>
+    /// <param name="compressionController">The XCompressionController to be used for compression actions.</param>
     public XPacketProcessor(Stream stream, XCompressionController compressionController) : this(stream)
     {
       _compressionController = compressionController;

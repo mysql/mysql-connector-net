@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Connection {
 
   /// <summary>Holder for reflection information generated from mysqlx_connection.proto</summary>
-  public static partial class MysqlxConnectionReflection {
+  internal static partial class MysqlxConnectionReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_connection.proto</summary>
@@ -86,7 +86,7 @@ namespace Mysqlx.Connection {
   ///
   ///A tuple of a ``name`` and a @ref Mysqlx::Datatypes::Any
   /// </summary>
-  public sealed partial class Capability : pb::IMessage<Capability>
+  internal sealed partial class Capability : pb::IMessage<Capability>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -341,7 +341,7 @@ namespace Mysqlx.Connection {
   ///
   ///list of Capability
   /// </summary>
-  public sealed partial class Capabilities : pb::IMessage<Capabilities>
+  internal sealed partial class Capabilities : pb::IMessage<Capabilities>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -525,7 +525,7 @@ namespace Mysqlx.Connection {
   ///
   ///@returns @ref Mysqlx::Connection::Capabilities or @ref Mysqlx::Error
   /// </summary>
-  public sealed partial class CapabilitiesGet : pb::IMessage<CapabilitiesGet>
+  internal sealed partial class CapabilitiesGet : pb::IMessage<CapabilitiesGet>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -688,7 +688,7 @@ namespace Mysqlx.Connection {
   ///
   ///@returns @ref Mysqlx::Ok  or @ref Mysqlx::Error
   /// </summary>
-  public sealed partial class CapabilitiesSet : pb::IMessage<CapabilitiesSet>
+  internal sealed partial class CapabilitiesSet : pb::IMessage<CapabilitiesSet>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -894,7 +894,7 @@ namespace Mysqlx.Connection {
   ///
   ///@returns @ref Mysqlx::Ok
   /// </summary>
-  public sealed partial class Close : pb::IMessage<Close>
+  internal sealed partial class Close : pb::IMessage<Close>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1046,7 +1046,7 @@ namespace Mysqlx.Connection {
 
   }
 
-  public sealed partial class Compression : pb::IMessage<Compression>
+  internal sealed partial class Compression : pb::IMessage<Compression>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif

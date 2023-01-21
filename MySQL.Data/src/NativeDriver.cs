@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -160,6 +160,7 @@ namespace MySql.Data.MySqlClient
     /// Sets the current database for the this connection
     /// </summary>
     /// <param name="dbName"></param>
+    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
     public async Task SetDatabaseAsync(string dbName, bool execAsync)
     {
       byte[] dbNameBytes = Encoding.GetBytes(dbName);
@@ -572,6 +573,7 @@ namespace MySql.Data.MySqlClient
     /// "AllowLoadLocalInfileInPath" connection option.
     /// </summary>
     /// <param name="filePath">File to validate against the safe path.</param>
+    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
     private async Task ValidateLocalInfileSafePathAsync(string filePath, bool execAsync)
     {
       if (!Path.GetFullPath(filePath).StartsWith(Path.GetFullPath(Settings.AllowLoadLocalInfileInPath)))
@@ -586,6 +588,7 @@ namespace MySql.Data.MySqlClient
     /// This supports the LOAD DATA LOCAL INFILE
     /// </summary>
     /// <param name="filename"></param>
+    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
     private async Task SendFileToServerAsync(string filename, bool execAsync)
     {
       byte[] buffer = new byte[8196];

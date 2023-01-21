@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2021, 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -416,6 +416,8 @@ namespace MySql.Data.Authentication.GSSAPI.Native
     /// <param name="contextHandle">Identifies the context on which the message arrived.</param>
     /// <param name="inputMessage">Protected message.</param>
     /// <param name="outputMessage">Buffer to receive unwrapped message.</param>
+    /// <param name="confState">State of the configuration.</param>
+    /// <param name="qopState">State of the QoP.</param>
     /// <returns>
     /// <para>The gss_unwrap() function may return the following status codes:</para>
     /// <para>GSS_S_COMPLETE: Successful completion.</para>

@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -199,6 +199,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="buffer"> Array to store bytes read from the stream </param>
     /// <param name="offset">The offset in buffer at which to begin storing the data read from the current stream. </param>
     /// <param name="count">Number of bytes to read</param>
+    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
     internal static async Task ReadFullyAsync(Stream stream, byte[] buffer, int offset, int count, bool execAsync)
     {
       int numRead = 0;

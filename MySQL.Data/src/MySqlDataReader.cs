@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -867,7 +867,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Gets a stream to retrieve data from the specified column.
     /// </summary>
-    /// <param name="ordinal">The zero-based column ordinal.</param>
+    /// <param name="i">The zero-based column ordinal.</param>
     /// <returns>A stream</returns>
     public override Stream GetStream(int i)
     {

@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx {
 
   /// <summary>Holder for reflection information generated from mysqlx.proto</summary>
-  public static partial class MysqlxReflection {
+  internal static partial class MysqlxReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx.proto</summary>
@@ -95,7 +95,7 @@ namespace Mysqlx {
 
   }
   /// <summary>Holder for extension identifiers generated from the top level of mysqlx.proto</summary>
-  public static partial class MysqlxExtensions {
+  internal static partial class MysqlxExtensions {
     public static readonly pb::Extension<global::Google.Protobuf.Reflection.MessageOptions, global::Mysqlx.ClientMessages.Types.Type> ClientMessageId =
       new pb::Extension<global::Google.Protobuf.Reflection.MessageOptions, global::Mysqlx.ClientMessages.Types.Type>(100001, pb::FieldCodec.ForEnum(800008, x => (int) x, x => (global::Mysqlx.ClientMessages.Types.Type) x, global::Mysqlx.ClientMessages.Types.Type.ConCapabilitiesGet));
     public static readonly pb::Extension<global::Google.Protobuf.Reflection.MessageOptions, global::Mysqlx.ServerMessages.Types.Type> ServerMessageId =
@@ -112,7 +112,7 @@ namespace Mysqlx {
   ///-  generate constants
   ///-  check for uniqueness
   /// </summary>
-  public sealed partial class ClientMessages : pb::IMessage<ClientMessages>
+  internal sealed partial class ClientMessages : pb::IMessage<ClientMessages>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -308,7 +308,7 @@ namespace Mysqlx {
   ///-  generate constants
   ///-  check for uniqueness
   /// </summary>
-  public sealed partial class ServerMessages : pb::IMessage<ServerMessages>
+  internal sealed partial class ServerMessages : pb::IMessage<ServerMessages>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -488,7 +488,7 @@ namespace Mysqlx {
 
   }
 
-  public sealed partial class Ok : pb::IMessage<Ok>
+  internal sealed partial class Ok : pb::IMessage<Ok>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -691,7 +691,7 @@ namespace Mysqlx {
 
   }
 
-  public sealed partial class Error : pb::IMessage<Error>
+  internal sealed partial class Error : pb::IMessage<Error>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif

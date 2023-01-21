@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+﻿// Copyright (c) 2019, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -143,12 +143,14 @@ namespace MySqlX.Communication
       _initializeForCompression = initializeForCompression;
 
       // Set the list of messages that should be compressed.
-      ClientSupportedCompressedMessages = new List<ClientMessageId>();
-      ClientSupportedCompressedMessages.Add(ClientMessageId.CRUD_DELETE);
-      ClientSupportedCompressedMessages.Add(ClientMessageId.CRUD_FIND);
-      ClientSupportedCompressedMessages.Add(ClientMessageId.CRUD_INSERT);
-      ClientSupportedCompressedMessages.Add(ClientMessageId.CRUD_UPDATE);
-      ClientSupportedCompressedMessages.Add(ClientMessageId.SQL_STMT_EXECUTE);
+      ClientSupportedCompressedMessages = new List<ClientMessageId>
+      {
+        ClientMessageId.CRUD_DELETE,
+        ClientMessageId.CRUD_FIND,
+        ClientMessageId.CRUD_INSERT,
+        ClientMessageId.CRUD_UPDATE,
+        ClientMessageId.SQL_STMT_EXECUTE
+      };
 
       // Initialize stream objects.
       _buffer = new MemoryStream();

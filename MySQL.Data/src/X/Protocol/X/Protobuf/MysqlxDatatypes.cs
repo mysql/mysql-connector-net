@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,11 +40,11 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Datatypes {
 
   /// <summary>Holder for reflection information generated from mysqlx_datatypes.proto</summary>
-  public static partial class MysqlxDatatypesReflection {
+  internal static partial class MysqlxDatatypesReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_datatypes.proto</summary>
-    public static pbr::FileDescriptor Descriptor {
+    internal static pbr::FileDescriptor Descriptor {
       get { return descriptor; }
     }
     private static pbr::FileDescriptor descriptor;
@@ -90,7 +90,7 @@ namespace Mysqlx.Datatypes {
   /// <summary>
   /// a scalar
   /// </summary>
-  public sealed partial class Scalar : pb::IMessage<Scalar>
+  internal sealed partial class Scalar : pb::IMessage<Scalar>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1195,7 +1195,7 @@ namespace Mysqlx.Datatypes {
   ///*
   ///An object
   /// </summary>
-  public sealed partial class Object : pb::IMessage<Object>
+  internal sealed partial class Object : pb::IMessage<Object>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1634,7 +1634,7 @@ namespace Mysqlx.Datatypes {
   ///*
   ///An Array
   /// </summary>
-  public sealed partial class Array : pb::IMessage<Array>
+  internal sealed partial class Array : pb::IMessage<Array>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1816,7 +1816,7 @@ namespace Mysqlx.Datatypes {
   ///*
   ///A helper to allow all field types
   /// </summary>
-  public sealed partial class Any : pb::IMessage<Any>
+  internal sealed partial class Any : pb::IMessage<Any>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif

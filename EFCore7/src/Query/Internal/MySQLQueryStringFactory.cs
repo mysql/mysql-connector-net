@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -36,7 +36,7 @@ using System.Text.RegularExpressions;
 
 namespace MySql.EntityFrameworkCore.Query.Internal
 {
-  public class MySQLQueryStringFactory : IRelationalQueryStringFactory
+  internal class MySQLQueryStringFactory : IRelationalQueryStringFactory
   {
     private static readonly Lazy<Regex> _limitExpressionParameterRegex = new Lazy<Regex>(
       () => new Regex($@"(?<=\W)LIMIT\s+(?:(?<leading_offset>@?\w+),\s*)?(?<row_count>@?\w+)(?:\s*OFFSET\s*(?<trailing_offset>@?\w+))?",

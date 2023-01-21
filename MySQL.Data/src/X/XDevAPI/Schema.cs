@@ -136,6 +136,7 @@ namespace MySqlX.XDevAPI
     /// Gets a typed collection object. This is useful for using domain objects.
     /// </summary>
     /// <param name="name">The name of collection to get.</param>
+    /// <param name="ValidateExistence">Ensures the collection exists in the schema.</param>
     /// <returns>A generic <see cref="Collection{T}"/> object set with the given name.</returns>
     public Collection<T> GetCollection<T>(string name, bool ValidateExistence = false)
     {

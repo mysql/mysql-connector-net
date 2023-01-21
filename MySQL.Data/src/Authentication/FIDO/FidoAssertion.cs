@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -162,7 +162,6 @@ namespace MySql.Data.Authentication.FIDO
     /// <summary>
     /// Gets the assertion statement. Since we're getting only one assertion, the index will always be zero.
     /// </summary>
-    /// <param name="index">The index of the assertion statement to retrieve</param>
     /// <returns>The assertion statement object</returns>
     /// <exception cref="IndexOutOfRangeException">The index is not in the range [0, count)</exception>
     public FidoAssertionStatement GetFidoAssertionStatement()

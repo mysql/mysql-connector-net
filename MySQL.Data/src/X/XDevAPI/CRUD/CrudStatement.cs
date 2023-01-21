@@ -38,8 +38,8 @@ namespace MySqlX.XDevAPI.CRUD
   /// <summary>
   /// Represents a collection statement.
   /// </summary>
-  /// <typeparam name="TResult"></typeparam>
-  /// <typeparam name="T"></typeparam>
+  /// <typeparam name="TResult">Type of <see cref="Result"/></typeparam>
+  /// <typeparam name="T">Type of object</typeparam>
   public abstract class CrudStatement<TResult, T> : TargetedBaseStatement<Collection<T>, TResult, T>
     where TResult : Result
   {
@@ -48,10 +48,10 @@ namespace MySqlX.XDevAPI.CRUD
     }
 
     /// <summary>
-    /// Converts base <see cref="System.Object"/>s into <see cref="{T}"/> objects. 
+    /// Converts base <see cref="System.Object"/>s into <typeparamref name="T"/> objects.
     /// </summary>
-    /// <param name="items">Array of objects to be converted to <see cref="{T}"/> objects.</param>
-    /// <returns>An enumerable collection of <see cref="{T}"/ objects.</returns>
+    /// <param name="items">Array of objects to be converted to <typeparamref name="T"/> objects.</param>
+    /// <returns>An enumerable collection of <typeparamref name="T"/> objects.</returns>
     protected IEnumerable<T> GetDocs(object[] items)
     {
       foreach (object item in items)

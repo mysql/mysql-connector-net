@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -191,7 +191,8 @@ namespace MySql.Data.MySqlClient
     /// schema, name, type
     /// </summary>
     /// <param name="restrictions"></param>
-    /// <returns></returns>
+    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public override async Task<MySqlSchemaCollection> GetProceduresAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       try

@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -291,7 +291,9 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Loads the properties from the connected server into a hashtable
     /// </summary>
-    /// <param name="connection"></param>
+    /// <param name="connection">The connection to be used.</param>
+    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     private async Task<Dictionary<string, string>> LoadServerPropertiesAsync(MySqlConnection connection, bool execAsync, CancellationToken cancellationToken)
     {

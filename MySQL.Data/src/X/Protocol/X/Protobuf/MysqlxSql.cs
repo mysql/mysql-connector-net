@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Sql {
 
   /// <summary>Holder for reflection information generated from mysqlx_sql.proto</summary>
-  public static partial class MysqlxSqlReflection {
+  internal static partial class MysqlxSqlReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_sql.proto</summary>
@@ -85,7 +85,7 @@ namespace Mysqlx.Sql {
   ///
   ///@returns zero or more  @ref Mysqlx::Resultset followed by @ref Mysqlx::Sql::StmtExecuteOk
   /// </summary>
-  public sealed partial class StmtExecute : pb::IMessage<StmtExecute>
+  internal sealed partial class StmtExecute : pb::IMessage<StmtExecute>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -436,7 +436,7 @@ namespace Mysqlx.Sql {
   ///*
   ///Statement executed successfully
   /// </summary>
-  public sealed partial class StmtExecuteOk : pb::IMessage<StmtExecuteOk>
+  internal sealed partial class StmtExecuteOk : pb::IMessage<StmtExecuteOk>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif

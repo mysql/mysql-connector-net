@@ -1,4 +1,4 @@
-// Copyright (c) 2015, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2015, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -47,6 +47,7 @@ namespace MySqlX.Communication
     /// Constructor that sets the stream used to read or write data.
     /// </summary>
     /// <param name="stream">The stream used to read or write data.</param>
+    /// <param name="socket">The socket to use.</param>
     public XPacketReaderWriter(Stream stream, Socket socket)
     {
       _stream = stream;
@@ -58,7 +59,9 @@ namespace MySqlX.Communication
     /// Constructor that sets the stream used to read or write data and the compression controller.
     /// </summary>
     /// <param name="stream">The stream used to read or write data.</param>
-    /// <param name="compressionController">The compression controller.</param>
+    /// <param name="compressionReadController">The compression controller for reading.</param>
+    /// <param name="compressionWriteController">The compression controller for writing.</param>
+    /// <param name="socket">The socket to use.</param>
     public XPacketReaderWriter(Stream stream, XCompressionController compressionReadController, XCompressionController compressionWriteController, Socket socket)
     {
       _stream = stream;

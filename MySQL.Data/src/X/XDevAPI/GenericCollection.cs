@@ -284,7 +284,7 @@ namespace MySqlX.XDevAPI
     /// Returns the document with the given identifier.
     /// </summary>
     /// <param name="id">The unique identifier of the document to replace.</param>
-    /// <returns>A <see cref="T"/> object if a document matching given identifier exists; otherwise, <c>null</c>.</returns>
+    /// <returns>A <typeparamref name="T"/> object if a document matching given identifier exists; otherwise, <c>null</c>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="id"/> is <c>null</c> or white space.</exception>
     /// <remarks>This is a direct execution method.</remarks>
     public T GetOne(object id)

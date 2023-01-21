@@ -265,6 +265,7 @@ namespace MySql.Data.MySqlClient
     /// Constructor accepting a connection string.
     /// </summary>
     /// <param name="connectionString">The connection string.</param>
+    /// <param name="isAnalyzed">Flag that indicates if the connection string has been analyzed.</param>
     public MySqlConnectionStringBuilder(string connectionString, bool isAnalyzed = false) : this()
     {
       AnalyzeConnectionString(connectionString, false, isAnalyzed: isAnalyzed);

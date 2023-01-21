@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -462,6 +462,8 @@ namespace MySql.Data.MySqlClient
     /// <param name="tableToParse">The table to get the foeign key info for.</param>
     /// <param name="filterName">Only get foreign keys that match this name.</param>
     /// <param name="includeColumns">Should column information be included in the table.</param>
+    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     private async Task GetForeignKeysOnTableAsync(MySqlSchemaCollection fkTable, MySqlSchemaRow tableToParse,
                        string filterName, bool includeColumns, bool execAsync, CancellationToken cancellationToken = default)
     {

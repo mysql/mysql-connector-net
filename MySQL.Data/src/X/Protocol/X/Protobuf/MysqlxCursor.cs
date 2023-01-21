@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Cursor {
 
   /// <summary>Holder for reflection information generated from mysqlx_cursor.proto</summary>
-  public static partial class MysqlxCursorReflection {
+  internal static partial class MysqlxCursorReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_cursor.proto</summary>
@@ -90,7 +90,7 @@ namespace Mysqlx.Cursor {
   ///
   ///@returns @ref Mysqlx::Ok
   /// </summary>
-  public sealed partial class Open : pb::IMessage<Open>
+  internal sealed partial class Open : pb::IMessage<Open>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -690,7 +690,7 @@ namespace Mysqlx.Cursor {
   ///end
   ///@enduml
   /// </summary>
-  public sealed partial class Fetch : pb::IMessage<Fetch>
+  internal sealed partial class Fetch : pb::IMessage<Fetch>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -969,7 +969,7 @@ namespace Mysqlx.Cursor {
   ///
   ///@returns @ref Mysqlx::Ok or @ref Mysqlx::Error
   /// </summary>
-  public sealed partial class Close : pb::IMessage<Close>
+  internal sealed partial class Close : pb::IMessage<Close>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif

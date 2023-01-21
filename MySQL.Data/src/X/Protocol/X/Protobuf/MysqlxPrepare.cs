@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,11 +40,11 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Prepare {
 
   /// <summary>Holder for reflection information generated from mysqlx_prepare.proto</summary>
-  public static partial class MysqlxPrepareReflection {
+  internal static partial class MysqlxPrepareReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_prepare.proto</summary>
-    public static pbr::FileDescriptor Descriptor {
+    internal static pbr::FileDescriptor Descriptor {
       get { return descriptor; }
     }
     private static pbr::FileDescriptor descriptor;
@@ -95,7 +95,7 @@ namespace Mysqlx.Prepare {
   ///
   ///@returns @ref Mysqlx::Ok or @ref Mysqlx::Error
   /// </summary>
-  public sealed partial class Prepare : pb::IMessage<Prepare>
+  internal sealed partial class Prepare : pb::IMessage<Prepare>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -835,7 +835,7 @@ namespace Mysqlx.Prepare {
   ///@enduml
   ///@returns @ref Mysqlx::Ok
   /// </summary>
-  public sealed partial class Execute : pb::IMessage<Execute>
+  internal sealed partial class Execute : pb::IMessage<Execute>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1144,7 +1144,7 @@ namespace Mysqlx.Prepare {
   ///
   ///@returns @ref Mysqlx::Ok or @ref Mysqlx::Error
   /// </summary>
-  public sealed partial class Deallocate : pb::IMessage<Deallocate>
+  internal sealed partial class Deallocate : pb::IMessage<Deallocate>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif

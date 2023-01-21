@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -103,7 +103,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <param name="connectionString"><see cref="MySqlConnection.ConnectionString"/> to use.</param>
     /// <param name="commandText">The SQL command to be executed.</param>
-    /// <param name="parms">An array of <see cref="MySqlParameter"/> objects to use with the command.</param>
+    /// <param name="commandParameters">An array of <see cref="MySqlParameter"/> objects to use with the command.</param>
     /// <returns>The number of affected records.</returns>
     /// <remarks>A new <see cref="MySqlConnection"/> is created using the <see cref="MySqlConnection.ConnectionString"/> given.</remarks>
     public static int ExecuteNonQuery(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteNonQueryAsync(false, connectionString, commandText, commandParameters: commandParameters).GetAwaiter().GetResult();

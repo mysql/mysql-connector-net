@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,7 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Crud {
 
   /// <summary>Holder for reflection information generated from mysqlx_crud.proto</summary>
-  public static partial class MysqlxCrudReflection {
+  internal static partial class MysqlxCrudReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_crud.proto</summary>
@@ -153,7 +153,7 @@ namespace Mysqlx.Crud {
   ///*
   ///DataModel to use for filters, names, ...
   /// </summary>
-  public enum DataModel {
+  internal enum DataModel {
     [pbr::OriginalName("DOCUMENT")] Document = 1,
     [pbr::OriginalName("TABLE")] Table = 2,
   }
@@ -162,7 +162,7 @@ namespace Mysqlx.Crud {
   ///*
   ///ViewAlgorithm defines how MySQL Server processes the view
   /// </summary>
-  public enum ViewAlgorithm {
+  internal enum ViewAlgorithm {
     /// <summary>
     ///* MySQL chooses which algorithm to use 
     /// </summary>
@@ -184,7 +184,7 @@ namespace Mysqlx.Crud {
   ///executed; this means that VIEW can be executed with current user permissions or
   ///with permissions of the user who defined the VIEW
   /// </summary>
-  public enum ViewSqlSecurity {
+  internal enum ViewSqlSecurity {
     /// <summary>
     ///* use current user permissions 
     /// </summary>
@@ -200,7 +200,7 @@ namespace Mysqlx.Crud {
   ///ViewCheckOption limits the write operations done on a `VIEW`
   ///(`INSERT`, `UPDATE`, `DELETE`) to rows in which the `WHERE` clause is `TRUE`
   /// </summary>
-  public enum ViewCheckOption {
+  internal enum ViewCheckOption {
     /// <summary>
     ///* the view WHERE clause is checked, but no underlying views are checked 
     /// </summary>
@@ -215,7 +215,7 @@ namespace Mysqlx.Crud {
   #endregion
 
   #region Messages
-  public sealed partial class Column : pb::IMessage<Column>
+  internal sealed partial class Column : pb::IMessage<Column>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -495,7 +495,7 @@ namespace Mysqlx.Crud {
 
   }
 
-  public sealed partial class Projection : pb::IMessage<Projection>
+  internal sealed partial class Projection : pb::IMessage<Projection>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -752,7 +752,7 @@ namespace Mysqlx.Crud {
 
   }
 
-  public sealed partial class Collection : pb::IMessage<Collection>
+  internal sealed partial class Collection : pb::IMessage<Collection>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1006,7 +1006,7 @@ namespace Mysqlx.Crud {
 
   }
 
-  public sealed partial class Limit : pb::IMessage<Limit>
+  internal sealed partial class Limit : pb::IMessage<Limit>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1277,7 +1277,7 @@ namespace Mysqlx.Crud {
   ///This message support expressions of following types Expr/literal/UINT,
   ///Expr/PLACEHOLDER.
   /// </summary>
-  public sealed partial class LimitExpr : pb::IMessage<LimitExpr>
+  internal sealed partial class LimitExpr : pb::IMessage<LimitExpr>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1531,7 +1531,7 @@ namespace Mysqlx.Crud {
   ///*
   ///Sort order
   /// </summary>
-  public sealed partial class Order : pb::IMessage<Order>
+  internal sealed partial class Order : pb::IMessage<Order>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1796,7 +1796,7 @@ namespace Mysqlx.Crud {
 
   }
 
-  public sealed partial class UpdateOperation : pb::IMessage<UpdateOperation>
+  internal sealed partial class UpdateOperation : pb::IMessage<UpdateOperation>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -2162,7 +2162,7 @@ namespace Mysqlx.Crud {
   ///
   ///@returns @ref Mysqlx::Resultset
   /// </summary>
-  public sealed partial class Find : pb::IMessage<Find>
+  internal sealed partial class Find : pb::IMessage<Find>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -2882,7 +2882,7 @@ namespace Mysqlx.Crud {
   ///
   ///@returns @ref Mysqlx::Resultset
   /// </summary>
-  public sealed partial class Insert : pb::IMessage<Insert>
+  internal sealed partial class Insert : pb::IMessage<Insert>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -3480,7 +3480,7 @@ namespace Mysqlx.Crud {
   ///
   ///@returns @ref Mysqlx::Resultset
   /// </summary>
-  public sealed partial class Update : pb::IMessage<Update>
+  internal sealed partial class Update : pb::IMessage<Update>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -3981,7 +3981,7 @@ namespace Mysqlx.Crud {
   ///
   ///@returns @ref Mysqlx::Resultset
   /// </summary>
-  public sealed partial class Delete : pb::IMessage<Delete>
+  internal sealed partial class Delete : pb::IMessage<Delete>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -4450,7 +4450,7 @@ namespace Mysqlx.Crud {
   ///*
   ///CreateView create view based on indicated @ref Mysqlx::Crud::Find message
   /// </summary>
-  public sealed partial class CreateView : pb::IMessage<CreateView>
+  internal sealed partial class CreateView : pb::IMessage<CreateView>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -5013,7 +5013,7 @@ namespace Mysqlx.Crud {
   ///ModifyView modify existing view based on indicated
   ///@ref Mysqlx::Crud::Find message
   /// </summary>
-  public sealed partial class ModifyView : pb::IMessage<ModifyView>
+  internal sealed partial class ModifyView : pb::IMessage<ModifyView>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -5519,7 +5519,7 @@ namespace Mysqlx.Crud {
   ///*
   ///DropView removing existing view
   /// </summary>
-  public sealed partial class DropView : pb::IMessage<DropView>
+  internal sealed partial class DropView : pb::IMessage<DropView>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif

@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -28,7 +28,6 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using MySql.Data.MySqlClient;
-using System.Runtime.InteropServices;
 
 namespace MySql.EntityFrameworkCore.Infrastructure.Internal
 {
@@ -37,8 +36,20 @@ namespace MySql.EntityFrameworkCore.Infrastructure.Internal
   /// </summary>
   public interface IMySQLOptions : ISingletonOptions
   {
+    /// <summary>
+    /// The <see cref="CharacterSet"/> to be used by the connection.
+    /// </summary>
+    /// <value>The character set.</value>
     CharacterSet? CharSet { get; }
+    /// <summary>
+    /// The connection settings.
+    /// </summary>
+    /// <value>The connection string builder.</value>
     MySqlConnectionStringBuilder ConnectionSettings { get; }
+    /// <summary>
+    /// The specified <see cref="MySQLSchemaNameTranslator"/>.
+    /// </summary>
+    /// <value>The SchemaNameTranslator.</value>
     MySQLSchemaNameTranslator? SchemaNameTranslator { get; }
   }
 }

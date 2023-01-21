@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2018, 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2018, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -450,6 +450,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="connectionString">Connection string.</param>
     /// <param name="isXProtocol">Flag that indicates if the connection is using X Protocol.</param>
     /// <param name="isDefaultPort">Flag that indicates if the default port is used.</param>
+    /// <param name="isAnalyzed">Flag that indicates if the connection string has been analyzed.</param>
     internal void AnalyzeConnectionString(string connectionString, bool isXProtocol, bool isDefaultPort = true, bool isAnalyzed = false)
     {
       if (!isAnalyzed && !string.IsNullOrWhiteSpace(connectionString))

@@ -1,4 +1,4 @@
-// Copyright (c) 2006, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2006, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -207,6 +207,7 @@ namespace MySql.Data.MySqlClient
     /// Executes the load operation asynchronously while the cancellation isn't requested.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="stream">A <see cref="Stream"/> containing the data to be loaded.</param>
     /// <returns>The number of rows inserted.</returns>
     public Task<int> LoadAsync(Stream stream, CancellationToken cancellationToken) => LoadAsync(stream, true, cancellationToken);
 

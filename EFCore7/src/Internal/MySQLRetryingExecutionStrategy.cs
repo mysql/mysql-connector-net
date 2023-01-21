@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -35,7 +35,7 @@ using System.Collections.Generic;
 
 namespace MySql.EntityFrameworkCore.Internal
 {
-  public class MySQLRetryingExecutionStrategy : ExecutionStrategy
+  internal class MySQLRetryingExecutionStrategy : ExecutionStrategy
   {
     private readonly ICollection<int> _additionalErrorNumbers;
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,11 +40,11 @@ using scg = global::System.Collections.Generic;
 namespace Mysqlx.Expr {
 
   /// <summary>Holder for reflection information generated from mysqlx_expr.proto</summary>
-  public static partial class MysqlxExprReflection {
+  internal static partial class MysqlxExprReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_expr.proto</summary>
-    public static pbr::FileDescriptor Descriptor {
+    internal static pbr::FileDescriptor Descriptor {
       get { return descriptor; }
     }
     private static pbr::FileDescriptor descriptor;
@@ -119,7 +119,7 @@ namespace Mysqlx.Expr {
   ///: placeholder
   ///@endcode
   /// </summary>
-  public sealed partial class Expr : pb::IMessage<Expr>
+  internal sealed partial class Expr : pb::IMessage<Expr>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -733,7 +733,7 @@ namespace Mysqlx.Expr {
   ///: string
   ///@endcode
   /// </summary>
-  public sealed partial class Identifier : pb::IMessage<Identifier>
+  internal sealed partial class Identifier : pb::IMessage<Identifier>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -999,7 +999,7 @@ namespace Mysqlx.Expr {
   ///array_index  : "[" number "]" | "[" "*" "]"
   ///@endcode
   /// </summary>
-  public sealed partial class DocumentPathItem : pb::IMessage<DocumentPathItem>
+  internal sealed partial class DocumentPathItem : pb::IMessage<DocumentPathItem>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1364,7 +1364,7 @@ namespace Mysqlx.Expr {
   ///doubleAsterisk = "**"
   ///@endcode
   /// </summary>
-  public sealed partial class ColumnIdentifier : pb::IMessage<ColumnIdentifier>
+  internal sealed partial class ColumnIdentifier : pb::IMessage<ColumnIdentifier>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1716,7 +1716,7 @@ namespace Mysqlx.Expr {
   ///function_call: `identifier` "(" [ `expr` ["," `expr` ]* ] ")"
   ///@endcode
   /// </summary>
-  public sealed partial class FunctionCall : pb::IMessage<FunctionCall>
+  internal sealed partial class FunctionCall : pb::IMessage<FunctionCall>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -1946,7 +1946,7 @@ namespace Mysqlx.Expr {
 
   }
 
-  public sealed partial class Operator : pb::IMessage<Operator>
+  internal sealed partial class Operator : pb::IMessage<Operator>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -2185,7 +2185,7 @@ namespace Mysqlx.Expr {
   ///*
   ///An object (with expression values)
   /// </summary>
-  public sealed partial class Object : pb::IMessage<Object>
+  internal sealed partial class Object : pb::IMessage<Object>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
@@ -2633,7 +2633,7 @@ namespace Mysqlx.Expr {
   ///*
   ///An array of expressions
   /// </summary>
-  public sealed partial class Array : pb::IMessage<Array>
+  internal sealed partial class Array : pb::IMessage<Array>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
