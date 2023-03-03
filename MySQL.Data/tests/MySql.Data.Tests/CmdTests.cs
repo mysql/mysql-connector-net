@@ -959,5 +959,21 @@ namespace MySql.Data.MySqlClient.Tests
 
       Assert.AreEqual(-1, cmd.LastInsertedId);
     }
+
+    /// <summary>
+    /// Bug# 34993798 - MySqlCommand.LastInsertedId is incorrect if multiple rows are inserted and all rows gnereate a value.
+    /// </summary>
+    [Test]
+    public void LastInserteIdRedux() 
+    {
+      ExecuteSQL(@"CREATE TABLE Test (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, text CHAR(100))");
+
+      using var cmd = Connection.CreateCommand();
+      cmd.CommandText = @"INSERT INTO test (text) VALUES ('test1'); INSERT INTO test (text) VALUES ('test2');";
+
+      Assert.AreEqual(2, cmd.ExecuteNonQuery());
+      Assert.AreEqual(2, cmd.LastInsertedId);
+    }
+
   }
 }
