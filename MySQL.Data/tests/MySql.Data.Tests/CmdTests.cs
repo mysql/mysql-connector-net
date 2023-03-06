@@ -39,8 +39,8 @@ namespace MySql.Data.MySqlClient.Tests
   {
     protected override void Cleanup()
     {
-      ExecuteSQL(string.Format("DROP TABLE IF EXISTS `{0}`.TestForeignKey", Connection.Database));
-      ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
+      ExecuteSQL($"DROP TABLE IF EXISTS `{Connection.Database}`.TestForeignKey");
+      ExecuteSQL($"DROP TABLE IF EXISTS `{Connection.Database}`.Test");
     }
 
     /// <summary>
@@ -50,16 +50,18 @@ namespace MySql.Data.MySqlClient.Tests
     public void InvalidCast()
     {
       string host = Host == "localhost" ? Host : "%";
-      ExecuteSQL(String.Format("CREATE FUNCTION `{0}`.`MyTwice`( val int ) RETURNS INT BEGIN return val * 2; END;", Connection.Database), true);
-      ExecuteSQL(String.Format("CREATE PROCEDURE `{0}`.`spMyTwice`( out result int, val int ) BEGIN set result = val * 2; END;", Connection.Database), true);
+      ExecuteSQL($@"CREATE FUNCTION `{Connection.Database}`.`MyTwice`( val int ) RETURNS INT DETERMINISTIC
+                                  READS SQL DATA BEGIN return val * 2; END;", true);
+      ExecuteSQL($@"CREATE PROCEDURE `{Connection.Database}`.`spMyTwice`( out result int, val int ) 
+                                  DETERMINISTIC READS SQL DATA BEGIN set result = val * 2; END;", true);
       string user = CreateUser("1", "123");
-      ExecuteSQL(String.Format("GRANT EXECUTE ON FUNCTION `{0}`.`MyTwice` TO '{1}'@'{2}';", Connection.Database, user, host), true);
-      ExecuteSQL(String.Format("GRANT EXECUTE ON PROCEDURE `{0}`.`spMyTwice` TO '{1}'@'{2}'", Connection.Database, user, host), true);
+      ExecuteSQL($"GRANT EXECUTE ON FUNCTION `{Connection.Database}`.`MyTwice` TO '{user}'@'{host}';", true);
+      ExecuteSQL($"GRANT EXECUTE ON PROCEDURE `{Connection.Database}`.`spMyTwice` TO '{user}'@'{host}'", true);
 
       if (Connection.driver.Version.isAtLeast(8, 0, 1))
-        ExecuteSQL(string.Format("GRANT SELECT ON TABLE mysql.db TO '{0}'@'{1}'", user, host), true);
+        ExecuteSQL($"GRANT SELECT ON TABLE mysql.db TO '{user}'@'{host}'", true);
       else
-        ExecuteSQL(string.Format("GRANT SELECT ON TABLE mysql.proc TO '{0}'@'{1}'", user, host), true);
+        ExecuteSQL($"GRANT SELECT ON TABLE mysql.proc TO '{user}'@'{host}'", true);
 
       ExecuteSQL("FLUSH PRIVILEGES", true);
 
@@ -934,8 +936,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void LastInsertedIdInMultipleStatements()
     {
-      ExecuteSQL(@"CREATE TABLE Test (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, Column1 CHAR(100));
-        CREATE TABLE TestForeignKey (foreign_id INT NOT NULL, Column2 CHAR(100), FOREIGN KEY (foreign_id) REFERENCES Test (id));");
+      ExecuteSQL(@"CREATE TABLE Test (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, Column1 CHAR(100))");
+      ExecuteSQL(@"CREATE TABLE TestForeignKey (foreign_id INT NOT NULL, Column2 CHAR(100), FOREIGN KEY (foreign_id) REFERENCES Test (id))");
 
       using var cmd = Connection.CreateCommand();
       cmd.CommandText = "INSERT INTO Test(column1) VALUES ('hello'); "
