@@ -719,15 +719,6 @@ namespace MySql.Data.MySqlClient
 
       if (CommandType == CommandType.TableDirect)
         sql = "SELECT * FROM " + sql;
-      else if (CommandType == CommandType.Text)
-      {
-        // validates single word statetment (maybe is a stored procedure call)
-        if (sql.IndexOf(" ") == -1)
-        {
-          if (AddCallStatement(sql))
-            sql = "call " + sql;
-        }
-      }
 
       // if we are on a replicated connection, we are only allow readonly statements
       if (connection.Settings.Replication && !InternallyCreated)
@@ -1110,28 +1101,6 @@ namespace MySql.Data.MySqlClient
     #region Private Methods
 
     internal long EstimatedSize() => CommandText.Length + Parameters.Cast<MySqlParameter>().Sum(parameter => parameter.EstimatedSize());
-
-    /// <summary>
-    /// Verifies if a query is valid even if it has not spaces or is a stored procedure call
-    /// </summary>
-    /// <param name="query">Query to validate</param>
-    /// <returns>If it is necessary to add call statement</returns>
-    private bool AddCallStatement(string query)
-    {
-      if (string.IsNullOrEmpty(query)) return false;
-
-      string keyword = query.ToUpper();
-      int indexChar = keyword.IndexOfAny(new char[] { '(', '"', '@', '\'', '`', '\t', '\n' });
-      if (indexChar > 0)
-        keyword = keyword.Substring(0, indexChar);
-
-      if (keywords == null)
-        keywords = SchemaProvider.GetReservedWords().AsDataTable().
-          Select().
-          Select(x => x[0].ToString()).ToList();
-
-      return !keywords.Contains(keyword);
-    }
 
     #endregion
 

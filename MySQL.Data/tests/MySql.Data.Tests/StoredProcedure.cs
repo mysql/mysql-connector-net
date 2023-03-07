@@ -797,21 +797,6 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
-    /// Validates a stored procedure call without the "call" statement
-    /// Bug #14008699
-    /// </summary>
-    [Test]
-    public void CallStoredProcedure()
-    {
-      ExecuteSQL("CREATE PROCEDURE GetCount() BEGIN SELECT 5; END");
-
-      MySqlCommand cmd = new MySqlCommand("GetCount", Connection);
-      cmd.CommandType = CommandType.Text;
-
-      Assert.AreEqual(5, Convert.ToInt32(cmd.ExecuteScalar()));
-    }
-
-    /// <summary>
     /// Bug #31237338	CANNOT CALL STORED PROCEDURES IN DATABASES WHOSE NAME CONTAINS A PERIOD
     /// </summary>
     [Test]
