@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -29,7 +29,9 @@
 using Microsoft.Win32;
 using System;
 using System.ComponentModel;
+#if NETFRAMEWORK
 using System.Configuration.Install;
+#endif
 using System.IO;
 using System.Reflection;
 using System.Security.Permissions;
@@ -37,6 +39,7 @@ using System.Xml;
 
 namespace MySql.Data.MySqlClient
 {
+#if NETFRAMEWORK
   /// <summary>
   /// We are adding a custom installer class to our assembly so our installer
   /// can make proper changes to the machine.config file.
@@ -315,4 +318,5 @@ namespace MySql.Data.MySqlClient
       writer.Close();
     }
   }
+#endif
 }

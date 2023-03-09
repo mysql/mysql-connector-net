@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <Description>MySql.Web.Tests</Description>
-    <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates.</Copyright>
+    <Copyright>Copyright (c) 2016, 2023, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>8.0.33</Version>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>net452;net48;</TargetFrameworks>
+    <TargetFrameworks>net462;net48;</TargetFrameworks>
     <AssemblyName>MySql.Web.Tests</AssemblyName>
     <PackageId>MySql.Web.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET</PackageTags>

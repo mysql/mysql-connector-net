@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2021, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2023, Oracle and/or its affiliates.
 
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -27,9 +27,8 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using System;
-#if !NET452
 using System.Runtime.InteropServices;
-#endif
+
 
 namespace MySql.Data.Common
 {
@@ -61,7 +60,7 @@ namespace MySql.Data.Common
 
     public static bool IsMacOSX()
     {
-#if NET452
+#if NET462
       return Environment.OSVersion.Platform == PlatformID.MacOSX;
 #else
       return RuntimeInformation.IsOSPlatform(OSPlatform.OSX);

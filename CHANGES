@@ -5,6 +5,7 @@
 - Added missing summaries for some classes and methods in the API documentation (Oracle Bug #34975410).
 - Fixed MySqlCommand.LastInsertedId is incorrect if multiple rows are inserted (Oracle Bug #34993798)
 - Reverted old code that allowed calling some procedures without using the StoredProcedure CommandType (Oracle Bug #29722378)
+- Upgraded .NET Framework 4.5.2 to .NET Framework 4.6.2 with regard to packaging minimum version (WL15641).
 
 8.0.32
 - Fixed a bug that raised a NullReferenceException when using the MySqlCommand.Cancel function with a closed connection (MySQL Bug #101507, Oracle Bug #32127591).

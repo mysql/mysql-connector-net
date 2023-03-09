@@ -3,12 +3,12 @@
   <PropertyGroup>
     <Title>MySql.Data.Tests</Title>
     <Description>MySql.Data.Tests Class Library</Description>
-    <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates. All rights reserved.</Copyright>
+    <Copyright>Copyright (c) 2016, 2023, Oracle and/or its affiliates. All rights reserved.</Copyright>
     <Version>8.0.33</Version>
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
-    <TargetFrameworks>net7.0;net6.0;netcoreapp3.1;net452;net48;</TargetFrameworks>
+    <TargetFrameworks>net7.0;net6.0;netcoreapp3.1;net462;net48;</TargetFrameworks>
     <PackageId>MySqlx.Data.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
