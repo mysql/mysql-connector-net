@@ -330,7 +330,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void Functions()
     {
       ExecuteSQL("DROP FUNCTION IF EXISTS spFunc");
-      ExecuteSQL("CREATE FUNCTION spFunc (id int) RETURNS INT BEGIN RETURN 1; END");
+      ExecuteSQL("CREATE FUNCTION spFunc (id int) RETURNS INT DETERMINISTIC NO SQL BEGIN RETURN 1; END");
 
       string[] restrictions = new string[4];
       restrictions[1] = Connection.Database;

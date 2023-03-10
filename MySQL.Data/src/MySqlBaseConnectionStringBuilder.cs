@@ -154,11 +154,6 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets a flag indicating if the object has access to procedures.
-    /// </summary>
-    internal bool HasProcAccess { get; set; }
-
-    /// <summary>
     /// Gets or sets a dictionary representing key-value pairs for each connection option.
     /// </summary>
     internal Dictionary<string, object> values { get; set; }

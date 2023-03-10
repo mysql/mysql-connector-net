@@ -193,21 +193,8 @@ namespace MySql.Data.MySqlClient
     /// <param name="restrictions"></param>
     /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    public override async Task<MySqlSchemaCollection> GetProceduresAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
+    public async Task<MySqlSchemaCollection> GetProceduresAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
-      try
-      {
-        if (connection.Settings.HasProcAccess)
-          return await base.GetProceduresAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
-      }
-      catch (MySqlException ex)
-      {
-        if (ex.Number == (int)MySqlErrorCode.TableAccessDenied)
-          connection.Settings.HasProcAccess = false;
-        else
-          throw;
-      }
-
       string[] keys = new string[4];
       keys[0] = "ROUTINE_CATALOG";
       keys[1] = "ROUTINE_SCHEMA";

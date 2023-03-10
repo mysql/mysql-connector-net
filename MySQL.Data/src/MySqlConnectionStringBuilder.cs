@@ -249,7 +249,6 @@ namespace MySql.Data.MySqlClient
     public MySqlConnectionStringBuilder()
     {
       values = new Dictionary<string, object>();
-      HasProcAccess = true;
 
       // Populate initial values.
       lock (this)

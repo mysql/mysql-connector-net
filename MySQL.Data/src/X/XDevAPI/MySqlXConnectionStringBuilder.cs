@@ -87,7 +87,6 @@ namespace MySqlX.XDevAPI
     public MySqlXConnectionStringBuilder()
     {
       values = new Dictionary<string, object>();
-      HasProcAccess = true;
 
       // Populate initial values.
       lock (this)
