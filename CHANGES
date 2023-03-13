@@ -1,5 +1,6 @@
 8.1.0
 - Removed GetSchema code that used direct access to mysql.proc table (WL15643)
+- Removed code that used SHOW CREATE PROCEDURE to enumerator procedure parameters (WL #15644)
 
 8.0.33
 - Added support for OCI ephemeral key-based authentication (WL15489).
