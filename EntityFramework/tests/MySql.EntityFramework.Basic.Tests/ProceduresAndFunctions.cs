@@ -52,7 +52,7 @@ namespace MySql.Data.EntityFramework.Tests
 
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
-        long count = ctx.Database.SqlQuery<long>("CallStoredProcedure").First();
+        long count = ctx.Database.SqlQuery<long>("call CallStoredProcedure").First();
         Assert.AreEqual(5, count);
       }
     }

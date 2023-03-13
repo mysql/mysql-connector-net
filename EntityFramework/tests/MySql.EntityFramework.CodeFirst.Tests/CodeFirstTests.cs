@@ -185,7 +185,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
         context.Database.Initialize(true);
         context.Database.ExecuteSqlCommand(@"drop procedure if exists `GetCount`");
         context.Database.ExecuteSqlCommand(@"create procedure `GetCount`() begin select 5; end;");
-        long count = context.Database.SqlQuery<long>("GetCount").First();
+        long count = context.Database.SqlQuery<long>("call GetCount").First();
 
         Assert.AreEqual(5, count);
       }
