@@ -721,6 +721,43 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual(i, dt.Rows[i]["id"]);
     }
 
+    /// <summary>
+    /// Test similar to TestBatchingInserts, only that here a check is done that the
+    /// returned autoincrement id is the first one of the block to verify that all
+    /// rows are inserted as one batch.
+    /// </summary>
+    [Test]
+    public void TestBatchingInsertsAllRowsInOneGo()
+    {
+      ExecuteSQL("CREATE TABLE Test (id INT AUTO_INCREMENT, name VARCHAR(20), PRIMARY KEY(id))");
+      ExecuteSQL("INSERT INTO Test VALUES (1, 'Test 1')");
+
+      MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
+      MySqlCommand ins = new MySqlCommand("INSERT INTO Test (id, name) VALUES (?p1, ?p2)", Connection);
+      da.InsertCommand = ins;
+      ins.UpdatedRowSource = UpdateRowSource.None;
+      ins.Parameters.Add("?p1", MySqlDbType.Int32).SourceColumn = "id";
+      ins.Parameters.Add("?p2", MySqlDbType.VarChar, 20).SourceColumn = "name";
+
+      DataTable dt = new DataTable();
+      da.Fill(dt);
+
+      for (int i = 1; i <= 3; i++)
+      {
+        DataRow row = dt.NewRow();
+        row["id"] = DBNull.Value;
+        row["name"] = "name " + i;
+        dt.Rows.Add(row);
+      }
+
+      da.UpdateBatchSize = 0;
+      da.Update(dt);
+
+      var lastInsertedId = (ulong)ExecuteScalar("SELECT LAST_INSERT_ID();");
+
+      Assert.AreEqual(2, lastInsertedId);
+    }
+
     [Test]
     public void FunctionsReturnString()
     {

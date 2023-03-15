@@ -178,7 +178,7 @@ namespace MySql.Data.MySqlClient
           //long originalLength = packet.Length - 4;
 
           // and attempt to stream the next command
-          string text = ResolvedCommandText;
+          string text = batchedCmd.BatchableCommandText;
           if (text.StartsWith("(", StringComparison.Ordinal))
             packet.WriteStringNoNull(", ");
           else
