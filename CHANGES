@@ -1,3 +1,6 @@
+8.0.34
+
+
 8.0.33
 - Added support for OCI ephemeral key-based authentication (WL15489).
 - Re implemented the asynchronous methods for the Classic protocol (WL15484).
