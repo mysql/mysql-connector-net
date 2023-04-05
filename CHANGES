@@ -9,7 +9,8 @@
 - Fixed MySqlCommand.LastInsertedId is incorrect if multiple rows are inserted (Oracle Bug #34993798)
 - Reverted old code that allowed calling some procedures without using the StoredProcedure CommandType (Oracle Bug #29722378)
 - Upgraded .NET Framework 4.5.2 to .NET Framework 4.6.2 with regard to packaging minimum version (WL15641).
-
+- Changed broken references in summaries for some classes on the API documentation (Oracle Bug #35141281).
+- Deprecate the `Procedures with Parameters` schema collection (WL #15645)
 
 8.0.32.1
 - Fixed a bug related to how the authentication libraries are added to the NuGet Package (MySQL Bug #109670, Oracle Bug #34990010).
