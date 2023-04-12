@@ -65,11 +65,7 @@
     <Reference Include="System.Transactions" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Management" />
-    <Reference Include="ZstdNet">
-      <HintPath>..\..\Dependencies\ZstdNet\NetFramework\ZstdNet.dll</HintPath>
-    </Reference>
     <EmbeddedResource Include="Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
-    <EmbeddedResource Include="..\..\Dependencies\ZstdNet\NetFramework\libzstd.dll" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='netstandard2.1' or '$(TargetFramework)'=='net6.0' or '$(TargetFramework)'=='net7.0'">
@@ -79,10 +75,6 @@
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
     <PackageReference Include="System.Text.Json" Version="7.0.1" />
-    <Reference Include="ZstdNet">
-      <HintPath>..\..\Dependencies\ZstdNet\NetStandard2.0\ZstdNet.dll</HintPath>
-    </Reference>
-    <EmbeddedResource Include="..\..\Dependencies\ZstdNet\NetStandard2.0\libzstd.dll" />
   </ItemGroup>
   
   <ItemGroup>

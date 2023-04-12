@@ -9,6 +9,7 @@
 - Changed broken references in summaries for some classes on the API documentation (Oracle Bug #35141281).
 - Deprecate the `Procedures with Parameters` schema collection (WL #15645).
 - Remove 3rd party libraries from install bundles (WL #15682).
+- Removed ZstdNet libraries from MySql.Data (Oracle Bug #35281610)
 
 
 8.0.32.1
