@@ -2242,7 +2242,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Test, Description("Verify the behaviour if a sequence is incremented by the user and added as _id for the document")]
-    public void VerifySecuenceAndIdAdded()
+    public void VerifySequenceAndIdAdded()
     {
       if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
       string incrementedString = null, generatedString = null;
@@ -2473,7 +2473,7 @@ namespace MySqlX.Data.Tests
           characters.Add(c);
 
       if (mode == Mode.AlphaNumeric || mode == Mode.Alpha)
-        for (char c = 'a'; c <= 'z'; c++)
+        for (char c = 'a'; c <= 'f'; c++)
           characters.Add(c);
 
       // Loop from end to beginning
