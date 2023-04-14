@@ -318,9 +318,6 @@
   <data name="CompressionPendingMessagesToProcess" xml:space="preserve">
     <value>There are still decompressed messages pending to be processed.</value>
   </data>
-  <data name="CompressionFailedToLoadLibzstdAssembly" xml:space="preserve">
-    <value>Failed to load libzstd.dll. Removing zstd_stream from the client supported compression algorithms.</value>
-  </data>
   <data name="NoticeIdleConnection" xml:space="preserve">
     <value>Connection closed. Reason: connection idle was too long</value>
   </data>

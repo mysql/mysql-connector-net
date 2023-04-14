@@ -332,7 +332,7 @@ namespace MySqlX.Sessions
       inputString.Trim();
       if (string.IsNullOrEmpty(inputString))
       {
-        return Enum.GetNames(typeof(CompressionAlgorithms)).ToList();
+        return Enum.GetNames(typeof(CompressionAlgorithms)).Where(element => element != "zstd_stream").ToList();
       }
       var elements = inputString.ToLowerInvariant().Split(',');
       List<string> ret = new List<string>();
@@ -346,7 +346,10 @@ namespace MySqlX.Sessions
             break;
           case "zstd":
           case "zstd_stream":
-            elements[i] = CompressionAlgorithms.zstd_stream.ToString();
+            if (elements.Length == 1 && Settings.Compression == CompressionType.Required)
+            {
+              throw new NotSupportedException(string.Format(ResourcesX.CompressionForSpecificAlgorithmNotSupportedInNetFramework, elements[i]));
+            }
             break;
 
           case "deflate":
@@ -367,7 +370,7 @@ namespace MySqlX.Sessions
           ret.Add(elements[i]);
         }
       }
-      return ret;
+      return ret.Where(element => element != "zstd_stream").ToList(); ;
     }
 
     /// <summary>
@@ -388,7 +391,6 @@ namespace MySqlX.Sessions
 
       // If server and client don't have matching compression algorithms either log a warning message
       // or raise an exception based on the selected compression type.
-      XCompressionController.LoadLibzstdLibrary(ref clientAgainstUserAlgorithms);
       if (!clientAgainstUserAlgorithms.Any(element => serverSupportedAlgorithms.Contains(element)))
       {
         if (Settings.Compression == CompressionType.Preferred)
