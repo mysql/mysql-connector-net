@@ -344,7 +344,7 @@ namespace MySql.Data.MySqlClient
     private async Task LoadCharacterSetsAsync(MySqlConnection connection, bool execAsync, CancellationToken cancellationToken)
     {
       serverProps.TryGetValue("autocommit", out var serverAutocommit);
-      MySqlCommand cmd = new MySqlCommand("SHOW COLLATION", connection);
+      MySqlCommand cmd = new MySqlCommand("SHOW COLLATION WHERE ID IS NOT NULL", connection);
 
       // now we load all the currently active collations
       try
