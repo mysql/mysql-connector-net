@@ -83,6 +83,6 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       ? _options.SchemaNameTranslator(schema, name)
       : name;
 
-    public virtual string? GetSchemaName(string name, string schema) => null;
+    public virtual string? GetSchemaName(string name, string schema) => schema;
   }
 }

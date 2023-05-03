@@ -92,6 +92,6 @@ namespace MySql.EntityFrameworkCore
     => !string.IsNullOrEmpty(schema) &&  _options.SchemaNameTranslator != null
         ? _options.SchemaNameTranslator(schema, name)
         : name;
-    protected virtual string GetSchemaName(string name, string schema) => null;
+    protected virtual string GetSchemaName(string name, string schema) => schema;
   }
 }
