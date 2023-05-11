@@ -297,22 +297,6 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual("spTest", dt.Rows[0][3]);
     }
 
-    [Test]
-    public void ProceduresWithParameters()
-    {
-      ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
-      ExecuteSQL("CREATE PROCEDURE spTest (id int) BEGIN SELECT 1; END");
-
-      string[] restrictions = new string[4];
-      restrictions[1] = Connection.Database;
-      restrictions[2] = "spTest";
-      DataTable dt = Connection.GetSchema("PROCEDURES WITH PARAMETERS", restrictions);
-      Assert.True(dt.Rows.Count == 1);
-      Assert.AreEqual("Procedures", dt.TableName);
-      Assert.AreEqual("spTest", dt.Rows[0][3]);
-      Assert.AreEqual("id int", dt.Rows[0][dt.Columns.Count - 1]);
-    }
-
     /// <summary>
     /// Bug #33674814 - Empty result from MySqlConnection.GetSchema("Procedure Parameters") call.
     /// Incorrect casting on [NUMERIC_PRECISION] column whn looking for "PROCEDURE PARAMETERS" collection without any restriction

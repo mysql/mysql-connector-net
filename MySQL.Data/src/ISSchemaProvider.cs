@@ -206,60 +206,6 @@ namespace MySql.Data.MySqlClient
       return dt;
     }
 
-    private async Task<MySqlSchemaCollection> GetProceduresWithParametersAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
-    {
-      MySqlSchemaCollection dt = await GetProceduresAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
-      dt.AddColumn("ParameterList", typeof(string));
-
-      foreach (MySqlSchemaRow row in dt.Rows)
-      {
-        row["ParameterList"] = await GetProcedureParameterLineAsync(row, execAsync, cancellationToken).ConfigureAwait(false);
-      }
-      return dt;
-    }
-
-    private async Task<string> GetProcedureParameterLineAsync(MySqlSchemaRow isRow, bool execAsync, CancellationToken cancellationToken = default)
-    {
-      string sql = "SHOW CREATE {0} `{1}`.`{2}`";
-      sql = String.Format(sql, isRow["ROUTINE_TYPE"], isRow["ROUTINE_SCHEMA"],
-          isRow["ROUTINE_NAME"]);
-      using MySqlCommand cmd = new MySqlCommand(sql, connection);
-      using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
-      {
-        await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false);
-
-        // if we are not the owner of this proc or have permissions
-        // then we will get null for the body
-        if (reader.IsDBNull(2)) return null;
-
-        string sqlMode = reader.GetString(1);
-
-        string body = reader.GetString(2);
-        MySqlTokenizer tokenizer = new MySqlTokenizer(body);
-        tokenizer.AnsiQuotes = sqlMode.IndexOf("ANSI_QUOTES") != -1;
-        tokenizer.BackslashEscapes = sqlMode.IndexOf("NO_BACKSLASH_ESCAPES") == -1;
-
-        string token = tokenizer.NextToken();
-        while (token != "(")
-          token = tokenizer.NextToken();
-        int start = tokenizer.StartIndex + 1;
-        token = tokenizer.NextToken();
-        while (token != ")" || tokenizer.Quoted)
-        {
-          token = tokenizer.NextToken();
-          // if we see another ( and we are not quoted then we
-          // are in a size element and we need to look for the closing paren
-          if (token == "(" && !tokenizer.Quoted)
-          {
-            while (token != ")" || tokenizer.Quoted)
-              token = tokenizer.NextToken();
-            token = tokenizer.NextToken();
-          }
-        }
-        return body.Substring(start, tokenizer.StartIndex - start);
-      }
-    }
-
     private async Task<MySqlSchemaCollection> GetParametersForRoutineFromexecAsync(string[] restrictions, bool execAsync, CancellationToken cancellationToken = default)
     {
       string[] keys = new string[5];
@@ -329,8 +275,6 @@ namespace MySql.Data.MySqlClient
           return await GetViewsAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
         case "PROCEDURES":
           return await GetProceduresAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
-        case "PROCEDURES WITH PARAMETERS":
-          return await GetProceduresWithParametersAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
         case "PROCEDURE PARAMETERS":
           return await GetProcedureParametersAsync(restrictions, null, execAsync, cancellationToken).ConfigureAwait(false);
         case "TRIGGERS":
