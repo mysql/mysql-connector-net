@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2004, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,7 +40,7 @@ using System.Security;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
 [assembly: AssemblyProduct("MySql.Data.Core")]
-[assembly: AssemblyCopyright("Copyright (c) 2016, 2022, Oracle and/or its affiliates.")]
+[assembly: AssemblyCopyright("Copyright (c) 2016, 2023, Oracle and/or its affiliates.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: SecurityRules(SecurityRuleSet.Level1)]

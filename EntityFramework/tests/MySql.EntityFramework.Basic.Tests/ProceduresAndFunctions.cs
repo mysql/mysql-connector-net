@@ -1,4 +1,4 @@
-// Copyright (c) 2013, 2020, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2013, 2023, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -52,7 +52,7 @@ namespace MySql.Data.EntityFramework.Tests
 
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
-        long count = ctx.Database.SqlQuery<long>("CallStoredProcedure").First();
+        long count = ctx.Database.SqlQuery<long>("call CallStoredProcedure").First();
         Assert.AreEqual(5, count);
       }
     }

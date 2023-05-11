@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2016, Oracle and/or its affiliates. All rights reserved.
+// Copyright (c) 2004, 2023, Oracle and/or its affiliates. All rights reserved.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,7 +32,8 @@ using System.Diagnostics;
 
 namespace MySql.Data.MySqlClient
 {
-    internal class SystemPerformanceMonitor : PerformanceMonitor
+#if NETFRAMEWORK
+  internal class SystemPerformanceMonitor : PerformanceMonitor
     {
         private static PerformanceCounter procedureHardQueries;
         private static PerformanceCounter procedureSoftQueries;
@@ -87,4 +88,5 @@ namespace MySql.Data.MySqlClient
             procedureSoftQueries.Increment();
         }
     }
+#endif
 }

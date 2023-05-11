@@ -1,19 +1,18 @@
-<Project>
+﻿<Project>
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
 
   <PropertyGroup>
     <Description>MySql.Data.MySqlClient .Net Core Class Library</Description>
-    <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates.</Copyright>
+    <Copyright>Copyright (c) 2016, 2023, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.33</Version>
+    <Version>8.0.34</Version>
     <Authors>Oracle</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
-    <TargetFrameworks>net452;net48;netstandard2.0;netstandard2.1;net6.0;net7.0;</TargetFrameworks>
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeThirdPartyAssemblies</TargetsForTfmSpecificBuildOutput>
+    <TargetFrameworks>net462;net48;netstandard2.0;netstandard2.1;net6.0;net7.0;</TargetFrameworks>
     <PackageId>MySql.Data</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
-    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
+    <PackageIcon>logo-mysql-170x115.png</PackageIcon>
     <PackageProjectUrl>https://dev.mysql.com/downloads/</PackageProjectUrl>
     <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -35,27 +34,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\..\Nuget\Data\images\logo-mysql-170x115.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+	
+  <ItemGroup>
     <EmbeddedResource Include="Properties\ReservedWords.txt" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.21.9" />
-    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.6" />
+    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.3.5" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+	<PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
   </ItemGroup>
-
-  <Target Name="IncludeThirdPartyAssemblies">
-    <ItemGroup>
-      <BuildOutputInPackage Include="$(OutputPath)ZstdNet.dll" />
-      <BuildOutputInPackage Include="$(OutputPath)gssapi64.dll" />
-      <BuildOutputInPackage Include="$(OutputPath)comerr64.dll" />
-      <BuildOutputInPackage Include="$(OutputPath)k5sprt64.dll" />
-      <BuildOutputInPackage Include="$(OutputPath)krb5_64.dll" />
-      <BuildOutputInPackage Include="$(OutputPath)krbcc64.dll" />
-    </ItemGroup>
-  </Target>
 
   <ItemGroup>
     <None Update="..\..\Release Notes.txt">
@@ -66,43 +59,30 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\Dependencies\MITLibs\*">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'=='net452' or '$(TargetFramework)'=='net48'">
+  <ItemGroup Condition="'$(TargetFramework)'=='net462' or '$(TargetFramework)'=='net48'">
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Management" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
-    <Reference Include="ZstdNet">
-      <HintPath>..\..\Dependencies\ZstdNet\NetFramework\ZstdNet.dll</HintPath>
-    </Reference>
     <EmbeddedResource Include="Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
-    <EmbeddedResource Include="..\..\Dependencies\ZstdNet\NetFramework\libzstd.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='netstandard2.1' or '$(TargetFramework)'=='net6.0' or '$(TargetFramework)'=='net7.0'">
-    <Compile Remove="Framework/net452/*" />
+    <Compile Remove="Framework/net462/*" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.1" />
     <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
     <PackageReference Include="System.Text.Json" Version="7.0.1" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
-    <Reference Include="ZstdNet">
-      <HintPath>..\..\Dependencies\ZstdNet\NetStandard2.0\ZstdNet.dll</HintPath>
-    </Reference>
-    <EmbeddedResource Include="..\..\Dependencies\ZstdNet\NetStandard2.0\libzstd.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="..\..\Dependencies\MITLibs\comerr64.dll" PackagePath="runtimes\win-x64\native" CopyToOutputDirectory="Always" />
+    <Content Include="..\..\Dependencies\MITLibs\gssapi64.dll" PackagePath="runtimes\win-x64\native" CopyToOutputDirectory="Always" />
+    <Content Include="..\..\Dependencies\MITLibs\k5sprt64.dll" PackagePath="runtimes\win-x64\native" CopyToOutputDirectory="Always" />
+    <Content Include="..\..\Dependencies\MITLibs\krb5_64.dll" PackagePath="runtimes\win-x64\native" CopyToOutputDirectory="Always" />
+    <Content Include="..\..\Dependencies\MITLibs\krbcc64.dll" PackagePath="runtimes\win-x64\native" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

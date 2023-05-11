@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <Description>MySql.Data.EntityFramework.Migrations.Tests</Description>
-    <Copyright>Copyright (c) 2016, 2022, Oracle and/or its affiliates.</Copyright>
+    <Copyright>Copyright (c) 2016, 2023, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.0.33</Version>
+    <Version>8.0.34</Version>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>net452;netcoreapp3.1;</TargetFrameworks>
+    <TargetFrameworks>net462;netcoreapp3.1;</TargetFrameworks>
     <AssemblyName>MySql.EntityFramework.Migrations.Tests</AssemblyName>
     <PackageId>MySql.EntityFramework.Migrations.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET</PackageTags>
@@ -43,7 +43,7 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='net452'">
+  <ItemGroup Condition="'$(TargetFramework)'=='net462'">
     <Reference Include="System.Configuration" />
   </ItemGroup>
 

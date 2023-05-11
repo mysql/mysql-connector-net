@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -32,7 +32,7 @@ using System.Diagnostics;
 namespace MySql.EntityFrameworkCore.Migrations.Operations
 {
   /// <summary>
-  ///   A <see cref="MigrationOperation" /> for dropping a primary key.
+  ///   A migration operation for dropping a primary key and recreating foreign keys.
   /// </summary>
 
   [DebuggerDisplay("ALTER TABLE {Table} DROP CONSTRAINT {Name}")]
