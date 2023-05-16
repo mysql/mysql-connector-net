@@ -332,7 +332,7 @@ namespace MySqlX.Sessions
       inputString.Trim();
       if (string.IsNullOrEmpty(inputString))
       {
-        return Enum.GetNames(typeof(CompressionAlgorithms)).Where(element => element != "zstd_stream").ToList();
+        return Enum.GetNames(typeof(CompressionAlgorithms)).ToList();
       }
       var elements = inputString.ToLowerInvariant().Split(',');
       List<string> ret = new List<string>();
@@ -346,10 +346,7 @@ namespace MySqlX.Sessions
             break;
           case "zstd":
           case "zstd_stream":
-            if (elements.Length == 1 && Settings.Compression == CompressionType.Required)
-            {
-              throw new NotSupportedException(string.Format(ResourcesX.CompressionForSpecificAlgorithmNotSupportedInNetFramework, elements[i]));
-            }
+            elements[i] = CompressionAlgorithms.zstd_stream.ToString();
             break;
 
           case "deflate":
@@ -370,7 +367,7 @@ namespace MySqlX.Sessions
           ret.Add(elements[i]);
         }
       }
-      return ret.Where(element => element != "zstd_stream").ToList(); ;
+      return ret;
     }
 
     /// <summary>

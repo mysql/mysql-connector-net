@@ -34,6 +34,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using ZstdSharp;
 
 namespace MySqlX.Communication
 {
@@ -113,6 +114,10 @@ namespace MySqlX.Communication
     /// </summary>
     MemoryStream _multipleMessagesStream;
 
+    /// <summary>
+    /// ZStandard stream used for decompressing data.
+    /// </summary>
+    private DecompressionStream _zstdDecompressStream;
 
     #endregion
 
@@ -146,6 +151,12 @@ namespace MySqlX.Communication
       _buffer = new MemoryStream();
       switch (CompressionAlgorithm)
       {
+        case CompressionAlgorithms.zstd_stream:
+          if (!_initializeForCompression)
+          {
+            _zstdDecompressStream = new DecompressionStream(_buffer);
+          }
+          break;
 #if !NETFRAMEWORK
         case CompressionAlgorithms.deflate_stream:
           if (_initializeForCompression)
@@ -196,6 +207,8 @@ namespace MySqlX.Communication
 
       switch (CompressionAlgorithm)
       {
+        case (CompressionAlgorithms.zstd_stream):
+          return CompressUsingZstdStream(input);
         case (CompressionAlgorithms.lz4_message):
           return CompressUsingLz4Message(input);
 #if !NETFRAMEWORK
@@ -254,6 +267,26 @@ namespace MySqlX.Communication
     }
 
     /// <summary>
+    /// Compresses data using the zstd_stream algorithm.
+    /// </summary>
+    /// <param name="input">The data to compress.</param>
+    /// <returns>A compressed byte array.</returns>
+    private byte[] CompressUsingZstdStream(byte[] input)
+    {
+      byte[] compressedData;
+      using (var memoryStream = new MemoryStream())
+      using (var compressionStream = new CompressionStream(memoryStream))
+      {
+        compressionStream.Write(input, 0, input.Length);
+        compressionStream.Flush();
+        compressionStream.Close();
+        compressedData = memoryStream.ToArray();
+      }
+
+      return compressedData;
+    }
+
+    /// <summary>
     /// General method used to decompress data using the compression algorithm defined in the constructor.
     /// </summary>
     /// <param name="input">The data to decompress.</param>
@@ -274,6 +307,9 @@ namespace MySqlX.Communication
       byte[] decompressedData;
       switch (CompressionAlgorithm)
       {
+        case (CompressionAlgorithms.zstd_stream):
+          decompressedData = DecompressUsingZstdStream(input, length);
+          break;
         case (CompressionAlgorithms.lz4_message):
           decompressedData = DecompressUsingLz4Message(input, length);
           break;
@@ -357,6 +393,29 @@ namespace MySqlX.Communication
     }
 
     /// <summary>
+    /// Decompresses data using the zstd_stream compression algorithm.
+    /// </summary>
+    /// <param name="input">The data to decompress.</param>
+    /// <param name="length">The expected length of the decompressed data.</param>
+    /// <returns>A decompressed byte array.</returns>
+    private byte[] DecompressUsingZstdStream(byte[] input, int length)
+    {
+      _buffer.Write(input, 0, input.Length);
+      _buffer.Position -= input.Length;
+
+      byte[] decompressedData;
+      using (var target = new MemoryStream())
+      {
+        _zstdDecompressStream.CopyTo(target, length);
+        decompressedData = target.ToArray();
+        target.Dispose();
+        _buffer.SetLength(0);
+      }
+
+      return decompressedData;
+    }
+
+    /// <summary>
     /// Closes and disposes of any open streams.
     /// </summary>
     internal void Close()
@@ -364,6 +423,7 @@ namespace MySqlX.Communication
       _deflateCompressStream?.Dispose();
       _deflateDecompressStream?.Dispose();
       _multipleMessagesStream?.Dispose();
+      _zstdDecompressStream?.Dispose();
     }
 
     /// <summary>
