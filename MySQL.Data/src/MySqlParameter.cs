@@ -310,9 +310,7 @@ namespace MySql.Data.MySqlClient
         Scale = this.Scale,
         Size = this.Size,
         IsNullable = this.IsNullable,
-        DbType = this.DbType,
         Encoding = this.Encoding,
-        _inferType = _inferType
       };
 
       // if we have not had our type set yet then our clone should not either

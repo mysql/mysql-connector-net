@@ -2,6 +2,7 @@
 - Removed GetSchema code that used direct access to mysql.proc table (WL15643)
 - Removed code that used SHOW CREATE PROCEDURE to enumerator procedure parameters (WL #15644)
 - Removed 'PROCEDURES WITH PARAMETERS' schema collection (WL15654)
+- Fixed bug where the MySqlDbType was not preserved on a clone (Oracle Bug #34993796)
 
 8.0.33
 - Added support for OCI ephemeral key-based authentication (WL15489).

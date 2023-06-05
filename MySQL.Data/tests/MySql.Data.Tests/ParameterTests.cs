@@ -242,6 +242,19 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
+    /// Bug #34993796  	MySqlParameter.Clone loses specific MySqlDbType
+    /// </summary>
+    [Test]
+    public void ParameterClone2()
+    {
+      var param = new MySqlParameter("@param", MySqlDbType.MediumText);
+      var clone = param.Clone();
+      Assert.AreEqual(MySqlDbType.MediumText, param.MySqlDbType); // Prints "MediumText"
+      Assert.AreEqual(MySqlDbType.MediumText, clone.MySqlDbType); // Prints "VarChar"
+    }
+
+
+    /// <summary>
     /// Bug #28777779  	MySqlParameter.Clone doesn't clone all properties
     /// </summary>
     [Test]
