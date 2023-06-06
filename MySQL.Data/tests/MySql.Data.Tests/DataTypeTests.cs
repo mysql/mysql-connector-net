@@ -388,21 +388,22 @@ namespace MySql.Data.MySqlClient.Tests
     /// <summary>
     /// Bug #29959095 incorrect integer value using prepared statement with MySqlDbType.INT24
     /// </summary>
-    [TestCase(true)]
-    [TestCase(false)]
-    public void UsingInt24InPreparedStatement(bool prepare)
+    [TestCase(true, 1234567)]
+    [TestCase(false, 1234567)]
+    [TestCase(true, -1)]
+    public void UsingInt24InPreparedStatement(bool prepare, int value)
     {
-      void insertInt24()
-      {
         ExecuteSQL("CREATE TABLE Test(data MEDIUMINT)");
         using (var command = new MySqlCommand(@"INSERT INTO Test(data) VALUES(@data);", Connection))
         {
-          command.Parameters.AddWithValue("@data", 1234567).MySqlDbType = MySqlDbType.Int24;
+          command.Parameters.AddWithValue("@data", value).MySqlDbType = MySqlDbType.Int24;
           if (prepare) command.Prepare();
-          command.ExecuteNonQuery();
+          var rowsAffected = command.ExecuteNonQuery();
+          Assert.AreEqual(1, rowsAffected);
+          command.CommandText = "SELECT data FROM Test";
+          var data = command.ExecuteScalar();
+          Assert.AreEqual(value, data);
         }
-      }
-      Assert.DoesNotThrow(insertInt24);
     }
 
     [TestCase(true)]

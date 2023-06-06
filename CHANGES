@@ -3,6 +3,7 @@
 - Removed code that used SHOW CREATE PROCEDURE to enumerator procedure parameters (WL #15644)
 - Removed 'PROCEDURES WITH PARAMETERS' schema collection (WL15654)
 - Fixed bug where the MySqlDbType was not preserved on a clone (Oracle Bug #34993796)
+- Fixed bug can't insert negative number using prepared statement with MySqlDbType.Int24 (Oracle Bug #34694519)
 
 8.0.33
 - Added support for OCI ephemeral key-based authentication (WL15489).
