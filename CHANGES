@@ -5,6 +5,7 @@
 - Fixed bug where the MySqlDbType was not preserved on a clone (Oracle Bug #34993796)
 - Fixed bug can't insert negative number using prepared statement with MySqlDbType.Int24 (Oracle Bug #34694519)
 - Re-enable Zstandard compression in X DevAPI [WL15708]
+- Remove support for .NET Core and EF Core 3.1 and 5.0 [WL15797]
 
 8.0.33
 - Added support for OCI ephemeral key-based authentication (WL15489).
