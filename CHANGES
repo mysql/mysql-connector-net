@@ -8,7 +8,7 @@
 - Remove support for .NET Core and EF Core 3.1 and 5.0 [WL15797]
 - Updated non signed libraries (Oracle Bug #35052869)
 - Added missing dll to installer (Oracle Bug #35360846)
-
+- Added support for OpenTelemetry tracing (WL15707)
 
 8.0.33
 - Added support for OCI ephemeral key-based authentication (WL15489).

@@ -34,6 +34,7 @@ using System;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Security;
 using System.Security.Permissions;
 using System.Threading;
@@ -78,6 +79,9 @@ namespace MySql.Data.MySqlClient
     private bool _isKillQueryConnection;
     private string _database;
     private int _commandTimeout;
+  #if NET5_0_OR_GREATER
+    Activity? currentActivity;
+  #endif
 
     /// <summary>
     /// Occurs when FIDO authentication requests to perform gesture action on a device.
@@ -578,7 +582,7 @@ namespace MySql.Data.MySqlClient
     ///    Otherwise, it establishes a new connection to an instance of MySQL.
     ///  </para>
     /// </remarks>
-    public override void Open() => OpenAsync(false, CancellationToken.None).GetAwaiter().GetResult();
+    public override void Open() =>  OpenAsync(false, CancellationToken.None).GetAwaiter().GetResult();
 
     public override Task OpenAsync(CancellationToken cancellationToken) => OpenAsync(true, cancellationToken);
 
@@ -646,7 +650,9 @@ namespace MySql.Data.MySqlClient
             string connectionString = await FailoverManager.AttemptConnectionAsync(this, Settings.ConnectionString, execAsync, cancellationToken, true);
             currentSettings.ConnectionString = connectionString;
           }
-
+#if NET5_0_OR_GREATER              
+          currentActivity = MySQLActivitySource.OpenPooledConnection(currentSettings);
+#endif
           MySqlPool pool = await MySqlPoolManager.GetPoolAsync(currentSettings, execAsync, cancellationToken).ConfigureAwait(false);
           if (driver == null || !driver.IsOpen)
             driver = await pool.GetConnectionAsync(execAsync, cancellationToken).ConfigureAwait(false);
@@ -654,14 +660,22 @@ namespace MySql.Data.MySqlClient
         }
         else
         {
-          if (driver == null || !driver.IsOpen)
-            driver = await Driver.CreateAsync(currentSettings, execAsync, cancellationToken).ConfigureAwait(false);
+            if (driver == null || !driver.IsOpen)
+            {
+#if NET5_0_OR_GREATER              
+                currentActivity = MySQLActivitySource.OpenConnection(currentSettings);
+#endif
+                driver = await Driver.CreateAsync(currentSettings, execAsync, cancellationToken).ConfigureAwait(false);
+            }
 
-          ProcedureCache = new ProcedureCache((int)Settings.ProcedureCacheSize);
+            ProcedureCache = new ProcedureCache((int)Settings.ProcedureCacheSize);
         }
       }
-      catch (Exception)
+      catch (Exception ex)
       {
+#if NET5_0_OR_GREATER              
+        MySQLActivitySource.SetException(currentActivity, ex);
+#endif
         SetState(ConnectionState.Closed, true);
         throw;
       }
@@ -782,6 +796,10 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     internal async Task CloseAsync(bool execAsync)
     {
+#if NET5_0_OR_GREATER              
+      MySQLActivitySource.CloseConnection(currentActivity);
+#endif
+
       if (driver != null)
         driver.IsPasswordExpired = false;
 

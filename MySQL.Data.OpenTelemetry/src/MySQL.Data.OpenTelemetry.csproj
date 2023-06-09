@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>MySql.Data.OpenTelemetry</Description>
+    <Copyright>Copyright (c) 2023, Oracle and/or its affiliates.</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Version>8.1.0</Version>
+    <Authors>Oracle</Authors>  
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>MySql.Data.OpenTelemetry</AssemblyName>
+    <PackageId>MySql.Data.OpenTelemetry</PackageId>
+    <PackageTags>MySql;.NET Connector;MySql Connector/NET;ado;ado.net;database;sql;opentelemetry;tracing;diagnostics;instrumentation</PackageTags>
+    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
+    <PackageProjectUrl>https://dev.mysql.com/downloads/</PackageProjectUrl>
+    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>    
+    <SignAssembly>True</SignAssembly>
+    <DelaySign>True</DelaySign>
+    <AssemblyOriginatorKeyFile>..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>MySql.Data.OpenTelemetry</Title>    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry.API" Version="1.4.0" />
+  </ItemGroup>
+</Project>

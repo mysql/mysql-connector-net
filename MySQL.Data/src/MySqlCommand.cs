@@ -76,6 +76,9 @@ namespace MySql.Data.MySqlClient
     private static List<string> keywords = null;
     private bool disposed = false;
     internal const string ParameterPrefix = "_cnet_param_";
+#if NET5_0_OR_GREATER
+    Activity? CurrentActivity;
+#endif
 
     /// <summary>
     /// Initializes a new instance of the MySqlCommand class.
@@ -553,7 +556,10 @@ namespace MySql.Data.MySqlClient
 
     internal async Task CloseAsync(MySqlDataReader reader, bool execAsync)
     {
-      statement?.Close(reader);
+#if NET5_0_OR_GREATER
+      MySQLActivitySource.CommandStop(CurrentActivity);
+      CurrentActivity = null;
+#endif
       await ResetSqlSelectLimitAsync(execAsync).ConfigureAwait(false);
 
       if (statement != null && connection?.driver != null)
@@ -739,6 +745,11 @@ namespace MySql.Data.MySqlClient
       // command behaviors
       await HandleCommandBehaviorsAsync(execAsync, behavior).ConfigureAwait(false);
 
+
+      // Tell whoever is listening that we have started out command
+#if NET5_0_OR_GREATER
+      CurrentActivity = MySQLActivitySource.CommandStart(this);
+#endif
       try
       {
         MySqlDataReader reader = new MySqlDataReader(this, statement, behavior);
@@ -751,47 +762,57 @@ namespace MySql.Data.MySqlClient
         success = true;
         return reader;
       }
-      catch (TimeoutException tex)
+      catch (Exception ex)
       {
-        await connection.HandleTimeoutOrThreadAbortAsync(tex, execAsync).ConfigureAwait(false);
-        throw; //unreached
-      }
-      catch (ThreadAbortException taex)
-      {
-        await connection.HandleTimeoutOrThreadAbortAsync(taex, execAsync).ConfigureAwait(false);
-        throw;
-      }
-      catch (IOException ioex)
-      {
-        await connection.AbortAsync(execAsync).ConfigureAwait(false); // Closes connection without returning it to the pool
-        throw new MySqlException(Resources.FatalErrorDuringExecute, ioex);
-      }
-      catch (MySqlException ex)
-      {
-
-        if (ex.InnerException is TimeoutException)
-          throw; // already handled
-
-        try
+#if NET5_0_OR_GREATER
+        MySQLActivitySource.SetException(CurrentActivity, ex);
+#endif    
+        if (ex is TimeoutException) 
         {
-          await ResetReaderAsync(execAsync).ConfigureAwait(false);
-          await ResetSqlSelectLimitAsync(execAsync).ConfigureAwait(false);
-        }
-        catch (Exception)
+          await connection.HandleTimeoutOrThreadAbortAsync(ex, execAsync).ConfigureAwait(false);
+          throw; //unreached
+        } 
+        else if (ex is ThreadAbortException)
         {
-          // Reset SqlLimit did not work, connection is hosed.
-          await Connection.AbortAsync(execAsync).ConfigureAwait(false);
-          throw new MySqlException(ex.Message, true, ex);
-        }
-
-        // if we caught an exception because of a cancel, then just return null
-        if (ex.IsQueryAborted)
-          return null;
-        if (ex.IsFatal)
-          await Connection.CloseAsync(execAsync).ConfigureAwait(false);
-        if (ex.Number == 0)
+          await connection.HandleTimeoutOrThreadAbortAsync(ex, execAsync).ConfigureAwait(false);
+          throw;
+        } 
+        else if (ex is IOException)
+        {
+          await connection.AbortAsync(execAsync).ConfigureAwait(false); // Closes connection without returning it to the pool
           throw new MySqlException(Resources.FatalErrorDuringExecute, ex);
-        throw;
+        } 
+        else if (ex is MySqlException)
+        {
+          MySqlException mySqlException = ex as MySqlException;
+          if (mySqlException.InnerException is TimeoutException)
+            throw; // already handled
+
+          try
+          {
+            await ResetReaderAsync(execAsync).ConfigureAwait(false);
+            await ResetSqlSelectLimitAsync(execAsync).ConfigureAwait(false);
+          }
+          catch (Exception)
+          {
+            // Reset SqlLimit did not work, connection is hosed.
+            await Connection.AbortAsync(execAsync).ConfigureAwait(false);
+            throw new MySqlException(ex.Message, true, ex);
+          }
+
+          // if we caught an exception because of a cancel, then just return null
+          if (mySqlException.IsQueryAborted)
+            return null;
+          if (mySqlException.IsFatal)
+            await Connection.CloseAsync(execAsync).ConfigureAwait(false);
+          if (mySqlException.Number == 0)
+            throw new MySqlException(Resources.FatalErrorDuringExecute, mySqlException);
+          throw;
+        }
+        else
+        {
+          throw;
+        }
       }
       finally
       {
@@ -956,9 +977,9 @@ namespace MySql.Data.MySqlClient
       return clone;
     }
 
-    #endregion
+#endregion
 
-    #region Async Methods
+#region Async Methods
     private IAsyncResult asyncResult;
 
     internal delegate object AsyncDelegate(int type, CommandBehavior behavior);
@@ -1096,15 +1117,15 @@ namespace MySql.Data.MySqlClient
         throw thrownException;
       return (int)c.EndInvoke(asyncResult);
     }
-    #endregion
+#endregion
 
-    #region Private Methods
+#region Private Methods
 
     internal long EstimatedSize() => CommandText.Length + Parameters.Cast<MySqlParameter>().Sum(parameter => parameter.EstimatedSize());
 
-    #endregion
+#endregion
 
-    #region Batching support
+#region Batching support
 
     internal void AddToBatch(MySqlCommand command)
     {
@@ -1171,7 +1192,7 @@ namespace MySql.Data.MySqlClient
       return BatchableCommandText;
     }
 
-    #endregion
+#endregion
 
     // This method is used to throw all exceptions from this class. 
     private void Throw(Exception ex)
