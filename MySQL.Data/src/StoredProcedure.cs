@@ -177,7 +177,7 @@ namespace MySql.Data.MySqlClient
       string datatype = (string)param["DATA_TYPE"];
       bool unsigned = GetFlags(param["DTD_IDENTIFIER"].ToString()).IndexOf("UNSIGNED") != -1;
 
-      if (param["ORDINAL_POSITION"].Equals(0))
+      if (param["ORDINAL_POSITION"].Equals(UInt64.MinValue))
       {
         if (returnParameter == null)
           throw new InvalidOperationException(

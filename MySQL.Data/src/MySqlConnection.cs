@@ -735,7 +735,7 @@ namespace MySql.Data.MySqlClient
           }
         }
 
-        await driver.CloseAsync(execAsync).ConfigureAwait(false);
+        //await driver.CloseAsync(execAsync).ConfigureAwait(false);
       }
       catch (Exception ex)
       {
@@ -744,6 +744,7 @@ namespace MySql.Data.MySqlClient
       finally
       {
         this.IsInUse = false;
+        await driver.CloseAsync(execAsync).ConfigureAwait(false);
       }
       SetState(ConnectionState.Closed, true);
     }

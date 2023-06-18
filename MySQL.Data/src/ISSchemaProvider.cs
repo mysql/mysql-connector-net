@@ -245,12 +245,7 @@ namespace MySql.Data.MySqlClient
 
       if (routines == null || routines.Rows.Count == 0)
       {
-        if (restrictions == null)
-        {
-          parms = await QueryCollectionAsync("parameters", "SELECT * FROM INFORMATION_SCHEMA.PARAMETERS WHERE 1=2", execAsync, cancellationToken).ConfigureAwait(false);
-        }
-        else
-          parms = await GetParametersForRoutineFromexecAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
+        parms = await GetParametersForRoutineFromexecAsync(restrictions, execAsync, cancellationToken).ConfigureAwait(false);
       }
       else foreach (MySqlSchemaRow routine in routines.Rows)
         {

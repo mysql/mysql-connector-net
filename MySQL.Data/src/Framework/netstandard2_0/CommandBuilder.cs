@@ -200,11 +200,11 @@ namespace MySql.Data.MySqlClient
           bool real_as_float = entry.procedure.Rows[0]["SQL_MODE"].ToString().IndexOf("REAL_AS_FLOAT") != -1;
           p.MySqlDbType = MetaData.NameToType(row["DATA_TYPE"].ToString(),
             unsigned, real_as_float, command.Connection);
-          if (row["CHARACTER_MAXIMUM_LENGTH"] != null)
-            p.Size = (int)row["CHARACTER_MAXIMUM_LENGTH"];
-          if (row["NUMERIC_PRECISION"] != null)
+          if (row["CHARACTER_MAXIMUM_LENGTH"] != null && row["CHARACTER_MAXIMUM_LENGTH"] != System.DBNull.Value)
+            p.Size = Convert.ToInt32(row["CHARACTER_MAXIMUM_LENGTH"]);
+          if (row["NUMERIC_PRECISION"] != null && row["NUMERIC_PRECISION"] != System.DBNull.Value)
             p.Precision = Convert.ToByte(row["NUMERIC_PRECISION"]);
-          if (row["NUMERIC_SCALE"] != null)
+          if (row["NUMERIC_SCALE"] != null && row["NUMERIC_SCALE"] != System.DBNull.Value)
             p.Scale = Convert.ToByte(row["NUMERIC_SCALE"]);
           if (p.MySqlDbType == MySqlDbType.Set || p.MySqlDbType == MySqlDbType.Enum)
             p.PossibleValues = GetPossibleValues(row);

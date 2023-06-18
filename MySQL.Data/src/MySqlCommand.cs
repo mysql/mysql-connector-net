@@ -560,6 +560,7 @@ namespace MySql.Data.MySqlClient
       MySQLActivitySource.CommandStop(CurrentActivity);
       CurrentActivity = null;
 #endif
+      statement?.Close(reader);
       await ResetSqlSelectLimitAsync(execAsync).ConfigureAwait(false);
 
       if (statement != null && connection?.driver != null)

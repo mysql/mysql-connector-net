@@ -88,7 +88,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void ProcedureParameters2()
     {
       ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
-      ExecuteSQL(@"CREATE PROCEDURE spTest(`/*id*/` /* before type 1 */ varchar(20), 
+      ExecuteSQL(@"CREATE PROCEDURE spTest(`/*id*/` /* before type 1 */ varchar(20) character set latin1, 
            /* after type 1 */ OUT result2 DECIMAL(/*size1*/10,/*size2*/2) /* p2 */) 
            BEGIN SELECT action, result; END");
 
@@ -121,21 +121,21 @@ namespace MySql.Data.MySqlClient.Tests
     public void ProcedureParameters3()
     {
       ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
-      ExecuteSQL(@"CREATE  PROCEDURE spTest (_ACTION varchar(20),
+      ExecuteSQL(@"CREATE  PROCEDURE spTest (_ACTION varchar(20) character set latin1,
           `/*dumb-identifier-1*/` int, `#dumb-identifier-2` int,
           `--dumb-identifier-3` int, 
           _CLIENT_ID int, -- ABC
           _LOGIN_ID  int, # DEF
-          _WHERE varchar(2000), 
-          _SORT varchar(2000),
-          out _SQL varchar(/* inline right here - oh my gosh! */ 8000),
+          _WHERE varchar(2000) character set latin1, 
+          _SORT varchar(2000) character set utf8mb4,
+          out _SQL varchar(/* inline right here - oh my gosh! */ 8000) character set latin1,
           _SONG_ID int,
-          _NOTES varchar(2000),
-          out _RESULT varchar(10)
+          _NOTES varchar(2000) character set latin1,
+          out _RESULT varchar(10) character set latin1
           /*
           ,    -- Generic result parameter
           out _PERIOD_ID int,         -- Returns the period_id. Useful when using @PREDEFLINK to return which is the last period
-          _SONGS_LIST varchar(8000),
+          _SONGS_LIST varchar(8000) character set latin1,
           _COMPOSERID int,
           _PUBLISHERID int,
           _PREDEFLINK int        -- If the user is accessing through a predefined link: 0=none  1=last period
@@ -204,7 +204,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(8, dt.Rows[7]["ORDINAL_POSITION"]);
       Assert.AreEqual("IN", dt.Rows[7]["PARAMETER_MODE"]);
       Assert.AreEqual("VARCHAR", dt.Rows[7]["DATA_TYPE"].ToString().ToUpper());
-      Assert.AreEqual(2000, dt.Rows[7]["CHARACTER_OCTET_LENGTH"]);
+      Assert.AreEqual(8000, dt.Rows[7]["CHARACTER_OCTET_LENGTH"]);
 
       Assert.AreEqual(Connection.Database.ToLower(), dt.Rows[8]["SPECIFIC_SCHEMA"].ToString().ToLower());
       Assert.AreEqual("sptest", dt.Rows[8]["SPECIFIC_NAME"].ToString().ToLower());
