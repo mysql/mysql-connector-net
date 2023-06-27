@@ -22,6 +22,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenTelemetry.API" Version="1.4.0" />
+    <Reference Include="OpenTelemetry.Api">
+      <HintPath>..\..\Dependencies\OpenTelemetry.Api\OpenTelemetry.Api.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>
