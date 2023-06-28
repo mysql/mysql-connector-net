@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2011, 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2011, 2023 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -89,12 +89,12 @@ namespace MySql.Data.EntityFramework.Tests
         DataTable schema = Connection.GetSchema("COLUMNS", new string[] { null, Connection.Database, "widgets" });
 
         DataRow row = schema.Rows[3];
-        Assert.AreEqual("datetime", row.Field<string>("DATA_TYPE"));
-        Assert.AreEqual("NO", row.Field<string>("IS_NULLABLE"));
+        Assert.AreEqual("datetime", (string)row["DATA_TYPE"]);
+        Assert.AreEqual("NO", (string)row["IS_NULLABLE"]);
         if (Version < new Version(8, 0))
-          Assert.AreEqual((uint)6, row.Field<UInt64>("DATETIME_PRECISION"));
+          Assert.AreEqual((uint)6, (UInt64)row["DATETIME_PRECISION"]);
         else
-          Assert.AreEqual((uint)6, row.Field<UInt32>("DATETIME_PRECISION"));
+          Assert.AreEqual((uint)6, (UInt32)row["DATETIME_PRECISION"]);
       }
     }
   }

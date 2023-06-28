@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2020 Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2023 Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,13 +26,16 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using MySql.Data.EntityFramework.Properties;
 using MySql.Data.EntityFramework.Tests;
 using NUnit.Framework;
 using System;
 using System.Configuration;
 using System.Data;
 using System.Data.Entity.Migrations;
+using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace MySql.Data.EntityFramework.Migrations.Tests
 {
@@ -46,8 +49,8 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
     [OneTimeSetUp]
     public new void OneTimeSetup()
     {
-      ConnectionStringBlogContext = $"{ConfigurationManager.ConnectionStrings["BlogsContext"].ConnectionString}port={Port}";
-
+      ConnectionStringBlogContext = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? MySql.EntityFramework.Migrations.Tests.Properties.Resources.ConnStringMacOS : MySql.EntityFramework.Migrations.Tests.Properties.Resources.ConnString;
+      
       configuration = new Configuration();
       DataSet dataSet = ConfigurationManager.GetSection("system.data") as System.Data.DataSet;
       if (dataSet != null)

@@ -1,4 +1,4 @@
-// Copyright (c) 2004, 2022, Oracle and/or its affiliates.
+// Copyright (c) 2004, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -177,11 +177,10 @@ namespace MySql.Data.MySqlClient
       string datatype = (string)param["DATA_TYPE"];
       bool unsigned = GetFlags(param["DTD_IDENTIFIER"].ToString()).IndexOf("UNSIGNED") != -1;
 
-      if (param["ORDINAL_POSITION"].Equals(UInt64.MinValue))
+      if (Convert.ToUInt64(param["ORDINAL_POSITION"]) == 0)
       {
         if (returnParameter == null)
-          throw new InvalidOperationException(
-              String.Format(Resources.RoutineRequiresReturnParameter, spName));
+          throw new InvalidOperationException(String.Format(Resources.RoutineRequiresReturnParameter, spName));
         pName = returnParameter.ParameterName;
       }
 

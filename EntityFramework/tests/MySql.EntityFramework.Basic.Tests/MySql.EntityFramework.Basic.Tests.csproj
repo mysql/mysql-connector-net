@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.Data.EntityFramework.CodeFirTests</Description>
@@ -6,7 +6,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>8.1.0</Version>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>net462</TargetFrameworks>
+    <TargetFrameworks>net7.0</TargetFrameworks>
     <AssemblyName>MySql.EntityFramework.Basic.Tests</AssemblyName>
     <PackageId>MySql.EntityFramework.Basic.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET</PackageTags>
