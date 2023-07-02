@@ -136,23 +136,120 @@ namespace MySql.Data.MySqlClient
 
     public static async Task<MySqlPool> GetPoolAsync(MySqlConnectionStringBuilder settings, bool execAsync, CancellationToken cancellationToken)
     {
-      string text = GetKey(settings);
+      var poolKey = GetKey(settings);
 
-      SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
-      semaphoreSlim.Wait(CancellationToken.None);
-      MySqlPool pool;
-      Pools.TryGetValue(text, out pool);
-
-      if (pool == null)
+      if (Pools.TryGetValue(poolKey, out var pool) == false)
       {
-        pool = await MySqlPool.CreateMySqlPoolAsync(settings, execAsync, cancellationToken).ConfigureAwait(false);
-        Pools.Add(text, pool);
-      }
-      else
-        pool.Settings = settings;
+        var poolFactory = PoolFactory.GetFactory(settings);
 
-      semaphoreSlim.Release();
+        return await poolFactory.GetMySqlPoolAsync(settings, cancellationToken);
+      }
+
       return pool;
+    }
+
+    private class PoolFactory
+    {
+      private readonly MySqlConnectionStringBuilder settings;
+      private readonly string poolKey;
+
+      readonly SemaphoreSlim tryStartCreatingPoolSemaphore = new SemaphoreSlim(1);
+      readonly ConcurrentQueue<TaskCompletionSource<MySqlPool>> poolAwaiters = new ConcurrentQueue<TaskCompletionSource<MySqlPool>>();
+
+      public PoolFactory(MySqlConnectionStringBuilder settings, string poolKey)
+      {
+        this.settings = settings;
+        this.poolKey = poolKey;
+      }
+
+      static readonly ConcurrentDictionary<string, PoolFactory> Factories = new();
+
+      public static PoolFactory GetFactory(MySqlConnectionStringBuilder settings)
+      {
+        var poolKey = GetKey(settings);
+
+      GET_FACTORY:
+        if (Factories.TryGetValue(poolKey, out var factory) == false)
+        {
+          if (Factories.TryAdd(poolKey, factory = new PoolFactory(settings, poolKey)) == false)
+          {
+            goto GET_FACTORY;
+          }
+        }
+
+        return factory;
+      }
+
+      public async Task<MySqlPool> GetMySqlPoolAsync(MySqlConnectionStringBuilder settings, CancellationToken cancellationToken)
+      {
+        TaskCompletionSource<MySqlPool> poolTaskCompletionSource = new TaskCompletionSource<MySqlPool>();
+
+        if (Pools.TryGetValue(poolKey, out var pool) == false)
+        {
+          poolAwaiters.Enqueue(poolTaskCompletionSource);
+
+          _ = TryStartCreatingPoolAsync();
+
+          pool = await poolTaskCompletionSource.Task;
+
+          pool.Settings = settings;
+
+          return pool;
+        }
+
+        return pool;
+      }
+
+      public async Task TryStartCreatingPoolAsync()
+      {
+        MySqlPool pool;
+
+        if (tryStartCreatingPoolSemaphore.Wait(0) == false)
+        {
+          return;
+        }
+
+        try
+        {
+
+          if (Pools.TryGetValue(poolKey, out pool) == false)
+          {
+            pool = await MySqlPool.CreateMySqlPoolAsync(settings, true, default).ConfigureAwait(false);
+
+            Pools.Add(poolKey, pool);
+          }
+
+          DispatchPoolAwaiters(pool);
+        }
+        finally
+        {
+          tryStartCreatingPoolSemaphore.Release();
+        }
+
+        if (tryStartCreatingPoolSemaphore.Wait(0) == false)
+        {
+          return;
+        }
+
+        try
+        {
+          DispatchPoolAwaiters(pool);
+
+          Factories.TryRemove(poolKey, out _);
+        }
+        finally
+        {
+          tryStartCreatingPoolSemaphore.Release();
+        }
+      }
+
+      private void DispatchPoolAwaiters(MySqlPool pool)
+      {
+        while (poolAwaiters.TryDequeue(out var poolAwaiter))
+        {
+          poolAwaiter.SetResult(pool);
+        }
+      }
     }
 
     public static void RemoveConnection(Driver driver)
