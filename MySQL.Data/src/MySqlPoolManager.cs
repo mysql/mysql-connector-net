@@ -191,11 +191,9 @@ namespace MySql.Data.MySqlClient
           _ = TryStartCreatingPoolAsync();
 
           pool = await poolTaskCompletionSource.Task;
-
-          pool.Settings = settings;
-
-          return pool;
         }
+
+        pool.Settings = settings;
 
         return pool;
       }
