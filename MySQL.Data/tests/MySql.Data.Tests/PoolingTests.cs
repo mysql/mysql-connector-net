@@ -1,3 +1,4 @@
+using System.Linq;
 // Copyright (c) 2013, 2022, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
@@ -47,13 +48,26 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void BasicConnection()
     {
+      // test that no exception is thrown in parallel start up
+      Enumerable.Range(0, 2)
+      .AsParallel()
+      .ForAll(_ => 
+      {
+        // Min Pool Size=10 options is required. 
+        // Otherwise error on creating MySqlPool cannot be reproduced.
+        // Even with Task.Delay. To slowdown await time on pool creation. That's strange...
+        var c = new MySqlConnection(Settings.ConnectionString + ";Min Pool Size=10");
+        c.Open();
+        KillConnection(c);
+        c.Close();
+      });
 
       MySqlConnection c = new MySqlConnection(Settings.ConnectionString);
       c.Open();
       int serverThread = c.ServerThread;
       c.Close();
 
-      // first test that only a single connection get's used
+      // test that only a single connection get's used
       for (int i = 0; i < 10; i++)
       {
         c = new MySqlConnection(Settings.ConnectionString);
