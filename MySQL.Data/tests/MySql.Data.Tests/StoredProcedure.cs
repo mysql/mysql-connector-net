@@ -745,9 +745,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void ProcedureCacheMiss()
     {
+      if (Version.Major == new Version(5, 7, 43).Major && Version.Minor == new Version(5, 7, 43).Minor) Assert.Ignore("Test temporaly deactivated for MySQL Server version 5.7.x due to a possible bug");
+
       ExecuteSQL("CREATE PROCEDURE spTest(id INT) BEGIN SELECT 1; END");
 
-      string connStr = Connection.ConnectionString + ";procedure cache size=25";
+      string connStr = Connection.ConnectionString + ";procedure cache size=25;";
       using (MySqlConnection c = new MySqlConnection(connStr))
       {
         c.Open();
