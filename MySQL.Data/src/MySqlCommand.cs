@@ -68,6 +68,7 @@ namespace MySql.Data.MySqlClient
   {
     MySqlConnection connection;
     string cmdText;
+    string originalcmdText;
     private PreparableStatement statement;
     private int commandTimeout;
     private bool resetSqlSelect;
@@ -104,6 +105,7 @@ namespace MySql.Data.MySqlClient
       : this()
     {
       CommandText = cmdText;
+      OriginalCommandText = cmdText;
     }
 
     /// <summary>
@@ -175,6 +177,15 @@ namespace MySql.Data.MySqlClient
           cmdText = cmdText.Substring(0, cmdText.Length - 14);
           cmdText = cmdText + "() VALUES ()";
         }
+      }
+    }
+
+    internal string OriginalCommandText
+    {
+      get { return originalcmdText; }
+      set
+      {
+        originalcmdText = value;
       }
     }
 

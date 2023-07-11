@@ -79,9 +79,11 @@ namespace MySql.Data.MySqlClient
     private bool _isKillQueryConnection;
     private string _database;
     private int _commandTimeout;
-  #if NET5_0_OR_GREATER
+#if NET5_0_OR_GREATER
+#nullable enable
     Activity? currentActivity;
-  #endif
+#nullable disable
+#endif
 
     /// <summary>
     /// Occurs when FIDO authentication requests to perform gesture action on a device.
