@@ -6,7 +6,9 @@ MySQL provides connectivity for client applications developed in .NET compatible
 
 MySQL Connector/NET is a library compatible with .NET Framework and .NET Core, for specific versions see [MySQL Connector/NET Versions](https://dev.mysql.com/doc/connector-net/en/connector-net-versions.html). The driver is a pure C# implementation of the MySQL protocol and does not rely on the MySQL client library.
 
-From MySQL Connector/NET 8.0, the driver also containt an implementation of [MySQL X DevAPI](https://dev.mysql.com/doc/x-devapi-userguide/en/), an Application Programming Interface for working with [MySQL as a Document Store](https://dev.mysql.com/doc/refman/8.0/en/document-store.html) through CRUD-based, NoSQL operations.
+From MySQL Connector/NET 8.0, the driver also contains an implementation of [MySQL X DevAPI](https://dev.mysql.com/doc/x-devapi-userguide/en/), an Application Programming Interface for working with [MySQL as a Document Store](https://dev.mysql.com/doc/refman/8.0/en/document-store.html) through CRUD-based, NoSQL operations.
+
+From MySQL Connector/NET 8.1, the driver contains an implementation of [OpenTelemetry](https://dev.mysql.com/doc/connector-net/en/connector-net-programming-telemetry.html) which requires the use of the [MySql.Data.OpenTelemetry](https://www.nuget.org/profiles/MySQL/) Nuget package to enable the generation of telemetry data.
 
 For detailed information please visit the official [MySQL Connector/NET documentation.](https://dev.mysql.com/doc/connector-net/en/)
 

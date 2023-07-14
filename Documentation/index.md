@@ -1,6 +1,6 @@
 ## MySQL Connector/NET and X DevAPI
 
-MySQL Connector/NET 8.0 supports X Protocol, which enables you to use X DevAPI with the .NET language of choice to develop applications that communicate with a MySQL server functioning as a document store, relational database, or both.
+MySQL Connector/NET 8.1 supports X Protocol, which enables you to use X DevAPI with the .NET language of choice to develop applications that communicate with a MySQL server functioning as a document store, relational database, or both.
 
 To get started, review the following main classes:
 
@@ -16,7 +16,7 @@ For an introduction to X DevAPI concepts, see the [X DevAPI User Guide](https://
 
 ## MySQL Connector/NET
 
-MySQL Connector/NET 8.0 also supports the development of .NET, .NET Core and .NET Framework applications that require secure, high-performance data connectivity with MySQL through the classic protocol. It supports ADO.NET, Entity Framework and various web providers.
+MySQL Connector/NET 8.1 also supports the development of .NET, .NET Core and .NET Framework applications that require secure, high-performance data connectivity with MySQL through the classic protocol. It supports ADO.NET, Entity Framework and various web providers.
 
 To get started, review the following main classes:
 
