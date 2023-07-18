@@ -184,7 +184,7 @@ namespace MySql.Data.MySqlClient
 
       MySqlPool pool = driver.Pool;
 
-      await pool?.ReleaseConnectionAsync(driver, execAsync);
+      await pool?.ReleaseConnectionAsync(driver, execAsync).ConfigureAwait(false);
     }
 
     public static async Task ClearPoolAsync(MySqlConnectionStringBuilder settings, bool execAsync)

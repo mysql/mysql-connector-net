@@ -211,7 +211,7 @@ namespace MySql.Data.Common
 
       if (execAsync)
       {
-        await semaphoreSlim.WaitAsync(cancellationToken);
+        await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
       }
       else
       {

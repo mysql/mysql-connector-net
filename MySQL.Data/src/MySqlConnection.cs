@@ -643,7 +643,7 @@ namespace MySql.Data.MySqlClient
         }
         else if (FailoverManager.FailoverGroup != null && !Settings.Pooling)
         {
-          string connectionString = await FailoverManager.AttemptConnectionAsync(this, Settings.ConnectionString, execAsync, cancellationToken);
+          string connectionString = await FailoverManager.AttemptConnectionAsync(this, Settings.ConnectionString, execAsync, cancellationToken).ConfigureAwait(false);
           currentSettings.ConnectionString = connectionString;
         }
 
@@ -651,7 +651,7 @@ namespace MySql.Data.MySqlClient
         {
           if (FailoverManager.FailoverGroup != null)
           {
-            string connectionString = await FailoverManager.AttemptConnectionAsync(this, Settings.ConnectionString, execAsync, cancellationToken, true);
+            string connectionString = await FailoverManager.AttemptConnectionAsync(this, Settings.ConnectionString, execAsync, cancellationToken, true).ConfigureAwait(false);
             currentSettings.ConnectionString = connectionString;
           }
 

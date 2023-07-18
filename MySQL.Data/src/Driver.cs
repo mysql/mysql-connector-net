@@ -484,7 +484,7 @@ namespace MySql.Data.MySqlClient
 
     public async Task<Releaser> LockAsync()
     {
-      await semaphoreSlim.WaitAsync();
+      await semaphoreSlim.WaitAsync().ConfigureAwait(false);
       return new Releaser(semaphoreSlim);
     }
     

@@ -117,7 +117,7 @@ namespace MySql.Data.MySqlClient
 
     internal async Task SendPacketAsync(MySqlPacket p, bool execAsync)
     {
-      await stream.SendPacketAsync(p, execAsync);
+      await stream.SendPacketAsync(p, execAsync).ConfigureAwait(false);
     }
 
     internal async Task SendEmptyPacketAsync(bool execAsync)
@@ -421,7 +421,7 @@ namespace MySql.Data.MySqlClient
 
         authPlugin = await MySqlAuthenticationPlugin.GetPluginAsync(authMethod, this, encryptionSeed, execAsync).ConfigureAwait(false);
       }
-      await authPlugin.AuthenticateAsync(reset, execAsync);
+      await authPlugin.AuthenticateAsync(reset, execAsync).ConfigureAwait(false);
     }
 
     #endregion

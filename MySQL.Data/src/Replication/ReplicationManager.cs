@@ -150,7 +150,7 @@ namespace MySql.Data.MySqlClient.Replication
         if (!IsReplicationGroup(groupName)) return;
         if (execAsync)
         {
-          await semaphoreSlim.WaitAsync(cancellationToken);
+          await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
         }
         else
         {
