@@ -61,17 +61,7 @@ namespace MySql.Data.MySqlClient
       // prevent commands in main thread to run concurrently
       Driver driver = connection.driver;
 
-      Releaser releaser;
-      if (execAsync)
-      {
-        releaser = await driver.LockAsync().ConfigureAwait(false);
-      }
-      else
-      {
-        releaser = driver.Lock();
-      }
-      
-      using (releaser)
+      using (await driver.LockAsync(execAsync).ConfigureAwait(false))
       {
         rollbackThreadId = Thread.CurrentThread.ManagedThreadId;
         while (connection.Reader != null)

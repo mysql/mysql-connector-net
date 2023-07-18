@@ -534,17 +534,8 @@ namespace MySql.Data.MySqlClient
 
       // This semaphore prevents promotable transaction rollback to run
       // in parallel
-      Releaser releaser;
-      if (execAsync)
-      {
-        releaser = await driver.LockAsync().ConfigureAwait(false);
-      }
-      else
-      {
-        releaser = driver.Lock();
-      }
 
-      using (releaser)
+      using (await driver.LockAsync(execAsync, cancellationToken).ConfigureAwait(false))
       {
         // We use default command timeout for SetDatabase
         using (new CommandTimer(this, (int)Settings.DefaultCommandTimeout))

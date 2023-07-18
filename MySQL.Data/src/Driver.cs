@@ -482,18 +482,18 @@ namespace MySql.Data.MySqlClient
       await handler.ExecuteStatementAsync(packetToExecute, execAsync).ConfigureAwait(false);
     }
 
-    public async Task<Releaser> LockAsync()
+    public async Task<Releaser> LockAsync(bool execAsync = true, CancellationToken cancellationToken = default)
     {
-      await semaphoreSlim.WaitAsync().ConfigureAwait(false);
+      if (execAsync)
+      {
+        await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+      }
+      else
+      {
+        semaphoreSlim.Wait(cancellationToken);
+      }
       return new Releaser(semaphoreSlim);
     }
-    
-    public Releaser Lock()
-    {
-      semaphoreSlim.Wait();
-      return new Releaser(semaphoreSlim);
-    }
-
 
     public virtual async Task CloseStatementAsync(int id, bool execAsync)
     {

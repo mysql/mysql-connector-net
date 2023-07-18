@@ -684,17 +684,7 @@ namespace MySql.Data.MySqlClient
         await ReplicationManager.GetNewConnectionAsync(connection.Settings.Server, !IsReadOnlyCommand(sql), connection,
           execAsync, cancellationToken).ConfigureAwait(false);
 
-      Releaser releaser;
-      if (execAsync)
-      {
-        releaser = await driver.LockAsync().ConfigureAwait(false);
-      }
-      else
-      {
-        releaser = driver.Lock();
-      }
-      
-      using (releaser)
+      using (await driver.LockAsync(execAsync, cancellationToken).ConfigureAwait(false))
       {
         // We have to recheck that there is no reader, after we got the lock
         if (connection.Reader != null)
