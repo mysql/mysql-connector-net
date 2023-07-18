@@ -32,6 +32,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -60,32 +61,56 @@ namespace MySql.Data.MySqlClient
       // prevent commands in main thread to run concurrently
       Driver driver = connection.driver;
 
-      SemaphoreSlim semaphoreSlim = new(1);
-      semaphoreSlim.Wait();
-
-      rollbackThreadId = Thread.CurrentThread.ManagedThreadId;
-      while (connection.Reader != null)
+      Releaser releaser;
+      if (execAsync)
       {
-        // wait for reader to finish. Maybe we should not wait 
-        // forever and cancel it after some time?
-        System.Threading.Thread.Sleep(100);
+        releaser = await driver.LockAsync().ConfigureAwait(false);
       }
-      simpleTransaction.Rollback();
-      singlePhaseEnlistment.Aborted();
-      DriverTransactionManager.RemoveDriverInTransaction(baseTransaction);
+      else
+      {
+        releaser = driver.Lock();
+      }
+      
+      using (releaser)
+      {
+        rollbackThreadId = Thread.CurrentThread.ManagedThreadId;
+        while (connection.Reader != null)
+        {
+          // wait for reader to finish. Maybe we should not wait 
+          // forever and cancel it after some time?
+          System.Threading.Thread.Sleep(100);
+        }
 
-      driver.currentTransaction = null;
+        if (execAsync)
+        {
+          await simpleTransaction.RollbackAsync().ConfigureAwait(false);
+        }
+        else
+        {
+          simpleTransaction.Rollback();
+        }
 
-      if (connection.State == ConnectionState.Closed)
-        await connection.CloseFullyAsync(execAsync).ConfigureAwait(false);
-      rollbackThreadId = 0;
+        singlePhaseEnlistment.Aborted();
+        DriverTransactionManager.RemoveDriverInTransaction(baseTransaction);
 
-      semaphoreSlim.Release();
+        driver.currentTransaction = null;
+
+        if (connection.State == ConnectionState.Closed)
+          await connection.CloseFullyAsync(execAsync).ConfigureAwait(false);
+        rollbackThreadId = 0;
+      }
     }
 
     public async Task SinglePhaseCommitAsync(SinglePhaseEnlistment singlePhaseEnlistment, bool execAsync)
     {
-      simpleTransaction.Commit();
+      if (execAsync)
+      {
+        await simpleTransaction.CommitAsync().ConfigureAwait(false);
+      }
+      else
+      {
+        simpleTransaction.Commit();
+      }
       singlePhaseEnlistment.Committed();
       DriverTransactionManager.RemoveDriverInTransaction(baseTransaction);
       connection.driver.currentTransaction = null;

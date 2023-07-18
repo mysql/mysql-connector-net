@@ -48,6 +48,7 @@ namespace MySql.Data.MySqlClient
   {
     private static readonly Dictionary<string, MySqlPool> Pools = new Dictionary<string, MySqlPool>();
     private static readonly List<MySqlPool> ClearingPools = new List<MySqlPool>();
+    private static readonly SemaphoreSlim PoolsSemaphore = new SemaphoreSlim(1, 1);
     internal const int DEMOTED_TIMEOUT = 120000;
 
     #region Properties
@@ -138,21 +139,34 @@ namespace MySql.Data.MySqlClient
     {
       string text = GetKey(settings);
 
-      SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
-      semaphoreSlim.Wait(CancellationToken.None);
-      MySqlPool pool;
-      Pools.TryGetValue(text, out pool);
-
-      if (pool == null)
+      if (execAsync)
       {
-        pool = await MySqlPool.CreateMySqlPoolAsync(settings, execAsync, cancellationToken).ConfigureAwait(false);
-        Pools.Add(text, pool);
+        await PoolsSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
       }
       else
-        pool.Settings = settings;
+      {
+        PoolsSemaphore.Wait(cancellationToken);
+      }
 
-      semaphoreSlim.Release();
-      return pool;
+      try
+      {
+        MySqlPool pool;
+        Pools.TryGetValue(text, out pool);
+
+        if (pool == null)
+        {
+          pool = await MySqlPool.CreateMySqlPoolAsync(settings, execAsync, cancellationToken).ConfigureAwait(false);
+          Pools.Add(text, pool);
+        }
+        else
+          pool.Settings = settings;
+
+        return pool;
+      }
+      finally
+      {
+        PoolsSemaphore.Release();
+      }
     }
 
     public static void RemoveConnection(Driver driver)
@@ -193,39 +207,62 @@ namespace MySql.Data.MySqlClient
 
     private static async Task ClearPoolByTextAsync(string key, bool execAsync)
     {
-      SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
-      semaphoreSlim.Wait();
+      if (execAsync)
+      {
+        await PoolsSemaphore.WaitAsync().ConfigureAwait(false);
+      }
+      else
+      {
+        PoolsSemaphore.Wait();
+      }
 
-      // if pools doesn't have it, then this pool must already have been cleared
-      if (!Pools.ContainsKey(key)) return;
+      try
+      {
+        // if pools doesn't have it, then this pool must already have been cleared
+        if (!Pools.ContainsKey(key)) return;
 
-      // add the pool to our list of pools being cleared
-      MySqlPool pool = (Pools[key] as MySqlPool);
-      ClearingPools.Add(pool);
+        // add the pool to our list of pools being cleared
+        MySqlPool pool = (Pools[key] as MySqlPool);
+        ClearingPools.Add(pool);
 
-      // now tell the pool to clear itself
-      await pool.ClearAsync(execAsync).ConfigureAwait(false);
+        // now tell the pool to clear itself
+        await pool.ClearAsync(execAsync).ConfigureAwait(false);
 
-      // and then remove the pool from the active pools list
-      Pools.Remove(key);
-
-      semaphoreSlim.Release();
+        // and then remove the pool from the active pools list
+        Pools.Remove(key);
+      }
+      finally
+      {
+        PoolsSemaphore.Release();
+      }
     }
 
     public static async Task ClearAllPoolsAsync(bool execAsync)
     {
-      SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
-      semaphoreSlim.Wait();
+      if (execAsync)
+      {
+        await PoolsSemaphore.WaitAsync().ConfigureAwait(false);
+      }
+      else
+      {
+        PoolsSemaphore.Wait();
+      }
 
-      // Create separate keys list.
-      List<string> keys = new List<string>(Pools.Count);
-      keys.AddRange(Pools.Keys);
+      try
+      {
+        // Create separate keys list.
+        List<string> keys = new List<string>(Pools.Count);
+        keys.AddRange(Pools.Keys);
 
-      // Remove all pools by key.
-      foreach (string key in keys)
-        await ClearPoolByTextAsync(key, execAsync).ConfigureAwait(false);
+        // Remove all pools by key.
+        foreach (string key in keys)
+          await ClearPoolByTextAsync(key, execAsync).ConfigureAwait(false);
 
-      semaphoreSlim.Release();
+      }
+      finally
+      {
+        PoolsSemaphore.Release();
+      }
 
       if (DemotedServersTimer != null)
       {

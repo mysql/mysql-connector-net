@@ -54,6 +54,7 @@ namespace MySql.Data.MySqlClient
     protected IDriver handler;
     internal MySqlDataReader reader;
     private bool disposed;
+    private SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
 
     /// <summary>
     /// For pooled connections, time when the driver was
@@ -479,6 +480,18 @@ namespace MySql.Data.MySqlClient
     public virtual async Task ExecuteStatementAsync(MySqlPacket packetToExecute, bool execAsync)
     {
       await handler.ExecuteStatementAsync(packetToExecute, execAsync).ConfigureAwait(false);
+    }
+
+    public async Task<Releaser> LockAsync()
+    {
+      await semaphoreSlim.WaitAsync();
+      return new Releaser(semaphoreSlim);
+    }
+    
+    public Releaser Lock()
+    {
+      semaphoreSlim.Wait();
+      return new Releaser(semaphoreSlim);
     }
 
 

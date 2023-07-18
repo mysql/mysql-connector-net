@@ -41,7 +41,7 @@ namespace MySql.Data.MySqlClient.Replication
   internal static class ReplicationManager
   {
     private static List<ReplicationServerGroup> groups = new List<ReplicationServerGroup>();
-    private static Object thisLock = new Object();
+    private static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
     //private static Dictionary<string, ReplicationServerSelector> selectors = new Dictionary<string, ReplicationServerSelector>();
 
     static ReplicationManager()
@@ -147,55 +147,70 @@ namespace MySql.Data.MySqlClient.Replication
     {
       do
       {
-        SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
-        semaphoreSlim.Wait();
-
         if (!IsReplicationGroup(groupName)) return;
-
-        ReplicationServerGroup group = GetGroup(groupName);
-        ReplicationServer server = group.GetServer(source, connection.Settings);
-
-        if (server == null)
-          throw new MySqlException(Resources.Replication_NoAvailableServer);
+        if (execAsync)
+        {
+          await semaphoreSlim.WaitAsync(cancellationToken);
+        }
+        else
+        {
+          semaphoreSlim.Wait(cancellationToken);
+        }
 
         try
         {
-          bool isNewServer = false;
-          if (connection.driver == null || !connection.driver.IsOpen)
+          if (!IsReplicationGroup(groupName)) return;
+
+          ReplicationServerGroup group = GetGroup(groupName);
+          ReplicationServer server = group.GetServer(source, connection.Settings);
+
+          if (server == null)
+            throw new MySqlException(Resources.Replication_NoAvailableServer);
+
+          try
           {
-            isNewServer = true;
-          }
-          else
-          {
-            MySqlConnectionStringBuilder msb = new MySqlConnectionStringBuilder(server.ConnectionString);
-            if (!msb.Equals(connection.driver.Settings))
+            bool isNewServer = false;
+            if (connection.driver == null || !connection.driver.IsOpen)
             {
               isNewServer = true;
             }
+            else
+            {
+              MySqlConnectionStringBuilder msb = new MySqlConnectionStringBuilder(server.ConnectionString);
+              if (!msb.Equals(connection.driver.Settings))
+              {
+                isNewServer = true;
+              }
+            }
+
+            if (isNewServer)
+            {
+              Driver driver = await Driver.CreateAsync(new MySqlConnectionStringBuilder(server.ConnectionString),
+                execAsync, cancellationToken).ConfigureAwait(false);
+              connection.driver = driver;
+            }
+
+            return;
           }
-          if (isNewServer)
+          catch (MySqlException ex)
           {
-            Driver driver = await Driver.CreateAsync(new MySqlConnectionStringBuilder(server.ConnectionString), execAsync, cancellationToken).ConfigureAwait(false);
-            connection.driver = driver;
+            connection.driver = null;
+            server.IsAvailable = false;
+            MySqlTrace.LogError(ex.Number, ex.ToString());
+            if (ex.Number == 1042)
+            {
+              // retry to open a failed connection and update its status
+              group.HandleFailover(server, ex);
+            }
+            else
+              throw;
           }
-          return;
         }
-        catch (MySqlException ex)
+        finally
         {
-          connection.driver = null;
-          server.IsAvailable = false;
-          MySqlTrace.LogError(ex.Number, ex.ToString());
-          if (ex.Number == 1042)
-          {
-            // retry to open a failed connection and update its status
-            group.HandleFailover(server, ex);
-          }
-          else
-            throw;
+          semaphoreSlim.Release();
         }
-
-        semaphoreSlim.Release();
-
+        
       } while (true);
     }
   }

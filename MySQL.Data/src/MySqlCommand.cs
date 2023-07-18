@@ -658,12 +658,14 @@ namespace MySql.Data.MySqlClient
 
     protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken) => await ExecuteReaderAsync(behavior, true, cancellationToken).ConfigureAwait(false);
 
-    internal async Task<MySqlDataReader> ExecuteReaderAsync(CommandBehavior behavior, bool execAsync, CancellationToken cancellationToken = default)
+    internal async Task<MySqlDataReader> ExecuteReaderAsync(CommandBehavior behavior, bool execAsync,
+      CancellationToken cancellationToken = default)
     {
       // give our interceptors a shot at it first
       MySqlDataReader interceptedReader = null;
 
-      if (connection?.commandInterceptor != null && connection.commandInterceptor.ExecuteReader(CommandText, behavior, ref interceptedReader))
+      if (connection?.commandInterceptor != null &&
+          connection.commandInterceptor.ExecuteReader(CommandText, behavior, ref interceptedReader))
         return interceptedReader;
 
       // interceptors didn't handle this so we fall through
@@ -679,140 +681,154 @@ namespace MySql.Data.MySqlClient
 
       // Load balancing getting a new connection
       if (connection.hasBeenOpen && !driver.HasStatus(ServerStatusFlags.InTransaction))
-        await ReplicationManager.GetNewConnectionAsync(connection.Settings.Server, !IsReadOnlyCommand(sql), connection, execAsync, cancellationToken).ConfigureAwait(false);
+        await ReplicationManager.GetNewConnectionAsync(connection.Settings.Server, !IsReadOnlyCommand(sql), connection,
+          execAsync, cancellationToken).ConfigureAwait(false);
 
-      SemaphoreSlim semaphoreSlim = new(1);
-      semaphoreSlim.Wait();
-
-      // We have to recheck that there is no reader, after we got the lock
-      if (connection.Reader != null)
-        Throw(new MySqlException(Resources.DataReaderOpen));
-
-      System.Transactions.Transaction curTrans = System.Transactions.Transaction.Current;
-
-      if (curTrans != null)
+      Releaser releaser;
+      if (execAsync)
       {
-        bool inRollback = false;
-        //TODO: ADD support for 452 and 46X
-        if (driver.currentTransaction != null)
-          inRollback = driver.currentTransaction.InRollback;
+        releaser = await driver.LockAsync().ConfigureAwait(false);
+      }
+      else
+      {
+        releaser = driver.Lock();
+      }
+      
+      using (releaser)
+      {
+        // We have to recheck that there is no reader, after we got the lock
+        if (connection.Reader != null)
+          Throw(new MySqlException(Resources.DataReaderOpen));
 
-        if (!inRollback)
+        System.Transactions.Transaction curTrans = System.Transactions.Transaction.Current;
+
+        if (curTrans != null)
         {
-          System.Transactions.TransactionStatus status = System.Transactions.TransactionStatus.InDoubt;
-          try
+          bool inRollback = false;
+          //TODO: ADD support for 452 and 46X
+          if (driver.currentTransaction != null)
+            inRollback = driver.currentTransaction.InRollback;
+
+          if (!inRollback)
           {
-            // in some cases (during state transitions) this throws
-            // an exception. Ignore exceptions, we're only interested 
-            // whether transaction was aborted or not.
-            status = curTrans.TransactionInformation.Status;
+            System.Transactions.TransactionStatus status = System.Transactions.TransactionStatus.InDoubt;
+            try
+            {
+              // in some cases (during state transitions) this throws
+              // an exception. Ignore exceptions, we're only interested 
+              // whether transaction was aborted or not.
+              status = curTrans.TransactionInformation.Status;
+            }
+            catch (System.Transactions.TransactionException)
+            {
+            }
+
+            if (status == System.Transactions.TransactionStatus.Aborted)
+              Throw(new System.Transactions.TransactionAbortedException());
           }
-          catch (System.Transactions.TransactionException) { }
-
-          if (status == System.Transactions.TransactionStatus.Aborted)
-            Throw(new System.Transactions.TransactionAbortedException());
         }
-      }
 
-      commandTimer = new CommandTimer(connection, CommandTimeout);
-      LastInsertedId = -1;
+        commandTimer = new CommandTimer(connection, CommandTimeout);
+        LastInsertedId = -1;
 
-      if (CommandType == CommandType.TableDirect)
-        sql = "SELECT * FROM " + sql;
+        if (CommandType == CommandType.TableDirect)
+          sql = "SELECT * FROM " + sql;
 
-      // if we are on a replicated connection, we are only allow readonly statements
-      if (connection.Settings.Replication && !InternallyCreated)
-        EnsureCommandIsReadOnly(sql);
+        // if we are on a replicated connection, we are only allow readonly statements
+        if (connection.Settings.Replication && !InternallyCreated)
+          EnsureCommandIsReadOnly(sql);
 
-      if (statement == null || !statement.IsPrepared)
-      {
-        if (CommandType == CommandType.StoredProcedure)
-          statement = new StoredProcedure(this, sql);
-        else
-          statement = new PreparableStatement(this, sql);
-      }
+        if (statement == null || !statement.IsPrepared)
+        {
+          if (CommandType == CommandType.StoredProcedure)
+            statement = new StoredProcedure(this, sql);
+          else
+            statement = new PreparableStatement(this, sql);
+        }
 
-      // stored procs are the only statement type that need do anything during resolve
-      statement.Resolve(false);
+        // stored procs are the only statement type that need do anything during resolve
+        statement.Resolve(false);
 
-      // Now that we have completed our resolve step, we can handle our
-      // command behaviors
-      await HandleCommandBehaviorsAsync(execAsync, behavior).ConfigureAwait(false);
-
-      try
-      {
-        MySqlDataReader reader = new MySqlDataReader(this, statement, behavior);
-        connection.Reader = reader;
-        Canceled = false;
-        // execute the statement
-        await statement.ExecuteAsync(execAsync).ConfigureAwait(false);
-        // wait for data to return
-        await reader.NextResultAsync(execAsync, cancellationToken).ConfigureAwait(false);
-        success = true;
-        return reader;
-      }
-      catch (TimeoutException tex)
-      {
-        await connection.HandleTimeoutOrThreadAbortAsync(tex, execAsync).ConfigureAwait(false);
-        throw; //unreached
-      }
-      catch (ThreadAbortException taex)
-      {
-        await connection.HandleTimeoutOrThreadAbortAsync(taex, execAsync).ConfigureAwait(false);
-        throw;
-      }
-      catch (IOException ioex)
-      {
-        await connection.AbortAsync(execAsync).ConfigureAwait(false); // Closes connection without returning it to the pool
-        throw new MySqlException(Resources.FatalErrorDuringExecute, ioex);
-      }
-      catch (MySqlException ex)
-      {
-
-        if (ex.InnerException is TimeoutException)
-          throw; // already handled
+        // Now that we have completed our resolve step, we can handle our
+        // command behaviors
+        await HandleCommandBehaviorsAsync(execAsync, behavior).ConfigureAwait(false);
 
         try
         {
-          await ResetReaderAsync(execAsync).ConfigureAwait(false);
-          await ResetSqlSelectLimitAsync(execAsync).ConfigureAwait(false);
+          MySqlDataReader reader = new MySqlDataReader(this, statement, behavior);
+          connection.Reader = reader;
+          Canceled = false;
+          // execute the statement
+          await statement.ExecuteAsync(execAsync).ConfigureAwait(false);
+          // wait for data to return
+          await reader.NextResultAsync(execAsync, cancellationToken).ConfigureAwait(false);
+          success = true;
+          return reader;
         }
-        catch (Exception)
+        catch (TimeoutException tex)
         {
-          // Reset SqlLimit did not work, connection is hosed.
-          await Connection.AbortAsync(execAsync).ConfigureAwait(false);
-          throw new MySqlException(ex.Message, true, ex);
+          await connection.HandleTimeoutOrThreadAbortAsync(tex, execAsync).ConfigureAwait(false);
+          throw; //unreached
         }
+        catch (ThreadAbortException taex)
+        {
+          await connection.HandleTimeoutOrThreadAbortAsync(taex, execAsync).ConfigureAwait(false);
+          throw;
+        }
+        catch (IOException ioex)
+        {
+          await connection.AbortAsync(execAsync)
+            .ConfigureAwait(false); // Closes connection without returning it to the pool
+          throw new MySqlException(Resources.FatalErrorDuringExecute, ioex);
+        }
+        catch (MySqlException ex)
+        {
 
-        // if we caught an exception because of a cancel, then just return null
-        if (ex.IsQueryAborted)
-          return null;
-        if (ex.IsFatal)
-          await Connection.CloseAsync(execAsync).ConfigureAwait(false);
-        if (ex.Number == 0)
-          throw new MySqlException(Resources.FatalErrorDuringExecute, ex);
-        throw;
-      }
-      finally
-      {
-        if (connection != null)
-        {
-          if (connection.Reader == null)
+          if (ex.InnerException is TimeoutException)
+            throw; // already handled
+
+          try
           {
-            // Something went seriously wrong,  and reader would not
-            // be able to clear timeout on closing.
-            // So we clear timeout here.
-            ClearCommandTimer();
-          }
-          if (!success)
-          {
-            // ExecuteReader failed.Close Reader and set to null to 
-            // prevent subsequent errors with DataReaderOpen
             await ResetReaderAsync(execAsync).ConfigureAwait(false);
+            await ResetSqlSelectLimitAsync(execAsync).ConfigureAwait(false);
           }
-        }
+          catch (Exception)
+          {
+            // Reset SqlLimit did not work, connection is hosed.
+            await Connection.AbortAsync(execAsync).ConfigureAwait(false);
+            throw new MySqlException(ex.Message, true, ex);
+          }
 
-        semaphoreSlim.Release();
+          // if we caught an exception because of a cancel, then just return null
+          if (ex.IsQueryAborted)
+            return null;
+          if (ex.IsFatal)
+            await Connection.CloseAsync(execAsync).ConfigureAwait(false);
+          if (ex.Number == 0)
+            throw new MySqlException(Resources.FatalErrorDuringExecute, ex);
+          throw;
+        }
+        finally
+        {
+          if (connection != null)
+          {
+            if (connection.Reader == null)
+            {
+              // Something went seriously wrong,  and reader would not
+              // be able to clear timeout on closing.
+              // So we clear timeout here.
+              ClearCommandTimer();
+            }
+
+            if (!success)
+            {
+              // ExecuteReader failed.Close Reader and set to null to 
+              // prevent subsequent errors with DataReaderOpen
+              await ResetReaderAsync(execAsync).ConfigureAwait(false);
+            }
+          }
+
+        }
       }
     }
 

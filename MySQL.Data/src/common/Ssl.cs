@@ -64,7 +64,7 @@ namespace MySql.Data.Common
     private static SslProtocols[] tlsProtocols = new SslProtocols[] { SslProtocols.Tls12 };
     private static Dictionary<string, SslProtocols> tlsConnectionRef = new Dictionary<string, SslProtocols>();
     private static Dictionary<string, int> tlsRetry = new Dictionary<string, int>();
-    private static Object thisLock = new Object();
+    private static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
 
     #endregion
 
@@ -209,21 +209,38 @@ namespace MySql.Data.Common
         tlsProtocols = listProtocols.ToArray();
       }
 
-      if (tlsConnectionRef.ContainsKey(connectionId))
+      if (execAsync)
       {
-        tlsProtocol = tlsConnectionRef[connectionId];
+        await semaphoreSlim.WaitAsync(cancellationToken);
       }
       else
       {
-        if (!tlsRetry.ContainsKey(connectionId))
+        semaphoreSlim.Wait(cancellationToken);
+      }
+
+      try
+      {
+        if (tlsConnectionRef.TryGetValue(connectionId, out var protocol))
         {
-          tlsRetry[connectionId] = 0;
+          tlsProtocol = protocol;
         }
-        for (int i = tlsRetry[connectionId]; i < tlsProtocols.Length; i++)
+        else
         {
-          tlsProtocol |= tlsProtocols[i];
+          if (!tlsRetry.ContainsKey(connectionId))
+          {
+            tlsRetry[connectionId] = 0;
+          }
+          for (int i = tlsRetry[connectionId]; i < tlsProtocols.Length; i++)
+          {
+            tlsProtocol |= tlsProtocols[i];
+          }
         }
       }
+      finally
+      {
+        semaphoreSlim.Release();
+      }
+
       try
       {
         tlsProtocol = (tlsProtocol == SslProtocols.None) ? SslProtocols.Tls12 : tlsProtocol;
@@ -236,7 +253,7 @@ namespace MySql.Data.Common
         else
         {
           using (cancellationToken.Register(() => throw new AggregateException($"Authentication to host '{_settings.Server}' failed.", new IOException())))
-            sslStream.AuthenticateAsClientAsync(_settings.Server, certs, tlsProtocol, false).GetAwaiter().GetResult();
+            sslStream.AuthenticateAsClient(_settings.Server, certs, tlsProtocol, false);
         }
 
         tlsConnectionRef[connectionId] = tlsProtocol;

@@ -42,13 +42,12 @@ namespace MySql.Data.MySqlClient
     private static Dictionary<string, string> _defaultCollations;
     private static Dictionary<string, int> _maxLengths;
     private static Dictionary<string, CharacterSet> _mapping;
-    private static readonly object LockObject;
+    private static SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
     // we use a static constructor here since we only want to init
     // the mapping once
     static CharSetMap()
     {
-      LockObject = new Object();
       InitializeMapping();
     }
 
@@ -57,8 +56,8 @@ namespace MySql.Data.MySqlClient
       if (charSetName == null)
         throw new ArgumentNullException("CharSetName is null");
       CharacterSet cs = null;
-      if (_mapping.ContainsKey(charSetName))
-        cs = _mapping[charSetName];
+      if (_mapping.TryGetValue(charSetName, out var charset))
+        cs = charset;
 
       if (cs == null)
         throw new NotSupportedException("Character set '" + charSetName + "' is not supported by .Net Framework.");
@@ -181,27 +180,50 @@ namespace MySql.Data.MySqlClient
 
     internal static async Task<string> GetDefaultCollationAsync(string charset, MySqlConnection connection, bool execAsync, CancellationToken cancellationToken = default)
     {
-      SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
-      semaphoreSlim.Wait();
+      if (execAsync)
+      {
+        await _semaphoreSlim.WaitAsync(cancellationToken);
+      }
+      else
+      {
+        _semaphoreSlim.Wait(cancellationToken);
+      }
 
-      if (_defaultCollations == null)
-        await InitCollectionsAsync(connection, execAsync, cancellationToken).ConfigureAwait(false);
-
-      semaphoreSlim.Release();
-      return !_defaultCollations.ContainsKey(charset) ? null : _defaultCollations[charset];
+      try
+      {
+        if (_defaultCollations == null)
+          await InitCollectionsAsync(connection, execAsync, cancellationToken).ConfigureAwait(false);
+      }
+      finally
+      {
+        _semaphoreSlim.Release();
+      }
+        
+      return !_defaultCollations.TryGetValue(charset, out string collation) ? null : collation;
     }
 
     internal static async Task<int> GetMaxLengthAsync(string charset, MySqlConnection connection, bool execAsync, CancellationToken cancellationToken = default)
     {
-      SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
-      semaphoreSlim.Wait();
+      if (execAsync)
+      {
+        await _semaphoreSlim.WaitAsync(cancellationToken);
+      }
+      else
+      {
+        _semaphoreSlim.Wait(cancellationToken);
+      }
 
-      if (_maxLengths == null)
-        await InitCollectionsAsync(connection, execAsync, cancellationToken).ConfigureAwait(false);
+      try
+      {
+        if (_maxLengths == null)
+          await InitCollectionsAsync(connection, execAsync, cancellationToken).ConfigureAwait(false);
+      }
+      finally
+      {
+        _semaphoreSlim.Release(); 
+      }
 
-      semaphoreSlim.Release();
-
-      return !_maxLengths.ContainsKey(charset) ? 1 : _maxLengths[charset];
+      return !_maxLengths.TryGetValue(charset, out int maxLength) ? 1 : maxLength;
     }
   }
 
