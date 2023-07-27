@@ -1,0 +1,17 @@
+<Project>
+
+  <PropertyGroup>
+    <Product>MySQL Entity Framework Core</Product>
+    <Copyright>Copyright (c) 2023, Oracle and/or its affiliates.</Copyright>
+    <Version>8.0.0-preview6+MySQL8.2.0</Version>
+    <Authors>Oracle</Authors>
+    <PackageTags>MySql;.NET Connector;MySql Entity Framework Core;netcore;.Net Core;MySql Conector/Net Entity Framework Core;coreclr;C/NET;C/Net Core</PackageTags>
+    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/mysql/mysql-connector-net</PackageProjectUrl>
+    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <LangVersion>10.0</LangVersion>
+    <NoWarn>$(NoWarn);EF1001</NoWarn>
+  </PropertyGroup>
+  
+</Project>

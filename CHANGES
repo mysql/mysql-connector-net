@@ -1,4 +1,5 @@
 8.2.0
+- Added support for .NET 8 and EF Core 8 preview versions (WL15792).
 
 
 8.1.0
@@ -12,6 +13,7 @@
 - Updated non signed libraries (Oracle Bug #35052869)
 - Added missing dll to installer (Oracle Bug #35360846)
 - Added support for OpenTelemetry tracing (WL15707)
+
 
 8.0.33
 - Added support for OCI ephemeral key-based authentication (WL15489).
