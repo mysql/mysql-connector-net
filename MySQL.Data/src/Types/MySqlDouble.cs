@@ -66,7 +66,7 @@ namespace MySql.Data.Types
     {
       double v = val as double? ?? Convert.ToDouble(val);
       if (binary)
-        await packet.WriteAsync(BitConverter.GetBytes(v), execAsync).ConfigureAwait(false);
+        await packet.WriteAsync(PacketBitConverter.GetBytes(v), execAsync).ConfigureAwait(false);
       else
         await packet.WriteStringNoNullAsync(v.ToString("R", CultureInfo.InvariantCulture), execAsync).ConfigureAwait(false);
     }
@@ -80,7 +80,7 @@ namespace MySql.Data.Types
       {
         byte[] b = new byte[8];
         await packet.ReadAsync(b, 0, 8, execAsync).ConfigureAwait(false);
-        return new MySqlDouble(BitConverter.ToDouble(b, 0));
+        return new MySqlDouble(PacketBitConverter.ToDouble(b, 0));
       }
 
       string s = await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false);
