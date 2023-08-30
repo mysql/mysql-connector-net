@@ -1,5 +1,6 @@
 8.2.0
 - Added support for .NET 8 and EF Core 8 preview versions (WL15792).
+- Combined EFCore projects into single project (WL15799).
 
 
 8.1.0
