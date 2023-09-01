@@ -217,7 +217,10 @@ namespace MySql.Data.Common
       {
         if (!tlsRetry.ContainsKey(connectionId))
         {
-          tlsRetry[connectionId] = 0;
+            lock (tlsRetry)
+            {
+                tlsRetry[connectionId] = 0;
+            }
         }
         for (int i = tlsRetry[connectionId]; i < tlsProtocols.Length; i++)
         {
@@ -239,7 +242,10 @@ namespace MySql.Data.Common
             sslStream.AuthenticateAsClientAsync(_settings.Server, certs, tlsProtocol, false).GetAwaiter().GetResult();
         }
 
-        tlsConnectionRef[connectionId] = tlsProtocol;
+        lock (tlsConnectionRef) 
+        { 
+            tlsConnectionRef[connectionId] = tlsProtocol;
+        }
         tlsRetry.Remove(connectionId);
       }
       catch (AggregateException ex)

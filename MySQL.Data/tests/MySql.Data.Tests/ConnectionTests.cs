@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2013, 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2013, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -1476,9 +1476,30 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.ThrowsAsync<OperationCanceledException>(async () => await conn.OpenAsync(cts.Token));
     }
 
-    #region Methods
 
-    private void ExecuteQueriesSuccess(string sql, string password)
+    /// <summary>
+    /// Bug # 35307501 [Opening two MySqlConnections simultaneously can crash]
+    /// </summary>
+    [Test]
+    public void OpenMultipleConnectionsOnMultipleThreads()
+    {
+        var tasks = new List<Task>();
+        for (int i = 0; i < 5; i++)
+        {
+            tasks.Add(Task.Run(() =>
+            {
+                using (var connection = new MySqlConnection(Connection.ConnectionString))
+                {
+                    connection.Open();
+                }
+            }));
+        }
+        Task.WaitAll(tasks.ToArray());
+    }
+
+            #region Methods
+
+            private void ExecuteQueriesSuccess(string sql, string password)
     {
       if (Version < new Version(8, 0, 17)) return;
       var sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
