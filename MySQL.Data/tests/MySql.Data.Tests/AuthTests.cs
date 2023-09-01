@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using Microsoft.Win32;
 using MySql.Data.Authentication.FIDO.Utility;
 using MySql.Data.Common;
 using MySql.Data.MySqlClient.Authentication;
@@ -33,6 +34,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 
@@ -1819,7 +1821,142 @@ namespace MySql.Data.MySqlClient.Tests
     }
     #endregion
 
-    #region WL14389
+    #region WebAuthn Authentication
+    /// <summary>
+    /// WL15193 - Support WebauthN in fido authentication plugin [Classic]
+    /// </summary>
+    [Test]
+    [Ignore("This should be executed manually since it depends on libfido2 library and user interaction.")]
+    [Property("Category", "Security")]
+    public void WebAuthnAuthenticationPasswordless()
+    {
+      // Install WebAuthn plugin
+      ExecuteSQL("INSTALL PLUGIN authentication_webauthn SONAME 'authentication_webauthn.so';", true);
+      // Create user
+      // The INITIAL AUTHENTICATION IDENTIFIED clause must be specified to set a random or a static password.
+      ExecuteSQL("CREATE USER 'user_f1'@'localhost' IDENTIFIED WITH authentication_webauthn INITIAL AUTHENTICATION IDENTIFIED BY 'bar';", true);
+      // Register the authenticator
+      // $ mysql --user=user_f1 --password=bar --register-factor=2
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = "user_f1",
+        Server = Settings.Server,
+        Port = Settings.Port
+      };
+
+      using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
+      conn.WebAuthnActionRequested += Conn_WebAuthnActionRequested;
+      conn.Open();
+      Assert.AreEqual(ConnectionState.Open, conn.State);
+    }
+
+    [Test]
+    [Ignore("This should be executed manually since it depends on libfido2 library and user interaction.")]
+    [Property("Category", "Security")]
+    public void WebAuthnAuthentication2F()
+    {
+      //Install WebAuthn plugin
+      ExecuteSQL("INSTALL PLUGIN authentication_webauthn SONAME 'authentication_webauthn.so';", true);
+      //Create user
+      ExecuteSQL("CREATE USER 'user_f2' IDENTIFIED BY 'bar' AND IDENTIFIED WITH authentication_webauthn;", true);
+      //Register the authenticator
+      //$ mysql --user=user_f2 --password=bar --register-factor=2
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = "user_f2",
+        Server = Settings.Server,
+        Port = Settings.Port,
+        Password = "bar"
+      };
+
+      using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
+      conn.WebAuthnActionRequested += Conn_WebAuthnActionRequested;
+      conn.Open();
+      Assert.AreEqual(ConnectionState.Open, conn.State);
+    }
+
+    [Test]
+    [Ignore("This should be executed manually since it depends on libfido2 library and user interaction.")]
+    [Property("Category", "Security")]
+    public void WebAuthnAuthentication3F()
+    {
+      // Install WebAuthn plugin
+      ExecuteSQL("INSTALL PLUGIN authentication_webauthn SONAME 'authentication_webauthn.so';", true);
+      // Create user
+      ExecuteSQL("CREATE USER 'user_f3' IDENTIFIED BY 'bar' AND IDENTIFIED WITH cleartext_plugin_server BY 'baz' AND IDENTIFIED WITH authentication_webauthn;", true);
+      // Register the authenticator
+      // $  mysql --user=user_f3 --password=bar --password2=baz --register-factor=3
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = "user_f3",
+        Server = Settings.Server,
+        Port = Settings.Port,
+        Password = "bar",
+        Password2 = "baz"
+      };
+
+      using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
+      conn.WebAuthnActionRequested += Conn_WebAuthnActionRequested;
+      conn.Open();
+      Assert.AreEqual(ConnectionState.Open, conn.State);
+    }
+
+    [Test]
+    [Ignore("This should be executed manually since it depends on libfido2 library and user interaction.")]
+    [Property("Category", "Security")]
+    public void WebAuthnAuthenticationUnregisteredUserException()
+    {
+      // Install WebAuthn plugin
+      ExecuteSQL("INSTALL PLUGIN authentication_webauthn SONAME 'authentication_webauthn.so';", true);
+      // Create user
+      // The INITIAL AUTHENTICATION IDENTIFIED clause must be specified to set a random or a static password.
+      ExecuteSQL("CREATE USER 'foo'@'localhost' IDENTIFIED WITH authentication_webauthn INITIAL AUTHENTICATION IDENTIFIED BY 'bar';", true);
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = "foo",
+        Server = Settings.Server,
+        Port = Settings.Port
+      };
+
+      using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
+      conn.WebAuthnActionRequested += Conn_WebAuthnActionRequested;
+      Assert.Throws<MySqlException>(() => conn.Open());
+    }
+
+    [Test]
+    [Ignore("This should be executed manually since it depends on libfido2 library and user interaction.")]
+    [Property("Category", "Security")]
+    public void WebAuthnAuthenticationNoUserGestureException()
+    {
+      // Install WebAuthn plugin
+      ExecuteSQL("INSTALL PLUGIN authentication_webauthn SONAME 'authentication_webauthn.so';", true);
+      // Create user
+      // The INITIAL AUTHENTICATION IDENTIFIED clause must be specified to set a random or a static password.
+      ExecuteSQL("CREATE USER 'foo'@'localhost' IDENTIFIED WITH authentication_webauthn INITIAL AUTHENTICATION IDENTIFIED BY 'bar';", true);
+      // Register the authenticator
+      // $ mysql --user=foo --password=bar --register-factor=2
+
+      var connStringBuilder = new MySqlConnectionStringBuilder()
+      {
+        UserID = "foo",
+        Server = Settings.Server,
+        Port = Settings.Port
+      };
+
+      using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
+      conn.WebAuthnActionRequested += Conn_WebAuthnActionRequested;
+      Assert.Throws<MySqlException>(() => conn.Open());
+    }
+
+    private static void Conn_WebAuthnActionRequested()
+    {
+      Console.WriteLine("Please insert FIDO device and perform gesture action for authentication to complete.");
+    }
+    #endregion
 
     [Test, Description("Test User Authentication Fails with classic protocol")]
     public void AuthPlainAndMySql41()
@@ -1835,7 +1972,6 @@ namespace MySql.Data.MySqlClient.Tests
 
     [Test, Description("Test caching_sha2_password feature in the client(auth plugin=sha2_password and native password) in the server(>=8.0.4) " +
                   "with secure connections(classic connection).Server started with mysql native password plugin")]
-    [Ignore("Fix this")]
     public void Sha256AndNativeWithCertificates()
     {
       if (Version <= new Version("8.0.4")) Assert.Ignore("This test is for MySql 8.0.4 or higher");
@@ -2104,7 +2240,5 @@ namespace MySql.Data.MySqlClient.Tests
         connection.Close();
       }
     }
-
-    #endregion WL14389
   }
 }

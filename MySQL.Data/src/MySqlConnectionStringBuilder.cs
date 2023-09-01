@@ -850,9 +850,14 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Gets or sets the event for the callback.
+    /// Gets or sets the event for the Fido callback.
     /// </summary>
     internal FidoActionCallback FidoActionRequested { get; set; }
+
+    /// <summary>
+    /// Gets or sets the event for the WebauthN callback.
+    /// </summary>
+    internal WebAuthnActionCallback WebAuthnActionRequested { get; set; }
 
     #endregion
 

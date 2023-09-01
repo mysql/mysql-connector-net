@@ -421,6 +421,33 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Challenge received is corrupt..
+        /// </summary>
+        internal static string FidoChallengeCorrupt {
+            get {
+                return ResourceManager.GetString("FidoChallengeCorrupt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An event handler for FidoActionRequested was not specified..
+        /// </summary>
+        internal static string FidoMissingHandler {
+            get {
+                return ResourceManager.GetString("FidoMissingHandler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FIDO registration is missing..
+        /// </summary>
+        internal static string FidoRegistrationMissing {
+            get {
+                return ResourceManager.GetString("FidoRegistrationMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to File based certificates are only supported when connecting to MySQL Server 5.1 or greater..
         /// </summary>
         internal static string FileBasedCertificateNotSupported {
@@ -1722,6 +1749,24 @@ namespace MySql.Data {
         internal static string ValueNotSupportedForGuid {
             get {
                 return ResourceManager.GetString("ValueNotSupportedForGuid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An event handler for WebAuthnActionRequested was not specified..
+        /// </summary>
+        internal static string WebAuthnMissingHandler {
+            get {
+                return ResourceManager.GetString("WebAuthnMissingHandler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The timeout of 15 seconds for user interaction with FIDO device has been exceeded..
+        /// </summary>
+        internal static string WebAuthnTimeout {
+            get {
+                return ResourceManager.GetString("WebAuthnTimeout", resourceCulture);
             }
         }
         

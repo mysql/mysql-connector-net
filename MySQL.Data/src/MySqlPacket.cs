@@ -137,6 +137,16 @@ namespace MySql.Data.MySqlClient
       _buffer.WriteByte(b);
     }
 
+    public void Write(byte[] bytes)
+    {
+      _buffer.Write(bytes, 0, bytes.Length);
+    }
+
+    public void Write(byte[] bytes, int offset, int countToWrite)
+    {
+      _buffer.Write(bytes, offset, countToWrite);
+    }
+
     public async Task WriteAsync(byte[] bytesToWrite, bool execAsync)
     {
       await WriteAsync(bytesToWrite, 0, bytesToWrite.Length, execAsync).ConfigureAwait(false);
@@ -283,6 +293,21 @@ namespace MySql.Data.MySqlClient
       await WriteAsync(_tempBuffer, 0, numbytes, execAsync).ConfigureAwait(false);
     }
 
+    public void WriteInteger(long v, int numbytes)
+    {
+      long val = v;
+
+      Debug.Assert(numbytes > 0 && numbytes < 9);
+
+      for (int x = 0; x < numbytes; x++)
+      {
+        _tempBuffer[x] = (byte)(val & 0xff);
+        val >>= 8;
+      }
+
+      Write(_tempBuffer, 0, numbytes);
+    }
+
     public int ReadPackedInteger()
     {
       byte c = ReadByte();
@@ -294,6 +319,27 @@ namespace MySql.Data.MySqlClient
         case 253: return ReadInteger(3);
         case 254: return ReadInteger(4);
         default: return c;
+      }
+    }
+
+    public void WriteLength(long length)
+    {
+      if (length < 251)
+        WriteByte((byte)length);
+      else if (length < 65536L)
+      {
+        WriteByte(252);
+        WriteInteger(length, 2);
+      }
+      else if (length < 16777216L)
+      {
+        WriteByte(253);
+        WriteInteger(length, 3);
+      }
+      else
+      {
+        WriteByte(254);
+        WriteInteger(length, 8);
       }
     }
 

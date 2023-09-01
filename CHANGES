@@ -5,6 +5,7 @@
 - Combined EFCore projects into single project (WL15799).
 - Fixed bug Power BI Desktop & MS Excel don't work with v8.0.33 of the Connector/Net Driver (Oracle Bug #35379875).
 - Updated BouncyCastle nuget package (MySQL Bug #111361,Oracle Bug #35488339).
+- Added support for the WebAuthn authentication client-side plugin (WL15193).
 
 
 8.1.0

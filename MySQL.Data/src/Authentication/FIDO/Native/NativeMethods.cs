@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General internal License, version 2.0, as
@@ -99,7 +99,16 @@ namespace MySql.Data.Authentication.FIDO.Native
     /// <param name="pin">The pin of the device</param>
     /// <returns><see cref="CtapStatus.Ok"/> on success, anything else on failure</returns>
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-    public static extern int fido_dev_get_assert(fido_dev_t* dev, fido_assert_t* assert, string pin);
+    internal static extern int fido_dev_get_assert(fido_dev_t* dev, fido_assert_t* assert, string pin);
+
+    /// <summary>
+    /// Returns <see langword="true"/> if <paramref name="dev"/> supports CTAP 2.1 Credential Management.
+    /// </summary>
+    /// <param name="dev">The device to check.</param>
+    /// <returns><see langword="true"/> if <paramref name="dev"/> supports CTAP 2.1 Credential Management; otherwise, <see langword="false"/>.</returns>
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    //[return: MarshalAs(UnmanagedType.U1)]
+    internal static extern bool fido_dev_supports_credman(fido_dev_t* dev);
     #endregion
 
     #region FidoDeviceInfo
@@ -279,13 +288,37 @@ namespace MySql.Data.Authentication.FIDO.Native
     public static extern int fido_assert_id_len(fido_assert_t* assert, IntPtr idx);
 
     /// <summary>
-    /// Returns a pointer to the ID of statement idx in assert
+    /// Returns a pointer to the ID of statement idx in assert.
     /// </summary>
-    /// <param name="assert">The assertion object to act on</param>
-    /// <param name="idx">The index to retrieve</param>
-    /// <returns>A pointer to the ID of statement idx in assert</returns>
+    /// <param name="assert">The assertion object to act on.</param>
+    /// <param name="idx">The index to retrieve.</param>
+    /// <returns>A pointer to the ID of statement idx in assert.</returns>
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern byte* fido_assert_id_ptr(fido_assert_t* assert, IntPtr idx);
+
+    /// <summary>
+    /// Returns the length of the client data hash of an assertion.
+    /// </summary>
+    /// <param name="assert">The assertion object to act on.</param>
+    /// <returns>The length of the client data hash of statement idx of the assertion.</returns>
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int fido_assert_clientdata_hash_len(fido_assert_t* assert);
+
+    /// <summary>
+    /// Returns a pointer to the client data hash of an assertion.
+    /// </summary>
+    /// <param name="assert">The assertion object to act on.</param>
+    /// <returns>A pointer to the client data hash of the assertion.</returns>
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern byte* fido_assert_clientdata_hash_ptr(fido_assert_t* assert);
+
+    /// <summary>
+    /// Returns the number of statements in assertion.
+    /// </summary>
+    /// <param name="assert">The assertion object to act on.</param>
+    /// <returns>The number of statements in assertion.</returns>
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int fido_assert_count(fido_assert_t* assert);
     #endregion
   }
 }

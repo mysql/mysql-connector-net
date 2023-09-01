@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022, Oracle and/or its affiliates.
+﻿// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -34,6 +34,7 @@ using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient.Authentication
 {
+  [Obsolete("FIDO authentication client-side plugin is now deprecated.")]
   internal class FidoAuthenticationPlugin : MySqlAuthenticationPlugin
   {
     public override string PluginName => "authentication_fido_client";
@@ -52,7 +53,7 @@ namespace MySql.Data.MySqlClient.Authentication
       if (data.Length > 0)
         ParseChallenge(data);
       else
-        throw new MySqlException("FIDO registration missing.");
+        throw new MySqlException(Resources.FidoRegistrationMissing);
     }
 
     protected override async Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
@@ -71,14 +72,14 @@ namespace MySql.Data.MySqlClient.Authentication
     {
       // client_data_hash length should be 32 bytes
       int clientDataLength = challenge[0];
-      if (clientDataLength != CLIENT_DATA_LENGTH) throw new MySqlException("Challenge received is corrupt.");
+      if (clientDataLength != CLIENT_DATA_LENGTH) throw new MySqlException(Resources.FidoChallengeCorrupt);
       // client_data_hash
       _clientDataHash = new byte[clientDataLength];
       Array.Copy(challenge, 1, _clientDataHash, 0, clientDataLength);
 
       // relyting_party_id length cannot be more than 255
       int relyingPartyIdLength = challenge[clientDataLength + 1];
-      if (relyingPartyIdLength > RELYING_PARTY_ID_MAX_LENGTH) throw new MySqlException("Challenge received is corrupt.");
+      if (relyingPartyIdLength > RELYING_PARTY_ID_MAX_LENGTH) throw new MySqlException(Resources.FidoChallengeCorrupt);
       // relying_party_id
       _relyingPartyId = Encoding.GetString(challenge, clientDataLength + 2, relyingPartyIdLength);
 
@@ -126,27 +127,19 @@ namespace MySql.Data.MySqlClient.Authentication
           if (_driver.Settings.FidoActionRequested != null)
             _driver.Settings.FidoActionRequested?.Invoke();
           else
-            throw new MySqlException("An event handler for FidoActionRequested was not specified.");
+            throw new MySqlException(Resources.FidoMissingHandler);
 
           fidoDevice.GetAssert(fidoAssertion);
 
           var fidoAssertionStatement = fidoAssertion.GetFidoAssertionStatement();
           int responseLength = fidoAssertionStatement.SignatureLen + fidoAssertionStatement.AuthDataLen +
-            GetLengthSize((ulong)fidoAssertionStatement.SignatureLen) + GetLengthSize((ulong)fidoAssertionStatement.AuthDataLen);
+           Utils.GetLengthSize((ulong)fidoAssertionStatement.SignatureLen) + Utils.GetLengthSize((ulong)fidoAssertionStatement.AuthDataLen);
 
           return new Tuple<int, int, byte[], int, byte[]>(responseLength,
             fidoAssertionStatement.AuthDataLen, fidoAssertionStatement.AuthData.ToArray(),
             fidoAssertionStatement.SignatureLen, fidoAssertionStatement.Signature.ToArray());
         }
       }
-    }
-
-    private int GetLengthSize(ulong length)
-    {
-      if (length < 251UL) return 1;
-      if (length < 65536L) return 3;
-      if (length < 16777216UL) return 4;
-      return 9;
     }
   }
 }
