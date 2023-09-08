@@ -1,6 +1,9 @@
 8.2.0
 - Migrated installer to Wix 4.0 (WL15847)
 - Fixed bug Opening two MySqlConnections simultaneously can crash (Oracle Bug #35307501)
+- Added support for .NET 8 and EF Core 8 preview versions (WL15792).
+- Combined EFCore projects into single project (WL15799).
+
 
 8.1.0
 - Removed GetSchema code that used direct access to mysql.proc table (WL15643)
@@ -13,6 +16,7 @@
 - Updated non signed libraries (Oracle Bug #35052869)
 - Added missing dll to installer (Oracle Bug #35360846)
 - Added support for OpenTelemetry tracing (WL15707)
+
 
 8.0.33
 - Added support for OCI ephemeral key-based authentication (WL15489).
