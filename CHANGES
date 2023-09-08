@@ -1,21 +1,23 @@
 8.2.0
-- Migrated installer to Wix 4.0 (WL15847)
-- Fixed bug Opening two MySqlConnections simultaneously can crash (Oracle Bug #35307501)
+- Migrated installer to Wix 4.0 (WL15847).
+- Fixed bug Opening two MySqlConnections simultaneously can crash (Oracle Bug #35307501).
 - Added support for .NET 8 and EF Core 8 preview versions (WL15792).
 - Combined EFCore projects into single project (WL15799).
-- Fixed bug Power BI Desktop & MS Excel don't work with v8.0.33 of the Connector/Net Driver (Oracle Bug #35379875)
+- Fixed bug Power BI Desktop & MS Excel don't work with v8.0.33 of the Connector/Net Driver (Oracle Bug #35379875).
+- Updated BouncyCastle nuget package (MySQL Bug #111361,Oracle Bug #35488339).
+
 
 8.1.0
-- Removed GetSchema code that used direct access to mysql.proc table (WL15643)
-- Removed code that used SHOW CREATE PROCEDURE to enumerator procedure parameters (WL #15644)
-- Removed 'PROCEDURES WITH PARAMETERS' schema collection (WL15654)
-- Fixed bug where the MySqlDbType was not preserved on a clone (Oracle Bug #34993796)
-- Fixed bug can't insert negative number using prepared statement with MySqlDbType.Int24 (Oracle Bug #34694519)
-- Re-enable Zstandard compression in X DevAPI [WL15708]
-- Remove support for .NET Core and EF Core 3.1 and 5.0 [WL15797]
-- Updated non signed libraries (Oracle Bug #35052869)
-- Added missing dll to installer (Oracle Bug #35360846)
-- Added support for OpenTelemetry tracing (WL15707)
+- Removed GetSchema code that used direct access to mysql.proc table (WL15643).
+- Removed code that used SHOW CREATE PROCEDURE to enumerator procedure parameters (WL #15644).
+- Removed 'PROCEDURES WITH PARAMETERS' schema collection (WL15654).
+- Fixed bug where the MySqlDbType was not preserved on a clone (Oracle Bug #34993796).
+- Fixed bug can't insert negative number using prepared statement with MySqlDbType.Int24 (Oracle Bug #34694519).
+- Re-enable Zstandard compression in X DevAPI [WL15708].
+- Remove support for .NET Core and EF Core 3.1 and 5.0 [WL15797].
+- Updated non signed libraries (Oracle Bug #35052869).
+- Added missing dll to installer (Oracle Bug #35360846).
+- Added support for OpenTelemetry tracing (WL15707).
 
 
 8.0.33
@@ -23,13 +25,13 @@
 - Re implemented the asynchronous methods for the Classic protocol (WL15484).
 - Added support for mapping documents to custom types using X DevAPI (WL15476).
 - Added missing summaries for some classes and methods in the API documentation (Oracle Bug #34975410).
-- Fixed MySqlCommand.LastInsertedId is incorrect if multiple rows are inserted (Oracle Bug #34993798)
-- Reverted old code that allowed calling some procedures without using the StoredProcedure CommandType (Oracle Bug #29722378)
+- Fixed MySqlCommand.LastInsertedId is incorrect if multiple rows are inserted (Oracle Bug #34993798).
+- Reverted old code that allowed calling some procedures without using the StoredProcedure CommandType (Oracle Bug #29722378).
 - Upgraded .NET Framework 4.5.2 to .NET Framework 4.6.2 with regard to packaging minimum version (WL15641).
 - Changed broken references in summaries for some classes on the API documentation (Oracle Bug #35141281).
 - Deprecate the `Procedures with Parameters` schema collection (WL #15645).
 - Remove 3rd party libraries from install bundles (WL #15682).
-- Removed ZstdNet libraries from MySql.Data (Oracle Bug #35281610)
+- Removed ZstdNet libraries from MySql.Data (Oracle Bug #35281610).
 
 
 8.0.32.1
