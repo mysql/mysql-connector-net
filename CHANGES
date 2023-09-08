@@ -3,7 +3,7 @@
 - Fixed bug Opening two MySqlConnections simultaneously can crash (Oracle Bug #35307501)
 - Added support for .NET 8 and EF Core 8 preview versions (WL15792).
 - Combined EFCore projects into single project (WL15799).
-
+- Fixed bug Power BI Desktop & MS Excel don't work with v8.0.33 of the Connector/Net Driver (Oracle Bug #35379875)
 
 8.1.0
 - Removed GetSchema code that used direct access to mysql.proc table (WL15643)
