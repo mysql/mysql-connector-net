@@ -1,5 +1,4 @@
 <Project>
-
   <PropertyGroup Condition="'$(TargetFramework)'=='net6.0'">
     <Copyright>Copyright (c) 2021, 2023, Oracle and/or its affiliates.</Copyright>
     <Version>6.0.21+MySQL8.2.0</Version>
@@ -7,12 +6,11 @@
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net7.0'">
     <Copyright>Copyright (c) 2022, 2023, Oracle and/or its affiliates.</Copyright>
-    <Version>6.0.21+MySQL8.2.0</Version>
+    <Version>7.0.10+MySQL8.2.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net8.0'">
     <Copyright>Copyright (c) 2023, Oracle and/or its affiliates.</Copyright>
-    <Version>6.0.21+MySQL8.2.0</Version>
+    <Version>8.0.0-preview+MySQL8.2.0</Version>
   </PropertyGroup>
-  
 </Project>
