@@ -102,7 +102,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     [Test]
     [Ignore("Fix this")]
-    public void ExecuteScriptContinueOnError()
+    public void ExecuteScriptContinueOnFailure()
     {
       statementCount = 0;
       string scriptText = String.Empty;
@@ -130,7 +130,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     [Test]
     [Ignore("Fix this")]
-    public void ExecuteScriptNotContinueOnError()
+    public void ExecuteScriptNotContinueOnFailure()
     {
       statementCount = 0;
       string scriptText = String.Empty;
