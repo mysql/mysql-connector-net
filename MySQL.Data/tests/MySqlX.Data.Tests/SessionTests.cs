@@ -2093,6 +2093,7 @@ namespace MySqlX.Data.Tests
     }
 
     [Test, Description("Test the default connect timeout with offline server with concurrent connections")]
+    [Ignore("Test its not well implemented")] // TO DO
     public async Task ConnectTimeoutConcurrentConnections()
     {
       await Task.Run(() => SubThread1());
