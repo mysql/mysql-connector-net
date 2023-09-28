@@ -24,11 +24,11 @@
       "src": [
         {
           "files": ["MySql.EntityFrameworkCore.csproj"],
-          "src": "../EFCore7/src/"
+          "src": "../EFCore/src/"
         }
       ],
       "dest": "api/efcore_api",
-      "properties": { "TargetFramework": "net6.0" }
+      "properties": { "TargetFramework": "net7.0" }
     },
     {
       "src": [
