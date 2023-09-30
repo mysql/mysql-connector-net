@@ -28,6 +28,9 @@
 
 using MySql.Data.common;
 using MySql.Data.MySqlClient;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Pkcs;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,6 +41,8 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.BouncyCastle.OpenSsl;
+using Org.BouncyCastle.Utilities.IO.Pem;
 
 namespace MySql.Data.Common
 {
@@ -97,6 +102,17 @@ namespace MySql.Data.Common
     }
 
     /// <summary>
+    /// Retrieves a certificate from PEM file.
+    /// </summary>
+    private X509Certificate2 GetCertificateFromPEM(string certificatePath, string certificatePassword)
+    {
+      var certParser = new Org.BouncyCastle.X509.X509CertificateParser();
+      var cert = certParser.ReadCertificate(File.ReadAllBytes(certificatePath));
+      return new X509Certificate2(cert.GetEncoded(),certificatePassword);
+    }
+    
+
+    /// <summary>
     /// Retrieves a collection containing the client SSL PFX certificates.
     /// </summary>
     /// <remarks>Dependent on connection string settings.
@@ -108,10 +124,18 @@ namespace MySql.Data.Common
       // Check for file-based certificate
       if (_settings.CertificateFile != null)
       {
-        X509Certificate2 clientCert = new X509Certificate2(_settings.CertificateFile,
+        if (_treatCertificatesAsPemFormat)
+        {
+          certs.Add(GetCertificateFromPEM(_settings.CertificateFile, _settings.CertificatePassword));
+          return certs;
+        }
+        else
+        {
+          X509Certificate2 clientCert = new X509Certificate2(_settings.CertificateFile,
             _settings.CertificatePassword);
-        certs.Add(clientCert);
-        return certs;
+          certs.Add(clientCert);
+          return certs;
+        }
       }
 
       if (_settings.CertificateStoreLocation == MySqlCertificateStoreLocation.None)
@@ -217,10 +241,10 @@ namespace MySql.Data.Common
       {
         if (!tlsRetry.ContainsKey(connectionId))
         {
-            lock (tlsRetry)
-            {
-                tlsRetry[connectionId] = 0;
-            }
+          lock (tlsRetry)
+          {
+            tlsRetry[connectionId] = 0;
+          }
         }
         for (int i = tlsRetry[connectionId]; i < tlsProtocols.Length; i++)
         {
@@ -242,9 +266,9 @@ namespace MySql.Data.Common
             sslStream.AuthenticateAsClientAsync(_settings.Server, certs, tlsProtocol, false).GetAwaiter().GetResult();
         }
 
-        lock (tlsConnectionRef) 
-        { 
-            tlsConnectionRef[connectionId] = tlsProtocol;
+        lock (tlsConnectionRef)
+        {
+          tlsConnectionRef[connectionId] = tlsProtocol;
         }
         tlsRetry.Remove(connectionId);
       }
