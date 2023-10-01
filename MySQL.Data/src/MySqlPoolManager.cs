@@ -46,7 +46,7 @@ namespace MySql.Data.MySqlClient
   /// </summary>
   internal class MySqlPoolManager
   {
-    private static readonly Dictionary<string, MySqlPool> Pools = new Dictionary<string, MySqlPool>();
+    private static readonly ConcurrentDictionary<string, MySqlPool> Pools = new ConcurrentDictionary<string, MySqlPool>();
     private static readonly List<MySqlPool> ClearingPools = new List<MySqlPool>();
     internal const int DEMOTED_TIMEOUT = 120000;
 
@@ -146,7 +146,7 @@ namespace MySql.Data.MySqlClient
       if (pool == null)
       {
         pool = await MySqlPool.CreateMySqlPoolAsync(settings, execAsync, cancellationToken).ConfigureAwait(false);
-        Pools.Add(text, pool);
+        Pools.TryAdd(text, pool);
       }
       else
         pool.Settings = settings;
@@ -207,7 +207,7 @@ namespace MySql.Data.MySqlClient
       await pool.ClearAsync(execAsync).ConfigureAwait(false);
 
       // and then remove the pool from the active pools list
-      Pools.Remove(key);
+      Pools.TryRemove(key, out MySqlPool mySqlPool);
 
       semaphoreSlim.Release();
     }
