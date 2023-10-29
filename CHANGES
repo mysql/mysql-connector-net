@@ -1,5 +1,5 @@
 8.3.0
-
+- Added support for build traversal (WL15798).
 
 8.2.0
 - Migrated installer to Wix 4.0 (WL15847).
