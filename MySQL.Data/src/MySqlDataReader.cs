@@ -915,6 +915,10 @@ namespace MySql.Data.MySqlClient
     {
       IMySqlValue val = GetFieldValue(i, true);
 
+      if (!_connection.Settings.OldGetStringBehavior)
+        return (string)val.Value;
+        
+        
       if (val is MySqlBinary)
       {
         byte[] v = ((MySqlBinary)val).Value;

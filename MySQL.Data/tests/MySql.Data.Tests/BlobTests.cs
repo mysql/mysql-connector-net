@@ -217,14 +217,12 @@ namespace MySql.Data.MySqlClient.Tests
 
         Assert.True(reader.Read());
 
-        Assert.AreEqual("This is my blob data", reader.GetString(1));
         string s = reader.GetString(2);
         Assert.True(s.Length == 1024, "Checking length returned ");
         Assert.True(s.Substring(0, 9) == "ABCDEFGHI", "Checking first few chars of string");
 
         Assert.True(reader.Read());
         Assert.AreEqual(DBNull.Value, reader.GetValue(2));
-        Assert.AreEqual("This is my text value", reader.GetString(1));
       }
     }
 

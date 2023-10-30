@@ -459,8 +459,6 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.AreEqual('o', (char)buffer[1]);
         Assert.AreEqual(2, read);
 
-        string s = reader.GetString(0);
-        Assert.AreEqual("something", s);
       }
     }
 
@@ -777,12 +775,10 @@ namespace MySql.Data.MySqlClient.Tests
         "SELECT ST_SRID(v) FROM Test" :
         "SELECT SRID(v) FROM Test";
 
-      using (MySqlDataReader reader = cmd.ExecuteReader())
-      {
-        reader.Read();
-        var val = reader.GetString(0);
-        Assert.AreEqual("101", val);
-      }
+      using var reader = cmd.ExecuteReader();
+      reader.Read();
+      var val = reader.GetInt32(0);
+      Assert.AreEqual(101, val);
     }
 
     [Test]
@@ -1663,5 +1659,38 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual(treatAsBool ? 1 : -2, reader.GetFieldValue<int>(0));
       Assert.AreEqual(treatAsBool ? 1 : -2, reader.GetFieldValue<long>(0));
     }
+
+    [Test]
+    public void OldGetStringBehaviorOff()
+    {
+      ExecuteSQL(@"CREATE TABLE Test (value1 int, value2 DATETIME); INSERT INTO Test VALUES (1, '2023-10-30');");
+
+      using var cmd = new MySqlCommand();
+      cmd.Connection = Connection;
+      cmd.CommandText = "SELECT * FROM Test";
+      using var reader = cmd.ExecuteReader();
+      reader.Read();
+      Assert.Throws<InvalidCastException>(() => reader.GetString(0));
+      Assert.Throws<InvalidCastException>(() => reader.GetString(1));
+   }
+
+    [Test]
+    public void OldGetStringBehaviorOn()
+    {
+      ExecuteSQL(@"CREATE TABLE Test (value1 int, value2 DECIMAL(10,2)); INSERT INTO Test VALUES (1, 20.4);");
+      
+      string connString = Connection.ConnectionString + $";oldgetstringbehavior=true;";
+      using var conn = new MySqlConnection(connString);
+      conn.Open();
+
+      using var cmd = new MySqlCommand();
+      cmd.Connection = conn;
+      cmd.CommandText = "SELECT * FROM Test";
+      using var reader = cmd.ExecuteReader();
+      reader.Read();
+      Assert.AreEqual("1", reader.GetString(0));
+      Assert.AreEqual("20.40", reader.GetString(1));
+   }
+
   }
 }
