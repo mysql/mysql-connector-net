@@ -98,6 +98,40 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    /// <summary>
+    /// Bug#35731216 Pool exhaustion after timeouts in transactions.
+    /// </summary>
+    [Test]
+    public void ConnectionPoolExhaustion()
+    {
+      for (var i = 0; i <= 11; i++)
+      {
+        var ex = Assert.Catch<MySqlException>(() => CreateCommandTimeoutException());
+        //Prior to the fix the exception thrown was 'error connecting: Timeout expired.  The timeout period elapsed prior to obtaining a connection from the pool.  This may have occurred because all pooled connections were in use and max pool size was reached.' after the 10th execution.
+        Assert.AreEqual("Fatal error encountered during command execution.", ex.Message);
+      }
+    }
+
+    private void CreateCommandTimeoutException()
+    {
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+      settings.Pooling = true;
+      settings.MaximumPoolSize = 10;
+      using (var conn = new MySqlConnection(settings.GetConnectionString(true)))
+      {
+        conn.Open();
+        using (var tran = conn.BeginTransaction())
+        {
+          using (var cmd = conn.CreateCommand())
+          {
+            cmd.CommandText = "DO SLEEP(5);";
+            cmd.CommandTimeout = 1;
+            cmd.ExecuteNonQuery();
+          }
+        }
+      }
+    }
+
     [Test]
     public void ConnectingAsUTF8()
     {

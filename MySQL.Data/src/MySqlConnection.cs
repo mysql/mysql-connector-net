@@ -743,8 +743,6 @@ namespace MySql.Data.MySqlClient
             driver.currentTransaction.Connection = newConn;
           }
         }
-
-        await driver.CloseAsync(execAsync).ConfigureAwait(false);
       }
       catch (Exception ex)
       {
@@ -752,6 +750,7 @@ namespace MySql.Data.MySqlClient
       }
       finally
       {
+        await driver.CloseAsync(execAsync).ConfigureAwait(false);
         this.IsInUse = false;
       }
       SetState(ConnectionState.Closed, true);
