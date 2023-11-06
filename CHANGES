@@ -3,6 +3,7 @@
 - Added AssemblyInfo file to MySQL.Data.OpenTelemetry (Oracle Bug #35957212).
 - Fix broken .GetString() behavior on MySqlDataReader (WL15972).
 - Fixed a bug that prevented a connection from being removed from the in use connection pool. (MySQL Bug #112123, Oracle Bug #35731216).
+- Added missing target frameworks to EFCore nuget packages (Oracle Bug #35968775).
 
 
 8.2.0
