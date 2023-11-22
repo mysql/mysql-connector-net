@@ -13,6 +13,7 @@
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
     <PackageIcon>logo-mysql-170x115.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://dev.mysql.com/downloads/</PackageProjectUrl>
     <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -34,7 +35,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\Nuget\Data\images\logo-mysql-170x115.png" Pack="true" PackagePath="\" />
+    <None Include="..\..\Nuget\Images\logo-mysql-170x115.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Nuget\Readme\MySQL.Data\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 	
   <ItemGroup>

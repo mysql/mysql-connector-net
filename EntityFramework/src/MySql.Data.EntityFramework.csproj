@@ -11,7 +11,8 @@
     <AssemblyName>MySql.Data.EntityFramework</AssemblyName>
     <PackageId>MySql.Data.EntityFramework</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET</PackageTags>
-    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
+    <PackageIcon>logo-mysql-170x115.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://dev.mysql.com/downloads/</PackageProjectUrl>
     <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -23,6 +24,14 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="..\..\Nuget\Images\logo-mysql-170x115.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Nuget\Readme\EntityFramework\README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+  
   <ItemGroup>
     <None Remove="Properties\ProviderManifest.xml" />
     <None Remove="Properties\SchemaDefinition-5.6.ssdl" />

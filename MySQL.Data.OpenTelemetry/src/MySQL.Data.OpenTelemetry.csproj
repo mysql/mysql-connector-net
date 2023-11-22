@@ -10,7 +10,8 @@
     <AssemblyName>MySql.Data.OpenTelemetry</AssemblyName>
     <PackageId>MySql.Data.OpenTelemetry</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;ado;ado.net;database;sql;opentelemetry;tracing;diagnostics;instrumentation</PackageTags>
-    <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
+    <PackageIcon>logo-mysql-170x115.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://dev.mysql.com/downloads/</PackageProjectUrl>
     <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>    
@@ -30,6 +31,14 @@
     <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="..\..\Nuget\Images\logo-mysql-170x115.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Nuget\Readme\MySQL.Data.OpenTelemetry\README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+  
   <ItemGroup>
     <Reference Include="OpenTelemetry.Api">
       <HintPath>..\..\Dependencies\OpenTelemetry.Api\OpenTelemetry.Api.dll</HintPath>
