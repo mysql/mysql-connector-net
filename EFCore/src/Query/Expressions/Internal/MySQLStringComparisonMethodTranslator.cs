@@ -34,6 +34,7 @@ using MySql.EntityFrameworkCore.Properties;
 using MySql.EntityFrameworkCore.Query.Internal;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using static MySql.EntityFrameworkCore.Utils.Statics;
@@ -165,6 +166,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
       }
       else
       {
+      #if !NET8_0
         return new CaseExpression(
           new[]
           {
@@ -183,6 +185,26 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
             Utf8Bin(LCase(rightValue))
           )
         );
+#else
+        return new CaseExpression(
+          new[]
+          {
+        new CaseWhenClause(
+          _sqlExpressionFactory.In(stringComparison,(IReadOnlyList<SqlExpression>)_caseSensitiveComparisons),
+          // Case sensitive, accent sensitive
+          _sqlExpressionFactory.Equal(
+            leftValue,
+            Utf8Bin(rightValue)
+          )
+        )
+          },
+          // Case insensitive, accent sensitive
+          _sqlExpressionFactory.Equal(
+            LCase(leftValue),
+            Utf8Bin(LCase(rightValue))
+          )
+        );
+#endif
       }
     }
 
@@ -210,6 +232,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
       }
       else
       {
+#if !NET8_0
         return new CaseExpression(
           new[]
           {
@@ -229,6 +252,27 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
             Utf8Bin(LCase(prefix))
           )
         );
+#else
+        return new CaseExpression(
+          new[]
+          {
+        new CaseWhenClause(
+          _sqlExpressionFactory.In(stringComparison,(IReadOnlyList<SqlExpression>) _caseSensitiveComparisons),
+          // Case sensitive, accent sensitive
+          MakeStartsWithExpressionImpl(
+            target,
+            Utf8Bin(prefix),
+            originalPrefix: prefix
+          )
+        )
+          },
+          // Case insensitive, accent sensitive
+          MakeStartsWithExpressionImpl(
+            LCase(target),
+            Utf8Bin(LCase(prefix))
+          )
+        );
+#endif
       }
     }
 
@@ -286,6 +330,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
       }
       else
       {
+#if !NET8_0
         return new CaseExpression(
           new[]
           {
@@ -306,6 +351,28 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
             suffix
           )
         );
+#else
+        return new CaseExpression(
+          new[]
+          {
+        new CaseWhenClause(
+          _sqlExpressionFactory.In(stringComparison,(IReadOnlyList<SqlExpression>) _caseSensitiveComparisons),
+          // Case sensitive, accent sensitive
+          MakeEndsWithExpressionImpl(
+            target,
+            Utf8Bin(suffix),
+            suffix
+          )
+        )
+          },
+          // Case insensitive, accent sensitive
+          MakeEndsWithExpressionImpl(
+            LCase(target),
+            Utf8Bin(LCase(suffix)),
+            suffix
+          )
+        );
+#endif
       }
     }
 
@@ -379,6 +446,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
       }
       else
       {
+#if !NET8_0
         return new CaseExpression(
           new[]
           {
@@ -401,6 +469,30 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
               e => Utf8Bin(LCase(e))
           )
         );
+#else
+        return new CaseExpression(
+          new[]
+          {
+        new CaseWhenClause(
+          _sqlExpressionFactory.In(stringComparison,(IReadOnlyList<SqlExpression>) _caseSensitiveComparisons),
+          // Case sensitive, accent sensitive
+          MakeContainsExpressionImpl(
+            target,
+            e => e,
+            search,
+            e => Utf8Bin(e)
+          )
+        )
+          },
+          // Case insensitive, accent sensitive
+          MakeContainsExpressionImpl(
+              target,
+              e => LCase(e),
+              search,
+              e => Utf8Bin(LCase(e))
+          )
+        );
+#endif
       }
     }
     private SqlExpression MakeContainsExpressionImpl(
@@ -473,14 +565,12 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
             e => Utf8Bin(LCase(e))));
       }
 
+#if !NET8_0
       return _sqlExpressionFactory.Case(
         new[]
         {
       new CaseWhenClause(
-        _sqlExpressionFactory.In(
-          stringComparison,
-          _caseSensitiveComparisons,
-          false),
+        _sqlExpressionFactory.In(stringComparison, _caseSensitiveComparisons, false),
         // Case sensitive, accent sensitive
         MakeIndexOfExpressionImpl(
           target,
@@ -494,6 +584,26 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
           e => LCase(e),
           search,
           e => Utf8Bin(LCase(e))));
+#else
+      return _sqlExpressionFactory.Case(
+              new[]
+              {
+      new CaseWhenClause(
+        _sqlExpressionFactory.In(stringComparison, (IReadOnlyList<SqlExpression>)_caseSensitiveComparisons),
+        // Case sensitive, accent sensitive
+        MakeIndexOfExpressionImpl(
+          target,
+          e => e,
+          search,
+          e => Utf8Bin(e)))
+              },
+              // Case insensitive, accent sensitive
+              MakeIndexOfExpressionImpl(
+                target,
+                e => LCase(e),
+                search,
+                e => Utf8Bin(LCase(e))));
+#endif
     }
 
     private SqlExpression MakeIndexOfExpressionImpl(

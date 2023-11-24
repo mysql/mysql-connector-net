@@ -34,6 +34,7 @@ using MySql.EntityFrameworkCore.Metadata.Internal;
 
 namespace MySql.EntityFrameworkCore.Metadata.Conventions
 {
+#if !NET8_0
   /// <summary>
   ///   Represents a collation attribute for an entity.
   /// </summary>
@@ -58,4 +59,30 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
       true);
     }
   }
+#else
+  /// <summary>
+  ///   Represents a collation attribute for an Type.
+  /// </summary>
+  internal class MySqlEntityCollationAttributeConvention : TypeAttributeConventionBase<MySQLCollationAttribute>
+  {
+    /// <summary>
+    ///   Creates a new instance of <see cref="TypeAttributeConventionBase{TAttribute}" />.
+    /// </summary>
+    /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+    internal MySqlEntityCollationAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+      : base(dependencies)
+    { }
+
+    protected override void ProcessEntityTypeAdded(
+      [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+      [NotNull] MySQLCollationAttribute attribute,
+      [NotNull] IConventionContext<IConventionEntityTypeBuilder> context)
+    {
+      entityTypeBuilder.Metadata.SetAnnotation(
+      MySQLAnnotationNames.Collation,
+      attribute.Collation,
+      true);
+    }
+  }
+#endif
 }

@@ -6,6 +6,7 @@
 - Added missing target frameworks to EFCore nuget packages (Oracle Bug #35968775).
 - Added missing README files to Nuget packages (WL16041).
 - Upgraded the Google.Protobuf dependency to version 3.25.1 (WL16075).
+- Added support for .NET 8 and EFCore 8 GA versions (WL16035).
 
 
 8.2.0

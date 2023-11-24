@@ -34,6 +34,7 @@ using MySql.EntityFrameworkCore.Metadata.Internal;
 
 namespace MySql.EntityFrameworkCore.Metadata.Conventions
 {
+#if !NET8_0
   /// <summary>
   ///   Represents a character-set attribute for an entity.
   /// </summary>
@@ -58,4 +59,30 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
       true);
     }
   }
+#else
+  /// <summary>
+  ///   Represents a character-set attribute for a Type.
+  /// </summary>
+  internal class MySqlEntityCharsetAttributeConvention : TypeAttributeConventionBase<MySQLCharsetAttribute>
+  {
+    /// <summary>
+    ///   Creates a new instance of <see cref="PropertyAttributeConventionBase{TAttribute}" />.
+    /// </summary>
+    /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+    public MySqlEntityCharsetAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+      : base(dependencies)
+    { }
+
+    protected override void ProcessEntityTypeAdded(
+      [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+      [NotNull] MySQLCharsetAttribute attribute,
+      [NotNull] IConventionContext<IConventionEntityTypeBuilder> context)
+    {
+      entityTypeBuilder.Metadata.SetAnnotation(
+      MySQLAnnotationNames.Charset,
+      attribute.Charset,
+      true);
+    }
+  }
+#endif
 }

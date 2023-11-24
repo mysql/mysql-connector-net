@@ -43,8 +43,13 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     {
     }
 
+#if NET8_0
+    public CoreTypeMapping Clone(ValueConverter? converter)
+      => new MySQLGeometryTypeMapping(Parameters.WithComposedConverter(converter,null,null,null,null));
+#else
     public override CoreTypeMapping Clone(ValueConverter? converter)
       => new MySQLGeometryTypeMapping(Parameters.WithComposedConverter(converter));
+#endif
 
     protected override void ConfigureParameter(DbParameter parameter)
     {

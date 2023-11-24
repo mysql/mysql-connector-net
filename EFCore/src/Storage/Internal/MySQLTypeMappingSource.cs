@@ -187,12 +187,21 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         { typeof(byte), _utinyint },
         { typeof(sbyte), _tinyint },
 
+        #if !NET8_0
         // DateTime
         { typeof(DateTime), _datetime.Clone(6, null) },
         { typeof(DateOnly), _dateonly },
         { typeof(DateTimeOffset), _datetimeoffset.Clone(6, null) },
         { typeof(TimeSpan), _time.Clone(6, null) },
         { typeof(TimeOnly), _timeonly },
+        #else
+                // DateTime
+        { typeof(DateTime), _datetime.WithPrecisionAndScale(6, null) },
+        { typeof(DateOnly), _dateonly },
+        { typeof(DateTimeOffset), _datetimeoffset.Clone() },
+        { typeof(TimeSpan), _time.WithPrecisionAndScale(6, null) },
+        { typeof(TimeOnly), _timeonly },
+        #endif
 
         // decimals
         { typeof(float), _float },
@@ -243,9 +252,15 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
         if (_storeTypeMappings.TryGetValue(storeTypeNameBase!, out mapping))
         {
+#if !NET8_0
           return clrType == null
           ? mapping[0].Clone(in mappingInfo)
           : mapping.FirstOrDefault(m => m.ClrType == clrType)?.Clone(in mappingInfo);
+#else
+          return clrType == null
+          ? mapping[0].WithTypeMappingInfo(mappingInfo)
+          : mapping.FirstOrDefault(m => m.ClrType == clrType)?.WithTypeMappingInfo(mappingInfo);
+#endif
         }
       }
 
@@ -259,7 +274,11 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
                     clrType == typeof(DateTimeOffset) ||
                     clrType == typeof(TimeSpan))
             {
+#if !NET8_0
               return mapping.Clone(mappingInfo.Precision.Value, null);
+#else
+              return mapping.WithPrecisionAndScale(mappingInfo.Precision.Value, null);
+#endif
             }
           }
 
@@ -282,7 +301,11 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
           mapping = isFixedLength ? _charUnicode : size == null
           ? _longtextUnicode : _varcharUnicode;
 
+#if !NET8_0
           return size == null ? mapping : mapping.Clone($"{mapping.StoreTypeNameBase}({size})", size);
+#else
+          return size == null ? mapping : mapping.WithStoreTypeAndSize($"{mapping.StoreTypeNameBase}({size})", size);
+#endif
         }
         else if (clrType == typeof(byte[]))
         {
@@ -297,6 +320,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       return null;
     }
 
+#if !NET8_0
     protected override string ParseStoreTypeName(string? storeTypeName, out bool? unicode, out int? size, out int? precision, out int? scale)
     {
       var storeTypeBaseName = base.ParseStoreTypeName(storeTypeName, out unicode, out size, out precision, out scale);
@@ -305,5 +329,15 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         ? storeTypeBaseName + " unsigned"
         : storeTypeBaseName!;
     }
+#else
+    protected string ParseStoreTypeName(string? storeTypeName, ref bool? unicode, ref int? size, ref int? precision, ref int? scale)
+    {
+      var storeTypeBaseName = base.ParseStoreTypeName(storeTypeName, ref unicode, ref size, ref precision, ref scale);
+
+      return (storeTypeName?.IndexOf("unsigned", StringComparison.OrdinalIgnoreCase) ?? -1) >= 0
+        ? storeTypeBaseName + " unsigned"
+        : storeTypeBaseName!;
+    }
+#endif
   }
 }

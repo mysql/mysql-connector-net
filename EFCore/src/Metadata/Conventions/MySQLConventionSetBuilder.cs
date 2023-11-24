@@ -67,9 +67,10 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
 
       conventionSet.PropertyAddedConventions.Add(new MySqlCharsetAttributeConvention(Dependencies));
       conventionSet.PropertyAddedConventions.Add(new MySqlCollationAttributeConvention(Dependencies));
+      #if !NET8_0
       conventionSet.EntityTypeAddedConventions.Add(new MySqlEntityCharsetAttributeConvention(Dependencies));
       conventionSet.EntityTypeAddedConventions.Add(new MySqlEntityCollationAttributeConvention(Dependencies));
-
+      #endif
       ValueGenerationConvention valueGeneratorConvention = new MySQLValueGenerationConvention(Dependencies, RelationalDependencies);
       ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGeneratorConvention);
       ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGeneratorConvention);

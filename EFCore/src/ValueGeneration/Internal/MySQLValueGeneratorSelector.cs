@@ -52,7 +52,23 @@ namespace MySql.EntityFrameworkCore.ValueGeneration.Internal
     }
 
 
+    #if NET8_0
     /// <inheritdoc/>
+    public ValueGenerator Create(IProperty property, IEntityType entityType)
+    {
+      Check.NotNull(property, nameof(property));
+      Check.NotNull(entityType, nameof(entityType));
+
+      var ret = property.ClrType.UnwrapNullableType() == typeof(Guid)
+        ? property.ValueGenerated == ValueGenerated.Never
+        || property.GetDefaultValueSql() != null
+          ? (ValueGenerator)new TemporaryGuidValueGenerator()
+          : new SequentialGuidValueGenerator()
+        : base.Create(property, entityType);
+      return ret;
+    }
+#else
+     /// <inheritdoc/>
     public override ValueGenerator Create(IProperty property, IEntityType entityType)
     {
       Check.NotNull(property, nameof(property));
@@ -66,5 +82,6 @@ namespace MySql.EntityFrameworkCore.ValueGeneration.Internal
         : base.Create(property, entityType);
       return ret;
     }
+#endif
   }
 }

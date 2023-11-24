@@ -537,7 +537,12 @@ namespace MySql.EntityFrameworkCore.Migrations
 
       if (model?.GetRelationalModel().FindTable(operation.Name, operation.Schema) != null)
       {
+#if !NET8_0
         var entity = model?.GetRelationalModel().FindTable(operation.Name, operation.Schema)!.EntityTypeMappings.FirstOrDefault()!.EntityType;
+#else
+        var entity = model?.GetRelationalModel().FindTable(operation.Name, operation.Schema)!.EntityTypeMappings.FirstOrDefault()!.TypeBase;
+#endif
+
         var charset = entity?.FindAnnotation(MySQLAnnotationNames.Charset);
         if (charset != null)
         {

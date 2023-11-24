@@ -336,7 +336,11 @@ namespace MySql.Data.MySqlClient
       if (v is MySqlByte)
         return (sbyte)ChangeType(v, i, typeof(sbyte));
       else
+#if !NET8_0
         return checked(((MySqlByte)v).Value);
+#else
+        return checked((sbyte)((MySqlUByte)v).Value);
+#endif
     }
 
     /// <summary>
