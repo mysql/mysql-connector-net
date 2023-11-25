@@ -5,6 +5,7 @@
 - Fixed a bug that prevented a connection from being removed from the in use connection pool. (MySQL Bug #112123, Oracle Bug #35731216).
 - Added missing target frameworks to EFCore nuget packages (Oracle Bug #35968775).
 - Added missing README files to Nuget packages (WL16041).
+- Upgraded the Google.Protobuf dependency to version 3.25.1 (WL16075).
 
 
 8.2.0

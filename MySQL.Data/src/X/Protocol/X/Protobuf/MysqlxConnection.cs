@@ -1,4 +1,4 @@
-// Copyright (c) 2022, 2023, Oracle and/or its affiliates.
+// Copyright (c) 2023, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -7,7 +7,7 @@
 // This program is also distributed with certain software (including
 // but not limited to OpenSSL) that is licensed under separate terms,
 // as designated in a particular file or component or in included license
-// documentation.  The authors of MySQL hereby grant you an
+// documentation. The authors of MySQL hereby grant you an
 // additional permission to link the program and your derivative works
 // with the separately licensed software that they have included with
 // MySQL.
@@ -37,19 +37,23 @@ using pb = global::Google.Protobuf;
 using pbc = global::Google.Protobuf.Collections;
 using pbr = global::Google.Protobuf.Reflection;
 using scg = global::System.Collections.Generic;
-namespace Mysqlx.Connection {
+namespace Mysqlx.Connection
+{
 
   /// <summary>Holder for reflection information generated from mysqlx_connection.proto</summary>
-  internal static partial class MysqlxConnectionReflection {
+  public static partial class MysqlxConnectionReflection
+  {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_connection.proto</summary>
-    public static pbr::FileDescriptor Descriptor {
+    public static pbr::FileDescriptor Descriptor
+    {
       get { return descriptor; }
     }
     private static pbr::FileDescriptor descriptor;
 
-    static MysqlxConnectionReflection() {
+    static MysqlxConnectionReflection()
+    {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChdteXNxbHhfY29ubmVjdGlvbi5wcm90bxIRTXlzcWx4LkNvbm5lY3Rpb24a",
@@ -63,7 +67,7 @@ namespace Mysqlx.Connection {
             "GQoRdW5jb21wcmVzc2VkX3NpemUYASABKAQSNAoPc2VydmVyX21lc3NhZ2Vz",
             "GAIgASgOMhsuTXlzcWx4LlNlcnZlck1lc3NhZ2VzLlR5cGUSNAoPY2xpZW50",
             "X21lc3NhZ2VzGAMgASgOMhsuTXlzcWx4LkNsaWVudE1lc3NhZ2VzLlR5cGUS",
-            "DwoHcGF5bG9hZBgEIAIoDDoIkOowE4jqMC5CGQoXY29tLm15c3FsLmNqLngu",
+            "DwoHcGF5bG9hZBgEIAIoDDoIiOowLpDqMBNCGQoXY29tLm15c3FsLmNqLngu",
             "cHJvdG9idWY="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Mysqlx.Datatypes.MysqlxDatatypesReflection.Descriptor, global::Mysqlx.MysqlxReflection.Descriptor, },
@@ -86,10 +90,11 @@ namespace Mysqlx.Connection {
   ///
   ///A tuple of a ``name`` and a @ref Mysqlx::Datatypes::Any
   /// </summary>
-  internal sealed partial class Capability : pb::IMessage<Capability>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class Capability : pb::IMessage<Capability>
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
-  #endif
+#endif
   {
     private static readonly pb::MessageParser<Capability> _parser = new pb::MessageParser<Capability>(() => new Capability());
     private pb::UnknownFieldSet _unknownFields;
@@ -99,19 +104,22 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
+    public static pbr::MessageDescriptor Descriptor
+    {
       get { return global::Mysqlx.Connection.MysqlxConnectionReflection.Descriptor.MessageTypes[0]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
+    pbr::MessageDescriptor pb::IMessage.Descriptor
+    {
       get { return Descriptor; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Capability() {
+    public Capability()
+    {
       OnConstruction();
     }
 
@@ -119,7 +127,8 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Capability(Capability other) : this() {
+    public Capability(Capability other) : this()
+    {
       name_ = other.name_;
       value_ = other.value_ != null ? other.value_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -127,7 +136,8 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Capability Clone() {
+    public Capability Clone()
+    {
       return new Capability(this);
     }
 
@@ -138,22 +148,26 @@ namespace Mysqlx.Connection {
     private string name_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Name {
+    public string Name
+    {
       get { return name_ ?? NameDefaultValue; }
-      set {
+      set
+      {
         name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
     /// <summary>Gets whether the "name" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasName {
+    public bool HasName
+    {
       get { return name_ != null; }
     }
     /// <summary>Clears the value of the "name" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearName() {
+    public void ClearName()
+    {
       name_ = null;
     }
 
@@ -162,26 +176,32 @@ namespace Mysqlx.Connection {
     private global::Mysqlx.Datatypes.Any value_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Mysqlx.Datatypes.Any Value {
+    public global::Mysqlx.Datatypes.Any Value
+    {
       get { return value_; }
-      set {
+      set
+      {
         value_ = value;
       }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
+    public override bool Equals(object other)
+    {
       return Equals(other as Capability);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(Capability other) {
-      if (ReferenceEquals(other, null)) {
+    public bool Equals(Capability other)
+    {
+      if (ReferenceEquals(other, null))
+      {
         return false;
       }
-      if (ReferenceEquals(other, this)) {
+      if (ReferenceEquals(other, this))
+      {
         return true;
       }
       if (Name != other.Name) return false;
@@ -191,11 +211,13 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
+    public override int GetHashCode()
+    {
       int hash = 1;
       if (HasName) hash ^= Name.GetHashCode();
       if (value_ != null) hash ^= Value.GetHashCode();
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         hash ^= _unknownFields.GetHashCode();
       }
       return hash;
@@ -203,16 +225,18 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
+    public override string ToString()
+    {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void WriteTo(pb::CodedOutputStream output)
+    {
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
-    #else
+#else
       if (HasName) {
         output.WriteRawTag(10);
         output.WriteString(Name);
@@ -224,38 +248,46 @@ namespace Mysqlx.Connection {
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
-    #endif
+#endif
     }
 
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (HasName) {
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output)
+    {
+      if (HasName)
+      {
         output.WriteRawTag(10);
         output.WriteString(Name);
       }
-      if (value_ != null) {
+      if (value_ != null)
+      {
         output.WriteRawTag(18);
         output.WriteMessage(Value);
       }
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         _unknownFields.WriteTo(ref output);
       }
     }
-    #endif
+#endif
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
+    public int CalculateSize()
+    {
       int size = 0;
-      if (HasName) {
+      if (HasName)
+      {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
       }
-      if (value_ != null) {
+      if (value_ != null)
+      {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Value);
       }
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         size += _unknownFields.CalculateSize();
       }
       return size;
@@ -263,15 +295,20 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(Capability other) {
-      if (other == null) {
+    public void MergeFrom(Capability other)
+    {
+      if (other == null)
+      {
         return;
       }
-      if (other.HasName) {
+      if (other.HasName)
+      {
         Name = other.Name;
       }
-      if (other.value_ != null) {
-        if (value_ == null) {
+      if (other.value_ != null)
+      {
+        if (value_ == null)
+        {
           Value = new global::Mysqlx.Datatypes.Any();
         }
         Value.MergeFrom(other.Value);
@@ -281,10 +318,11 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void MergeFrom(pb::CodedInputStream input)
+    {
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
-    #else
+#else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
         switch(tag) {
@@ -304,34 +342,40 @@ namespace Mysqlx.Connection {
           }
         }
       }
-    #endif
+#endif
     }
 
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input)
+    {
       uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      while ((tag = input.ReadTag()) != 0)
+      {
+        switch (tag)
+        {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
-            Name = input.ReadString();
-            break;
-          }
-          case 18: {
-            if (value_ == null) {
-              Value = new global::Mysqlx.Datatypes.Any();
+          case 10:
+            {
+              Name = input.ReadString();
+              break;
             }
-            input.ReadMessage(Value);
-            break;
-          }
+          case 18:
+            {
+              if (value_ == null)
+              {
+                Value = new global::Mysqlx.Datatypes.Any();
+              }
+              input.ReadMessage(Value);
+              break;
+            }
         }
       }
     }
-    #endif
+#endif
 
   }
 
@@ -341,10 +385,11 @@ namespace Mysqlx.Connection {
   ///
   ///list of Capability
   /// </summary>
-  internal sealed partial class Capabilities : pb::IMessage<Capabilities>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class Capabilities : pb::IMessage<Capabilities>
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
-  #endif
+#endif
   {
     private static readonly pb::MessageParser<Capabilities> _parser = new pb::MessageParser<Capabilities>(() => new Capabilities());
     private pb::UnknownFieldSet _unknownFields;
@@ -354,19 +399,22 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
+    public static pbr::MessageDescriptor Descriptor
+    {
       get { return global::Mysqlx.Connection.MysqlxConnectionReflection.Descriptor.MessageTypes[1]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
+    pbr::MessageDescriptor pb::IMessage.Descriptor
+    {
       get { return Descriptor; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Capabilities() {
+    public Capabilities()
+    {
       OnConstruction();
     }
 
@@ -374,14 +422,16 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Capabilities(Capabilities other) : this() {
+    public Capabilities(Capabilities other) : this()
+    {
       capabilities_ = other.capabilities_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Capabilities Clone() {
+    public Capabilities Clone()
+    {
       return new Capabilities(this);
     }
 
@@ -392,35 +442,42 @@ namespace Mysqlx.Connection {
     private readonly pbc::RepeatedField<global::Mysqlx.Connection.Capability> capabilities_ = new pbc::RepeatedField<global::Mysqlx.Connection.Capability>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::Mysqlx.Connection.Capability> Capabilities_ {
+    public pbc::RepeatedField<global::Mysqlx.Connection.Capability> Capabilities_
+    {
       get { return capabilities_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
+    public override bool Equals(object other)
+    {
       return Equals(other as Capabilities);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(Capabilities other) {
-      if (ReferenceEquals(other, null)) {
+    public bool Equals(Capabilities other)
+    {
+      if (ReferenceEquals(other, null))
+      {
         return false;
       }
-      if (ReferenceEquals(other, this)) {
+      if (ReferenceEquals(other, this))
+      {
         return true;
       }
-      if(!capabilities_.Equals(other.capabilities_)) return false;
+      if (!capabilities_.Equals(other.capabilities_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
+    public override int GetHashCode()
+    {
       int hash = 1;
       hash ^= capabilities_.GetHashCode();
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         hash ^= _unknownFields.GetHashCode();
       }
       return hash;
@@ -428,40 +485,46 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
+    public override string ToString()
+    {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void WriteTo(pb::CodedOutputStream output)
+    {
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
-    #else
+#else
       capabilities_.WriteTo(output, _repeated_capabilities_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
-    #endif
+#endif
     }
 
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output)
+    {
       capabilities_.WriteTo(ref output, _repeated_capabilities_codec);
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         _unknownFields.WriteTo(ref output);
       }
     }
-    #endif
+#endif
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
+    public int CalculateSize()
+    {
       int size = 0;
       size += capabilities_.CalculateSize(_repeated_capabilities_codec);
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         size += _unknownFields.CalculateSize();
       }
       return size;
@@ -469,8 +532,10 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(Capabilities other) {
-      if (other == null) {
+    public void MergeFrom(Capabilities other)
+    {
+      if (other == null)
+      {
         return;
       }
       capabilities_.Add(other.capabilities_);
@@ -479,10 +544,11 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void MergeFrom(pb::CodedInputStream input)
+    {
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
-    #else
+#else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
         switch(tag) {
@@ -495,27 +561,31 @@ namespace Mysqlx.Connection {
           }
         }
       }
-    #endif
+#endif
     }
 
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input)
+    {
       uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      while ((tag = input.ReadTag()) != 0)
+      {
+        switch (tag)
+        {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
-            capabilities_.AddEntriesFrom(ref input, _repeated_capabilities_codec);
-            break;
-          }
+          case 10:
+            {
+              capabilities_.AddEntriesFrom(ref input, _repeated_capabilities_codec);
+              break;
+            }
         }
       }
     }
-    #endif
+#endif
 
   }
 
@@ -525,10 +595,11 @@ namespace Mysqlx.Connection {
   ///
   ///@returns @ref Mysqlx::Connection::Capabilities or @ref Mysqlx::Error
   /// </summary>
-  internal sealed partial class CapabilitiesGet : pb::IMessage<CapabilitiesGet>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class CapabilitiesGet : pb::IMessage<CapabilitiesGet>
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
-  #endif
+#endif
   {
     private static readonly pb::MessageParser<CapabilitiesGet> _parser = new pb::MessageParser<CapabilitiesGet>(() => new CapabilitiesGet());
     private pb::UnknownFieldSet _unknownFields;
@@ -538,19 +609,22 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
+    public static pbr::MessageDescriptor Descriptor
+    {
       get { return global::Mysqlx.Connection.MysqlxConnectionReflection.Descriptor.MessageTypes[2]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
+    pbr::MessageDescriptor pb::IMessage.Descriptor
+    {
       get { return Descriptor; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public CapabilitiesGet() {
+    public CapabilitiesGet()
+    {
       OnConstruction();
     }
 
@@ -558,29 +632,35 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public CapabilitiesGet(CapabilitiesGet other) : this() {
+    public CapabilitiesGet(CapabilitiesGet other) : this()
+    {
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public CapabilitiesGet Clone() {
+    public CapabilitiesGet Clone()
+    {
       return new CapabilitiesGet(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
+    public override bool Equals(object other)
+    {
       return Equals(other as CapabilitiesGet);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(CapabilitiesGet other) {
-      if (ReferenceEquals(other, null)) {
+    public bool Equals(CapabilitiesGet other)
+    {
+      if (ReferenceEquals(other, null))
+      {
         return false;
       }
-      if (ReferenceEquals(other, this)) {
+      if (ReferenceEquals(other, this))
+      {
         return true;
       }
       return Equals(_unknownFields, other._unknownFields);
@@ -588,9 +668,11 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
+    public override int GetHashCode()
+    {
       int hash = 1;
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         hash ^= _unknownFields.GetHashCode();
       }
       return hash;
@@ -598,37 +680,43 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
+    public override string ToString()
+    {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void WriteTo(pb::CodedOutputStream output)
+    {
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
-    #else
+#else
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
-    #endif
+#endif
     }
 
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (_unknownFields != null) {
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output)
+    {
+      if (_unknownFields != null)
+      {
         _unknownFields.WriteTo(ref output);
       }
     }
-    #endif
+#endif
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
+    public int CalculateSize()
+    {
       int size = 0;
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         size += _unknownFields.CalculateSize();
       }
       return size;
@@ -636,8 +724,10 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(CapabilitiesGet other) {
-      if (other == null) {
+    public void MergeFrom(CapabilitiesGet other)
+    {
+      if (other == null)
+      {
         return;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -645,10 +735,11 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void MergeFrom(pb::CodedInputStream input)
+    {
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
-    #else
+#else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
         switch(tag) {
@@ -657,23 +748,26 @@ namespace Mysqlx.Connection {
             break;
         }
       }
-    #endif
+#endif
     }
 
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input)
+    {
       uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      while ((tag = input.ReadTag()) != 0)
+      {
+        switch (tag)
+        {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
         }
       }
     }
-    #endif
+#endif
 
   }
 
@@ -688,10 +782,11 @@ namespace Mysqlx.Connection {
   ///
   ///@returns @ref Mysqlx::Ok  or @ref Mysqlx::Error
   /// </summary>
-  internal sealed partial class CapabilitiesSet : pb::IMessage<CapabilitiesSet>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class CapabilitiesSet : pb::IMessage<CapabilitiesSet>
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
-  #endif
+#endif
   {
     private static readonly pb::MessageParser<CapabilitiesSet> _parser = new pb::MessageParser<CapabilitiesSet>(() => new CapabilitiesSet());
     private pb::UnknownFieldSet _unknownFields;
@@ -701,19 +796,22 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
+    public static pbr::MessageDescriptor Descriptor
+    {
       get { return global::Mysqlx.Connection.MysqlxConnectionReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
+    pbr::MessageDescriptor pb::IMessage.Descriptor
+    {
       get { return Descriptor; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public CapabilitiesSet() {
+    public CapabilitiesSet()
+    {
       OnConstruction();
     }
 
@@ -721,14 +819,16 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public CapabilitiesSet(CapabilitiesSet other) : this() {
+    public CapabilitiesSet(CapabilitiesSet other) : this()
+    {
       capabilities_ = other.capabilities_ != null ? other.capabilities_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public CapabilitiesSet Clone() {
+    public CapabilitiesSet Clone()
+    {
       return new CapabilitiesSet(this);
     }
 
@@ -737,26 +837,32 @@ namespace Mysqlx.Connection {
     private global::Mysqlx.Connection.Capabilities capabilities_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Mysqlx.Connection.Capabilities Capabilities {
+    public global::Mysqlx.Connection.Capabilities Capabilities
+    {
       get { return capabilities_; }
-      set {
+      set
+      {
         capabilities_ = value;
       }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
+    public override bool Equals(object other)
+    {
       return Equals(other as CapabilitiesSet);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(CapabilitiesSet other) {
-      if (ReferenceEquals(other, null)) {
+    public bool Equals(CapabilitiesSet other)
+    {
+      if (ReferenceEquals(other, null))
+      {
         return false;
       }
-      if (ReferenceEquals(other, this)) {
+      if (ReferenceEquals(other, this))
+      {
         return true;
       }
       if (!object.Equals(Capabilities, other.Capabilities)) return false;
@@ -765,10 +871,12 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
+    public override int GetHashCode()
+    {
       int hash = 1;
       if (capabilities_ != null) hash ^= Capabilities.GetHashCode();
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         hash ^= _unknownFields.GetHashCode();
       }
       return hash;
@@ -776,16 +884,18 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
+    public override string ToString()
+    {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void WriteTo(pb::CodedOutputStream output)
+    {
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
-    #else
+#else
       if (capabilities_ != null) {
         output.WriteRawTag(10);
         output.WriteMessage(Capabilities);
@@ -793,31 +903,37 @@ namespace Mysqlx.Connection {
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
-    #endif
+#endif
     }
 
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (capabilities_ != null) {
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output)
+    {
+      if (capabilities_ != null)
+      {
         output.WriteRawTag(10);
         output.WriteMessage(Capabilities);
       }
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         _unknownFields.WriteTo(ref output);
       }
     }
-    #endif
+#endif
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
+    public int CalculateSize()
+    {
       int size = 0;
-      if (capabilities_ != null) {
+      if (capabilities_ != null)
+      {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Capabilities);
       }
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         size += _unknownFields.CalculateSize();
       }
       return size;
@@ -825,12 +941,16 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(CapabilitiesSet other) {
-      if (other == null) {
+    public void MergeFrom(CapabilitiesSet other)
+    {
+      if (other == null)
+      {
         return;
       }
-      if (other.capabilities_ != null) {
-        if (capabilities_ == null) {
+      if (other.capabilities_ != null)
+      {
+        if (capabilities_ == null)
+        {
           Capabilities = new global::Mysqlx.Connection.Capabilities();
         }
         Capabilities.MergeFrom(other.Capabilities);
@@ -840,10 +960,11 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void MergeFrom(pb::CodedInputStream input)
+    {
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
-    #else
+#else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
         switch(tag) {
@@ -859,30 +980,35 @@ namespace Mysqlx.Connection {
           }
         }
       }
-    #endif
+#endif
     }
 
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input)
+    {
       uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      while ((tag = input.ReadTag()) != 0)
+      {
+        switch (tag)
+        {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
-            if (capabilities_ == null) {
-              Capabilities = new global::Mysqlx.Connection.Capabilities();
+          case 10:
+            {
+              if (capabilities_ == null)
+              {
+                Capabilities = new global::Mysqlx.Connection.Capabilities();
+              }
+              input.ReadMessage(Capabilities);
+              break;
             }
-            input.ReadMessage(Capabilities);
-            break;
-          }
         }
       }
     }
-    #endif
+#endif
 
   }
 
@@ -894,10 +1020,11 @@ namespace Mysqlx.Connection {
   ///
   ///@returns @ref Mysqlx::Ok
   /// </summary>
-  internal sealed partial class Close : pb::IMessage<Close>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class Close : pb::IMessage<Close>
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
-  #endif
+#endif
   {
     private static readonly pb::MessageParser<Close> _parser = new pb::MessageParser<Close>(() => new Close());
     private pb::UnknownFieldSet _unknownFields;
@@ -907,19 +1034,22 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
+    public static pbr::MessageDescriptor Descriptor
+    {
       get { return global::Mysqlx.Connection.MysqlxConnectionReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
+    pbr::MessageDescriptor pb::IMessage.Descriptor
+    {
       get { return Descriptor; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Close() {
+    public Close()
+    {
       OnConstruction();
     }
 
@@ -927,29 +1057,35 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Close(Close other) : this() {
+    public Close(Close other) : this()
+    {
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Close Clone() {
+    public Close Clone()
+    {
       return new Close(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
+    public override bool Equals(object other)
+    {
       return Equals(other as Close);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(Close other) {
-      if (ReferenceEquals(other, null)) {
+    public bool Equals(Close other)
+    {
+      if (ReferenceEquals(other, null))
+      {
         return false;
       }
-      if (ReferenceEquals(other, this)) {
+      if (ReferenceEquals(other, this))
+      {
         return true;
       }
       return Equals(_unknownFields, other._unknownFields);
@@ -957,9 +1093,11 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
+    public override int GetHashCode()
+    {
       int hash = 1;
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         hash ^= _unknownFields.GetHashCode();
       }
       return hash;
@@ -967,37 +1105,43 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
+    public override string ToString()
+    {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void WriteTo(pb::CodedOutputStream output)
+    {
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
-    #else
+#else
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
-    #endif
+#endif
     }
 
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (_unknownFields != null) {
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output)
+    {
+      if (_unknownFields != null)
+      {
         _unknownFields.WriteTo(ref output);
       }
     }
-    #endif
+#endif
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
+    public int CalculateSize()
+    {
       int size = 0;
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         size += _unknownFields.CalculateSize();
       }
       return size;
@@ -1005,8 +1149,10 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(Close other) {
-      if (other == null) {
+    public void MergeFrom(Close other)
+    {
+      if (other == null)
+      {
         return;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -1014,10 +1160,11 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void MergeFrom(pb::CodedInputStream input)
+    {
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
-    #else
+#else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
         switch(tag) {
@@ -1026,30 +1173,34 @@ namespace Mysqlx.Connection {
             break;
         }
       }
-    #endif
+#endif
     }
 
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input)
+    {
       uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      while ((tag = input.ReadTag()) != 0)
+      {
+        switch (tag)
+        {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
         }
       }
     }
-    #endif
+#endif
 
   }
 
-  internal sealed partial class Compression : pb::IMessage<Compression>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class Compression : pb::IMessage<Compression>
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
-  #endif
+#endif
   {
     private static readonly pb::MessageParser<Compression> _parser = new pb::MessageParser<Compression>(() => new Compression());
     private pb::UnknownFieldSet _unknownFields;
@@ -1060,19 +1211,22 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
+    public static pbr::MessageDescriptor Descriptor
+    {
       get { return global::Mysqlx.Connection.MysqlxConnectionReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
+    pbr::MessageDescriptor pb::IMessage.Descriptor
+    {
       get { return Descriptor; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Compression() {
+    public Compression()
+    {
       OnConstruction();
     }
 
@@ -1080,7 +1234,8 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Compression(Compression other) : this() {
+    public Compression(Compression other) : this()
+    {
       _hasBits0 = other._hasBits0;
       uncompressedSize_ = other.uncompressedSize_;
       serverMessages_ = other.serverMessages_;
@@ -1091,7 +1246,8 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Compression Clone() {
+    public Compression Clone()
+    {
       return new Compression(this);
     }
 
@@ -1102,9 +1258,11 @@ namespace Mysqlx.Connection {
     private ulong uncompressedSize_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong UncompressedSize {
+    public ulong UncompressedSize
+    {
       get { if ((_hasBits0 & 1) != 0) { return uncompressedSize_; } else { return UncompressedSizeDefaultValue; } }
-      set {
+      set
+      {
         _hasBits0 |= 1;
         uncompressedSize_ = value;
       }
@@ -1112,13 +1270,15 @@ namespace Mysqlx.Connection {
     /// <summary>Gets whether the "uncompressed_size" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasUncompressedSize {
+    public bool HasUncompressedSize
+    {
       get { return (_hasBits0 & 1) != 0; }
     }
     /// <summary>Clears the value of the "uncompressed_size" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearUncompressedSize() {
+    public void ClearUncompressedSize()
+    {
       _hasBits0 &= ~1;
     }
 
@@ -1129,9 +1289,11 @@ namespace Mysqlx.Connection {
     private global::Mysqlx.ServerMessages.Types.Type serverMessages_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Mysqlx.ServerMessages.Types.Type ServerMessages {
+    public global::Mysqlx.ServerMessages.Types.Type ServerMessages
+    {
       get { if ((_hasBits0 & 2) != 0) { return serverMessages_; } else { return ServerMessagesDefaultValue; } }
-      set {
+      set
+      {
         _hasBits0 |= 2;
         serverMessages_ = value;
       }
@@ -1139,13 +1301,15 @@ namespace Mysqlx.Connection {
     /// <summary>Gets whether the "server_messages" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasServerMessages {
+    public bool HasServerMessages
+    {
       get { return (_hasBits0 & 2) != 0; }
     }
     /// <summary>Clears the value of the "server_messages" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearServerMessages() {
+    public void ClearServerMessages()
+    {
       _hasBits0 &= ~2;
     }
 
@@ -1156,9 +1320,11 @@ namespace Mysqlx.Connection {
     private global::Mysqlx.ClientMessages.Types.Type clientMessages_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Mysqlx.ClientMessages.Types.Type ClientMessages {
+    public global::Mysqlx.ClientMessages.Types.Type ClientMessages
+    {
       get { if ((_hasBits0 & 4) != 0) { return clientMessages_; } else { return ClientMessagesDefaultValue; } }
-      set {
+      set
+      {
         _hasBits0 |= 4;
         clientMessages_ = value;
       }
@@ -1166,13 +1332,15 @@ namespace Mysqlx.Connection {
     /// <summary>Gets whether the "client_messages" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasClientMessages {
+    public bool HasClientMessages
+    {
       get { return (_hasBits0 & 4) != 0; }
     }
     /// <summary>Clears the value of the "client_messages" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearClientMessages() {
+    public void ClearClientMessages()
+    {
       _hasBits0 &= ~4;
     }
 
@@ -1183,38 +1351,46 @@ namespace Mysqlx.Connection {
     private pb::ByteString payload_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pb::ByteString Payload {
+    public pb::ByteString Payload
+    {
       get { return payload_ ?? PayloadDefaultValue; }
-      set {
+      set
+      {
         payload_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
     /// <summary>Gets whether the "payload" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasPayload {
+    public bool HasPayload
+    {
       get { return payload_ != null; }
     }
     /// <summary>Clears the value of the "payload" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearPayload() {
+    public void ClearPayload()
+    {
       payload_ = null;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
+    public override bool Equals(object other)
+    {
       return Equals(other as Compression);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(Compression other) {
-      if (ReferenceEquals(other, null)) {
+    public bool Equals(Compression other)
+    {
+      if (ReferenceEquals(other, null))
+      {
         return false;
       }
-      if (ReferenceEquals(other, this)) {
+      if (ReferenceEquals(other, this))
+      {
         return true;
       }
       if (UncompressedSize != other.UncompressedSize) return false;
@@ -1226,13 +1402,15 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
+    public override int GetHashCode()
+    {
       int hash = 1;
       if (HasUncompressedSize) hash ^= UncompressedSize.GetHashCode();
       if (HasServerMessages) hash ^= ServerMessages.GetHashCode();
       if (HasClientMessages) hash ^= ClientMessages.GetHashCode();
       if (HasPayload) hash ^= Payload.GetHashCode();
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         hash ^= _unknownFields.GetHashCode();
       }
       return hash;
@@ -1240,16 +1418,18 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
+    public override string ToString()
+    {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void WriteTo(pb::CodedOutputStream output)
+    {
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
-    #else
+#else
       if (HasUncompressedSize) {
         output.WriteRawTag(8);
         output.WriteUInt64(UncompressedSize);
@@ -1269,52 +1449,64 @@ namespace Mysqlx.Connection {
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
-    #endif
+#endif
     }
 
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (HasUncompressedSize) {
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output)
+    {
+      if (HasUncompressedSize)
+      {
         output.WriteRawTag(8);
         output.WriteUInt64(UncompressedSize);
       }
-      if (HasServerMessages) {
+      if (HasServerMessages)
+      {
         output.WriteRawTag(16);
-        output.WriteEnum((int) ServerMessages);
+        output.WriteEnum((int)ServerMessages);
       }
-      if (HasClientMessages) {
+      if (HasClientMessages)
+      {
         output.WriteRawTag(24);
-        output.WriteEnum((int) ClientMessages);
+        output.WriteEnum((int)ClientMessages);
       }
-      if (HasPayload) {
+      if (HasPayload)
+      {
         output.WriteRawTag(34);
         output.WriteBytes(Payload);
       }
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         _unknownFields.WriteTo(ref output);
       }
     }
-    #endif
+#endif
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
+    public int CalculateSize()
+    {
       int size = 0;
-      if (HasUncompressedSize) {
+      if (HasUncompressedSize)
+      {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(UncompressedSize);
       }
-      if (HasServerMessages) {
-        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) ServerMessages);
+      if (HasServerMessages)
+      {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int)ServerMessages);
       }
-      if (HasClientMessages) {
-        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) ClientMessages);
+      if (HasClientMessages)
+      {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int)ClientMessages);
       }
-      if (HasPayload) {
+      if (HasPayload)
+      {
         size += 1 + pb::CodedOutputStream.ComputeBytesSize(Payload);
       }
-      if (_unknownFields != null) {
+      if (_unknownFields != null)
+      {
         size += _unknownFields.CalculateSize();
       }
       return size;
@@ -1322,20 +1514,26 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(Compression other) {
-      if (other == null) {
+    public void MergeFrom(Compression other)
+    {
+      if (other == null)
+      {
         return;
       }
-      if (other.HasUncompressedSize) {
+      if (other.HasUncompressedSize)
+      {
         UncompressedSize = other.UncompressedSize;
       }
-      if (other.HasServerMessages) {
+      if (other.HasServerMessages)
+      {
         ServerMessages = other.ServerMessages;
       }
-      if (other.HasClientMessages) {
+      if (other.HasClientMessages)
+      {
         ClientMessages = other.ClientMessages;
       }
-      if (other.HasPayload) {
+      if (other.HasPayload)
+      {
         Payload = other.Payload;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -1343,10 +1541,11 @@ namespace Mysqlx.Connection {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void MergeFrom(pb::CodedInputStream input)
+    {
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
-    #else
+#else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
         switch(tag) {
@@ -1371,39 +1570,46 @@ namespace Mysqlx.Connection {
           }
         }
       }
-    #endif
+#endif
     }
 
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input)
+    {
       uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
+      while ((tag = input.ReadTag()) != 0)
+      {
+        switch (tag)
+        {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
-            UncompressedSize = input.ReadUInt64();
-            break;
-          }
-          case 16: {
-            ServerMessages = (global::Mysqlx.ServerMessages.Types.Type) input.ReadEnum();
-            break;
-          }
-          case 24: {
-            ClientMessages = (global::Mysqlx.ClientMessages.Types.Type) input.ReadEnum();
-            break;
-          }
-          case 34: {
-            Payload = input.ReadBytes();
-            break;
-          }
+          case 8:
+            {
+              UncompressedSize = input.ReadUInt64();
+              break;
+            }
+          case 16:
+            {
+              ServerMessages = (global::Mysqlx.ServerMessages.Types.Type)input.ReadEnum();
+              break;
+            }
+          case 24:
+            {
+              ClientMessages = (global::Mysqlx.ClientMessages.Types.Type)input.ReadEnum();
+              break;
+            }
+          case 34:
+            {
+              Payload = input.ReadBytes();
+              break;
+            }
         }
       }
     }
-    #endif
+#endif
 
   }
 
