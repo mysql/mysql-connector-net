@@ -132,6 +132,21 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    /// <summary>
+    /// Bug#35827809 Connector/Net allows a connection that has been disposed to be reopened.
+    /// </summary>
+    [Test]
+    public void ReOpenDisposedConnection()
+    {
+      using (MySqlConnection c = new MySqlConnection(Connection.ConnectionString))
+      {
+        c.Open();
+        c.Close();
+        c.Dispose();
+        Assert.Throws<InvalidOperationException>(() => c.Open());
+      }
+    }
+
     [Test]
     public void ConnectingAsUTF8()
     {

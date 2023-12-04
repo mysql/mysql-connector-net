@@ -73,6 +73,7 @@ namespace MySql.Data.MySqlClient
     internal ConnectionState connectionState;
     internal Driver driver;
     internal bool hasBeenOpen;
+    internal bool hasBeenDisposed;
     private SchemaProvider _schemaProvider;
     private ExceptionInterceptor _exceptionInterceptor;
     internal CommandInterceptor commandInterceptor;
@@ -115,6 +116,7 @@ namespace MySql.Data.MySqlClient
       //TODO: add event data to StateChange docs
       Settings = new MySqlConnectionStringBuilder();
       _database = String.Empty;
+      hasBeenDisposed = false;
     }
 
     /// <summary>
@@ -355,6 +357,7 @@ namespace MySql.Data.MySqlClient
     {
       if (State == ConnectionState.Open)
         Close();
+      hasBeenDisposed = true;
       base.Dispose(disposing);
     }
 
@@ -598,6 +601,9 @@ namespace MySql.Data.MySqlClient
     {
       if (State != ConnectionState.Closed)
         Throw(new InvalidOperationException(Resources.ConnectionAlreadyOpen));
+
+      if (hasBeenDisposed)
+        Throw(new InvalidOperationException("The connection had been disposed."));
 
       // start up our interceptors
       _exceptionInterceptor = new ExceptionInterceptor(this);

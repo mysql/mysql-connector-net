@@ -7,6 +7,7 @@
 - Added missing README files to Nuget packages (WL16041).
 - Upgraded the Google.Protobuf dependency to version 3.25.1 (WL16075).
 - Added support for .NET 8 and EFCore 8 GA versions (WL16035).
+- Fixed a bug that permitted to open a disposed connection (MySQL bug #112399, Oracle bug #35827809).
 
 
 8.2.0
