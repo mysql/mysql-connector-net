@@ -189,7 +189,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         ls = context.Actor.OrderBy(a => a.ActorId).Select(b => new ActorTest
         {
           Number = Convert.ToInt32(b.ActorId),
-          Value = Convert.ToString(b.LastUpdate),
+          Value = b.LastUpdate.ToString(),
           Text = b.FirstName,
         }).ToList();
 

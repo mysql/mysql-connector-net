@@ -234,9 +234,9 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.AreEqual("abcd", reader.GetString(0));
-          Assert.AreEqual("efgh", reader.GetString(1));
-          Assert.AreEqual("5678", reader.GetString(2));
+          Assert.AreEqual("abcd", reader.GetTextReader(0).ReadToEnd());
+          Assert.AreEqual("efgh", reader.GetTextReader(1).ReadToEnd());
+          Assert.AreEqual("5678", reader.GetTextReader(2).ReadToEnd());
         }
       }
     }
