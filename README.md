@@ -12,6 +12,8 @@ From MySQL Connector/NET 8.1, the driver contains an implementation of [OpenTele
 
 From MySQL Connector/NET 8.2, the driver adds support for [WebAuthn authentication](https://dev.mysql.com/doc/dev/connector-net/latest/api/data_api/MySql.Data.MySqlClient.WebAuthnActionCallback.html), the driver also adds support for [.NET 8](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8).
 
+From MySQL Connector/NET 8.3, the driver also adds support for [.NET 8](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8) and [EFCore 8](https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-8.0/whatsnew) GA versions.
+
 For detailed information please visit the official [MySQL Connector/NET documentation.](https://dev.mysql.com/doc/connector-net/en/)
 
 ## Licensing
