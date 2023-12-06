@@ -31,6 +31,7 @@ using System;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -234,9 +235,9 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.AreEqual("abcd", reader.GetTextReader(0).ReadToEnd());
-          Assert.AreEqual("efgh", reader.GetTextReader(1).ReadToEnd());
-          Assert.AreEqual("5678", reader.GetTextReader(2).ReadToEnd());
+          Assert.AreEqual("abcd", Convert.ToString(reader[0]));
+          Assert.AreEqual("efgh", Encoding.Default.GetString((byte[])reader[1]));
+          Assert.AreEqual("5678", Convert.ToString(reader[2]));
         }
       }
     }
