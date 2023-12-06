@@ -83,12 +83,16 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
     public override bool Open(bool errorsExpected = false)
     {
+      if (DbConnection.IsDisposed)
+        DbConnection = (MySqlConnection)CreateDbConnection();
       var result = base.Open(errorsExpected);
       return result;
     }
 
     public override async Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false)
     {
+      if (DbConnection.IsDisposed)
+        DbConnection = (MySqlConnection)CreateDbConnection();
       return await base.OpenAsync(cancellationToken, errorsExpected).ConfigureAwait(false);
     }
   }

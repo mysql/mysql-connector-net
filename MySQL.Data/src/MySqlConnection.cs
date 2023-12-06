@@ -251,6 +251,12 @@ namespace MySql.Data.MySqlClient
     [Browsable(false)]
     public override ConnectionState State => connectionState;
 
+    [Browsable(true)]
+    /// <summary>
+    ///  Gets a boolean indicating if the current connection had been disposed.
+    /// </summary>
+    public bool IsDisposed { get { return hasBeenDisposed; } }
+
     /// <summary>Gets a string containing the version of the MySQL server to which the client is connected.</summary>
     /// <returns>The version of the instance of MySQL.</returns>
     /// <exception cref = "InvalidOperationException" > The connection is closed.</exception>
