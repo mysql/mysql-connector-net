@@ -1,3 +1,7 @@
+8.2.1
+- Fixed deadlock bug in MySqlPoolManager.GetPoolAsync affecting apps with SynchronizationContext like ASP.NET MVC full framework app, Windows Forms app, WPF app.
+
+
 8.2.0
 - Migrated installer to Wix 4.0 (WL15847).
 - Fixed bug Opening two MySqlConnections simultaneously can crash (Oracle Bug #35307501).
