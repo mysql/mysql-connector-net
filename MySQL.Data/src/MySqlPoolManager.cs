@@ -139,7 +139,7 @@ namespace MySql.Data.MySqlClient
     {
       string text = GetKey(settings);
 
-      await waitHandle.WaitAsync(CancellationToken.None);
+      await waitHandle.WaitAsync(CancellationToken.None).ConfigureAwait(false);
       MySqlPool pool;
       Pools.TryGetValue(text, out pool);
 
@@ -209,7 +209,7 @@ namespace MySql.Data.MySqlClient
 
     public static async Task ClearAllPoolsAsync(bool execAsync)
     {
-      await waitHandle.WaitAsync();
+      await waitHandle.WaitAsync().ConfigureAwait(false);
 
       // Create separate keys list.
       List<string> keys = new List<string>(Pools.Count);

@@ -42,6 +42,7 @@
     <Compile Include="Framework\netstandard2_0\PartialTrustSandbox.cs" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Transactions" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 
   <ItemGroup>
