@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.Data.OpenTelemetry</Description>
     <Copyright>Copyright (c) 2023, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.3.0</Version>
+    <Version>8.4.0</Version>
     <Authors>Oracle</Authors>  
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>MySql.Data.OpenTelemetry</AssemblyName>
@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\Nuget\Readme\MySQL.Data.OpenTelemetry\README.md" Pack="true" PackagePath="\"/>
+    <None Include="..\..\Nuget\Readme\MySQL.Data.OpenTelemetry\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   
   <ItemGroup>

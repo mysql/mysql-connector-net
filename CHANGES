@@ -1,3 +1,6 @@
+8.4.0
+
+
 8.3.0
 - Added support for build traversal (WL15798).
 - Added AssemblyInfo file to MySQL.Data.OpenTelemetry (Oracle Bug #35957212).

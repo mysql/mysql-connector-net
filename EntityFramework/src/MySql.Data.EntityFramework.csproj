@@ -4,7 +4,7 @@
     <Description>MySql.Data.EntityFramework</Description>
     <Copyright>Copyright (c) 2016, 2023, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>8.3.0</Version>
+    <Version>8.4.0</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net462;netstandard2.1;</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\Nuget\Readme\EntityFramework\README.md" Pack="true" PackagePath="\"/>
+    <None Include="..\..\Nuget\Readme\EntityFramework\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   
   <ItemGroup>
