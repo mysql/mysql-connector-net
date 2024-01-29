@@ -880,6 +880,54 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    /// <summary>
+    /// Bug#36208932 - Shared memory connection doesn't work in multithread environment
+    /// To be able to connect using Shared Memory, it requires to start the server supporting the protocol
+    /// mysqld --standalone --console --shared-memory=on
+    /// </summary>
+    [Test]
+    [Ignore("To be able to connect using Shared Memory, it requires to start the server supporting the protocol")]
+    public void SharedMemoryMultithreadConnection()
+    {
+      if (!Platform.IsWindows()) Assert.Ignore("Shared Memory is only supported on Windows.");
+
+      var sb = new MySqlConnectionStringBuilder()
+      {
+        Server = Host,
+        UserID = RootUser,
+        ConnectionProtocol = MySqlConnectionProtocol.SharedMemory,
+      };
+
+      List<Thread> threads = new List<Thread>();
+      for (int i = 0; i < 2; i++)
+      {
+        threads.Add(new Thread(() =>
+        {
+          MySqlConnection connection = new MySqlConnection(sb.ConnectionString);
+
+          Assert.DoesNotThrow(() => connection.Open());
+
+          for (int i = 0; i < 200; i++)
+          {
+            MySqlCommand cmd = connection.CreateCommand();
+            cmd.CommandText = "Select CURRENT_USER();";
+            cmd.CommandType = CommandType.Text;
+            Assert.DoesNotThrow(() => cmd.ExecuteNonQuery());
+          }
+        }));
+      }
+
+      foreach (Thread thread in threads)
+      {
+        thread.Start();
+      }
+
+      foreach (Thread thread in threads)
+      {
+        thread.Join();
+      }
+    }
+
 #if NET452
     /// <summary>
     ///  Fix for aborted connections MySQL bug 80997 OraBug 23346197

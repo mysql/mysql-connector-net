@@ -160,34 +160,52 @@ namespace MySql.Data.Common
 
     private void GetConnectNumber(uint timeOut)
     {
-      EventWaitHandle connectRequest;
+      Mutex connectNamedMutex = null;
       try
       {
-        connectRequest =
-            EventWaitHandle.OpenExisting(memoryName + "_CONNECT_REQUEST");
-
+        connectNamedMutex = Mutex.OpenExisting(memoryName + "_CONNECT_NAMED_MUTEX");
       }
-      catch (Exception)
+      catch
       {
-        // If server runs as service, its shared memory is global 
-        // And if connector runs in user session, it needs to prefix
-        // shared memory name with "Global\"
-        string prefixedMemoryName = @"Global\" + memoryName;
-        connectRequest =
-            EventWaitHandle.OpenExisting(prefixedMemoryName + "_CONNECT_REQUEST");
-        memoryName = prefixedMemoryName;
+        throw new MySqlException("Failed to open shared memory connection mutex");
       }
-      EventWaitHandle connectAnswer =
-         EventWaitHandle.OpenExisting(memoryName + "_CONNECT_ANSWER");
-      using (SharedMemory connectData =
-          new SharedMemory(memoryName + "_CONNECT_DATA", (IntPtr)4))
+      if (!connectNamedMutex.WaitOne(checked((int)timeOut) * 1000, false))
+        throw new MySqlException("Mutex timeout during connection");
+      try
       {
-        // now start the connection
-        if (!connectRequest.Set())
-          throw new MySqlException("Failed to open shared memory connection");
-        if (!connectAnswer.WaitOne((int)(timeOut * 1000), false))
-          throw new MySqlException("Timeout during connection");
-        connectNumber = Marshal.ReadInt32(connectData.View);
+        EventWaitHandle connectRequest;
+        try
+        {
+          connectRequest =
+          EventWaitHandle.OpenExisting(memoryName + "_CONNECT_REQUEST");
+        }
+        catch (Exception)
+        {
+          // If server runs as service, its shared memory is global
+          // And if connector runs in user session, it needs to prefix
+          // shared memory name with "Global\"
+          string prefixedMemoryName = @"Global\" + memoryName;
+          connectRequest =
+          EventWaitHandle.OpenExisting(prefixedMemoryName + "_CONNECT_REQUEST");
+          memoryName = prefixedMemoryName;
+        }
+        EventWaitHandle connectAnswer =
+        EventWaitHandle.OpenExisting(memoryName + "_CONNECT_ANSWER");
+        using (SharedMemory connectData =
+        new SharedMemory(memoryName + "_CONNECT_DATA", (IntPtr)4))
+        {
+          // now start the connection
+          if (!connectRequest.Set())
+            throw new MySqlException("Failed to open shared memory connection");
+          if (!connectAnswer.WaitOne((int)(timeOut * 1000), false))
+            throw new MySqlException("Timeout during connection");
+          connectNumber = Marshal.ReadInt32(connectData.View);
+        }
+      }
+      finally
+      {
+        connectNamedMutex.ReleaseMutex();
+        connectNamedMutex.Dispose();
       }
     }
 
