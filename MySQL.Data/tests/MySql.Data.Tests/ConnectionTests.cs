@@ -31,6 +31,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -832,6 +833,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Ignore("To be able to connect using Named Pipes, it requires to start the server supporting the protocol")]
     public void ConnectUsingNamedPipes()
     {
+      if (!Platform.IsWindows()) Assert.Ignore("Shared Memory is only supported on Windows.");
+
       var sb = new MySqlConnectionStringBuilder()
       {
         Server = Host,
@@ -845,6 +848,54 @@ namespace MySql.Data.MySqlClient.Tests
       using var conn = new MySqlConnection(sb.ConnectionString);
       var ex = Assert.Throws<MySqlException>(() => conn.Open());
       StringAssert.AreEqualIgnoringCase(string.Format(Resources.SslNotAllowedForConnectionProtocol, sb.ConnectionProtocol), ex.Message);
+    }
+
+    /// <summary>
+    /// Bug#36208929 - Named pipe connection doesn't work in multithread environment
+    /// To be able to connect using Named Pipes, it requires to start the server supporting the protocol
+    /// mysqld --standalone --console --named-pipe=on
+    /// </summary>
+    [Test]
+    [Ignore("To be able to connect using Named Pipes, it requires to start the server supporting the protocol")]
+    public void NamedPipesMultithreadConnection()
+    {
+      if (!Platform.IsWindows()) Assert.Ignore("Named Pipes is only supported on Windows.");
+
+      var sb = new MySqlConnectionStringBuilder()
+      {
+        Server = Host,
+        UserID = RootUser,
+        ConnectionProtocol = MySqlConnectionProtocol.NamedPipe,
+      };
+
+      List<Thread> threads = new List<Thread>();
+      for (int i = 0; i < 2; i++)
+      {
+        threads.Add(new Thread(() =>
+        {
+          MySqlConnection connection = new MySqlConnection(sb.ConnectionString);
+
+          Assert.DoesNotThrow(() => connection.Open());
+
+          for (int i = 0; i < 200; i++)
+          {
+            MySqlCommand cmd = connection.CreateCommand();
+            cmd.CommandText = "Select CURRENT_USER();";
+            cmd.CommandType = CommandType.Text;
+            Assert.DoesNotThrow(() => cmd.ExecuteNonQuery());
+          }
+        }));
+      }
+
+      foreach (Thread thread in threads)
+      {
+        thread.Start();
+      }
+
+      foreach (Thread thread in threads)
+      {
+        thread.Join();
+      }
     }
 
     /// <summary>

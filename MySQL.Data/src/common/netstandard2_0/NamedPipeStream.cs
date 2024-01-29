@@ -76,7 +76,8 @@ namespace MySql.Data.MySqlClient.Common
           NativeMethods.FILE_WRITE_ATTRIBUTES | NativeMethods.FILE_WRITE_DATA,
           0, security, NativeMethods.OPEN_EXISTING, NativeMethods.FILE_FLAG_OVERLAPPED, 0);
 
-        if (nativeHandle != IntPtr.Zero)
+        handle = new SafeFileHandle(nativeHandle, true);
+        if (!handle.IsInvalid)
           break;
 
         if (Marshal.GetLastWin32Error() != ERROR_PIPE_BUSY)
@@ -102,7 +103,6 @@ namespace MySql.Data.MySqlClient.Common
         }
         timeout -= (uint)sw.ElapsedMilliseconds;
       }
-      handle = new SafeFileHandle(nativeHandle, true);
       fileStream = new FileStream(handle, mode, 4096, true);
     }
 

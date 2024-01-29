@@ -68,7 +68,7 @@ namespace MySql.Data.Common
       public bool inheritHandle;
     }
 
-    [DllImport("Kernel32", CharSet = CharSet.Unicode)]
+    [DllImport("Kernel32", CharSet = CharSet.Unicode, SetLastError = true)]
     static extern public IntPtr CreateFile(
             String fileName,
       uint desiredAccess,
