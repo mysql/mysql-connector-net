@@ -1,5 +1,5 @@
 8.4.0
-
+- Updated FOSS license text in all source files (WL16197)
 
 8.3.0
 - Added support for build traversal (WL15798).
