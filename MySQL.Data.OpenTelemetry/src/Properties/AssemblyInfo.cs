@@ -1,4 +1,4 @@
-// Copyright Â© 2008, 2024, Oracle and/or its affiliates.
+// Copyright © 2024, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -26,36 +26,30 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System.Security;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security;
 
-// General Information about an assembly is controlled through the following
+// General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MySql.Data.EntityFramework")]
-[assembly: AssemblyDescription("MySql.Data.EntityFramework adds support for cross-platform application deployment with the Entity Framework 6.4 version.")]
+[assembly: AssemblyTitle("MySql.Data.OpenTelemetry")]
+[assembly: AssemblyDescription("MySql.Data.OpenTelemetry activates telemetry capabilities when the target MySQL server is configured to support telemetry.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("MySQL Connector/NET")]
-[assembly: AssemblyCopyright("Copyright Â© 2008, 2024, Oracle and/or its affiliates.")]
-[assembly: AssemblyTrademark("OracleÂ®, Java, MySQL, and NetSuite are registered trademarks of Oracle and/or its affiliates.")]
+[assembly: AssemblyCopyright("Copyright © 2023, 2024, Oracle and/or its affiliates.")]
+[assembly: AssemblyTrademark("Oracle®, Java, MySQL, and NetSuite are registered trademarks of Oracle and/or its affiliates.")]
 [assembly: AssemblyCulture("")]
 [assembly: SecurityRules(SecurityRuleSet.Level1)]
 [assembly: CLSCompliant(false)]
 
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
-// COM, set the ComVisible attribute to true on that type.
+// Setting ComVisible to false makes the types in this assembly not visible to COM
+// components.  If you need to access a type in this assembly from COM, set the ComVisible
+// attribute to true on that type.
 [assembly: ComVisible(false)]
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-// [assembly: Guid("540e7b3c-bd0b-4980-96d1-5d140d303f7e")]
 
+// The following GUID is for the ID of the typelib if this project is exposed to COM.
 
-[assembly: InternalsVisibleTo("MySql.EntityFramework.Basic.Tests, PublicKey = 0024000004800000940000000602000000240000525341310004000001000100d973bda91f71752c78294126974a41a08643168271f65fc0fb3cd45f658da01fbca75ac74067d18e7afbf1467d7a519ce0248b13719717281bb4ddd4ecd71a580dfe0912dfc3690b1d24c7e1975bf7eed90e4ab14e10501eedf763bff8ac204f955c9c15c2cf4ebf6563d8320b6ea8d1ea3807623141f4b81ae30a6c886b3ee1")]
-[assembly: InternalsVisibleTo("MySql.EntityFramework.Migrations.Tests, PublicKey = 0024000004800000940000000602000000240000525341310004000001000100d973bda91f71752c78294126974a41a08643168271f65fc0fb3cd45f658da01fbca75ac74067d18e7afbf1467d7a519ce0248b13719717281bb4ddd4ecd71a580dfe0912dfc3690b1d24c7e1975bf7eed90e4ab14e10501eedf763bff8ac204f955c9c15c2cf4ebf6563d8320b6ea8d1ea3807623141f4b81ae30a6c886b3ee1")]
-
-
-
+[assembly: Guid("e33f787c-329b-410a-ab72-37126450cd7b")]

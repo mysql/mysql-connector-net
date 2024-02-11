@@ -42,4 +42,5 @@ using System.Resources;
 
 [assembly: AssemblyVersion("8.4.0")]
 [assembly: AssemblyInformationalVersion("8.4.0")]
+[assembly: AssemblyFileVersion("8.4.0")]
 [assembly: NeutralResourcesLanguage("en-US")]

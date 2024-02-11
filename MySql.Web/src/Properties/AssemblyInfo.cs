@@ -26,6 +26,7 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -34,20 +35,21 @@ using System.Security;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("MySql.Web")]
-[assembly: AssemblyDescription("ADO.Net driver for MySQL")]
+[assembly: AssemblyDescription("MySql.Web includes a provider model for use with ASP.NET applications.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Oracle")]
-[assembly: AssemblyProduct("MySql.Web")]
-[assembly: AssemblyCopyright("Copyright © 2004, 2023, Oracle and/or its affiliates.")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCompany("Oracle Corporation")]
+[assembly: AssemblyProduct("MySQL Connector/NET")]
+[assembly: AssemblyCopyright("Copyright © 2004, 2024, Oracle and/or its affiliates.")]
+[assembly: AssemblyTrademark("Oracle®, Java, MySQL, and NetSuite are registered trademarks of Oracle and/or its affiliates.")]
 [assembly: AssemblyCulture("")]
+[assembly: SecurityRules(SecurityRuleSet.Level1)]
+[assembly: CLSCompliant(false)]
 [assembly: AllowPartiallyTrustedCallers()]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
-[assembly: SecurityRules(SecurityRuleSet.Level1)]
 
 
 

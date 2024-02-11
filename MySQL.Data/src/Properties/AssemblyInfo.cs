@@ -36,12 +36,12 @@ using System.Security;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("MySql.Data")]
-[assembly: AssemblyDescription("ADO.Net driver for MySQL for .Net Framework and .Net Core")]
+[assembly: AssemblyDescription("MySql.Data.EntityFramework adds support for cross-platform application deployment with the Entity Framework 6.4 version.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Oracle")]
-[assembly: AssemblyProduct("MySql.Data.Core")]
-[assembly: AssemblyCopyright("Copyright (c) 2016, 2023, Oracle and/or its affiliates.")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCompany("Oracle Corporation")]
+[assembly: AssemblyProduct("MySQL Connector/NET")]
+[assembly: AssemblyCopyright("Copyright © 2016, 2024, Oracle and/or its affiliates.")]
+[assembly: AssemblyTrademark("Oracle®, Java, MySQL, and NetSuite are registered trademarks of Oracle and/or its affiliates.")]
 [assembly: AssemblyCulture("")]
 [assembly: SecurityRules(SecurityRuleSet.Level1)]
 [assembly: CLSCompliant(false)]
