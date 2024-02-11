@@ -362,6 +362,36 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
     }
   }
 
+  public partial class AllBlobTypesContext : MyTestContext
+  {
+    public virtual DbSet<AllBlobTypes> AllBlobTypes { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      modelBuilder.Entity<AllBlobTypes>(entity =>
+      {
+        entity.HasKey(e => e.Id)
+            .HasName("PRIMARY");
+
+        entity.ToTable("all_blob_types");
+
+        entity.Property(e => e.Example1)
+            .HasColumnName("blob_column")
+            .HasColumnType("blob");
+
+        entity.Property(e => e.Example2)
+            .HasColumnName("mediumblob_column")
+            .HasColumnType("mediumblob")
+            .HasMaxLength(65535);
+
+        entity.Property(e => e.Example3)
+            .HasColumnName("longblob_column")
+            .HasColumnType("longblob")
+            .HasMaxLength(16777215);
+      });
+    }
+  }
+
   public class WorldContext : MyTestContext
   {
     public virtual DbSet<Country> Countries { get; set; }

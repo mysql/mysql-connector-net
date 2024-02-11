@@ -36,7 +36,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 {
   internal class MySQLByteArrayTypeMapping : ByteArrayTypeMapping
   {
-    private const int MaxSize = 8000;
+    private const int MaxSize = System.Int32.MaxValue;
 
     private readonly int _maxSpecificSize;
 

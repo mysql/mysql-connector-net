@@ -225,6 +225,15 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
     public string? jsoncol { get; set; }
   }
 
+  public partial class AllBlobTypes
+  {
+    public byte Id { get; set; }
+    public byte[]? Example1 { get; set; }
+    public byte[]? Example2 { get; set; }
+    public byte[]? Example3 { get; set; }
+
+  }
+
   public partial class AllDataTypes
   {
     public byte AddressNumber1 { get; set; }

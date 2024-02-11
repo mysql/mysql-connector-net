@@ -47,6 +47,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Database.EnsureDeleted();
       using (var context = new StringTypesContext())
         context.Database.EnsureDeleted();
+      using (var context = new AllBlobTypesContext())
+        context.Database.EnsureDeleted();
     }
 
     [Test]
@@ -127,6 +129,48 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         Assert.AreEqual(now.TimeOfDay, data.BuildingName15);
         Assert.AreEqual(now, data.BuildingName16);
         Assert.AreEqual(now.Year, data.BuildingName17);
+      }
+    }
+
+    /// <summary>
+    /// Bug#36208913 Byte array type mapping has a fixed limit of 8000 in EFCore
+    /// </summary>
+    [Test]
+    public void LongBlobMapping()
+    {
+      using (var context = new AllBlobTypesContext())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+
+
+        var data1 = new byte[7000];
+        var data2 = new byte[60000];
+        var data3 = new byte[90000];
+
+
+        context.AllBlobTypes.Add(new AllBlobTypes()
+        {
+          Id = 1,
+          Example1 = data1,
+          Example2 = data2,
+          Example3 = data3,
+        });
+        context.SaveChanges();
+      }
+
+      using (var context = new AllBlobTypesContext())
+      {
+
+        var data1 = new byte[7000];
+        var data2 = new byte[60000];
+        var data3 = new byte[90000];
+
+        var data = context.AllBlobTypes.First();
+
+        Assert.AreEqual(data1.Length, data.Example1.Length);
+        Assert.AreEqual(data2.Length, data.Example2.Length);
+        Assert.AreEqual(data3.Length, data.Example3.Length);
       }
     }
 
