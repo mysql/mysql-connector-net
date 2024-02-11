@@ -618,9 +618,6 @@
   <data name="TlsNonValidProtocols" xml:space="preserve">
     <value>Specified list of TLS versions only contains non valid TLS protocols. Accepted values are TLSv1.2 and TLSv1.3</value>
   </data>
-  <data name="Tlsv13NotSupported" xml:space="preserve">
-    <value>TLSv1.3 is not supported by this framework.</value>
-  </data>
   <data name="TlsVersionsEmpty" xml:space="preserve">
     <value>Specified list of TLS versions is empty. Accepted values are TLSv1.2 and TLSv1.3</value>
   </data>

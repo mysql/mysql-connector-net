@@ -199,6 +199,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     /// <summary>
     /// WL14811 - Remove support for TLS 1.0 and 1.1
+    /// WL16176 - Add support for TLS 1.3
     /// </summary>
     [TestCase("[]", 1)]
     [TestCase("Tlsv1, Tlsv1.1", 2)]
@@ -208,21 +209,17 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase("foo, bar", 3)]
     [TestCase("Tlsv1.0, Tlsv1.2", 0)]
     [TestCase("foo, Tlsv1.2", 0)]
-    //#if NET48 || NETCOREAPP3_1 || NET5_0 || NET6_0
-    //    [TestCase("Tlsv1.3", "Tlsv1.3")]
-    //    [TestCase("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", "Tlsv1.3")]
-    //#endif
-#if NET452
     [TestCase("Tlsv1.3", 4)]
-    [TestCase("Tlsv1.0, Tlsv1.1, Tlsv1.2, Tlsv1.3", 0)]
-#endif
     [Property("Category", "Security")]
     public void TlsVersionTest(string tlsVersion, int error)
     {
+      if (error == 4 && Platform.IsMacOSX())
+        Assert.Ignore();
+
       var builder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       void SetTlsVersion() { builder.TlsVersion = tlsVersion; }
       string ex;
-      string tls = "TLSv1.2";
+      string tlsdefault = "TLSv1.2";
 
       switch (error)
       {
@@ -238,10 +235,6 @@ namespace MySql.Data.MySqlClient.Tests
           ex = Assert.Throws<ArgumentException>(SetTlsVersion).Message;
           StringAssert.AreEqualIgnoringCase(Resources.TlsNonValidProtocols, ex);
           break;
-        case 4:
-          SetTlsVersion();
-          Assert.Throws<NotSupportedException>(() => new MySqlConnection(builder.ConnectionString).Open());
-          break;
         default:
           SetTlsVersion();
           var conn = new MySqlConnection(builder.ConnectionString);
@@ -256,9 +249,11 @@ namespace MySql.Data.MySqlClient.Tests
 
             using MySqlDataReader dr = cmd.ExecuteReader();
             Assert.True(dr.Read());
-            StringAssert.AreEqualIgnoringCase(tls, dr[1].ToString());
+            if (error==4)
+              StringAssert.AreEqualIgnoringCase(tlsVersion, dr[1].ToString());
+            else
+              StringAssert.AreEqualIgnoringCase(tlsdefault, dr[1].ToString());
           }
-
           break;
       }
     }

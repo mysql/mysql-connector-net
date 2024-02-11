@@ -4,6 +4,7 @@
 - Fixed bug Named pipe connection doesn't work in multithread environment (Oracle Bug #36208929).
 - Fixed bug Byte array type mapping has a fixed limit of 8000 in EFCore (Oracle Bug #36208913).
 - Removed support for FIDO authentication (WL16150).
+- Add support for TLS 1.3 (WL16176).
 
 
 8.3.0

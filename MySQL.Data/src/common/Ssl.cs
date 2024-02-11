@@ -66,7 +66,7 @@ namespace MySql.Data.Common
     /// <summary>
     /// Defines the supported TLS protocols.
     /// </summary>
-    private static SslProtocols[] tlsProtocols = new SslProtocols[] { SslProtocols.Tls12 };
+    private static SslProtocols[] tlsProtocols = new SslProtocols[] { SslProtocols.Tls12};
     private static Dictionary<string, SslProtocols> tlsConnectionRef = new Dictionary<string, SslProtocols>();
     private static Dictionary<string, int> tlsRetry = new Dictionary<string, int>();
     private static Object thisLock = new Object();
@@ -108,9 +108,9 @@ namespace MySql.Data.Common
     {
       var certParser = new Org.BouncyCastle.X509.X509CertificateParser();
       var cert = certParser.ReadCertificate(File.ReadAllBytes(certificatePath));
-      return new X509Certificate2(cert.GetEncoded(),certificatePassword);
+      return new X509Certificate2(cert.GetEncoded(), certificatePassword);
     }
-    
+
 
     /// <summary>
     /// Retrieves a collection containing the client SSL PFX certificates.
@@ -214,15 +214,14 @@ namespace MySql.Data.Common
 
       if (_settings.TlsVersion != null)
       {
-#if NET452 || NETSTANDARD2_0
-        if (_settings.TlsVersion.Equals("Tls13", StringComparison.OrdinalIgnoreCase))
-          throw new NotSupportedException(Resources.Tlsv13NotSupported);
-#endif
-
         SslProtocols sslProtocolsToUse = (SslProtocols)Enum.Parse(typeof(SslProtocols), _settings.TlsVersion);
         List<SslProtocols> listProtocols = new List<SslProtocols>();
 
-#if NET48 || NETSTANDARD2_1 || NET5_0_OR_GREATER
+#if NET5_0_OR_GREATER
+        if (sslProtocolsToUse.HasFlag(SslProtocols.Tls13))
+          listProtocols.Add(SslProtocols.Tls13);
+#else
+        // 12288 represents the numerical value of SslProtocols.Tls13 enum option.
         if (sslProtocolsToUse.HasFlag((SslProtocols)12288))
           listProtocols.Add((SslProtocols)12288);
 #endif

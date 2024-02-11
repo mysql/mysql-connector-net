@@ -1375,15 +1375,6 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TLSv1.3 is not supported by this framework..
-        /// </summary>
-        internal static string Tlsv13NotSupported {
-            get {
-                return ResourceManager.GetString("Tlsv13NotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Specified list of TLS versions is empty. Accepted values are TLSv1.2 and TLSv1.3.
         /// </summary>
         internal static string TlsVersionsEmpty {
