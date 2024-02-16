@@ -889,7 +889,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Security token file could not be found at location given by OCI configuration entry &apos;security_token_file&apos;..
+        ///   Looks up a localized string similar to Secutiry token file could not be found at location given by OCI configuration entry &apos;security_token_file&apos;..
         /// </summary>
         internal static string OciSecurityTokenDoesNotExists {
             get {
