@@ -430,15 +430,6 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An event handler for FidoActionRequested was not specified..
-        /// </summary>
-        internal static string FidoMissingHandler {
-            get {
-                return ResourceManager.GetString("FidoMissingHandler", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to FIDO registration is missing..
         /// </summary>
         internal static string FidoRegistrationMissing {

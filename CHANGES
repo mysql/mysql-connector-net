@@ -2,7 +2,8 @@
 - Updated FOSS license text in all source files (WL16197).
 - Fixed bug Shared memory connection doesn't work in multithread environment (Oracle Bug #36208932).
 - Fixed bug Named pipe connection doesn't work in multithread environment (Oracle Bug #36208929).
-_ Fixed bug Byte array type mapping has a fixed limit of 8000 in EFCore (Oracle Bug #36208913).
+- Fixed bug Byte array type mapping has a fixed limit of 8000 in EFCore (Oracle Bug #36208913).
+- Removed support for FIDO authentication (WL16150).
 
 
 8.3.0

@@ -87,12 +87,6 @@ namespace MySql.Data.MySqlClient
 #endif
 
     /// <summary>
-    /// Occurs when FIDO authentication requests to perform gesture action on a device.
-    /// </summary>
-    [Obsolete("FIDO authentication client-side plugin is now deprecated. Use WebAuthn authentication client-side plugin instead.")]
-    public event FidoActionCallback FidoActionRequested;
-
-    /// <summary>
     /// Occurs when WebAuthn authentication makes a request to perform the gesture action on a device.
     /// </summary>
     public event WebAuthnActionCallback WebAuthnActionRequested;
@@ -618,7 +612,6 @@ namespace MySql.Data.MySqlClient
       SetState(ConnectionState.Connecting, true);
       AssertPermissions();
 
-      Settings.FidoActionRequested = FidoActionRequested;
       Settings.WebAuthnActionRequested = WebAuthnActionRequested;
 
       //TODO: SUPPORT FOR 452 AND 46X
@@ -1270,13 +1263,6 @@ namespace MySql.Data.MySqlClient
 
     #endregion
   }
-
-  /// <summary>
-  /// Represents the method to handle the <see cref="MySqlConnection.FidoActionRequested"/> event of a 
-  /// <see cref="MySqlConnection"/>
-  /// </summary>
-  [Obsolete("FIDO authentication client-side plugin is now deprecated. Use WebAuthn authentication client-side plugin instead.")]
-  public delegate void FidoActionCallback();
 
   /// <summary>
   /// Represents the method to handle the <see cref="MySqlConnection.WebAuthnActionRequested"/> event of a 

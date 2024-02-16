@@ -684,9 +684,6 @@
   <data name="FidoChallengeCorrupt" xml:space="preserve">
     <value>Challenge received is corrupt.</value>
   </data>
-  <data name="FidoMissingHandler" xml:space="preserve">
-    <value>An event handler for FidoActionRequested was not specified.</value>
-  </data>
   <data name="FidoRegistrationMissing" xml:space="preserve">
     <value>FIDO registration is missing.</value>
   </data>
