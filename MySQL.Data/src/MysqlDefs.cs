@@ -223,6 +223,12 @@ namespace MySql.Data.MySqlClient
     /// Bit-field data type
     /// </summary>
     Bit = 16,
+
+    /// <summary>
+    /// Vector type
+    /// </summary>
+    Vector=242,
+
     /// <summary>
     /// JSON
     /// </summary>

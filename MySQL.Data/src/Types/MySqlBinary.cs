@@ -73,6 +73,7 @@ namespace MySql.Data.Types
           case MySqlDbType.TinyBlob: return "TINY_BLOB";
           case MySqlDbType.MediumBlob: return "MEDIUM_BLOB";
           case MySqlDbType.LongBlob: return "LONG_BLOB";
+          case MySqlDbType.Vector: return "VECTOR";
           default:
             return "BLOB";
         }
@@ -167,12 +168,13 @@ namespace MySql.Data.Types
 
     public static void SetDSInfo(MySqlSchemaCollection sc)
     {
-      string[] types = new string[] { "BLOB", "TINYBLOB", "MEDIUMBLOB", "LONGBLOB", "BINARY", "VARBINARY" };
+      string[] types = new string[] { "BLOB", "TINYBLOB", "MEDIUMBLOB", "LONGBLOB", "BINARY", "VARBINARY", "VECTOR" };
       MySqlDbType[] dbtype = new MySqlDbType[] { MySqlDbType.Blob,
-                MySqlDbType.TinyBlob, MySqlDbType.MediumBlob, MySqlDbType.LongBlob, MySqlDbType.Binary, MySqlDbType.VarBinary };
-      long[] sizes = new long[] { 65535L, 255L, 16777215L, 4294967295L, 255L, 65535L };
-      string[] format = new string[] { null, null, null, null, "binary({0})", "varbinary({0})" };
-      string[] parms = new string[] { null, null, null, null, "length", "length" };
+                MySqlDbType.TinyBlob, MySqlDbType.MediumBlob, MySqlDbType.LongBlob, MySqlDbType.Binary, MySqlDbType.VarBinary,
+                MySqlDbType.Vector};
+      long[] sizes = new long[] { 65535L, 255L, 16777215L, 4294967295L, 255L, 65535L, 16777215L };
+      string[] format = new string[] { null, null, null, null, "binary({0})", "varbinary({0})", null };
+      string[] parms = new string[] { null, null, null, null, "length", "length", null };
 
       // we use name indexing because this method will only be called
       // when GetSchema is called for the DataSourceInformation 

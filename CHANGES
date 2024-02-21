@@ -8,6 +8,7 @@
 - Updated installer and binary metadata (WL16204).
 - Fixed bug Minpoolsize different than 0 causes connector to hang after first connection (Oracle Bug #36319784).
 - Fixed bug Tests failing due to removal of 'HAVE_SSL' variable from server (Oracle Bug #36374702).
+- Added support for Vector data type (WL16175).
 
 
 8.3.0

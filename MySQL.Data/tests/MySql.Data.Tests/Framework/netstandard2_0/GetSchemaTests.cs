@@ -75,6 +75,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void DataTypes()
     {
+      if (Version < new Version(9, 0, 0))
+        Assert.Ignore();
+
       DataTable dt = Connection.GetSchema("DataTypes", new string[] { });
 
       foreach (DataRow row in dt.Rows)

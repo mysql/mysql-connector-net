@@ -1692,5 +1692,100 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.AreEqual("20.40", reader.GetString(1));
    }
 
+    [Test]
+    public void BadVectorDataThrowsException()
+    {
+      if (Version < new Version(9, 0, 0))
+        Assert.Ignore();
+
+      ExecuteSQL(@"CREATE TABLE Test (vector1 VECTOR)");
+      using var cmd = new MySqlCommand();
+      cmd.Connection = Connection;
+
+      // insert a value
+      cmd.CommandText = "INSERT INTO Test VALUES(@v1)";
+      cmd.Parameters.Add("v1", MySqlDbType.Vector);
+      cmd.Parameters[0].Value = "not a vector value";
+      Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void InsertAndSelectVector(bool prepared)
+    {
+      if (Version < new Version(9, 0, 0))
+        Assert.Ignore();
+
+      ExecuteSQL(@"CREATE TABLE Test (vector1 VECTOR)");
+      using var cmd = new MySqlCommand();
+      cmd.Connection = Connection;
+
+      // insert a value
+      cmd.CommandText = "INSERT INTO Test VALUES(@v1)";
+      cmd.Parameters.Add("v1", MySqlDbType.Vector);
+      float[] floatArray = [1.2f, 2.3f, 3.4f];
+
+      // copy floats into byteArray
+      byte[] byteArray = new byte[floatArray.Length * 4];
+      Buffer.BlockCopy(floatArray, 0, byteArray, 0, byteArray.Length);
+
+      cmd.Parameters[0].Value = byteArray;
+      if (prepared) cmd.Prepare();
+      cmd.ExecuteNonQuery();
+
+      // now select that value back out and compare
+      cmd.CommandText = "SELECT vector1 from Test";
+      if (prepared) cmd.Prepare();
+      using var reader = cmd.ExecuteReader();
+      reader.Read();
+      var value = reader.GetValue(0);
+      Assert.IsInstanceOf(typeof(byte[]), value);
+      byteArray = (byte[])value;
+
+      float[] floatArray2 = new float[byteArray.Length / 4];
+      Buffer.BlockCopy(byteArray, 0, floatArray2, 0, byteArray.Length);
+
+      Assert.AreEqual(3, floatArray2.Length);
+      Assert.AreEqual(1.2f, floatArray2[0]);
+      Assert.AreEqual(2.3f, floatArray2[1]);
+      Assert.AreEqual(3.4f, floatArray2[2]);
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void VectorReturnedFromSproc(bool prepared)
+    {
+      if (Version < new Version(9, 0, 0))
+        Assert.Ignore();
+
+      ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
+      ExecuteSQL(@"CREATE PROCEDURE spTest (OUT v1 VECTOR) BEGIN 
+        SELECT STRING_TO_VECTOR('[1.2, 2.3, 3.4]') INTO v1; END");
+      using var cmd = new MySqlCommand();
+      cmd.Connection = Connection;
+
+      // prepare and execute the command
+      cmd.CommandText = "spTest";
+      cmd.Parameters.Add("v1", MySqlDbType.Vector);
+      cmd.Parameters[0].Direction = ParameterDirection.Output;
+      cmd.CommandType = CommandType.StoredProcedure;
+      if (prepared) cmd.Prepare();
+      cmd.ExecuteNonQuery();
+
+      // now the parameter should contain the output value
+      Assert.IsInstanceOf(typeof(byte[]), cmd.Parameters[0].Value);
+      byte[] byteArray = (byte[])cmd.Parameters[0].Value;
+
+      // now check to see if it has the correct values
+      float[] floatArray = new float[byteArray.Length / 4];
+      Buffer.BlockCopy(byteArray, 0, floatArray, 0, byteArray.Length);
+
+      Assert.AreEqual(3, floatArray.Length);
+      Assert.AreEqual(1.2f, floatArray[0]);
+      Assert.AreEqual(2.3f, floatArray[1]);
+      Assert.AreEqual(3.4f, floatArray[2]);
+    }
   }
+
+
 }

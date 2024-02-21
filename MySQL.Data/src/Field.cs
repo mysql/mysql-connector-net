@@ -345,6 +345,7 @@ namespace MySql.Data.MySqlClient
         case MySqlDbType.TinyBlob:
         case MySqlDbType.Binary:
         case MySqlDbType.VarBinary:
+        case MySqlDbType.Vector:
           return new MySqlBinary(type, true);
         case MySqlDbType.Guid:
           return new MySqlGuid();
