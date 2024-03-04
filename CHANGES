@@ -6,6 +6,7 @@
 - Removed support for FIDO authentication (WL16150).
 - Add support for TLS 1.3 (WL16176).
 - Updated installer and binary metadata (WL16204).
+- Fixed bug Minpoolsize different than 0 causes connector to hang after first connection (Oracle Bug #36319784).
 
 
 8.3.0

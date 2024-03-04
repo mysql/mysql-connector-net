@@ -143,15 +143,25 @@ namespace MySql.Data.MySqlClient
       MySqlPool pool;
       Pools.TryGetValue(text, out pool);
 
-      if (pool == null)
+      try
       {
-        pool = await MySqlPool.CreateMySqlPoolAsync(settings, execAsync, cancellationToken).ConfigureAwait(false);
-        Pools.Add(text, pool);
+        if (pool == null)
+        {
+          pool = await MySqlPool.CreateMySqlPoolAsync(settings, execAsync, cancellationToken).ConfigureAwait(false);
+          Pools.Add(text, pool);
+        }
+        else
+          pool.Settings = settings;
       }
-      else
-        pool.Settings = settings;
+      catch (Exception ex)
+      {
+        throw;
+      }
+      finally
+      {
+        waitHandle.Release();
+      }
 
-      waitHandle.Release();
       return pool;
     }
 

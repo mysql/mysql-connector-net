@@ -134,6 +134,27 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
+    /// Bug#36319784 Minpoolsize different than 0 causes connector to hang after first connection
+    /// </summary>
+    [Test]
+    public void PoolingMultipleConnections()
+    {
+      Connection.Settings.Pooling = true;
+      Connection.Settings.MaximumPoolSize = 100;
+      Connection.Settings.MinimumPoolSize = 1;
+      MySqlConnection conn =new MySqlConnection(Connection.ConnectionString);
+      Assert.DoesNotThrow(() => conn.Open());
+
+      Connection.Settings.PersistSecurityInfo = false;
+      conn = conn = new MySqlConnection(Connection.ConnectionString);
+      Assert.Throws<MySqlException>(() => conn.Open());
+
+      Connection.Settings.PersistSecurityInfo = true;
+      conn = conn = new MySqlConnection(Connection.ConnectionString );
+      Assert.DoesNotThrow(() => conn.Open());
+    }
+
+    /// <summary>
     /// Bug#35827809 Connector/Net allows a connection that has been disposed to be reopened.
     /// </summary>
     [Test]
