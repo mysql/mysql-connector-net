@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>MySql.Data.OpenTelemetry</Description>
-    <Copyright>Copyright (c) 2023, Oracle and/or its affiliates.</Copyright>
+    <Copyright>Copyright © 2023, 2024, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>8.4.0</Version>
     <Authors>Oracle</Authors>  
