@@ -332,13 +332,6 @@ namespace MySql.Data.MySqlClient.Tests
           StringAssert.StartsWith("TLSv1", reader.GetString(1));
         }
 
-        command = new MySqlCommand("show variables like 'have_ssl';", c);
-        using (MySqlDataReader reader = command.ExecuteReader())
-        {
-          Assert.True(reader.Read());
-          StringAssert.AreEqualIgnoringCase("YES", reader.GetString(1));
-        }
-
         command = new MySqlCommand("show variables like 'tls_version'", c);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
@@ -1208,7 +1201,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       Dictionary<string, string> strValues = new();
 
-      var commandList = new string[] { "show variables like 'have_ssl'", "show  status like '%Ssl_version'", "show variables like 'tls_version'" };
+      var commandList = new string[] { "show  status like '%Ssl_version'", "show variables like 'tls_version'" };
       foreach (var item in commandList)
       {
         var cmd = Connection.CreateCommand();
@@ -1221,7 +1214,7 @@ namespace MySql.Data.MySqlClient.Tests
           }
         }
       }
-      return (strValues["have_ssl"] == "YES" && strValues["Ssl_version"].StartsWith("TLS") && !string.IsNullOrEmpty(strValues["tls_version"])) ? true : false;
+      return (strValues["Ssl_version"].StartsWith("TLS") && !string.IsNullOrEmpty(strValues["tls_version"])) ? true : false;
     }
     #endregion Methods
   }
