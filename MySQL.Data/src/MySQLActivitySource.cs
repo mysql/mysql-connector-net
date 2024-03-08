@@ -74,9 +74,12 @@ namespace MySql.Data
       var settings = command.Connection.Settings;
       var activity = Activity.Current != null ? Source.StartActivity("SQL Statement", ActivityKind.Client, Activity.Current.Context) : Source.StartActivity("SQL Statement", ActivityKind.Client);
 
-      // passing through this attribute will propagate the context into the server
-      string query_attr = $"00-{Activity.Current.Context.TraceId}-{Activity.Current.Context.SpanId}-00";
-      command.Attributes.SetAttribute("traceparent", query_attr);
+      if (Activity.Current != null)
+      {
+        // passing through this attribute will propagate the context into the server
+        string query_attr = $"00-{Activity.Current.Context.TraceId}-{Activity.Current.Context.SpanId}-00";
+        command.Attributes.SetAttribute("traceparent", query_attr);
+      }
       
       activity?.SetTag("db.system", "mysql");
       activity?.SetTag("db.name", command.Connection.Database);
