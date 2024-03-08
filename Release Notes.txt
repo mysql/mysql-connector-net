@@ -1,8 +1,8 @@
-Connector/NET 8.3 Release Notes
+Connector/NET 8.4 Release Notes
 ------------------------------------
 Welcome to the release notes for Connector/NET 8.3
 
-What's new in 8.3
+What's new in 8.4
 --------------------
 
-Connector/NET added support for the GA version of .NET 8 and EF Core 8, if you want know more about .NET 8 see (https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8).
+Connector/NET added support for TLS1.3 and removed support for FIDO authentication plugin.
