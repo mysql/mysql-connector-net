@@ -682,8 +682,6 @@ namespace MySqlX.Data.Tests
     public void PfxCertificateWithUri()
     {
       if (!session.Version.isAtLeast(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
-      var result = session.SQL("show variables like '%ave_ssl%'").Execute().FetchOne();
-      if (result[1].ToString() != "YES") return;
 
       var connStr = ConnectionStringUri + $"?ssl-mode=VerifyCA&ssl-ca={clientPfxIncorrect}&ssl-ca-pwd={sslCertificatePassword}";
       Assert.That(() => MySQLX.GetSession(connStr), Throws.Exception);
@@ -704,8 +702,6 @@ namespace MySqlX.Data.Tests
     public void PfxCertificateWithConnectionString()
     {
       if (!session.Version.isAtLeast(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
-      var result = session.SQL("show variables like '%ave_ssl%'").Execute().FetchOne();
-      if (result[1].ToString() != "YES") return;
 
       var connStr = ConnectionString + $";ssl-mode=Required;ssl-ca={clientPfx};ssl-ca-pwd={sslCertificatePassword};";
       using (Session c = MySQLX.GetSession(connStr))
@@ -751,8 +747,6 @@ namespace MySqlX.Data.Tests
     {
       if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
       if (!session.Version.isAtLeast(8, 0, 16)) Assert.Ignore("This test is for MySql 8.0.16 or higher.");
-      var result = session.SQL("show variables like '%ave_ssl%'").Execute().FetchOne();
-      if (result[1].ToString() != "YES") return;
 
       var connStr = ConnectionString + $";sslmode=Required;tls-version={tlsVersion}";
       using (var c = MySQLX.GetSession(connStr))
