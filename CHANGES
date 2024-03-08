@@ -9,7 +9,7 @@
 - Fixed bug Minpoolsize different than 0 causes connector to hang after first connection (Oracle Bug #36319784).
 - Fixed bug Tests failing due to removal of 'HAVE_SSL' variable from server (Oracle Bug #36374702).
 - Added support for Vector data type (WL16175).
-
+- Fixed bug Fix deadlock in mysql poolmanager attempt (Oracle Bug #36380976)
 
 8.3.0
 - Added support for build traversal (WL15798).

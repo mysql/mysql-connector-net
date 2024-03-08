@@ -1666,6 +1666,55 @@ namespace MySql.Data.MySqlClient.Tests
         Task.WaitAll(tasks.ToArray());
     }
 
+    #if NET462 || NET48
+    /// <summary>
+    /// Deadlock bug on application with Synchronization context (Net full framework Asp.NET app, Windows Forms App, WPF app.
+    /// Any App with - WindowsFormsSynchronizationContext, DispatcherSynchronizationContext and AspNetSynchronizationContext
+    /// will deadlock if missing ConfigureAwait(false) inside the MySql library.
+    /// </summary>
+    //[Test]
+    //public void OpenMultipleConnectionsOnMultipleThreadsInAppWithSynchronizationContext()
+    //{ 
+    //  var sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+    //  sb.Pooling = true;
+
+    //  var tasks = new List<Task>();
+    //  for (int i = 0; i < 5; i++)
+    //  {
+    //     tasks.Add(Task.Run(() =>
+    //     {
+    //       SynchronizationContext.SetSynchronizationContext(new System.Windows.Forms.WindowsFormsSynchronizationContext());
+    //       using (var connection = new MySqlConnection(sb.ConnectionString))
+    //       {
+    //         connection.Open();
+    //       }
+    //     }));
+    //  }
+    //  Assert.IsTrue(Task.WaitAll(tasks.ToArray(),5000),"Deadlock when connecting - cancelled waiting after 5 seconds.");
+    //}
+
+    //[Test]
+    //public void OpenAsyncMultipleConnectionsOnMultipleThreadsInAppWithSynchronizationContext()
+    //{
+    //  var sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+    //  sb.Pooling = true;
+
+    //  var tasks = new List<Task>();
+    //  for (int i = 0; i < 5; i++)
+    //  {
+    //    tasks.Add(Task.Run(() =>
+    //    {
+    //      SynchronizationContext.SetSynchronizationContext(new System.Windows.Forms.WindowsFormsSynchronizationContext());
+    //      using (var connection = new MySqlConnection(sb.ConnectionString))
+    //      {
+    //        connection.OpenAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+    //      }
+    //    }));
+    //  }
+    //  Assert.IsTrue(Task.WaitAll(tasks.ToArray(),5000),"Deadlock when connecting - cancelled waiting after 5 seconds.");
+    //}
+    #endif
+
             #region Methods
 
             private void ExecuteQueriesSuccess(string sql, string password)
