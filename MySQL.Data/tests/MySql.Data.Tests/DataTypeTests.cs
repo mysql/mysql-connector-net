@@ -1662,38 +1662,6 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     [Test]
-    public void OldGetStringBehaviorOff()
-    {
-      ExecuteSQL(@"CREATE TABLE Test (value1 int, value2 DATETIME); INSERT INTO Test VALUES (1, '2023-10-30');");
-
-      using var cmd = new MySqlCommand();
-      cmd.Connection = Connection;
-      cmd.CommandText = "SELECT * FROM Test";
-      using var reader = cmd.ExecuteReader();
-      reader.Read();
-      Assert.Throws<InvalidCastException>(() => reader.GetString(0));
-      Assert.Throws<InvalidCastException>(() => reader.GetString(1));
-   }
-
-    [Test]
-    public void OldGetStringBehaviorOn()
-    {
-      ExecuteSQL(@"CREATE TABLE Test (value1 int, value2 DECIMAL(10,2)); INSERT INTO Test VALUES (1, 20.4);");
-      
-      string connString = Connection.ConnectionString + $";oldgetstringbehavior=true;";
-      using var conn = new MySqlConnection(connString);
-      conn.Open();
-
-      using var cmd = new MySqlCommand();
-      cmd.Connection = conn;
-      cmd.CommandText = "SELECT * FROM Test";
-      using var reader = cmd.ExecuteReader();
-      reader.Read();
-      Assert.AreEqual("1", reader.GetString(0));
-      Assert.AreEqual("20.40", reader.GetString(1));
-   }
-
-    [Test]
     public void BadVectorDataThrowsException()
     {
       if (Version < new Version(9, 0, 0))

@@ -919,17 +919,7 @@ namespace MySql.Data.MySqlClient
     {
       IMySqlValue val = GetFieldValue(i, true);
 
-      if (!_connection.Settings.OldGetStringBehavior)
-        return (string)val.Value;
-        
-        
-      if (val is MySqlBinary)
-      {
-        byte[] v = ((MySqlBinary)val).Value;
-        return ResultSet.Fields[i].Encoding.GetString(v, 0, v.Length);
-      }
-
-      return val.Value.ToString();
+      return (string)val.Value;
     }
 
     /// <summary>
