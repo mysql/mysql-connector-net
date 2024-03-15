@@ -42,15 +42,15 @@ namespace MySqlX.Data.Tests
     public void DefaultAuthNullPlugin()
     {
       if (!Platform.IsWindows()) Assert.Ignore("Check for Linux OS");
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
+      if (!session.Version.isAtLeast(8, 4, 0)) Assert.Ignore("Test available only to MySQL Server +8.4.0");
 
-      string pluginName = null;//default plugin
+      string pluginName = "caching_sha2_password";//default plugin
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
       builder.UserID = "testDefaultPlugin";
       builder.Password = "test";
       CreateUser(builder.UserID, builder.Password, pluginName);
       string connectionString = null, connectionStringUri = null;
-      string defaultAuthPlugin = session.SQL("SHOW VARIABLES LIKE 'default_authentication_plugin'").Execute().FetchAll()[0][1].ToString();
+      string defaultAuthPlugin = session.SQL("SHOW VARIABLES LIKE 'authentication_policy'").Execute().FetchAll()[0][1].ToString().Split(',')[0] == "*" ? "caching_sha2_password" : "";
 
       //Connection String
       connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password}";
@@ -61,7 +61,7 @@ namespace MySqlX.Data.Tests
         Assert.True(result[0][1].ToString().Contains("TLSv1"));
       }
 
-      connectionString = connectionString + ";ssl-mode=none";
+      connectionString = connectionString + ";sslmode=none;";
       using (var session1 = MySQLX.GetSession(connectionString))
         Assert.AreEqual(defaultAuthPlugin == "mysql_native_password" ? MySqlAuthenticationMode.MYSQL41 : MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
 
