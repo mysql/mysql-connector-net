@@ -28,6 +28,7 @@
 
 using MySql.Data.Failover;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Data;
 

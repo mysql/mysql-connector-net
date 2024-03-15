@@ -32,6 +32,7 @@ using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using MySqlX.XDevAPI.Relational;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System.Collections.Generic;
 
 namespace MySqlX.Data.Tests.RelationalTests

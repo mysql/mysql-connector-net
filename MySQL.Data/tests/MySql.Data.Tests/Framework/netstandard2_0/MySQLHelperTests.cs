@@ -28,6 +28,7 @@
 
 using System;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System.Data;
 using System.Threading.Tasks;
 using System.Threading;

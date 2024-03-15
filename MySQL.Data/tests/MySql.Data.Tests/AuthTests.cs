@@ -30,6 +30,7 @@
 using MySql.Data.Common;
 using MySql.Data.MySqlClient.Authentication;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Generic;
 using System.Data;

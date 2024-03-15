@@ -34,6 +34,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 using MySql.EntityFrameworkCore.Extensions;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 
 namespace MySql.EntityFrameworkCore.Basic.Tests

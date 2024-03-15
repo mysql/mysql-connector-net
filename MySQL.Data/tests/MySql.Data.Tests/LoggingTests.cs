@@ -29,6 +29,7 @@
 using System;
 using System.Text;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System.Diagnostics;
 
 namespace MySql.Data.MySqlClient.Tests

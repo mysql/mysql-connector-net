@@ -28,6 +28,7 @@
 
 using MySql.Data.Types;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Globalization;
 using System.Text;

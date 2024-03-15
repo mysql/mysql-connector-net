@@ -27,6 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System.Data;
 using System.Threading;
 using System.Diagnostics;

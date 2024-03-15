@@ -30,6 +30,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Diagnostics;
 using System.Text;

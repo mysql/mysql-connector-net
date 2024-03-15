@@ -29,6 +29,7 @@
 using MySql.Data.MySqlClient;
 using MySql.Web.SessionState;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Specialized;
 using System.Configuration;

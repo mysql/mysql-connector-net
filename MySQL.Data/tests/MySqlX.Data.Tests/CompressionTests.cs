@@ -31,6 +31,7 @@ using MySql.Data.MySqlClient;
 using MySqlX.Common;
 using MySqlX.XDevAPI;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

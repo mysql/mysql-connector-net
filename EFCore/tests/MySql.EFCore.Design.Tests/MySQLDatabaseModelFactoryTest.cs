@@ -35,6 +35,7 @@ using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 using MySql.EntityFrameworkCore.Diagnostics.Internal;
 using MySql.EntityFrameworkCore.Scaffolding.Internal;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

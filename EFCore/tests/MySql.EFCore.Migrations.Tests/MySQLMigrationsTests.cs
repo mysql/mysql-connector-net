@@ -32,6 +32,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests
 {

@@ -36,6 +36,7 @@ using MySql.EntityFrameworkCore.Metadata.Conventions;
 using MySql.EntityFrameworkCore.Metadata.Internal;
 using MySql.EntityFrameworkCore.Storage.Internal;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System.Linq;
 
 namespace MySql.EntityFrameworkCore.Design.Tests

@@ -1,5 +1,5 @@
 9.0.0
-
+- Updated NUnit to 4.x (WL16279)
 
 8.4.0
 - Updated FOSS license text in all source files (WL16197).

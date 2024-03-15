@@ -31,6 +31,7 @@ using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Linq;
 using System.Transactions;

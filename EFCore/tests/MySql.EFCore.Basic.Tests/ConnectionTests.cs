@@ -40,6 +40,7 @@ using MySql.EntityFrameworkCore.Diagnostics.Internal;
 using MySql.EntityFrameworkCore.Internal;
 using MySql.EntityFrameworkCore.Storage.Internal;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System.Diagnostics;
 
 namespace MySql.EntityFrameworkCore.Basic.Tests

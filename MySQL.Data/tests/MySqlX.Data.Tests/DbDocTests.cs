@@ -29,6 +29,7 @@
 using MySqlX.XDevAPI;
 using System;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace MySqlX.Data.Tests
 {

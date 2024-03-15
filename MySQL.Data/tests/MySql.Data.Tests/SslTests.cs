@@ -29,6 +29,7 @@
 using MySql.Data.Common;
 using MySqlX.XDevAPI;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Generic;
 using System.Data;

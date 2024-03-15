@@ -30,6 +30,7 @@ using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Linq;
 using System.Threading.Tasks;

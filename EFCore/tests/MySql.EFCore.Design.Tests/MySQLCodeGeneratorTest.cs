@@ -32,6 +32,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using MySql.EntityFrameworkCore.Infrastructure;
 using MySql.EntityFrameworkCore.Scaffolding.Internal;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Linq;
 using System.Reflection;

@@ -30,6 +30,7 @@ using Microsoft.EntityFrameworkCore;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 using MySql.EntityFrameworkCore.Infrastructure.Internal;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using System;
 using System.Linq;
 
