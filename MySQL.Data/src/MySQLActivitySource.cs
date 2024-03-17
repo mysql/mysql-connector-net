@@ -67,7 +67,7 @@ namespace MySql.Data
     }
 
 
-    internal static Activity CommandStart(MySqlCommand command)
+    internal static Activity CommandStart(MySqlCommand command, string sql)
     {
       if (!Active) return null;
 
@@ -81,7 +81,7 @@ namespace MySql.Data
       activity?.SetTag("db.system", "mysql");
       activity?.SetTag("db.name", command.Connection.Database);
       activity?.SetTag("db.user", command.Connection.Settings.UserID);
-      activity?.SetTag("db.statement", command.OriginalCommandText);
+      activity?.SetTag("db.statement", sql);
       activity?.SetTag("thread.id", Thread.CurrentThread.ManagedThreadId);
       activity?.SetTag("thread.name", Thread.CurrentThread.Name);
       if (command.CommandType == CommandType.TableDirect)

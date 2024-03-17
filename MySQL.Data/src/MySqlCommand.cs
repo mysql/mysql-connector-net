@@ -760,7 +760,7 @@ namespace MySql.Data.MySqlClient
 
       // Tell whoever is listening that we have started out command
 #if NET5_0_OR_GREATER
-      CurrentActivity = MySQLActivitySource.CommandStart(this);
+      CurrentActivity = MySQLActivitySource.CommandStart(this, sql);
 #endif
       try
       {
