@@ -477,6 +477,10 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true)))
       {
         c.Open();
+
+        using var _ = AddActivityListener(
+          (activity) => Assert.AreEqual("SELECT 1", activity.GetTagItem("db.statement"))
+        );
         MySqlCommand cmd = new MySqlCommand("SELECT 1", c);
         cmd.ExecuteScalar();
       }
@@ -489,6 +493,13 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("INSERT INTO Test VALUES (1, 'A')");
       ExecuteSQL("CREATE TABLE Test1 (id INT, name VARCHAR(20))");
       ExecuteSQL("INSERT INTO Test1 VALUES (2, 'B')");
+
+      using var _ = AddActivityListener((activity) =>
+      {
+        Assert.AreEqual("Test,Test1", activity.GetTagItem("db.sql.table"));
+        Assert.AreEqual("SELECT * FROM Test,Test1", activity.GetTagItem("db.statement"));
+      }
+      );
 
       MySqlCommand cmd = new MySqlCommand("Test,Test1", Connection);
       cmd.CommandType = CommandType.TableDirect;
@@ -949,6 +960,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
       Assert.AreEqual(2, cmd.LastInsertedId);
 
+      using var _ = AddActivityListener((activity) => Assert.AreEqual("SELECT * FROM Test", activity.GetTagItem("db.statement")));
       cmd.CommandText = "SELECT * FROM Test";
       int id = 1;
 

@@ -333,6 +333,37 @@ namespace MySql.Data.MySqlClient.Tests
 
       return isIpV6 ? ipv6 : ipv4;
     }
+
+    // XXX This shouldn't be the final form - it probably shouldn't be placed
+    // here, the logic is incomplete, etc. Was good for a few hacky tests
+    public static ActivityListener AddActivityListener(Action<Activity> activityCheck)
+    {
+      var listener = new ActivityListener
+      {
+        ShouldListenTo = source =>
+        {
+          return source.Name == "connector-net";
+        },
+        ActivityStopped = activity =>
+        {
+          Assert.AreEqual("mysql", activity.GetTagItem("db.system"));
+
+          if (activityCheck == null)
+          {
+            Assert.Fail("Activity raised without a checking function");
+          }
+          else
+          {
+            activityCheck(activity);
+          }
+        },
+        Sample = (ref ActivityCreationOptions<ActivityContext> options) => ActivitySamplingResult.AllData,
+      };
+
+      ActivitySource.AddActivityListener(listener);
+
+      return listener;
+    }
     #endregion
   }
 }
