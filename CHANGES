@@ -1,3 +1,6 @@
+9.0.0
+
+
 8.4.0
 - Updated FOSS license text in all source files (WL16197).
 - Fixed bug Shared memory connection doesn't work in multithread environment (Oracle Bug #36208932).
