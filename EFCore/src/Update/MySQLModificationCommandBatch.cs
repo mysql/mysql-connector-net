@@ -55,7 +55,7 @@ namespace MySql.EntityFrameworkCore.Update
     private readonly int _maxBatchSize;
     private readonly List<ModificationCommand> _bulkInsertCommands = new List<ModificationCommand>();
     private int _commandsLeftToLengthCheck = 50;
-#elif NET8_0
+#elif NET8_0_OR_GREATER
     private readonly List<IReadOnlyModificationCommand> _pendingBulkInsertCommands = new();
 #endif
 
@@ -200,7 +200,7 @@ namespace MySql.EntityFrameworkCore.Update
       }
     }
 
-#elif NET8_0
+#elif NET8_0_OR_GREATER
     /// <summary>
     ///   This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///   the same compatibility standards as public APIs. It may be changed or removed without notice in

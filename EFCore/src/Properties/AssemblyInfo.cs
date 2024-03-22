@@ -37,13 +37,15 @@ using System.Security;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("MySql.EntityFrameworkCore")]
-[assembly: AssemblyDescription("MySql.EntityFrameworkCore adds support for Microsoft Entity Framework Core (EF Core) 6, 7, and 8.")]
+[assembly: AssemblyDescription("MySql.EntityFrameworkCore adds support for Microsoft Entity Framework Core (EF Core) 6, 7, 8 and 9.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("MySQL Connector/NET")]
 #if NET6_0
 [assembly: AssemblyCopyright("Copyright © 2021, 2024, Oracle and/or its affiliates.")]
 #elif NET8_0
+[assembly: AssemblyCopyright("Copyright © 2024, Oracle and/or its affiliates.")]
+#elif NET9_0
 [assembly: AssemblyCopyright("Copyright © 2024, Oracle and/or its affiliates.")]
 #endif
 [assembly: AssemblyTrademark("Oracle®, Java, MySQL, and NetSuite are registered trademarks of Oracle and/or its affiliates.")]

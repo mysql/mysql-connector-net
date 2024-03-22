@@ -45,7 +45,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
       QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
       => new MySQLSqlTranslatingExpressionVisitor(
         _dependencies,
-        model,
+        (MySQLQueryCompilationContext)model,
         queryableMethodTranslatingExpressionVisitor);
   }
 }

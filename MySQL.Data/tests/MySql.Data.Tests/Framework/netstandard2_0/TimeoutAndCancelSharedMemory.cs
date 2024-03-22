@@ -28,11 +28,13 @@
 
 
 
+using NUnit.Framework.Internal;
+
 namespace MySql.Data.MySqlClient.Tests
 {
   public class TimeoutAndCancelSharedMemory : TimeoutAndCancel
   {
-    public TimeoutAndCancelSharedMemory(TestFixture fixture) : base(fixture)
+    public TimeoutAndCancelSharedMemory() : base()
     {
     }
 

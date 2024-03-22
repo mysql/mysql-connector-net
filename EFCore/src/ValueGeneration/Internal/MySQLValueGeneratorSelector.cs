@@ -52,7 +52,7 @@ namespace MySql.EntityFrameworkCore.ValueGeneration.Internal
     }
 
 
-    #if NET8_0
+    #if NET8_0_OR_GREATER
     /// <inheritdoc/>
     public ValueGenerator Create(IProperty property, IEntityType entityType)
     {

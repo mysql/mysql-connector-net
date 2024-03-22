@@ -537,7 +537,7 @@ namespace MySql.EntityFrameworkCore.Migrations
 
       if (model?.GetRelationalModel().FindTable(operation.Name, operation.Schema) != null)
       {
-#if !NET8_0
+#if !NET8_0_OR_GREATER
         var entity = model?.GetRelationalModel().FindTable(operation.Name, operation.Schema)!.EntityTypeMappings.FirstOrDefault()!.EntityType;
 #else
         var entity = model?.GetRelationalModel().FindTable(operation.Name, operation.Schema)!.EntityTypeMappings.FirstOrDefault()!.TypeBase;

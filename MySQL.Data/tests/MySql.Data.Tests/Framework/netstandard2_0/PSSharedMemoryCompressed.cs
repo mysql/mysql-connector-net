@@ -26,14 +26,12 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using NUnit.Framework.Internal;
+
 namespace MySql.Data.MySqlClient.Tests
 {
   public class PSSharedMemoryCompressed : PreparedStatements
   {
-    public PSSharedMemoryCompressed(TestFixture fixture) : base(fixture)
-    {
-    }
-
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
       settings.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory;

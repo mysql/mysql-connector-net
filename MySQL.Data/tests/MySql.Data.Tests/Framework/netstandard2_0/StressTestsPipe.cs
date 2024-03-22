@@ -30,10 +30,6 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class StressTestsPipe : StressTests
   {
-    public StressTestsPipe(TestFixture fixture) : base(fixture)
-    {
-    }
-
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
       settings.ConnectionProtocol = MySqlConnectionProtocol.NamedPipe;

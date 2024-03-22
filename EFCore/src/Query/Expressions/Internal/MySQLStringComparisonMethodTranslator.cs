@@ -166,7 +166,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
       }
       else
       {
-      #if !NET8_0
+#if !NET8_0_OR_GREATER
         return new CaseExpression(
           new[]
           {
@@ -232,7 +232,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
       }
       else
       {
-#if !NET8_0
+#if !NET8_0_OR_GREATER
         return new CaseExpression(
           new[]
           {
@@ -330,7 +330,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
       }
       else
       {
-#if !NET8_0
+#if !NET8_0_OR_GREATER
         return new CaseExpression(
           new[]
           {
@@ -446,7 +446,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
       }
       else
       {
-#if !NET8_0
+#if !NET8_0_OR_GREATER
         return new CaseExpression(
           new[]
           {
@@ -565,7 +565,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
             e => Utf8Bin(LCase(e))));
       }
 
-#if !NET8_0
+#if !NET8_0_OR_GREATER
       return _sqlExpressionFactory.Case(
         new[]
         {

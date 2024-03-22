@@ -33,6 +33,7 @@ using System.Threading;
 using System.Data;
 using System.Globalization;
 using System.IO;
+using NUnit.Framework.Internal;
 
 namespace MySql.Data.MySqlClient.Tests
 {

@@ -43,7 +43,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
     {
     }
 
-#if NET8_0
+#if NET8_0_OR_GREATER
     public CoreTypeMapping Clone(ValueConverter? converter)
       => new MySQLGeometryTypeMapping(Parameters.WithComposedConverter(converter,null,null,null,null));
 #else

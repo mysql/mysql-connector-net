@@ -85,7 +85,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
               TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
               new MySQLOptions()))));
     }
-#elif NET8_0
+#elif NET8_0_OR_GREATER
     public static RelationalConnectionDependencies CreateDependencies(DbContextOptions? options = null)
     {
       options ??= new DbContextOptionsBuilder()

@@ -70,7 +70,7 @@ namespace MySql.EntityFrameworkCore.Metadata.Internal
       {
         yield break;
       }
-#if NET8_0
+#if NET8_0_OR_GREATER
       var entityType = table.EntityTypeMappings.First().TypeBase;
       if (GetActualTypeBaseCharSet(entityType) is string charSet)
         yield return new Annotation(MySQLAnnotationNames.Charset, charSet);
@@ -132,7 +132,7 @@ namespace MySql.EntityFrameworkCore.Metadata.Internal
 
       var table = StoreObjectIdentifier.Table(column.Table.Name, column.Table.Schema);
       var properties = column.PropertyMappings.Select(m => m.Property).ToArray();
-#if NET8_0
+#if NET8_0_OR_GREATER
       if (column.PropertyMappings.Where(m => m.TableMapping.IsSharedTablePrincipal ?? true && m.TableMapping.TypeBase == m.Property.DeclaringType)
       .Select(m => m.Property)
       .FirstOrDefault(p => p.GetValueGenerationStrategy(table) == MySQLValueGenerationStrategy.IdentityColumn) is IProperty identityProperty)
@@ -162,7 +162,7 @@ namespace MySql.EntityFrameworkCore.Metadata.Internal
       return model.GetCollation()!;
     }
 
-#if NET8_0
+#if NET8_0_OR_GREATER
     protected virtual string? GetActualTypeBaseCharSet(ITypeBase typeBase)
     {
       var typeBaseCharSet = typeBase.GetCharSet();
@@ -270,7 +270,7 @@ namespace MySql.EntityFrameworkCore.Metadata.Internal
 
     protected virtual string? GetActualPropertyCharSet(IProperty[] properties)
     {
-#if NET8_0
+#if NET8_0_OR_GREATER
       return properties.Select(p => p.GetCharSet()).FirstOrDefault(s => s is not null) ??
         properties.Select(
         p => p.FindTypeMapping() is MySQLStringTypeMapping

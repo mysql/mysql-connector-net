@@ -62,7 +62,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
 
       return selectExpression;
     }
-#elif NET8_0
+#elif NET8_0_OR_GREATER
     protected override Expression ProcessSqlNullability(
       Expression selectExpression, IReadOnlyDictionary<string, object?> parametersValues, out bool canCache)
     {

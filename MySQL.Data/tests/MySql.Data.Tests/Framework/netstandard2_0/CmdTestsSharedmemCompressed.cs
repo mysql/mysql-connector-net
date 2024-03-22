@@ -31,11 +31,6 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class CmdTestsSharedMemCompressed : CmdTests
   {
-
-    public CmdTestsSharedMemCompressed(TestFixture fixture) : base(fixture)
-    {
-    }
-
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
       settings.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory;

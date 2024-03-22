@@ -27,6 +27,7 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
+using NUnit.Framework.Internal;
 using System.ComponentModel;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -34,11 +35,6 @@ namespace MySql.Data.MySqlClient.Tests
   [Category("Compressed")]
   public class BlobTestsSharedMemCompressed : BlobTests
   {
-    public BlobTestsSharedMemCompressed(TestFixture fixture) : base(fixture)
-    {
-
-    }
-
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
       settings.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory;

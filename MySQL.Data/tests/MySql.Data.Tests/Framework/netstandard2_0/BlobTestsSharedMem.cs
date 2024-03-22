@@ -27,15 +27,12 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 
+using NUnit.Framework.Internal;
+
 namespace MySql.Data.MySqlClient.Tests
 {
   public class BlobTestsSharedMem : BlobTests
   {    
-
-    public BlobTestsSharedMem(TestFixture fixture) : base(fixture)
-    {
-    }
-
     internal override void AdjustConnectionSettings(MySqlConnectionStringBuilder settings)
     {
       settings.ConnectionProtocol = MySqlConnectionProtocol.SharedMemory;

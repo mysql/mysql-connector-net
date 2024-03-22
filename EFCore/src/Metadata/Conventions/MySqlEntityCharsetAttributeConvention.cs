@@ -34,7 +34,7 @@ using MySql.EntityFrameworkCore.Metadata.Internal;
 
 namespace MySql.EntityFrameworkCore.Metadata.Conventions
 {
-#if !NET8_0
+#if !NET8_0_OR_GREATER
   /// <summary>
   ///   Represents a character-set attribute for an entity.
   /// </summary>

@@ -13,6 +13,10 @@
     <NoWarn>$(NoWarn);CS1591,EF1001</NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(allow_prerelease)'=='true'">
+    <TargetFrameworks>net9.0;$(TargetFrameworks)</TargetFrameworks>
+  </PropertyGroup>
+  
   <ItemGroup>
     <None Remove="Properties\sakiladb-schema.sql" />
     <None Remove="Properties\world.sql" />
@@ -24,10 +28,21 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageReference Include="NUnit" Version="4.1.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net6.0'">
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.30" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'=='net9.0'">
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0-preview.2.24128.5" />
   </ItemGroup>
 
   <ItemGroup>

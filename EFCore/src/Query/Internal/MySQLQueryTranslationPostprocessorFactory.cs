@@ -51,7 +51,8 @@ namespace MySql.EntityFrameworkCore.Query.Internal
       => new MySQLQueryTranslationPostprocessor(
         _dependencies,
         _relationalDependencies,
-        queryCompilationContext,
+        (MySQLQueryCompilationContext)queryCompilationContext,
         _options);
   }
+
 }

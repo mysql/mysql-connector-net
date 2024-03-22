@@ -233,7 +233,7 @@ namespace MySql.EntityFrameworkCore
       OneResultSet,
       OneCommandPerResultSet
     }
-#elif NET8_0
+#elif NET8_0_OR_GREATER
     public virtual ResultSetMapping AppendBulkInsertOperation(
       StringBuilder commandStringBuilder,
       IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,

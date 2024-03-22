@@ -42,7 +42,7 @@ namespace MySql.EntityFrameworkCore.Update
     [NotNull] IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
     int commandPosition);
   }
-#elif NET8_0
+#elif NET8_0_OR_GREATER
   /// <summary>
   ///   <para>
   ///     The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance

@@ -187,7 +187,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         { typeof(byte), _utinyint },
         { typeof(sbyte), _tinyint },
 
-        #if !NET8_0
+        #if !NET8_0_OR_GREATER
         // DateTime
         { typeof(DateTime), _datetime.Clone(6, null) },
         { typeof(DateOnly), _dateonly },
@@ -252,7 +252,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
         if (_storeTypeMappings.TryGetValue(storeTypeNameBase!, out mapping))
         {
-#if !NET8_0
+#if !NET8_0_OR_GREATER
           return clrType == null
           ? mapping[0].Clone(in mappingInfo)
           : mapping.FirstOrDefault(m => m.ClrType == clrType)?.Clone(in mappingInfo);
@@ -274,7 +274,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
                     clrType == typeof(DateTimeOffset) ||
                     clrType == typeof(TimeSpan))
             {
-#if !NET8_0
+#if !NET8_0_OR_GREATER
               return mapping.Clone(mappingInfo.Precision.Value, null);
 #else
               return mapping.WithPrecisionAndScale(mappingInfo.Precision.Value, null);
@@ -301,7 +301,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
           mapping = isFixedLength ? _charUnicode : size == null
           ? _longtextUnicode : _varcharUnicode;
 
-#if !NET8_0
+#if !NET8_0_OR_GREATER 
           return size == null ? mapping : mapping.Clone($"{mapping.StoreTypeNameBase}({size})", size);
 #else
           return size == null ? mapping : mapping.WithStoreTypeAndSize($"{mapping.StoreTypeNameBase}({size})", size);
@@ -320,7 +320,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       return null;
     }
 
-#if !NET8_0
+#if !NET8_0_OR_GREATER
     protected override string ParseStoreTypeName(string? storeTypeName, out bool? unicode, out int? size, out int? precision, out int? scale)
     {
       var storeTypeBaseName = base.ParseStoreTypeName(storeTypeName, out unicode, out size, out precision, out scale);

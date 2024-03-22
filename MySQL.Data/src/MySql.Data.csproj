@@ -35,6 +35,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(allow_prerelease)'=='true'">
+    <TargetFrameworks>net9.0;$(TargetFrameworks)</TargetFrameworks>
+  </PropertyGroup>
+  
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <TargetFrameworks>net462;net48;$(TargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
@@ -81,7 +85,7 @@
     <EmbeddedResource Include="Resources.resx;ResourcesX.resx;Properties\ReservedWords.txt" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='netstandard2.1' or '$(TargetFramework)'=='net6.0' or '$(TargetFramework)'=='net8.0'">
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0' or '$(TargetFramework)'=='netstandard2.1' or '$(TargetFramework)'=='net6.0' or '$(TargetFramework)'=='net7.0' or '$(TargetFramework)'=='net8.0' or '$(TargetFramework)'=='net9.0'">
     <Compile Remove="Framework/net462/*" />
     <PackageReference Include="System.Security.Permissions" Version="8.0.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />

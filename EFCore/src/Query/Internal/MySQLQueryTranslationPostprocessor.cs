@@ -39,7 +39,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     public MySQLQueryTranslationPostprocessor(
       QueryTranslationPostprocessorDependencies dependencies,
       RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-      QueryCompilationContext queryCompilationContext,
+      MySQLQueryCompilationContext queryCompilationContext,
       IMySQLOptions options)
       : base(dependencies, relationalDependencies, queryCompilationContext)
     {
