@@ -139,12 +139,15 @@ namespace MySql.Data.MySqlClient
     {
       string text = GetKey(settings);
 
-      await waitHandle.WaitAsync(CancellationToken.None).ConfigureAwait(false);
-      MySqlPool pool;
-      Pools.TryGetValue(text, out pool);
+      if (execAsync)
+        await waitHandle.WaitAsync(CancellationToken.None).ConfigureAwait(false);
+      else
+        waitHandle.Wait(cancellationToken);
 
       try
       {
+        MySqlPool pool;
+        Pools.TryGetValue(text, out pool);
         if (pool == null)
         {
           pool = await MySqlPool.CreateMySqlPoolAsync(settings, execAsync, cancellationToken).ConfigureAwait(false);
@@ -152,6 +155,8 @@ namespace MySql.Data.MySqlClient
         }
         else
           pool.Settings = settings;
+
+        return pool;
       }
       catch (Exception ex)
       {
@@ -161,8 +166,6 @@ namespace MySql.Data.MySqlClient
       {
         waitHandle.Release();
       }
-
-      return pool;
     }
 
     public static void RemoveConnection(Driver driver)
@@ -180,7 +183,8 @@ namespace MySql.Data.MySqlClient
 
       MySqlPool pool = driver.Pool;
 
-      await pool?.ReleaseConnectionAsync(driver, execAsync);
+      if (pool != null)
+        await pool.ReleaseConnectionAsync(driver, execAsync).ConfigureAwait(false);
     }
 
     public static async Task ClearPoolAsync(MySqlConnectionStringBuilder settings, bool execAsync)
@@ -203,33 +207,53 @@ namespace MySql.Data.MySqlClient
 
     private static async Task ClearPoolByTextAsync(string key, bool execAsync)
     {
-      // if pools doesn't have it, then this pool must already have been cleared
-      if (!Pools.ContainsKey(key)) return;
+      if (execAsync)
+        await waitHandle.WaitAsync().ConfigureAwait(false);
+      else
+        waitHandle.Wait();
 
-      // add the pool to our list of pools being cleared
-      MySqlPool pool = (Pools[key] as MySqlPool);
-      ClearingPools.Add(pool);
+      try
+      { 
+        // if pools doesn't have it, then this pool must already have been cleared
+        if (!Pools.ContainsKey(key)) return;
 
-      // now tell the pool to clear itself
-      await pool.ClearAsync(execAsync).ConfigureAwait(false);
+        // add the pool to our list of pools being cleared
+        MySqlPool pool = (Pools[key] as MySqlPool);
+        ClearingPools.Add(pool);
 
-      // and then remove the pool from the active pools list
-      Pools.Remove(key);
+        // now tell the pool to clear itself
+        await pool.ClearAsync(execAsync).ConfigureAwait(false);
+
+        // and then remove the pool from the active pools list
+        Pools.Remove(key);
+      }
+      finally
+      {
+        waitHandle.Release();
+      }
     }
 
     public static async Task ClearAllPoolsAsync(bool execAsync)
     {
-      await waitHandle.WaitAsync().ConfigureAwait(false);
+      if (execAsync)
+        await waitHandle.WaitAsync().ConfigureAwait(false);
+      else
+        waitHandle.Wait();
 
-      // Create separate keys list.
-      List<string> keys = new List<string>(Pools.Count);
-      keys.AddRange(Pools.Keys);
+      try
+      {
+        // Create separate keys list.
+        List<string> keys = new List<string>(Pools.Count);
+        keys.AddRange(Pools.Keys);
 
-      // Remove all pools by key.
-      foreach (string key in keys)
-        await ClearPoolByTextAsync(key, execAsync).ConfigureAwait(false);
-
-      waitHandle.Release();
+        // Remove all pools by key.
+        foreach (string key in keys)
+          await ClearPoolByTextAsync(key, execAsync).ConfigureAwait(false);
+      }
+      finally 
+      { 
+        waitHandle.Release();
+      }
 
       if (DemotedServersTimer != null)
       {
