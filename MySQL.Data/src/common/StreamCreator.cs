@@ -109,9 +109,9 @@ namespace MySql.Data.Common
 
       if (execAsync)
         using (cancellationToken.Register(() => throw new MySqlException(Resources.Timeout, new TimeoutException())))
-          await tcpClient.ConnectAsync(settings.Server, (int)settings.Port).ConfigureAwait(false);
+          await tcpClient.ConnectAsync(addr, (int)settings.Port).ConfigureAwait(false);
       else
-        if (!tcpClient.ConnectAsync(settings.Server, (int)settings.Port).Wait((int)settings.ConnectionTimeout * 1000))
+        if (!tcpClient.ConnectAsync(addr, (int)settings.Port).Wait((int)settings.ConnectionTimeout * 1000))
         throw new MySqlException(Resources.Timeout, new TimeoutException());
 
       if (settings.Keepalive > 0)
