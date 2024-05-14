@@ -53,8 +53,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\MySQL.Data\src\MySql.Data.csproj" />
-    <PackageReference Include="Microsoft.AspNet.WebPages" Version="3.2.7" />
-    <PackageReference Include="Microsoft.AspNet.WebPages.WebData" Version="3.2.7" />
+    <PackageReference Include="Microsoft.AspNet.WebPages" Version="3.3.0" />
+    <PackageReference Include="Microsoft.AspNet.WebPages.WebData" Version="3.3.0" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web" />

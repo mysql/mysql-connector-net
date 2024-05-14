@@ -2,7 +2,8 @@
 - Updated NUnit to 4.x (WL16279)
 - Removed deprecated OldGetStringBehavior option (WL16280)
 - Remove MySqlX.Data.Performance.Console.Tests project (WL16387)
- 
+- Updated third party dependencies (WL16291)
+
 8.4.0
 - Updated FOSS license text in all source files (WL16197).
 - Fixed bug Shared memory connection doesn't work in multithread environment (Oracle Bug #36208932).
