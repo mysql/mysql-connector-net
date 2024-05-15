@@ -3,6 +3,8 @@
 - Removed deprecated OldGetStringBehavior option (WL16280)
 - Remove MySqlX.Data.Performance.Console.Tests project (WL16387)
 - Updated third party dependencies (WL16291)
+- Remove .NET 7 and EF Core 7 (WL16386)
+
 
 8.4.0
 - Updated FOSS license text in all source files (WL16197).

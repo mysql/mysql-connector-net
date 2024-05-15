@@ -6,7 +6,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>9.0.0</Version>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <TargetFrameworks>net462;netstandard2.1;</TargetFrameworks>
     <AssemblyName>MySql.EntityFramework.CodeFirst.Tests</AssemblyName>
     <PackageId>MySql.EntityFramework.CodeFirst.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET</PackageTags>
@@ -48,6 +48,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.Data" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Runtime" />
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
     <PackageReference Include="EntityFramework" Version="6.4.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="NUnit" Version="3.13.2" />
@@ -61,20 +72,6 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'=='net462'">
-    <Reference Include="System.Data" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
 
   <ItemGroup>
     <Compile Update="Properties\SQLSyntax.Designer.cs">

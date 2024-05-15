@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Basic.Tests Class Library</Description>
-    <TargetFrameworks>net6.0;net7.0;net8.0;</TargetFrameworks>
+    <TargetFrameworks>net6.0;net8.0;</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Basic.Tests</AssemblyName>
     <PackageId>MySql.EntityFrameworkCore.Basic.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -15,10 +15,6 @@
 
   <ItemGroup Condition="'$(TargetFramework)'=='net6.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Specification.Tests" Version="6.0.30" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'=='net7.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Specification.Tests" Version="7.0.19" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
