@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySqlX.Data.Tests", "tests\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySql.Data.Tests", "tests\MySql.Data.Tests\MySql.Data.Tests.csproj", "{951A6C18-E97C-4F6A-A52C-B6FC4DECABAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlX.Data.Performance.Console.Tests", "tests\MySqlX.Data.Performance.Console.Tests\MySqlX.Data.Performance.Console.Tests.csproj", "{9D5EDC76-5A1C-46C9-A4F2-CF57F276E537}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
