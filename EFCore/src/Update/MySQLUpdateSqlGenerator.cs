@@ -551,6 +551,19 @@ namespace MySql.EntityFrameworkCore
       }
     }
 
+    protected override void AppendReturningClause(StringBuilder commandStringBuilder, IReadOnlyList<IColumnModification> operations, string? additionalValues = null)
+    {
+      if (additionalValues is not null)
+      {
+        if (operations.Count > 0)
+        {
+          commandStringBuilder.Append(", ");
+        }
+
+        commandStringBuilder.Append('1');
+      }
+    }
+
     private void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
     {
       Check.NotNull(commandStringBuilder, "commandStringBuilder");
