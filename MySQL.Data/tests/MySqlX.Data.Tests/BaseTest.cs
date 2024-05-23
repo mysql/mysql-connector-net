@@ -278,6 +278,12 @@ namespace MySqlX.Data.Tests
       return isIpV6 ? ipv6 : ipv4;
     }
 
+    public bool Check_Plugin_Enabled(string pluginname)
+    {
+      var checkplugin = session.SQL($"SELECT * FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME = '{pluginname}' AND PLUGIN_STATUS='ACTIVE';").Execute().FetchOne();
+      return checkplugin != null;
+    }
+
     #endregion
   }
 }

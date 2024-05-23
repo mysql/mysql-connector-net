@@ -199,10 +199,8 @@ namespace MySqlX.Data.Tests
     public void MySqlNativePlugin()
     {
       if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
-
-      var counter = session.SQL("SELECT count(*) FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME = 'caching_sha2_password'").Execute().FetchOne();
-      if (Convert.ToInt32(counter[0]) <= 0)
-        Assert.Ignore("The caching_sha2_password plugin isn't available.");
+      if (!Check_Plugin_Enabled("mysql_native_password"))
+        Assert.Ignore("mysql_native_password plugin must be enabled on the server to run this test");
 
       string pluginName = "mysql_native_password";//mysql_native_password  plugin
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
@@ -263,6 +261,10 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void ConnectUsingMySQL41Auth()
     {
+      if (!Check_Plugin_Enabled("mysql_native_password"))
+        Assert.Ignore("mysql_native_password plugin must be enabled on the server to run this test");
+      ExecuteSqlAsRoot("CREATE USER IF NOT EXISTS 'testNative'@'%' identified with mysql_native_password by 'test';");
+
       var connectionStringUri = ConnectionStringUri;
       if (session.InternalSession.GetServerVersion().isAtLeast(8, 0, 4))
       {
@@ -371,6 +373,11 @@ namespace MySqlX.Data.Tests
     {
       if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
 
+      if (pluginName == "mysql_native_password")
+      {
+        if (!Check_Plugin_Enabled("mysql_native_password"))
+          Assert.Ignore("mysql_native_password plugin must be enabled on the server to run this test");
+      }
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
       builder.UserID = "testDefaultPlugin";
       builder.Password = "test";
@@ -417,6 +424,9 @@ namespace MySqlX.Data.Tests
     {
       if (!Platform.IsWindows()) Assert.Ignore("Check for Linux OS");
       if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
+      if (!Check_Plugin_Enabled("mysql_native_password"))
+        Assert.Ignore("mysql_native_password plugin must be enabled on the server to run this test");
+      ExecuteSqlAsRoot("CREATE USER IF NOT EXISTS 'testNative'@'%' identified with mysql_native_password by 'test';");
 
       var user = "testNative";
       var pwd = "test";

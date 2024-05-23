@@ -358,6 +358,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void ConnectUsingMySqlNativePasswordPlugin()
     {
+      if (!Check_Plugin_Enabled("mysql_native_password"))
+        Assert.Ignore("mysql_native_password plugin must be enabled on the server to run this test");
+
       string userName = "testNtvPass";
       string password = "mysql";
       string pluginName = "mysql_native_password";
@@ -1832,12 +1835,12 @@ namespace MySql.Data.MySqlClient.Tests
                   "with secure connections(classic connection).Server started with mysql native password plugin")]
     public void Sha256AndNativeWithCertificates()
     {
-      if (Version <= new Version("8.0.4")) Assert.Ignore("This test is for MySql 8.0.4 or higher");
-
-      using (var rdr = ExecuteReader("SELECT * FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME = 'caching_sha2_password'"))
-      {
-        if (!rdr.HasRows) Assert.Ignore("This test needs plugin caching_sha2_password");
-      }
+      if (Version < new Version("8.0.4"))
+        Assert.Ignore("This test is for MySql 8.0.4 or higher");
+      if (!Check_Plugin_Enabled("mysql_native_password"))
+        Assert.Ignore("mysql_native_password plugin must be enabled on the server to run this test");
+      if (!Check_Plugin_Enabled("caching_sha2_password"))
+        Assert.Ignore("This test needs plugin caching_sha2_password");
 
       // Test connection for VALID user in LDAP server with different SSLMode values, expected result pass
       string assemblyPath = Assembly.GetExecutingAssembly().Location.Replace(String.Format("{0}.dll",

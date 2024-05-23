@@ -139,7 +139,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// </summary>
     [TestCase("Port", 1455, 1042)]
     [TestCase("Database", "nonExistingDB", 1049)]
-    [TestCase("UserID", "nonExistingUser", 1045)]
+    [TestCase("UserID", "nonExistingUser", 1045)] // Check server bug Bug#36527984 in case of failure
     [TestCase("Server", "nonExistingServer", 1042)]
     [TestCase("MaxConnections", "", 1040)]
     public void AuthenticationExceptionNumber(string propertyName, object propertyValue, int exNumber)

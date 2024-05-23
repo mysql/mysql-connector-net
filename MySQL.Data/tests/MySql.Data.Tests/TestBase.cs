@@ -209,7 +209,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         string userName = String.Format("{0}{1}", BaseUserName, postfix);
 
-        ExecuteSQL($"CREATE USER '{userName}'@'{host}' IDENTIFIED WITH mysql_native_password BY '{password}'", connection);
+        ExecuteSQL($"CREATE USER '{userName}'@'{host}' IDENTIFIED BY '{password}'", connection);
         ExecuteSQL($"GRANT ALL ON *.* TO '{userName}'@'{host}'", connection);
         ExecuteSQL("FLUSH PRIVILEGES", connection);
         return userName;
@@ -333,6 +333,14 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       return isIpV6 ? ipv6 : ipv4;
+    }
+
+    public bool Check_Plugin_Enabled(string pluginname)
+    {
+      using (var rdr = ExecuteReader($"SELECT PLUGIN_STATUS FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME = '{pluginname}' AND plugin_status = 'ACTIVE';"))
+      {
+        return rdr.HasRows;
+      }
     }
     #endregion
   }
