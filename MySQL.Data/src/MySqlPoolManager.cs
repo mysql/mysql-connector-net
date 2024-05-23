@@ -235,10 +235,7 @@ namespace MySql.Data.MySqlClient
 
     public static async Task ClearAllPoolsAsync(bool execAsync)
     {
-      if (execAsync)
-        await waitHandle.WaitAsync().ConfigureAwait(false);
-      else
-        waitHandle.Wait();
+
 
       try
       {
@@ -250,9 +247,9 @@ namespace MySql.Data.MySqlClient
         foreach (string key in keys)
           await ClearPoolByTextAsync(key, execAsync).ConfigureAwait(false);
       }
-      finally 
-      { 
-        waitHandle.Release();
+      catch
+      {
+        throw;
       }
 
       if (DemotedServersTimer != null)
