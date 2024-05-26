@@ -43,8 +43,6 @@ using System.Security;
 [assembly: AssemblyProduct("MySQL Connector/NET")]
 #if NET6_0
 [assembly: AssemblyCopyright("Copyright © 2021, 2024, Oracle and/or its affiliates.")]
-#elif NET7_0
-[assembly: AssemblyCopyright("Copyright © 2022, 2024, Oracle and/or its affiliates.")]
 #elif NET8_0
 [assembly: AssemblyCopyright("Copyright © 2024, Oracle and/or its affiliates.")]
 #endif

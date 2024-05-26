@@ -35,7 +35,7 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class TypeTests : TestBase
   {
-#if !NET7_0_OR_GREATER
+#if !NET8_0_OR_GREATER
     /// <summary>
     /// Test fix for http://bugs.mysql.com/bug.php?id=40555
     /// Make MySql.Data.Types.MySqlDateTime serializable.

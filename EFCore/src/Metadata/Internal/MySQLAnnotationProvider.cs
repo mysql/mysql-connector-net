@@ -155,31 +155,6 @@ namespace MySql.EntityFrameworkCore.Metadata.Internal
         yield return new Annotation(MySQLAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy);
       }
     }
-#elif NET7_0
-      public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)
-    {
-      if (!designTime)
-        yield break;
-
-      var table = StoreObjectIdentifier.Table(column.Table.Name, column.Table.Schema);
-      var properties = column.PropertyMappings.Select(m => m.Property).ToArray();
-
-      if (column.PropertyMappings.Where(m => m.TableMapping.IsSharedTablePrincipal ?? true
-      && m.TableMapping.EntityType == m.Property.DeclaringEntityType)
-        .Select(m => m.Property)
-        .FirstOrDefault(p => p.GetValueGenerationStrategy(table) == MySQLValueGenerationStrategy.IdentityColumn) is IProperty identityProperty)
-      {
-        var valueGenerationStrategy = identityProperty.GetValueGenerationStrategy(table);
-        yield return new Annotation(MySQLAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy);
-      }
-      else if (properties.FirstOrDefault
-        (p => p.GetValueGenerationStrategy(table) == MySQLValueGenerationStrategy.ComputedColumn) is IProperty computedProperty)
-      {
-        var valueGenerationStrategy = computedProperty.GetValueGenerationStrategy(table);
-        yield return new Annotation(MySQLAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy);
-      }
-    }
-
 #elif NET8_0
 
 public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)

@@ -123,7 +123,7 @@ namespace MySqlX.Data.Tests
     public void SslPreferredIsInvalid()
     {
       string prefered = "Prefered";
-#if NET7_0
+#if NET8_0
       prefered = "Preferred";
 #endif
       var expectedErrorMessage = "Value '{0}' is not of the correct type.";

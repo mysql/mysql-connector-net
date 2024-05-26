@@ -255,7 +255,7 @@ namespace MySqlX.Data.Tests
       CheckConnectionData("mysqlx://myuser:password@[(address=[fe80::bd41:e449:45ee:2e1a%17]:3305,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 3305);
       Assert.Throws<UriFormatException>(() => CheckConnectionData("mysqlx://myuser:password@[(address=fe80::bd41:e449:45ee:2e1a%17,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060));
       CheckConnectionData("mysqlx://myuser@localhost/test", "myuser", "", "localhost", 33060, "database", schemaName);
-#if NET7_0
+#if NET8_0
       CheckConnectionData("mysqlx://myuser@localhost/test?ssl%20mode=disabled&connecttimeout=10", "myuser", "", "localhost", 33060, "database", schemaName, "ssl mode", "None", "connecttimeout", "10");
 #else
       CheckConnectionData("mysqlx://myuser@localhost/test?ssl%20mode=disabled&connecttimeout=10", "myuser", "", "localhost", 33060, "database", schemaName, "ssl mode", "Disabled", "connecttimeout", "10");
