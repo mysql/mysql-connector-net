@@ -48,7 +48,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void EscapeStringMethodCanEscapeQuotationMark()
     {
-      if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) Assert.Ignore();
+      Assume.That(System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows));
 
       ExecuteSQL("CREATE TABLE Test (id int NOT NULL, name VARCHAR(100))");
 

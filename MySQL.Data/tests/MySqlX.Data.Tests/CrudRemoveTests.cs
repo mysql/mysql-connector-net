@@ -197,7 +197,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void RemoveWithInOperator()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       var docs = new[]

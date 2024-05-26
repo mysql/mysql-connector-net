@@ -196,7 +196,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void NonWindowsOSNotCurrentlySupported()
     {
-      if (Platform.IsWindows()) Assert.Ignore("This test is for non Windows OS only.");
+      Assume.That(!Platform.IsWindows(), "This test is for non Windows OS only.");
 
       List<string> options = new List<string>(new string[]
       {
@@ -282,7 +282,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Session BaseString/MySQLConnectionString Builder")]
     public void ConnectionStringBuilderClassicTests()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only.");
+      Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
 
       MySqlConnectionStringBuilder mysql = new MySqlConnectionStringBuilder(Settings.ConnectionString);
 
@@ -442,7 +442,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void KerberosAuthModeTest()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only.");
+      Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
 
       string connString;
       MySqlConnection conn;

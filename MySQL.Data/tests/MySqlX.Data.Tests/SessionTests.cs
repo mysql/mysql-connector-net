@@ -255,7 +255,7 @@ namespace MySqlX.Data.Tests
       CheckConnectionData("mysqlx://myuser:password@[(address=[fe80::bd41:e449:45ee:2e1a%17]:3305,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 3305);
       Assert.Throws<UriFormatException>(() => CheckConnectionData("mysqlx://myuser:password@[(address=fe80::bd41:e449:45ee:2e1a%17,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060));
       CheckConnectionData("mysqlx://myuser@localhost/test", "myuser", "", "localhost", 33060, "database", schemaName);
-#if NET8_0
+#if NET8_0_OR_GREATER
       CheckConnectionData("mysqlx://myuser@localhost/test?ssl%20mode=disabled&connecttimeout=10", "myuser", "", "localhost", 33060, "database", schemaName, "ssl mode", "None", "connecttimeout", "10");
 #else
       CheckConnectionData("mysqlx://myuser@localhost/test?ssl%20mode=disabled&connecttimeout=10", "myuser", "", "localhost", 33060, "database", schemaName, "ssl mode", "Disabled", "connecttimeout", "10");
@@ -303,7 +303,7 @@ namespace MySqlX.Data.Tests
       csBuilder.Server = GetMySqlServerIp(true);
       csBuilder.Port = uint.Parse(XPort);
 
-      if (string.IsNullOrEmpty(csBuilder.Server)) Assert.Ignore("No IPv6 available.");
+      Assume.That(!string.IsNullOrEmpty(csBuilder.Server), "No IPv6 available.");
 
       using (var session = MySQLX.GetSession(csBuilder.ToString()))
       {
@@ -317,7 +317,7 @@ namespace MySqlX.Data.Tests
     {
       var csBuilder = new MySqlXConnectionStringBuilder(ConnectionString);
       string ipv6 = GetMySqlServerIp(true);
-      if (string.IsNullOrEmpty(ipv6)) Assert.Ignore("No IPv6 available.");
+      Assume.That(!string.IsNullOrEmpty(ipv6), "No IPv6 available.");
 
       string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[{ipv6}]:{XPort}";
       using (Session session = MySQLX.GetSession(connString))
@@ -332,7 +332,7 @@ namespace MySqlX.Data.Tests
     {
       var csBuilder = new MySqlXConnectionStringBuilder(ConnectionString);
       string ipv6 = GetMySqlServerIp(true);
-      if (string.IsNullOrEmpty(ipv6)) Assert.Ignore("No IPv6 available.");
+      Assume.That(!string.IsNullOrEmpty(ipv6), "No IPv6 available.");
 
       using (Session session = MySQLX.GetSession(new { server = ipv6, user = csBuilder.UserID, password = csBuilder.Password, port = XPort }))
       {
@@ -483,7 +483,7 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void ConnectTimeout()
     {
-      if (Platform.IsMacOSX()) Assert.Ignore("Check failure on MacOS: <System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (51): Network is unreachable 143.24.20.36:33060");
+      Assume.That(!Platform.IsMacOSX(), "Check failure on MacOS: <System.Net.Internals.SocketExceptionFactory+ExtendedSocketException (51): Network is unreachable 143.24.20.36:33060");
 
       // Create a session passing the new parameter "connect-timeout" and set it to a valid value.
       // ConnectionString.
@@ -733,7 +733,7 @@ namespace MySqlX.Data.Tests
     [Description("IPv6 connection Scenario [localhost],[127.0.0.1]")]
     public void ConnectionTest(string serverName)
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test only applies foe Windows OS.");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
 
       serverName = serverName.Replace("localhost", Host);
 
@@ -765,7 +765,7 @@ namespace MySqlX.Data.Tests
     [Description("IPv6 connection server * and ::$,invalid hostname")]
     public void IPv6ConnectionExceptions(string serverName)
     {
-      if (!Platform.IsWindows()) return;
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
 
       Session sessionTest = null;
       string connStr = "server=" + serverName + ";user=test;port=" + XPort + ";password=test;sslmode=" + MySqlSslMode.Required;
@@ -777,7 +777,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Unified connection string refinement-Negative Scenarios")]
     public void ConnectionNegativeScenarios()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
       var ipv6HostName2 = GetIPV6Address();
       string ipAddress = GetMySqlServerIp();
 
@@ -2221,8 +2221,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("Classic Client with xprotocol server")]
     public void ClassicClientXProtocol()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
 
       string connectionString = $"server={Host};user={session.Settings.UserID};port={XPort};password={session.Settings.Password}";
       using (var session1 = new MySqlConnection(connectionString))

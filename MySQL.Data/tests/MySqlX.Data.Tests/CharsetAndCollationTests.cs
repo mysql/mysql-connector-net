@@ -227,7 +227,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Column Default Datatypes")]
     public void ColumnDefaultDatatypes()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       session.SQL($"USE {schemaName}").Execute();
       session.SQL("Drop table if exists address").Execute();
       session.SQL("CREATE TABLE address" +
@@ -327,7 +327,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Column Custom Datatypes(Unsigned,Padded,CharacterSet,Collation)")]
     public void ColumnCustomDatatypes()
     {
-      if (!session.Version.isAtLeast(8, 0, 14)) Assert.Ignore("This test is for MySql 8.0.14 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 14), "This test is for MySql 8.0.14 or higher");
       var defaultCharset = "utf8mb4";
       session.SQL($"USE {schemaName}").Execute();
       session.SQL("CREATE TABLE IF NOT EXISTS address" +
@@ -426,7 +426,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Column Join Two tables")]
     public void ColumnJoin()
     {
-      if (!session.Version.isAtLeast(8, 0, 14)) Assert.Ignore("This test is for MySql 8.0.14 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 14), "This test is for MySql 8.0.14 or higher");
       var defaultCharset = "utf8mb4";
       session.SQL($"USE {schemaName}").Execute();
       session.SQL("CREATE TABLE address1" +
@@ -718,7 +718,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Column Character Custom Datatype")]
     public void ColumnCharacterCustomDatatype()
     {
-      if (!session.Version.isAtLeast(8, 0, 14)) Assert.Ignore("This test is for MySql 8.0.14 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 14), "This test is for MySql 8.0.14 or higher");
       var defaultCharset = "utf8mb4";
       session.SQL($"USE {schemaName}").Execute();
       session.SQL("Drop table if exists address").Execute();
@@ -781,7 +781,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Column Geometric Datatypes")]
     public void ColumnCharacterGeometricDatatype()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       session.SQL($"USE {schemaName}").Execute();
       session.SQL($"drop table if exists geotest").Execute();
       session.SQL("CREATE TABLE geotest (g GEOMETRY,p POINT,l LINESTRING,po POLYGON,mp MULTIPOINT,ml MULTILINESTRING,mpo MULTIPOLYGON,gc GEOMETRYCOLLECTION);").Execute();
@@ -819,7 +819,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Column Blob Datatype")]
     public void ColumnCharacterBlobDatatype()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       session.SQL($"USE {schemaName}").Execute();
       session.SQL($"drop table if exists geotest").Execute();
@@ -862,7 +862,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify that different language specific collations are availabe for charset utf8mb4 when server version is 8.0 or greater")]
     public void LanguageSpecificCollations()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       var charset = "utf8mb4";
       string[] collationname =
       {
@@ -908,7 +908,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void VerifyRenamedCollations()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       var charset = "utf8mb3";
       var collation = session.Version.isAtLeast(8, 0, 30) ? "utf8mb3" : "utf8";
@@ -957,7 +957,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify default charset and collation")]
     public void VerifyLatinCharsetAndCollation()
     {
-      if (!session.Version.isAtLeast(8, 0, 14)) Assert.Ignore("This test is for MySql 8.0.14 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 14), "This test is for MySql 8.0.14 or higher");
       var database_name = "collation_test";
       var charset = "latin1";
       var collationname = "latin1_danish_ci";
@@ -981,8 +981,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("Create table/db with collation utf8mb4_0900_bin and insert non ascii characters and fetch data")]
     public void Utf8mb4BinaryNopadCollationTable()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only.");
-      if (!_serverVersion.isAtLeast(8, 0, 17)) Assert.Ignore("This test is for MySql 8.0.17 or higher");
+      Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
+      Assume.That(session.Version.isAtLeast(8, 0, 17), "This test is for MySql 8.0.17 or higher");
       char t_char;
       var charset = "utf8mb4";
       var collation = "utf8mb4_0900_ai_ci";

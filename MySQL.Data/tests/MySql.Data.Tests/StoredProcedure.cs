@@ -746,7 +746,6 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void ProcedureCacheMiss()
     {
-      if (Version.Major == new Version(5, 7, 43).Major && Version.Minor == new Version(5, 7, 43).Minor) Assert.Ignore("Test temporaly deactivated for MySQL Server version 5.7.x due to a possible bug");
 
       ExecuteSQL("CREATE PROCEDURE spTest(id INT) BEGIN SELECT 1; END");
 
@@ -932,7 +931,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void PassJsonParameter()
     {
-      if (Version < new Version(5, 7, 8)) Assert.Ignore("JSON data type was included in MySQL Server from v5.7.8");
+      Assume.That(Version >= new Version(5, 7, 8), "JSON data type was included in MySQL Server from v5.7.8");
 
       ExecuteSQL("CREATE TABLE Test(jsonValue json NOT NULL)");
       ExecuteSQL("CREATE PROCEDURE spTest(IN p_jsonValue JSON) BEGIN INSERT INTO Test VALUES(p_jsonValue); END");
@@ -1045,7 +1044,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void EventsStatementsHistory()
     {
-      if (Version < new Version(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher");
+      Assume.That(Version >= new Version(8, 0, 0), "This test is for MySql 8.0 or higher");
       bool testResult = false;
       var spName = "spGetCount";
       var cmd = new MySqlCommand(" show variables like 'general_log'", Connection);
@@ -1053,7 +1052,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         while (rdr.Read())
         {
-          if (rdr.GetString(1) != "ON") Assert.Ignore("general_log is disabled");
+          Assume.That(rdr.GetString(1) == "ON", "general_log is disabled");
         }
       }
 

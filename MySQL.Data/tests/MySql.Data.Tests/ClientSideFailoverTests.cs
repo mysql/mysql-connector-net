@@ -55,7 +55,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (Settings.Server.Contains("::1"))
       {
         ipv6 = GetMySqlServerIp(true);
-        if (string.IsNullOrEmpty(ipv6)) Assert.Ignore("No IPv6 available.");
+        Assume.That(!string.IsNullOrEmpty(ipv6), "No IPv6 available.");
         Settings.Server = server.Replace("::1", ipv6);
       }
 
@@ -83,7 +83,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void PriorityMethod()
     {
 #if !NETFRAMEWORK
-      if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) Assert.Ignore();
+      Assume.That(System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows));
 #endif
       // Multiple hosts and validate proper order assigned to hosts.
       Settings.Pooling = false;

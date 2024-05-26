@@ -264,7 +264,7 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void QueueTimeoutTest()
     {
-      if (Platform.IsWindows()) Assert.Ignore("Fix this for Windows OS");
+      Assume.That(!Platform.IsWindows(), "Fix this for Windows OS");
       int timeout = 3000;
       using (Client client = MySQLX.GetClient(ConnectionString, new { pooling = new { maxSize = 1, queueTimeout = timeout } }))
       {
@@ -427,7 +427,7 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void ConnectionAttributes()
     {
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
 
       // Validate that MySQLX.GetSession() supports a new 'connection-attributes' query parameter
       // with default values and all the client attributes starts with a '_'.
@@ -817,7 +817,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test queueTimeout with different values")]
     public void QueueTimeoutOptionTests(string inputType)
     {
-      if (Platform.IsWindows()) Assert.Ignore("Fix this for Windows OS");
+      Assume.That(!Platform.IsWindows(), "Fix this for Windows OS");
 
       int timeoutMS = 3000;
       string[] connectionpooling = { "{ \"pooling\": { \"maxSize\": 2,\"queueTimeout\": " + timeoutMS + " } }", "{ \"pooling\": { \"queueTimeout\": true} }", "{ \"pooling\": { \"queueTimeout\": 'true'} }", "{ \"pooling\": { \"queueTimeout\": -1} }", "{ \"pooling\": { \"queueTimeout\": 84584759345 } }", "{ \"pooling\": { \"queueTimeout\": } }" };
@@ -1424,7 +1424,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("MAX LENGTH OF KEY VALUE PAIR OF USER DEFINED CONNECTION ATTRIBUTES")]
     public void ConnectionAttributesLongValue()
     {
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
 
       var serverSupportedSize = Convert.ToInt32(session.SQL("select @@Global.performance_schema_session_connect_attrs_size;").Execute().First()[0]);
       var connectAttributesLost = Convert.ToInt32(session.SQL("SHOW STATUS LIKE 'Performance_schema_session_connect_attrs_lost'").Execute().FirstOrDefault()[1]);
@@ -1473,7 +1473,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("GETSESSION THROWS EXCEPTION WHEN EQUAL IS USED AS PARAM FOR CONN ATTRIBUTE IN CONN ANONYMOUS OBJECT-WL#12514")]
     public void GetSessionExceptionWithConnetionAttribute()
     {
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       using (Client client = MySQLX.GetClient(new { server = sb.Server, port = XPort, user = sb.UserID, password = sb.Password, ConnectionAttributes = "=" }
       , "{ \"pooling\": { \"enabled\": true } }"))
@@ -1486,8 +1486,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("Connection Attributes with arrays")]
     public void ConnectionAttributesWithArrays()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
 
       object[] arrayCases = new object[] { "[var1 = 1, 2, 3]", "[var1 = { 1, 2, 3}]" };
       for (int i = 0; i < arrayCases.Length; i++)
@@ -1576,7 +1576,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void NormalConnectionWithUri()
     {
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       //Normal connection with URI
       using (Client client = MySQLX.GetClient(ConnectionStringUri, "{ \"pooling\": { \"enabled\": true } }"))
       {
@@ -1591,7 +1591,7 @@ namespace MySqlX.Data.Tests
     [Ignore("Bug #33234243 need to fix Uri scenario")]
     public void ConnectionAttributesRepeated()
     {
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       //Connection String
       Assert.Catch(() => MySQLX.GetClient(ConnectionString + ";connection-attributes=true;connection-attributes=true;", "{ \"pooling\": { \"enabled\": true } }"));
       Assert.Catch(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=true;connection-attributes=true;"));
@@ -1603,7 +1603,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Connection Attributes with key Repeated - Extending scenarios in ConnectionAttributes()")]
     public void ConnectionAttributesKeyRepeatedChars()
     {
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       var expectedMsg = string.Format(ResourcesX.DuplicateUserDefinedAttribute, "quua");
       //Connection String
       using (Client client = MySQLX.GetClient(ConnectionString + ";connection-attributes=[quua=bar,quua=qux,key]", "{ \"pooling\": { \"enabled\": true } }"))
@@ -1674,7 +1674,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Connection Attributes with key 33 characters - Extending scenarios in ConnectionAttributes()")]
     public void ConnectionAttributesWithKey33Chars()
     {
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       var errorMsg = "Key name beginning with 'foo32foo32foo32foo32foo32foo3232'... is too long, currently limited to 32";
       using (Client client = MySQLX.GetClient(ConnectionString + ";connection-attributes=[foo32foo32foo32foo32foo32foo32323=bar,quua=qux,key]", "{ \"pooling\": { \"enabled\": true } }"))
       {
@@ -1741,7 +1741,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Connection Attributes with invalid combinations - Extending scenarios in ConnectionAttributes()")]
     public void ConnectionAttributesInvalidCombinations()
     {
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       object[] invalid = new object[] { "var1", "1", "2", "(var1)", "{var1}", "[_testValue = test123, emptyValue]" };
       var errorMsgs = new string[] { @"The value of ""connection-attributes"" must be either a boolean or a list of key-value pairs.", @"Key names in ""connection-attributes"" cannot start with ""_""." };
       for (int i = 0; i < invalid.Length; i++)
@@ -1817,8 +1817,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("Connection Attributes with valid combinations - Extending scenarios in ConnectionAttributes()")]
     public void ConnectionAttributesValidCombinations()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
 
       object[] invalid = new object[] { "[var1 = 1]" };
       for (int i = 0; i < invalid.Length; i++)
@@ -1905,9 +1905,9 @@ namespace MySqlX.Data.Tests
     [Test, Description("Connection Attributes with key special characters - Extending scenarios in ConnectionAttributes()")]
     public void ConnectionAttributesKeySpecialChars()
     {
+      Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
       using (Client client = MySQLX.GetClient(ConnectionString + ";connection-attributes=[@#$%^&*        %^()=bar,quua=*(&^&#$%,key]", "{ \"pooling\": { \"enabled\": true } }"))
       {
         using (Session session = client.GetSession())
@@ -1989,8 +1989,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("Connection Attributes with key with underline characters - Extending scenarios in ConnectionAttributes()")]
     public void ConnectionAttributesKeyWithUnderLineChars()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       var expectedMsg = @"Key names in ""connection-attributes"" cannot start with ""_"".";
       //Connection string
@@ -2058,8 +2058,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("Connection Attributes with key blank characters - Extending scenarios in ConnectionAttributes()")]
     public void ConnectionAttributesKeyBlankChars()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       var expectedMsg = "Key name in connection attribute cannot be an empty string.";
       //Connection String
@@ -2130,8 +2130,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("Connection Attributes with value 1025characters - Extending scenarios in ConnectionAttributes()")]
     public void ConnectionAttributesValue1025Chars()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       var expectedMsg = "Value is too long for 'foo' attribute, currently limited to 1024";
       var strValue = "[foo=12345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781234567812345678123456781,quua=qux,key=]";
@@ -2201,7 +2201,7 @@ namespace MySqlX.Data.Tests
     public void SessionRestore()
     {
       // This feature was implemented since MySQL Server 8.0.16
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       int size = 2;
       using (Client client = MySQLX.GetClient(ConnectionString + ";database=test;", new { pooling = new { enabled = true, maxSize = size, queueTimeout = 1000, maxIdleTime = 1000 } }))
       {
@@ -2226,7 +2226,7 @@ namespace MySqlX.Data.Tests
     public void SessionAuthentication()
     {
       // This feature was implemented since MySQL Server 8.0.16
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       int size = 1;
       using (Client client = MySQLX.GetClient(ConnectionString + ";database=test;", new { pooling = new { enabled = true, maxSize = size, queueTimeout = 1000, maxIdleTime = 1000 } }))
       {
@@ -2248,7 +2248,7 @@ namespace MySqlX.Data.Tests
     public void MultiSessionAuthentication()
     {
       // This feature was implemented since MySQL Server 8.0.16
-      if (!(session.Version.isAtLeast(8, 0, 16))) Assert.Ignore("This test is for MySql 8.0.16 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       int size = 2;
       using (Client client = MySQLX.GetClient(ConnectionString + ";database=test;", new { pooling = new { enabled = true, maxSize = size, queueTimeout = 1000, maxIdleTime = 1000 } }))
       {

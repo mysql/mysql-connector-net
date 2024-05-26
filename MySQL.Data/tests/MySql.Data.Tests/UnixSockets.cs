@@ -42,11 +42,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       string unixConnectionString = $"server={UnixSocket};user={Settings.UserID};password={Settings.Password};protocol=unix;";
 
-      if (Platform.IsWindows())
-      {
-        Console.Error.WriteLine($"{nameof(ConnectionTest)} ignored because it's a Windows system.");
-        Assert.Ignore();
-      }
+      Assume.That(!Platform.IsWindows());
 
       using (MySqlConnection conn = new MySqlConnection(unixConnectionString))
       {

@@ -403,7 +403,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection Scenarios - Add Objects,Find without parameters")]
     public void CollectionAddFindNoParams()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Collection col = CreateCollection("my_collection_1");
       var docs = new[]
       {
@@ -430,7 +430,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection Scenarios - Add/Remove JSON Object with id")]
     public void CollectionAddRemoveJSONObjectID()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       using (var sessionPlain = MySQLX.GetSession(ConnectionString + ";sslmode=" + MySqlSslMode.Required))
       {
         Schema db = sessionPlain.GetSchema(schemaName);
@@ -453,7 +453,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection Scenarios - Add/Remove with condition")]
     public void CollectionAddRemoveJSONObjectCondition()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Schema db = session.GetSchema(schemaName);
       Collection col = CreateCollection("my_collection_1");
       DbDoc DbDocs = new DbDoc();
@@ -470,7 +470,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection Scenarios - Add,Remove with condition limit")]
     public void CollectionAddRemoveObjectConditionLimit()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Schema db = session.GetSchema(schemaName);
       Collection col = CreateCollection("my_collection_1");
       var docs = new[]
@@ -502,7 +502,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection Scenarios - Add/Remove 200 JSON records ")]
     public void CollectionAddRemove200JSONRecords()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Collection col = CreateCollection("my_collection_1");
       var numOfRecords = 200;
 
@@ -530,7 +530,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection Scenarios - Add/Remove documents with limit and orderby ")]
     public void CollectionAddRemoveJSONRecordsLimitOrderBy()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Schema db = session.GetSchema(schemaName);
       Collection col = CreateCollection("my_collection_1");
 
@@ -573,7 +573,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection Scenarios - Add Single/Multiple Docs - Remove Condition/ID/Condition-Limit/Condition-Limit-OrderBy/Bind")]
     public void CollectionAddRemoveDocsLimitOrderByBind()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Collection col = CreateCollection("my_collection_1");
       DbDoc DbDocs = new DbDoc();
       DbDocs.SetValue("_id", 100000);
@@ -660,7 +660,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection Scenarios - Add Single/Multiple Docs - Remove Condition/ID/Condition-Limit/Condition-Limit-OrderBy/Bind using invalid conditions")]
     public void CollectionRemoveDocsLimitOrderByBindNegative()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Schema db = session.GetSchema(schemaName);
       var col = db.CreateCollection("my_collection_1", true);
 
@@ -760,7 +760,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin - MYSQLCNET_680 Allow Reuse Statement after execute Positive1(after a succesful execute)")]
     public void AllowReuseStatementAfterExecutePositive1()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Schema db = session.GetSchema(schemaName);
       var col = db.CreateCollection("my_collection_123456789");
       object[] data = new object[]
@@ -826,7 +826,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin - MYSQLCNET 755 Collection GetDocumentID")]
     public void CollectionGetDocumentID()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       Collection coll = CreateCollection("test");
       var docs = new[]
       {
@@ -916,7 +916,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX UUID Scenario-2(Check UUID generated when multiple JSON docs are added using collection.add().add()..without _id fields)")]
     public void CheckDocUUIDScenario2()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var col = CreateCollection("my_collection_123456789");
       object[] data1 = new object[]
       {
@@ -954,7 +954,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX UUID Scenario-2(Check UUID generated when multiple JSON docs are added using collection.add(doc, doc, doc... ) without _id fields)")]
     public void CheckDocUUIDScenario3()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var col = CreateCollection("my_collection_123456789");
       var stmt = col.Add(@"{ ""foo"": 1 }", @"{""foo"": 2 }", @"{ ""foo"": 3 }", @"{ ""foo"": 4 }");
       Result r = col.Add(@"{ ""foo"": 1 }", @"{""foo"": 2 }", @"{ ""foo"": 3 }", @"{ ""foo"": 4 }").Execute();
@@ -977,7 +977,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX UUID Scenario-4(Check UUID generated when multiple JSON docs are added using some containing and some not containing _id fields)")]
     public void CheckDocUUIDScenario4()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var col = CreateCollection("my_collection_123456789");
       object[] data1 = new object[]
       {
@@ -1037,7 +1037,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX UUID Scenario-6(Check that no duplicate UUID is generated by adding multiple doc from the same collection in a session when there are no _id fields)")]
     public void CheckDocUUIDScenario6()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       Collection testCollection = CreateCollection("test");
       DbDoc[] jsonlist = new DbDoc[1000];
       for (int i = 0; i < 1000; i++)
@@ -1100,7 +1100,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX UUID Scenario-8(Check UUID generated when multiple JSON docs are added using collection.add(doc, doc, doc... ) when docs contains _id fields with zero,strings)")]
     public void CheckDocUUIDScenario8()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var col = CreateCollection("my_collection_123456789");
       object[] data1 = new object[]
       {
@@ -1157,7 +1157,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection JSON Depth Scenarios")]
     public void CollectionAddJSONDepth()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       int i, maxArrayelement = 100;
       Collection col = CreateCollection("my_collection_1");
       Collection col1 = CreateCollection("my_collection_2");
@@ -1199,7 +1199,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection Add function with null")]
     public void CollectionAddNullFind()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       int i = 1;
       Collection col = CreateCollection("my_collection_1");
       var d1 = new DbDoc();
@@ -1225,7 +1225,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin JSON String long expression")]
     public void JSONStringLongExpression()
     {
-      if (Platform.IsMacOSX()) Assert.Ignore("Check failure on MacOS: stack overflow");// TO DO
+      Assume.That(!Platform.IsMacOSX(), "Check failure on MacOs: stack overflow");//TO DO
 
       Collection col = CreateCollection("my_collection_1");
       String json = "",
@@ -1300,7 +1300,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Invalid JSON String long expression")]
     public void JSONStringSpecialCharacters()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       Collection col = CreateCollection("my_collection_1");
       String[] splName = {"+", "*", "/", "a+b", "#1", "%", "&", "@1", "!1", "~", "^",
                           "(", ")", "{", "}", "[", "]", "|", "JSON", "ADD", "JSON_EXTRACT", "JSON_OBJECT",
@@ -1321,7 +1321,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collections Chained Insert")]
     public void CollectionsChainedInsert()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       Collection col = CreateCollection("my_collection_1");
       DbDoc newDoc = new DbDoc();
       newDoc.SetValue("F1", 1);
@@ -1372,8 +1372,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection Add Array")]
     public void CollectionAddArray()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only.");
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5, 7, 0 or higher.");
+      Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       int maxrec = 5;
       var col = CreateCollection("my_collection_1");
       DbDoc[] jsonlist = new DbDoc[maxrec];
@@ -1399,8 +1399,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection JSON Scenarios")]
     public void CollectionAddJSONDocs()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only.");
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       Collection col = CreateCollection("my_collection_1");
       string json = @"{ ""_id"": 0, ""title"": ""Book 0"" ,""pages"": 10,""name"": ""Jeoff Archer""}";
@@ -1475,7 +1475,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify that the field and column _id has a value when it's not given to a document-Scenario-1(single document add)")]
     public void VerifyIDField()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("this test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       List<string> idStringList = new List<string>();
       var col = CreateCollection("my_collection");
       Result result = null;
@@ -1553,7 +1553,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Unique _ids generated server side for multiple documents, single add and generated ids count should be number of docs added-Scenario3")]
     public void VerifyIDFieldScenario3()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("this test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       List<string> idStringList = new List<string>();
       var col = CreateCollection("my_collection");
       Result result = null;
@@ -1618,7 +1618,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify that the field and column _id has a value when it's not given to a document-Scenario-1(single document add)-when doc already exists")]
     public void VerifyIDFieldScenario4()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("this test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       List<string> idStringList = new List<string>();
       var col = CreateCollection("my_collection");
       Result result = null;
@@ -1759,7 +1759,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Unique _ids generated server side for multiple documents,multiple add and generated ids count should be number of docs added-when doc already exists Scenario2")]
     public void VerifyIDFieldScenario5()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("this test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       List<string> idStringList = new List<string>();
       Result result = null;
       string generatedIDs1 = null;
@@ -1927,7 +1927,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Unique _ids generated server side for multiple documents, single add and generated ids count should be number of docs added-when doc already exists Scenario3")]
     public void VerifyIDFieldScenario6()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("this test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       List<string> idStringList = new List<string>();
       var col = CreateCollection("my_collection");
       Result result = null;
@@ -2247,7 +2247,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify the behaviour if a sequence is incremented by the user and added as _id for the document")]
     public void VerifySequenceAndIdAdded()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       string incrementedString = null, generatedString = null;
       var col = CreateCollection("my_collection");
       Result result = null;
@@ -2287,7 +2287,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("documents inserted concurrently by two threads")]
     public async Task CollectionConcurrentAdd()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       CreateCollection("my_collection");
       var r1 = await CollectionAddThread1();

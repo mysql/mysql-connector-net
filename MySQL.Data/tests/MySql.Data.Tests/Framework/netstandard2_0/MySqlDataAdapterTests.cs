@@ -564,7 +564,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void TestBatchingInserts()
     {
-      if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) Assert.Ignore();
+      Assume.That(System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows));
 
       ExecuteSQL("CREATE TABLE Test (id INT, name VARCHAR(20), PRIMARY KEY(id))");
 

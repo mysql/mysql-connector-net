@@ -198,7 +198,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test]
     public void SimpleSharedLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -227,7 +227,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test]
     public void SimpleExclusiveLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -258,7 +258,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test]
     public void SharedLockForbidsToModifyDocuments()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -294,7 +294,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test]
     public void ExclusiveLockForbidsToModifyDocuments()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -327,7 +327,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test]
     public void SharedLockAfterExclusiveLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -362,7 +362,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test]
     public void ExclusiveLockAfterSharedLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -555,7 +555,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading locked document(lock_shared) in a table using lock_exclusive with DEFAULT waiting option.")]
     public void ExclusiveLockAfterSharedLockDefaultWaiting()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -602,7 +602,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading exclusively locked document in a table using lock_shared with NOWAIT waiting option. ")]
     public void SharedLockAfterExclusiveLockWithNoWait()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -699,7 +699,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Test MySQLX plugin Datatype Tests")]
     public void DatatypesOnCreateTable()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL($"use {schemaName}");
       session.SQL("create table test1(c1 int,c2 double GENERATED ALWAYS AS (c1*101/102) Stored COMMENT 'First Gen Col',c3 Json GENERATED ALWAYS AS (concat('{\"F1\":',c1,'}')) VIRTUAL COMMENT 'Second Gen /**/Col', c4 bigint GENERATED ALWAYS as (c1*10000) VIRTUAL UNIQUE KEY Comment '3rd Col' NOT NULL)").Execute();
@@ -713,7 +713,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Test MySQLX plugin Table Expression using Where")]
     public void TableExpressionWhereBindGroupBy()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       string match = null;
       session.SQL("create table test1(name VARCHAR(40), age INT)").Execute();
@@ -804,7 +804,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading exclusively locked document in a table using lock_exclusive with NOWAIT waiting option. ")]
     public void DoubleExclusiveLockWithNoWait()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -849,7 +849,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading a locked document(lock_shared) in a table using lock_shared with NOWAIT waiting option. ")]
     public void DoubleSharedLockWithNoWait()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -890,7 +890,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading a locked document(lock_shared) in a table using lock_shared with NOWAIT waiting option. ")]
     public void ExclusiveLockAfterSharedLockWithNoWait()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -932,7 +932,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading exclusively locked document in a table using lock_shared with SKIPLOCK waiting option. ")]
     public void SharedLockAfterExclusiveWithSkiplock()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -976,7 +976,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading exclusively locked document in a table using lock_exclusive with SKIPLOCK waiting option.")]
     public void DoubleExclusiveLockWithSkiplock()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -1018,7 +1018,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading a locked document(lock_shared) in a table using lock_shared with SKIPLOCK waiting option. ")]
     public void DoubleSharedLockWithSkiplock()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -1060,7 +1060,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading a locked document(lock_shared) in a table using lock_exclusive with SKIPLOCK waiting option.")]
     public void ExclusiveLockAfterSharedLockWithSkiplock()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -1103,7 +1103,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading an exclusively locked document in a table using lock_shared without any waiting option. ")]
     public void ExclusiveLockBeforeSharedLockWithoutAwaiting()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -1145,7 +1145,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading an exclusively locked document in a table using lock_exclusive without any waiting option.")]
     public void DoubleExclusiveLockWithoutWaiting()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
@@ -1182,7 +1182,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading a locked document(lock_shared) in a table using lock_shared without any waiting option.")]
     public void DoubleSharedLockWithoutWaiting()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -1223,7 +1223,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading a locked document(lock_shared) in a table using lock_exclusive without any waiting option. ")]
     public void SharedLockBeforeExclusiveLockWithoutWaiting()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -1265,7 +1265,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading a locked document(shared/exclusive) in a table using SKIPLOCK and NOWAIT waiting options when CRUD is happening parallely")]
     public void SingleLockExclusiveWithNoWaitAndSkip()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -1305,7 +1305,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Multiple lock calls on a document in table using NOWAIT and SKIPLOCK waiting options")]
     public void ChainedExclusiveLocks()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -1343,7 +1343,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Test MySQLX plugin - MYSQLCNET 755 Table GetIncrementValue")]
     public void TableGetAutoIncrementValue()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       session.SQL("CREATE TABLE address1" +
                   "(address_number1  MEDIUMINT NOT NULL AUTO_INCREMENT, " +
@@ -1492,7 +1492,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("MySQLX CNET-Test Table.Select() with exclusive lock and Table.Update() normal from two sessions. ")]
     public void DoubleChainedLocksWithTwoSessions_S1()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       session.SQL("SET autocommit = 0").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -1554,7 +1554,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("MySQLX CNET-Test Table.Select() with shared lock and Table.Update() normal from two sessions. ")]
     public void DoubleChainedLocksWithTwoSessions_S2()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       session.SQL("SET autocommit = 0").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -1621,7 +1621,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("MySQLX CNET-Test Table.Select() with exclusive lock from two sessions. ")]
     public void SingleExclusiveLock()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       session.SQL("SET autocommit = 0").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -1652,7 +1652,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("MySQLX CNET-Test Table.Select() with exclusive lock and Table.Select() with exclusive lock from two sessions-Select multiple records")]
     public void SingleTransactionWithLocks()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED").Execute();
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -1693,8 +1693,8 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("MySQLX CNET-Test Table.Select() with exclusive lock and Table.Update() normal from two sessions-50 Iterations")]
     public void IteratedExclusiveLocks()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       session.SQL("SET autocommit = 0").Execute();
       session.SQL("CREATE UNIQUE INDEX myIndex ON test.test (id)").Execute();

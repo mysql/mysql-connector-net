@@ -123,7 +123,7 @@ namespace MySqlX.Data.Tests
     public void SslPreferredIsInvalid()
     {
       string prefered = "Prefered";
-#if NET8_0
+#if NET8_0_OR_GREATER
       prefered = "Preferred";
 #endif
       var expectedErrorMessage = "Value '{0}' is not of the correct type.";
@@ -682,7 +682,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Wrong Certificate with TLS with URI")]
     public void PfxCertificateWithUri()
     {
-      if (!session.Version.isAtLeast(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 0), "This test is for MySql 8.0 or higher");
 
       var connStr = ConnectionStringUri + $"?ssl-mode=VerifyCA&ssl-ca={clientPfxIncorrect}&ssl-ca-pwd={sslCertificatePassword}";
       Assert.That(() => MySQLX.GetSession(connStr), Throws.Exception);
@@ -702,7 +702,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("MySQLX ran with Automation for server with TLS")]
     public void PfxCertificateWithConnectionString()
     {
-      if (!session.Version.isAtLeast(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 0), "This test is for MySql 8.0 or higher");
 
       var connStr = ConnectionString + $";ssl-mode=Required;ssl-ca={clientPfx};ssl-ca-pwd={sslCertificatePassword};";
       using (Session c = MySQLX.GetSession(connStr))
@@ -723,7 +723,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void ConnectUsingCertificateFileAndTlsVersionXplugin()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       var builder = new MySqlConnectionStringBuilder(ConnectionString);
       builder.SslMode = MySqlSslMode.Required;
@@ -746,8 +746,8 @@ namespace MySqlX.Data.Tests
     [TestCase("TLSv1.2")]
     public void TlsVersionInConnectionStringXplugin(string tlsVersion)
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!session.Version.isAtLeast(8, 0, 16)) Assert.Ignore("This test is for MySql 8.0.16 or higher.");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
 
       var connStr = ConnectionString + $";sslmode=Required;tls-version={tlsVersion}";
       using (var c = MySQLX.GetSession(connStr))
@@ -761,7 +761,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify PEM options (SslCa,SslCert,SslKey) with different SSL modes")]
     public void PemCertDifferentSSLmodes()
     {
-      if (!session.Version.isAtLeast(8, 0, 16)) Assert.Ignore("This test is for MySql 8.0.16 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       string CommandText1 = "SHOW STATUS LIKE '%Ssl_cipher%';";
       string CommandText2 = "show  status like '%Ssl_version%';";
       string connStr = null;
@@ -913,8 +913,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("MySQLX-scenario (wrong/no ssl-ca,correct ssl-key/ssl-cert,ssl-mode VerifyCA)")]
     public void IncorrectSslCAVerifyCAMode()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       string sslmode = "VerifyCA";
       string[] sslcalist = new string[] { "ca_dummy.pem", "", " ", null, "file", "file.pem" };
       for (int i = 0; i < sslcalist.Length; i++)
@@ -983,8 +983,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("MySQLX-Scenario (correct ssl-ca,wrong/no ssl-key/ssl-cert,ssl-mode VerifyCA)")]
     public void IncorrectSslkeyAndSslcertVerifyCAMode()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!session.Version.isAtLeast(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
+      Assume.That(session.Version.isAtLeast(8, 0, 0), "This test is for MySql 8.0 or higher");
       string sslmode = "VerifyCA";
       string[] sslcertlist = new string[] { "", " ", null, "file", "file.pem" };
       string[] sslkeylist = new string[] { "", " ", null, "file", "file.pem" };
@@ -1060,8 +1060,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("MySQLX-Scenario (wrong ssl-ca,correct ssl-key/ssl-cert,ssl-mode required and default)")]
     public void IncorrectSslCACorrectKeyAndCertRequiredMode()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       string sslmode = "Required";
       string[] sslcalist = new string[] { "ca_dummy.pem", "", " ", null, "file", "file.pem" };
       List<string> csAndUriList = new List<string>();
@@ -1126,8 +1126,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("MySQLX-Scenario (no ssl-ca,correct ssl-key/ssl-cert,ssl-mode required and default)")]
     public void NoSslcaWithSslkeySslcertRequiredMode()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       string sslmode = "Required";
       List<string> csAndUriList = new List<string>();
       List<object> connObjectList = new List<object>();
@@ -1171,7 +1171,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("MySQLX-Scenario (correct ssl-ca,wrong ssl-key/ssl-cert,ssl-mode required and default)")]
     public void CorrectSslcaWrongSslkeySslcertRequiredMode()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
       string sslmode = "Required";
       string[] sslcertlist = new string[] { "", " ", null, "file", "file.pem" };
       string[] sslkeylist = new string[] { "", " ", null, "file", "file.pem" };
@@ -1251,8 +1251,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("MySQLX-Scenario (correct ssl-ca,no ssl-key/ssl-cert,ssl-mode required and default)")]
     public void CorrectSslcaNoSslkeyorCertRequiredMode()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!session.Version.isAtLeast(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
+      Assume.That(session.Version.isAtLeast(8, 0, 0), "This test is for MySql 8.0 or higher");
       string sslmode = "Required";
       List<string> csAndUriList = new List<string>();
       //Connection string and Uris
@@ -1313,8 +1313,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("mixed spelling ssl-ca, ssl-key/ssl-cert, ssl-mode VerifyCA and Required)")]
     public void MixedspellingSslcaSslkeySslcert()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!session.Version.isAtLeast(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
+      Assume.That(session.Version.isAtLeast(8, 0, 0), "This test is for MySql 8.0.0 or higher");
       string[] sslmode = new string[] { "VerifyCA", "Required" };
       for (int i = 0; i < sslmode.Length; i++)
       {
@@ -1378,7 +1378,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("checking different versions of TLS")]
     public void SecurityTlsCheck()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
       MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA, MySqlSslMode.VerifyFull };
       String[] version, ver1Tls;
       var conStrX = $"{ConnectionString};SslCa={sslCa};SslCert={sslCert};SslKey={sslKey};ssl-ca-pwd={sslCertificatePassword}";
@@ -1433,7 +1433,7 @@ namespace MySqlX.Data.Tests
     [Ignore("Fix this")]
     public void Tlsv13Linux()
     {
-      if (Platform.IsWindows()) Assert.Ignore("This test is for Linux OS only");
+      Assume.That(!Platform.IsWindows(), "This test is only for Linux OS.");
 
       MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA, MySqlSslMode.VerifyFull };
       var conStr = $"{ConnectionString};SslCa={sslCa};SslCert={sslCert};SslKey={sslKey};ssl-ca-pwd={sslCertificatePassword}";

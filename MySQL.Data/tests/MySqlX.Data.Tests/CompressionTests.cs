@@ -218,7 +218,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void NegotiationSucceedsWithExpectedCompressionAlgorithm()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 19)) Assert.Ignore("Feature only available since v8.0.19");
+      Assume.That(session.Version.isAtLeast(8, 0, 19), "This test is for MySql 8.0.19 or higher");
 
       // Validate zstd_stream is the default.
       using (var session = MySQLX.GetSession(ConnectionStringUri))
@@ -618,7 +618,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Connection Compression tests to verify the values of compress option with connection string, uri, anonymous object, string builder")]
     public void ConnectionStringCombinations()
     {
-      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql Server 8.0.19 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 19), "This test is for MySql 8.0.19 or higher");
 
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       sb.SslCa = sslCa;
@@ -679,7 +679,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verifying the connection pooling with compression option")]
     public void CompressionWithPolling()
     {
-      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 19), "This test is for MySql 8.0.19 or higher");
       for (int i = 0; i < 3; i++)
       {
         client = MySQLX.GetClient(ConnectionString + ";compression=" + compressValue[i], new { pooling = new { maxSize = 2, queueTimeout = 2000 } });
@@ -706,7 +706,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify if data sent is compressed")]
     public void VerifyDataSentCompression()
     {
-      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 19), "This test is for MySql 8.0.19 or higher");
       int BYTESIZE = 20000;
       string[] compressValue1 = new string[] { "preferred", "required", "required" };
       string[] compressValue2 = new string[] { "disabled", "disabled", "preferred" };
@@ -764,7 +764,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify if data read is compressed")]
     public void VerifyDataReadCompression()
     {
-      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 19), "This test is for MySql 8.0.19 or higher");
       const int BYTESIZE = 20000;
       string[] compressValue1 = new string[] { "preferred", "required" };
       for (int i = 0; i < 2; i++)
@@ -815,7 +815,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verifying the threshold for compression")]
     public void CompressionThreshold()
     {
-      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 19), "This test is for MySql 8.0.19 or higher");
       using (session1 = MySQLX.GetSession(ConnectionString + ";compression=required"))
       {
         session1.SQL("DROP database if exists compression").Execute();
@@ -879,7 +879,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Checking the network latency")]
     public void NetworkLatency()
     {
-      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 19), "This test is for MySql 8.0.19 or higher");
       const int BYTESIZE = 20000;
       Stopwatch watch1 = new Stopwatch();
       Stopwatch watch2 = new Stopwatch();

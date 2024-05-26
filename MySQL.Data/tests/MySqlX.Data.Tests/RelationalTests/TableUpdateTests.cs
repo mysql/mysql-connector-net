@@ -244,7 +244,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading exclusively locked document in a table using lock_shared with DEFAULT waiting option.")]
     public void ExclusiveLockBeforeSharedLockDefaultWaiting()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -286,7 +286,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Reading locked document(lock_shared) in a table using lock_shared with DEFAULT waiting option.")]
     public void SharedLockDefaultWaiting()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();
@@ -325,7 +325,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test,Description("Reading exclusively locked document in a table using lock_exclusive with DEFAULT waiting option ")]
     public void OnlyExclusiveLocksWithDefaultWaiting()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       session.SQL("DROP TABLE IF EXISTS test.test").Execute();
       session.SQL("CREATE TABLE test.test (id INT, a INT)").Execute();

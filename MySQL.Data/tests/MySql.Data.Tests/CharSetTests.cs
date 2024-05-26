@@ -503,8 +503,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void DatabaseCaseSentitive()
     {
-      if (Version >= new Version(8, 0, 0) || !Platform.IsWindows()) Assert.Ignore("This test is only for Windows OS and MySql higher than 8.0.");
-
+      Assume.That(Version >= new Version(8, 0, 0) && Platform.IsWindows(), "This test is only for Windows OS and MySql higher than 8.0.");
       ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
       ExecuteSQL(@"CREATE PROCEDURE spTest () BEGIN SELECT ""test""; END");
 
@@ -528,7 +527,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void PoundSymbolInJsonColumn()
     {
-      if (Version < new Version(5, 7, 0)) Assert.Ignore("JSON data type not available in MySQL Server v5.6");
+      Assume.That(Version >= new Version(5, 7, 0), "JSON data type not available in MySQL Server v5.6");
 
       ExecuteSQL("CREATE TABLE `PoundTable`(`TextColumn` VARCHAR(20) NULL, `JsonColumn` JSON);");
       ExecuteSQL("INSERT INTO `PoundTable`(`TextColumn`, `JsonColumn`) VALUES('£', JSON_OBJECT('Value', '£'));");

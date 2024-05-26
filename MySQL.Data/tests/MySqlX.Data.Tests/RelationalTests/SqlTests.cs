@@ -217,7 +217,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Stored Procedure Table-StringBuilder and Session")]
     public void StoredProcTablePositiveStringBuilderSession()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
 
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       var connectionStringObject = new { connection = "server=" + sb.Server + ";user=" + sb.UserID + ";port=" + sb.Port + ";password=" + sb.Password };
@@ -313,7 +313,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Stored Procedure Table-Negative(procedure returns null)")]
     public void StoredProcReturnsNull()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
 
       MySqlConnection mysql = new MySqlConnection(ConnectionStringRoot);
       mysql.Open();
@@ -393,7 +393,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Bind Support for Session SQL Numeric Datatypes- integer,JSON,tinyint,smallint,mediumint,bigint,float,double,decimal")]
     public void BindSupportSessionSQLNumericDatatypes()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       var connectionString = ConnectionString + ";sslmode=" + MySqlSslMode.Required;
       SqlResult myResult;
       Row row;
@@ -581,7 +581,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Bind Support for Session SQL DateTime Types- date,datetime,timestamp,time,year(M)")]
     public void BindSupportSessionSQLDateTimetypes()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       //DATE
       string connectionString = ConnectionString + ";sslmode=" + MySqlSslMode.Required;
       SqlResult myResult;
@@ -702,7 +702,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Bind Support for Session SQL String Types- CHAR(M),VARCHAR(M),BLOB,TINYBLOB,MEDIUMBLOB,LONGBLOB,ENUM")]
     public void BindSupportSessionSQLStringtypes()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       //CHAR(20)
       string connectionString = ConnectionString + ";sslmode=" + MySqlSslMode.Required;
       SqlResult myResult;
@@ -866,7 +866,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Bind Support for Session SQL Negative Tests-Null")]
     public void BindSupportSessionSQLNegativeTest1()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       SqlResult myResult = null;
 
       //integer
@@ -896,7 +896,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Bind Support for Session SQL Negative Tests-Bind Chaining Tests")]
     public void BindSupportSessionSQLNegativeTest2()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
 
       //integer
       string connectionString = ConnectionString + ";sslmode=" + MySqlSslMode.Required;
@@ -932,7 +932,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Test MySQLX plugin MySQL mixed scenario")]
     public void MixedChainedCommands()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       ExecuteSQL("Drop table if exists test");
       ExecuteSQL("CREATE TABLE test(c1 float(14,8),c2 double GENERATED ALWAYS AS (c1*101/102) Stored COMMENT 'First Gen Col')");
       ExecuteSQL("INSERT INTO test(c1) VALUES (22.7)");
@@ -955,7 +955,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Test MySQLX plugin MySQL Date Time Bug")]
     public void DateTimeCheck()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       ExecuteSQL("CREATE TABLE test.test1212(dt DATETIME(6))");
       ExecuteSQL("INSERT INTO test.test1212 VALUES('2015-10-21 18:01:00.12345678')");
 
@@ -968,7 +968,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Test MySQLX plugin MySQL Datetime JSON")]
     public void DateTimeJSON()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       ExecuteSQL("DROP TABLE IF EXISTS test.test");
       ExecuteSQL("CREATE TABLE test.test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
       ExecuteSQL(@"INSERT INTO test.test VALUES(100000,' { ""name"" : ""bob"",""Date"": ""2015-10-09"",""Time"": ""12:18:29.000000"",""DateTimeOfRegistration"": ""2015-10-09 12:18:29.000000"",""age"":12} ')");
@@ -980,8 +980,8 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Test MySQLX plugin JSON Variant")]
     public void JSONVariant()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE test (Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
       ExecuteSQL("INSERT INTO test VALUES (1, '[1]')");
@@ -994,8 +994,8 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Test MySQLX plugin big int as PK")]
     public void BigIntasPK()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
 
       ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE test (Id bigint NOT NULL PRIMARY KEY, jsoncolumn JSON)");
@@ -1009,8 +1009,8 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Test MySQLX plugin tiny int as PK")]
     public void TinyIntasPK()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
 
       using (var ss = MySQLX.GetSession(ConnectionString))
       {
@@ -1027,8 +1027,8 @@ namespace MySqlX.Data.Tests.RelationalTests
     [Test, Description("Test MySQLX plugin small int as PK")]
     public void SmallIntasPK()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
 
       using (var ss = MySQLX.GetSession(ConnectionString))
       {

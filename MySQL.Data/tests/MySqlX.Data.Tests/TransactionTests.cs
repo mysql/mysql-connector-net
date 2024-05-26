@@ -339,7 +339,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Session Close Transaction")]
     public void SessionCloseTransaction()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       using (Session sessionTest = MySQLX.GetSession(ConnectionString))
       {
         Schema db = null;
@@ -359,7 +359,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Valid Commit and Check Warning ")]
     public void CommitValidWarning()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       using (Session sessionPlain = MySQLX.GetSession(ConnectionString))
       {
         sessionPlain.SetCurrentSchema("test");
@@ -379,7 +379,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Invalid Commit and Check Warning ")]
     public void CommitInvalidWarning()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       using (Session sessionPlain = MySQLX.GetSession(ConnectionString))
       {
         sessionPlain.SetCurrentSchema("test");
@@ -399,7 +399,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Valid Rollback and Check Warning ")]
     public void RollbackValidWarning()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       using (Session sessionPlain = MySQLX.GetSession(ConnectionString))
       {
         sessionPlain.SetCurrentSchema("test");
@@ -420,7 +420,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Invalid Rollback and Check Warning ")]
     public void RollbackInvalidWarning()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       using (Session sessionPlain = MySQLX.GetSession(ConnectionString))
       {
         sessionPlain.SetCurrentSchema("test");
@@ -442,7 +442,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Commit Rollback Invalid Warning")]
     public void CommitRollbackInvalidWarning()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       Collection coll = CreateCollection("test");
       var docs1 = new[]
       {
@@ -533,7 +533,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Rollback to same savepoint multiple times")]
     public void RollbackToSameSavepoint()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       var col = CreateCollection("my_collection");
       session.StartTransaction();
@@ -569,7 +569,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Releasing a savepoint multiple times")]
     public void ReleaseSavepointMoreThanOnce()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       using (Session sessionTest = MySQLX.GetSession(ConnectionString))
       {
         var col = CreateCollection("my_collection");
@@ -604,7 +604,7 @@ namespace MySqlX.Data.Tests
     [Description("Creating multiple savepoints with SetSavepoint([name]) and rolling back to a specific one")]
     public void MultipleSavepointsAndRollback(string savePoint1, string savePoint2)
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       var col = CreateCollection("my_collection");
       session.StartTransaction();
       object[] data = new object[]
@@ -630,7 +630,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test creating a savepoint without starting a transaction")]
     public void SavepointWithoutTransaction()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       var col = CreateCollection("my_collection");
       object[] data = new object[]
       {
@@ -653,7 +653,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Validate that further savepoints get released once you release a preceding savepoint")]
     public void ValidateSavepointsReleased()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       var col = CreateCollection("my_collection");
       session.StartTransaction();
 
@@ -684,7 +684,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Validate Nested-transactions with multiple savepoints")]
     public void NestedTransactions()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       var col = CreateCollection("my_collection");
       session.StartTransaction();
       object[] data = new object[]
@@ -712,7 +712,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test the behaviour of Savepoints created immediately after one another")]
     public void SavepointsCreatedImmediately()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       var col = CreateCollection("my_collection");
       session.StartTransaction();
       object[] data = new object[]
@@ -732,7 +732,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Commit After Commit")]
     public void CommitAfterCommit()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Collection coll = CreateCollection("test");
       var docs1 = new[]
       {
@@ -795,7 +795,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Rollback Multiple")]
     public void RollBackMultiple()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Collection coll = CreateCollection("test");
       var docs1 = new[]
       {
@@ -838,7 +838,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Rollback after RollBack")]
     public void RollBackAfterRollBack()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       Collection coll = CreateCollection("test");
       var docs1 = new[]
       {
@@ -897,7 +897,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Commit Rollback")]
     public void CommitRollBack()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Collection coll = CreateCollection("test");
       var docs1 = new[]
       {
@@ -949,7 +949,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin RollBack Commit")]
     public void RollBackCommit()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Collection coll = CreateCollection("test");
       var docs1 = new[]
       {

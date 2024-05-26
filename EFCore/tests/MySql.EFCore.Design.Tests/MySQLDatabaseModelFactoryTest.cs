@@ -265,10 +265,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
     [Test]
     public void CanCreateModelForSakila()
     {
-      if (!TestUtils.IsAtLeast(5, 6, 0))
-      {
-        Assert.Ignore();
-      }
+      Assume.That(TestUtils.IsAtLeast(5, 6, 0));
 
       Assembly executingAssembly = typeof(MySQLDatabaseModelFixture).GetTypeInfo().Assembly;
       Stream stream = executingAssembly.GetManifestResourceStream("MySql.EntityFrameworkCore.Design.Tests.Properties.sakiladb-schema.sql")!;

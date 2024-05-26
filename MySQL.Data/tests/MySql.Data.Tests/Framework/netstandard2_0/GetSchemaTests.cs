@@ -76,8 +76,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void DataTypes()
     {
-      if (Version < new Version(9, 0, 0))
-        Assert.Ignore();
+      Assume.That(Version >= new Version(9, 0, 0), "This test is for MySql 9.0 or higher.");
 
       DataTable dt = Connection.GetSchema("DataTypes", new string[] { });
 
@@ -250,8 +249,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void CanGetSchemaInformationGeneratedColumns()
     {
-      if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) Assert.Ignore();
-      if (Version < new Version(5, 7, 6)) Assert.Ignore();
+      Assume.That(System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows));
+      Assume.That(Version >= new Version(5, 7, 6));
 
       ExecuteSQL("CREATE TABLE `Test` (`ID` int NOT NULL AUTO_INCREMENT PRIMARY KEY, `Name` char(35) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL)");
 
@@ -490,7 +489,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void ForeignKeys()
     {
-      if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) Assert.Ignore();
+      Assume.That(System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows));
 
       ExecuteSQL("DROP TABLE IF EXISTS product_order");
       ExecuteSQL("DROP TABLE IF EXISTS customer");
@@ -681,8 +680,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void IsLongProperty()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only.");
-      if (Version < new Version(5, 7, 6)) Assert.Ignore("This test is for MySql 5.7.6 or higher");
+      Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
+      Assume.That(Version >= new Version(5, 7, 6), "This test is for MySql 5.7.6 or higher");
       ExecuteSQL("Drop table if exists datatypes1");
       ExecuteSQL("create table datatypes1(`longtext` longtext,`longblob` longblob)");
       ExecuteSQL("insert into datatypes1 values('test', _binary'test')");
@@ -706,8 +705,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void NumericPrecisionProperty()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only.");
-      if (Version < new Version(5, 7, 6)) Assert.Ignore();
+      Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
+      Assume.That(Version >= new Version(5, 7, 6), "This test is for MySql 5.7.6 or higher");
       ExecuteSQL("Drop table if exists datatypes2");
       ExecuteSQL("create table datatypes2(decimal0 decimal(8, 0))");
       using (var cmd = Connection.CreateCommand())
@@ -744,7 +743,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Test to verify different variations in Generated Coloumns")]
     public void GeneratedColumnsVariations()
     {
-      if (Version < new Version(5, 7)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(Version >= new Version(5, 7, 0), "This test is for MySql 5.7 or higher");
 
       using (var conn = new MySqlConnection(Settings.ConnectionString))
       {

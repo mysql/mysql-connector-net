@@ -169,10 +169,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void JsonDataTest()
     {
-      if (!TestUtils.IsAtLeast(5, 7, 0))
-      {
-        Assert.Ignore();
-      }
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
 
       using (JsonContext context = new JsonContext())
       {
@@ -219,10 +216,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void JsonInvalidData()
     {
-      if (!TestUtils.IsAtLeast(5, 7, 0))
-      {
-        Assert.Ignore();
-      }
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
 
       using (JsonContext context = new JsonContext())
       {
@@ -242,10 +236,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void ComputedColumns()
     {
-      if (!TestUtils.IsAtLeast(5, 7, 0))
-      {
-        Assert.Ignore();
-      }
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
 
       using (FiguresContext context = new FiguresContext())
       {

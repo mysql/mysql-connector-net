@@ -1240,7 +1240,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void CanReadJsonValue()
     {
-      if (Version < new Version(5, 7)) Assert.Ignore("This test is for MySql 5.7 or higher"); ;
+      Assume.That(Version >= new Version(5, 7, 0), "This test is for MySql 5.7 or higher.");
       ExecuteSQL("CREATE TABLE Test(Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (@id, '[1]')", Connection);
       cmd.Parameters.AddWithValue("@id", 1);
@@ -1503,7 +1503,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Test Can Read long JSON Values")]
     public void ReadJSONLongValues()
     {
-      if (Version < new Version(5, 7)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(Version >= new Version(5, 7, 0), "This test is for MySql 5.7 or higher.");
       var sb = new StringBuilder("0");
       for (int x = 1; x <= 575; x++)
       {
@@ -1547,7 +1547,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Test Can Read JSON Value Stress")]
     public void ReadJSONValueStress()
     {
-      if (Version < new Version(5, 7)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(Version >= new Version(5, 7, 0), "This test is for MySql 5.7 or higher.");
       ExecuteSQL("CREATE TABLE Test (Id int NOT NULL PRIMARY KEY, jsoncolumn JSON)");
       string jsonTest = null;
       for (var i = 0; i < 1000; i++)
@@ -1664,8 +1664,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void BadVectorDataThrowsException()
     {
-      if (Version < new Version(9, 0, 0))
-        Assert.Ignore();
+      Assume.That(Version >= new Version(9, 0, 0), "This test is for MySql 9.0 or higher.");
 
       ExecuteSQL(@"CREATE TABLE Test (vector1 VECTOR)");
       using var cmd = new MySqlCommand();
@@ -1682,8 +1681,7 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase(true)]
     public void InsertAndSelectVector(bool prepared)
     {
-      if (Version < new Version(9, 0, 0))
-        Assert.Ignore();
+      Assume.That(Version >= new Version(9, 0, 0), "This test is for MySql 9.0 or higher.");
 
       ExecuteSQL(@"CREATE TABLE Test (vector1 VECTOR)");
       using var cmd = new MySqlCommand();
@@ -1724,8 +1722,7 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase(true)]
     public void VectorReturnedFromSproc(bool prepared)
     {
-      if (Version < new Version(9, 0, 0))
-        Assert.Ignore();
+      Assume.That(Version >= new Version(9, 0, 0), "This test is for MySql 9.0 or higher.");
 
       ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
       ExecuteSQL(@"CREATE PROCEDURE spTest (OUT v1 VECTOR) BEGIN 

@@ -62,7 +62,7 @@ namespace MySqlX.Data.Tests
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\", \"unexpectedField\" : false } ] }"));
       Assert.That(ex.Message, Is.EqualTo("Field name 'unexpectedField' is not allowed."));
 
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       collection = CreateCollection("test");
 
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ], \"type\":\"indexa\" }"));
@@ -350,7 +350,7 @@ namespace MySqlX.Data.Tests
     public void CreateIndexWithArrayOption()
     {
       var collection = CreateCollection("test");
-      if (!session.Version.isAtLeast(8, 0, 17)) Assert.Ignore("This test is for MySql 8.0.17 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 17), "This test is for MySql 8.0.17 or higher");
 
       // Supported types
       var doc = new[] { new { _id = 1, name = "Char", myField = new[] { "foo@mail.com", "bar@mail.com", "qux@mail.com" } } };
@@ -393,7 +393,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Add Collection index")]
     public void AddIndexAndInsertRecords()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       Collection testColl = CreateCollection("test1");
       Assert.That(testColl.ExistsInDatabase());
       testColl.CreateIndex("testIndex", "{\"fields\": [ { \"field\":$.myId, \"type\":\"INTEGER UNSIGNED\" , \"required\":true} ] }");
@@ -409,7 +409,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Create valid index on a single key with all options")]
     public void InsertWithValidIndexAndNoIndex()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var col = CreateCollection("my_collection");
       Result result = col.Add(new { name = "Sakila", age = 15 }).Execute();
       col.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.name, \"type\":\"TEXT(64)\" , \"required\":true} ] }");
@@ -422,7 +422,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Create a valid index on a single key of all DATATYPES.Datatypes supported: INT [UNSIGNED] TINYINT [UNSIGNED] SMALLINT [UNSIGNED] MEDIUMINT [UNSIGNED] INTEGER [UNSIGNED] BIGINT [UNSIGNED] REAL [UNSIGNED] FLOAT [UNSIGNED] DOUBLE [UNSIGNED] DECIMAL [UNSIGNED] NUMERIC [UNSIGNED] DATE TIME TIMESTAMP DATETIME TEXT[(length)]")]
     public void IndexOfAllDatatypes()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var col = CreateCollection("my_collection");
 
       Result result = col.Add(new { name = "Sakila", age = 15, date_time = "2010-01-01 00:00:00", time_stamp = "2015-01-01 00:11:02", date_check = "2117-12-17", time_check = "12:14:07", real_check = 12E+4, decimal_check = 122.134, float_check = 11.223, double_check = 23.32343425, numeric_check = 1122.3434, tiny_int = 112, medium_int = 12345, big_int = 1234567, int_check = 174734 }).Execute();
@@ -477,7 +477,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Create an index with mismatched data types")]
     public void IndexWithMismatchedDatatypes()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var col = CreateCollection("my_collection");
       Result result = col.Add(new { name = "Sakila", age = 15 }).Execute();
       Thread.Sleep(2000);
@@ -488,7 +488,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Create an index specifiying SPATIAL as the index type for a non spatial data type and vice versa")]
     public void IndexSpatialForNonSpatialDatatype()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var col = CreateCollection("my_collection");
       Result result = col.Add(new { name = "Sakila", age = 15 }).Execute();
       Assert.Throws<MySqlException>(() => col.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.name, \"type\":\"TEXT\"} ] , \"type\":\"SPATIAL\" }"));
@@ -502,7 +502,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Create valid index with index definition given as DbDoc")]
     public void CreateIndexGivenDbDoc()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var col = CreateCollection("my_collection");
       Result result = col.Add(new { name = "Sakila", age = 15 }).Execute();
 
@@ -518,7 +518,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Create valid index on member of Array type as key")]
     public void IndexOnArrayMember()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       var col = CreateCollection("my_collection");
 
@@ -559,7 +559,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Create valid index on member of DbDoc type as key")]
     public void IndexOnDbDocMember()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var col = CreateCollection("my_collection");
       DbDoc data2 = new DbDoc();
       data2.SetValue("name", "Sakila");
@@ -575,7 +575,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Create valid index perform CRUD operations")]
     public void CountRecordsInsertedWithValidIndex()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var col = CreateCollection("my_collection");
       Result result = col.Add(new { name = "Sakila", age = 15 }).Execute();
       Assert.Throws<MySqlException>(() => col.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.name, \"type\":\"TEXT\" , \"required\":true} ] }"));
@@ -589,7 +589,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Create invalid index with non-existent key")]
     public void InvalidIndexNonExistentKey()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var col = CreateCollection("my_collection");
       Result result = col.Add(new { age = 15 }).Execute();
       Assert.Throws<MySqlException>(() => col.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.name, \"type\":\"TEXT\" , \"required\":\"true\"} ]}"));
@@ -598,7 +598,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Create a valid index in async way")]
     public async Task CreateIndexInAsync()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var col = CreateCollection("my_collection");
       await col.Add(new { name = "Sakila", age = 15 }).ExecuteAsync();
       col.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.name, \"type\":\"TEXT(64)\" , \"required\":true} ] }");
@@ -610,7 +610,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Create valid index using a document field type of array and setting array to true with single key on all possible datatypes-data inserted and then index created")]
     public void IndexWithArrayOptionSingleKeyAfterInsertData()
     {
-      if (!session.Version.isAtLeast(8, 0, 17)) Assert.Ignore("This test is for MySql 8.0.17 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 17), "This test is for MySql 8.0.17 or higher");
       var collection = CreateCollection("test");
 
       // Supported types
@@ -826,7 +826,7 @@ namespace MySqlX.Data.Tests
                "inserted and then index created")]
     public void IndexWithArrayOptionSingleKeyBeforeInsertData()
     {
-      if (!session.Version.isAtLeast(8, 0, 17)) Assert.Ignore("This test is for MySql 8.0.17 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 17), "This test is for MySql 8.0.17 or higher");
 
       var collection = CreateCollection("test");
 
@@ -981,7 +981,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Create index with array set as null,NULL,multile  vel arrays,blank arrays,empty arrays.Also test in multikey scenarios")]
     public void IndexArrayCombinations()
     {
-      if (!session.Version.isAtLeast(8, 0, 17)) Assert.Ignore("This test is for MySql 8.0.17 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 17), "This test is for MySql 8.0.17 or higher");
       var expectedException = "Index field 'array' member must be boolean.";
       var coll = CreateCollection("test");
 
@@ -1236,7 +1236,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Index Array Date bug with workaround")]
     public void IndexArrayBugWorkAround()
     {
-      if (!session.Version.isAtLeast(8, 0, 17)) Assert.Ignore("This test is for MySql 8.0.17 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 17), "This test is for MySql 8.0.17 or higher");
       var coll = CreateCollection("test");
       var doc = new[] { new { _id = 1, name = "Time", myField = "9:00:00" } };//Bug29692534
       var doc22 = new[] { new { _id = 2, name = "Time", myField = new[] { "01:01:01.001", "23:59:59.15", "12:00:00", "1" } } };//Bug29692534
@@ -1402,7 +1402,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Index Array Date bug with workaround")]
     public void IndexArrayWorkAroundOverlaps()
     {
-      if (!session.Version.isAtLeast(8, 0, 17)) Assert.Ignore("This test is for MySql 8.0.17 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 17), "This test is for MySql 8.0.17 or higher");
       var coll = CreateCollection("test");
       var doc = new[] { new { _id = 1, name = "Time", myField = "9:00:00" } };
       var doc22 = new[] { new { _id = 2, name = "Time", myField = new[] { "01:01:01.001", "23:59:59.15", "12:00:00", "1" } } };
@@ -1623,7 +1623,7 @@ namespace MySqlX.Data.Tests
     public void IndexArrayWithOverlaps()
     {
       var coll = CreateCollection("test");
-      if (!session.Version.isAtLeast(8, 0, 17)) Assert.Ignore("This test is for MySql 8.0.17 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 17), "This test is for MySql 8.0.17 or higher");
 
       var doc = new[] { new { _id = 1, name = "Time", myField1 = "9:00:00" } };
       var doc22 = new[] { new { _id = 2, name = "Time", myField2 = new[] { "01:01:01.001", "23:59:59.15", "12:00:00", "1" }, myField4 = new[] { "01:01:01.001", "23:59:59.15", "12:00:00", "1" } } };
@@ -1669,7 +1669,7 @@ namespace MySqlX.Data.Tests
     public void IndexArrayMultiKey()
     {
       var coll = CreateCollection("test");
-      if (!session.Version.isAtLeast(8, 0, 17)) Assert.Ignore("This test is for MySql 8.0.17 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 17), "This test is for MySql 8.0.17 or higher");
 
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"CHAR(255)\", \"array\": false}]}");
 
@@ -1731,7 +1731,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Create Collection Multiple Index Type")]
     public void CreateCollectionMultipleIndexDataType()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Collection testColl = CreateCollection("test");
       Assert.That(testColl.ExistsInDatabase(), Is.EqualTo(true), "ExistsInDatabase failed");
 
@@ -1756,7 +1756,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Create Collection Multiple Index Stress")]
     public void CreateCollectionMultipleIndexStress()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Collection testColl = CreateCollection("test");
       Assert.That(testColl.ExistsInDatabase(), Is.EqualTo(true), "ExistsInDatabase failed");
 

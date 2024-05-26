@@ -174,7 +174,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Exception Handling Scenario 2")]
     public void ExceptionHandlingCollection()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
 
       Session sessionPlain = MySQLX.GetSession(ConnectionString);
 
@@ -213,7 +213,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Set Node Schema")]
     public void SessionSetSchema()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       if (!session.GetSchema("test1").ExistsInDatabase())
         session.CreateSchema("test1");
       Assert.DoesNotThrow(() => session.SetCurrentSchema("test1"));
@@ -238,7 +238,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Session Status before Execution - Negative")]
     public void SessionClosedBeforeExecution()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Schema schema = null;
       Session sessionPlain = MySQLX.GetSession(ConnectionString);
       schema = sessionPlain.GetSchema(schemaName);

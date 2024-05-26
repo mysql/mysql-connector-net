@@ -48,7 +48,7 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase(false)]
     public void SetAttributesWithoutParams(bool prepare)
     {
-      if (!Connection.driver.SupportsQueryAttributes) Assert.Ignore("MySQL Server version does not support query attributes.");
+      Assume.That(Connection.driver.SupportsQueryAttributes, "MySQL Server version does not support query attributes.");
 
       using MySqlCommand cmd = new MySqlCommand();
       cmd.Connection = Connection;
@@ -86,7 +86,7 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase("DoubleType", 1234.567)]
     public void ValueTypes(string name, object value)
     {
-      if (!Connection.driver.SupportsQueryAttributes) Assert.Ignore("MySQL Server version does not support query attributes.");
+      Assume.That(Connection.driver.SupportsQueryAttributes, "MySQL Server version does not support query attributes.");
 
       using MySqlCommand cmd = new MySqlCommand();
       cmd.Connection = Connection;
@@ -99,7 +99,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void TimeSpanValueType()
     {
-      if (!Connection.driver.SupportsQueryAttributes) Assert.Ignore("MySQL Server version does not support query attributes.");
+      Assume.That(Connection.driver.SupportsQueryAttributes, "MySQL Server version does not support query attributes.");
 
       TimeSpan time = new TimeSpan(01, 19, 25);
 
@@ -114,7 +114,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void DateTimeValueType()
     {
-      if (!Connection.driver.SupportsQueryAttributes) Assert.Ignore("MySQL Server version does not support query attributes.");
+      Assume.That(Connection.driver.SupportsQueryAttributes, "MySQL Server version does not support query attributes.");
 
       DateTime dateTime = DateTime.Now;
 
@@ -143,7 +143,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void SameNameAttribute()
     {
-      if (!Connection.driver.SupportsQueryAttributes) Assert.Ignore("MySQL Server version does not support query attributes.");
+      Assume.That(Connection.driver.SupportsQueryAttributes, "MySQL Server version does not support query attributes.");
 
       using MySqlCommand cmd = new MySqlCommand();
       cmd.Connection = Connection;
@@ -160,7 +160,7 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase(false)]
     public void QueryAttributesNotSupported(bool prepare)
     {
-      if (Connection.driver.SupportsQueryAttributes) Assert.Ignore("Query attributes supported.");
+      Assume.That(!Connection.driver.SupportsQueryAttributes,"Query attributes supported.");
 
       MySqlTrace.Listeners.Clear();
       MySqlTrace.Switch.Level = System.Diagnostics.SourceLevels.Warning;
@@ -185,7 +185,7 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase(false)]
     public void AttributesAndParameters(bool prepare)
     {
-      if (!Connection.driver.SupportsQueryAttributes) Assert.Ignore("MySQL Server version does not support query attributes.");
+      Assume.That(Connection.driver.SupportsQueryAttributes, "MySQL Server version does not support query attributes.");
 
       using MySqlCommand cmd = new MySqlCommand();
       cmd.Connection = Connection;
@@ -222,7 +222,7 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase(false)]
     public void ParameterOverridesAttributeValue(bool prepare)
     {
-      if (!Connection.driver.SupportsQueryAttributes) Assert.Ignore("MySQL Server version does not support query attributes.");
+      Assume.That(Connection.driver.SupportsQueryAttributes, "MySQL Server version does not support query attributes.");
 
       using var cmd = new MySqlCommand("select mysql_query_attribute_string('name') as attribute, mysql_query_attribute_string('name2') as attribute2, @name as parameter, @name2 as parameter2, mysql_query_attribute_string('attr') as attribute3", Connection);
       cmd.Attributes.SetAttribute("name", "attribute");

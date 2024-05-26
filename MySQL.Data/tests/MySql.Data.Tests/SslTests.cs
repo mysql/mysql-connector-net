@@ -214,8 +214,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void TlsVersionTest(string tlsVersion, int error)
     {
-      if (error == 4 && Platform.IsMacOSX())
-        Assert.Ignore();
+      Assume.That(error != 4 || !Platform.IsMacOSX());
 
       var builder = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       void SetTlsVersion() { builder.TlsVersion = tlsVersion; }
@@ -364,7 +363,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void InvalidCertificateThumbprint()
     {
 #if !NETFRAMEWORK
-      if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) Assert.Ignore();
+      Assume.That(System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows));
 #endif
 
       // Create a mock of certificate store
@@ -767,7 +766,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void ConnectUsingCertificateFileAndTlsVersion()
     {
-      if (Version <= new Version(8, 0, 16)) Assert.Ignore("This test for MySql server 8.0.16 or higher");
+      Assume.That(Version >= new Version(8, 0, 16), "This test for MySql server 8.0.16 or higher");
       var builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslMode = MySqlSslMode.Required;
       builder.CertificateFile = "client.pfx";
@@ -802,8 +801,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Classic-Scenario(correct ssl-ca,wrong ssl-key/ssl-cert,ssl-mode required and default)")]
     public void CorrectSslcaWrongSslkeySslcertRequiredMode()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is only for Windows OS");
-      if (Version <= new Version(8, 0, 16)) Assert.Ignore("This test for MySql server 8.0.16 or higher");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS");
+      Assume.That(Version >= new Version(8, 0, 16), "This test for MySql server 8.0.16 or higher");
       string[] sslcertlist = new string[] { "", " ", null, "file", "file.pem" };
       string[] sslkeylist = new string[] { "", " ", null, "file", "file.pem" };
       for (int i = 0; i < sslcertlist.Length; i++)
@@ -887,8 +886,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Clasic-Scenario(correct ssl-ca,no ssl-key/ssl-cert,ssl-mode required and default)")]
     public void CorrectSslcaNoSslkeyorCertRequiredMode()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is only for Windows OS");
-      if (Version <= new Version(8, 0, 16)) Assert.Ignore("This test for MySql server 8.0.16 or higher");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS");
+      Assume.That(Version >= new Version(8, 0, 16), "This test for MySql server 8.0.16 or higher");
       var connClassic = new MySqlConnectionStringBuilder();
       connClassic.Server = Host;
       connClassic.Port = Convert.ToUInt32(Port);
@@ -969,9 +968,9 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("checking different versions of TLS versions")]
     public void SecurityTlsCheck()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is only for Windows OS");
-      if (Version <= new Version(8, 0, 16)) Assert.Ignore("This test for MySql server 8.0.16 or higher");
-      if (!ServerHaveSsl()) Assert.Ignore("Server doesn't have Ssl support");
+      Assume.That(Platform.IsWindows(), "This test is only for Windows OS");
+      Assume.That(Version >= new Version(8, 0, 16), "This test for MySql server 8.0.16 or higher");
+      Assume.That(ServerHaveSsl(), "Server doesn't have Ssl support");
 
       MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA, MySqlSslMode.VerifyFull };
       String[] version;
@@ -1010,8 +1009,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("checking errors when invalid values are used ")]
     public void InvalidTlsversionValues()
     {
-      if (Version <= new Version(8, 0, 16)) Assert.Ignore("This test for MySql server 8.0.16 or higher");
-      if (!ServerHaveSsl()) Assert.Ignore("Server doesn't have Ssl support");
+      Assume.That(Version >= new Version(8, 0, 16), "This test for MySql server 8.0.16 or higher");
+      Assume.That(ServerHaveSsl(), "Server doesn't have Ssl support");
 
       string[] version = new string[] { "null", "v1", "[ ]", "[TLSv1.9]", "[TLSv1.1,TLSv1.7]", "ui9" };//blank space is considered as default value
       var conStr = $"server={Host};port={Port};userid={Settings.UserID};password={Settings.Password};SslCa={_sslCa};SslCert={_sslCert};SslKey={_sslKey};ssl-ca-pwd=pass";
@@ -1032,7 +1031,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Default SSL user with SSL but without SSL Parameters")]
     public void SslUserWithoutSslParams()
     {
-      if (!ServerHaveSsl()) Assert.Ignore("Server doesn't have Ssl support");
+      Assume.That(ServerHaveSsl(), "Server doesn't have Ssl support");
       MySqlCommand cmd = new MySqlCommand();
       string connstr = $"server={Host};user={Settings.UserID};port={Port};password={Settings.Password};sslmode={MySqlSslMode.Disabled}";
       using (var c = new MySqlConnection(connstr))
@@ -1056,8 +1055,8 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void PositiveSslConnectionWithCertificates()
     {
-      if (Version < new Version(5, 7, 0)) Assert.Ignore("This test is for MySql Server 5.7 or higher");
-      if (!ServerHaveSsl()) Assert.Ignore("Server doesn't have Ssl support");
+      Assume.That(Version >= new Version(5, 7, 0), "This test for MySql server 5.7 or higher");
+      Assume.That(ServerHaveSsl(), "Server doesn't have Ssl support");
       MySqlCommand cmd = new MySqlCommand();
 
       var connStr = $"server={Host};port={Port};user={Settings.UserID};password={Settings.Password};CertificateFile={_sslCa};CertificatePassword=pass;SSL Mode=Required;";

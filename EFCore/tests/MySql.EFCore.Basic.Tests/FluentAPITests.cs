@@ -57,10 +57,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void EnsureRelationalPatterns()
     {
-      if (!TestUtils.IsAtLeast(5, 7, 0))
-      {
-        Assert.Ignore();
-      }
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
 
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
@@ -227,10 +224,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void CanUseConcurrencyToken()
     {
-      if (!TestUtils.IsAtLeast(5, 7, 0))
-      {
-        Assert.Ignore();
-      }
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
 
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
@@ -256,10 +250,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void CanUseContainsInQuery()
     {
-      if (!TestUtils.IsAtLeast(5, 7, 0))
-      {
-        Assert.Ignore();
-      }
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
 
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
@@ -283,10 +274,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void CanUseContainsVarInQuery()
     {
-      if (!TestUtils.IsAtLeast(5, 7, 0))
-      {
-        Assert.Ignore();
-      }
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
 
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
@@ -311,10 +299,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void CanUseContainsWithInvalidValue()
     {
-      if (!TestUtils.IsAtLeast(5, 7, 0))
-      {
-        Assert.Ignore();
-      }
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
 
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
@@ -340,10 +325,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void CanUseContainsWithVariableInQuery()
     {
-      if (!TestUtils.IsAtLeast(5, 7, 0))
-      {
-        Assert.Ignore();
-      }
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
 
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()

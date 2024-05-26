@@ -55,10 +55,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void InsertAllDataTypes()
     {
-      if (!TestUtils.IsAtLeast(5, 7, 0))
-      {
-        Assert.Ignore();
-      }
+      Assume.That(TestUtils.IsAtLeast(5, 7, 0));
 
       DateTime now = new DateTime(DateTime.Today.AddSeconds(1).AddMilliseconds(1).AddTicks(10).Ticks);
 

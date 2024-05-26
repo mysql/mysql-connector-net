@@ -611,7 +611,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Deallocate PreparedStatments When Closing Session Load-100 times")]
     public void DeallocatePreparedStatmentsWhenClosingSessionLoad()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("Check for Linux OS");
+      Assume.That(Platform.IsWindows(), "Check for Linux OS");
 
       InitCollection();
       string threadId;
@@ -881,7 +881,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("DELETE WHERE THROWS PARSE EXCEPTION WITH IN OPERATOR FOR ARRAY")]
     public void DeleteParseException()
     {
-      if (!session.Version.isAtLeast(8, 0, 16)) Assert.Ignore("This test is for MySql 8.0.16 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       var tableName = "newtable";
       Session session1 = null;
       Client client1 = null;

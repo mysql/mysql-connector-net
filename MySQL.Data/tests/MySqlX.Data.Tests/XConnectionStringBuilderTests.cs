@@ -63,7 +63,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void ConnectionAfterSessionCanBeOpened()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("Check for Linux OS");
+      Assume.That(Platform.IsWindows(), "Check for Linux OS");
 
       using (var session = MySQLX.GetSession(_xConnectionURI))
         Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));

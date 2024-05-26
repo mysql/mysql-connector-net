@@ -134,7 +134,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void SimplePatch()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add("{ \"_id\": \"123\", \"email\": \"alice@ora.com\", \"startDate\": \"4/1/2017\" }"));
@@ -158,7 +158,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void SimplePatchUsingMySqlExpressionClass()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add("{ \"_id\": \"123\", \"email\": \"alice@ora.com\", \"startDate\": \"4/1/2017\" }"));
@@ -177,7 +177,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void CRUD()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsJsonStrings));
@@ -243,7 +243,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void ReplaceUpdateInDifferentNestingLevels()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
@@ -276,7 +276,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void AddRemoveFieldInDifferentNestingLevels()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
@@ -315,7 +315,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void CRUDMultipleFields()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
@@ -364,7 +364,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void AddNewFieldUsingExpressions()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
@@ -384,7 +384,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void ReplaceUpdateUsingExpressions()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
@@ -400,7 +400,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void ReplaceUpdateIdUsingExpressions()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
@@ -415,7 +415,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void AddIdToNestedDocumentUsingExpressions()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
@@ -431,7 +431,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void AddNullFieldUsingExpressions()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
@@ -446,7 +446,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void ReplaceUpdateNullFieldReturnedFromExpression()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
@@ -462,7 +462,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void AddNewFieldReturnedFromExpression()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
@@ -478,7 +478,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void ReplaceUpdateFieldWithDocumentReturnedFromExpression()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
@@ -498,7 +498,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void ReplaceUpdateId()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
@@ -513,7 +513,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void AddIdToNestedDocument()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsDbDocs));
@@ -535,7 +535,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void SetNullToId()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsJsonStrings));
@@ -549,7 +549,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void AddNullFields()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsJsonStrings));
@@ -580,7 +580,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void AddNestedNullFields()
     {
-      if (!session.InternalSession.GetServerVersion().isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection collection = CreateCollection("test");
       Result r = ExecuteAddStatement(collection.Add(documentsAsJsonStrings));
@@ -726,7 +726,7 @@ namespace MySqlX.Data.Tests
     public void ModifyPatchMultipleRecords_S1()
     {
 
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       var collection = CreateCollection("test");
       var docs = new[]
       {
@@ -992,7 +992,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test valid modify.patch to change element at Depth 5 for multiple arrays))")]
     public void ModifyInNestedObjects()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       string json = "";
       int i = 0, j = 0, k = 0, l = 0, m = 0, n = 0, maxFld = 10;
       var collection = CreateCollection("test");
@@ -1324,7 +1324,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test valid modify.patch to add/remove fields at Depth for multiple arrays.))")]
     public void ModifyPatchAtDepthMultipleArrays_S1()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       Collection collection = CreateCollection("test");
       List<DbDoc> listDocs = new List<DbDoc>();
       listDocs.Add(documentsAsDbDocs[0]);
@@ -1391,7 +1391,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test valid modify.patch to use expr to change existing keys in document))")]
     public void ModifyPatchAtDepthMultipleArrays_S2()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       DbDoc document = null;
       Collection collection = CreateCollection("test");
       Result r = collection.Add("{ \"_id\": \"123\", \"email\": \"alice@ora.com\", " +
@@ -1700,7 +1700,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test invalid modify.patch to attempt to use invalid string (non JSON string/empty/NULL) as patch string.))")]
     public void ModifyPatchInvalidString()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       var collection = CreateCollection("test");
       var docs = new[]
       {

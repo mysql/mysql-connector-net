@@ -763,12 +763,12 @@ namespace MySql.Data.MySqlClient.Tests
     [Test]
     public void IPv6Connection()
     {
-      if (Version < new Version(5, 6, 0)) return;
+      Assume.That(Version >= new Version(5, 6, 0));
 
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       sb.Server = GetMySqlServerIp(true);
 
-      if (sb.Server == string.Empty) Assert.Ignore("No IPv6 available.");
+      Assume.That(sb.Server != string.Empty, "No IPv6 available.");
 
       using (MySqlConnection conn = new MySqlConnection(sb.ToString()))
       {
@@ -855,7 +855,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Ignore("To be able to connect using Named Pipes, it requires to start the server supporting the protocol")]
     public void ConnectUsingNamedPipes()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("Shared Memory is only supported on Windows.");
+      Assume.That(Platform.IsWindows(), "Named Pipes is only supported on Windows.");
 
       var sb = new MySqlConnectionStringBuilder()
       {
@@ -881,7 +881,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Ignore("To be able to connect using Named Pipes, it requires to start the server supporting the protocol")]
     public void NamedPipesMultithreadConnection()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("Named Pipes is only supported on Windows.");
+      Assume.That(Platform.IsWindows(), "Named Pipes is only supported on Windows.");
 
       var sb = new MySqlConnectionStringBuilder()
       {
@@ -925,9 +925,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// </summary>
     [Test]
     [Property("Category", "Security")]
+    [Ignore("To be able to connect using Shared Memory, it requires to start the server supporting the protocol")]
     public void ConnectUsingSharedMemory()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("Shared Memory is only supported on Windows.");
+      Assume.That(Platform.IsWindows(), "Shared Memory is only supported on Windows.");
 
       var sb = new MySqlConnectionStringBuilder()
       {
@@ -962,7 +963,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Ignore("To be able to connect using Shared Memory, it requires to start the server supporting the protocol")]
     public void SharedMemoryMultithreadConnection()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("Shared Memory is only supported on Windows.");
+      Assume.That(Platform.IsWindows(), "Shared Memory is only supported on Windows.");
 
       var sb = new MySqlConnectionStringBuilder()
       {
@@ -1208,7 +1209,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Verify Compression in classic protocol where default connection string is used without any option")]
     public void CompressionUnit()
     {
-      if (Version < new Version(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+      Assume.That(Version >= new Version(8, 0, 0), "This test is for MySql 8.0 or higher.");
       using (var dbConn = new MySqlConnection(Connection.ConnectionString + ";UseCompression=True"))
       {
         var cmd = new MySqlCommand();
@@ -1296,7 +1297,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Verify Compression in classic protocol where default connection string is used without any option")]
     public void CompressionValidationInClassicProtocol()
     {
-      if (Version < new Version(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+      Assume.That(Version >= new Version(8, 0, 0), "This test is for MySql 8.0 or higher.");
       string[] compressionAlgorithms = new string[] { "zlib", "zstd", "uncompressed", "uncompressed,zlib", "uncompressed,zstd", "zstd,zlib", "zstd,zlib,uncompressed" };
       for (int k = 0; k < compressionAlgorithms.Length; k++)
       {
@@ -1438,7 +1439,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Test MySql Password Expiration with blank password")]
     public void ExpiredBlankPassword()
     {
-      if (Version < new Version(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+      Assume.That(Version >= new Version(8, 0, 0), "This test is for MySql 8.0 or higher.");
 
       string host = Host == "localhost" ? Host : "%";
       MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder(Connection.ConnectionString);
@@ -1473,7 +1474,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Test MySql Password Expiration with query variables")]
     public void ExpiredPasswordBug2()
     {
-      if (Version < new Version(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+      Assume.That(Version >= new Version(8, 0, 0), "This test is for MySql 8.0 or higher.");
       var _expiredPwd = "expiredPwd";
       SetupExpiredPasswordUser(_expiredPwd);
 
@@ -1498,7 +1499,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Test MySql Password Expiration with IsPasswordExpired validation")]
     public void ExpiredPasswordBug3()
     {
-      if (Version < new Version(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+      Assume.That(Version >= new Version(8, 0, 0), "This test is for MySql 8.0 or higher.");
       string host = Host == "localhost" ? Host : "%";
 
       var _expiredPwd = "expiredPwd";
@@ -1541,7 +1542,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Test MySql Password Expiration and set password")]
     public void ExpiredPasswordBug4()
     {
-      if (Version < new Version(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+      Assume.That(Version >= new Version(8, 0, 0), "This test is for MySql 8.0 or higher.");
       string host = Host == "localhost" ? Host : "%";
 
       var _expiredPwd = "expiredPwd";

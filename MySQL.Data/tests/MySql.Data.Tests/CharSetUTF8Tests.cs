@@ -78,7 +78,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void GetSchemaOnUTF8()
     {
 #if !NETFRAMEWORK
-      if (!Platform.IsWindows()) Assert.Ignore();
+      Assume.That(Platform.IsWindows());
 #endif
       ExecuteSQL("CREATE TABLE Test(name VARCHAR(40) NOT NULL, name2 VARCHAR(20)) " +
         "CHARACTER SET utf8");

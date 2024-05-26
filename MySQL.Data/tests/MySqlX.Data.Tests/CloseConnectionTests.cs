@@ -51,7 +51,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void NotificationKill()
     {
-      if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) Assert.Ignore();
+      Assume.That(session.Version.isAtLeast(8, 0, 23), "This test is for MySql 8.0.23 or higher");
       using (Session session1 = MySQLX.GetSession(ConnectionString))
       {
         Schema test = session1.GetSchema("test");
@@ -73,7 +73,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void NotificationIdle()
     {
-      if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) Assert.Ignore();
+      Assume.That(session.Version.isAtLeast(8, 0, 23), "This test is for MySql 8.0.23 or higher");
 
       ExecuteSqlAsRoot("SET GLOBAL mysqlx_read_timeout = 5");
       ExecuteSqlAsRoot("SET GLOBAL mysqlx_wait_timeout = 5");
@@ -109,7 +109,7 @@ namespace MySqlX.Data.Tests
     [Theory]
     public void CloseWarningsWithCollections(CloseData closeData)
     {
-      if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) Assert.Ignore();
+      Assume.That(session.Version.isAtLeast(8, 0, 23), "This test is for MySql 8.0.23 or higher");
       Session sessionCol = null;
       sessionCol = MySQLX.GetSession(ConnectionString);
 
@@ -131,7 +131,7 @@ namespace MySqlX.Data.Tests
     [Ignore("This test is marked as Ignore because it shutdown the local MySQL Server, comment this line to run this test manually")]
     public void NotificationShutdown()
     {
-      if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) Assert.Ignore();
+      Assume.That(session.Version.isAtLeast(8, 0, 23), "This test is for MySql 8.0.23 or higher");
 
       using (Session localsession = MySQLX.GetSession(BaseTest.ConnectionString))
       {
@@ -155,7 +155,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void PoolTestCloseOneConnection()
     {
-      if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) Assert.Ignore();
+      Assume.That(session.Version.isAtLeast(8, 0, 23), "This test is for MySql 8.0.23 or higher");
       int size = 3;
       int timeout = 3000;
       using (Client client = MySQLX.GetClient(ConnectionString + ";database=test;", new { pooling = new { maxSize = size, queueTimeout = timeout } }))
@@ -202,7 +202,7 @@ namespace MySqlX.Data.Tests
     [Ignore("This test is marked as Ignore because it shutdown the local MySQL Server, comment this line to run this test manually")]
     public void PoolTestShutdown()
     {
-      if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) Assert.Ignore();
+      Assume.That(session.Version.isAtLeast(8, 0, 23), "This test is for MySql 8.0.23 or higher");
       int size = 3;
       using (Client client = MySQLX.GetClient(ConnectionString + ";database=test;", new { pooling = new { maxSize = size } }))
       {
@@ -230,7 +230,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void PoolWithIdleConnections()
     {
-      if (!(session.InternalSession.GetServerVersion().isAtLeast(8, 0, 23))) Assert.Ignore();
+      Assume.That(session.Version.isAtLeast(8, 0, 23), "This test is for MySql 8.0.23 or higher");
       int size = 2;
       ExecuteSqlAsRoot("SET GLOBAL mysqlx_read_timeout = 5");
       ExecuteSqlAsRoot("SET GLOBAL mysqlx_wait_timeout = 5");

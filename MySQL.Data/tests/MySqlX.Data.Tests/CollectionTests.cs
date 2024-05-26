@@ -594,7 +594,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify Expected exceptions in Count")]
     public void ExceptionsInCount()
     {
-      if (!session.Version.isAtLeast(8, 0, 0)) Assert.Ignore("This test is for MySql 8.0 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 0), "This test is for MySql 8.0 or higher");
       var coll = CreateCollection("testCount");
       var docs = new[]
       {
@@ -767,7 +767,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify the behaviour of the dropX method for dropCollection under stressed conditions")]
     public void DropUnderStressedConditions()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Schema schema = session.GetSchema(schemaName);
 
       for (var i = 0; i < 10; i++)
@@ -781,7 +781,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify that dropX method for dropSchema, dropIndex succeeds in stress conditions")]
     public void DropObjectsUnderStress()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var schema = session.GetSchema(schemaName);
       var testColl = CreateCollection("test123");
       for (var i = 0; i < 150; i++)
@@ -804,7 +804,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify that dropX method for dropIndex succeeds when deleted and created again with various combinations")]
     public void DropDocuments()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var schema = session.GetSchema(schemaName);
       schema.DropCollection("test123");
       var testColl = schema.CreateCollection("test123");
@@ -828,7 +828,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify ModifyCollection with level OFF and JSON schema")]
     public void SchemaValidation_S1()
     {
-      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 19), "This test is for MySql 8.0.19 or higher");
       var schema = session.GetSchema(schemaName);
       var options = new CreateCollectionOptions();
       var options1 = new ModifyCollectionOptions();
@@ -951,7 +951,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Checking the createcollection() and ModifyCollection() with either the level or the schema")]
     public void SchemaValidation_S2()
     {
-      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 19), "This test is for MySql 8.0.19 or higher");
       var schema = session.GetSchema(schemaName);
       session.SQL($"use {schemaName}").Execute();
       var options = new CreateCollectionOptions();
@@ -1132,7 +1132,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Checking the error messages with different level")]
     public void SchemaValidation_S3()
     {
-      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 19), "This test is for MySql 8.0.19 or higher");
       session.SQL($"use {schemaName}").Execute();
       var options = new CreateCollectionOptions();
       var options1 = new ModifyCollectionOptions();
@@ -1256,7 +1256,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Verify ModifyCollection with level OFF and JSON schema with Json schema")]
     public void ModifyCollectionSchemaValidation()
     {
-      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 19), "This test is for MySql 8.0.19 or higher");
       session.SQL($"use {schemaName}").Execute();
       var schema = session.GetSchema(schemaName);
       var options = new CreateCollectionOptions();
@@ -1357,7 +1357,7 @@ namespace MySqlX.Data.Tests
     public void SchemaValidationDeleteRecords()
     {
       // Bug30748283
-      if (!session.Version.isAtLeast(8, 0, 19)) Assert.Ignore("This test is for MySql 8.0.19 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 19), "This test is for MySql 8.0.19 or higher");
       string doc5 = "{\"id\": \"http://json-schema.org/geo\","
            + "\"$schema\": \"http://json-schema.org/draft-06/schema#\","
            + "\"description\": \"A Person example\","
@@ -1472,7 +1472,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Remove Bind Stress")]
     public void RemoveBindStress()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Collection coll = CreateCollection("test");
       DbDoc[] jsonlist = new DbDoc[10];
       DbDoc[] jsonlist1 = new DbDoc[10];
@@ -1508,7 +1508,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Get Collection as Table")]
     public void GetCollectionAsTableStress()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       Collection testCollection = CreateCollection("test");
 
       DbDoc[] jsonlist = new DbDoc[1000];
@@ -1540,7 +1540,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin GetCollection Exception Scenario")]
     public void GetCollectionException()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       using (Session sessionPlain = MySQLX.GetSession(ConnectionString))
       {
         Schema db = sessionPlain.GetSchema(schemaName);

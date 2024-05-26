@@ -74,10 +74,7 @@ namespace MySql.Data.EntityFramework.Tests
     [Test]
     public void CanCreateDBScriptWithDateTimePrecision()
     {
-      if (!Environment.OSVersion.Platform.ToString().StartsWith("Win")) 
-        Assert.Ignore("Fix for Ubuntu. schema.Rows[3] -> System.IndexOutOfRangeException: There is no row at position 3.");
-      if (Version < new Version(5, 6, 5)) 
-        Assert.Ignore("MySQL Server version no compatible");
+      Assume.That(Version >= new Version(5, 6, 5));
 
       using (var ctx = new TestContext(ConnectionString))
       {

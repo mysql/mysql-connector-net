@@ -454,7 +454,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX Client Side Failover(Implicit Failover -Not supported)")]
     public void ImplicitFailover()
     {
-      if (!session.Version.isAtLeast(8, 0, 8)) Assert.Ignore("This test is for MySql 8.0.8 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 8), "This test is for MySql 8.0.8 or higher");
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       string ipV6Address = GetIPV6Address();
       string connectionString = $"mysqlx://test:test@[{sb.Server},{Host},{ipV6Address}:{sb.Port}]?implicit-failover";
@@ -464,7 +464,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Provide 101 hosts to connection without priority where 1st 100 hosts are invalid ones(Internal priority is set from 100...0) and the last host is valid")]
     public void ManyInvalidHost()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
 
       var connectionTimeout = 1;
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
@@ -540,7 +540,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Provide two hosts to connection with priority where both are valid")]
     public void TwoValidHost()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
 
       var connStr = $"mysqlx://test:test@[ (address={Host}:{XPort}, priority=0,address={Host}:{XPort}, priority=100)]?ssl-mode=Required";
@@ -575,7 +575,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Provide two hosts to connection with priority where both are valid-with default port")]
     public void TwoValidHostWithDefaultPort()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
 
       var connStr = "mysqlx://test:test" +
@@ -609,7 +609,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Provide a single host to connection with priority and disconnect and connect again(iterate priority from 0 - 100) ")]
     public void IteratedPriority()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       var connectionTimeout = 900;
 
       // Automatically set priority if no priority is given.
@@ -662,7 +662,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Provide a single host to connection with priority with SSL")]
     public void PriorityWithSsl()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       var certificatePassword = "pass";
       var certificatewrongPassword = "wrongpass";
 

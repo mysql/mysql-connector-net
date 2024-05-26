@@ -42,8 +42,8 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void DefaultAuthNullPlugin()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("Check for Linux OS");
-      if (!session.Version.isAtLeast(8, 4, 0)) Assert.Ignore("Test available only to MySQL Server +8.4.0");
+      Assume.That(Platform.IsWindows(), "Check For Linux OS");
+      Assume.That(session.Version.isAtLeast(8, 4, 0), "This test is for MySql 8.4.0 or higher");
 
       string pluginName = "caching_sha2_password";//default plugin
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
@@ -146,7 +146,7 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void DefaultAuthPublicKeyRetrieval()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       string pluginName = "caching_sha2_password";//default plugin
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
@@ -198,9 +198,9 @@ namespace MySqlX.Data.Tests
     [Test, Description("User selects DEFAULT as authentication mechanism-mysql_native_password user,ssl mode default,fresh connection")]
     public void MySqlNativePlugin()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
-      if (!Check_Plugin_Enabled("mysql_native_password"))
-        Assert.Ignore("mysql_native_password plugin must be enabled on the server to run this test");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
+      Assume.That(Check_Plugin_Enabled("mysql_native_password"), "mysql_native_password plugin must be enabled on the server to run this test.");
+      Assume.That(Check_Plugin_Enabled("caching_sha2_password"), "The caching_sha2_password plugin isn't available.");
 
       string pluginName = "mysql_native_password";//mysql_native_password  plugin
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
@@ -261,8 +261,7 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void ConnectUsingMySQL41Auth()
     {
-      if (!Check_Plugin_Enabled("mysql_native_password"))
-        Assert.Ignore("mysql_native_password plugin must be enabled on the server to run this test");
+      Assume.That(Check_Plugin_Enabled("mysql_native_password"), "mysql_native_password plugin must be enabled on the server to run this test.");
       ExecuteSqlAsRoot("CREATE USER IF NOT EXISTS 'testNative'@'%' identified with mysql_native_password by 'test';");
 
       var connectionStringUri = ConnectionStringUri;
@@ -371,13 +370,9 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void Sha256MemoryAuthWithDifferentPlugin(string pluginName)
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
-
-      if (pluginName == "mysql_native_password")
-      {
-        if (!Check_Plugin_Enabled("mysql_native_password"))
-          Assert.Ignore("mysql_native_password plugin must be enabled on the server to run this test");
-      }
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
+      Assume.That(Check_Plugin_Enabled("mysql_native_password"), "mysql_native_password plugin must be enabled on the server to run this test.");
+      
       MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(ConnectionString);
       builder.UserID = "testDefaultPlugin";
       builder.Password = "test";
@@ -422,10 +417,9 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void NativeAuthValidAndInvalidConnection()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("Check for Linux OS");
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("Test available only to MySQL Server +8.0.11");
-      if (!Check_Plugin_Enabled("mysql_native_password"))
-        Assert.Ignore("mysql_native_password plugin must be enabled on the server to run this test");
+      Assume.That(Platform.IsWindows(), "Check for Linux OS");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
+      Assume.That(Check_Plugin_Enabled("mysql_native_password"), "mysql_native_password plugin must be enabled on the server to run this test.");
       ExecuteSqlAsRoot("CREATE USER IF NOT EXISTS 'testNative'@'%' identified with mysql_native_password by 'test';");
 
       var user = "testNative";

@@ -207,7 +207,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void RowLockingNotSupportedInOlderVersions()
     {
-      if (session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql lower than 8.0.3.");
+      Assume.That(!session.Version.isAtLeast(8, 0, 3), "This test is for MySql lower than 8.0.3.");
       Collection coll = CreateCollection("test");
 
       Exception ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll.Find().LockShared()));
@@ -220,7 +220,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void SimpleSharedLock()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -256,7 +256,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void SharedLockForbidsToModifyDocuments()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -299,7 +299,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void ExclusiveLockForbidsToModifyDocuments()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -341,7 +341,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void SharedLockAfterExclusiveLock()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -383,7 +383,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void ExclusiveLockAfterSharedLock()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -426,7 +426,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void ExclusiveLockAfterExclusiveLock()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -467,7 +467,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void InOperatorWithListOfValues()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       // Validates the IN operator allows expressions of the type
       // ( compExpr ["NOT"] "IN" "(" argsList ")" ) | ( compExpr ["NOT"] "IN" "[" argsList "]" )
@@ -523,7 +523,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void InOperatorWithCompExpr()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       // Validates the IN operator allows expressions of the type: compExpr ["NOT"] "IN" compExpr
       Collection coll = CreateCollection("test");
@@ -561,7 +561,7 @@ namespace MySqlX.Data.Tests
     [Test]
     public void InOperatorWithJsonArrays()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       Collection coll = CreateCollection("test");
       var docString = "{ \"_id\": \"1001\", \"ARR\":[1,2,3], \"ARR1\":[\"name\", \"name2\", \"name3\"]}";
@@ -620,7 +620,7 @@ namespace MySqlX.Data.Tests
     [TestCase(LockContention.SkipLocked, LockMode.Shared)]
     public void LockExclusiveAndSharedWithWaitingOptions(LockContention lockOption, LockMode lockMode)
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
 
       string collectionName = "test";
       var coll = CreateCollection(collectionName);
@@ -1301,7 +1301,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Reading exclusively locked anonymous object array using LockShared without waiting option. ")]
     public void ExclusiveLocksAndCommit(int scenario)
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
@@ -1371,7 +1371,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Reading a document which was locked using lock_shared without waiting option")]
     public void SharedLockAndCommit(LockMode? lockMode)
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
@@ -1431,7 +1431,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Reading a document using lock_shared using SKIPLOCK and NOWAIT options with CRUD operations happening parallely.")]
     public void SharedAndExclusiveLockWithSkipAndNoWait(LockMode lockMode)
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
@@ -1478,7 +1478,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Multiple lock calls using NOWAIT and SKIPLOCK waiting option. ")]
     public void MultipleLocksWithNowaitAndSkiplock()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
@@ -1521,7 +1521,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Reading multiple rows in a locked document(lock_shared) using SKIPLOCK and NOWAIT ")]
     public void LockSharedMultipleReads()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
@@ -1562,7 +1562,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Reading multiple rows in an exclusively locked document using SKIPLOCK and NOWAIT ")]
     public void LockExclusiveMultipleReads()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
@@ -1600,7 +1600,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Collection.Find() with shared lock and Collection.Modify() normal from two sessions. ")]
     public void LockSharedAndModify()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       ExecuteSQLStatement(session.SQL("SET autocommit = 0"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
@@ -1640,7 +1640,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Collection.Find() with shared lock from two sessions. ")]
     public void LockSharedTwoSessions()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       ExecuteSQLStatement(session.SQL("SET autocommit = 0"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
@@ -1677,7 +1677,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Collection.Find() with exclusive lock and Collection.Find() with shared lock from two sessions. ")]
     public void LockExclusiveFindAndLockSharedFind()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       ExecuteSQLStatement(session.SQL("SET autocommit = 0"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
@@ -1719,7 +1719,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Collection.Find() with shared lock and Collection.Find() with exclusive lock from two sessions. ")]
     public void LockSharedFindAndExclusiveLocks()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       ExecuteSQLStatement(session.SQL("SET autocommit = 0"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
@@ -1766,7 +1766,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Collection.Find() with exclusive lock and Collection.Find() with exclusive lock from two sessions. ")]
     public void LockExclusiveWithRollback()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       ExecuteSQLStatement(session.SQL("SET autocommit = 0"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
@@ -1810,7 +1810,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Collection.Find() with exclusive lock and Collection.Find() with exclusive lock from two sessions--Select multiple records ")]
     public void LockExclusiveWithINSelection()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       ExecuteSQLStatement(session.SQL("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
@@ -1853,7 +1853,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Collection.Find() with shared lock twice ")]
     public void LockSharedReadTwice()
     {
-      if (!session.Version.isAtLeast(8, 0, 3)) Assert.Ignore("This test is for MySql 8.0.3 or higher");
+      Assume.That(session.Version.isAtLeast(8, 0, 3), "This test is for MySql 8.0.3 or higher");
       ExecuteSQLStatement(session.SQL("SET autocommit = 0"));
       using (var session2 = MySQLX.GetSession(ConnectionString))
       {
@@ -1893,8 +1893,8 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection Array or Object contains operator Scenarios-1")]
     public void FindInJsonObjects()
     {
-      if (!Platform.IsWindows()) Assert.Ignore("This test is for Windows OS only");
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(Platform.IsWindows(), "This test is for Windows OS only");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       var col = CreateCollection("my_collection_1");
       string json = @"{ ""_id"": 0, ""title"": ""Book 0"" ,""pages"": 10,""name"": ""Jeoff Archer""}";
@@ -2004,7 +2004,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection Array or Object contains operator Scenarios-3")]
     public void FindAndCountJsonValues()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
 
       var col = CreateCollection("my_collection_1");
       Result add;
@@ -2039,7 +2039,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Collection Array or Object contains operator Scenarios-4")]
     public void CheckCountAfterSort()
     {
-      if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       var coll = CreateCollection("test");
       coll.Add("{ \"name\": \"abcdefghijk\", \"age\": 1 , \"misc\": 1.2}")
           .Add("{ \"name\": \"xyz\", \"age\": 6 , \"misc\": 19.59}").Execute();
@@ -2056,7 +2056,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Find with overlap Bugs")]
     public void FindUsingOverLapsBug()
     {
-      if (!session.Version.isAtLeast(8, 0, 17)) Assert.Ignore("This test is for MySql 8.0.17 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 17), "This test is for MySql 8.0.17 or higher");
       String json = "";
       String[] splName = { "+", "*", "/", "a+b", "#1", "%", "&", "@1", "!1", "~", "^",
                           "(", ")", "{", "}", "[", "]", "|", "JSON", "ADD", "JSON_EXTRACT", "JSON_OBJECT",
@@ -2133,7 +2133,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("Test MySQLX plugin Find with overlap and Many conditions")]
     public void FindUsingOverLapsManyConditions()
     {
-      if (!session.Version.isAtLeast(8, 0, 17)) Assert.Ignore("This test is for MySql 8.0.17 or higher.");
+      Assume.That(session.Version.isAtLeast(8, 0, 17), "This test is for MySql 8.0.17 or higher");
       int Condition = 45;
       int i, j = 0;
       String query = "";
@@ -2255,7 +2255,7 @@ namespace MySqlX.Data.Tests
     [Test, Description("GetName,Schema and Count")]
     public void CollectionGetNameSchemaCount()
     {
-      if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher");
+      Assume.That(session.Version.isAtLeast(5, 7, 0), "This test is for MySql 5.7 or higher");
       var col = CreateCollection("my_collection_123456789");
 
       Result r = col.Add(@"{ ""_id"": 1, ""foo"": 1 }").Execute();
