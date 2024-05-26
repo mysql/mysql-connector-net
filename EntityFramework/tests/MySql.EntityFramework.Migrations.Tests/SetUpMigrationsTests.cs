@@ -29,6 +29,7 @@
 using MySql.Data.EntityFramework.Properties;
 using MySql.Data.EntityFramework.Tests;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 using System;
 using System.Configuration;
 using System.Data;
@@ -49,7 +50,7 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
     [OneTimeSetUp]
     public new void OneTimeSetup()
     {
-      ConnectionStringBlogContext = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? MySql.EntityFramework.Migrations.Tests.Properties.Resources.ConnStringMacOS : MySql.EntityFramework.Migrations.Tests.Properties.Resources.ConnString;
+      ConnectionStringBlogContext = System.Environment.OSVersion.Platform == PlatformID.MacOSX ? MySql.EntityFramework.Migrations.Tests.Properties.Resources.ConnStringMacOS : MySql.EntityFramework.Migrations.Tests.Properties.Resources.ConnString;
       
       configuration = new Configuration();
       DataSet dataSet = ConfigurationManager.GetSection("system.data") as System.Data.DataSet;
