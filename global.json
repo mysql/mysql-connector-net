@@ -2,4 +2,7 @@
   "msbuild-sdks": {
     "Microsoft.Build.Traversal": "4.1.0"
   }
+  "sdk": {
+    "version": "8.0.22"
+  }
 }
