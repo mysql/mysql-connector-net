@@ -295,9 +295,7 @@ namespace MySql.Data.MySqlClient
 
         foreach (MySqlSchemaRow index in indexes.Rows)
         {
-          if (1 != (connection.driver.Version.isAtLeast(8, 0, 1) ?
-            (uint)index["SEQ_IN_INDEX"] :
-            (long)index["SEQ_IN_INDEX"]))
+          if (1 != Convert.ToInt64(index["SEQ_IN_INDEX"]))
             continue;
           if (restrictions != null && restrictions.Length == 4 &&
             restrictions[3] != null &&
