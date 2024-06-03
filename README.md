@@ -16,6 +16,8 @@ From MySQL Connector/NET 8.3, the driver also adds support for [.NET 8](https://
 
 From MySQL Connector/NET 8.4, the driver adds support for TLS1.3 and removes support for FIDO authentication plugin.
 
+From MySQL Connector/NET 9.0, the driver removes support for .NET 7 and EF Core 7.
+
 For detailed information please visit the official [MySQL Connector/NET documentation.](https://dev.mysql.com/doc/connector-net/en/)
 
 ## Licensing

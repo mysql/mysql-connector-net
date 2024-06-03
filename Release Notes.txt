@@ -1,8 +1,10 @@
-Connector/NET 8.4 Release Notes
+Connector/NET 9.0 Release Notes
 ------------------------------------
-Welcome to the release notes for Connector/NET 8.3
+Welcome to the release notes for Connector/NET 9.0
 
-What's new in 8.4
+What's new in 9.0
 --------------------
 
-Connector/NET added support for TLS1.3 and removed support for FIDO authentication plugin.
+Connector/NET now uses NUnit 4.1 in the testsuite.
+Connector/NET updated 3rd party dependencies.
+Connector/NET removes support for .NET 7 and EF Core 7.
