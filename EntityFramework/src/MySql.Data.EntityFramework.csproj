@@ -4,7 +4,7 @@
     <Description>MySql.Data.EntityFramework</Description>
     <Copyright>Copyright © 2016, 2024, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>9.0.0</Version>
+    <Version>9.1.0</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net462;net48;</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
