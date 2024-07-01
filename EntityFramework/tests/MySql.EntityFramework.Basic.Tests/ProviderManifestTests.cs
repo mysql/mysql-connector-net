@@ -44,17 +44,17 @@ namespace MySql.Data.EntityFramework.Tests
         TypeUsage tu = TypeUsage.CreateStringTypeUsage(
           PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), false, false);
         TypeUsage result = pm.GetStoreType(tu);
-        Assert.AreEqual("longtext", result.EdmType.Name);
+        Assert.That(result.EdmType.Name, Is.EqualTo("longtext"));
 
         tu = TypeUsage.CreateStringTypeUsage(
           PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), false, false, Int32.MaxValue);
         result = pm.GetStoreType(tu);
-        Assert.AreEqual("longtext", result.EdmType.Name);
+        Assert.That(result.EdmType.Name, Is.EqualTo("longtext"));
 
         tu = TypeUsage.CreateStringTypeUsage(
           PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), false, false, 70000);
         result = pm.GetStoreType(tu);
-        Assert.AreEqual("mediumtext", result.EdmType.Name);
+        Assert.That(result.EdmType.Name, Is.EqualTo("mediumtext"));
 
       }
     }
@@ -72,7 +72,7 @@ namespace MySql.Data.EntityFramework.Tests
         TypeUsage tu = TypeUsage.CreateDefaultTypeUsage(
                 PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Byte));
         TypeUsage result = pm.GetStoreType(tu);
-        Assert.AreEqual("utinyint", result.EdmType.Name);
+        Assert.That(result.EdmType.Name, Is.EqualTo("utinyint"));
 
       }
     }
@@ -86,17 +86,17 @@ namespace MySql.Data.EntityFramework.Tests
         TypeUsage tu = TypeUsage.CreateStringTypeUsage(
           PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), false, true);
         TypeUsage result = pm.GetStoreType(tu);
-        Assert.AreEqual("char", result.EdmType.Name);
+        Assert.That(result.EdmType.Name, Is.EqualTo("char"));
 
         tu = TypeUsage.CreateStringTypeUsage(
           PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), false, true, Int32.MaxValue);
         result = pm.GetStoreType(tu);
-        Assert.AreEqual("char", result.EdmType.Name);
+        Assert.That(result.EdmType.Name, Is.EqualTo("char"));
 
         tu = TypeUsage.CreateStringTypeUsage(
           PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), false, true, 70000);
         result = pm.GetStoreType(tu);
-        Assert.AreEqual("char", result.EdmType.Name);
+        Assert.That(result.EdmType.Name, Is.EqualTo("char"));
       }
     }
   }

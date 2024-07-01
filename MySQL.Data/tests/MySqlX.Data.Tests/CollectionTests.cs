@@ -63,7 +63,7 @@ namespace MySqlX.Data.Tests
       Collection book = CreateCollection("book");
       List<Collection> collections = book.Schema.GetCollections();
       Assert.That(collections, Has.One.Items);
-      Assert.True(collections[0].Name == "book");
+      Assert.That(collections[0].Name == "book");
       book.Schema.DropCollection("book");
     }
 
@@ -73,15 +73,15 @@ namespace MySqlX.Data.Tests
       Session s = GetSession();
       Schema test = s.GetSchema("test");
       Collection testColl = test.CreateCollection("test");
-      Assert.True(CollectionExistsInDatabase(testColl));
+      Assert.That(CollectionExistsInDatabase(testColl));
 
       // Drop existing collection.
       test.DropCollection("test");
-      Assert.False(CollectionExistsInDatabase(testColl));
+      Assert.That(CollectionExistsInDatabase(testColl), Is.False);
 
       // Drop non-existing collection.
       test.DropCollection("test");
-      Assert.False(CollectionExistsInDatabase(testColl));
+      Assert.That(CollectionExistsInDatabase(testColl), Is.False);
 
       //dropCollection when the object to drop contains invalid characters
       test.DropCollection("%^&!@~*(&*(*&:><?}{:");
@@ -99,10 +99,10 @@ namespace MySqlX.Data.Tests
       Session session = GetSession();
       Schema test = session.GetSchema(schemaName);
       Collection testColl = test.CreateCollection("test");
-      Assert.True(CollectionExistsInDatabase(testColl), "ExistsInDatabase failed");
+      Assert.That(CollectionExistsInDatabase(testColl), "ExistsInDatabase failed");
       testColl.CreateIndex("testIndex", "{ \"fields\": [ { \"field\":$.myId, \"type\":\"INT\", \"required\":true } ] }");
       var result = ExecuteAddStatement(testColl.Add(new { myId = 1 }).Add(new { myId = 2 }));
-      Assert.AreEqual(result.AffectedItemsCount, 2);
+      Assert.That(2, Is.EqualTo(result.AffectedItemsCount));
     }
 
     [Test]
@@ -151,7 +151,7 @@ namespace MySqlX.Data.Tests
       Session session = GetSession();
       Schema schema = session.GetSchema(schemaName);
       var ex = Assert.Throws<MySqlException>(() => schema.GetCollection("nonExistentCollection", true));
-      Assert.AreEqual("Collection 'nonExistentCollection' does not exist.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Collection 'nonExistentCollection' does not exist."));
     }
 
     [Test]
@@ -164,9 +164,9 @@ namespace MySqlX.Data.Tests
 
       // Zero records
       var collection = schema.GetCollection("testCount");
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
       var table = schema.GetTable("testCount");
-      Assert.AreEqual(count, table.Count());
+      Assert.That(table.Count(), Is.EqualTo(count));
 
       // Insert some records
       var stm = collection.Add(@"{ ""_id"": 1, ""foo"": 1 }")
@@ -174,22 +174,22 @@ namespace MySqlX.Data.Tests
         .Add(@"{ ""_id"": 3, ""foo"": 3 }");
       stm.Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       table.Insert("doc").Values(@"{ ""_id"": 4, ""foo"": 4 }").Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
-      Assert.AreEqual(count, table.Count());
+      Assert.That(table.Count(), Is.EqualTo(count));
 
       collection.RemoveOne(2);
       count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
-      Assert.AreEqual(count, table.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
+      Assert.That(table.Count(), Is.EqualTo(count));
 
       // Collection/Table does not exist
       var ex = Assert.Throws<MySqlException>(() => schema.GetCollection("testCount_").Count());
-      Assert.AreEqual("Collection 'testCount_' does not exist in schema 'test'.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Collection 'testCount_' does not exist in schema 'test'."));
       ex = Assert.Throws<MySqlException>(() => schema.GetTable("testCount_").Count());
-      Assert.AreEqual("Table 'testCount_' does not exist in schema 'test'.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Table 'testCount_' does not exist in schema 'test'."));
     }
 
     [Test]
@@ -235,7 +235,7 @@ namespace MySqlX.Data.Tests
       options.ReuseExisting = false;
       options.Validation = val;
       Collection testColl = test.CreateCollection("testWithSchemaValidation", options);
-      Assert.True(CollectionExistsInDatabase(testColl));
+      Assert.That(CollectionExistsInDatabase(testColl));
 
       //Bug #30830962
       options = new CreateCollectionOptions();
@@ -245,7 +245,7 @@ namespace MySqlX.Data.Tests
       testbug1.Add(@"{ ""latitude"": 20, ""longitude"": 30 }").Execute();
       testbug1.Add(@"{ ""sexo"": 1, ""edad"": 20 }").Execute();
       int.TryParse(session.SQL("SELECT COUNT(*) FROM test.bug_0962").Execute().FetchOne()[0].ToString(), out int expected_count);
-      Assert.AreEqual(2, expected_count);  //Collection is created as STRICT with empty json schema,both records were inserted
+      Assert.That(expected_count, Is.EqualTo(2));  //Collection is created as STRICT with empty json schema,both records were inserted
 
       options = new CreateCollectionOptions();
       val = new Validation() { Schema = str };
@@ -253,90 +253,90 @@ namespace MySqlX.Data.Tests
       testbug1 = test.CreateCollection("bug_0962b", options);// adding an schema from
       testbug1.Add(@"{ ""latitude"": 20, ""longitude"": 30 }").Execute();
       var invalidEx = Assert.Throws<MySqlException>(() => testbug1.Add(@"{ ""sexo"": 1, ""edad"": 20 }").Execute());
-      StringAssert.Contains("Document is not valid according to the schema assigned to collection", invalidEx.Message);
+      Assert.That(invalidEx.Message, Does.Contain("Document is not valid according to the schema assigned to collection"));
 
       // Create a Collection passing a reuse_existing parameter to server
       CreateCollectionOptions options_reuse = new CreateCollectionOptions();
       options_reuse.ReuseExisting = false;
       options_reuse.Validation = val;
       Collection testCol2 = test.CreateCollection("testReuseExisting_1", options_reuse);
-      Assert.True(CollectionExistsInDatabase(testCol2));
+      Assert.That(CollectionExistsInDatabase(testCol2));
 
       //Insert Valid record with Level Strict
       var insert_statement = testColl.Add(@"{ ""latitude"": 20, ""longitude"": 30 }");
       insert_statement.Execute();
       var count = session.SQL("SELECT COUNT(*) FROM test.testWithSchemaValidation").Execute().FetchOne()[0];
-      Assert.AreEqual(count, testColl.Count());
+      Assert.That(testColl.Count(), Is.EqualTo(count));
 
       //Insert invalid record with Level Strict
       insert_statement = testColl.Add(@"{ ""OtherField"": ""value"", ""Age"": 30 }");
       var invalidInsertEx = Assert.Throws<MySqlException>(() => insert_statement.Execute());
-      StringAssert.Contains("Document is not valid according to the schema assigned to collection", invalidInsertEx.Message);
+      Assert.That(invalidInsertEx.Message, Does.Contain("Document is not valid according to the schema assigned to collection"));
 
       //Test: Old MySQL Server Version exceptions
       if (!(session.Version.isAtLeast(8, 0, 19)))
       {
         //FR6.2
         var ex1 = Assert.Throws<MySqlException>(() => test.CreateCollection("testInvalid", options));
-        StringAssert.Contains("Invalid number of arguments, expected 2 but got 3, " +
-        "The server doesn't support the requested operation. Please update the MySQL Server and/or Client library", ex1.Message);
+        Assert.That(ex1.Message, Does.Contain("Invalid number of arguments, expected 2 but got 3, " +
+        "The server doesn't support the requested operation. Please update the MySQL Server and/or Client library"));
 
         //FR6.3
         test.CreateCollection("testInvalid");
         ModifyCollectionOptions modifyOptions = new ModifyCollectionOptions();
         modifyOptions.Validation = val;
         var ex2 = Assert.Throws<MySqlException>(() => test.ModifyCollection("testInvalid", modifyOptions));
-        StringAssert.Contains("Invalid mysqlx command modify_collection_options, " +
-        "The server doesn't support the requested operation. Please update the MySQL Server and/or Client library", ex2.Message);
+        Assert.That(ex2.Message, Does.Contain("Invalid mysqlx command modify_collection_options, " +
+        "The server doesn't support the requested operation. Please update the MySQL Server and/or Client library"));
       }
 
       //Create collection with json schema and level OFF. Try to insert document matches this schema
       options = new CreateCollectionOptions();
       options.Validation = new Validation() { Level = ValidationLevel.OFF, Schema = str };
       Collection col_test = test.CreateCollection("Test_2b_1", options);
-      Assert.True(CollectionExistsInDatabase(col_test));
+      Assert.That(CollectionExistsInDatabase(col_test));
       insert_statement = col_test.Add(@"{ ""latitude"": 120, ""longitude"": 78 }");
       insert_statement.Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.Test_2b_1").Execute().FetchOne()[0];
-      Assert.AreEqual(count, col_test.Count());
+      Assert.That(col_test.Count(), Is.EqualTo(count));
 
       //Create collection with json schema and level OFF,ReuseExisting set to true, Try to insert
       options = new CreateCollectionOptions();
       options.Validation = new Validation() { Level = ValidationLevel.OFF, Schema = str };
       options.ReuseExisting = true;
       col_test = test.CreateCollection("Test_2b_2", options);
-      Assert.True(CollectionExistsInDatabase(col_test));
+      Assert.That(CollectionExistsInDatabase(col_test));
       insert_statement = col_test.Add(@"{ ""latitude"": 20, ""longitude"": 42 }");
       insert_statement.Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.Test_2b_2").Execute().FetchOne()[0];
-      Assert.AreEqual(count, col_test.Count());
+      Assert.That(col_test.Count(), Is.EqualTo(count));
 
       //Create collection with only schema option, Try to insert
       options = new CreateCollectionOptions();
       options.Validation = new Validation() { Schema = str };
       col_test = test.CreateCollection("Test_2b_3", options);
-      Assert.True(CollectionExistsInDatabase(col_test));
+      Assert.That(CollectionExistsInDatabase(col_test));
       insert_statement = col_test.Add(@"{ ""latitude"": 5, ""longitude"": 10 }");
       insert_statement.Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.Test_2b_3").Execute().FetchOne()[0];
-      Assert.AreEqual(count, col_test.Count());
+      Assert.That(col_test.Count(), Is.EqualTo(count));
 
       //Create collection with only schema option,ReuseExisting set to true, Try to insert
       options = new CreateCollectionOptions();
       options.Validation = new Validation() { Schema = str };
       options.ReuseExisting = true;
       col_test = test.CreateCollection("Test_2b_4", options);
-      Assert.True(CollectionExistsInDatabase(col_test));
+      Assert.That(CollectionExistsInDatabase(col_test));
       insert_statement = col_test.Add(@"{ ""latitude"": 25, ""longitude"": 52 }");
       insert_statement.Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.Test_2b_4").Execute().FetchOne()[0];
-      Assert.AreEqual(count, col_test.Count());
+      Assert.That(col_test.Count(), Is.EqualTo(count));
 
       //Create collection with only level option
       options = new CreateCollectionOptions();
       options.Validation = new Validation() { Level = ValidationLevel.OFF };
       col_test = test.CreateCollection("Test_2b_5", options);
-      Assert.True(CollectionExistsInDatabase(col_test));
+      Assert.That(CollectionExistsInDatabase(col_test));
 
       //ResuseExisting = false should throw exception for an existing collection
       CreateCollectionOptions testReuseOptions = new CreateCollectionOptions();
@@ -344,12 +344,12 @@ namespace MySqlX.Data.Tests
       testReuseOptions.Validation = new Validation() { Level = ValidationLevel.OFF };
       test.CreateCollection("testReuse");
       var exreuse = Assert.Throws<MySqlException>(() => test.CreateCollection("testReuse", testReuseOptions));
-      StringAssert.AreEqualIgnoringCase("Table 'testReuse' already exists", exreuse.Message);
+      Assert.That(exreuse.Message, Is.EqualTo("Table 'testReuse' already exists").IgnoreCase);
 
       //Test: Resuse Existing = True should return existing collection
       testReuseOptions.ReuseExisting = true;
       var existing = test.CreateCollection("testReuse", testReuseOptions);
-      Assert.True(CollectionExistsInDatabase(existing));
+      Assert.That(CollectionExistsInDatabase(existing));
 
       //Create collection and prepare test data with json schema and level STRICT
       CreateCollectionOptions prepareOptions = new CreateCollectionOptions();
@@ -358,13 +358,13 @@ namespace MySqlX.Data.Tests
       res_stm.Execute();
       var num = session.SQL("SELECT COUNT(*) FROM test.TestCreateInsert").Execute().FetchOne()[0];
       var collection_test = test.GetCollection("TestCreateInsert");
-      Assert.AreEqual(num, collection_test.Count());
+      Assert.That(collection_test.Count(), Is.EqualTo(num));
 
       //Passing invalid Schema
       options = new CreateCollectionOptions();
       options.Validation = new Validation() { Level = ValidationLevel.STRICT, Schema = "Not Valid JSON Schema" };
       Exception ex_schema = Assert.Throws<Exception>(() => test.CreateCollection("testInvalidSchema", options));
-      StringAssert.Contains(@"The value provided is not a valid JSON document.", ex_schema.Message);
+      Assert.That(ex_schema.Message, Does.Contain(@"The value provided is not a valid JSON document."));
 
       //Testing an schema with different data types
       str = "{\"id\": \"http://json-schema.org/geo\","
@@ -385,20 +385,20 @@ namespace MySqlX.Data.Tests
       options = new CreateCollectionOptions();
       options.Validation = new Validation() { Level = ValidationLevel.STRICT, Schema = str };
       Collection person_col = test.CreateCollection("testWithPersonSchema", options);
-      Assert.True(CollectionExistsInDatabase(person_col));
+      Assert.That(CollectionExistsInDatabase(person_col));
       person_col.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       var rows = session.SQL("SELECT COUNT(*) FROM test.testWithPersonSchema").Execute().FetchOne()[0];
-      Assert.AreEqual(rows, person_col.Count());
+      Assert.That(person_col.Count(), Is.EqualTo(rows));
 
       // Create an existing collection with different schema
       options = new CreateCollectionOptions();
       options.ReuseExisting = true;
       options.Validation = new Validation() { Level = ValidationLevel.STRICT, Schema = str };
       Collection col_schema1 = test.CreateCollection("testSchema1", options);
-      Assert.True(CollectionExistsInDatabase(col_schema1));
+      Assert.That(CollectionExistsInDatabase(col_schema1));
 
       col_schema1.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
-      Assert.AreEqual(1, col_schema1.Count());
+      Assert.That(col_schema1.Count(), Is.EqualTo(1));
       var sqlDefinition1 = session.SQL("SHOW CREATE TABLE test.testSchema1").Execute().FetchOne()[1];
 
 
@@ -420,31 +420,31 @@ namespace MySqlX.Data.Tests
       options.Validation = new Validation() { Level = ValidationLevel.STRICT, Schema = schema2 };
       Collection col_schema2 = test.CreateCollection("testSchema1", options);
       var sqlDefinition2 = session.SQL("SHOW CREATE TABLE test.testSchema1").Execute().FetchOne()[1];
-      Assert.AreEqual(sqlDefinition1, sqlDefinition2);
+      Assert.That(sqlDefinition2, Is.EqualTo(sqlDefinition1));
 
       //Create a collection without sending reuseExisting parameter and insert record
       Collection original_col1 = test.CreateCollection("testOriginal1");
-      Assert.True(CollectionExistsInDatabase(original_col1));
+      Assert.That(CollectionExistsInDatabase(original_col1));
       original_col1.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       rows = session.SQL("SELECT COUNT(*) FROM test.testOriginal1").Execute().FetchOne()[0];
-      Assert.AreEqual(rows, original_col1.Count());
+      Assert.That(original_col1.Count(), Is.EqualTo(rows));
 
       //Create a new collection sending reuseExisting as true, insert record
       Collection original_col2 = test.CreateCollection("testOriginal2", true);
-      Assert.True(CollectionExistsInDatabase(original_col2));
+      Assert.That(CollectionExistsInDatabase(original_col2));
       original_col2.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       rows = session.SQL("SELECT COUNT(*) FROM test.testOriginal2").Execute().FetchOne()[0];
-      Assert.AreEqual(rows, original_col2.Count());
+      Assert.That(original_col2.Count(), Is.EqualTo(rows));
 
       //Create an existing collection sending reuseExisting as true, insert record
       Collection original_col3 = test.CreateCollection("testOriginal2", true);
-      Assert.True(CollectionExistsInDatabase(original_col3));
+      Assert.That(CollectionExistsInDatabase(original_col3));
       original_col3.Add(@"{ ""name"": ""John2"", ""age"": 12 }").Execute();
-      Assert.AreEqual(2, original_col3.Count());
+      Assert.That(original_col3.Count(), Is.EqualTo(2));
 
       //Create an existing collection sending reuseExisting as false,exception expected
       var ex_existing = Assert.Throws<MySqlException>(() => test.CreateCollection("testOriginal2", false));
-      StringAssert.AreEqualIgnoringCase(@"Table 'testOriginal2' already exists", ex_existing.Message);
+      Assert.That(ex_existing.Message, Is.EqualTo(@"Table 'testOriginal2' already exists").IgnoreCase);
 
       //Modify collection with only level option
       ModifyCollectionOptions Test_Options = new ModifyCollectionOptions();
@@ -456,20 +456,20 @@ namespace MySqlX.Data.Tests
                                      .Add(@"{ ""OtherField"": ""value"", ""Age"": 30 }");
       insert_statement.Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.testWithSchemaValidation").Execute().FetchOne()[0];
-      Assert.AreEqual(count, col_Test_2a_1.Count());
+      Assert.That(col_Test_2a_1.Count(), Is.EqualTo(count));
 
       //Modify collection with only schema option
       Test_Options.Validation = new Validation() { Schema = "{ }" };
       test.ModifyCollection("testWithSchemaValidation", Test_Options);
       var sqlCreate = session.SQL("SHOW CREATE TABLE test.testWithSchemaValidation").Execute().FetchOne()[1];
-      Assert.True(sqlCreate.ToString().Contains(@"'{\r\n}'") || sqlCreate.ToString().Contains("{}"));
+      Assert.That(sqlCreate.ToString().Contains(@"'{\r\n}'") || sqlCreate.ToString().Contains("{}"));
 
       //Passing null as parameter to ModifyCollection
       var emptyOptions = new ModifyCollectionOptions();
       emptyOptions.Validation = new Validation() { };
       test.CreateCollection("testnull");
       exreuse = Assert.Throws<MySqlException>(() => test.ModifyCollection("testnull", null));
-      Assert.AreEqual(@"Arguments value used under ""validation"" must be an object with at least one field", exreuse.Message);
+      Assert.That(exreuse.Message, Is.EqualTo(@"Arguments value used under ""validation"" must be an object with at least one field"));
 
       test.DropCollection("testWithSchemaValidation");
       test.DropCollection("bug_0962");
@@ -508,13 +508,13 @@ namespace MySqlX.Data.Tests
       var stmt = coll.Find("_id=:v").Bind("v", "1");
       var res = stmt.Execute();
       var values = res.FetchOne();
-      Assert.AreEqual(1, Convert.ToInt32(values.values["_id"]));
-      StringAssert.AreEqualIgnoringCase("foo", values.values["title"].ToString());
+      Assert.That(Convert.ToInt32(values.values["_id"]), Is.EqualTo(1));
+      Assert.That(values.values["title"].ToString(), Is.EqualTo("foo").IgnoreCase);
 
       res = coll.Find("_id=:v").Bind("v", "2").Execute();
       values = res.FetchOne();
-      Assert.AreEqual(2, Convert.ToInt32(values.values["_id"]));
-      StringAssert.AreEqualIgnoringCase("bar", values.values["title"].ToString());
+      Assert.That(Convert.ToInt32(values.values["_id"]), Is.EqualTo(2));
+      Assert.That(values.values["title"].ToString(), Is.EqualTo("bar").IgnoreCase);
     }
 
     [Test, Description("Verify Count method for Tables,Collections,Collection As Table,Views with different combinations")]
@@ -526,14 +526,14 @@ namespace MySqlX.Data.Tests
       var count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
       var collection = schema.GetCollection("testCount");
       var collectionAsTable = schema.GetCollectionAsTable("testCount");
-      Assert.AreEqual(count, collection.Count());
-      Assert.AreEqual(count, collectionAsTable.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
+      Assert.That(collectionAsTable.Count(), Is.EqualTo(count));
 
       session.SQL($"USE {schemaName}").Execute();
       session.SQL("create table test1(name VARCHAR(40), age INT)").Execute();
       count = session.SQL($"SELECT COUNT(*) FROM {schemaName}.test1").Execute().FetchOne()[0];
       Table table = session.GetSchema(schemaName).GetTable("test1");
-      Assert.AreEqual(count, collectionAsTable.Count());
+      Assert.That(collectionAsTable.Count(), Is.EqualTo(count));
 
       var result = table.Insert("name", "age")
         .Values("MARK", "34")
@@ -541,13 +541,13 @@ namespace MySqlX.Data.Tests
         .Values("TEST", "50")
        .Execute();
 
-      Assert.AreEqual((ulong)3, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo((ulong)3));
       var selectResult = table.Select().Execute();
       while (selectResult.Next()) ;
-      Assert.AreEqual(3, selectResult.Rows.Count);
-      Assert.AreEqual("MARK", selectResult.Rows.ToArray()[0][0].ToString());
+      Assert.That(selectResult.Rows.Count, Is.EqualTo(3));
+      Assert.That(selectResult.Rows.ToArray()[0][0].ToString(), Is.EqualTo("MARK"));
       count = session.SQL($"SELECT COUNT(*) FROM {schemaName}.test1").Execute().FetchOne()[0];
-      Assert.AreEqual(count, table.Count());
+      Assert.That(table.Count(), Is.EqualTo(count));
 
       // Insert some records
       var stm = collection.Add(@"{ ""_id"": 1, ""foo"": 1 }")
@@ -555,19 +555,19 @@ namespace MySqlX.Data.Tests
         .Add(@"{ ""_id"": 3, ""foo"": 3 }");
       stm.Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
       collectionAsTable = schema.GetCollectionAsTable("testCount");
-      Assert.AreEqual(count, collectionAsTable.Count());
+      Assert.That(collectionAsTable.Count(), Is.EqualTo(count));
 
       table = schema.GetTable("testCount");
       table.Insert("doc").Values(@"{ ""_id"": 4, ""foo"": 4 }").Execute();
       count = session.SQL($"SELECT COUNT(*) FROM {schemaName}.testCount").Execute().FetchOne()[0];
-      Assert.AreEqual(count, table.Count());
+      Assert.That(table.Count(), Is.EqualTo(count));
 
       collection.RemoveOne(2);
       count = session.SQL($"SELECT COUNT(*) FROM {schemaName}.testCount").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
-      Assert.AreEqual(count, table.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
+      Assert.That(table.Count(), Is.EqualTo(count));
 
       // Collection/Table does not exist
       Assert.Throws<MySqlException>(() => schema.GetCollection("testCount_").Count());
@@ -585,7 +585,7 @@ namespace MySqlX.Data.Tests
       session.SQL("CREATE VIEW view2 AS select * from test2").Execute();
       session.SQL("SELECT * FROM view2").Execute();
       count = session.SQL("SELECT COUNT(*) FROM view1").Execute().FetchOne()[0];
-      Assert.AreEqual(count, schema.GetTable("view1").Count());
+      Assert.That(schema.GetTable("view1").Count(), Is.EqualTo(count));
       schema.DropCollection("testCount");
       session.SQL("DROP TABLE IF EXISTS test1").Execute();
       session.SQL("DROP TABLE IF EXISTS test2").Execute();
@@ -607,16 +607,16 @@ namespace MySqlX.Data.Tests
       var count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
       Schema schema = session.GetSchema(schemaName);
       var collection = schema.GetCollection("testCount");
-      Assert.AreEqual(4, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(4));
 
       coll.Add(new { _id = 5, title = "Book 5", pages = 60 }).Execute();
       count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
       schema = session.GetSchema(schemaName);
       collection = schema.GetCollection("testCount");
-      Assert.AreEqual(5, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(5));
 
       Table table = session.GetSchema("test").GetTable("testCount");
-      Assert.AreEqual(5, table.Count());
+      Assert.That(table.Count(), Is.EqualTo(5));
 
       // Expected exceptions.
       Assert.Throws<ArgumentNullException>(() => coll.RemoveOne(null));
@@ -625,47 +625,47 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentNullException>(() => coll.RemoveOne(" "));
 
       // Remove sending numeric parameter.
-      Assert.AreEqual(1, coll.RemoveOne(1).AffectedItemsCount);
-      Assert.AreEqual(4, collection.Count());
-      Assert.AreEqual(4, table.Count());
+      Assert.That(coll.RemoveOne(1).AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(collection.Count(), Is.EqualTo(4));
+      Assert.That(table.Count(), Is.EqualTo(4));
 
       // Remove sending string parameter.
-      Assert.AreEqual(1, coll.RemoveOne("3").AffectedItemsCount);
-      Assert.AreEqual(3, collection.Count());
-      Assert.AreEqual(3, table.Count());
+      Assert.That(coll.RemoveOne("3").AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(collection.Count(), Is.EqualTo(3));
+      Assert.That(table.Count(), Is.EqualTo(3));
 
       // Remove an auto-generated id.
       var document = coll.Find("pages = 60").Execute().FetchOne();
-      Assert.AreEqual(1, coll.RemoveOne(document.Id).AffectedItemsCount);
-      Assert.AreEqual(2, collection.Count());
-      Assert.AreEqual(2, table.Count());
+      Assert.That(coll.RemoveOne(document.Id).AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(collection.Count(), Is.EqualTo(2));
+      Assert.That(table.Count(), Is.EqualTo(2));
 
       // Remove a non-existing document.
-      Assert.AreEqual(0, coll.RemoveOne(5).AffectedItemsCount);
-      Assert.AreEqual(2, collection.Count());
-      Assert.AreEqual(2, table.Count());
+      Assert.That(coll.RemoveOne(5).AffectedItemsCount, Is.EqualTo(0));
+      Assert.That(collection.Count(), Is.EqualTo(2));
+      Assert.That(table.Count(), Is.EqualTo(2));
 
       // Add or ReplaceOne
-      Assert.AreEqual(1, coll.AddOrReplaceOne(5, new { _id = 5, title = "Book 5", pages = 60 }).
-          AffectedItemsCount);
-      Assert.AreEqual(3, collection.Count());
-      Assert.AreEqual(3, table.Count());
+      Assert.That(coll.AddOrReplaceOne(5, new { _id = 5, title = "Book 5", pages = 60 }).
+          AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(collection.Count(), Is.EqualTo(3));
+      Assert.That(table.Count(), Is.EqualTo(3));
 
       // Add or ReplaceOne
-      Assert.AreEqual(2, coll.AddOrReplaceOne(2, new { title = "Book 50", pages = 60 }).
-          AffectedItemsCount);
-      Assert.AreEqual(3, collection.Count());
-      Assert.AreEqual(3, table.Count());
+      Assert.That(coll.AddOrReplaceOne(2, new { title = "Book 50", pages = 60 }).
+          AffectedItemsCount, Is.EqualTo(2));
+      Assert.That(collection.Count(), Is.EqualTo(3));
+      Assert.That(table.Count(), Is.EqualTo(3));
 
       // Add or ReplaceOne
-      Assert.AreEqual(1, coll.AddOrReplaceOne(6, new { _id = 6, title = "Book 6", pages = 70 }).
-          AffectedItemsCount);
-      Assert.AreEqual(4, collection.Count());
-      Assert.AreEqual(4, table.Count());
+      Assert.That(coll.AddOrReplaceOne(6, new { _id = 6, title = "Book 6", pages = 70 }).
+          AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(collection.Count(), Is.EqualTo(4));
+      Assert.That(table.Count(), Is.EqualTo(4));
 
       var result = coll.Modify("_id = 5").Set("title", "Book 5").Execute();
-      Assert.AreEqual(4, collection.Count());
-      Assert.AreEqual(4, table.Count());
+      Assert.That(collection.Count(), Is.EqualTo(4));
+      Assert.That(table.Count(), Is.EqualTo(4));
 
       coll = CreateCollection("testCount");
 
@@ -696,10 +696,10 @@ namespace MySqlX.Data.Tests
       count = session.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
       schema = session.GetSchema(schemaName);
       collection = schema.GetCollection("testCount");
-      Assert.AreEqual(2000, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(2000));
 
       r = coll.Remove("_id = :_id").Bind("_id", 1000).Execute();
-      Assert.AreEqual(1999, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(1999));
     }
 
     [Test, Description("Verify MultiThreading with count")]
@@ -729,10 +729,10 @@ namespace MySqlX.Data.Tests
         var res = coll.Add(jsonlist).Execute();
         var count = sessionA.SQL("SELECT COUNT(*) FROM test.testCount").Execute().FetchOne()[0];
         var collection = schema.GetCollection("testCount");
-        Assert.AreEqual(1000, collection.Count());
+        Assert.That(collection.Count(), Is.EqualTo(1000));
 
         var r = coll.Remove("_id = :_id").Bind("_id", 1001).Execute();
-        Assert.AreEqual(999, collection.Count());
+        Assert.That(collection.Count(), Is.EqualTo(999));
       }
       return Task.FromResult(0);
     }
@@ -752,14 +752,14 @@ namespace MySqlX.Data.Tests
         {
           if (collection.Count() > 5)
           {
-            Assert.AreEqual(999, collection.Count());
+            Assert.That(collection.Count(), Is.EqualTo(999));
             break;
           }
         }
         while (true);
 
         var r = coll.Remove("_id = :_id").Bind("_id", 1100).Execute();
-        Assert.AreEqual(998, collection.Count());
+        Assert.That(collection.Count(), Is.EqualTo(998));
       }
       return Task.FromResult(0);
     }
@@ -796,7 +796,7 @@ namespace MySqlX.Data.Tests
       {
         session.CreateSchema("validSchema");
         session.DropSchema("validSchema");
-        Assert.False(session.GetSchema("validSchema").ExistsInDatabase());
+        Assert.That(session.GetSchema("validSchema").ExistsInDatabase(), Is.False);
       }
 
     }
@@ -856,7 +856,7 @@ namespace MySqlX.Data.Tests
       var collection = schema.CreateCollection("coll1", options);
       collection.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       var count = session.SQL("select count(*) from coll1").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       val.Level = ValidationLevel.OFF;
       val.Schema = doc1;
@@ -865,7 +865,7 @@ namespace MySqlX.Data.Tests
       collection = schema.CreateCollection("coll1", options);
       collection.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       count = session.SQL("select count(*) from coll1").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       val.Level = ValidationLevel.OFF;
       val.Schema = doc1;
@@ -874,21 +874,21 @@ namespace MySqlX.Data.Tests
       collection = schema.CreateCollection("coll2", options);
       collection.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       count = session.SQL("select count(*) from coll2").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options.Validation = new Validation() { Level = ValidationLevel.OFF, Schema = doc1 };
       options.ReuseExisting = false;
       collection = schema.CreateCollection("coll3", options);
       collection.Add(@"{ ""name"": ""Ram"" , ""age"": 22 }").Execute();
       count = session.SQL("select count(*) from coll3").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options.Validation = new Validation() { Level = ValidationLevel.OFF, Schema = doc1 };
       options.ReuseExisting = true;
       collection = schema.CreateCollection("coll3", options);
       collection.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       count = session.SQL("select count(*) from coll3").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       var doc3 = "{\"id\": \"http://json-schema.org/geo\","
                   + "\"$schema\": \"http://json-schema.org/draft-06/schema#\","
@@ -911,7 +911,7 @@ namespace MySqlX.Data.Tests
       collection = schema.ModifyCollection("coll1", options1);
       collection.Add(@"{ ""latitude"": 20, ""longitude"": 30 }");
       count = session.SQL("select count(*) from coll1").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       var doc4 = "{\"id\": \"http://json-schema.org/geo\","
                            + "\"$schema\": \"http://json-schema.org/draft-06/schema#\","
@@ -931,13 +931,13 @@ namespace MySqlX.Data.Tests
       collection = schema.ModifyCollection("coll3", options1);
       collection.Add(@"{ ""name"": ""Samar"" }");
       count = session.SQL("select count(*) from coll3").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options1.Validation = new Validation() { Level = ValidationLevel.OFF, Schema = doc1 };
       collection = schema.ModifyCollection("coll2", options1);
       collection.Add(@"{ ""name"": ""Ram"" , ""age"": 22 }").Execute();
       count = session.SQL("select count(*) from coll2").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       val.Level = ValidationLevel.STRICT;
       val.Schema = doc1;
@@ -945,7 +945,7 @@ namespace MySqlX.Data.Tests
       collection = schema.ModifyCollection("coll2", options1);
       collection.Add(@"{ ""name"": ""Ram"" , ""age"": 22 }").Execute();
       count = session.SQL("select count(*) from coll2").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
     }
 
     [Test, Description("Checking the createcollection() and ModifyCollection() with either the level or the schema")]
@@ -977,9 +977,9 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       var result = session.SQL("select * from coll4").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]);
+        Assert.That(res[0], Is.Not.Null);
       var count = session.SQL("select count(*) from coll4").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options.Validation = new Validation { Schema = doc1 };
       options.ReuseExisting = true;
@@ -987,16 +987,16 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       result = session.SQL("select * from coll4").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]);
+        Assert.That(res[0], Is.Not.Null);
       count = session.SQL("select count(*) from coll4").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options.Validation = new Validation { Schema = doc1 };
       options.ReuseExisting = true;
       collection = schema.CreateCollection("colltesting", options);
       Assert.Throws<MySqlException>(() => ExecuteAddStatement(collection.Add(@"{ ""name"": ""John"", ""age"": ""52"" }")));
       count = session.SQL("select count(*) from colltesting").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       var doc2 = "{\"id\":\"http://json-schema.org/geo\","
                      + "\"$schema\": \"http://json-schema.org/draft-06/schema#\","
@@ -1033,9 +1033,9 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       result = session.SQL("select * from coll5").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]);
+        Assert.That(res[0], Is.Not.Null);
       count = session.SQL("select count(*) from coll5").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options.Validation = new Validation { Level = ValidationLevel.STRICT };
       options.ReuseExisting = false;
@@ -1043,18 +1043,18 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       result = session.SQL("select * from coll6").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]);
+        Assert.That(res[0], Is.Not.Null);
       count = session.SQL("select count(*) from coll6").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options1.Validation = new Validation() { Schema = doc1 };
       collection = schema.ModifyCollection("coll6", options1);
       collection.Add(@"{ ""name"": ""Ram"" , ""age"": 22 }").Execute();
       result = session.SQL("select * from coll6").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]);
+        Assert.That(res[0], Is.Not.Null);
       count = session.SQL("select count(*) from coll6").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options1.Validation = new Validation() { Schema = doc1 };
       collection = schema.ModifyCollection("colltesting", options1);
@@ -1068,18 +1068,18 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{ ""name"": ""Ram"" , ""age"": 22 }").Execute();
       result = session.SQL("select * from coll4").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]);
+        Assert.That(res[0], Is.Not.Null);
       count = session.SQL("select count(*) from coll4").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options1.Validation = new Validation() { Level = ValidationLevel.STRICT };
       collection = schema.ModifyCollection("coll5", options1);
       collection.Add(@"{ ""name"": ""Ram"" , ""age"": 22 }").Execute();
       result = session.SQL("select * from coll5").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]);
+        Assert.That(res[0], Is.Not.Null);
       count = session.SQL("select count(*) from coll5").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options1.Validation = new Validation() { };
       Assert.Throws<MySqlException>(() => schema.ModifyCollection("coll2", options1));
@@ -1126,7 +1126,7 @@ namespace MySqlX.Data.Tests
       foreach (Row res in result)
         Console.WriteLine("test with enum: " + res[0]);
       count = session.SQL("select count(*) from collEnum").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
     }
 
     [Test, Description("Checking the error messages with different level")]
@@ -1158,9 +1158,9 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       var result = session.SQL("select * from coll7").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]);
+        Assert.That(res[0], Is.Not.Null);
       var count = session.SQL("select count(*) from coll7").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options.Validation = new Validation { Schema = doc1, Level = ValidationLevel.STRICT };
       options.ReuseExisting = false;
@@ -1168,9 +1168,9 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       result = session.SQL("select * from collext").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]); ;
+        Assert.That(res[0], Is.Not.Null); ;
       count = session.SQL("select count(*) from collext").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       var doc2 = "{\"id\":\"http://json-schema.org/geo\","
                 + "\"$schema\": \"http://json-schema.org/draft-06/schema#\","
@@ -1207,9 +1207,9 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{ ""name"": ""John"", ""age"": 52 }").Execute();
       result = session.SQL("select * from coll8").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]); ;
+        Assert.That(res[0], Is.Not.Null); ;
       count = session.SQL("select count(*) from coll8").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options.Validation = new Validation { Schema = doc1, Level = ValidationLevel.STRICT };
       options.ReuseExisting = false;
@@ -1226,18 +1226,18 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{""longitude"":""99""}").Execute();
       result = session.SQL("select * from coll10").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]); ;
+        Assert.That(res[0], Is.Not.Null); ;
       count = session.SQL("select count(*) from coll10").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options1.Validation = new Validation { Schema = doc1, Level = ValidationLevel.OFF };
       collection = schema.ModifyCollection("coll10", options1);
       collection.Add(@"{ ""name"": 67  }").Execute();
       result = session.SQL("select * from coll10").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]); ;
+        Assert.That(res[0], Is.Not.Null); ;
       count = session.SQL("select count(*) from coll10").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options.Validation = new Validation { Schema = doc1, Level = ValidationLevel.STRICT };
       options.ReuseExisting = false;
@@ -1245,9 +1245,9 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{""_id"":1,""name"": ""John"", ""age"": 52}").Execute();
       result = session.SQL("select * from coll").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]); ;
+        Assert.That(res[0], Is.Not.Null); ;
       count = session.SQL("select count(*) from coll").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
     }
 
     /// <summary>
@@ -1304,9 +1304,9 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{""fruits"": [ ""apple"", ""orange"", ""pear"" ],""vegetables"": [{""veggieName"": ""potato"",""veggieLike"": true},{""veggieName"": ""broccoli"",""veggieLike"": false}]}").Execute();
       var result = session.SQL("select * from coll20").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]);
+        Assert.That(res[0], Is.Not.Null);
       var count = session.SQL("select count(*) from coll20").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options.Validation = new Validation { Level = ValidationLevel.STRICT, Schema = doc1 };
       options.ReuseExisting = false;
@@ -1314,9 +1314,9 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{""fruits"": [ ""apple"", ""orange"", ""pear"" ],""vegetables"": [{""veggieName"": ""potato"",""veggieLike"": true},{""veggieName"": ""broccoli"",""veggieLike"": false}]}").Execute();
       result = session.SQL("select * from coll21").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]);
+        Assert.That(res[0], Is.Not.Null);
       count = session.SQL("select count(*) from coll21").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       val.Level = ValidationLevel.STRICT;
       val.Schema = doc1;
@@ -1326,9 +1326,9 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{""fruits"": [ ""apple"", ""orange"", ""pear"" ],""vegetables"": [{""veggieName"": ""potato"",""veggieLike"": true},{""veggieName"": ""broccoli"",""veggieLike"": false}]}").Execute();
       result = session.SQL("select * from coll20").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]);
+        Assert.That(res[0], Is.Not.Null);
       count = session.SQL("select count(*) from coll20").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options.Validation = new Validation { Level = ValidationLevel.STRICT, Schema = doc1 };
       options.ReuseExisting = true;
@@ -1336,9 +1336,9 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{""fruits"": [ ""apple"", ""orange"", ""pear"" ],""vegetables"": [{""veggieName"": ""potato"",""veggieLike"": true},{""veggieName"": ""broccoli"",""veggieLike"": false}]}").Execute();
       result = session.SQL("select * from coll21").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]);
+        Assert.That(res[0], Is.Not.Null);
       count = session.SQL("select count(*) from coll21").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       val.Level = ValidationLevel.OFF;
       val.Schema = doc1;
@@ -1348,9 +1348,9 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{""fruits"": [ 78, ""orange"", ""pear"" ],""vegetables"": [{""veggieName"": ""potato"",""veggieLike"": true},{""veggieName"": ""broccoli"",""veggieLike"": false}]}").Execute();
       result = session.SQL("select * from coll22").Execute().FetchAll();
       foreach (Row res in result)
-        Assert.IsNotNull(res[0]);
+        Assert.That(res[0], Is.Not.Null);
       count = session.SQL("select count(*) from coll22").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
     }
 
     [Test, Description("Verify ModifyCollection with level OFF and JSON schema")]
@@ -1422,9 +1422,9 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{ ""name"": 52 }").Execute();
       var result = session.SQL("select * from collectiontest").Execute().FetchAll();
       foreach (Row res1 in result)
-        Assert.IsNotNull(res1[0]);
+        Assert.That(res1[0], Is.Not.Null);
       var count = session.SQL("select count(*) from collectiontest").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options1.Validation = new Validation { Level = ValidationLevel.STRICT, Schema = doc1 };
       session.SQL("delete from collectiontest").Execute();
@@ -1435,16 +1435,16 @@ namespace MySqlX.Data.Tests
       foreach (Row res2 in result2)
         Console.WriteLine(res2[0]);
       count = session.SQL("select count(*) from collectiontest").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options1.Validation = new Validation { Level = ValidationLevel.OFF, Schema = doc1 };
       collection = schema.ModifyCollection("collectiontest", options1);
       collection.Add(@"{ ""name"": 78 }").Execute();
       result = session.SQL("select * from collectiontest").Execute().FetchAll();
       foreach (Row res2 in result)
-        Assert.IsNotNull(res2[0]);
+        Assert.That(res2[0], Is.Not.Null);
       count = session.SQL("select count(*) from collectiontest").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options1.Validation = new Validation { Level = ValidationLevel.STRICT, Schema = doc3 };
       session.SQL("delete from collectiontest").Execute();
@@ -1452,9 +1452,9 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{""latitude"": 253, ""longitude"": 525}").Execute();
       result = session.SQL("select * from collectiontest").Execute().FetchAll();
       foreach (Row res2 in result)
-        Assert.IsNotNull(res2[0]);
+        Assert.That(res2[0], Is.Not.Null);
       count = session.SQL("select count(*) from collectiontest").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
       options1.Validation = new Validation { Level = ValidationLevel.STRICT, Schema = doc4 };
       session.SQL("delete from collectiontest").Execute();
@@ -1463,9 +1463,9 @@ namespace MySqlX.Data.Tests
       collection.Add(@"{ ""name"": ""Johnny"" }").Execute();
       result = session.SQL("select * from collectiontest").Execute().FetchAll();
       foreach (Row res2 in result)
-        Assert.IsNotNull(res2[0]);
+        Assert.That(res2[0], Is.Not.Null);
       count = session.SQL("select count(*) from collectiontest").Execute().FetchOne()[0];
-      Assert.AreEqual(count, collection.Count());
+      Assert.That(collection.Count(), Is.EqualTo(count));
 
     }
 
@@ -1499,10 +1499,10 @@ namespace MySqlX.Data.Tests
       }
       Result r = coll.Add(jsonlist).Add(jsonlist1).Execute();
 
-      Assert.AreEqual(20, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(20), "Matching");
 
       r = coll.Remove("_id = :_id").Bind("_id", 1000).Execute();
-      Assert.AreEqual(1, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1), "Matching");
     }
 
     [Test, Description("Test MySQLX plugin Get Collection as Table")]
@@ -1523,17 +1523,17 @@ namespace MySqlX.Data.Tests
         newDoc2 = null;
       }
       Result r = testCollection.Add(jsonlist).Execute();
-      Assert.AreEqual(1000, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1000), "Matching");
 
       Table test = testSchema.GetCollectionAsTable("test");
-      Assert.IsTrue(test.ExistsInDatabase());
+      Assert.That(test.ExistsInDatabase());
       var rows = test.Select("_id").Execute().FetchAll();
 
       for (int j = 0; j < rows.Count; j++)
       {
         var doc = testCollection.Find("_id like :param").Bind("param", (j + 1000)).Execute();
         var docs = doc.FetchAll().Count();
-        Assert.AreEqual(1, docs, "Matches");
+        Assert.That(docs, Is.EqualTo(1), "Matches");
       }
     }
 
@@ -1582,9 +1582,9 @@ namespace MySqlX.Data.Tests
         newDoc2 = null;
       }
       Result r = coll.Add(jsonlist).Execute();
-      Assert.AreEqual(1000, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1000), "Matching");
       var documentIds = r.GeneratedIds;
-      Assert.False(documentIds != null && documentIds.Count > 0);
+      Assert.That(documentIds != null && documentIds.Count > 0, Is.False);
     }
 
     [Test, Description("Session Performance Test")]
@@ -1671,8 +1671,8 @@ namespace MySqlX.Data.Tests
       json = "CAST(" + query + " as SIGNED)= " + maxDepth;
       var docs = collection.Find(json).Fields("$._id as _id," + query + " as Arr").Execute();
       var res = docs.FetchAll();
-      Assert.AreEqual("1001", res[0]["_id"].ToString(), "Matching the id");
-      Assert.AreEqual("1002", res[1]["_id"].ToString(), "Matching the id");
+      Assert.That(res[0]["_id"].ToString(), Is.EqualTo("1001"), "Matching the id");
+      Assert.That(res[1]["_id"].ToString(), Is.EqualTo("1002"), "Matching the id");
 
       query = "$.DATAX" + (maxField - 1);
       for (i = 0; i < maxDepth; i++)
@@ -1682,8 +1682,8 @@ namespace MySqlX.Data.Tests
       json = "CAST(" + query + " as SIGNED)";
       docs = collection.Find(json + " =" + maxDepth).Fields("$._id as _id ").Execute();
       res = docs.FetchAll();
-      Assert.AreEqual("1001", res[0]["_id"].ToString(), "Matching the id");
-      Assert.AreEqual("1003", res[1]["_id"].ToString(), "Matching the id");
+      Assert.That(res[0]["_id"].ToString(), Is.EqualTo("1001"), "Matching the id");
+      Assert.That(res[1]["_id"].ToString(), Is.EqualTo("1003"), "Matching the id");
     }
 
     /// <summary>
@@ -1698,42 +1698,42 @@ namespace MySqlX.Data.Tests
       coll.Add(_doc).Execute();
       var result = coll.Find("_id == 1").Execute().FetchOne();
 
-      Assert.NotNull(result);
-      Assert.AreEqual(1, result.Id);
+      Assert.That(result, Is.Not.Null);
+      Assert.That(result.Id, Is.EqualTo(1));
 
       // empty string
       var ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Set("", new { title = "bar" }).Execute());
-      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.DocPathNullOrEmpty).IgnoreCase);
       ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Unset("").Execute());
-      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.DocPathNullOrEmpty).IgnoreCase);
       ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Change("", new { title = "bar" }).Execute());
-      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.DocPathNullOrEmpty).IgnoreCase);
       ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").ArrayInsert("", new { title = "bar" }).Execute());
-      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.DocPathNullOrEmpty).IgnoreCase);
       ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").ArrayAppend("", new { title = "bar" }).Execute());
-      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.DocPathNullOrEmpty).IgnoreCase);
 
       // white space
       ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Set(" ", new { title = "bar" }).Execute());
-      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.DocPathNullOrEmpty).IgnoreCase);
       ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Unset(" ").Execute());
-      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.DocPathNullOrEmpty).IgnoreCase);
       ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Change(" ", new { title = "bar" }).Execute());
-      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.DocPathNullOrEmpty).IgnoreCase);
       ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").ArrayInsert(" ", new { title = "bar" }).Execute());
-      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.DocPathNullOrEmpty).IgnoreCase);
       ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").ArrayAppend(" ", new { title = "bar" }).Execute());
-      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.DocPathNullOrEmpty).IgnoreCase);
 
       // null
       ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Set(null, new { title = "bar" }).Execute());
-      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.DocPathNullOrEmpty).IgnoreCase);
       ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").Change(null, new { title = "bar" }).Execute());
-      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.DocPathNullOrEmpty).IgnoreCase);
       ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").ArrayInsert(null, new { title = "bar" }).Execute());
-      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.DocPathNullOrEmpty).IgnoreCase);
       ex = Assert.Throws<ArgumentException>(() => coll.Modify("_id == 1").ArrayAppend(null, new { title = "bar" }).Execute());
-      StringAssert.AreEqualIgnoringCase(ResourcesX.DocPathNullOrEmpty, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.DocPathNullOrEmpty).IgnoreCase);
       var ex2 = Assert.Throws<MySqlException>(() => coll.Modify("_id == 1").Unset(null).Execute());
     }
   }

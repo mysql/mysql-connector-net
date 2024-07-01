@@ -43,15 +43,15 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("INSERT INTO test2 VALUES (1,0)");
 
       var rowResult = ExecuteSelectStatement(testSchema.GetTable("test1").Select("id"));
-      Assert.AreEqual(0, rowResult.IndexOf("id"));
+      Assert.That(rowResult.IndexOf("id"), Is.EqualTo(0));
       foreach (var row in rowResult)
       {
         var result = ExecuteUpdateStatement(testSchema.GetTable("test2").Update().Where("id=1").Set("val", row["id"]));
-        Assert.AreEqual(1, result.AffectedItemsCount);
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
       }
 
       Row valRow = ExecuteSelectStatement(testSchema.GetTable("test2").Select("val")).FetchOne();
-      Assert.AreEqual(4, valRow[0]);
+      Assert.That(valRow[0], Is.EqualTo(4));
     }
   }
 }

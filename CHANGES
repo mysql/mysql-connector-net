@@ -1,4 +1,5 @@
 9.1.0
+- Updated test suite to use constraint-based assertions (WL16397).
 
 
 9.0.0

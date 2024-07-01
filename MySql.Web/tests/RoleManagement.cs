@@ -57,7 +57,7 @@ namespace MySql.Web.Tests
       MembershipCreateStatus status;
       membershipProvider.CreateUser(username, password, "foo@bar.com", null,
         null, true, null, out status);
-      Assert.False(status != MembershipCreateStatus.Success, "User creation failed");
+      Assert.That(status == MembershipCreateStatus.Success, "User creation failed");
     }
 
     private void AttemptToAddUserToRole(string username, string role)
@@ -79,8 +79,8 @@ namespace MySql.Web.Tests
       // Add the role
       roleProvider.CreateRole("Administrator");
       string[] roles = roleProvider.GetAllRoles();
-      Assert.AreEqual(1, roles.Length);
-      Assert.AreEqual("Administrator", roles[0]);
+      Assert.That(roles.Length, Is.EqualTo(1));
+      Assert.That(roles[0], Is.EqualTo("Administrator"));
       roleProvider.DeleteRole("Administrator", false);
     }
 
@@ -92,13 +92,13 @@ namespace MySql.Web.Tests
 
       roleProvider.AddUsersToRoles(new string[] { "eve" },
         new string[] { "Administrator" });
-      Assert.True(roleProvider.IsUserInRole("eve", "Administrator"));
+      Assert.That(roleProvider.IsUserInRole("eve", "Administrator"));
 
       roleProvider.RemoveUsersFromRoles(new string[] { "eve" }, new string[] { "Administrator" });
-      Assert.False(roleProvider.IsUserInRole("eve", "Administrator"));
+      Assert.That(!roleProvider.IsUserInRole("eve", "Administrator"));
 
       roleProvider.DeleteRole("Administrator", false);
-      Assert.AreEqual(0, roleProvider.GetAllRoles().Length);
+      Assert.That(roleProvider.GetAllRoles().Length, Is.EqualTo(0));
 
       //clean up
       membershipProvider.DeleteUser("eve", true);
@@ -114,7 +114,7 @@ namespace MySql.Web.Tests
       roleProvider.CreateRole("Administrator");
       roleProvider.AddUsersToRoles(new string[] { "eve" },
         new string[] { "Administrator" });
-      Assert.True(roleProvider.IsUserInRole("eve", "Administrator"));
+      Assert.That(roleProvider.IsUserInRole("eve", "Administrator"));
 
       //Cleanup
       roleProvider.RemoveUsersFromRoles(new string[] { "eve" }, new string[] { "Administrator" });
@@ -144,10 +144,10 @@ namespace MySql.Web.Tests
       MembershipCreateStatus status;
       membershipProvider.CreateUser("eve", "eve1@eve", "eve@boo.com",
         "question", "answer", true, null, out status);
-      Assert.AreEqual(MembershipCreateStatus.Success, status);
+      Assert.That(status, Is.EqualTo(MembershipCreateStatus.Success));
 
       roleProvider.AddUsersToRoles(new string[] { "eve" }, new string[] { "Administrator" });
-      Assert.True(roleProvider.IsUserInRole("eve", "Administrator"));
+      Assert.That(roleProvider.IsUserInRole("eve", "Administrator"));
 
       //Cleanup
       membershipProvider.DeleteUser("eve", true);
@@ -191,10 +191,10 @@ namespace MySql.Web.Tests
       roleProvider.CreateRole("Administrator");
       roleProvider.AddUsersToRoles(new string[] { "foo" },
         new string[] { "Administrator" });
-      Assert.False(r2.IsUserInRole("foo", "Administrator"));
+      Assert.That(!r2.IsUserInRole("foo", "Administrator"));
 
       roleProvider.DeleteRole("Administrator", false);
-      Assert.AreEqual(0, roleProvider.GetAllRoles().Length);
+      Assert.That(roleProvider.GetAllRoles().Length, Is.EqualTo(0));
 
       //Cleanup
       provider.DeleteUser("foo", true);
@@ -218,12 +218,12 @@ namespace MySql.Web.Tests
       roleProvider.CreateRole("Administrator");
       roleProvider.AddUsersToRoles(new string[] { "eve" },
         new string[] { "Administrator" });
-      Assert.True(roleProvider.IsUserInRole("eve", "Administrator"));
+      Assert.That(roleProvider.IsUserInRole("eve", "Administrator"));
       string[] users = roleProvider.FindUsersInRole("Administrator", "eve");
-      Assert.AreEqual(1, users.Length);
-      Assert.AreEqual("eve", users[0]);
+      Assert.That(users.Length, Is.EqualTo(1));
+      Assert.That(users[0], Is.EqualTo("eve"));
       roleProvider.RemoveUsersFromRoles(new string[] { "eve" }, new string[] { "Administrator" });
-      Assert.False(roleProvider.IsUserInRole("eve", "Administrator"));
+      Assert.That(!roleProvider.IsUserInRole("eve", "Administrator"));
 
       //Cleanup
       membershipProvider.DeleteUser("eve", true);

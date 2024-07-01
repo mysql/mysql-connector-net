@@ -60,7 +60,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void CanUseShadowPropertyWhenUpdatingEntry()
     {
-      Assert.False(context.Database.EnsureCreated());
+      Assert.That(!context.Database.EnsureCreated());
       var ad = new Address { Street = "New street two", City = "Chicago" };
       var g = new Guest { Name = "Guest number two", Address = ad };
       context.Set<Guest>().Add(g);
@@ -68,7 +68,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 
       // update entry
       var entry = context.Set<Guest>().Where(t => t.Name!.Equals("Guest number two")).First();
-      Assert.False(entry == null);
+      Assert.That(entry, Is.Not.Null);
 
       entry!.Name = "Guest number two updated";
       context.SaveChanges();
@@ -81,15 +81,15 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 
         var cmd = new MySqlCommand("Select UpdatedAt from Guests where IdGuest=" + entry.IdGuest, cnn);
         var updatedAt = cmd.ExecuteScalar();
-        Assert.False(updatedAt == null);
-        Assert.True(((DateTime)updatedAt!).Date.CompareTo(DateTime.Now.Date) == 0);
+        Assert.That(updatedAt, Is.Not.Null);
+        Assert.That(((DateTime)updatedAt!).Date.CompareTo(DateTime.Now.Date) == 0);
       }
     }
 
     [Test]
     public void CanUseShadowPropertyWhenAddingEntry()
     {
-      Assert.False(context.Database.EnsureCreated());
+      Assert.That(!context.Database.EnsureCreated());
       var ad = new Address { Street = "New street", City = "Oregon" };
       var g = new Guest { Name = "Guest number one", Address = ad };
       context.Set<Guest>().Add(g);
@@ -104,8 +104,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 
         var cmd = new MySqlCommand("Select CreatedAt from Guests Limit 1", cnn);
         var createdAt = cmd.ExecuteScalar();
-        Assert.False(createdAt == null);
-        Assert.True(((DateTime)createdAt!).Date.CompareTo(DateTime.Now.Date) == 0);
+        Assert.That(createdAt, Is.Not.Null);
+        Assert.That(((DateTime)createdAt!).Date.CompareTo(DateTime.Now.Date) == 0);
       }
     }
 

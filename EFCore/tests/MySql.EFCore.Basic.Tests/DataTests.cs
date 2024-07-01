@@ -68,17 +68,17 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 
         var result = context.SaveChangesAsync();
         result.Wait(30_000);
-        Assert.IsNull(result.Exception);
-        Assert.AreEqual(4, result.Result);
+        Assert.That(result.Exception, Is.Null);
+        Assert.That(result.Result, Is.EqualTo(4));
       }
 
       using (var context = new WorldContext())
       {
         var continent = await context.FindAsync<Continent>("AS");
-        Assert.AreEqual("Asia", continent!.Name);
+        Assert.That(continent!.Name, Is.EqualTo("Asia"));
 
         var continents = await context.Continents.ToListAsync();
-        Assert.AreEqual(4, continents.Count);
+        Assert.That(continents.Count, Is.EqualTo(4));
       }
     }
 
@@ -94,10 +94,10 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
-        Assert.AreEqual(1, context.Database.ExecuteSqlInterpolated($"INSERT IGNORE INTO MyTest (`Date`) VALUES('0000-00-00')"));
+        Assert.That(context.Database.ExecuteSqlInterpolated($"INSERT IGNORE INTO MyTest (`Date`) VALUES('0000-00-00')"), Is.EqualTo(1));
 
         var item = context.MyTest.First();
-        Assert.AreEqual(DateTime.MinValue, item.Date);
+        Assert.That(item.Date, Is.EqualTo(DateTime.MinValue));
       }
     }
 

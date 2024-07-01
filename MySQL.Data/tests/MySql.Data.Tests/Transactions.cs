@@ -57,7 +57,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         cmd.CommandText = "SELECT COUNT(*) FROM Test";
         object count = cmd.ExecuteScalar();
-        Assert.AreEqual(commit ? 1 : 0, Convert.ToInt32(count));
+        Assert.That(Convert.ToInt32(count), Is.EqualTo(commit ? 1 : 0));
       }
     }
 
@@ -96,7 +96,7 @@ namespace MySql.Data.MySqlClient.Tests
           {
             reader.Read();
             string level = reader.GetString(1);
-            Assert.AreEqual("READ-COMMITTED", level);
+            Assert.That(level, Is.EqualTo("READ-COMMITTED"));
           }
         }
       }
@@ -116,7 +116,7 @@ namespace MySql.Data.MySqlClient.Tests
           {
             reader.Read();
             string level = reader.GetString(1);
-            Assert.AreEqual("READ-UNCOMMITTED", level);
+            Assert.That(level, Is.EqualTo("READ-UNCOMMITTED"));
           }
         }
       }
@@ -137,7 +137,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
           if (Connection.driver.Version.isAtLeast(5, 7, 0))
-            Assert.AreEqual("OFF", reader.GetString(1));
+            Assert.That(reader.GetString(1), Is.EqualTo("OFF"));
         }
       }
     }
@@ -170,7 +170,7 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand cmd2 = new MySqlCommand("SELECT COUNT(*) from Test", c2);
         c2.BeginTransaction();
         object count = cmd2.ExecuteScalar();
-        Assert.AreEqual(0, Convert.ToInt32(count));
+        Assert.That(Convert.ToInt32(count), Is.EqualTo(0));
       }
 
       MySqlConnection connection = new MySqlConnection(connStr);
@@ -270,7 +270,7 @@ namespace MySql.Data.MySqlClient.Tests
         ExecuteSQL("UNLOCK TABLES");
       }
       MySqlCommand cmd2 = new MySqlCommand("LOCK TABLES test READ; SELECT COUNT(*) FROM test", c);
-      Assert.AreEqual(1, Convert.ToInt32(cmd2.ExecuteScalar()));
+      Assert.That(Convert.ToInt32(cmd2.ExecuteScalar()), Is.EqualTo(1));
       ExecuteSQL("UNLOCK TABLES");
       c.Dispose();
       KillPooledConnection(connStr);
@@ -432,8 +432,8 @@ namespace MySql.Data.MySqlClient.Tests
            ((long)MySqlHelper.ExecuteScalar(Connection, "select count(*) from T where str = 'inner'") == 1);
         bool outerChangesVisible =
             ((long)MySqlHelper.ExecuteScalar(Connection, "select count(*) from T where str = 'outer'") == 1);
-        Assert.AreEqual(innerChangesVisible, expectInnerChangesVisible);
-        Assert.AreEqual(outerChangesVisible, expectOuterChangesVisible);
+        Assert.That(expectInnerChangesVisible, Is.EqualTo(innerChangesVisible));
+        Assert.That(expectOuterChangesVisible, Is.EqualTo(outerChangesVisible));
       }
       finally
       {
@@ -526,7 +526,7 @@ namespace MySql.Data.MySqlClient.Tests
           c2.Open();
           MySqlCommand cmd2 = new MySqlCommand("INSERT INTO Test (key2) VALUES ('b')", c2);
           cmd2.ExecuteNonQuery();
-          Assert.AreEqual(c1Thread, c2.ServerThread);
+          Assert.That(c2.ServerThread, Is.EqualTo(c1Thread));
         }
 
         if (complete)
@@ -538,13 +538,13 @@ namespace MySql.Data.MySqlClient.Tests
       da.Fill(dt);
       if (complete)
       {
-        Assert.AreEqual(2, dt.Rows.Count);
-        Assert.AreEqual("a", dt.Rows[0][0]);
-        Assert.AreEqual("b", dt.Rows[1][0]);
+        Assert.That(dt.Rows.Count, Is.EqualTo(2));
+        Assert.That(dt.Rows[0][0], Is.EqualTo("a"));
+        Assert.That(dt.Rows[1][0], Is.EqualTo("b"));
       }
       else
       {
-        Assert.AreEqual(0, dt.Rows.Count);
+        Assert.That(dt.Rows.Count, Is.EqualTo(0));
       }
     }
 
@@ -586,7 +586,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
       long count = (long)MySqlHelper.ExecuteScalar(connStr, "select count(*) from test");
-      Assert.AreEqual(0, count);
+      Assert.That(count, Is.EqualTo(0));
     }
 
     /// <summary>
@@ -629,10 +629,10 @@ namespace MySql.Data.MySqlClient.Tests
           Thread.Sleep(500);
           Assert.Throws<TransactionAbortedException>(() => cmd.ExecuteNonQuery());
         }
-        Assert.True(c.State == ConnectionState.Open);
+        Assert.That(c.State == ConnectionState.Open);
         cmd.CommandText = "select count(*) from Test";
         long count = (long)cmd.ExecuteScalar();
-        Assert.AreEqual(0, count);
+        Assert.That(count, Is.EqualTo(0));
       }
     }
 
@@ -661,7 +661,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         newcon.Open();
         var ex = Assert.Throws<NotSupportedException>(() => newcon.BeginTransaction(System.Data.IsolationLevel.Snapshot));
-        Assert.AreEqual("Snapshot isolation level is not supported.", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Snapshot isolation level is not supported."));
       }
     }
 
@@ -706,7 +706,7 @@ namespace MySql.Data.MySqlClient.Tests
 
           cmd2 = new MySqlCommand(@"select count(*) from TransTest", db, transaction);
           int.TryParse(cmd2.ExecuteScalar().ToString(), out int n1); // If ReadUncommitted is applied we should be able to read inserted record before commit
-          Assert.True(n1 == 2);
+          Assert.That(n1 == 2);
           transaction.Commit();
         }
         ExecuteSQL("drop table TransTest");
@@ -716,7 +716,7 @@ namespace MySql.Data.MySqlClient.Tests
           reader.Read();
           finalLevel = reader.GetString(1);
         }
-        Assert.AreEqual(initialLevel, finalLevel); // Isolation level should be the same after the transaction
+        Assert.That(finalLevel, Is.EqualTo(initialLevel)); // Isolation level should be the same after the transaction
       }
     }
 
@@ -766,7 +766,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         connection.Open();
         var transaction = connection.BeginTransaction();
-        Assert.IsNotNull(transaction);
+        Assert.That(transaction, Is.Not.Null);
         var myCommand = connection.CreateCommand();
         myCommand.CommandText = "INSERT INTO `Test` VALUES (1);";
         var result = myCommand.ExecuteNonQuery();

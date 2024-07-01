@@ -50,9 +50,9 @@ namespace MySqlX.Data.Tests
     public void CanCloseSession()
     {
       Session s = MySQLX.GetSession(ConnectionString);
-      Assert.True(s.InternalSession.SessionState == SessionState.Open);
+      Assert.That(s.InternalSession.SessionState == SessionState.Open);
       s.Close();
-      Assert.AreEqual(s.InternalSession.SessionState, SessionState.Closed);
+      Assert.That(SessionState.Closed, Is.EqualTo(s.InternalSession.SessionState));
     }
 
     [Test]
@@ -60,9 +60,9 @@ namespace MySqlX.Data.Tests
     public void NoPassword()
     {
       Session session = MySQLX.GetSession(ConnectionStringNoPassword);
-      Assert.True(session.InternalSession.SessionState == SessionState.Open);
+      Assert.That(session.InternalSession.SessionState == SessionState.Open);
       session.Close();
-      Assert.AreEqual(session.InternalSession.SessionState, SessionState.Closed);
+      Assert.That(SessionState.Closed, Is.EqualTo(session.InternalSession.SessionState));
     }
 
     [Test]
@@ -70,9 +70,9 @@ namespace MySqlX.Data.Tests
     public void SessionClose()
     {
       Session session = MySQLX.GetSession(ConnectionString);
-      Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+      Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       session.Close();
-      Assert.AreEqual(SessionState.Closed, session.InternalSession.SessionState);
+      Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Closed));
     }
 
     [Test]
@@ -89,15 +89,15 @@ namespace MySqlX.Data.Tests
         for (int i = 0; i < 20; i++)
         {
           Session session = MySQLX.GetSession(ConnectionString);
-          Assert.True(session.InternalSession.SessionState == SessionState.Open);
+          Assert.That(session.InternalSession.SessionState == SessionState.Open);
           session.Close();
-          Assert.AreEqual(session.InternalSession.SessionState, SessionState.Closed);
+          Assert.That(SessionState.Closed, Is.EqualTo(session.InternalSession.SessionState));
         }
 
         newSessions = ExecuteSQLStatement(nodeSession.SQL("show processlist")).FetchAll().Count;
       }
 
-      Assert.AreEqual(sessions, newSessions);
+      Assert.That(newSessions, Is.EqualTo(sessions));
     }
 
     [Test]
@@ -114,7 +114,7 @@ namespace MySqlX.Data.Tests
 
       using (var testSession = MySQLX.GetSession(connstring))
       {
-        Assert.AreEqual(SessionState.Open, testSession.InternalSession.SessionState);
+        Assert.That(testSession.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
     }
 
@@ -124,12 +124,12 @@ namespace MySqlX.Data.Tests
     {
       using (Session testSession = MySQLX.GetSession(ConnectionString))
       {
-        Assert.AreEqual(SessionState.Open, testSession.InternalSession.SessionState);
-        Assert.Null(testSession.GetCurrentSchema());
+        Assert.That(testSession.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(testSession.GetCurrentSchema(), Is.Null);
         Assert.Throws<MySqlException>(() => testSession.SetCurrentSchema(""));
         testSession.SetCurrentSchema(schemaName);
-        Assert.AreEqual(schemaName, testSession.Schema.Name);
-        Assert.AreEqual(schemaName, testSession.GetCurrentSchema().Name);
+        Assert.That(testSession.Schema.Name, Is.EqualTo(schemaName));
+        Assert.That(testSession.GetCurrentSchema().Name, Is.EqualTo(schemaName));
       }
     }
 
@@ -139,10 +139,10 @@ namespace MySqlX.Data.Tests
     {
       using (Session mySession = MySQLX.GetSession(ConnectionString + $";database={schemaName};"))
       {
-        Assert.AreEqual(SessionState.Open, mySession.InternalSession.SessionState);
-        Assert.AreEqual(schemaName, mySession.Schema.Name);
-        Assert.AreEqual(schemaName, mySession.GetCurrentSchema().Name);
-        Assert.True(SchemaExistsInDatabase(mySession.Schema));
+        Assert.That(mySession.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(mySession.Schema.Name, Is.EqualTo(schemaName));
+        Assert.That(mySession.GetCurrentSchema().Name, Is.EqualTo(schemaName));
+        Assert.That(SchemaExistsInDatabase(mySession.Schema));
       }
     }
 
@@ -152,19 +152,19 @@ namespace MySqlX.Data.Tests
     {
       using (Session mySession = MySQLX.GetSession(ConnectionString + $";database={schemaName};"))
       {
-        Assert.AreEqual(SessionState.Open, mySession.InternalSession.SessionState);
-        Assert.AreEqual(schemaName, mySession.DefaultSchema.Name);
-        Assert.AreEqual(schemaName, mySession.GetCurrentSchema().Name);
-        Assert.True(mySession.Schema.ExistsInDatabase());
+        Assert.That(mySession.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(mySession.DefaultSchema.Name, Is.EqualTo(schemaName));
+        Assert.That(mySession.GetCurrentSchema().Name, Is.EqualTo(schemaName));
+        Assert.That(mySession.Schema.ExistsInDatabase());
         mySession.SetCurrentSchema("mysql");
-        Assert.AreNotEqual(mySession.DefaultSchema.Name, mySession.Schema.Name);
+        Assert.That(mySession.Schema.Name, Is.Not.EqualTo(mySession.DefaultSchema.Name));
       }
 
       // DefaultSchema is null because no database was provided in the connection string/URI.
       using (Session mySession = MySQLX.GetSession(ConnectionString))
       {
-        Assert.AreEqual(SessionState.Open, mySession.InternalSession.SessionState);
-        Assert.Null(mySession.DefaultSchema);
+        Assert.That(mySession.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(mySession.DefaultSchema, Is.Null);
       }
     }
 
@@ -184,7 +184,7 @@ namespace MySqlX.Data.Tests
         database = "mysql"
       }))
       {
-        Assert.AreEqual("mysql", internalSession.DefaultSchema.Name);
+        Assert.That(internalSession.DefaultSchema.Name, Is.EqualTo("mysql"));
       }
 
       // DefaultSchema is null when no database is provided.
@@ -197,7 +197,7 @@ namespace MySqlX.Data.Tests
         sslmode = MySqlSslMode.Required,
       }))
       {
-        Assert.Null(internalSession.DefaultSchema);
+        Assert.That(internalSession.DefaultSchema, Is.Null);
       }
 
       // Access denied error is raised when database does not exist for servers 8.0.12 and below.
@@ -216,9 +216,9 @@ namespace MySqlX.Data.Tests
       ));
 
       if (session.InternalSession.GetServerVersion().isAtLeast(8, 0, 13))
-        StringAssert.StartsWith(string.Format("Unknown database 'test1'"), exception.Message);
+        Assert.That(exception.Message, Does.StartWith(string.Format("Unknown database 'test1'")));
       else
-        StringAssert.StartsWith(string.Format("Access denied"), exception.Message);
+        Assert.That(exception.Message, Does.StartWith(string.Format("Access denied")));
     }
 
     [Test]
@@ -227,7 +227,7 @@ namespace MySqlX.Data.Tests
     {
       using (var session = MySQLX.GetSession(ConnectionStringUri + "?database=mysql"))
       {
-        Assert.AreEqual("mysql", session.DefaultSchema.Name);
+        Assert.That(session.DefaultSchema.Name, Is.EqualTo("mysql"));
       }
     }
 
@@ -284,7 +284,7 @@ namespace MySqlX.Data.Tests
     {
       using (var session = MySQLX.GetSession(ConnectionStringUri))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
     }
 
@@ -307,7 +307,7 @@ namespace MySqlX.Data.Tests
 
       using (var session = MySQLX.GetSession(csBuilder.ToString()))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
     }
 
@@ -322,7 +322,7 @@ namespace MySqlX.Data.Tests
       string connString = $"mysqlx://{csBuilder.UserID}:{csBuilder.Password}@[{ipv6}]:{XPort}";
       using (Session session = MySQLX.GetSession(connString))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
     }
 
@@ -336,7 +336,7 @@ namespace MySqlX.Data.Tests
 
       using (Session session = MySQLX.GetSession(new { server = ipv6, user = csBuilder.UserID, password = csBuilder.Password, port = XPort }))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
     }
 
@@ -349,89 +349,89 @@ namespace MySqlX.Data.Tests
 
       // Use a connection URI.
       var ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "pipe=MYSQL"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "compress=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "allow batch=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "logging=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "sharedmemoryname=MYSQL"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "defaultcommandtimeout=30"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "usedefaultcommandtimeoutforef=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "persistsecurityinfo=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "encrypt=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "integratedsecurity=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "allowpublickeyretrieval=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "autoenlist=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "includesecurityasserts=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "allowzerodatetime=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "convert zero datetime=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "useusageadvisor=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "procedurecachesize=50"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "useperformancemonitor=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "respectbinaryflags=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "treat tiny as boolean=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "allowuservariables=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "interactive=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "functionsreturnstring=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "useaffectedrows=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "oldguids=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "sqlservermode=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "tablecaching=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "defaulttablecacheage=60"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "checkparameters=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "replication=replication_group"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "exceptioninterceptors=none"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "commandinterceptors=none"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "connectionlifetime=100"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "pooling=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "minpoolsize=0"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "maxpoolsize=20"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "connectionreset=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionUri + "cacheserverproperties=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
 
       // Use a connection string.
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("treatblobsasutf8=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("blobasutf8includepattern=pattern"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession("blobasutf8excludepattern=pattern"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
     }
 
     [Test]
@@ -440,15 +440,15 @@ namespace MySqlX.Data.Tests
     {
       var errorMessage = "Option not supported.";
       var ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder("pipe=MYSQL"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder("allow batch=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder("respectbinaryflags=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder("pooling=false"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder("cacheserverproperties=true"));
-      StringAssert.StartsWith(errorMessage, ex.Message);
+      Assert.That(ex.Message, Does.StartWith(errorMessage));
     }
 
     [Test]
@@ -466,11 +466,11 @@ namespace MySqlX.Data.Tests
 
           try
           {
-            Assert.AreEqual(session.Settings[connectionOption.Key], internalSession.Settings[connectionOption.Key]);
+            Assert.That(internalSession.Settings[connectionOption.Key], Is.EqualTo(session.Settings[connectionOption.Key]));
           }
           catch (ArgumentException ex)
           {
-            StringAssert.StartsWith("Option not supported.", ex.Message);
+            Assert.That(ex.Message, Does.StartWith("Option not supported."));
           }
         }
       }
@@ -489,15 +489,15 @@ namespace MySqlX.Data.Tests
       // ConnectionString.
       using (Session session = MySQLX.GetSession(ConnectionString + ";connect-timeout=5000;"))
       {
-        Assert.True(session.Settings.ConnectTimeout == 5000);
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.Settings.ConnectTimeout == 5000);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       // ConnectionURI.
       using (Session session = MySQLX.GetSession(ConnectionStringUri + "?connecttimeout=6500"))
       {
-        Assert.True(session.Settings.ConnectTimeout == 6500);
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.Settings.ConnectTimeout == 6500);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       // Anonymous Object using default value, 10000ms.
@@ -512,8 +512,8 @@ namespace MySqlX.Data.Tests
 
       using (var testSession = MySQLX.GetSession(connstring))
       {
-        Assert.True(session.Settings.ConnectTimeout == 10000);
-        Assert.AreEqual(SessionState.Open, testSession.InternalSession.SessionState);
+        Assert.That(session.Settings.ConnectTimeout == 10000);
+        Assert.That(testSession.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       // Create a session using the fail over functionality passing two diferrent Server address(one of them is fake host). Must succeed after 2000ms
@@ -537,46 +537,46 @@ namespace MySqlX.Data.Tests
       DateTime start = DateTime.Now;
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(conn));
       TimeSpan diff = DateTime.Now.Subtract(start);
-      Assert.True(diff.TotalSeconds > 19 && diff.TotalSeconds < 21, String.Format("Timeout exceeded ({0}). Actual time: {1}", "Fail over failure", diff));
+      Assert.That(diff.TotalSeconds > 19 && diff.TotalSeconds < 21, String.Format("Timeout exceeded ({0}). Actual time: {1}", "Fail over failure", diff));
 
       // Valid session no time out
       start = DateTime.Now;
       using (Session session = MySQLX.GetSession(ConnectionStringUri + "?connecttimeout=2000"))
         session.SQL("SELECT SLEEP(10)").Execute();
       diff = DateTime.Now.Subtract(start);
-      Assert.True(diff.TotalSeconds > 10);
+      Assert.That(diff.TotalSeconds > 10);
 
       //Invalid Values for Connection Timeout parameter
       var ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=-1;"));
-      Assert.AreEqual(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.InvalidConnectionTimeoutValue));
 
       ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=foo;"));
-      Assert.AreEqual(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.InvalidConnectionTimeoutValue));
 
       ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout='';"));
-      Assert.AreEqual(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.InvalidConnectionTimeoutValue));
 
       ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=10.5;"));
-      Assert.AreEqual(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.InvalidConnectionTimeoutValue));
 
       ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=" + Int32.MaxValue + 1));
-      Assert.AreEqual(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.InvalidConnectionTimeoutValue));
 
       ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=10.5;"));
-      Assert.AreEqual(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.InvalidConnectionTimeoutValue));
 
       ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionString + ";connect-timeout=;"));
-      Assert.AreEqual(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.InvalidConnectionTimeoutValue));
 
       ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionStringUri + "?connect-timeout= "));
-      Assert.AreEqual(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.InvalidConnectionTimeoutValue));
 
       ex = Assert.Throws<FormatException>(() => MySQLX.GetSession(ConnectionStringUri + "?connecttimeout="));
-      Assert.AreEqual(ResourcesX.InvalidConnectionTimeoutValue, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.InvalidConnectionTimeoutValue));
 
       // Valid value for ConnectionTimeout, invalid credentials
       var exception = Assert.Throws<MySqlException>(() => MySQLX.GetSession($"server={Host};user=test;password=noPass;port={XPort};connect-timeout=2000;"));
-      Assert.NotNull(exception);
+      Assert.That(exception, Is.Not.Null);
     }
 
     private void TestConnectTimeoutFailureTimeout(String connString, int minTime, int maxTime, string test)
@@ -584,7 +584,7 @@ namespace MySqlX.Data.Tests
       DateTime start = DateTime.Now;
       Assert.Throws<TimeoutException>(() => MySQLX.GetSession(connString));
       TimeSpan diff = DateTime.Now.Subtract(start);
-      Assert.True(diff.TotalSeconds > minTime && diff.TotalSeconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, diff));
+      Assert.That(diff.TotalSeconds > minTime && diff.TotalSeconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, diff));
     }
 
     private void TestConnectTimeoutSuccessTimeout(String connString, int minTime, int maxTime, string test)
@@ -592,7 +592,7 @@ namespace MySqlX.Data.Tests
       DateTime start = DateTime.Now;
       MySQLX.GetSession(connString);
       TimeSpan diff = DateTime.Now.Subtract(start);
-      Assert.True(diff.TotalSeconds > minTime && diff.TotalSeconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, diff));
+      Assert.That(diff.TotalSeconds > minTime && diff.TotalSeconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, diff));
     }
 
     [Test]
@@ -608,11 +608,11 @@ namespace MySqlX.Data.Tests
           Session newSession = MySQLX.GetSession(ConnectionString);
           sessions.Add(newSession);
         }
-        Assert.False(true, "MySqlException should be thrown");
+        Assert.That(true, Is.False, "MySqlException should be thrown");
       }
       catch (MySqlException ex)
       {
-        Assert.AreEqual(ResourcesX.UnableToOpenSession, ex.Message);
+        Assert.That(ex.Message, Is.EqualTo(ResourcesX.UnableToOpenSession));
       }
       finally
       {
@@ -624,18 +624,18 @@ namespace MySqlX.Data.Tests
     {
       string result = this.session.ParseConnectionData(connectionData);
       var csbuilder = new MySqlXConnectionStringBuilder(result);
-      Assert.True(user == csbuilder.UserID, string.Format("Expected:{0} Current:{1} in {2}", user, csbuilder.UserID, connectionData));
-      Assert.True(password == csbuilder.Password, string.Format("Expected:{0} Current:{1} in {2}", password, csbuilder.Password, connectionData));
-      Assert.True(server == csbuilder.Server, string.Format("Expected:{0} Current:{1} in {2}", server, csbuilder.Server, connectionData));
-      Assert.True(port == csbuilder.Port, string.Format("Expected:{0} Current:{1} in {2}", port, csbuilder.Port, connectionData));
+      Assert.That(user == csbuilder.UserID, string.Format("Expected:{0} Current:{1} in {2}", user, csbuilder.UserID, connectionData));
+      Assert.That(password == csbuilder.Password, string.Format("Expected:{0} Current:{1} in {2}", password, csbuilder.Password, connectionData));
+      Assert.That(server == csbuilder.Server, string.Format("Expected:{0} Current:{1} in {2}", server, csbuilder.Server, connectionData));
+      Assert.That(port == csbuilder.Port, string.Format("Expected:{0} Current:{1} in {2}", port, csbuilder.Port, connectionData));
       if (parameters != null)
       {
         if (parameters.Length % 2 != 0)
           throw new ArgumentOutOfRangeException();
         for (int i = 0; i < parameters.Length; i += 2)
         {
-          Assert.True(csbuilder.ContainsKey(parameters[i]));
-          Assert.AreEqual(parameters[i + 1], csbuilder[parameters[i]].ToString());
+          Assert.That(csbuilder.ContainsKey(parameters[i]));
+          Assert.That(csbuilder[parameters[i]].ToString(), Is.EqualTo(parameters[i + 1]));
         }
       }
     }
@@ -676,18 +676,18 @@ namespace MySqlX.Data.Tests
 
       // Errors
       var ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[_key=value]"));
-      Assert.AreEqual(ResourcesX.InvalidUserDefinedAttribute, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.InvalidUserDefinedAttribute));
 
       ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=123"));
-      Assert.AreEqual(ResourcesX.InvalidConnectionAttributes, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.InvalidConnectionAttributes));
 
       ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connection-attributes=[key=value,key=value2]"));
-      Assert.AreEqual(string.Format(ResourcesX.DuplicateUserDefinedAttribute, "key"), ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(string.Format(ResourcesX.DuplicateUserDefinedAttribute, "key")));
 
       ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new { server = Host, port = XPort, user = RootUser, connectionattributes = "=" }));
 
       ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";connectionattributes=[=bar]"));
-      Assert.AreEqual(string.Format(ResourcesX.EmptyKeyConnectionAttribute), ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(string.Format(ResourcesX.EmptyKeyConnectionAttribute)));
     }
 
     private void TestConnectionAttributes(string connString, Dictionary<string, object> userAttrs = null)
@@ -696,31 +696,31 @@ namespace MySqlX.Data.Tests
 
       using (Session session = MySQLX.GetSession(connString))
       {
-        Assert.AreEqual(SessionState.Open, session.XSession.SessionState);
+        Assert.That(session.XSession.SessionState, Is.EqualTo(SessionState.Open));
         var result = session.SQL(sql).Execute().FetchAll();
 
         if (session.Settings.ConnectionAttributes == "false")
-          CollectionAssert.IsEmpty(result);
+          Assert.That(result, Is.Empty);
         else
         {
-          CollectionAssert.IsNotEmpty(result);
+          Assert.That(result, Is.Not.Empty);
           MySqlConnectAttrs clientAttrs = new MySqlConnectAttrs();
 
           if (userAttrs == null)
           {
-            Assert.AreEqual(8, result.Count);
+            Assert.That(result.Count, Is.EqualTo(8));
 
             foreach (Row row in result)
-              StringAssert.StartsWith("_", row[1].ToString());
+              Assert.That(row[1].ToString(), Does.StartWith("_"));
           }
           else
           {
-            Assert.AreEqual(11, result.Count);
+            Assert.That(result.Count, Is.EqualTo(11));
 
             for (int i = 0; i < userAttrs.Count; i++)
             {
-              Assert.True(userAttrs.ContainsKey(result.ElementAt(i)[1].ToString()));
-              Assert.True(userAttrs.ContainsValue(result.ElementAt(i)[2]));
+              Assert.That(userAttrs.ContainsKey(result.ElementAt(i)[1].ToString()));
+              Assert.That(userAttrs.ContainsValue(result.ElementAt(i)[2]));
             }
           }
         }
@@ -742,17 +742,17 @@ namespace MySqlX.Data.Tests
 
       using (var sessionTest = MySQLX.GetSession(connStr))
       {
-        Assert.AreEqual(SessionState.Open, sessionTest.InternalSession.SessionState);
+        Assert.That(sessionTest.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       using (var sessionTest = MySQLX.GetSession("mysqlx://" + sb.UserID + ":" + sb.Password + "@" + serverName + ":" + XPort))
       {
-        Assert.AreEqual(SessionState.Open, sessionTest.InternalSession.SessionState);
+        Assert.That(sessionTest.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       using (var sessionTest = MySQLX.GetSession(new { server = serverName, port = XPort, user = sb.UserID, password = sb.Password }))
       {
-        Assert.AreEqual(SessionState.Open, sessionTest.InternalSession.SessionState);
+        Assert.That(sessionTest.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
       //wrong port
       connStr = "server=" + sb.Server + ";user=" + sb.UserID + ";port=" + 33090 + ";password=" + sb.Password + ";" + "sslmode=" + MySqlSslMode.Required;
@@ -799,7 +799,7 @@ namespace MySqlX.Data.Tests
 
       using (var session1 = MySQLX.GetSession(ConnectionString))
       {
-        Assert.IsNotNull(session1.Uri);
+        Assert.That(session1.Uri, Is.Not.Null);
       }
 
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
@@ -807,7 +807,7 @@ namespace MySqlX.Data.Tests
           + sb.Database + ";characterset=utf8mb4;sslmode=Required;connect-timeout=10;keepalive=10;auth=PLAIN";
       using (var session1 = MySQLX.GetSession(connectionString))
       {
-        Assert.IsNotNull(session1.Uri);
+        Assert.That(session1.Uri, Is.Not.Null);
       }
 
       using (var session1 = MySQLX.GetSession(new
@@ -819,7 +819,7 @@ namespace MySqlX.Data.Tests
         sslmode = MySqlSslMode.Required
       }))
       {
-        Assert.IsNotNull(session1.Uri);
+        Assert.That(session1.Uri, Is.Not.Null);
       }
 
       var conn = new MySqlConnectionStringBuilder();
@@ -837,12 +837,12 @@ namespace MySqlX.Data.Tests
 
       using (var session1 = MySQLX.GetSession(conn.ConnectionString))
       {
-        Assert.IsNotNull(session1.Uri);
+        Assert.That(session1.Uri, Is.Not.Null);
       }
 
       using (var session1 = MySQLX.GetSession(ConnectionStringUri + "/?ssl-mode=Required;"))
       {
-        Assert.IsNotNull(session1.Uri);
+        Assert.That(session1.Uri, Is.Not.Null);
       }
 
       conn = new MySqlConnectionStringBuilder();
@@ -860,8 +860,8 @@ namespace MySqlX.Data.Tests
       connectionString = conn.ConnectionString;
       using (var session1 = MySQLX.GetSession(connectionString))
       {
-        Assert.AreEqual(schemaName, session1.DefaultSchema.Name);
-        Assert.IsNotNull(session1.Uri);
+        Assert.That(session1.DefaultSchema.Name, Is.EqualTo(schemaName));
+        Assert.That(session1.Uri, Is.Not.Null);
       }
 
       conn = new MySqlConnectionStringBuilder();
@@ -879,8 +879,8 @@ namespace MySqlX.Data.Tests
       connectionString = conn.ConnectionString;
       using (var session1 = MySQLX.GetSession(connectionString))
       {
-        Assert.AreEqual(schemaName, session1.DefaultSchema.Name);
-        Assert.IsNotNull(session1.Uri);
+        Assert.That(session1.DefaultSchema.Name, Is.EqualTo(schemaName));
+        Assert.That(session1.Uri, Is.Not.Null);
       }
 
       conn = new MySqlConnectionStringBuilder();
@@ -895,20 +895,20 @@ namespace MySqlX.Data.Tests
       connectionString = conn.ConnectionString;
       using (var session1 = MySQLX.GetSession(connectionString))
       {
-        Assert.AreEqual(schemaName, session1.DefaultSchema.Name);
-        Assert.IsNotNull(session1.Uri);
+        Assert.That(session1.DefaultSchema.Name, Is.EqualTo(schemaName));
+        Assert.That(session1.Uri, Is.Not.Null);
         session1.DropSchema("㭋玤䂜蚌");
         session1.CreateSchema("㭋玤䂜蚌");
         session1.SQL("USE 㭋玤䂜蚌").Execute();
-        Assert.AreEqual(schemaName, session1.DefaultSchema.Name);
+        Assert.That(session1.DefaultSchema.Name, Is.EqualTo(schemaName));
       }
 
       conn.Database = "㭋玤䂜蚌";
       connectionString = conn.ConnectionString;
       using (var session1 = MySQLX.GetSession(connectionString))
       {
-        Assert.AreEqual("㭋玤䂜蚌", session1.DefaultSchema.Name);
-        Assert.IsNotNull(session1.Uri);
+        Assert.That(session1.DefaultSchema.Name, Is.EqualTo("㭋玤䂜蚌"));
+        Assert.That(session1.Uri, Is.Not.Null);
       }
 
       conn.Server = sb.Server;
@@ -925,8 +925,8 @@ namespace MySqlX.Data.Tests
       connectionString = conn.ConnectionString;
       using (var session1 = MySQLX.GetSession(connectionString))
       {
-        Assert.AreEqual("㭋玤䂜蚌", session1.DefaultSchema.Name);
-        Assert.IsNotNull(session1.Uri);
+        Assert.That(session1.DefaultSchema.Name, Is.EqualTo("㭋玤䂜蚌"));
+        Assert.That(session1.Uri, Is.Not.Null);
         session1.DropSchema("㭋玤䂜蚌");
       }
 
@@ -970,14 +970,14 @@ namespace MySqlX.Data.Tests
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
       sb.Database = null;
       var session1 = MySQLX.GetSession(sb.ConnectionString);
-      Assert.AreEqual(null, session1.DefaultSchema);
+      Assert.That(session1.DefaultSchema, Is.EqualTo(null));
       string connectionString = ConnectionString + ";protocol=Socket;database=" + schemaName + ";characterset=utf8mb4;sslmode=VerifyCA;ssl-ca=" +
       sslCa + ";certificatepassword=" + sslCertificatePassword + ";connect-timeout=10;keepalive=10;auth=PLAIN";
       session1 = MySQLX.GetSession(connectionString);
-      Assert.AreEqual(schemaName, session1.DefaultSchema.Name);
+      Assert.That(session1.DefaultSchema.Name, Is.EqualTo(schemaName));
 
       session1 = MySQLX.GetSession(ConnectionStringUri + "/" + schemaName + "?" + "auth=PLAIN&characterset=utf8mb4");
-      Assert.AreEqual(schemaName, session1.DefaultSchema.Name);
+      Assert.That(session1.DefaultSchema.Name, Is.EqualTo(schemaName));
 
       session1 = MySQLX.GetSession(new
       {
@@ -988,16 +988,16 @@ namespace MySqlX.Data.Tests
         sslmode = MySqlSslMode.Required,
         database = schemaName
       });
-      Assert.AreEqual(schemaName, session1.DefaultSchema.Name);
+      Assert.That(session1.DefaultSchema.Name, Is.EqualTo(schemaName));
       session1.DefaultSchema.CreateCollection("tester");
       session1.DefaultSchema.DropCollection("tester");
-      Assert.AreEqual(schemaName, session1.DefaultSchema.Session.DefaultSchema.Name);
+      Assert.That(session1.DefaultSchema.Session.DefaultSchema.Name, Is.EqualTo(schemaName));
 
       var conn = new MySqlConnectionStringBuilder();
       session1.DropSchema("㭋玤䂜蚌");
       session1.CreateSchema("㭋玤䂜蚌");
       session1.SQL("USE 㭋玤䂜蚌").Execute();
-      Assert.AreEqual(schemaName, session1.DefaultSchema.Name);
+      Assert.That(session1.DefaultSchema.Name, Is.EqualTo(schemaName));
       session1.Dispose();
       conn.Server = sb.Server;
       conn.UserID = sb.UserID;
@@ -1012,8 +1012,8 @@ namespace MySqlX.Data.Tests
       conn.Keepalive = 10;
       connectionString = conn.ConnectionString;
       session1 = MySQLX.GetSession(connectionString);
-      Assert.AreEqual("㭋玤䂜蚌", session1.DefaultSchema.Name);
-      StringAssert.Contains("㭋玤䂜蚌", session1.Uri);
+      Assert.That(session1.DefaultSchema.Name, Is.EqualTo("㭋玤䂜蚌"));
+      Assert.That(session1.Uri, Does.Contain("㭋玤䂜蚌"));
 
       conn.Server = sb.Server;
       conn.UserID = sb.UserID;
@@ -1028,11 +1028,11 @@ namespace MySqlX.Data.Tests
       conn.Keepalive = 10;
       connectionString = conn.ConnectionString;
       session1 = MySQLX.GetSession(connectionString);
-      Assert.AreEqual("㭋玤䂜蚌", session1.DefaultSchema.Name);
-      StringAssert.Contains("㭋玤䂜蚌", session1.Uri);
+      Assert.That(session1.DefaultSchema.Name, Is.EqualTo("㭋玤䂜蚌"));
+      Assert.That(session1.Uri, Does.Contain("㭋玤䂜蚌"));
       session1.DefaultSchema.CreateCollection("tester");
       session1.DefaultSchema.DropCollection("tester");
-      Assert.AreEqual("㭋玤䂜蚌", session1.DefaultSchema.Session.DefaultSchema.Name);
+      Assert.That(session1.DefaultSchema.Session.DefaultSchema.Name, Is.EqualTo("㭋玤䂜蚌"));
     }
 
     [Test, Description("Session BaseString/MySQLXConnectionString Builder")]
@@ -1054,7 +1054,7 @@ namespace MySqlX.Data.Tests
 
       using (var xpluginconn = MySQLX.GetSession(mysqlx0.ConnectionString))
       {
-        Assert.AreEqual(SessionState.Open, xpluginconn.InternalSession.SessionState);
+        Assert.That(xpluginconn.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
@@ -1072,7 +1072,7 @@ namespace MySqlX.Data.Tests
 
       using (var xpluginconn = MySQLX.GetSession(mysqlx0.ConnectionString))
       {
-        Assert.AreEqual(SessionState.Open, xpluginconn.InternalSession.SessionState);
+        Assert.That(xpluginconn.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
@@ -1089,7 +1089,7 @@ namespace MySqlX.Data.Tests
 
       using (var xpluginconn = MySQLX.GetSession(mysqlx0.ConnectionString))
       {
-        Assert.AreEqual(SessionState.Open, xpluginconn.InternalSession.SessionState);
+        Assert.That(xpluginconn.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       mysqlx0 = new MySqlXConnectionStringBuilder(ConnectionString);
@@ -1102,14 +1102,14 @@ namespace MySqlX.Data.Tests
 
       using (var xpluginconn = MySQLX.GetSession(mysqlx0.ConnectionString))
       {
-        Assert.AreEqual(SessionState.Open, xpluginconn.InternalSession.SessionState);
+        Assert.That(xpluginconn.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       //Scenario-2
       string valid = "server=" + mysqlx0.Server + ";user id=" + mysqlx0.UserID + ";password=" + mysqlx0.Password + ";port=" + XPort + ";protocol=Socket;database=" + schemaName + ";characterset=utf8mb4;sslmode=Required;certificatefile=" + sslCa + ";certificatepassword=" + sslCertificatePassword + ";connect-timeout=10;keepalive=10;certificatestorelocation=LocalMachine;certificatethumbprint=;";
       using (var xpluginconn = MySQLX.GetSession(valid))
       {
-        Assert.AreEqual(SessionState.Open, xpluginconn.InternalSession.SessionState);
+        Assert.That(xpluginconn.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       //Scenario-3
@@ -1128,7 +1128,7 @@ namespace MySqlX.Data.Tests
       mysqlx0.SslCa = sslCa;
       using (var xpluginconn = MySQLX.GetSession(mysqlx0.ConnectionString))
       {
-        Assert.AreEqual(SessionState.Open, xpluginconn.InternalSession.SessionState);
+        Assert.That(xpluginconn.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       //Basic Scenarios
@@ -1140,7 +1140,7 @@ namespace MySqlX.Data.Tests
           + ";certificatestorelocation=LocalMachine;certificatethumbprint=";
       using (var xpluginconn = MySQLX.GetSession(connectionstr))
       {
-        Assert.AreEqual(SessionState.Open, xpluginconn.InternalSession.SessionState);
+        Assert.That(xpluginconn.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       connectionstr = "mysqlx://" + mysqlx0.Server + ":" + XPort + "/" +
@@ -1150,7 +1150,7 @@ namespace MySqlX.Data.Tests
 
       using (var xpluginconn = MySQLX.GetSession(connectionstr))
       {
-        Assert.AreEqual(SessionState.Open, xpluginconn.InternalSession.SessionState);
+        Assert.That(xpluginconn.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       using (var xpluginconn = MySQLX.GetSession(new
@@ -1161,7 +1161,7 @@ namespace MySqlX.Data.Tests
         password = mysqlx0.Password
       }))
       {
-        Assert.AreEqual(SessionState.Open, xpluginconn.InternalSession.SessionState);
+        Assert.That(xpluginconn.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
     }
@@ -1236,7 +1236,7 @@ namespace MySqlX.Data.Tests
         conTime = (elapsedTime / NANO_TO_MILLI) - (queryRunTime / NANO_TO_MILLI);
         var t = CalculateTPS(conTime, transactions);
         var log = ("Connected to MySQL using URI with iterations " + iterations + " with TPS:" + t);
-        Assert.IsNotNull(t);
+        Assert.That(t, Is.Not.Empty);
 
         transactions = 0;
         startTime = 0;
@@ -1258,7 +1258,7 @@ namespace MySqlX.Data.Tests
         t = CalculateTPS(conTime, transactions);
         log = ("Connected to MySQL using connection string with iterations " + iterations + " with TPS:" + t);
         Console.WriteLine(log);
-        Assert.IsNotNull(t);
+        Assert.That(t, Is.Not.Empty);
 
         transactions = 0;
         startTime = 0;
@@ -1355,7 +1355,7 @@ namespace MySqlX.Data.Tests
       {
         using (Session c = MySQLX.GetSession(connStr))
         {
-          Assert.AreEqual(SessionState.Open, c.InternalSession.SessionState);
+          Assert.That(c.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         }
       }
     }
@@ -1693,7 +1693,7 @@ namespace MySqlX.Data.Tests
         mysqlx0 = new MySqlXConnectionStringBuilder(connStr);
         using (var conn = MySQLX.GetSession(mysqlx0.ConnectionString))
         {
-          Assert.IsNotNull(conn.Uri);
+          Assert.That(conn.Uri, Is.Not.Null);
         }
         break;
       }
@@ -1718,7 +1718,7 @@ namespace MySqlX.Data.Tests
 
         using (var conn = MySQLX.GetSession(mysqlx0.ConnectionString))
         {
-          Assert.IsNotNull(conn.Uri);
+          Assert.That(conn.Uri, Is.Not.Null);
         }
         break;
       }
@@ -1733,7 +1733,7 @@ namespace MySqlX.Data.Tests
       {
         using (var conn = MySQLX.GetSession(connStr))
         {
-          Assert.AreEqual(conn.Settings.ConnectTimeout, defaultTimeout);
+          Assert.That(defaultTimeout, Is.EqualTo(conn.Settings.ConnectTimeout));
         }
       }
       connStr = "mysqlx://" + session.Settings.UserID + ":" + session.Settings.Password + "@" + session.Settings.Server + ":" + XPort + "?connect-timeout=" + defaultTimeout;
@@ -1741,7 +1741,7 @@ namespace MySqlX.Data.Tests
       {
         using (var conn = MySQLX.GetSession(connStr))
         {
-          Assert.AreEqual(conn.Settings.ConnectTimeout, defaultTimeout);
+          Assert.That(defaultTimeout, Is.EqualTo(conn.Settings.ConnectTimeout));
         }
       }
       var connObj1 = new { server = session.Settings.Server, port = XPort, user = session.Settings.UserID, password = session.Settings.Password, connecttimeout = defaultTimeout };
@@ -1749,7 +1749,7 @@ namespace MySqlX.Data.Tests
       {
         using (var conn = MySQLX.GetSession(connObj1))
         {
-          Assert.AreEqual(conn.Settings.ConnectTimeout, defaultTimeout);
+          Assert.That(defaultTimeout, Is.EqualTo(conn.Settings.ConnectTimeout));
         }
       }
     }
@@ -1768,7 +1768,7 @@ namespace MySqlX.Data.Tests
       {
         using (var conn = MySQLX.GetSession(connStrBuilder.ConnectionString))
         {
-          Assert.AreEqual(conn.Settings.ConnectTimeout, defaultTimeout);
+          Assert.That(defaultTimeout, Is.EqualTo(conn.Settings.ConnectTimeout));
         }
       }
       string connStr = ConnectionString + ";" + "connect-timeout=" + defaultTimeout;
@@ -1777,7 +1777,7 @@ namespace MySqlX.Data.Tests
       {
         using (var conn = MySQLX.GetSession(connStrBuilder.ConnectionString))
         {
-          Assert.AreEqual(conn.Settings.ConnectTimeout, defaultTimeout);
+          Assert.That(defaultTimeout, Is.EqualTo(conn.Settings.ConnectTimeout));
         }
       }
     }
@@ -1873,17 +1873,17 @@ namespace MySqlX.Data.Tests
                                              session.Settings.UserID + ";password=" + session.Settings.Password + ";connect-timeout=" +
                                              connectionTimeout + ";ssl-mode=required"))
       {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         var schema = session1.GetSchema("test");
-        Assert.IsNotNull(schema);
+        Assert.That(schema, Is.Not.Null);
       }
 
       var connStr = "mysqlx://" + session.Settings.UserID + ":" + session.Settings.Password + "@[" + hostList + "]/?connect-timeout=" + connectionTimeout;
       using (var session1 = MySQLX.GetSession(connStr))
       {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         var schema = session1.GetSchema("test");
-        Assert.IsNotNull(schema);
+        Assert.That(schema, Is.Not.Null);
       }
 
       using (var session1 = MySQLX.GetSession(new
@@ -1895,9 +1895,9 @@ namespace MySqlX.Data.Tests
         sslmode = MySqlSslMode.Required
       }))
       {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         var schema = session1.GetSchema("test");
-        Assert.IsNotNull(schema);
+        Assert.That(schema, Is.Not.Null);
       }
 
       var strList = "(address=143.24.20.36,priority=0),(address=10.172.165.157,priority=1)";
@@ -1909,14 +1909,14 @@ namespace MySqlX.Data.Tests
       sw.Start();
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(connString));
       sw.Stop();
-      Assert.True(sw.Elapsed.Seconds > 0 && sw.Elapsed.Seconds < 21);
+      Assert.That(sw.Elapsed.Seconds > 0 && sw.Elapsed.Seconds < 21);
 
       connStr = "mysqlx://" + session.Settings.UserID + ":" + session.Settings.Password + "@[" + strList + "]" + "/?connect-timeout=" + connectionTimeout;
       sw = new Stopwatch();
       sw.Start();
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(connString));
       sw.Stop();
-      Assert.True(sw.Elapsed.Seconds > 0 && sw.Elapsed.Seconds < 21);
+      Assert.That(sw.Elapsed.Seconds > 0 && sw.Elapsed.Seconds < 21);
 
       var connObj1 = new
       {
@@ -1930,7 +1930,7 @@ namespace MySqlX.Data.Tests
       sw.Start();
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(connString));
       sw.Stop();
-      Assert.True(sw.Elapsed.Seconds > 0 && sw.Elapsed.Seconds < 21);
+      Assert.That(sw.Elapsed.Seconds > 0 && sw.Elapsed.Seconds < 21);
     }
 
     [Test, Description("(connectionString,connectionUri,Anonymous Object.Test that the timeout will be reset for each connection attempt in a failover scenario")]
@@ -1946,14 +1946,14 @@ namespace MySqlX.Data.Tests
       sw.Start();
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(connString));
       sw.Stop();
-      Assert.True(sw.Elapsed.Seconds > 0 && sw.Elapsed.Seconds < 10);
+      Assert.That(sw.Elapsed.Seconds > 0 && sw.Elapsed.Seconds < 10);
       // URI
       var connStr = "mysqlx://" + session.Settings.UserID + ":" + session.Settings.Password + "@[" + hostList + "]" + "/?connect-timeout=" + connectionTimeout;
       sw = new Stopwatch();
       sw.Start();
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(connString));
       sw.Stop();
-      Assert.True(sw.Elapsed.Seconds > 0 && sw.Elapsed.Seconds < 10);
+      Assert.That(sw.Elapsed.Seconds > 0 && sw.Elapsed.Seconds < 10);
 
       // Object
       var connObj = new
@@ -1968,7 +1968,7 @@ namespace MySqlX.Data.Tests
       sw.Start();
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(connString));
       sw.Stop();
-      Assert.True(sw.Elapsed.Seconds > 0 && sw.Elapsed.Seconds < 10);
+      Assert.That(sw.Elapsed.Seconds > 0 && sw.Elapsed.Seconds < 10);
     }
 
     [Test, Description("Confirm that the timeout is only applied to the connection process, not to any subsequent operation after the connection is established")]
@@ -1982,7 +1982,7 @@ namespace MySqlX.Data.Tests
       {
         conn.SQL("SELECT SLEEP(10)").Execute();
         var res = conn.SQL("select @@port").Execute().FirstOrDefault();
-        Assert.IsNotNull(res);
+        Assert.That(res, Is.Not.Null);
       }
 
       connStr = "mysqlx://" + session.Settings.UserID + ":" + session.Settings.Password + "@" + session.Settings.Server + ":" + XPort + "?connect-timeout=10000;";
@@ -1990,7 +1990,7 @@ namespace MySqlX.Data.Tests
       {
         conn.SQL("SELECT SLEEP(10)").Execute();
         var res = conn.SQL("select @@port").Execute().FirstOrDefault();
-        Assert.IsNotNull(res);
+        Assert.That(res, Is.Not.Null);
       }
 
       var connObj = new
@@ -2005,7 +2005,7 @@ namespace MySqlX.Data.Tests
       {
         conn.SQL("SELECT SLEEP(10)").Execute();
         var res = conn.SQL("select @@port").Execute().FirstOrDefault();
-        Assert.IsNotNull(res);
+        Assert.That(res, Is.Not.Null);
       }
 
       var connStrBuilder = new MySqlXConnectionStringBuilder();
@@ -2018,7 +2018,7 @@ namespace MySqlX.Data.Tests
       {
         conn.SQL("SELECT SLEEP(10)").Execute();
         var res = conn.SQL("select @@port").Execute().FirstOrDefault();
-        Assert.IsNotNull(res);
+        Assert.That(res, Is.Not.Null);
       }
 
       connStr = "server=" + session.Settings.Server + ";user=" + session.Settings.UserID + ";port=" + XPort + ";password="
@@ -2028,7 +2028,7 @@ namespace MySqlX.Data.Tests
       {
         conn.SQL("SELECT SLEEP(10)").Execute();
         var res = conn.SQL("select @@port").Execute().FirstOrDefault();
-        Assert.IsNotNull(res);
+        Assert.That(res, Is.Not.Null);
       }
 
       connStr = ConnectionString + ";protocol=Socket;" +
@@ -2041,7 +2041,7 @@ namespace MySqlX.Data.Tests
       {
         conn.SQL("SELECT SLEEP(10)").Execute();
         var res = conn.SQL("select @@port").Execute().FirstOrDefault();
-        Assert.IsNotNull(res);
+        Assert.That(res, Is.Not.Null);
       }
 
       mysqlx0 = new MySqlXConnectionStringBuilder();
@@ -2065,7 +2065,7 @@ namespace MySqlX.Data.Tests
       {
         conn.SQL("SELECT SLEEP(10)").Execute();
         var res = conn.SQL("select @@port").Execute().FirstOrDefault();
-        Assert.IsNotNull(res);
+        Assert.That(res, Is.Not.Null);
       }
     }
 
@@ -2180,7 +2180,7 @@ namespace MySqlX.Data.Tests
       {
         using (Session session1 = MySQLX.GetSession(ConnectionString))
         {
-          Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+          Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
           session1.Close();
         }
       }
@@ -2206,13 +2206,13 @@ namespace MySqlX.Data.Tests
     {
       using (var mysqlx = MySQLX.GetSession(ConnectionString))
       {
-        Assert.AreEqual(SessionState.Open, mysqlx.InternalSession.SessionState);
+        Assert.That(mysqlx.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         mysqlx.Close();
       }
       using (var mysql = new MySqlConnection($"server={Host};user={session.Settings.UserID};port={Port};password={session.Settings.Password}"))
       {
         mysql.Open();
-        Assert.AreEqual(ConnectionState.Open, mysql.connectionState);
+        Assert.That(mysql.connectionState, Is.EqualTo(ConnectionState.Open));
         mysql.Close();
       }
       Assert.Throws<MySqlException>(() => MySQLX.GetSession($"server={Host};user={session.Settings.UserID};port={XPort};password=wrong"));
@@ -2228,7 +2228,7 @@ namespace MySqlX.Data.Tests
       using (var session1 = new MySqlConnection(connectionString))
       {
         Exception ex = Assert.Throws<MySqlException>(() => session1.Open());
-        Assert.AreEqual("Unsupported protocol version.", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Unsupported protocol version."));
       }
     }
 
@@ -2240,7 +2240,7 @@ namespace MySqlX.Data.Tests
       sw.Start();
       var conn = MySQLX.GetSession(connString);
       sw.Stop();
-      Assert.True(sw.Elapsed.Seconds >= minTime && sw.Elapsed.Seconds <= maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
+      Assert.That(sw.Elapsed.Seconds >= minTime && sw.Elapsed.Seconds <= maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
     }
 
     public void TestConnectStringTimeoutSuccessTimeout(String connString, int minTime, int maxTime, string test)
@@ -2249,7 +2249,7 @@ namespace MySqlX.Data.Tests
       sw.Start();
       var conn = MySQLX.GetSession(connString);
       sw.Stop();
-      Assert.True(sw.Elapsed.Seconds >= minTime && sw.Elapsed.Seconds <= maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
+      Assert.That(sw.Elapsed.Seconds >= minTime && sw.Elapsed.Seconds <= maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
     }
 
     public void TestConnectObjTimeoutFailureTimeout(object connString, int minTime, int maxTime, string test)
@@ -2258,7 +2258,7 @@ namespace MySqlX.Data.Tests
       sw.Start();
       Assert.Catch(() => MySQLX.GetSession(connString));
       sw.Stop();
-      Assert.True(sw.Elapsed.Seconds >= minTime && sw.Elapsed.Seconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
+      Assert.That(sw.Elapsed.Seconds >= minTime && sw.Elapsed.Seconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
     }
 
     public void TestConnectStringTimeoutFailureTimeout(String connString, int minTime, int maxTime, string test)
@@ -2267,7 +2267,7 @@ namespace MySqlX.Data.Tests
       sw.Start();
       Assert.Catch(() => MySQLX.GetSession(connString));
       sw.Stop();
-      Assert.True(sw.Elapsed.Seconds >= minTime && sw.Elapsed.Seconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
+      Assert.That(sw.Elapsed.Seconds >= minTime && sw.Elapsed.Seconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
     }
 
     public void TestClientQueueTimeout(Client client, int minTime, int maxTime, string test)
@@ -2276,7 +2276,7 @@ namespace MySqlX.Data.Tests
       sw.Start();
       Assert.Throws<TimeoutException>(() => client.GetSession());
       sw.Stop();
-      Assert.True(sw.Elapsed.Seconds >= minTime && sw.Elapsed.Seconds < maxTime,
+      Assert.That(sw.Elapsed.Seconds >= minTime && sw.Elapsed.Seconds < maxTime,
           String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
     }
 
@@ -2288,7 +2288,7 @@ namespace MySqlX.Data.Tests
         sw.Start();
         client.GetSession();
         sw.Stop();
-        Assert.True(sw.Elapsed.Seconds >= minTime && sw.Elapsed.Seconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
+        Assert.That(sw.Elapsed.Seconds >= minTime && sw.Elapsed.Seconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
       }
     }
 
@@ -2300,7 +2300,7 @@ namespace MySqlX.Data.Tests
         sw.Start();
         client.GetSession();
         sw.Stop();
-        Assert.True(sw.Elapsed.Seconds >= minTime && sw.Elapsed.Seconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
+        Assert.That(sw.Elapsed.Seconds >= minTime && sw.Elapsed.Seconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
       }
     }
     public void TestFailureTimeout(Client client, int minTime, int maxTime, string test)
@@ -2308,7 +2308,7 @@ namespace MySqlX.Data.Tests
       DateTime start = DateTime.Now;
       Assert.Catch(() => client.GetSession());
       TimeSpan diff = DateTime.Now.Subtract(start);
-      Assert.True(diff.TotalSeconds >= minTime && diff.TotalSeconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, diff));
+      Assert.That(diff.TotalSeconds >= minTime && diff.TotalSeconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, diff));
     }
 
     private void MeasureConnectionString(string connStr, int maxTime, string test, int iteration)
@@ -2322,7 +2322,7 @@ namespace MySqlX.Data.Tests
       }
 
       sw.Stop();
-      Assert.True(sw.Elapsed.Seconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
+      Assert.That(sw.Elapsed.Seconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
     }
 
     private void MeasureConnectionObject(object connStr, int maxTime, string test, int iteration)
@@ -2336,7 +2336,7 @@ namespace MySqlX.Data.Tests
       }
 
       sw.Stop();
-      Assert.True(sw.Elapsed.Seconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
+      Assert.That(sw.Elapsed.Seconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, sw.Elapsed));
     }
 
     public long NanoTime()

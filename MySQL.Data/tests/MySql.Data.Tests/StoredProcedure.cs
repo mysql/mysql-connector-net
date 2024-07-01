@@ -65,7 +65,7 @@ namespace MySql.Data.MySqlClient.Tests
         p.Value = 21;
 
         decimal id = (decimal)cmd.ExecuteScalar();
-        Assert.AreEqual(21, id);
+        Assert.That(id, Is.EqualTo(21));
       }
     }
 
@@ -81,17 +81,17 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?value", 2);
       int rowsAffected = cmd.ExecuteNonQuery();
-      Assert.AreEqual(1, rowsAffected);
+      Assert.That(rowsAffected, Is.EqualTo(1));
 
       cmd.CommandText = "SELECT * FROM Test";
       cmd.CommandType = CommandType.Text;
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.True(reader.Read());
-        Assert.AreEqual(2, reader.GetInt32(0));
-        Assert.AreEqual("Test", reader.GetString(1));
-        Assert.False(reader.Read());
-        Assert.False(reader.NextResult());
+        Assert.That(reader.Read());
+        Assert.That(reader.GetInt32(0), Is.EqualTo(2));
+        Assert.That(reader.GetString(1), Is.EqualTo("Test"));
+        Assert.That(reader.Read(), Is.False);
+        Assert.That(reader.NextResult(), Is.False);
       }
     }
 
@@ -123,7 +123,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?valin", "myvalue");
       object val = cmd.ExecuteScalar();
-      Assert.AreEqual("myvalue", val);
+      Assert.That(val, Is.EqualTo("myvalue"));
     }
 
     [Test]
@@ -147,8 +147,8 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("spTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       object result = cmd.ExecuteScalar();
-      Assert.AreEqual(1, result);
-      Assert.True(result is Int32);
+      Assert.That(result, Is.EqualTo(1));
+      Assert.That(result is Int32);
     }
 
     [Test]
@@ -174,11 +174,11 @@ namespace MySql.Data.MySqlClient.Tests
       if (prepare) cmd.Prepare();
       cmd.CommandType = CommandType.StoredProcedure;
       MySqlDataReader reader = cmd.ExecuteReader();
-      Assert.True(reader.Read());
-      Assert.True(reader.NextResult());
-      Assert.True(reader.Read());
-      Assert.False(reader.NextResult());
-      Assert.False(reader.Read());
+      Assert.That(reader.Read());
+      Assert.That(reader.NextResult());
+      Assert.That(reader.Read());
+      Assert.That(reader.NextResult(), Is.False);
+      Assert.That(reader.Read(), Is.False);
       reader.Close();
 
       DataSet ds = new DataSet();
@@ -188,12 +188,12 @@ namespace MySql.Data.MySqlClient.Tests
       da.FillError += new FillErrorEventHandler(da_FillError);
       fillError = null;
       da.Fill(ds);
-      Assert.AreEqual(2, ds.Tables.Count);
-      Assert.AreEqual(1, Convert.ToInt32(ds.Tables[0].Rows.Count));
-      Assert.AreEqual(1, Convert.ToInt32(ds.Tables[1].Rows.Count));
-      Assert.AreEqual(1, Convert.ToInt32(ds.Tables[0].Rows[0][0]));
-      Assert.AreEqual(2, Convert.ToInt32(ds.Tables[1].Rows[0][0]));
-      Assert.Null(fillError);
+      Assert.That(ds.Tables.Count, Is.EqualTo(2));
+      Assert.That(Convert.ToInt32(ds.Tables[0].Rows.Count), Is.EqualTo(1));
+      Assert.That(Convert.ToInt32(ds.Tables[1].Rows.Count), Is.EqualTo(1));
+      Assert.That(Convert.ToInt32(ds.Tables[0].Rows[0][0]), Is.EqualTo(1));
+      Assert.That(Convert.ToInt32(ds.Tables[1].Rows[0][0]), Is.EqualTo(2));
+      Assert.That(fillError, Is.Null);
     }
 
     private static string fillError = null;
@@ -213,7 +213,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand(sql, Connection);
       cmd.Parameters.Add(new MySqlParameter("?v", 33));
       object val = cmd.ExecuteScalar();
-      Assert.AreEqual(33, val);
+      Assert.That(val, Is.EqualTo(33));
     }
 
     /// <summary>
@@ -232,14 +232,14 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?val2", 4);
       decimal val = (decimal)cmd.ExecuteScalar();
       Decimal d = new Decimal(20.4);
-      Assert.AreEqual(d, val);
+      Assert.That(val, Is.EqualTo(d));
 
       // create our second procedure
       ExecuteSQL("DROP PROCEDURE IF EXISTS spTest");
       ExecuteSQL("CREATE PROCEDURE spTest( \r\n) BEGIN  SELECT 4; END");
       cmd.Parameters.Clear();
       object val1 = cmd.ExecuteScalar();
-      Assert.AreEqual(4, Convert.ToInt32(val1));
+      Assert.That(Convert.ToInt32(val1), Is.EqualTo(4));
     }
 
     /// <summary>
@@ -255,7 +255,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("spTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       object val = cmd.ExecuteScalar();
-      Assert.AreEqual(4, Convert.ToInt32(val));
+      Assert.That(Convert.ToInt32(val), Is.EqualTo(4));
 
       cmd.CommandText = String.Format("USE `{0}`", dbName);
       cmd.CommandType = CommandType.Text;
@@ -264,7 +264,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandText = String.Format("`{0}`.spTest", Connection.Database);
       cmd.CommandType = CommandType.StoredProcedure;
       val = cmd.ExecuteScalar();
-      Assert.AreEqual(4, Convert.ToInt32(val));
+      Assert.That(Convert.ToInt32(val), Is.EqualTo(4));
 
       cmd.CommandText = String.Format("USE `{0}`", Connection.Database);
       cmd.CommandType = CommandType.Text;
@@ -300,7 +300,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?d", 21);
       decimal d = (decimal)cmd.ExecuteScalar();
-      Assert.AreEqual(21, d);
+      Assert.That(d, Is.EqualTo(21));
     }
 
     /// <summary>
@@ -316,7 +316,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandType = CommandType.StoredProcedure;
       cmd.Parameters.AddWithValue("?P", "This is my value");
       string p = (string)cmd.ExecuteScalar();
-      Assert.AreEqual("This is my value", p);
+      Assert.That(p, Is.EqualTo("This is my value"));
     }
 
     /// <summary>
@@ -335,7 +335,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.CommandType = CommandType.StoredProcedure;
 
         string val = (string)cmd.ExecuteScalar();
-        Assert.AreEqual("This is my value", val);
+        Assert.That(val, Is.EqualTo("This is my value"));
       }
       finally
       {
@@ -354,7 +354,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Prepare();
 
       int p = (int)cmd.ExecuteScalar();
-      Assert.AreEqual(33, p);
+      Assert.That(p, Is.EqualTo(33));
     }
 
     /// <summary>
@@ -383,10 +383,10 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = new DataTable();
       da.Fill(dt);
 
-      Assert.AreEqual(1, dt.Rows[0]["id"]);
-      Assert.AreEqual(2, dt.Rows[1]["id"]);
-      Assert.AreEqual("First record", dt.Rows[0]["name"]);
-      Assert.AreEqual("Second record", dt.Rows[1]["name"]);
+      Assert.That(dt.Rows[0]["id"], Is.EqualTo(1));
+      Assert.That(dt.Rows[1]["id"], Is.EqualTo(2));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("First record"));
+      Assert.That(dt.Rows[1]["name"], Is.EqualTo("Second record"));
     }
 
     /// <summary>
@@ -440,8 +440,8 @@ namespace MySql.Data.MySqlClient.Tests
         System.Diagnostics.Trace.Listeners.Remove(myListener);
 
         // now see how many times our listener recorded a cache hit
-        Assert.AreEqual(190, myListener.Find("from procedure cache"));
-        Assert.AreEqual(10, myListener.Find("from server"));
+        Assert.That(myListener.Find("from procedure cache"), Is.EqualTo(190));
+        Assert.That(myListener.Find("from server"), Is.EqualTo(10));
       }
     }
 
@@ -542,7 +542,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual("P", reader.GetString(0));
+        Assert.That(reader.GetString(0), Is.EqualTo("P"));
       }
     }
 
@@ -565,7 +565,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlDataAdapter da = new MySqlDataAdapter(cmd);
       DataTable schema = new DataTable();
       da.FillSchema(schema, SchemaType.Source);
-      Assert.AreEqual(2, schema.Columns.Count);
+      Assert.That(schema.Columns.Count, Is.EqualTo(2));
     }
 
     /// <summary>
@@ -622,14 +622,14 @@ namespace MySql.Data.MySqlClient.Tests
     public void CatalogWithHyphens()
     {
       // make sure this test is valid
-      Assert.True(Connection.Database.IndexOf('-') != -1);
+      Assert.That(Connection.Database.IndexOf('-') != -1);
 
       MySqlCommand cmd = new MySqlCommand("CREATE PROCEDURE spTest() BEGIN SELECT 1; END", Connection);
       cmd.ExecuteNonQuery();
 
       cmd.CommandText = "spTest";
       cmd.CommandType = CommandType.StoredProcedure;
-      Assert.AreEqual(1, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.That(Convert.ToInt32(cmd.ExecuteScalar()), Is.EqualTo(1));
     }
 
     [Test]
@@ -677,7 +677,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("@myparam", MySqlDbType.Decimal).Value = 20;
       cmd.CommandType = CommandType.StoredProcedure;
       object o = cmd.ExecuteScalar();
-      Assert.AreEqual(1, Convert.ToInt32(o));
+      Assert.That(Convert.ToInt32(o), Is.EqualTo(1));
     }
 
     private void ParametersInReverseOrderInternal(bool isOwner)
@@ -705,13 +705,13 @@ namespace MySql.Data.MySqlClient.Tests
         da.Fill(dt);
         if (!isOwner)
         {
-          Assert.AreEqual("World", dt.Rows[0][0]);
-          Assert.AreEqual("Hello", dt.Rows[0][1]);
+          Assert.That(dt.Rows[0][0], Is.EqualTo("World"));
+          Assert.That(dt.Rows[0][1], Is.EqualTo("Hello"));
         }
         else
         {
-          Assert.AreEqual("Hello", dt.Rows[0]["P1"]);
-          Assert.AreEqual("World", dt.Rows[0]["P2"]);
+          Assert.That(dt.Rows[0]["P1"], Is.EqualTo("Hello"));
+          Assert.That(dt.Rows[0]["P2"], Is.EqualTo("World"));
         }
       }
     }
@@ -737,7 +737,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("spTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
       MySqlCommandBuilder.DeriveParameters(cmd);
-      Assert.AreEqual(2, cmd.Parameters.Count);
+      Assert.That(cmd.Parameters.Count, Is.EqualTo(2));
     }
 
     /// <summary>
@@ -795,7 +795,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         MySqlSchemaCollection parametersTable = isp.GetProcedureParametersAsync(rest, new MySqlSchemaCollection(procTable), false).GetAwaiter().GetResult();
 
-        Assert.NotNull(parametersTable);
+        Assert.That(parametersTable, Is.Not.Null);
       }
     }
 
@@ -816,7 +816,7 @@ namespace MySql.Data.MySqlClient.Tests
           cmd.Parameters.AddWithValue("?p", 2);
           cmd.CommandType = CommandType.StoredProcedure;
           var result = cmd.ExecuteScalar();
-          Assert.AreEqual(2, result);
+          Assert.That(result, Is.EqualTo(2));
         }
       }
       //Database and stored procedure contains "."
@@ -830,7 +830,7 @@ namespace MySql.Data.MySqlClient.Tests
           cmd.Parameters.AddWithValue("?p", 3);
           cmd.CommandType = CommandType.StoredProcedure;
           var result = cmd.ExecuteScalar();
-          Assert.AreEqual(3, result);
+          Assert.That(result, Is.EqualTo(3));
         }
       }
     }
@@ -849,7 +849,7 @@ namespace MySql.Data.MySqlClient.Tests
         if (table.Rows.Count > 0)
         {
           var column = table.Rows[0]["ROUTINE_DEFINITION"];
-          Assert.IsNotEmpty(column.ToString());
+          Assert.That(column.ToString(), Is.Not.Empty);
         }
       }
     }
@@ -870,11 +870,11 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand command = conn.CreateCommand();
         command.CommandText = $"test_prepare.spTest";
         command.CommandType = CommandType.StoredProcedure;
-        Assert.AreEqual(1, command.ExecuteScalar());
+        Assert.That(command.ExecuteScalar(), Is.EqualTo(1));
 
         command.CommandText = $"`test_prepare`.`spTest`";
         command.CommandType = CommandType.StoredProcedure;
-        Assert.AreEqual(1, command.ExecuteScalar());
+        Assert.That(command.ExecuteScalar(), Is.EqualTo(1));
       }
     }
 
@@ -913,7 +913,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Prepare();
         cmd.ExecuteNonQuery();
         var result = cmd.Parameters["@value"].Value;
-        Assert.AreEqual("test value", result);
+        Assert.That(result, Is.EqualTo("test value"));
 
         //call Prepare() when SP and MySqlParameter have different data types
         cmd = new MySqlCommand("spTest", connection);
@@ -950,7 +950,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         cmd = new MySqlCommand("SELECT jsonValue FROM Test", conn);
         cmd.CommandType = CommandType.Text;
-        StringAssert.AreEqualIgnoringCase(json, cmd.ExecuteScalar().ToString().Replace(" ", ""));
+        Assert.That(cmd.ExecuteScalar().ToString().Replace(" ", ""), Is.EqualTo(json).IgnoreCase);
       }
     }
 
@@ -967,7 +967,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.CommandType = CommandType.StoredProcedure;
         cmd.Parameters.Add(new MySqlParameter { ParameterName = "success", Value = true, MySqlDbType = MySqlDbType.Int32 });
         cmd.Prepare();
-        Assert.IsTrue(Convert.ToBoolean(cmd.ExecuteScalar()));
+        Assert.That(Convert.ToBoolean(cmd.ExecuteScalar()));
       }
     }
 
@@ -994,7 +994,7 @@ namespace MySql.Data.MySqlClient.Tests
         var result = cmd.Parameters["@value"].Value;
 
         DateTime dateTime = new DateTime(2020, 11, 27, 12, 25, 59);
-        Assert.AreEqual(dateTime, result);
+        Assert.That(result, Is.EqualTo(dateTime));
       }
 
       ExecuteSQL("DROP PROCEDURE spTest");
@@ -1013,7 +1013,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         cmd = new MySqlCommand("SELECT dateTime FROM Test", conn);
         cmd.CommandType = CommandType.Text;
-        Assert.AreEqual(dateTime, cmd.ExecuteScalar());
+        Assert.That(cmd.ExecuteScalar(), Is.EqualTo(dateTime));
       }
     }
 
@@ -1067,7 +1067,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         while (rdr.Read())
         {
-          Assert.AreEqual("5", rdr.GetString(0));
+          Assert.That(rdr.GetString(0), Is.EqualTo("5"));
         }
       }
 
@@ -1082,11 +1082,11 @@ namespace MySql.Data.MySqlClient.Tests
           }
         }
       }
-      Assert.True(testResult);
+      Assert.That(testResult);
 
       cmd = new MySqlCommand($"SELECT count(*) FROM information_schema.routines WHERE 1=1 AND ROUTINE_SCHEMA='{Settings.Database}' AND ROUTINE_NAME='{spName}';", Connection);
       var count = cmd.ExecuteScalar();
-      Assert.AreEqual(1, count);
+      Assert.That(count, Is.EqualTo(1));
 
     }
 
@@ -1106,11 +1106,11 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand command = conn.CreateCommand();
         command.CommandText = $"`Test`.`spTest`";
         command.CommandType = CommandType.StoredProcedure;
-        Assert.AreEqual(1, command.ExecuteScalar());
+        Assert.That(command.ExecuteScalar(), Is.EqualTo(1));
 
         command.CommandText = $"Test.spTest";
         command.CommandType = CommandType.StoredProcedure;
-        Assert.AreEqual(1, command.ExecuteScalar());
+        Assert.That(command.ExecuteScalar(), Is.EqualTo(1));
       }
     }
 
@@ -1135,7 +1135,7 @@ namespace MySql.Data.MySqlClient.Tests
         command.CommandText = spNameCnet;
         command.CommandType = CommandType.StoredProcedure;
 
-        Assert.AreEqual(1, command.ExecuteScalar());
+        Assert.That(command.ExecuteScalar(), Is.EqualTo(1));
       }
     }
 
@@ -1157,7 +1157,7 @@ namespace MySql.Data.MySqlClient.Tests
         command.CommandText = spNameCnet;
         command.CommandType = CommandType.StoredProcedure;
 
-        Assert.AreEqual(1, command.ExecuteScalar());
+        Assert.That(command.ExecuteScalar(), Is.EqualTo(1));
       }
 
       ExecuteSQL($"DROP SCHEMA {schema};", true);
@@ -1220,7 +1220,7 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase("`   foo`.bar", true)]
     public void IsSyntacticallyCorrect(string spName, bool isIt)
     {
-      Assert.IsTrue(MySqlClient.StoredProcedure.IsSyntacticallyCorrect(spName) == isIt);
+      Assert.That(MySqlClient.StoredProcedure.IsSyntacticallyCorrect(spName) == isIt);
     }
   }
 }

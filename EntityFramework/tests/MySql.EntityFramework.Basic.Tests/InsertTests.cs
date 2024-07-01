@@ -58,11 +58,11 @@ namespace MySql.Data.EntityFramework.Tests
         ctx.Companies.Add(c);
         int result = ctx.SaveChanges();
 
-        Assert.AreEqual(beforeCnt + 1, ctx.Companies.Count());
+        Assert.That(ctx.Companies.Count(), Is.EqualTo(beforeCnt + 1));
 
         Company d = ctx.Companies.Find(c.Id);
         d.Id = c.Id;
-        Assert.AreEqual(c, d);
+        Assert.That(d, Is.EqualTo(c));
       }
     }
 
@@ -93,12 +93,12 @@ namespace MySql.Data.EntityFramework.Tests
       proc.CommandType = CommandType.StoredProcedure;
       int result = await proc.ExecuteNonQueryAsync();
 
-      Assert.AreNotEqual(-1, result);
+      Assert.That(result, Is.Not.EqualTo(-1));
 
       EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "SELECT COUNT(*) FROM NonQueryAndScalarAsyncAwaitTest;", Connection = Connection };
       cmd.CommandType = CommandType.Text;
       object cnt = await cmd.ExecuteScalarAsync();
-      Assert.AreEqual(100, Convert.ToInt32(cnt));
+      Assert.That(Convert.ToInt32(cnt), Is.EqualTo(100));
     }
 
     [Test]
@@ -147,14 +147,14 @@ namespace MySql.Data.EntityFramework.Tests
         LongDataTest longData = new LongDataTest();
         longData.Data = "This does fit.";
         ctx.LongDataTests.Add(longData);
-        Assert.IsTrue(ctx.SaveChanges() == 1);
+        Assert.That(ctx.SaveChanges() == 1);
 
         // Try to insert a value that is larger than the max lenght of the column
         longData.Data = "This does not fit in the column!!!";
         ctx.LongDataTests.Add(longData);
         var ex = Assert.Throws<DbUpdateException>(() => ctx.SaveChanges());
         Assert.That(ex.InnerException.InnerException is MySqlException);
-        StringAssert.AreEqualIgnoringCase("Data too long for column 'Data' at row 1", ex.InnerException.InnerException.Message);
+        Assert.That(ex.InnerException.InnerException.Message, Is.EqualTo("Data too long for column 'Data' at row 1").IgnoreCase);
       }
     }
   }

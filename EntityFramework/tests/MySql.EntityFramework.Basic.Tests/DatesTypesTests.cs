@@ -89,12 +89,12 @@ namespace MySql.Data.EntityFramework.Tests
         DataTable schema = Connection.GetSchema("COLUMNS", new string[] { null, Connection.Database, "widgets" });
 
         DataRow row = schema.Rows[3];
-        Assert.AreEqual("datetime", (string)row["DATA_TYPE"]);
-        Assert.AreEqual("NO", (string)row["IS_NULLABLE"]);
+        Assert.That((string)row["DATA_TYPE"], Is.EqualTo("datetime"));
+        Assert.That((string)row["IS_NULLABLE"], Is.EqualTo("NO"));
         if (Version < new Version(8, 0))
-          Assert.AreEqual((uint)6, (UInt64)row["DATETIME_PRECISION"]);
+          Assert.That((UInt64)row["DATETIME_PRECISION"], Is.EqualTo((uint)6));
         else
-          Assert.AreEqual((uint)6, (UInt32)row["DATETIME_PRECISION"]);
+          Assert.That((UInt32)row["DATETIME_PRECISION"], Is.EqualTo((uint)6));
       }
     }
   }

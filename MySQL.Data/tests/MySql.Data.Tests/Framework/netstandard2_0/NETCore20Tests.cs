@@ -74,11 +74,11 @@ namespace MySql.Data.MySqlClient.Tests
       ds.Relations.Add(dataRelation);
 
       Assert.That(ds.Tables[0].Constraints, Has.One.Items);
-      Assert.IsInstanceOf<UniqueConstraint>(ds.Tables[0].Constraints[0]);
+      Assert.That(ds.Tables[0].Constraints[0], Is.InstanceOf<UniqueConstraint>());
 
-      Assert.AreEqual(2, ds.Tables[1].Constraints.Count);
-      Assert.IsInstanceOf<UniqueConstraint>(ds.Tables[0].Constraints[0]);
-      Assert.IsInstanceOf<ForeignKeyConstraint>(ds.Tables[1].Constraints[1]);
+      Assert.That(ds.Tables[1].Constraints.Count, Is.EqualTo(2));
+      Assert.That(ds.Tables[0].Constraints[0], Is.InstanceOf<UniqueConstraint>());
+      Assert.That(ds.Tables[1].Constraints[1], Is.InstanceOf<ForeignKeyConstraint>());
     }
 
     [Test]
@@ -96,16 +96,16 @@ namespace MySql.Data.MySqlClient.Tests
 
       using (DataTableReader dataTableReader = new DataTableReader(childDt))
       {
-        Assert.True(dataTableReader.HasRows);
-        Assert.AreEqual(3, dataTableReader.FieldCount);
+        Assert.That(dataTableReader.HasRows);
+        Assert.That(dataTableReader.FieldCount, Is.EqualTo(3));
       }
 
       PropertyCollection propertyCollection = childDt.ExtendedProperties;
       propertyCollection.Add("TimeStamp", DateTime.Now);
       propertyCollection.Add("Version", 1);
 
-      CollectionAssert.IsNotEmpty(childDt.ExtendedProperties);
-      Assert.AreEqual(2, childDt.ExtendedProperties.Count);
+      Assert.That(childDt.ExtendedProperties, Is.Not.Empty);
+      Assert.That(childDt.ExtendedProperties.Count, Is.EqualTo(2));
     }
 
     [Test]
@@ -139,9 +139,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       dataViewManager.DataViewSettings[parentDt].Sort = "name";
 
-      Assert.True(dataViewManager.DataViewSettings[childDt].Sort == "");
-      Assert.AreEqual("name", dataViewManager.DataViewSettings[parentDt].Sort);
-      CollectionAssert.IsNotEmpty(dataViewManager.DataViewSettings);
+      Assert.That(dataViewManager.DataViewSettings[childDt].Sort == "");
+      Assert.That(dataViewManager.DataViewSettings[parentDt].Sort, Is.EqualTo("name"));
+      Assert.That(dataViewManager.DataViewSettings, Is.Not.Empty);
     }
 
     [Test]
@@ -157,13 +157,13 @@ namespace MySql.Data.MySqlClient.Tests
       parentDa.Fill(parentDt);
       parentDt.Columns["id"].Unique = true;
 
-      Assert.True(parentDt.Columns[0].Unique);
-      Assert.False(parentDt.Columns[0].AllowDBNull);
-      Assert.AreEqual("name", parentDt.Columns[1].ColumnName);
+      Assert.That(parentDt.Columns[0].Unique);
+      Assert.That(!parentDt.Columns[0].AllowDBNull);
+      Assert.That(parentDt.Columns[1].ColumnName, Is.EqualTo("name"));
 
-      Assert.AreEqual(0, parentDt.Columns[0].AutoIncrementSeed);
-      Assert.False(parentDt.Columns[0].ReadOnly);
-      Assert.False(parentDt.Columns[1].AutoIncrement);
+      Assert.That(parentDt.Columns[0].AutoIncrementSeed, Is.EqualTo(0));
+      Assert.That(!parentDt.Columns[0].ReadOnly);
+      Assert.That(!parentDt.Columns[1].AutoIncrement);
     }
   }
 }

@@ -58,19 +58,19 @@ namespace MySql.Data.MySqlClient.Tests
       script.Connection = Connection;
       script.Delimiter = "$$";
       int count = script.Execute();
-      Assert.AreEqual(10, count);
+      Assert.That(count, Is.EqualTo(10));
 
       MySqlCommand cmd = new MySqlCommand(
         String.Format(@"SELECT COUNT(*) FROM information_schema.routines WHERE
         routine_schema = '{0}' AND routine_name LIKE 'spTest1-%'",
         Connection.Database), Connection);
-      Assert.AreEqual(10, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.That(Convert.ToInt32(cmd.ExecuteScalar()), Is.EqualTo(10));
     }
 
     void ExecuteScriptWithProcedures_QueryExecuted(object sender, MySqlScriptEventArgs e)
     {
       string stmt = String.Format(statementTemplate1, statementCount++, null);
-      Assert.AreEqual(stmt, e.StatementText);
+      Assert.That(e.StatementText, Is.EqualTo(stmt));
     }
 
     private string statementTemplate2 = @"INSERT INTO Test (id, name) VALUES ({0}, 'a "" na;me'){1}";
@@ -89,16 +89,16 @@ namespace MySql.Data.MySqlClient.Tests
       script.Connection = Connection;
       script.StatementExecuted += new MySqlStatementExecutedEventHandler(ExecuteScriptWithInserts_StatementExecuted);
       int count = script.Execute();
-      Assert.AreEqual(10, count);
+      Assert.That(count, Is.EqualTo(10));
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Assert.AreEqual(10, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.That(Convert.ToInt32(cmd.ExecuteScalar()), Is.EqualTo(10));
     }
 
     void ExecuteScriptWithInserts_StatementExecuted(object sender, MySqlScriptEventArgs e)
     {
       string stmt = String.Format(statementTemplate2, statementCount++, null);
-      Assert.AreEqual(stmt, e.StatementText);
+      Assert.That(e.StatementText, Is.EqualTo(stmt));
     }
 
     [Test]
@@ -116,11 +116,11 @@ namespace MySql.Data.MySqlClient.Tests
       script.Connection = Connection;
       script.Error += new MySqlScriptErrorEventHandler(ExecuteScript_ContinueOnError);
       int count = script.Execute();
-      Assert.AreEqual((int)10, count);
-      Assert.AreEqual((int)1, statementCount);
+      Assert.That(count, Is.EqualTo((int)10));
+      Assert.That(statementCount, Is.EqualTo((int)1));
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Assert.AreEqual(10, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.That(Convert.ToInt32(cmd.ExecuteScalar()), Is.EqualTo(10));
     }
 
     void ExecuteScript_ContinueOnError(object sender, MySqlScriptErrorEventArgs args)
@@ -144,11 +144,11 @@ namespace MySql.Data.MySqlClient.Tests
       script.Connection = Connection;
       script.Error += new MySqlScriptErrorEventHandler(ExecuteScript_NotContinueOnError);
       int count = script.Execute();
-      Assert.AreEqual(5, count);
-      Assert.AreEqual(1, statementCount);
+      Assert.That(count, Is.EqualTo(5));
+      Assert.That(statementCount, Is.EqualTo(1));
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Assert.AreEqual(5, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.That(Convert.ToInt32(cmd.ExecuteScalar()), Is.EqualTo(5));
     }
 
     void ExecuteScript_NotContinueOnError(object sender, MySqlScriptErrorEventArgs args)
@@ -170,7 +170,7 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlScript script = new MySqlScript(scriptText);
         script.Connection = c;
         int count = script.Execute();
-        Assert.AreEqual(1, count);
+        Assert.That(count, Is.EqualTo(1));
       }
     }
 
@@ -256,17 +256,17 @@ namespace MySql.Data.MySqlClient.Tests
       script.StatementExecuted += new MySqlStatementExecutedEventHandler(delegate(object sender, MySqlScriptEventArgs e)
       {
         string stmt = String.Format(spTpl, statementCount++, null);
-        Assert.AreEqual(stmt, e.StatementText);
+        Assert.That(e.StatementText, Is.EqualTo(stmt));
       });
       script.Connection = Connection;
       script.Delimiter = "$$";
       int count = await script.ExecuteAsync();
-      Assert.AreEqual(10, count);
+      Assert.That(count, Is.EqualTo(10));
 
       MySqlCommand cmd = new MySqlCommand(
         String.Format(@"SELECT COUNT(*) FROM information_schema.routines WHERE routine_schema = '{0}' AND routine_name LIKE 'SEScriptWithProceduresAsyncSpTest%'",
         Connection.Database), Connection);
-      Assert.AreEqual(10, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.That(Convert.ToInt32(cmd.ExecuteScalar()), Is.EqualTo(10));
     }
 
     [Test]
@@ -285,13 +285,13 @@ namespace MySql.Data.MySqlClient.Tests
       script.StatementExecuted += new MySqlStatementExecutedEventHandler(delegate(object sender, MySqlScriptEventArgs e)
       {
         string stmt = String.Format(queryTpl, statementCount++, null);
-        Assert.AreEqual(stmt, e.StatementText);
+        Assert.That(e.StatementText, Is.EqualTo(stmt));
       });
       int count = await script.ExecuteAsync();
-      Assert.AreEqual(10, count);
+      Assert.That(count, Is.EqualTo(10));
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM SEScriptWithInsertsAsyncTest", Connection);
-      Assert.AreEqual(10, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.That(Convert.ToInt32(cmd.ExecuteScalar()), Is.EqualTo(10));
     }
     #endregion
 
@@ -313,7 +313,7 @@ namespace MySql.Data.MySqlClient.Tests
         script.Query = sql;
         script.Delimiter = "??";
         var count = script.Execute();
-        Assert.AreEqual(3, count);
+        Assert.That(count, Is.EqualTo(3));
       }
     }
 

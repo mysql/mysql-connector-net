@@ -51,7 +51,7 @@ namespace MySqlX.Data.Tests
   ""_id"": 1, 
   ""pages"": 20
 }";
-      StringAssert.AreEqualIgnoringCase(RemoveLineEndings(json), RemoveLineEndings(s));
+      Assert.That(RemoveLineEndings(s), Is.EqualTo(RemoveLineEndings(json)).IgnoreCase);
     }
 
     [Test]
@@ -61,7 +61,7 @@ namespace MySqlX.Data.Tests
       DbDoc d2 = new DbDoc();
       d2.SetValue("id", 1);
       d2.SetValue("pages", 20);
-      Assert.True(d.Equals(d2));
+      Assert.That(d.Equals(d2));
     }
 
     [Test]
@@ -74,7 +74,7 @@ namespace MySqlX.Data.Tests
       d2.SetValue("id", 1);
       d2.SetValue("pages", 20);
       d2.SetValue("person", new { name = "Fred", age = 45 });
-      Assert.True(d.Equals(d2));
+      Assert.That(d.Equals(d2));
     }
 
     [Test]
@@ -112,8 +112,8 @@ namespace MySqlX.Data.Tests
       d2.SetValue("id", 1);
       d2.SetValue("pages", 20);
       d2.SetValue("books", docs);
-      StringAssert.AreEqualIgnoringCase(d.ToString(), d2.ToString());
-      StringAssert.AreEqualIgnoringCase(RemoveLineEndings(json), RemoveLineEndings(d2.ToString()));
+      Assert.That(d2.ToString(), Is.EqualTo(d.ToString()).IgnoreCase);
+      Assert.That(RemoveLineEndings(d2.ToString()), Is.EqualTo(RemoveLineEndings(json)).IgnoreCase);
     }
 
     [Test]
@@ -123,7 +123,7 @@ namespace MySqlX.Data.Tests
       DbDoc d2 = new DbDoc();
       d2.SetValue("id", 1);
       d2.SetValue("pages", (long)int.MaxValue + 1);
-      Assert.True(d.Equals(d2));
+      Assert.That(d.Equals(d2));
     }
 
     [Test]
@@ -133,7 +133,7 @@ namespace MySqlX.Data.Tests
       DbDoc d2 = new DbDoc();
       d2.SetValue("id", 1);
       d2.SetValue("pi", 3.14159);
-      Assert.True(d.Equals(d2));
+      Assert.That(d.Equals(d2));
     }
   }
 }

@@ -45,12 +45,12 @@ namespace MySqlX.Data.Tests
 
       RowResult result = ExecuteSelectStatement(books.Select("name", "pages"));
       var rows = result.FetchAll();
-      Assert.True(result.Columns.Count == 2);
-      Assert.True(rows.Count == 2);
+      Assert.That(result.Columns.Count == 2);
+      Assert.That(rows.Count == 2);
 
       var result2 = session.SQL("Select* from test.books").Execute();
       var row2 = result2.FetchOne();
-      Assert.True(result2.Columns.Count == 3);
+      Assert.That(result2.Columns.Count == 3);
     }
 
     [Test]
@@ -61,7 +61,7 @@ namespace MySqlX.Data.Tests
 
       RowResult result = ExecuteSelectStatement(books.Select("name", "pages").Where("pages > 250"));
       var rows = result.FetchAll();
-      Assert.True(result.Columns.Count == 2);
+      Assert.That(result.Columns.Count == 2);
       Assert.That(rows, Has.One.Items);
     }
 
@@ -97,7 +97,7 @@ namespace MySqlX.Data.Tests
         RowResult r1 = ExecuteSelectStatement(t1.Select().Where("id = :id").Bind("id", 1).LockExclusive());
         var rows1 = r1.FetchAll();
         Assert.That(rows1, Has.One.Items);
-        Assert.AreEqual(1, rows1[0]["id"]);
+        Assert.That(rows1[0]["id"], Is.EqualTo(1));
 
         // second session tries to read the locked row
         using (Session s2 = MySQLX.GetSession(ConnectionString))
@@ -115,7 +115,7 @@ namespace MySqlX.Data.Tests
           {
             case LockContention.Default:
               // error 1205 Lock wait timeout exceeded; try restarting transaction
-              Assert.AreEqual(1205u, Assert.Throws<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code);
+              Assert.That(Assert.Throws<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code, Is.EqualTo(1205u));
               break;
             case LockContention.NoWait:
               // error 1205 Lock wait timeout exceeded; try restarting transaction
@@ -123,18 +123,18 @@ namespace MySqlX.Data.Tests
               if (session.XSession.GetServerVersion().isAtLeast(8, 0, 5))
                 // error 3572 Statement aborted because lock(s) could not be acquired immediately and NOWAIT is set
                 expectedError = 3572;
-              Assert.AreEqual(expectedError, Assert.Throws<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code);
+              Assert.That(Assert.Throws<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code, Is.EqualTo(expectedError));
               break;
             case LockContention.SkipLocked:
               if (!session.XSession.GetServerVersion().isAtLeast(8, 0, 5))
               {
                 // error 1205 Lock wait timeout exceeded; try restarting transaction
-                Assert.AreEqual(1205u, Assert.Throws<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code);
+                Assert.That(Assert.Throws<MySqlException>(() => ExecuteSelectStatement(stmt2).FetchAll()).Code, Is.EqualTo(1205u));
                 break;
               }
               var rows2 = ExecuteSelectStatement(stmt2).FetchAll();
               Assert.That(rows2, Has.One.Items);
-              Assert.AreEqual(2, rows2[0]["id"]);
+              Assert.That(rows2[0]["id"], Is.EqualTo(2));
               break;
             default:
               throw new NotImplementedException(lockOption.ToString());

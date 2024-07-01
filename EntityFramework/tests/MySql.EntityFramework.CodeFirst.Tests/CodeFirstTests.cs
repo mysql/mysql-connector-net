@@ -65,7 +65,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       {
         j--;
       }
-      Assert.AreEqual(0, j);
+      Assert.That(j, Is.EqualTo(0));
     }
 
     /// <summary>
@@ -87,14 +87,14 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       {
         j--;
       }
-      Assert.AreEqual(0, j);
+      Assert.That(j, Is.EqualTo(0));
       MovieFormat m = new MovieFormat();
       m.Format = 8.0f;
       db.MovieFormats.Add(m);
       db.SaveChanges();
       MovieFormat m2 = db.MovieFormats.Where(p => p.Format == 8.0f).FirstOrDefault();
-      Assert.NotNull(m2);
-      Assert.AreEqual(8.0f, m2.Format);
+      Assert.That(m2, Is.Not.Null);
+      Assert.That(m2.Format, Is.EqualTo(8.0f));
     }
 
     /// <summary>
@@ -168,7 +168,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
         ((IObjectContextAdapter)db).ObjectContext.CreateDatabaseScript();
       Regex rx = new Regex(@"`Data` (?<type>[^\),]*)", RegexOptions.Compiled | RegexOptions.Singleline);
       Match m = rx.Match(dbCreationScript);
-      Assert.AreEqual("longblob", m.Groups["type"].Value);
+      Assert.That(m.Groups["type"].Value, Is.EqualTo("longblob"));
     }
 
     /// <summary>
@@ -187,7 +187,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
         context.Database.ExecuteSqlCommand(@"create procedure `GetCount`() begin select 5; end;");
         long count = context.Database.SqlQuery<long>("call GetCount").First();
 
-        Assert.AreEqual(5, count);
+        Assert.That(count, Is.EqualTo(5));
       }
     }
 
@@ -220,7 +220,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
           records = Convert.ToInt32(cmd.ExecuteScalar());
         }
 
-        Assert.AreEqual(context.Vehicles.Count(), records);
+        Assert.That(records, Is.EqualTo(context.Vehicles.Count()));
       }
     }
 
@@ -253,7 +253,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
           records = Convert.ToInt32(cmd.ExecuteScalar());
         }
 
-        Assert.AreEqual(context.Vehicles.Count(), records);
+        Assert.That(records, Is.EqualTo(context.Vehicles.Count()));
       }
     }
 
@@ -275,8 +275,8 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
 where table_schema = '{Connection.Database}' and table_name = 'movies' and column_name = 'Price'", Connection).ExecuteReader())
       {
         r.Read();
-        Assert.AreEqual(16, r.GetInt32(0));
-        Assert.AreEqual(2, r.GetInt32(1));
+        Assert.That(r.GetInt32(0), Is.EqualTo(16));
+        Assert.That(r.GetInt32(1), Is.EqualTo(2));
       }
     }
 
@@ -310,9 +310,9 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("Description", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("mediumtext", reader[2].ToString());
+            Assert.That(reader[0].ToString(), Is.EqualTo("Description"));
+            Assert.That(reader[1].ToString(), Is.EqualTo("NO"));
+            Assert.That(reader[2].ToString(), Is.EqualTo("mediumtext"));
           }
           reader.Close();
 
@@ -320,10 +320,10 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
           reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("Name", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("varchar", reader[2].ToString());
-            Assert.AreEqual("255", reader[3].ToString());
+            Assert.That(reader[0].ToString(), Is.EqualTo("Name"));
+            Assert.That(reader[1].ToString(), Is.EqualTo("NO"));
+            Assert.That(reader[2].ToString(), Is.EqualTo("varchar"));
+            Assert.That(reader[3].ToString(), Is.EqualTo("255"));
           }
           reader.Close();
 
@@ -331,10 +331,10 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
           reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("LongDescription", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("longtext", reader[2].ToString());
-            Assert.AreEqual("4294967295", reader[3].ToString());
+            Assert.That(reader[0].ToString(), Is.EqualTo("LongDescription"));
+            Assert.That(reader[1].ToString(), Is.EqualTo("NO"));
+            Assert.That(reader[2].ToString(), Is.EqualTo("longtext"));
+            Assert.That(reader[3].ToString(), Is.EqualTo("4294967295"));
           }
         }
       }
@@ -360,7 +360,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       using (MovieDBContext ctx2 = new MovieDBContext())
       {
         var q = from esc in ctx2.EntitySingleColumns where esc.Id == 1 select esc;
-        Assert.AreEqual(1, q.Count());
+        Assert.That(q.Count(), Is.EqualTo(1));
       }
     }
 
@@ -413,7 +413,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
           // Validates Guid
           MySqlCommand cmd = new MySqlCommand("SELECT * FROM Manufacturers", conn);
           MySqlDataReader dr = cmd.ExecuteReader();
-          Assert.False(!dr.HasRows, "No records found");
+          Assert.That(dr.HasRows, "No records found");
 
           while (dr.Read())
           {
@@ -421,12 +421,12 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
             switch (name)
             {
               case "Nissan":
-                Assert.AreEqual(dr.GetGuid(0), nissan.ManufacturerId);
-                Assert.AreEqual(dr.GetGuid(2), nissan.GroupIdentifier);
+                Assert.That(nissan.ManufacturerId, Is.EqualTo(dr.GetGuid(0)));
+                Assert.That(nissan.GroupIdentifier, Is.EqualTo(dr.GetGuid(2)));
                 break;
               case "Ford":
-                Assert.AreEqual(dr.GetGuid(0), ford.ManufacturerId);
-                Assert.AreEqual(dr.GetGuid(2), ford.GroupIdentifier);
+                Assert.That(ford.ManufacturerId, Is.EqualTo(dr.GetGuid(0)));
+                Assert.That(ford.GroupIdentifier, Is.EqualTo(dr.GetGuid(2)));
                 break;
               default:
                 //Assert.Fail();
@@ -446,10 +446,10 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
               switch (name)
               {
                 case "Distributor1":
-                  Assert.AreEqual(dr.GetInt32(0), dis1.DistributorId);
+                  Assert.That(dis1.DistributorId, Is.EqualTo(dr.GetInt32(0)));
                   break;
                 case "Distributor2":
-                  Assert.AreEqual(dr.GetInt32(0), dis2.DistributorId);
+                  Assert.That(dis2.DistributorId, Is.EqualTo(dr.GetInt32(0)));
                   break;
                 default:
                   //Assert.Fail();
@@ -490,7 +490,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         {
           j--;
         }
-        Assert.AreEqual(0, j);
+        Assert.That(j, Is.EqualTo(0));
       }
     }
 
@@ -523,7 +523,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         {
           //Debug.WriteLine( r.country1 );
         }
-        Assert.AreEqual(599, j);
+        Assert.That(j, Is.EqualTo(599));
       }
     }
 
@@ -550,10 +550,10 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("DateTimeWithPrecision", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("datetime", reader[2].ToString());
-            Assert.AreEqual("3", reader[3].ToString());
+            Assert.That(reader[0].ToString(), Is.EqualTo("DateTimeWithPrecision"));
+            Assert.That(reader[1].ToString(), Is.EqualTo("NO"));
+            Assert.That(reader[2].ToString(), Is.EqualTo("datetime"));
+            Assert.That(reader[3].ToString(), Is.EqualTo("3"));
           }
           reader.Close();
 
@@ -562,10 +562,10 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
           reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("TimeStampWithPrecision", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("timestamp", reader[2].ToString());
-            Assert.AreEqual("3", reader[3].ToString());
+            Assert.That(reader[0].ToString(), Is.EqualTo("TimeStampWithPrecision"));
+            Assert.That(reader[1].ToString(), Is.EqualTo("NO"));
+            Assert.That(reader[2].ToString(), Is.EqualTo("timestamp"));
+            Assert.That(reader[3].ToString(), Is.EqualTo("3"));
           }
           reader.Close();
         }
@@ -608,10 +608,10 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         updateProduct.DateTimeWithPrecision = new DateTime(2012, 3, 18, 23, 9, 7, 6);
         db.SaveChanges();
 
-        Assert.NotNull(db.Products.First().Timestamp);
-        Assert.NotNull(db.Products.First().DateCreated);
-        Assert.AreEqual(new DateTime(2012, 3, 18, 23, 9, 7, 6), db.Products.First().DateTimeWithPrecision);
-        Assert.AreEqual(1, db.Products.Count());
+        Assert.That(db.Products.First().Timestamp, Is.Not.Empty);
+        Assert.That(db.Products.First().DateCreated, Is.Not.Empty);
+        Assert.That(db.Products.First().DateTimeWithPrecision, Is.EqualTo(new DateTime(2012, 3, 18, 23, 9, 7, 6)));
+        Assert.That(db.Products.Count(), Is.EqualTo(1));
         db.Database.Delete();
       }
     }
@@ -740,10 +740,10 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
           }
         }
         // check data integrity
-        Assert.AreEqual(outData.Count, data.Length);
+        Assert.That(data.Length, Is.EqualTo(outData.Count));
         for (int i = 0; i < data.Length; i++)
         {
-          Assert.True(outData.ContainsKey(data[i]));
+          Assert.That(outData.ContainsKey(data[i]));
         }
       }
     }
@@ -852,12 +852,12 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         int i = 0;
         foreach (Movie m in q)
         {
-          Assert.AreEqual(data[i].ID, m.ID);
-          Assert.AreEqual(data[i].Title, m.Title);
-          Assert.AreEqual(data[i].ReleaseDate, m.ReleaseDate);
+          Assert.That(m.ID, Is.EqualTo(data[i].ID));
+          Assert.That(m.Title, Is.EqualTo(data[i].Title));
+          Assert.That(m.ReleaseDate, Is.EqualTo(data[i].ReleaseDate));
           i++;
         }
-        Assert.AreEqual(2, i);
+        Assert.That(i, Is.EqualTo(2));
       }
     }
 
@@ -887,9 +887,9 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         int i = 0;
         foreach (var row in q1)
         {
-          Assert.AreEqual(MovieDBInitialize.data[i].ID, row.ID);
-          Assert.AreEqual(MovieDBInitialize.data[i].Title, row.Title);
-          Assert.AreEqual(MovieDBInitialize.data[i].ReleaseDate, row.ReleaseDate);
+          Assert.That(row.ID, Is.EqualTo(MovieDBInitialize.data[i].ID));
+          Assert.That(row.Title, Is.EqualTo(MovieDBInitialize.data[i].Title));
+          Assert.That(row.ReleaseDate, Is.EqualTo(MovieDBInitialize.data[i].ReleaseDate));
           i++;
         }
       }
@@ -953,7 +953,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         {
           j--;
         }
-        Assert.AreEqual(0, j);
+        Assert.That(j, Is.EqualTo(0));
       }
     }
 
@@ -992,7 +992,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         {
           j--;
         }
-        Assert.AreEqual(0, j);
+        Assert.That(j, Is.EqualTo(0));
       }
     }
 
@@ -1071,7 +1071,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         {
           j--;
         }
-        Assert.AreEqual(0, j);
+        Assert.That(j, Is.EqualTo(0));
       }
     }
 
@@ -1092,7 +1092,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       using (var reader = MySqlHelper.ExecuteReader(dbContext.Database.Connection.ConnectionString,
         $"SHOW COLUMNS FROM {nameof(dbContext.AutoIncrementBug)}s WHERE UPPER(EXTRA) LIKE '%AUTO_INCREMENT%'"))
       {
-        Assert.True(reader.HasRows);
+        Assert.That(reader.HasRows);
       }
       dbContext.Database.Delete();
     }
@@ -1143,7 +1143,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       {
       }
       var result = MySqlHelper.ExecuteScalar($"server=localhost;User Id=root;database={db.Database.Connection.Database};logging=true; port=" + Port + ";", "SELECT COUNT(_MigrationId) FROM __MySqlMigrations;");
-      Assert.AreEqual(1, int.Parse(result.ToString()));
+      Assert.That(int.Parse(result.ToString()), Is.EqualTo(1));
     }
 
     [Test]
@@ -1159,14 +1159,14 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         db.Movies.AddRange(new Movie[] { m1, m2, m3, m4 });
         db.SaveChanges();
         var q = from m in db.Movies select m;
-        Assert.AreEqual(4, q.Count());
+        Assert.That(q.Count(), Is.EqualTo(4));
         foreach (var row in q)
         {
         }
         db.Movies.RemoveRange(q.ToList());
         db.SaveChanges();
         var q2 = from m in db.Movies select m;
-        Assert.AreEqual(0, q2.Count());
+        Assert.That(q2.Count(), Is.EqualTo(0));
       }
     }
 
@@ -1183,8 +1183,8 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
                         where s.Subject == SchoolSubject.History
                         select s).FirstOrDefault();
 
-        Assert.AreNotEqual(null, schedule);
-        Assert.AreEqual(SchoolSubject.History, schedule.Subject);
+        Assert.That(schedule, Is.Not.EqualTo(null));
+        Assert.That(schedule.Subject, Is.EqualTo(SchoolSubject.History));
       }
     }
 
@@ -1226,15 +1226,15 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
 
         var distance = (point.Distance(place.location) * 100);
 
-        Assert.AreNotEqual(null, place);
-        Assert.AreEqual(8.6944880240295852D, distance.Value);
+        Assert.That(place, Is.Not.Null);
+        Assert.That(distance.Value, Is.EqualTo(8.6944880240295852D));
 
         var points = from p in dbCtx.MyPlaces
                      select new { name = p.name, location = p.location };
         foreach (var item in points)
         {
           var distanceX = DbGeometry.FromText("POINT(40.717957 -73.736501)").Distance(item.location) * 100;
-          Assert.IsNotNull(distanceX);
+          Assert.That(distanceX, Is.Not.Null);
         }
 
         foreach (MyPlace p in dbCtx.MyPlaces)
@@ -1268,9 +1268,9 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
 
         var result = (from u in dbCtx.MyPlaces select u.location.CoordinateSystemId).ToList();
         foreach (var item in result)
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Empty);
         var res = dbCtx.MyPlaces.OrderBy(q => q.name.Take(1).Skip(1).ToList());
-        Assert.IsNotNull(res);
+        Assert.That(res, Is.Not.Null);
 
         var pointA1 = DbGeometry.FromText(string.Format("POINT(40.644047 -73.782291)"));
         var pointB1 = DbGeometry.FromText("POINT(40.717957 -73.736501)");
@@ -1284,7 +1284,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         var pointB3 = DbGeometry.FromText("POINT(-1 3)");
         var distance3 = pointA3.Distance(pointB3);
 
-        Assert.True(distance1.Value == 0.086944880240295855 && distance2.Value == 2.2671568097509267 &&
+        Assert.That(distance1.Value == 0.086944880240295855 && distance2.Value == 2.2671568097509267 &&
              distance3.Value == 8.06225774829855);
 
       }
@@ -1310,12 +1310,12 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
 
             dbcontext.SaveChanges();
             var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true;port=" + Port + ";", "select COUNT(*) from moviecbcs;");
-            Assert.AreEqual(0, int.Parse(result.ToString()));
+            Assert.That(int.Parse(result.ToString()), Is.EqualTo(0));
 
             transaction.Commit();
 
             result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=" + Port + ";", "select COUNT(*) from moviecbcs;");
-            Assert.AreEqual(1, int.Parse(result.ToString()));
+            Assert.That(int.Parse(result.ToString()), Is.EqualTo(1));
           }
           catch (Exception)
           {
@@ -1359,12 +1359,12 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
               dbcontext.SaveChanges();
             }
             var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=" + Port + ";", "select COUNT(*) from moviecbcs;");
-            Assert.AreEqual(0, int.Parse(result.ToString()));
+            Assert.That(int.Parse(result.ToString()), Is.EqualTo(0));
 
             transaction.Commit();
 
             result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=" + Port + ";", "select COUNT(*) from moviecbcs;");
-            Assert.AreEqual(1, int.Parse(result.ToString()));
+            Assert.That(int.Parse(result.ToString()), Is.EqualTo(1));
           }
           catch (Exception)
           {
@@ -1390,9 +1390,9 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
           ReleaseDate = DateTime.Parse("01/07/2013")
         });
 
-        Assert.True(dbcontext.ChangeTracker.HasChanges());
+        Assert.That(dbcontext.ChangeTracker.HasChanges());
         dbcontext.SaveChanges();
-        Assert.False(dbcontext.ChangeTracker.HasChanges());
+        Assert.That(!dbcontext.ChangeTracker.HasChanges());
       }
     }
 
@@ -1419,7 +1419,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         dbcontext.SaveChanges();
       }
 
-      Assert.AreEqual(true, System.IO.File.Exists(logName));
+      Assert.That(System.IO.File.Exists(logName), Is.EqualTo(true));
     }
 
     [Test]
@@ -1462,7 +1462,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       writer.Close();
       file.Close();
 
-      Assert.AreEqual(true, System.IO.File.Exists(logName));
+      Assert.That(System.IO.File.Exists(logName), Is.EqualTo(true));
     }
 
     [Test]
@@ -1483,10 +1483,11 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         var student = (from s in dbContext.Students
                        select s).FirstOrDefault();
 
-        Assert.AreNotEqual(null, student);
-        Assert.AreNotEqual(null, student.Schedule);
-        Assert.AreNotEqual(true, string.IsNullOrEmpty(student.Address.Street));
-        Assert.AreNotEqual(0, student.Schedule.Count());
+        Assert.That(student, Is.Not.Null);
+        Assert.That(student.Schedule, Is.Not.Null);
+        Assert.That(student.Address.Street, Is.Not.Null);
+        Assert.That(student.Address.Street, Is.Not.Empty);
+        Assert.That(student.Schedule.Count(), Is.Not.EqualTo(0));
       }
     }
 
@@ -1516,7 +1517,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         connection.Dispose();
       }
       var result = MySqlHelper.ExecuteScalar("server=localhost;User Id=root;database=test;logging=true; port=" + Port + ";", "select COUNT(*) from moviecbcs;");
-      Assert.AreEqual(1, int.Parse(result.ToString()));
+      Assert.That(int.Parse(result.ToString()), Is.EqualTo(1));
     }
 
     [Test]
@@ -1565,7 +1566,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       {
         j--;
       }
-      Assert.AreEqual(0, j);
+      Assert.That(j, Is.EqualTo(0));
     }
 
     [Test]
@@ -1592,7 +1593,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       {
         j--;
       }
-      Assert.AreEqual(0, j);
+      Assert.That(j, Is.EqualTo(0));
     }
 
     [Test]
@@ -1618,7 +1619,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       {
         j--;
       }
-      Assert.AreEqual(0, j);
+      Assert.That(j, Is.EqualTo(0));
     }
 
 
@@ -1708,7 +1709,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         Debug.WriteLine(sql);
 #endif
         var result = rentals.ToList();
-        Assert.AreEqual(520, rentals.Count());
+        Assert.That(rentals.Count(), Is.EqualTo(520));
       }
     }
 
@@ -1748,9 +1749,9 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
                     .Include(c => c.Orders.Select(o => o.Items))
                     .Include(c => c.Orders.Select(o => o.Discounts)).ToList();
 
-        Assert.AreEqual(clients.Count(), 3);
-        Assert.AreEqual(clients.Where(t => t.Id == 1).Single().Orders.Count(), 1);
-        Assert.AreEqual(clients.Where(t => t.Id == 1).Single().Orders.Where(j => j.Id == 1).Single().Items.Count(), 3);
+        Assert.That(3, Is.EqualTo(clients.Count()));
+        Assert.That(1, Is.EqualTo(clients.Where(t => t.Id == 1).Single().Orders.Count()));
+        Assert.That(3, Is.EqualTo(clients.Where(t => t.Id == 1).Single().Orders.Where(j => j.Id == 1).Single().Items.Count()));
       }
     }
 
@@ -1795,17 +1796,17 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
           mr.Id = 1;
           mr.Name = "Commercial";
           db.MovieReleases2.Add(mr);
-          Assert.AreEqual(mr.RowVersion, 0);
+          Assert.That(0, Is.EqualTo(mr.RowVersion));
           db.SaveChanges(); // ADD
-          Assert.AreEqual(mr.RowVersion, 0);
+          Assert.That(0, Is.EqualTo(mr.RowVersion));
 
           mr.Name = "Director's Cut";
           db.SaveChanges(); // UPDATE #1
-          Assert.AreEqual(mr.RowVersion, 1);
+          Assert.That(1, Is.EqualTo(mr.RowVersion));
 
           mr.Name = "Avengers";
           db.SaveChanges(); // UPDATE #2
-          Assert.AreEqual(mr.RowVersion, 2);
+          Assert.That(2, Is.EqualTo(mr.RowVersion));
         }
         finally
         {
@@ -1847,13 +1848,13 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         context.Blog.Add(blog);
 
         context.SaveChanges();
-        Assert.AreEqual(2, context.Blog.Count());
-        Assert.AreEqual(2, context.Blog.First(b => b.Title == "Blog_2").BlogId);
+        Assert.That(context.Blog.Count(), Is.EqualTo(2));
+        Assert.That(context.Blog.First(b => b.Title == "Blog_2").BlogId, Is.EqualTo(2));
 
         context.Blog.Remove(blog);
         context.SaveChanges();
-        Assert.AreEqual(1, context.Blog.Count());
-        Assert.AreEqual("Blog_1", context.Blog.First().Title);
+        Assert.That(context.Blog.Count(), Is.EqualTo(1));
+        Assert.That(context.Blog.First().Title, Is.EqualTo("Blog_1"));
       }
     }
 
@@ -1909,7 +1910,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         var query1 = context.StringUsers;
         var query2 = query1.Take(0).Concat(query1);
         var query3 = query1.Concat(query1.Take(0));
-        Assert.True((query1.Count() == 5) & (query2.Count() == 5) & (query3.Count() == 5));
+        Assert.That((query1.Count() == 5) & (query2.Count() == 5) & (query3.Count() == 5));
       }
     }
 
@@ -1935,7 +1936,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
             while (reader.Read())
             {
               var val = reader.GetValue(0);
-              Assert.True(val.ToString().Contains("FK_"));
+              Assert.That(val.ToString().Contains("FK_"));
             }
           }
         }
@@ -1964,7 +1965,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
             while (reader.Read())
             {
               var val = reader.GetValue(0);
-              Assert.True(val.ToString().Contains("FK_"));
+              Assert.That(val.ToString().Contains("FK_"));
             }
           }
         }
@@ -2026,7 +2027,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         var query1 = context.TinyPkUseRs;
         var query2 = query1.Take(0).Concat(query1);
         var query3 = query1.Concat(query1.Take(0));
-        Assert.True((query1.Count() == 5) & (query2.Count() == 5) & (query3.Count() == 5));
+        Assert.That((query1.Count() == 5) & (query2.Count() == 5) & (query3.Count() == 5));
       }
     }
 
@@ -2085,7 +2086,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         var query1 = context.BigIntPkUseRs;
         var query2 = query1.Take(0).Concat(query1);
         var query3 = query1.Concat(query1.Take(0));
-        Assert.True((query1.Count() == 5) & (query2.Count() == 5) & (query3.Count() == 5));
+        Assert.That((query1.Count() == 5) & (query2.Count() == 5) & (query3.Count() == 5));
       }
     }
 
@@ -2126,7 +2127,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
           trans.Commit();
         }
         var count = context.SchoolSchedules.Count();
-        Assert.AreEqual(3, count);
+        Assert.That(count, Is.EqualTo(3));
         //Rollback
         using (var trans = context.Database.BeginTransaction())
         {
@@ -2145,7 +2146,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
           trans.Commit();
         }
         count = context.SchoolSchedules.Count();
-        Assert.AreEqual(4, count);
+        Assert.That(count, Is.EqualTo(4));
       }
 
     }
@@ -2186,7 +2187,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
             context.SaveChanges();
             trans.Commit();
             var count = context.SchoolSchedules.Count();
-            Assert.True(count > 0);
+            Assert.That(count > 0);
           }
         }
       }
@@ -2231,23 +2232,23 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
 
         string[] matchText = new string[] { "must", "tan" };
         var list = context.Vehicles.Where(v => matchText.Any(t => v.Name.Contains(t)));
-        Assert.AreEqual(1, list.Count());
+        Assert.That(list.Count(), Is.EqualTo(1));
 
         matchText = new string[] { "mus't", "tan" };
         list = context.Vehicles.Where(v => matchText.Any(t => v.Name.Contains(t)));
-        Assert.AreEqual(1, list.Count());
+        Assert.That(list.Count(), Is.EqualTo(1));
 
         matchText = new string[] { "%" };
         list = context.Vehicles.Where(v => matchText.Any(t => v.Name.Contains(t)));
-        Assert.AreEqual(0, list.Count());
+        Assert.That(list.Count(), Is.EqualTo(0));
 
         matchText = new string[] { "tan" };
         list = context.Vehicles.Where(v => matchText.Any(t => v.Name.Contains(t)));
-        Assert.AreEqual(1, list.Count());
+        Assert.That(list.Count(), Is.EqualTo(1));
 
         matchText = new string[] { "_" };
         list = context.Vehicles.Where(v => matchText.Any(t => v.Name.Contains(t)));
-        Assert.AreEqual(0, list.Count());
+        Assert.That(list.Count(), Is.EqualTo(0));
       }
     }
   }

@@ -76,19 +76,19 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader = cmd.ExecuteReader();
         reader.Read();
-        Assert.AreEqual("my ' value", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("my ' value"));
         reader.Read();
-        Assert.AreEqual(@"my "" value", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo(@"my "" value"));
         reader.Read();
-        Assert.AreEqual("my ` value", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("my ` value"));
         reader.Read();
-        Assert.AreEqual("my ´ value", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("my ´ value"));
         reader.Read();
-        Assert.AreEqual(@"my \ value", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo(@"my \ value"));
       }
       catch (Exception ex)
       {
-        Assert.False(ex.Message == String.Empty, ex.Message);
+        Assert.That(ex.Message == String.Empty, Is.False, ex.Message);
       }
       finally
       {
@@ -109,41 +109,41 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add(new MySqlParameter("?time", time));
       cmd.Parameters.Add(new MySqlParameter("?dt", dt));
       int cnt = cmd.ExecuteNonQuery();
-      Assert.True(cnt == 1, "Insert count");
+      Assert.That(cnt == 1, "Insert count");
 
       cmd = new MySqlCommand("SELECT tm, dt, ts FROM Test WHERE id=1", Connection);
       MySqlDataReader reader = cmd.ExecuteReader();
       reader.Read();
       TimeSpan time2 = (TimeSpan)reader.GetValue(0);
-      Assert.AreEqual(time, time2);
+      Assert.That(time2, Is.EqualTo(time));
 
       DateTime dt2 = reader.GetDateTime(1);
-      Assert.AreEqual(dt, dt2);
+      Assert.That(dt2, Is.EqualTo(dt));
 
       DateTime ts2 = reader.GetDateTime(2);
       reader.Close();
 
       // now check the timestamp column.  We won't check the minute or second for obvious reasons
       DateTime now = DateTime.Now;
-      Assert.AreEqual(now.Year, ts2.Year);
-      Assert.AreEqual(now.Month, ts2.Month);
-      Assert.AreEqual(now.Day, ts2.Day);
-      Assert.AreEqual(now.Hour, ts2.Hour);
+      Assert.That(ts2.Year, Is.EqualTo(now.Year));
+      Assert.That(ts2.Month, Is.EqualTo(now.Month));
+      Assert.That(ts2.Day, Is.EqualTo(now.Day));
+      Assert.That(ts2.Hour, Is.EqualTo(now.Hour));
 
       // now we'll set some nulls and see how they are handled
       cmd = new MySqlCommand("UPDATE Test SET tm=?ts, dt=?dt WHERE id=1", Connection);
       cmd.Parameters.Add(new MySqlParameter("?ts", DBNull.Value));
       cmd.Parameters.Add(new MySqlParameter("?dt", DBNull.Value));
       cnt = cmd.ExecuteNonQuery();
-      Assert.True(cnt == 1, "Update null count");
+      Assert.That(cnt == 1, "Update null count");
 
       cmd = new MySqlCommand("SELECT tm, dt FROM Test WHERE id=1", Connection);
       reader = cmd.ExecuteReader();
       reader.Read();
       object tso = reader.GetValue(0);
       object dto = reader.GetValue(1);
-      Assert.True(tso == DBNull.Value, "Time column");
-      Assert.True(dto == DBNull.Value, "DateTime column");
+      Assert.That(tso == DBNull.Value, "Time column");
+      Assert.That(dto == DBNull.Value, "DateTime column");
 
       reader.Close();
 
@@ -159,7 +159,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) " +
         "VALUES(1, 'this is ?\"my value\"')", Connection);
       int count = cmd.ExecuteNonQuery();
-      Assert.AreEqual(1, count);
+      Assert.That(count, Is.EqualTo(1));
     }
 
     [Test]
@@ -168,16 +168,16 @@ namespace MySql.Data.MySqlClient.Tests
       IDbCommand cmd = Connection.CreateCommand();
       IDbDataParameter prm = cmd.CreateParameter();
       prm.DbType = DbType.Int64;
-      Assert.AreEqual(DbType.Int64, prm.DbType);
+      Assert.That(prm.DbType, Is.EqualTo(DbType.Int64));
       prm.Value = 3;
-      Assert.AreEqual(DbType.Int64, prm.DbType);
+      Assert.That(prm.DbType, Is.EqualTo(DbType.Int64));
 
       MySqlParameter p = new MySqlParameter("name", MySqlDbType.Int64);
-      Assert.AreEqual(DbType.Int64, p.DbType);
-      Assert.AreEqual(MySqlDbType.Int64, p.MySqlDbType);
+      Assert.That(p.DbType, Is.EqualTo(DbType.Int64));
+      Assert.That(p.MySqlDbType, Is.EqualTo(MySqlDbType.Int64));
       p.Value = 3;
-      Assert.AreEqual(DbType.Int64, p.DbType);
-      Assert.AreEqual(MySqlDbType.Int64, p.MySqlDbType);
+      Assert.That(p.DbType, Is.EqualTo(DbType.Int64));
+      Assert.That(p.MySqlDbType, Is.EqualTo(MySqlDbType.Int64));
     }
 
     [Test]
@@ -236,9 +236,9 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.AreEqual("abcd", Convert.ToString(reader[0]));
-          Assert.AreEqual("efgh", Encoding.Default.GetString((byte[])reader[1]));
-          Assert.AreEqual("5678", Convert.ToString(reader[2]));
+          Assert.That(Convert.ToString(reader[0]), Is.EqualTo("abcd"));
+          Assert.That(Encoding.Default.GetString((byte[])reader[1]), Is.EqualTo("efgh"));
+          Assert.That(Convert.ToString(reader[2]), Is.EqualTo("5678"));
         }
       }
     }
@@ -251,8 +251,8 @@ namespace MySql.Data.MySqlClient.Tests
     {
       var param = new MySqlParameter("@param", MySqlDbType.MediumText);
       var clone = param.Clone();
-      Assert.AreEqual(MySqlDbType.MediumText, param.MySqlDbType); // Prints "MediumText"
-      Assert.AreEqual(MySqlDbType.MediumText, clone.MySqlDbType); // Prints "VarChar"
+      Assert.That(param.MySqlDbType, Is.EqualTo(MySqlDbType.MediumText)); // Prints "MediumText"
+      Assert.That(clone.MySqlDbType, Is.EqualTo(MySqlDbType.MediumText)); // Prints "VarChar"
     }
 
 
@@ -279,17 +279,17 @@ namespace MySql.Data.MySqlClient.Tests
 
       var clonedparam = param.Clone();
 
-      Assert.AreEqual(DbType.Int32, clonedparam.DbType);
-      Assert.AreEqual(ParameterDirection.Output, clonedparam.Direction);
-      Assert.AreEqual(System.Text.Encoding.UTF8, clonedparam.Encoding);
-      Assert.IsTrue(clonedparam.IsNullable);
-      Assert.AreEqual(MySqlDbType.Int32, clonedparam.MySqlDbType);
-      Assert.AreEqual("test", clonedparam.ParameterName);
-      Assert.AreEqual((byte)3, clonedparam.Precision);
-      Assert.AreEqual((byte)2, clonedparam.Scale);
-      Assert.AreEqual(1, clonedparam.Size);
-      Assert.IsTrue(clonedparam.SourceColumnNullMapping);
-      Assert.AreEqual(1, clonedparam.Value);
+      Assert.That(clonedparam.DbType, Is.EqualTo(DbType.Int32));
+      Assert.That(clonedparam.Direction, Is.EqualTo(ParameterDirection.Output));
+      Assert.That(clonedparam.Encoding, Is.EqualTo(System.Text.Encoding.UTF8));
+      Assert.That(clonedparam.IsNullable);
+      Assert.That(clonedparam.MySqlDbType, Is.EqualTo(MySqlDbType.Int32));
+      Assert.That(clonedparam.ParameterName, Is.EqualTo("test"));
+      Assert.That(clonedparam.Precision, Is.EqualTo((byte)3));
+      Assert.That(clonedparam.Scale, Is.EqualTo((byte)2));
+      Assert.That(clonedparam.Size, Is.EqualTo(1));
+      Assert.That(clonedparam.SourceColumnNullMapping);
+      Assert.That(clonedparam.Value, Is.EqualTo(1));
     }
 
     /// <summary>
@@ -311,7 +311,7 @@ namespace MySql.Data.MySqlClient.Tests
         if (preparedCommand) cmd.Prepare();
 
         cmd.ExecuteNonQuery();
-        Assert.AreEqual(1234, cmd.Parameters["@outputParam"].Value);
+        Assert.That(cmd.Parameters["@outputParam"].Value, Is.EqualTo(1234));
       }
     }
 
@@ -338,10 +338,10 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
 
       cmd.CommandText = "SELECT id FROM Test";
-      Assert.AreEqual(1, cmd.ExecuteScalar());
+      Assert.That(cmd.ExecuteScalar(), Is.EqualTo(1));
 
       cmd.CommandText = "SELECT name FROM Test";
-      Assert.AreEqual("test", cmd.ExecuteScalar());
+      Assert.That(cmd.ExecuteScalar(), Is.EqualTo("test"));
     }
 
     [Test]
@@ -355,7 +355,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       cmd.CommandText = "SELECT name FROM Test WHERE id=1";
       object name = cmd.ExecuteScalar();
-      Assert.AreEqual(DBNull.Value, name);
+      Assert.That(name, Is.EqualTo(DBNull.Value));
     }
 
     /// <summary>
@@ -369,7 +369,7 @@ namespace MySql.Data.MySqlClient.Tests
       p.ParameterName = "?boo";
       p.Value = "test";
       MySqlParameter mp = (MySqlParameter)p;
-      Assert.AreEqual(MySqlDbType.VarChar, mp.MySqlDbType);
+      Assert.That(mp.MySqlDbType, Is.EqualTo(MySqlDbType.VarChar));
     }
 
     [Test]
@@ -393,15 +393,15 @@ namespace MySql.Data.MySqlClient.Tests
 
       cmd.CommandText = "SELECT name FROM Test WHERE id=1";
       object name = cmd.ExecuteScalar();
-      Assert.AreEqual("Test", name);
+      Assert.That(name, Is.EqualTo("Test"));
 
       cmd.CommandText = "SELECT name FROM Test WHERE id=2";
       name = cmd.ExecuteScalar();
-      Assert.AreEqual("Test2", name);
+      Assert.That(name, Is.EqualTo("Test2"));
 
       cmd.CommandText = "SELECT name FROM Test WHERE id=3";
       name = cmd.ExecuteScalar();
-      Assert.AreEqual("Test3", name);
+      Assert.That(name, Is.EqualTo("Test3"));
     }
 
     /// <summary>
@@ -429,10 +429,10 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.True(reader.IsDBNull(2));
+        Assert.That(reader.IsDBNull(2));
         reader.Read();
-        Assert.False(reader.IsDBNull(2));
-        Assert.False(reader.Read());
+        Assert.That(reader.IsDBNull(2), Is.False);
+        Assert.That(reader.Read(), Is.False);
       }
     }
 
@@ -461,19 +461,19 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (?id, ?name)", Connection);
       cmd.Parameters.AddWithValue("id", 1);
-      Assert.AreEqual(-1, cmd.Parameters.IndexOf("?id"));
+      Assert.That(cmd.Parameters.IndexOf("?id"), Is.EqualTo(-1));
       cmd.Parameters.AddWithValue("name", "test");
       cmd.ExecuteNonQuery();
 
       cmd.Parameters.Clear();
       cmd.Parameters.AddWithValue("?id", 2);
-      Assert.AreEqual(-1, cmd.Parameters.IndexOf("id"));
+      Assert.That(cmd.Parameters.IndexOf("id"), Is.EqualTo(-1));
       cmd.Parameters.AddWithValue("?name", "test2");
       cmd.ExecuteNonQuery();
 
       cmd.CommandText = "SELECT COUNT(*) FROM Test";
       object count = cmd.ExecuteScalar();
-      Assert.AreEqual(2, Convert.ToInt32(count));
+      Assert.That(Convert.ToInt32(count), Is.EqualTo(2));
     }
 
     [Test]
@@ -482,11 +482,11 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(100), dt DATETIME, tm TIME, ts TIMESTAMP, PRIMARY KEY(id))");
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id, name) VALUES (?id, ?name)", Connection);
       cmd.Parameters.AddWithValue("id", 1);
-      Assert.AreEqual(-1, cmd.Parameters.IndexOf("?id"));
-      Assert.AreEqual(-1, cmd.Parameters.IndexOf("@id"));
+      Assert.That(cmd.Parameters.IndexOf("?id"), Is.EqualTo(-1));
+      Assert.That(cmd.Parameters.IndexOf("@id"), Is.EqualTo(-1));
       cmd.Parameters.AddWithValue("name", "test");
       Exception ex = Assert.Throws<MySqlException>(() => cmd.Parameters.AddWithValue("?id", 2));
-      Assert.AreEqual("Parameter '?id' has already been defined.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Parameter '?id' has already been defined."));
     }
 
     /// <summary>
@@ -519,7 +519,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand();
       cmd.Parameters.Insert(0, new MySqlParameter("?id", MySqlDbType.Int32));
       MySqlParameter p = cmd.Parameters["?id"];
-      Assert.AreEqual("?id", p.ParameterName);
+      Assert.That(p.ParameterName, Is.EqualTo("?id"));
     }
 
     /// <summary>
@@ -538,7 +538,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("?id6", MySqlDbType.Int32);
       cmd.Parameters.RemoveAt("?id1");
       MySqlParameter p = cmd.Parameters["?id6"];
-      Assert.AreEqual("?id6", p.ParameterName);
+      Assert.That(p.ParameterName, Is.EqualTo("?id6"));
     }
 
     /// <summary>
@@ -576,7 +576,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataTable dt = new DataTable();
       da.Fill(dt);
-      Assert.AreEqual("123", dt.Rows[0][0]);
+      Assert.That(dt.Rows[0][0], Is.EqualTo("123"));
 
       cmd.Parameters.Clear();
       cmd.Parameters.Add("?p1", MySqlDbType.VarChar);
@@ -586,7 +586,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Clear();
       da.Fill(dt);
-      Assert.AreEqual("1234567890", dt.Rows[1][0]);
+      Assert.That(dt.Rows[1][0], Is.EqualTo("1234567890"));
     }
 
     /// <summary>
@@ -597,11 +597,11 @@ namespace MySql.Data.MySqlClient.Tests
     {
       MySqlParameter p = new MySqlParameter("?p1", MySqlDbType.VarChar, 20,
           ParameterDirection.InputOutput, true, 0, 0, "id", DataRowVersion.Current, 0);
-      Assert.AreEqual(ParameterDirection.InputOutput, p.Direction);
+      Assert.That(p.Direction, Is.EqualTo(ParameterDirection.InputOutput));
 
       MySqlParameter p1 = new MySqlParameter("?p1", MySqlDbType.VarChar, 20,
           ParameterDirection.Output, true, 0, 0, "id", DataRowVersion.Current, 0);
-      Assert.AreEqual(ParameterDirection.Output, p1.Direction);
+      Assert.That(p1.Direction, Is.EqualTo(ParameterDirection.Output));
     }
 
     [Test]
@@ -618,8 +618,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual(33, reader.GetInt32(0));
-        Assert.AreEqual("Test", reader.GetString(1));
+        Assert.That(reader.GetInt32(0), Is.EqualTo(33));
+        Assert.That(reader.GetString(1), Is.EqualTo("Test"));
       }
     }
 
@@ -634,7 +634,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlParameter p = new MySqlParameter("?id", MySqlDbType.Decimal, 2,
                                           ParameterDirection.Input, true, 1, 1, "sourceColumn", DataRowVersion.Default, 1);
 
-      Assert.True(p.IsNullable);
+      Assert.That(p.IsNullable);
     }
 
     /// <summary>
@@ -647,7 +647,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlParameter p = new MySqlParameter("?id", MySqlDbType.Decimal, 2,
                                           ParameterDirection.Input, true, Byte.MaxValue, 1, "sourceColumn", DataRowVersion.Default, 1);
 
-      Assert.AreEqual(p.Precision, Byte.MaxValue);
+      Assert.That(Byte.MaxValue, Is.EqualTo(p.Precision));
     }
 
 
@@ -662,7 +662,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlParameter p = new MySqlParameter("?id", MySqlDbType.Decimal, 2,
                                           ParameterDirection.Input, true, 1, Byte.MaxValue, "sourceColumn", DataRowVersion.Default, 1);
 
-      Assert.AreEqual(p.Scale, Byte.MaxValue);
+      Assert.That(Byte.MaxValue, Is.EqualTo(p.Scale));
     }
 
     /// <summary>
@@ -680,10 +680,10 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
 
       cmd.CommandText = "SELECT id FROM Test";
-      Assert.AreEqual(1, cmd.ExecuteScalar());
+      Assert.That(cmd.ExecuteScalar(), Is.EqualTo(1));
 
       cmd.CommandText = "SELECT name FROM Test";
-      Assert.AreEqual("test", cmd.ExecuteScalar());
+      Assert.That(cmd.ExecuteScalar(), Is.EqualTo("test"));
     }
 
     /// <summary>
@@ -696,7 +696,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?Id", 1);
       cmd.Parameters.AddWithValue("?name", "test");
       Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
-      Assert.AreEqual("Fatal error encountered during command execution.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Fatal error encountered during command execution."));
     }
 
     /// <summary>
@@ -718,7 +718,7 @@ namespace MySql.Data.MySqlClient.Tests
           while (reader.Read())
           {
             if (!(reader["testcol"] is DBNull))
-              Assert.True(reader["testcol"] is bool);
+              Assert.That(reader["testcol"] is bool);
           }
         }
       }
@@ -750,7 +750,7 @@ namespace MySql.Data.MySqlClient.Tests
           using (var reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
           {
             reader.Read();
-            Assert.False(reader["test_val"] is bool);
+            Assert.That(reader["test_val"] is bool, Is.False);
           }
         }
 
@@ -769,7 +769,7 @@ namespace MySql.Data.MySqlClient.Tests
           using (var reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
           {
             reader.Read();
-            Assert.True(reader["test_val"] is bool);
+            Assert.That(reader["test_val"] is bool);
           }
         }
 
@@ -790,7 +790,7 @@ namespace MySql.Data.MySqlClient.Tests
       var query = "SELECT * FROM audit t1 WHERE t1.Permanent = ?IsFalse";
       MySqlParameter[] parameters = { new MySqlParameter() { ParameterName = "IsFalse", Value = 0 } };
       var ds = MySqlHelper.ExecuteDataset(Connection.ConnectionString, query, parameters);
-      Assert.AreEqual(ds.Tables[0].Rows.Count, 1);
+      Assert.That(1, Is.EqualTo(ds.Tables[0].Rows.Count));
     }
 
     /// <summary>
@@ -813,7 +813,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         while (reader.Read())
         {
-          Assert.IsTrue(reader.IsDBNull(0));
+          Assert.That(reader.IsDBNull(0));
         }
       }
     }
@@ -851,7 +851,7 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand command = new MySqlCommand(sql, conn);
         command.Parameters.AddWithValue("@ID", name);
         MySqlDataReader rdr = command.ExecuteReader();
-        Assert.IsNotNull(rdr);
+        Assert.That(rdr, Is.Not.Null);
       }
     }
 
@@ -869,16 +869,16 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Insert(1, new MySqlParameter("test1", "test1"));
       cmd.Parameters.Insert(0, new MySqlParameter("testNew0", "test2"));
 
-      Assert.True(cmd.Parameters.IndexOf("testNew0") == 0);
-      Assert.True(cmd.Parameters.IndexOf("test0") == 1);
-      Assert.True(cmd.Parameters.IndexOf("test1") == 2);
+      Assert.That(cmd.Parameters.IndexOf("testNew0") == 0);
+      Assert.That(cmd.Parameters.IndexOf("test0") == 1);
+      Assert.That(cmd.Parameters.IndexOf("test1") == 2);
 
       cmd.Parameters.AddWithValue("", "test3");
-      Assert.True(cmd.Parameters.Count == 4);
-      Assert.True(cmd.Parameters.IndexOf("Parameter4") == 3);
+      Assert.That(cmd.Parameters.Count == 4);
+      Assert.That(cmd.Parameters.IndexOf("Parameter4") == 3);
 
       cmd.Parameters.Insert(1, new MySqlParameter("lastTest", "test4"));
-      Assert.True(cmd.Parameters.IndexOf("lastTest") == 1);
+      Assert.That(cmd.Parameters.IndexOf("lastTest") == 1);
     }
 
     /// <summary>
@@ -905,8 +905,8 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Clear();
       da.Fill(dt);
-      Assert.AreEqual(2, dt.Rows.Count);
-      Assert.AreEqual(2, dt.Rows[1]["foo"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(2));
+      Assert.That(dt.Rows[1]["foo"], Is.EqualTo(2));
     }
 
     /// <summary>
@@ -926,15 +926,15 @@ namespace MySql.Data.MySqlClient.Tests
       dataAdapter.Fill(dataTable);
 
       using (var cmd = new MySqlCommand(query, Connection))
-        Assert.AreEqual(1, cmd.ExecuteScalar());
-      Assert.AreEqual(1, dataTable.Rows.Count);
+        Assert.That(cmd.ExecuteScalar(), Is.EqualTo(1));
+      Assert.That(dataTable.Rows.Count, Is.EqualTo(1));
 
       dataTable.Rows[0].Delete();
       dataAdapter.Update(dataTable);
 
       using (var cmd = new MySqlCommand(query, Connection))
-        Assert.IsNull(cmd.ExecuteScalar());
-      Assert.AreEqual(0, dataTable.Rows.Count);
+        Assert.That(cmd.ExecuteScalar(), Is.Null);
+      Assert.That(dataTable.Rows.Count, Is.EqualTo(0));
     }
 
     /// <summary>
@@ -948,10 +948,10 @@ namespace MySql.Data.MySqlClient.Tests
       var newParam = cmd.CreateParameter();
       var newIntParam = new MySqlParameter("newIntParam", 3);
 
-      Assert.AreEqual(MySqlDbType.VarChar, newParam.MySqlDbType);
-      Assert.AreEqual(DbType.String, newParam.DbType);
-      Assert.AreEqual(MySqlDbType.Int32, newIntParam.MySqlDbType);
-      Assert.AreEqual(DbType.Int32, newIntParam.DbType);
+      Assert.That(newParam.MySqlDbType, Is.EqualTo(MySqlDbType.VarChar));
+      Assert.That(newParam.DbType, Is.EqualTo(DbType.String));
+      Assert.That(newIntParam.MySqlDbType, Is.EqualTo(MySqlDbType.Int32));
+      Assert.That(newIntParam.DbType, Is.EqualTo(DbType.Int32));
     }
 
     /// <summary>
@@ -988,8 +988,8 @@ namespace MySql.Data.MySqlClient.Tests
       sw2.Stop();
       Console.Write(sw2.Elapsed);
 
-      Assert.True(sw1.Elapsed.TotalSeconds < 1);
-      Assert.True(sw2.Elapsed.TotalSeconds < 1);
+      Assert.That(sw1.Elapsed.TotalSeconds < 1);
+      Assert.That(sw2.Elapsed.TotalSeconds < 1);
     }
   }
 }

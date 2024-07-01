@@ -57,18 +57,18 @@ namespace MySqlX.Data.Tests
       connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password}";
       using (var session1 = MySQLX.GetSession(connectionString))
       {
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
         var result = session1.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.True(result[0][1].ToString().Contains("TLSv1"));
+        Assert.That(result[0][1].ToString().Contains("TLSv1"));
       }
 
       connectionString = connectionString + ";sslmode=none;";
       using (var session1 = MySQLX.GetSession(connectionString))
-        Assert.AreEqual(defaultAuthPlugin == "mysql_native_password" ? MySqlAuthenticationMode.MYSQL41 : MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(defaultAuthPlugin == "mysql_native_password" ? MySqlAuthenticationMode.MYSQL41 : MySqlAuthenticationMode.SHA256_MEMORY));
 
       connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password};ssl-mode=VerifyCA;ssl-ca={sslCa};ssl-ca-pwd=pass;";
       using (var session1 = MySQLX.GetSession(connectionString))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       //invalid values
       connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password};ssl-mode=required;auth=shaa256memory";
@@ -79,21 +79,21 @@ namespace MySqlX.Data.Tests
           builder.Server + ":" + XPort;
       using (var session1 = MySQLX.GetSession(connectionStringUri))
       {
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
         var result = session1.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.True(result[0][1].ToString().Contains("TLSv1"));
+        Assert.That(result[0][1].ToString().Contains("TLSv1"));
       }
 
       connectionStringUri = connectionStringUri + "?sslmode=none";
       using (var session1 = MySQLX.GetSession(connectionStringUri))
-        Assert.AreEqual(defaultAuthPlugin == "mysql_native_password" ? MySqlAuthenticationMode.MYSQL41 : MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(defaultAuthPlugin == "mysql_native_password" ? MySqlAuthenticationMode.MYSQL41 : MySqlAuthenticationMode.SHA256_MEMORY));
 
       //Anonymous Object
       using (var session1 = MySQLX.GetSession(new { server = builder.Server, port = XPort, user = builder.UserID, password = builder.Password }))
       {
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
         var result = session1.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.True(result[0][1].ToString().Contains("TLSv1"));
+        Assert.That(result[0][1].ToString().Contains("TLSv1"));
       }
 
       using (var session1 = MySQLX.GetSession(
@@ -105,32 +105,32 @@ namespace MySqlX.Data.Tests
         sslmode = MySqlSslMode.Disabled,
         password = builder.Password
       }))
-        Assert.AreEqual(defaultAuthPlugin == "mysql_native_password" ? MySqlAuthenticationMode.MYSQL41 : MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(defaultAuthPlugin == "mysql_native_password" ? MySqlAuthenticationMode.MYSQL41 : MySqlAuthenticationMode.SHA256_MEMORY));
 
       ExecuteSQL("flush privileges");
       connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password};ssl-mode=none";
       if (defaultAuthPlugin == "mysql_native_password")
-        Assert.NotNull(MySQLX.GetSession(connectionString));
+        Assert.That(MySQLX.GetSession(connectionString), Is.Not.Null);
       else
         Assert.Throws<MySqlException>(() => MySQLX.GetSession(connectionString));
 
       //URI
       connectionStringUri = $"mysqlx://{builder.UserID}:{builder.Password}@{builder.Server}:{XPort}?sslmode=none";
       if (defaultAuthPlugin == "mysql_native_password")
-        Assert.NotNull(MySQLX.GetSession(connectionStringUri));
+        Assert.That(MySQLX.GetSession(connectionStringUri), Is.Not.Null);
       else
         Assert.Throws<MySqlException>(() => MySQLX.GetSession(connectionStringUri));
 
       //Anonymous Object
       if (defaultAuthPlugin == "mysql_native_password")
-        Assert.NotNull(MySQLX.GetSession(new
+        Assert.That(MySQLX.GetSession(new
         {
           server = Host,
           port = XPort,
           user = builder.UserID,
           sslmode = MySqlSslMode.Disabled,
           password = builder.Password
-        }));
+        }), Is.Not.Null);
       else
         Assert.Throws<MySqlException>(() => MySQLX.GetSession(new
         {
@@ -211,29 +211,29 @@ namespace MySqlX.Data.Tests
       //Connection String
       connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password}";
       using (var session1 = MySQLX.GetSession(connectionString))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       connectionString += ";ssl-mode=VerifyCA;ssl-ca=" + sslCa + ";ssl-ca-pwd=pass;";
       using (var session1 = MySQLX.GetSession(connectionString))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password};ssl-mode=none";
       using (var session1 = MySQLX.GetSession(connectionString))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
 
       connectionString = $"server={Host};user={builder.UserID};port={XPort};password={builder.Password};ssl-mode=Required;ssl-ca={sslCa};ssl-ca-pwd=pass;";
       using (var session1 = MySQLX.GetSession(connectionString))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       //URI
       ExecuteSQL("flush privileges");
       connectionStringUri = $"mysqlx://{builder.UserID}:{builder.Password}@{builder.Server}:{XPort}";
       using (var session1 = MySQLX.GetSession(connectionStringUri))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       connectionStringUri = connectionStringUri + "?ssl-mode=none";
       using (var session1 = MySQLX.GetSession(connectionStringUri))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
 
       //Anonymous Object
       ExecuteSQL("flush privileges");
@@ -244,7 +244,7 @@ namespace MySqlX.Data.Tests
         user = builder.UserID,
         password = builder.Password
       }))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       using (var session1 = MySQLX.GetSession(new
       {
@@ -254,7 +254,7 @@ namespace MySqlX.Data.Tests
         sslmode = MySqlSslMode.Disabled,
         password = builder.Password
       }))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
     }
 
     [Test]
@@ -274,14 +274,14 @@ namespace MySqlX.Data.Tests
 
       using (var session = MySQLX.GetSession(connectionStringUri + "?auth=MySQL41"))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session.Settings.Auth);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
       }
 
       using (var session = MySQLX.GetSession(connectionStringUri + "?auth=mysql41&sslmode=none"))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session.Settings.Auth);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
       }
     }
 
@@ -300,17 +300,17 @@ namespace MySqlX.Data.Tests
       // Default to PLAIN when TLS is enabled.
       using (var session = MySQLX.GetSession(connString))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session.Settings.Auth);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
         var result = ExecuteSQLStatement(session.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';")).FetchAll();
-        StringAssert.StartsWith("TLSv1", result[0][1].ToString());
+        Assert.That(result[0][1].ToString(), Does.StartWith("TLSv1"));
       }
 
       // Default to SHA256_MEMORY when TLS is not enabled.
       using (var session = MySQLX.GetSession(connString + "?sslmode=none"))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session.Settings.Auth);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.SHA256_MEMORY));
       }
     }
 
@@ -322,16 +322,16 @@ namespace MySqlX.Data.Tests
 
       using (var session = MySQLX.GetSession(ConnectionStringUri + "?auth=SHA256_MEMORY"))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session.Settings.Auth);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.SHA256_MEMORY));
         var result = session.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.True(result[0][1].ToString().Contains("TLSv1"));
+        Assert.That(result[0][1].ToString().Contains("TLSv1"));
       }
 
       using (var session = MySQLX.GetSession(ConnectionStringUri + "?auth=SHA256_MEMORY&sslmode=none"))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session.Settings.Auth);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.SHA256_MEMORY));
       }
 
       using (var session1 = MySQLX.GetSession(
@@ -345,8 +345,8 @@ namespace MySqlX.Data.Tests
           auth = MySqlAuthenticationMode.SHA256_MEMORY
         }))
       {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session1.Settings.Auth);
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.SHA256_MEMORY));
       }
 
       //Exceptions
@@ -433,31 +433,31 @@ namespace MySqlX.Data.Tests
       var cs = $"server={Host};user={user};port={XPort};password={pwd}";
       //Connection String
       using (var session1 = MySQLX.GetSession(ConnectionString))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       using (var session1 = MySQLX.GetSession(cs + ";auth=mysql41"))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
 
       using (var session1 = MySQLX.GetSession(cs + ";auth=mysql41;ssl-mode=none"))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
 
       using (var session1 = MySQLX.GetSession(cs + ";auth=mysql41;ssl-mode=Required"))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
 
       using (var session1 = MySQLX.GetSession(ConnectionString + ";auth=PLAIN"))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       using (var session1 = MySQLX.GetSession(ConnectionString + ";auth=plain;ssl-mode=Required"))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       using (var session1 = MySQLX.GetSession(cs + ";ssl-mode=none"))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
 
       using (var session1 = MySQLX.GetSession(ConnectionString + ";ssl-mode=Required"))
       {
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
         var result = session.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.True(result[0][1].ToString().Contains("TLSv1"));
+        Assert.That(result[0][1].ToString().Contains("TLSv1"));
       }
 
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";auth=PLAIN;ssl-mode=none"));
@@ -469,33 +469,33 @@ namespace MySqlX.Data.Tests
       Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionString + ";auth=INVALID;ssl-mode=Required"));
       //Uri
       using (var session1 = MySQLX.GetSession(ConnectionStringUriNative))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       using (var session1 = MySQLX.GetSession(ConnectionStringUriNative + "?auth=MySQL41"))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
 
       using (var session1 = MySQLX.GetSession(ConnectionStringUriNative + "?auth=MySQL41&ssl-mode=none"))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
 
       using (var session1 = MySQLX.GetSession(ConnectionStringUriNative + "?auth=MySQL41&ssl-mode=Required"))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
 
       using (var session1 = MySQLX.GetSession(ConnectionStringUriNative + "?auth=PLAIN"))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionStringUriNative + "?auth=PLAIN&ssl-mode=none"));
 
       using (var session1 = MySQLX.GetSession(ConnectionStringUriNative + "?auth=PLAIN&ssl-mode=Required"))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       using (var session1 = MySQLX.GetSession(ConnectionStringUriNative + "?ssl-mode=none"))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
 
       using (var session1 = MySQLX.GetSession(ConnectionStringUriNative + "?ssl-mode=Required"))
       {
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
         var result = session.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.True(result[0][1].ToString().Contains("TLSv1"));
+        Assert.That(result[0][1].ToString().Contains("TLSv1"));
       }
 
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionStringUriNative + "?auth=EXTERNAL"));
@@ -512,7 +512,7 @@ namespace MySqlX.Data.Tests
         user = user,
         password = pwd
       }))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       using (var session1 = MySQLX.GetSession(new
       {
@@ -522,7 +522,7 @@ namespace MySqlX.Data.Tests
         password = pwd,
         auth = MySqlAuthenticationMode.MYSQL41
       }))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
 
       using (var session1 = MySQLX.GetSession(new
       {
@@ -533,7 +533,7 @@ namespace MySqlX.Data.Tests
         auth = MySqlAuthenticationMode.MYSQL41,
         sslmode = MySqlSslMode.Disabled
       }))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
 
       using (var session1 = MySQLX.GetSession(new
       {
@@ -544,7 +544,7 @@ namespace MySqlX.Data.Tests
         auth = MySqlAuthenticationMode.MYSQL41,
         sslmode = MySqlSslMode.Required
       }))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
 
       using (var session1 = MySQLX.GetSession(new
       {
@@ -554,7 +554,7 @@ namespace MySqlX.Data.Tests
         password = pwd,
         auth = MySqlAuthenticationMode.PLAIN
       }))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(new
       {
@@ -575,7 +575,7 @@ namespace MySqlX.Data.Tests
         auth = MySqlAuthenticationMode.PLAIN,
         sslmode = MySqlSslMode.Required
       }))
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
 
       using (var session1 = MySQLX.GetSession(new
       {
@@ -585,7 +585,7 @@ namespace MySqlX.Data.Tests
         password = pwd,
         sslmode = MySqlSslMode.Disabled
       }))
-        Assert.AreEqual(MySqlAuthenticationMode.MYSQL41, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.MYSQL41));
 
       using (var session1 = MySQLX.GetSession(new
       {
@@ -596,9 +596,9 @@ namespace MySqlX.Data.Tests
         sslmode = MySqlSslMode.Required
       }))
       {
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session1.Settings.Auth);
+        Assert.That(session1.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
         var result = session1.SQL("SHOW SESSION STATUS LIKE 'Mysqlx_ssl_version';").Execute().FetchAll();
-        Assert.True(result[0][1].ToString().Contains("TLSv1"));
+        Assert.That(result[0][1].ToString().Contains("TLSv1"));
       }
 
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(new
@@ -618,10 +618,10 @@ namespace MySqlX.Data.Tests
     {
       // Should fail since EXTERNAL is currently not supported by X Plugin.
       Exception ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionString + ";auth=EXTERNAL"));
-      Assert.AreEqual("Invalid authentication method EXTERNAL", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Invalid authentication method EXTERNAL"));
 
       ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(ConnectionStringUri + "?auth=EXTERNAL"));
-      Assert.AreEqual("Invalid authentication method EXTERNAL", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Invalid authentication method EXTERNAL"));
     }
 
     [Test]
@@ -630,14 +630,14 @@ namespace MySqlX.Data.Tests
     {
       using (var session = MySQLX.GetSession(ConnectionString + ";auth=pLaIn"))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session.Settings.Auth);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
       }
 
       using (var session = MySQLX.GetSession(ConnectionStringUri + "?auth=pLaIn"))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.PLAIN, session.Settings.Auth);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.PLAIN));
       }
 
       // Should fail since PLAIN requires TLS to be enabled.
@@ -660,29 +660,29 @@ namespace MySqlX.Data.Tests
       // User with password over TLS connection.
       using (var session = MySQLX.GetSession(connectionStringUri))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         var result = ExecuteSQLStatement(session.SQL(string.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName))).FetchAll();
-        Assert.AreEqual(userName, session.Settings.UserID);
-        Assert.AreEqual(session.Settings.UserID, result[0][0].ToString());
-        Assert.AreEqual(pluginName, result[0][1].ToString());
+        Assert.That(session.Settings.UserID, Is.EqualTo(userName));
+        Assert.That(result[0][0].ToString(), Is.EqualTo(session.Settings.UserID));
+        Assert.That(result[0][1].ToString(), Is.EqualTo(pluginName));
       }
 
       // Connect over non-TLS connection.
       using (var session = MySQLX.GetSession(connectionStringUri + "?sslmode=none"))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(MySqlAuthenticationMode.SHA256_MEMORY, session.Settings.Auth);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Auth, Is.EqualTo(MySqlAuthenticationMode.SHA256_MEMORY));
       }
 
       // User without password over TLS connection.
       ExecuteSQL($"ALTER USER {userName}@'%' IDENTIFIED BY ''");
       using (var session = MySQLX.GetSession(ConnectionStringUri.Replace("test:test", string.Format("{0}:{1}", userName, ""))))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         var result = ExecuteSQLStatement(session.SQL(string.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName))).FetchAll();
-        Assert.AreEqual(userName, session.Settings.UserID);
-        Assert.AreEqual(session.Settings.UserID, result[0][0].ToString());
-        Assert.AreEqual(pluginName, result[0][1].ToString());
+        Assert.That(session.Settings.UserID, Is.EqualTo(userName));
+        Assert.That(result[0][0].ToString(), Is.EqualTo(session.Settings.UserID));
+        Assert.That(result[0][1].ToString(), Is.EqualTo(pluginName));
       }
     }
 

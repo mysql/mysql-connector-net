@@ -58,7 +58,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void OutputParameters()
     {
       // we don't want to run this test under no access
-      Assert.True(Settings.CheckParameters);
+      Assert.That(Settings.CheckParameters);
 
       // create our procedure
       ExecuteSQL("CREATE PROCEDURE spTest(out value VARCHAR(350), OUT intVal INT, " +
@@ -89,14 +89,13 @@ namespace MySql.Data.MySqlClient.Tests
       if (prepare) cmd.Prepare();
       int rowsAffected = cmd.ExecuteNonQuery();
 
-      Assert.AreEqual(0, rowsAffected);
-      Assert.AreEqual("42", cmd.Parameters[0].Value);
-      Assert.AreEqual(33, cmd.Parameters[1].Value);
-      Assert.AreEqual(new DateTime(2004, 6, 5, 7, 58, 9),
-               Convert.ToDateTime(cmd.Parameters[2].Value));
-      Assert.AreEqual((decimal)1.2, (decimal)(float)cmd.Parameters[3].Value);
-      Assert.AreEqual("test", cmd.Parameters[4].Value);
-      Assert.AreEqual(66, cmd.Parameters[5].Value);
+      Assert.That(rowsAffected, Is.EqualTo(0));
+      Assert.That(cmd.Parameters[0].Value, Is.EqualTo("42"));
+      Assert.That(cmd.Parameters[1].Value, Is.EqualTo(33));
+      Assert.That(Convert.ToDateTime(cmd.Parameters[2].Value), Is.EqualTo(new DateTime(2004, 6, 5, 7, 58, 9)));
+      Assert.That((decimal)(float)cmd.Parameters[3].Value, Is.EqualTo((decimal)1.2));
+      Assert.That(cmd.Parameters[4].Value, Is.EqualTo("test"));
+      Assert.That(cmd.Parameters[5].Value, Is.EqualTo(66));
     }
 
     [Test]
@@ -116,10 +115,10 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[2].Direction = ParameterDirection.Output;
       if (prepare) cmd.Prepare();
       int rowsAffected = cmd.ExecuteNonQuery();
-      Assert.AreEqual(0, rowsAffected);
-      Assert.AreEqual("beginningending", cmd.Parameters[0].Value);
-      Assert.AreEqual(66, cmd.Parameters[1].Value);
-      Assert.AreEqual(99, cmd.Parameters[2].Value);
+      Assert.That(rowsAffected, Is.EqualTo(0));
+      Assert.That(cmd.Parameters[0].Value, Is.EqualTo("beginningending"));
+      Assert.That(cmd.Parameters[1].Value, Is.EqualTo(66));
+      Assert.That(cmd.Parameters[2].Value, Is.EqualTo(99));
     }
 
     [Test]
@@ -136,8 +135,8 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[1].Direction = ParameterDirection.Output;
       if (prepare) cmd.Prepare();
       object result = cmd.ExecuteScalar();
-      Assert.AreEqual("Test", result);
-      Assert.AreEqual("valuein", cmd.Parameters[1].Value);
+      Assert.That(result, Is.EqualTo("Test"));
+      Assert.That(cmd.Parameters[1].Value, Is.EqualTo("valuein"));
     }
 
     [Test]
@@ -154,11 +153,11 @@ namespace MySql.Data.MySqlClient.Tests
       if (prepare) cmd.Prepare();
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.True(reader.Read());
-        Assert.False(reader.NextResult());
-        Assert.False(reader.Read());
+        Assert.That(reader.Read());
+        Assert.That(reader.NextResult(), Is.False);
+        Assert.That(reader.Read(), Is.False);
       }
-      Assert.AreEqual(2, cmd.Parameters[0].Value);
+      Assert.That(cmd.Parameters[0].Value, Is.EqualTo(2));
     }
 
     [Test]
@@ -171,7 +170,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandType = CommandType.Text;
       if (prepare) cmd.Prepare();
       object result = cmd.ExecuteScalar();
-      Assert.AreEqual("Test", result);
+      Assert.That(result, Is.EqualTo("Test"));
     }
 
     [Test]
@@ -184,7 +183,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandType = CommandType.Text;
       if (prepare) cmd.Prepare();
       object result = cmd.ExecuteScalar();
-      Assert.AreEqual(26, result);
+      Assert.That(result, Is.EqualTo(26));
     }
 
     /// <summary>
@@ -206,7 +205,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add(retVal);
       if (prepare) cmd.Prepare();
       cmd.ExecuteNonQuery();
-      Assert.AreEqual(44, cmd.Parameters[1].Value);
+      Assert.That(cmd.Parameters[1].Value, Is.EqualTo(44));
     }
 
     [Test]
@@ -260,8 +259,8 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
 
       object o = cmd.Parameters[0].Value;
-      Assert.True(o is ulong);
-      Assert.AreEqual(1, Convert.ToInt32(o));
+      Assert.That(o is ulong);
+      Assert.That(Convert.ToInt32(o), Is.EqualTo(1));
     }
 
     [Test]
@@ -276,7 +275,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?p_kiosk", 2);
       cmd.Parameters.AddWithValue("?p_user", 4);
       Exception ex = Assert.Throws<InvalidOperationException>(() => { if (prepare) cmd.Prepare(); cmd.ExecuteNonQuery(); });
-      Assert.AreEqual(ex.Message, "Attempt to call stored function 'fnTest' without specifying a return parameter");
+      Assert.That("Attempt to call stored function 'fnTest' without specifying a return parameter", Is.EqualTo(ex.Message));
     }
 
     /// <summary>
@@ -318,16 +317,16 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
 
       byte[] out1 = (byte[])cmd.Parameters[0].Value;
-      Assert.AreEqual('o', (char)out1[0]);
-      Assert.AreEqual('u', (char)out1[1]);
-      Assert.AreEqual('t', (char)out1[2]);
-      Assert.AreEqual('1', (char)out1[3]);
+      Assert.That((char)out1[0], Is.EqualTo('o'));
+      Assert.That((char)out1[1], Is.EqualTo('u'));
+      Assert.That((char)out1[2], Is.EqualTo('t'));
+      Assert.That((char)out1[3], Is.EqualTo('1'));
 
       out1 = (byte[])cmd.Parameters[1].Value;
-      Assert.AreEqual('o', (char)out1[0]);
-      Assert.AreEqual('u', (char)out1[1]);
-      Assert.AreEqual('t', (char)out1[2]);
-      Assert.AreEqual('2', (char)out1[3]);
+      Assert.That((char)out1[0], Is.EqualTo('o'));
+      Assert.That((char)out1[1], Is.EqualTo('u'));
+      Assert.That((char)out1[2], Is.EqualTo('t'));
+      Assert.That((char)out1[3], Is.EqualTo('2'));
     }
 
     /// <summary>
@@ -350,7 +349,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (prepare) command.Prepare();
       command.ExecuteNonQuery();
       double balance = Convert.ToDouble(command.Parameters["?Balance"].Value);
-      Assert.AreEqual(1.0, balance);
+      Assert.That(balance, Is.EqualTo(1.0));
     }
 
     /// <summary>
@@ -373,8 +372,8 @@ namespace MySql.Data.MySqlClient.Tests
         if (prepare) cmd.Prepare();
         int rowsAffected = cmd.ExecuteNonQuery();
 
-        Assert.AreEqual(0, rowsAffected);
-        Assert.AreEqual("42", cmd.Parameters[0].Value);
+        Assert.That(rowsAffected, Is.EqualTo(0));
+        Assert.That(cmd.Parameters[0].Value, Is.EqualTo("42"));
       }
     }
 
@@ -399,8 +398,8 @@ namespace MySql.Data.MySqlClient.Tests
         if (prepare) cmd.Prepare();
         int rowsAffected = cmd.ExecuteNonQuery();
 
-        Assert.AreEqual(0, rowsAffected);
-        Assert.AreEqual(22, cmd.Parameters[1].Value);
+        Assert.That(rowsAffected, Is.EqualTo(0));
+        Assert.That(cmd.Parameters[1].Value, Is.EqualTo(22));
       }
     }
 
@@ -421,7 +420,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("x", MySqlDbType.Bit).Direction = ParameterDirection.Output;
       if (prepare) cmd.Prepare();
       cmd.ExecuteNonQuery();
-      Assert.AreEqual(0, Convert.ToInt32(cmd.Parameters[0].Value));
+      Assert.That(Convert.ToInt32(cmd.Parameters[0].Value), Is.EqualTo(0));
     }
 
     /// <summary>
@@ -463,12 +462,12 @@ namespace MySql.Data.MySqlClient.Tests
         if (prepare) cmd.Prepare();
         cmd.ExecuteNonQuery();
 
-        Assert.AreEqual(6, cmd.Parameters[1].Value);
-        Assert.AreEqual(6, cmd.Parameters[2].Value);
+        Assert.That(cmd.Parameters[1].Value, Is.EqualTo(6));
+        Assert.That(cmd.Parameters[2].Value, Is.EqualTo(6));
       }
       catch (InvalidOperationException iex)
       {
-        StringAssert.StartsWith("Unable to retrieve", iex.Message);
+        Assert.That(iex.Message, Does.StartWith("Unable to retrieve"));
       }
       finally
       {
@@ -500,8 +499,8 @@ namespace MySql.Data.MySqlClient.Tests
         if (prepare) cmd.Prepare();
         cmd.ExecuteNonQuery();
 
-        Assert.AreEqual(6, cmd.Parameters[1].Value);
-        Assert.AreEqual(3, cmd.Parameters[2].Value);
+        Assert.That(cmd.Parameters[1].Value, Is.EqualTo(6));
+        Assert.That(cmd.Parameters[2].Value, Is.EqualTo(3));
       }
     }
   }

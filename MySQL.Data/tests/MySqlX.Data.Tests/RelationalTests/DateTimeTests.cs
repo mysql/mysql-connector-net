@@ -47,12 +47,12 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(DateTime), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.DateTime, r.Columns[0].Type);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(DateTime)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.DateTime));
       Assert.That(rows, Has.One.Items);
       DateTime dt = (DateTime)rows[0]["dt"];
       DateTime test = new DateTime(2001, 2, 3, 4, 5, 6);
-      Assert.AreEqual(test, dt);
+      Assert.That(dt, Is.EqualTo(test));
     }
 
     [Test]
@@ -64,12 +64,12 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(DateTime), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.Date, r.Columns[0].Type);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(DateTime)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Date));
       Assert.That(rows, Has.One.Items);
       DateTime dt = (DateTime)rows[0]["dt"];
       DateTime test = new DateTime(2001, 2, 3);
-      Assert.AreEqual(test, dt);
+      Assert.That(dt, Is.EqualTo(test));
     }
 
     [Test]
@@ -81,13 +81,13 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(DateTime), r.Columns[0].ClrType);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(DateTime)));
       //TODO:  this should support timestamp
-      Assert.AreEqual(ColumnType.Timestamp, r.Columns[0].Type);
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Timestamp));
       Assert.That(rows, Has.One.Items);
       DateTime dt = (DateTime)rows[0]["dt"];
       DateTime test = new DateTime(2001, 2, 3);
-      Assert.AreEqual(test, dt);
+      Assert.That(dt, Is.EqualTo(test));
     }
 
     [Test]
@@ -99,12 +99,12 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(TimeSpan), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.Time, r.Columns[0].Type);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(TimeSpan)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Time));
       Assert.That(rows, Has.One.Items);
       TimeSpan t = (TimeSpan)rows[0]["dt"];
       TimeSpan test = new TimeSpan(1, 2, 3);
-      Assert.AreEqual(test, t);
+      Assert.That(t, Is.EqualTo(test));
     }
 
     [Test]
@@ -116,12 +116,12 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("dt"));
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(TimeSpan), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.Time, r.Columns[0].Type);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(TimeSpan)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Time));
       Assert.That(rows, Has.One.Items);
       TimeSpan t = (TimeSpan)rows[0]["dt"];
       TimeSpan test = new TimeSpan(-1, 2, 3);
-      Assert.AreEqual(test, t);
+      Assert.That(t, Is.EqualTo(test));
     }
   }
 }

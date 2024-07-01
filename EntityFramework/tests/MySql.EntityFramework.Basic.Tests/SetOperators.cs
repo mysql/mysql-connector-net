@@ -78,7 +78,7 @@ namespace MySql.Data.EntityFramework.Tests
                 select p;
         Product product = q.First() as Product;
 
-        Assert.AreEqual(id, product.Id);
+        Assert.That(product.Id, Is.EqualTo(id));
       }
     }
 
@@ -94,7 +94,7 @@ namespace MySql.Data.EntityFramework.Tests
                 where p.MinAge > 8
                 select p;
         Product product = q.First() as Product;
-        Assert.AreEqual(id, product.Id);
+        Assert.That(product.Id, Is.EqualTo(id));
       }
     }
   }

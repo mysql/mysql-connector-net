@@ -69,7 +69,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     public void FetchOne()
     {
       Table t = testSchema.GetTable("test");
-      Assert.AreEqual(38, ExecuteSelectStatement(t.Select("age")).FetchOne()["age"]);
+      Assert.That(ExecuteSelectStatement(t.Select("age")).FetchOne()["age"], Is.EqualTo(38));
     }
 
     private void MultiTableSelectTest(TableSelectStatement statement, object[][] expectedValues)
@@ -77,13 +77,13 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult result = ExecuteSelectStatement(statement);
       int rowCount = result.FetchAll().Count;
 
-      Assert.AreEqual(expectedValues.Length, rowCount);
-      Assert.AreEqual(expectedValues.Length, result.Rows.Count);
+      Assert.That(rowCount, Is.EqualTo(expectedValues.Length));
+      Assert.That(result.Rows.Count, Is.EqualTo(expectedValues.Length));
       for (int i = 0; i < expectedValues.Length; i++)
       {
         for (int j = 0; j < expectedValues[i].Length; j++)
         {
-          Assert.AreEqual(expectedValues[i][j], result.Rows.ToArray()[i][j]);
+          Assert.That(result.Rows.ToArray()[i][j], Is.EqualTo(expectedValues[i][j]));
         }
       }
     }
@@ -124,14 +124,14 @@ namespace MySqlX.Data.Tests.RelationalTests
       var table = testSchema.GetTable("test");
       var select = ExecuteSelectStatement(table.Select("*, 42 as a_number, '43' as a_string"));
       var rows = select.FetchAll();
-      Assert.AreEqual(6, select.Columns.Count);
-      Assert.AreEqual(allRows.Length, rows.Count);
-      Assert.AreEqual(allRows[0][0], rows[0]["id"]);
-      Assert.AreEqual(allRows[0][1], rows[0]["name"]);
-      Assert.AreEqual(allRows[0][2], rows[0]["age"]);
-      Assert.AreEqual(allRows[0][3], rows[0]["additionalinfo"]);
-      Assert.AreEqual((sbyte)42, rows[0]["a_number"]);
-      Assert.AreEqual("43", rows[0]["a_string"]);
+      Assert.That(select.Columns.Count, Is.EqualTo(6));
+      Assert.That(rows.Count, Is.EqualTo(allRows.Length));
+      Assert.That(rows[0]["id"], Is.EqualTo(allRows[0][0]));
+      Assert.That(rows[0]["name"], Is.EqualTo(allRows[0][1]));
+      Assert.That(rows[0]["age"], Is.EqualTo(allRows[0][2]));
+      Assert.That(rows[0]["additionalinfo"], Is.EqualTo(allRows[0][3]));
+      Assert.That(rows[0]["a_number"], Is.EqualTo((sbyte)42));
+      Assert.That(rows[0]["a_string"], Is.EqualTo("43"));
     }
 
     [Test]
@@ -142,7 +142,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       var rows = select.FetchAll();
       Assert.That(select.Columns, Has.One.Items);
       Assert.That(rows, Has.One.Items);
-      Assert.AreEqual(allRows.Length + 10, (long)rows[0][0]);
+      Assert.That((long)rows[0][0], Is.EqualTo(allRows.Length + 10));
     }
 
     [Test]
@@ -153,8 +153,8 @@ namespace MySqlX.Data.Tests.RelationalTests
       var select = ExecuteSelectStatement(table.Select().Where("Name = :nAme && Age = :aGe").Bind("agE", validationRow[2]).Bind("naMe", validationRow[1]));
       var rows = select.FetchAll();
       Assert.That(rows, Has.One.Items);
-      Assert.AreEqual(validationRow[1], rows[0]["namE"]);
-      Assert.AreEqual(validationRow[2], rows[0]["AGe"]);
+      Assert.That(rows[0]["namE"], Is.EqualTo(validationRow[1]));
+      Assert.That(rows[0]["AGe"], Is.EqualTo(validationRow[2]));
     }
 
     [Test]
@@ -164,9 +164,9 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("INSERT INTO test.testDate VALUES(1, 'JOHN', '1985-10-21 16:34:22.123456')");
       ExecuteSQL("INSERT INTO test.testDate VALUES(1, 'BILL', '1985-10-21 10:00:45.987')");
       var rows = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("testDate").Select()).FetchAll();
-      Assert.AreEqual(2, rows.Count);
-      Assert.AreEqual(new DateTime(1985, 10, 21, 16, 34, 22).AddTicks(1234560), (DateTime)rows[0]["birthday"]);
-      Assert.AreEqual(new DateTime(1985, 10, 21, 10, 0, 45).AddTicks(9870000), (DateTime)rows[1]["birthday"]);
+      Assert.That(rows.Count, Is.EqualTo(2));
+      Assert.That((DateTime)rows[0]["birthday"], Is.EqualTo(new DateTime(1985, 10, 21, 16, 34, 22).AddTicks(1234560)));
+      Assert.That((DateTime)rows[1]["birthday"], Is.EqualTo(new DateTime(1985, 10, 21, 10, 0, 45).AddTicks(9870000)));
     }
 
     [Test]
@@ -176,9 +176,9 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("INSERT INTO test.testDate2 VALUES(1, 'JOHN', '1985-10-21 16:34:22.123456')");
       ExecuteSQL("INSERT INTO test.testDate2 VALUES(1, 'BILL', '1985-10-21 10:00:45.098')");
       var rows = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("testDate2").Select()).FetchAll();
-      Assert.AreEqual(2, rows.Count);
-      Assert.AreEqual(new DateTime(1985, 10, 21, 16, 34, 22).AddTicks(1230000), (DateTime)rows[0]["birthday"]);
-      Assert.AreEqual(new DateTime(1985, 10, 21, 10, 0, 45).AddTicks(980000), (DateTime)rows[1]["birthday"]);
+      Assert.That(rows.Count, Is.EqualTo(2));
+      Assert.That((DateTime)rows[0]["birthday"], Is.EqualTo(new DateTime(1985, 10, 21, 16, 34, 22).AddTicks(1230000)));
+      Assert.That((DateTime)rows[1]["birthday"], Is.EqualTo(new DateTime(1985, 10, 21, 10, 0, 45).AddTicks(980000)));
     }
 
     [Test]
@@ -189,10 +189,10 @@ namespace MySqlX.Data.Tests.RelationalTests
       Table table = session.Schema.GetTable("test");
 
       Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select().LockShared()));
-      Assert.AreEqual("This functionality is only supported from server version 8.0.3 onwards.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("This functionality is only supported from server version 8.0.3 onwards."));
 
       ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select().LockExclusive()));
-      Assert.AreEqual("This functionality is only supported from server version 8.0.3 onwards.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("This functionality is only supported from server version 8.0.3 onwards."));
     }
 
     [Test]
@@ -248,7 +248,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session2 blocks due to to LockExclusive() not allowing to read locked rows.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive()));
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Lock wait timeout exceeded; try restarting transaction"));
 
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         ExecuteSQLStatement(session2.SQL("ROLLBACK"));
@@ -278,11 +278,11 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         // Modify() is allowed for non-locked rows.
         Result result = ExecuteUpdateStatement(table2.Update().Where("id = 2").Set("age", 2));
-        Assert.AreEqual(1, result.AffectedItemsCount);
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
         // Session1 blocks, Modify() is not allowed for locked rows.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteUpdateStatement(table2.Update().Where("id = 1").Set("age", 2)));
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Lock wait timeout exceeded; try restarting transaction"));
 
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         // Modify() is allowed since row isn't locked anymore.
@@ -311,11 +311,11 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         // Modify() is allowed for non-locked rows.
         Result result = ExecuteUpdateStatement(table2.Update().Where("id = 2").Set("age", 2));
-        Assert.AreEqual(1, result.AffectedItemsCount);
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
         // Session1 blocks, Modify() is not allowed for locked rows.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteUpdateStatement(table2.Update().Where("id = 1").Set("age", 2)));
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Lock wait timeout exceeded; try restarting transaction"));
 
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         // Modify() is allowed since row isn't locked anymore.
@@ -348,7 +348,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session2 blocks due to LockExclusive() not allowing to read locked rows.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockShared()));
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Lock wait timeout exceeded; try restarting transaction"));
 
         // Session unlocks rows.
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
@@ -374,7 +374,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         RowResult rowResult = ExecuteSelectStatement(table.Select().Where("id in (1, 3)").LockShared());
-        Assert.AreEqual(2, rowResult.FetchAll().Count);
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(2));
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since row isn't locked.
@@ -385,7 +385,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session2 blocks due to to LockExclusive() not allowing to read locked rows.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive()));
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Lock wait timeout exceeded; try restarting transaction"));
 
         // Session unlocks rows.
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
@@ -399,15 +399,15 @@ namespace MySqlX.Data.Tests.RelationalTests
     public void SelectWithInOperator()
     {
       Table table = testSchema.GetTable("test");
-      Assert.AreEqual(3, ExecuteSelectStatement(table.Select()).FetchAll().Count);
+      Assert.That(ExecuteSelectStatement(table.Select()).FetchAll().Count, Is.EqualTo(3));
 
-      Assert.AreEqual(2, ExecuteSelectStatement(table.Select().Where("name IN (\"jonh doe\", \"milton green\")")).FetchAll().Count);
+      Assert.That(ExecuteSelectStatement(table.Select().Where("name IN (\"jonh doe\", \"milton green\")")).FetchAll().Count, Is.EqualTo(2));
       Assert.That(ExecuteSelectStatement(table.Select().Where("name NOT IN (\"jonh doe\", \"milton green\")")).FetchAll(), Has.One.Items);
-      CollectionAssert.IsEmpty(ExecuteSelectStatement(table.Select().Where("name IN (\"\", \"\")")).FetchAll());
-      CollectionAssert.IsEmpty(ExecuteSelectStatement(table.Select().Where("\"\" IN (1,2,3)")).FetchAll());
-      CollectionAssert.IsEmpty(ExecuteSelectStatement(table.Select().Where("name IN ('', '')")).FetchAll());
-      CollectionAssert.IsEmpty(ExecuteSelectStatement(table.Select().Where("'' IN (1,2,3)")).FetchAll());
-      Assert.AreEqual(3, ExecuteSelectStatement(table.Select().Where("'' IN ('')")).FetchAll().Count);
+      Assert.That(ExecuteSelectStatement(table.Select().Where("name IN (\"\", \"\")")).FetchAll(), Is.Empty);
+      Assert.That(ExecuteSelectStatement(table.Select().Where("\"\" IN (1,2,3)")).FetchAll(), Is.Empty);
+      Assert.That(ExecuteSelectStatement(table.Select().Where("name IN ('', '')")).FetchAll(), Is.Empty);
+      Assert.That(ExecuteSelectStatement(table.Select().Where("'' IN (1,2,3)")).FetchAll(), Is.Empty);
+      Assert.That(ExecuteSelectStatement(table.Select().Where("'' IN ('')")).FetchAll().Count, Is.EqualTo(3));
 
       Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select().Where("name NOT IN [\"jonh doe\", \"milton green\"]")).FetchAll());
       Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select().Where("a IN [3]")).FetchAll());
@@ -433,55 +433,55 @@ namespace MySqlX.Data.Tests.RelationalTests
         statement = statement.Values(user);
       }
 
-      Assert.AreEqual(4, ExecuteInsertStatement(statement).AffectedItemsCount);
+      Assert.That(ExecuteInsertStatement(statement).AffectedItemsCount, Is.EqualTo(4));
 
       // GroupBy returns 5 rows since age 45 and 24 is repeated.
       var result = ExecuteSelectStatement(table.Select().GroupBy("age"));
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
 
       // GroupBy with null.
       result = ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy(null));
-      Assert.AreEqual(7, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(7));
       result = ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy(null, null));
-      Assert.AreEqual(7, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(7));
       result = ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy(null, "age"));
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
 
       // Having operation.
       // Having reduces the original 5 rows to 3 since 2 rows have a cnt=2, due to the repeated names.
       result = ExecuteSelectStatement(table.Select("id", "count(name) as cnt", "age").GroupBy("age").Having("cnt = 1"));
-      Assert.AreEqual(3, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(3));
 
       // Having with null.
       result = ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(null));
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
 
       // GroupBy with invalid field name.
       var ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy("none")));
-      Assert.AreEqual("Unknown column 'none' in 'group statement'", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Unknown column 'none' in 'group statement'"));
 
       // GroupBy with empty strings.
       var ex2 = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy("")));
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex2.Message);
+      Assert.That(ex2.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
       ex2 = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy(" ")));
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex2.Message);
+      Assert.That(ex2.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
       ex2 = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "name as Name", "age as Age").GroupBy(string.Empty)));
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex2.Message);
+      Assert.That(ex2.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
 
       // Having with invalid field name.
       ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("none = 1")));
-      Assert.AreEqual("Unknown column 'none' in 'having clause'", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Unknown column 'none' in 'having clause'"));
 
       // Having with empty strings.
       ex2 = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("")));
-      Assert.AreEqual("Unable to parse query ''", ex2.Message);
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+      Assert.That(ex2.Message, Is.EqualTo("Unable to parse query ''"));
+      Assert.That(ex2.InnerException.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
       ex2 = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(" ")));
-      Assert.AreEqual("Unable to parse query ' '", ex2.Message);
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+      Assert.That(ex2.Message, Is.EqualTo("Unable to parse query ' '"));
+      Assert.That(ex2.InnerException.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
       ex2 = Assert.Throws<ArgumentException>(() => ExecuteSelectStatement(table.Select("id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(string.Empty)));
-      Assert.AreEqual("Unable to parse query ''", ex2.Message);
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+      Assert.That(ex2.Message, Is.EqualTo("Unable to parse query ''"));
+      Assert.That(ex2.InnerException.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
     }
 
     /// <summary>
@@ -524,11 +524,11 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       // Test using parenthesis should return result
       count = table.Select().Where("name IN (\"john doe\", \"milton green\")").Execute().FetchAll().Count;
-      Assert.True(count > 0);
+      Assert.That(count > 0);
 
       // Using parenthesis should return empty resultset for empty parameters
       count = table.Select().Where("name IN ('', ' ')").Execute().FetchAll().Count;
-      Assert.True(count == 0);
+      Assert.That(count == 0);
     }
 
     [TestCase(":hobbies IN additionalinfo->$.hobbies", "hobbies", "painting", 3)]
@@ -538,15 +538,15 @@ namespace MySqlX.Data.Tests.RelationalTests
     public void InOperatorBindingJson(string condition, string bind, string value, int id)
     {
       Table table = testSchema.GetTable("test");
-      Assert.AreEqual(3, ExecuteSelectStatement(table.Select()).FetchAll().Count);
+      Assert.That(ExecuteSelectStatement(table.Select()).FetchAll().Count, Is.EqualTo(3));
 
       var stmt = table.Select().Where(condition);
       if (bind != null) stmt.Bind(bind, value);
       var result = ExecuteSelectStatement(stmt).FetchAll();
-      Assert.AreEqual(id == 0 ? 0 : 1, result.Count);
+      Assert.That(result.Count, Is.EqualTo(id == 0 ? 0 : 1));
       if (id > 0)
       {
-        Assert.AreEqual(id, result[0]["id"]);
+        Assert.That(result[0]["id"], Is.EqualTo(id));
       }
     }
 
@@ -571,28 +571,28 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         var rowResult = ExecuteSelectStatement(table.Select().Where("id = 1").LockShared());
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
 
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockExclusive(LockContention.Default).Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 blocks as LockExclusive trying to access locked document
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive(LockContention.Default)));
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Lock wait timeout exceeded; try restarting transaction"));
 
         // Session2 blocks due to to LockShared() not allowing to modify locked documents.
         Result result1;
         ex = Assert.Throws<MySqlException>(() => result1 = table2.Update().Where("id = 1").Set("a", 2).Execute());
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Lock wait timeout exceeded; try restarting transaction"));
 
         // Session2 returns immediately as session is committed.
         session.Commit();
         var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
-        Assert.AreEqual(1, result.AffectedItemsCount);
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
 
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         ExecuteSQLStatement(session2.SQL("ROLLBACK"));
@@ -618,12 +618,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockShared(LockContention.NoWait).Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
@@ -635,7 +635,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.Commit();
         var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
-        Assert.AreEqual(1, result.AffectedItemsCount);
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
 
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         ExecuteSQLStatement(session2.SQL("ROLLBACK"));
@@ -660,12 +660,12 @@ namespace MySqlX.Data.Tests.RelationalTests
       tabNew.Insert().Values("abcNewÂ£Â¢â‚¬Â©Â§Â°âˆš", "{ \"name\": \"abcNewÂ£Â¢â‚¬Â©Â§Â°âˆš\", \"age\": 2 , \"misc\": 1.2}").Execute();
       RowResult result = tabNew.Select("c1", "c2").Where("c1 ='\u201C\u2199\u2197\u2196\u2198\u201D'").Execute();
       var r1 = result.FetchOne();
-      Assert.AreEqual(name1, r1[0].ToString());//"“↙↗↖↘”"
-      Assert.AreNotEqual(name2, r1[1].ToString());//"{\"age\": 1, \"misc\": 1.2, \"name\": \"??????????????????\"}"
+      Assert.That(r1[0].ToString(), Is.EqualTo(name1));//"“↙↗↖↘”"
+      Assert.That(r1[1].ToString(), Is.Not.EqualTo(name2));//"{\"age\": 1, \"misc\": 1.2, \"name\": \"??????????????????\"}"
       var t = session.SQL("SELECT c1, CONVERT(c2 USING utf8mb4) FROM newTable WHERE c1 = '\u201C\u2199\u2197\u2196\u2198\u201D'").Execute();
       r1 = t.FetchOne();
-      Assert.AreEqual(name1, r1[0].ToString());//"“↙↗↖↘”"
-      Assert.AreEqual(name2, r1[1].ToString());//"{\"age\": 1, \"misc\": 1.2, \"name\": \"??????????????????\"}"
+      Assert.That(r1[0].ToString(), Is.EqualTo(name1));//"“↙↗↖↘”"
+      Assert.That(r1[1].ToString(), Is.EqualTo(name2));//"{\"age\": 1, \"misc\": 1.2, \"name\": \"??????????????????\"}"
 
       Collection coll = CreateCollection("test");
 
@@ -691,7 +691,7 @@ namespace MySqlX.Data.Tests.RelationalTests
           Add("{ \"name\": \"xyzÂ£Â¢â‚¬Â©Â§Â°âˆš\", \"age\": 6 , \"misc\": 10}").Execute();
       var docs = coll.Find("name = '\u201C\u2199\u2197\u2196\u2198\u201D' and age>= 4 and age <= 6").Execute();
       DbDoc doc = docs.FetchOne();
-      Assert.AreEqual(name1, doc["name"]);
+      Assert.That(doc["name"], Is.EqualTo(name1));
       session.SQL("drop table if exists test").Execute();
       session.SQL("drop table if exists newTable").Execute();
     }
@@ -706,7 +706,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       session.SQL("insert into test1(c1) values(1000)").Execute();
       RowResult r = session.GetSchema(schemaName).GetTable("test1").Select("c1").Execute();
       r.FetchAll();
-      Assert.AreEqual("1000", r.Rows[0][0].ToString(), "Matching the values");
+      Assert.That(r.Rows[0][0].ToString(), Is.EqualTo("1000"), "Matching the values");
       session.SQL("drop table if exists test1").Execute();
     }
 
@@ -728,25 +728,25 @@ namespace MySqlX.Data.Tests.RelationalTests
           .Execute();
         if (i == 28)
           match = name;
-        Assert.AreEqual((ulong)j, result.AffectedItemsCount, "Matching the values");
+        Assert.That(result.AffectedItemsCount, Is.EqualTo((ulong)j), "Matching the values");
         j = j + 1;
       }
 
       var whereResult = table.Select("name", "age").Where("age == 28").Execute();
       int rowCount = whereResult.FetchAll().Count;
-      Assert.AreEqual(1, rowCount, "Matching the row count");
-      Assert.AreEqual(match, whereResult.Rows.ToArray()[0][0].ToString(), "Matching the name");
+      Assert.That(rowCount, Is.EqualTo(1), "Matching the row count");
+      Assert.That(whereResult.Rows.ToArray()[0][0].ToString(), Is.EqualTo(match), "Matching the name");
 
       whereResult = table.Select("name", "age").Where("age == 100").Execute();
       rowCount = whereResult.FetchAll().Count;
-      Assert.AreEqual(0, rowCount, "Matching that there is no such value ");
+      Assert.That(rowCount, Is.EqualTo(0), "Matching that there is no such value ");
 
       whereResult = table.Select().Where("name like :name").Bind("nAme", "%ABCDEFGHIJ%").Execute();
       rowCount = whereResult.FetchAll().Count;
       for (int i = 0; i < whereResult.Rows.Count; i++)
       {
         var res = whereResult.Rows.ToArray()[i][0];
-        StringAssert.Contains("ABCDEFGHIJ", res.ToString());
+        Assert.That(res.ToString(), Does.Contain("ABCDEFGHIJ"));
       }
 
       whereResult = table.Select().Where("name like :name").Bind("nAme", "%ABCD%").Execute();
@@ -754,7 +754,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       for (int j = 0; j < whereResult.Rows.Count; j++)
       {
         var res = whereResult.Rows.ToArray()[j][0];
-        StringAssert.Contains("ABCD", res.ToString());
+        Assert.That(res.ToString(), Does.Contain("ABCD"));
       }
     }
 
@@ -768,36 +768,36 @@ namespace MySqlX.Data.Tests.RelationalTests
         .Values("MARK", 34)
         .Execute();
 
-      Assert.AreEqual((ulong)1, result.AffectedItemsCount, "Matching the values");
+      Assert.That(result.AffectedItemsCount, Is.EqualTo((ulong)1), "Matching the values");
       result = table.Insert("name", "age")
       .Values("richie", 16)
       .Execute();
-      Assert.AreEqual((ulong)1, result.AffectedItemsCount, "Matching the values");
+      Assert.That(result.AffectedItemsCount, Is.EqualTo((ulong)1), "Matching the values");
       var selectResult = table.Select().Execute();
 
       while (selectResult.Next()) ;
-      Assert.AreEqual(2, selectResult.Rows.Count, "Matching the row count");
-      Assert.AreEqual("MARK", selectResult.Rows.ToArray()[0][0].ToString(), "Matching the value MARK");
-      Assert.AreEqual(34, (int)selectResult.Rows.ToArray()[0][1], "Matching the age 34");
-      Assert.AreEqual("richie", selectResult.Rows.ToArray()[1][0].ToString(), "Matching the value richie");
-      Assert.AreEqual(16, (int)selectResult.Rows.ToArray()[1][1], "Matching the age 16");
+      Assert.That(selectResult.Rows.Count, Is.EqualTo(2), "Matching the row count");
+      Assert.That(selectResult.Rows.ToArray()[0][0].ToString(), Is.EqualTo("MARK"), "Matching the value MARK");
+      Assert.That((int)selectResult.Rows.ToArray()[0][1], Is.EqualTo(34), "Matching the age 34");
+      Assert.That(selectResult.Rows.ToArray()[1][0].ToString(), Is.EqualTo("richie"), "Matching the value richie");
+      Assert.That((int)selectResult.Rows.ToArray()[1][1], Is.EqualTo(16), "Matching the age 16");
 
       var result1 = testSchema.GetTable("test").Select().OrderBy("age desc").Execute();
       int rowCount = result1.FetchAll().Count;
       for (int i = 0; i < rowCount; i++)
       {
-        Assert.AreEqual("45", result1.Rows[0][2].ToString(), "Matching the values");
-        Assert.AreEqual("38", result1.Rows[1][2].ToString(), "Matching the values");
-        Assert.AreEqual("24", result1.Rows[2][2].ToString(), "Matching the values");
+        Assert.That(result1.Rows[0][2].ToString(), Is.EqualTo("45"), "Matching the values");
+        Assert.That(result1.Rows[1][2].ToString(), Is.EqualTo("38"), "Matching the values");
+        Assert.That(result1.Rows[2][2].ToString(), Is.EqualTo("24"), "Matching the values");
       }
 
       result1 = testSchema.GetTable("test").Select().OrderBy("age asc").Execute();
       rowCount = result1.FetchAll().Count;
       for (int i = 0; i < rowCount; i++)
       {
-        Assert.AreEqual("24", result1.Rows[0][2].ToString(), "Matching the values");
-        Assert.AreEqual("38", result1.Rows[1][2].ToString(), "Matching the values");
-        Assert.AreEqual("45", result1.Rows[2][2].ToString(), "Matching the values");
+        Assert.That(result1.Rows[0][2].ToString(), Is.EqualTo("24"), "Matching the values");
+        Assert.That(result1.Rows[1][2].ToString(), Is.EqualTo("38"), "Matching the values");
+        Assert.That(result1.Rows[2][2].ToString(), Is.EqualTo("45"), "Matching the values");
       }
     }
 
@@ -820,12 +820,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockExclusive(LockContention.NoWait).Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
@@ -838,7 +838,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session2 returns immediately as session is committed.
         session.Commit();
         var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
-        Assert.AreEqual(1, result.AffectedItemsCount);
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
       }
@@ -862,17 +862,17 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockShared().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockShared(LockContention.NoWait).Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 doesnt block as LockShare trying to read locked(Lock_shared) document
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
         rowResult = table2.Select().Where("id = 1").LockShared(LockContention.NoWait).Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 blocks due to to LockShared() not allowing to modify locked documents.
         Result result1;
@@ -881,7 +881,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session2 returns immediately as session is committed.
         session.Commit();
         var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
-        Assert.AreEqual(1, result.AffectedItemsCount);
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
       }
@@ -905,12 +905,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockShared().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockExclusive(LockContention.NoWait).Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 blocks as LockExclusive() trying to access locked(LockShared) documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
@@ -923,7 +923,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session2 returns immediately as session is committed.
         session.Commit();
         var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
-        Assert.AreEqual(1, result.AffectedItemsCount);
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
       }
@@ -947,17 +947,17 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockShared(LockContention.NoWait).Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         rowResult = table2.Select().Where("id = 1").LockShared(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(0, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(0), "Matching the document ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to modify locked documents.
         Result result1;
@@ -966,7 +966,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session2 returns immediately as session is committed.
         session.Commit();
         var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
-        Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the record count");
+        Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the record count");
 
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
@@ -991,17 +991,17 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockExclusive(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 doesn't block as SKIPLOCK used
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         rowResult = table2.Select().Where("id = 1").LockExclusive(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(0, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(0), "Matching the document ID");
         // Session2 blocks due to to LockExclusive() not allowing to modify locked documents.
         Result result1;
         Assert.Throws<MySqlException>(() => result1 = table2.Update().Where("id = 1").Set("a", 2).Execute());
@@ -1009,7 +1009,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session2 returns immediately as session is committed.
         session.Commit();
         var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
-        Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the record count");
+        Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the record count");
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
       }
@@ -1032,17 +1032,17 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockShared().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockShared(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 doesn't block as SKIPLOCK being used
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         rowResult = table2.Select().Where("id = 1").LockShared(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 blocks due to to LockShared() not allowing to modify locked documents.
         Result result1;
@@ -1051,7 +1051,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session2 returns immediately as session is committed.
         session.Commit();
         var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
-        Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the record count");
+        Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the record count");
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
       }
@@ -1075,17 +1075,17 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockShared().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockExclusive(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 doesn't block as SKIPLOCK being used
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         rowResult = table2.Select().Where("id = 1").LockExclusive(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(0, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(0), "Matching the document ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to modify locked documents.
         Result result1;
@@ -1094,7 +1094,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session2 returns immediately as session is committed.
         session.Commit();
         var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
-        Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the record count");
+        Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the record count");
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
       }
@@ -1118,12 +1118,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockShared().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
@@ -1136,7 +1136,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session2 returns immediately as session is committed.
         session.Commit();
         var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
-        Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the record count");
+        Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the record count");
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
       }
@@ -1155,12 +1155,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
@@ -1173,7 +1173,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session2 returns immediately as session is committed.
         session.Commit();
         var result = table2.Update().Where("id = 1").Set("age", 2).Execute();
-        Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the record count");
+        Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the record count");
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
       }
@@ -1196,16 +1196,16 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockShared().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockShared().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         rowResult = table2.Select().Where("id = 1").LockShared().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to modify locked documents.
         Result result1;
@@ -1214,7 +1214,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session2 returns immediately as session is committed.
         session.Commit();
         var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
-        Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the record count");
+        Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the record count");
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
       }
@@ -1238,12 +1238,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockShared().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 blocks as LockExclusive() is trying to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
@@ -1256,7 +1256,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         // Session2 returns immediately as session is committed.
         session.Commit();
         var result = table2.Update().Where("id = 1").Set("a", 2).Execute();
-        Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the record count");
+        Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the record count");
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
       }
@@ -1284,7 +1284,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         var rowResult1 = table2.Select().Where("id = 2").LockExclusive(LockContention.NoWait).Execute();
-        Assert.AreEqual(1, rowResult1.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult1.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
@@ -1292,10 +1292,10 @@ namespace MySqlX.Data.Tests.RelationalTests
         Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockShared(LockContention.NoWait)));
 
         var rowResult = table2.Select().Where("id = 1").LockShared(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(0, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(0), "Matching the document ID");
 
         rowResult = table2.Select().Where("id = 1").LockExclusive(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(0, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(0), "Matching the document ID");
 
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
@@ -1320,7 +1320,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockShared().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
@@ -1331,10 +1331,10 @@ namespace MySqlX.Data.Tests.RelationalTests
                                                     .LockExclusive(LockContention.NoWait)));
 
         rowResult = table2.Select().Where("id = 1").LockExclusive(LockContention.SkipLocked).LockShared(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         rowResult = table2.Select().Where("id = 1").LockShared(LockContention.SkipLocked).LockExclusive(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(0, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(0), "Matching the document ID");
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
       }
@@ -1355,13 +1355,13 @@ namespace MySqlX.Data.Tests.RelationalTests
          .Execute();
 
       var docId = result.AutoIncrementValue;
-      Assert.AreEqual("100", docId.ToString(), "Matching the value if already it is inserted");
+      Assert.That(docId.ToString(), Is.EqualTo("100"), "Matching the value if already it is inserted");
 
       result = table.Insert("address_number2")
          .Values("Test the document id by 2nd insert without id in address table")
          .Execute();
       docId = result.AutoIncrementValue;
-      Assert.AreEqual("101", docId.ToString(), "Matching the value if already it is inserted");
+      Assert.That(docId.ToString(), Is.EqualTo("101"), "Matching the value if already it is inserted");
 
       session.SQL("CREATE TABLE address2" +
                   "(address_number3  INT NOT NULL AUTO_INCREMENT, " +
@@ -1373,7 +1373,7 @@ namespace MySqlX.Data.Tests.RelationalTests
          .Execute();
 
       docId = result.AutoIncrementValue;
-      Assert.AreEqual("1", docId.ToString(), "Matching the auto increment value");
+      Assert.That(docId.ToString(), Is.EqualTo("1"), "Matching the auto increment value");
 
       session.SQL("CREATE TABLE address3" +
       "(address_number5  MEDIUMINT NOT NULL AUTO_INCREMENT, " +
@@ -1387,7 +1387,7 @@ namespace MySqlX.Data.Tests.RelationalTests
          .Execute();
 
       docId = result.AutoIncrementValue;
-      Assert.AreEqual("300", docId.ToString(), "Matching the value if more than one documents inserted");
+      Assert.That(docId.ToString(), Is.EqualTo("300"), "Matching the value if more than one documents inserted");
 
       result = table.Insert("address_number6")
         .Values("Test multiple document ids in address table - 4th document without ID")
@@ -1396,7 +1396,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         .Execute();
 
       docId = result.AutoIncrementValue;
-      Assert.AreEqual("301", docId.ToString(), "Matching the value if more than one documents inserted");
+      Assert.That(docId.ToString(), Is.EqualTo("301"), "Matching the value if more than one documents inserted");
 
       session.SQL("CREATE TABLE address4" +
                   "(address_number7  INT NOT NULL AUTO_INCREMENT, " +
@@ -1410,7 +1410,7 @@ namespace MySqlX.Data.Tests.RelationalTests
          .Execute();
 
       docId = result.AutoIncrementValue;
-      Assert.AreEqual("1", docId.ToString(), "Matching the auto increment value");
+      Assert.That(docId.ToString(), Is.EqualTo("1"), "Matching the auto increment value");
 
       result = table.Insert("address_number8")
        .Values("Test the document ids in address table without unique id - 4th document")
@@ -1419,7 +1419,7 @@ namespace MySqlX.Data.Tests.RelationalTests
        .Execute();
 
       docId = result.AutoIncrementValue;
-      Assert.AreEqual("4", docId.ToString(), "Matching the auto increment value");
+      Assert.That(docId.ToString(), Is.EqualTo("4"), "Matching the auto increment value");
 
       session.SQL("CREATE TABLE address5" +
                "(address_number9  INT, " +
@@ -1435,7 +1435,7 @@ namespace MySqlX.Data.Tests.RelationalTests
          .Execute();
 
       docId = result.AutoIncrementValue;
-      Assert.AreEqual("1", docId.ToString(), "Matching the auto increment value");
+      Assert.That(docId.ToString(), Is.EqualTo("1"), "Matching the auto increment value");
       session.SQL("drop table if exists address1").Execute();
       session.SQL("drop table if exists address2").Execute();
       session.SQL("drop table if exists address3").Execute();
@@ -1455,14 +1455,14 @@ namespace MySqlX.Data.Tests.RelationalTests
       {
         var result = testSchema.GetTable("test2").Update().Where("id=1").Set("val", row["id"]).Execute();
         //WL11843-Core API v1 alignment Changes
-        Assert.AreEqual(1, result.AffectedItemsCount, "Matching");
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1), "Matching");
       }
 
       Row valRow = testSchema.GetTable("test2").Select("val").Execute().FetchOne();
-      Assert.AreEqual("4", valRow[0].ToString(), "Matching");
+      Assert.That(valRow[0].ToString(), Is.EqualTo("4"), "Matching");
       ExecuteSQL("DELETE FROM test2 WHERE id=1");
       valRow = testSchema.GetTable("test2").Select("val").Execute().FetchOne();
-      Assert.IsNull(valRow);
+      Assert.That(valRow, Is.Null);
       ExecuteSQL("DROP TABLE if exists test1");
       ExecuteSQL("DROP TABLE if exists test2");
     }
@@ -1479,11 +1479,11 @@ namespace MySqlX.Data.Tests.RelationalTests
       {
         var result = testSchema.GetTable("test222").Update().Where("id=1").Set("val", row["id"]).Execute();
         //WL11843-Core API v1 alignment Changes
-        Assert.AreEqual(1, result.AffectedItemsCount, "Matching");
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1), "Matching");
       }
 
       Row valRow = testSchema.GetTable("test222").Select("val").Execute().FetchOne();
-      Assert.AreEqual("4", valRow[0].ToString(), "Matching");
+      Assert.That(valRow[0].ToString(), Is.EqualTo("4"), "Matching");
       ExecuteSQL("DROP TABLE test222");
       Assert.Throws<MySqlException>(() => valRow = testSchema.GetTable("test222").Select("val").Execute().FetchOne());
       ExecuteSQL("DROP TABLE IF EXISTS test111");
@@ -1504,12 +1504,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
@@ -1531,12 +1531,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockShared().LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").LockShared().LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
@@ -1566,17 +1566,17 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockShared().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 1").Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         var result = table2.Update().Where("id = 2").Set("age", 30).Execute();
-        Assert.AreEqual(1, (int)result.AffectedItemsCount, "Match being done");
+        Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Match being done");
         Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive()));
 
         // Session2 blocks due to to LockExclusive() not allowing to modify locked documents.
@@ -1596,17 +1596,17 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockExclusive().LockShared().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 1").Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
         var result = table2.Update().Where("id = 2").Set("age", 30).Execute();
-        Assert.AreEqual(1, (int)result.AffectedItemsCount, "Match being done");
+        Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Match being done");
         Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockShared().LockExclusive()));
 
         // Session2 blocks due to to LockExclusive() not allowing to modify locked documents.
@@ -1633,12 +1633,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         rowResult = table2.Select().Where("id = 2").Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
@@ -1664,16 +1664,16 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("START TRANSACTION").Execute();
         var rowResult = table.Select().Where("id in (1,3)").LockShared().Execute();
-        Assert.AreEqual(2, rowResult.FetchAll().Count, "Matching the record ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(2), "Matching the record ID");
 
         rowResult = table2.Select().Where("id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
         rowResult = table2.Select().Where("id = 2").LockShared().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         session.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
         table2.Select().Where("id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
         Assert.Throws<MySqlException>(() => ExecuteSelectStatement(table2.Select().Where("id = 1").LockExclusive()));
 
@@ -1683,10 +1683,10 @@ namespace MySqlX.Data.Tests.RelationalTests
 
         session.SQL("ROLLBACK").Execute();
         rowResult = table2.Select().Where("id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         session2.SQL("ROLLBACK").Execute();
         rowResult = table.Select().Where("id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
       }
     }
 
@@ -1710,12 +1710,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
           session.SQL("START TRANSACTION").Execute();
           var rowResult = table.Select().Where("id = 1").LockExclusive().Execute();
-          Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+          Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
 
           session2.SQL("START TRANSACTION").Execute();
           // Should return immediately since document isn't locked.
           rowResult = table2.Select().Where("id = 2").LockExclusive().Execute();
-          Assert.AreEqual(1, rowResult.FetchAll().Count, "Matching the record ID");
+          Assert.That(rowResult.FetchAll().Count, Is.EqualTo(1), "Matching the record ID");
 
           // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
           session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();

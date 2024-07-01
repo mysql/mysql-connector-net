@@ -47,21 +47,21 @@ namespace MySqlX.Data.Tests
         new { _id = 56, title = "Book 3", pages = 40 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(3, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(3));
 
       // Remove with condition.
       r = ExecuteRemoveStatement(coll.Remove("_id = 12"));
-      Assert.AreEqual(1, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1));
 
       // Remove by ID.
       r = coll.RemoveOne(34);
-      Assert.AreEqual(1, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1));
 
       var ex = Assert.Throws<ArgumentNullException>(() => coll.Remove(""));
 #if !NETFRAMEWORK
-      Assert.AreEqual("Parameter can't be null or empty. (Parameter 'condition')", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Parameter can't be null or empty. (Parameter 'condition')"));
 #else
-      Assert.AreEqual("Parameter can't be null or empty.\r\nParameter name: condition", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Parameter can't be null or empty.\r\nParameter name: condition"));
 #endif
     }
 
@@ -77,10 +77,10 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       r = ExecuteRemoveStatement(coll.Remove("pages > 20"));
-      Assert.AreEqual(3, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(3));
     }
 
     [Test]
@@ -95,10 +95,10 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       r = ExecuteRemoveStatement(coll.Remove("pages > 20").Limit(1));
-      Assert.AreEqual(1, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1));
 
       // Limit out of range.
       Assert.Throws<ArgumentOutOfRangeException>(() => ExecuteRemoveStatement(coll.Remove("True").Limit(0)));
@@ -119,10 +119,10 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       r = ExecuteRemoveStatement(coll.Remove("pages > 20").Limit(1));
-      Assert.AreEqual(1, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1));
     }
 
     [Test]
@@ -145,18 +145,18 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       r = ExecuteRemoveStatement(coll.Remove("pages = :Pages").Bind("pAges", 50));
-      Assert.AreEqual(1, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1));
 
       var jsonParams = new { pages1 = 30, pages2 = 40 };
       var res = coll.Remove("pages = :Pages1 || pages = :Pages2").Bind(jsonParams).Execute();
-      Assert.AreEqual(2, res.AffectedItemsCount);
+      Assert.That(res.AffectedItemsCount, Is.EqualTo(2));
 
       DbDoc docParams = new DbDoc(new { pages1 = 10, pages2 = 20 });
       coll.Remove("pages = :Pages1 || pages = :Pages2").Bind(docParams).Execute();
-      Assert.True(res.AffectedItemsCount > 0);
+      Assert.That(res.AffectedItemsCount > 0);
     }
 
     [Test]
@@ -171,7 +171,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result result = ExecuteAddStatement(collection.Add(docs));
-      Assert.AreEqual(4, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(4));
 
       // Condition can't be null or empty.
       string errorMessage = string.Empty;
@@ -181,17 +181,17 @@ namespace MySqlX.Data.Tests
       errorMessage = "Parameter can't be null or empty.\r\nParameter name: condition";
 #endif
       Exception ex = Assert.Throws<ArgumentNullException>(() => ExecuteRemoveStatement(collection.Remove(string.Empty)));
-      Assert.AreEqual(errorMessage, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(errorMessage));
       ex = Assert.Throws<ArgumentNullException>(() => ExecuteRemoveStatement(collection.Remove("")));
-      Assert.AreEqual(errorMessage, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(errorMessage));
       ex = Assert.Throws<ArgumentNullException>(() => ExecuteRemoveStatement(collection.Remove(" ")));
-      Assert.AreEqual(errorMessage, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(errorMessage));
       ex = Assert.Throws<ArgumentNullException>(() => ExecuteRemoveStatement(collection.Remove("  ")));
-      Assert.AreEqual(errorMessage, ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(errorMessage));
 
       // Sending an expression that evaluates to true applies changes on all documents.
       result = ExecuteRemoveStatement(collection.Remove("true"));
-      Assert.AreEqual(4, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(4));
     }
 
     [Test]
@@ -207,16 +207,16 @@ namespace MySqlX.Data.Tests
         new DbDoc("{ \"a\": 1, \"b\": \"foo3\", \"c\": { \"d\": true, \"e\": [1,4,3] }, \"f\": [ {\"x\":6}, {\"x\":9 } ] }"),
       };
       Result result = ExecuteAddStatement(collection.Add(docs));
-      Assert.AreEqual(3, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(3));
 
-      Assert.AreEqual(1, ExecuteRemoveStatement(collection.Remove("a IN (2,3)")).AffectedItemsCount);
-      Assert.AreEqual(2, ExecuteFindStatement(collection.Find()).FetchAll().Count);
+      Assert.That(ExecuteRemoveStatement(collection.Remove("a IN (2,3)")).AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(ExecuteFindStatement(collection.Find()).FetchAll().Count, Is.EqualTo(2));
 
-      Assert.AreEqual(0, ExecuteRemoveStatement(collection.Remove("a IN [3]")).AffectedItemsCount);
-      Assert.AreEqual(2, ExecuteFindStatement(collection.Find()).FetchAll().Count);
+      Assert.That(ExecuteRemoveStatement(collection.Remove("a IN [3]")).AffectedItemsCount, Is.EqualTo(0));
+      Assert.That(ExecuteFindStatement(collection.Find()).FetchAll().Count, Is.EqualTo(2));
 
-      Assert.AreEqual(2, ExecuteRemoveStatement(collection.Remove("1 IN c.e")).AffectedItemsCount);
-      CollectionAssert.IsEmpty(ExecuteFindStatement(collection.Find()).FetchAll());
+      Assert.That(ExecuteRemoveStatement(collection.Remove("1 IN c.e")).AffectedItemsCount, Is.EqualTo(2));
+      Assert.That(ExecuteFindStatement(collection.Find()).FetchAll(), Is.Empty);
     }
 
     [Test]
@@ -231,27 +231,27 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result result = ExecuteAddStatement(collection.Add(docs));
-      Assert.AreEqual(4, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(4));
 
       ExecuteAddStatement(collection.Add(new { _id = 5, title = "Book 5", pages = 60 }));
-      Assert.AreEqual(5, ExecuteFindStatement(collection.Find()).FetchAll().Count);
+      Assert.That(ExecuteFindStatement(collection.Find()).FetchAll().Count, Is.EqualTo(5));
 
       // Remove sending numeric parameter.
-      Assert.AreEqual(1, collection.RemoveOne(1).AffectedItemsCount);
-      Assert.AreEqual(4, ExecuteFindStatement(collection.Find()).FetchAll().Count);
+      Assert.That(collection.RemoveOne(1).AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(ExecuteFindStatement(collection.Find()).FetchAll().Count, Is.EqualTo(4));
 
       // Remove sending string parameter.
-      Assert.AreEqual(1, collection.RemoveOne("3").AffectedItemsCount);
-      Assert.AreEqual(3, ExecuteFindStatement(collection.Find()).FetchAll().Count);
+      Assert.That(collection.RemoveOne("3").AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(ExecuteFindStatement(collection.Find()).FetchAll().Count, Is.EqualTo(3));
 
       // Remove an auto-generated id.
       DbDoc document = ExecuteFindStatement(collection.Find("pages = 60")).FetchOne();
-      Assert.AreEqual(1, collection.RemoveOne(document.Id).AffectedItemsCount);
-      Assert.AreEqual(2, ExecuteFindStatement(collection.Find()).FetchAll().Count);
+      Assert.That(collection.RemoveOne(document.Id).AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(ExecuteFindStatement(collection.Find()).FetchAll().Count, Is.EqualTo(2));
 
       // Remove a non-existing document.
-      Assert.AreEqual(0, collection.RemoveOne(5).AffectedItemsCount);
-      Assert.AreEqual(2, ExecuteFindStatement(collection.Find()).FetchAll().Count);
+      Assert.That(collection.RemoveOne(5).AffectedItemsCount, Is.EqualTo(0));
+      Assert.That(ExecuteFindStatement(collection.Find()).FetchAll().Count, Is.EqualTo(2));
 
       // Expected exceptions.
       Assert.Throws<ArgumentNullException>(() => collection.RemoveOne(null));
@@ -273,16 +273,16 @@ namespace MySqlX.Data.Tests
                     new {  _id = 4, title = "Book 4", pages = 50 },
                     };
       Result result = collection.Add(docs).Execute();
-      Assert.AreEqual(4, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(4));
 
       result = collection.Remove("_id = 1").Execute();
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
       result = collection.Remove("_id = 10").Execute();
-      Assert.AreEqual(0, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(0));
       result = collection.Remove("_id = 2").Execute();
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
       result = collection.Remove("_id = 10").Execute();
-      Assert.AreEqual(0, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(0));
       Assert.Throws<ArgumentNullException>(() => collection.Remove(""));
     }
 
@@ -330,35 +330,35 @@ namespace MySqlX.Data.Tests
 
       var res1 = col.Find().Fields("{\"_id\":\"1\",\"books\": \"test1\" }").Fields("{\"_id\":\"2\",\"books\": \"test2\" }").Fields("{\"_id\":\"3\",\"books\": \"test3\" }").Execute().FetchAll();
       res1 = col.Find().Fields(new string[] { "_id", "books", "count" }).Execute().FetchAll();
-      Assert.AreEqual(3, res1.Count, "Matching the find count");
-      Assert.AreEqual(d1.ToString(), res1[0].ToString(), "Matching the doc string 1");
-      Assert.AreEqual(d2.ToString(), res1[1].ToString(), "Matching the doc string 2");
-      Assert.AreEqual(d3.ToString(), res1[2].ToString(), "Matching the doc string 3");
+      Assert.That(res1.Count, Is.EqualTo(3), "Matching the find count");
+      Assert.That(res1[0].ToString(), Is.EqualTo(d1.ToString()), "Matching the doc string 1");
+      Assert.That(res1[1].ToString(), Is.EqualTo(d2.ToString()), "Matching the doc string 2");
+      Assert.That(res1[2].ToString(), Is.EqualTo(d3.ToString()), "Matching the doc string 3");
       final = col.Add(new DbDoc[] { d4, d5 }).Execute();
       var res2 = col.Find().Fields("$._id as _id,$.books as books, $.count as count").Execute().FetchAll();
-      Assert.AreEqual(5, res2.Count, "Matching the find count");
-      Assert.AreEqual(d1.ToString(), res2[0].ToString(), "Matching the doc string 1");
-      Assert.AreEqual(d2.ToString(), res2[1].ToString(), "Matching the doc string 2");
-      Assert.AreEqual(d3.ToString(), res2[2].ToString(), "Matching the doc string 3");
-      Assert.AreEqual(d4.ToString(), res2[3].ToString(), "Matching the doc string 4");
-      Assert.AreEqual(d5.ToString(), res2[4].ToString(), "Matching the doc string 5");
+      Assert.That(res2.Count, Is.EqualTo(5), "Matching the find count");
+      Assert.That(res2[0].ToString(), Is.EqualTo(d1.ToString()), "Matching the doc string 1");
+      Assert.That(res2[1].ToString(), Is.EqualTo(d2.ToString()), "Matching the doc string 2");
+      Assert.That(res2[2].ToString(), Is.EqualTo(d3.ToString()), "Matching the doc string 3");
+      Assert.That(res2[3].ToString(), Is.EqualTo(d4.ToString()), "Matching the doc string 4");
+      Assert.That(res2[4].ToString(), Is.EqualTo(d5.ToString()), "Matching the doc string 5");
       final = col.Add(d6, d7).Execute();
       var res3 = col.Find().Sort("count ASC").Execute().FetchAll();
-      Assert.AreEqual(d6.ToString(), res3[0].ToString(), "Matching the doc string 7");
-      Assert.AreEqual(d1.ToString(), res3[1].ToString(), "Matching the doc string 1");
-      Assert.AreEqual(d2.ToString(), res3[2].ToString(), "Matching the doc string 2");
-      Assert.AreEqual(d3.ToString(), res3[3].ToString(), "Matching the doc string 3");
-      Assert.AreEqual(d4.ToString(), res3[4].ToString(), "Matching the doc string 4");
-      Assert.AreEqual(d5.ToString(), res3[5].ToString(), "Matching the doc string 5");
-      Assert.AreEqual(d7.ToString(), res3[6].ToString(), "Matching the doc string 6");
+      Assert.That(res3[0].ToString(), Is.EqualTo(d6.ToString()), "Matching the doc string 7");
+      Assert.That(res3[1].ToString(), Is.EqualTo(d1.ToString()), "Matching the doc string 1");
+      Assert.That(res3[2].ToString(), Is.EqualTo(d2.ToString()), "Matching the doc string 2");
+      Assert.That(res3[3].ToString(), Is.EqualTo(d3.ToString()), "Matching the doc string 3");
+      Assert.That(res3[4].ToString(), Is.EqualTo(d4.ToString()), "Matching the doc string 4");
+      Assert.That(res3[5].ToString(), Is.EqualTo(d5.ToString()), "Matching the doc string 5");
+      Assert.That(res3[6].ToString(), Is.EqualTo(d7.ToString()), "Matching the doc string 6");
       var res4 = col.Find().Sort("count DESC").Execute().FetchAll();
-      Assert.AreEqual(d7.ToString(), res4[0].ToString(), "Matching the doc string 6");
-      Assert.AreEqual(d5.ToString(), res4[1].ToString(), "Matching the doc string 1");
-      Assert.AreEqual(d4.ToString(), res4[2].ToString(), "Matching the doc string 2");
-      Assert.AreEqual(d3.ToString(), res4[3].ToString(), "Matching the doc string 3");
-      Assert.AreEqual(d2.ToString(), res4[4].ToString(), "Matching the doc string 4");
-      Assert.AreEqual(d1.ToString(), res4[5].ToString(), "Matching the doc string 5");
-      Assert.AreEqual(d6.ToString(), res4[6].ToString(), "Matching the doc string 7");
+      Assert.That(res4[0].ToString(), Is.EqualTo(d7.ToString()), "Matching the doc string 6");
+      Assert.That(res4[1].ToString(), Is.EqualTo(d5.ToString()), "Matching the doc string 1");
+      Assert.That(res4[2].ToString(), Is.EqualTo(d4.ToString()), "Matching the doc string 2");
+      Assert.That(res4[3].ToString(), Is.EqualTo(d3.ToString()), "Matching the doc string 3");
+      Assert.That(res4[4].ToString(), Is.EqualTo(d2.ToString()), "Matching the doc string 4");
+      Assert.That(res4[5].ToString(), Is.EqualTo(d1.ToString()), "Matching the doc string 5");
+      Assert.That(res4[6].ToString(), Is.EqualTo(d6.ToString()), "Matching the doc string 7");
       //Unset with multiple variables not supported
       col.Modify("_id = 1").Unset(new string[] { "count", "books" }).Execute();
       col.Modify("_id = 1").Set("count", 10).Set("books", "test1").Execute();
@@ -371,9 +371,9 @@ namespace MySqlX.Data.Tests
       Collection coll = CreateCollection("test");
       DbDoc doc = new DbDoc(new { _id = 1, title = "Book 1", pages = 20 });
       Result r = coll.Add(doc).Execute();
-      Assert.AreEqual(1, (int)r.AffectedItemsCount, "Match being done");
+      Assert.That((int)r.AffectedItemsCount, Is.EqualTo(1), "Match being done");
       r = coll.Remove("_id=1").Execute();
-      Assert.AreEqual(1, (int)r.AffectedItemsCount, "Match being done");
+      Assert.That((int)r.AffectedItemsCount, Is.EqualTo(1), "Match being done");
     }
 
     #endregion WL14389

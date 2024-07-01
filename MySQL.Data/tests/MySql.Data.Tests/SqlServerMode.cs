@@ -48,8 +48,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual(1, reader.GetInt32(0));
-        Assert.AreEqual("A", reader.GetString(1));
+        Assert.That(reader.GetInt32(0), Is.EqualTo(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("A"));
       }
     }
   }

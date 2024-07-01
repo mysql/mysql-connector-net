@@ -137,7 +137,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     {
       using (var connection = CreateConnection(CreateOptions()))
       {
-        Assert.IsInstanceOf<MySqlConnection>(connection.DbConnection);
+        Assert.That(connection.DbConnection, Is.InstanceOf<MySqlConnection>());
       }
     }
 
@@ -150,10 +150,10 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         {
           var csb = new MySqlConnectionStringBuilder(source.ConnectionString);
           var csb1 = new MySqlConnectionStringBuilder(MySQLTestStore.BaseConnectionString);
-          Assert.True(csb.Database == csb1.Database);
-          Assert.True(csb.Port == csb1.Port);
-          Assert.True(csb.Server == csb1.Server);
-          Assert.True(csb.UserID == csb1.UserID);
+          Assert.That(csb.Database, Is.EqualTo(csb1.Database));
+          Assert.That(csb.Port, Is.EqualTo(csb1.Port));
+          Assert.That(csb.Server, Is.EqualTo(csb1.Server));
+          Assert.That(csb.UserID, Is.EqualTo(csb1.UserID));
         }
       }
     }

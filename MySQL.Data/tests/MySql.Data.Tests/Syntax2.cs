@@ -58,11 +58,11 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataTable table = new DataTable();
       da.Fill(table);
-      Assert.AreEqual(1, table.Rows[0]["id"]);
-      Assert.AreEqual("Test", table.Rows[0]["name"]);
-      Assert.AreEqual(2, table.Rows.Count);
-      Assert.AreEqual(2, table.Rows[1]["id"]);
-      Assert.AreEqual("Test2", table.Rows[1]["name"]);
+      Assert.That(table.Rows[0]["id"], Is.EqualTo(1));
+      Assert.That(table.Rows[0]["name"], Is.EqualTo("Test"));
+      Assert.That(table.Rows.Count, Is.EqualTo(2));
+      Assert.That(table.Rows[1]["id"], Is.EqualTo(2));
+      Assert.That(table.Rows[1]["name"], Is.EqualTo("Test2"));
     }
 
     [Test]
@@ -71,17 +71,17 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("CREATE TABLE Test(id int auto_increment, name varchar(20), primary key(id))");
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(NULL, 'test')", Connection);
       cmd.ExecuteNonQuery();
-      Assert.AreEqual(1, cmd.LastInsertedId);
+      Assert.That(cmd.LastInsertedId, Is.EqualTo(1));
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
       }
-      Assert.AreEqual(2, cmd.LastInsertedId);
+      Assert.That(cmd.LastInsertedId, Is.EqualTo(2));
 
       cmd.CommandText = "SELECT id FROM Test";
       cmd.ExecuteScalar();
-      Assert.AreEqual(-1, cmd.LastInsertedId);
+      Assert.That(cmd.LastInsertedId, Is.EqualTo(-1));
     }
 
     [Test]

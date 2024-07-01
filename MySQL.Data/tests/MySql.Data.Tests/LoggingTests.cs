@@ -67,11 +67,11 @@ namespace MySql.Data.MySqlClient.Tests
         }
       }
       //Assert.AreEqual(4, listener.Strings.Count);
-      Assert.AreEqual(27, listener.Strings.Count);
-      StringAssert.Contains("Query Opened: SELECT * FROM Test", listener.Strings[listener.Strings.Count - 5]);
-      StringAssert.Contains("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1", listener.Strings[listener.Strings.Count - 4]);
-      StringAssert.Contains("Resultset Closed. Total rows=4, skipped rows=4, size (bytes)=32", listener.Strings[listener.Strings.Count - 3]);
-      StringAssert.Contains("Query Closed", listener.Strings[listener.Strings.Count - 2]);
+      Assert.That(listener.Strings.Count, Is.EqualTo(27));
+      Assert.That(listener.Strings[listener.Strings.Count - 5], Does.Contain("Query Opened: SELECT * FROM Test"));
+      Assert.That(listener.Strings[listener.Strings.Count - 4], Does.Contain("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1"));
+      Assert.That(listener.Strings[listener.Strings.Count - 3], Does.Contain("Resultset Closed. Total rows=4, skipped rows=4, size (bytes)=32"));
+      Assert.That(listener.Strings[listener.Strings.Count - 2], Does.Contain("Query Closed"));
     }
 
     [Test]
@@ -91,16 +91,16 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
       }
 
-      Assert.AreEqual(32, listener.Strings.Count);
-      StringAssert.Contains("Query Opened: INSERT IGNORE INTO Test VALUES (1, 'abcdef')", listener.Strings[listener.Strings.Count - 10]);
-      StringAssert.Contains("Resultset Opened: field(s) = 0, affected rows = 1, inserted id = 0", listener.Strings[listener.Strings.Count - 9]);
-      StringAssert.Contains("Resultset Closed. Total rows=0, skipped rows=0, size (bytes)=0", listener.Strings[listener.Strings.Count - 8]);
-      StringAssert.Contains("Query Opened: SHOW WARNINGS", listener.Strings[listener.Strings.Count - 7]);
-      StringAssert.Contains("Resultset Opened: field(s) = 3, affected rows = -1, inserted id = -1", listener.Strings[listener.Strings.Count - 6]);
-      StringAssert.Contains("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=55", listener.Strings[listener.Strings.Count - 5]);
-      StringAssert.Contains("Query Closed", listener.Strings[listener.Strings.Count - 4]);
-      StringAssert.Contains("MySql Warning: Level=Warning, Code=1265, Message=Data truncated for column 'name' at row 1", listener.Strings[listener.Strings.Count - 3]);
-      StringAssert.Contains("Query Closed", listener.Strings[listener.Strings.Count - 2]);
+      Assert.That(listener.Strings.Count, Is.EqualTo(32));
+      Assert.That(listener.Strings[listener.Strings.Count - 10], Does.Contain("Query Opened: INSERT IGNORE INTO Test VALUES (1, 'abcdef')"));
+      Assert.That(listener.Strings[listener.Strings.Count - 9], Does.Contain("Resultset Opened: field(s) = 0, affected rows = 1, inserted id = 0"));
+      Assert.That(listener.Strings[listener.Strings.Count - 8], Does.Contain("Resultset Closed. Total rows=0, skipped rows=0, size (bytes)=0"));
+      Assert.That(listener.Strings[listener.Strings.Count - 7], Does.Contain("Query Opened: SHOW WARNINGS"));
+      Assert.That(listener.Strings[listener.Strings.Count - 6], Does.Contain("Resultset Opened: field(s) = 3, affected rows = -1, inserted id = -1"));
+      Assert.That(listener.Strings[listener.Strings.Count - 5], Does.Contain("Resultset Closed. Total rows=1, skipped rows=0, size (bytes)=55"));
+      Assert.That(listener.Strings[listener.Strings.Count - 4], Does.Contain("Query Closed"));
+      Assert.That(listener.Strings[listener.Strings.Count - 3], Does.Contain("MySql Warning: Level=Warning, Code=1265, Message=Data truncated for column 'name' at row 1"));
+      Assert.That(listener.Strings[listener.Strings.Count - 2], Does.Contain("Query Closed"));
     }
 
     [Test]
@@ -121,10 +121,10 @@ namespace MySql.Data.MySqlClient.Tests
         logConn.Open();
         MySqlCommand cmd = new MySqlCommand(sql.ToString(), logConn);
         cmd.ExecuteNonQuery();
-      }      
+      }
 
-      Assert.AreEqual(28, listener.Strings.Count);
-      StringAssert.EndsWith("SELECT ?", listener.Strings[listener.Strings.Count - 5]);
+      Assert.That(listener.Strings.Count, Is.EqualTo(28));
+      Assert.That(listener.Strings[listener.Strings.Count - 5], Does.EndWith("SELECT ?"));
     }
 
     /// <summary>

@@ -38,11 +38,11 @@ namespace MySql.Data.MySqlClient.Tests
     public void Simple()
     {
       SqlTokenizer tokenizer = new SqlTokenizer("SELECT * FROM Test");
-      Assert.AreEqual("SELECT", tokenizer.NextToken());
-      Assert.AreEqual("*", tokenizer.NextToken());
-      Assert.AreEqual("FROM", tokenizer.NextToken());
-      Assert.AreEqual("Test", tokenizer.NextToken());
-      Assert.Null(tokenizer.NextToken());
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("SELECT"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("*"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("FROM"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("Test"));
+      Assert.That(tokenizer.NextToken(), Is.Null);
     }
 
     [Test]
@@ -52,20 +52,20 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = String.Format("SELECT {0} * FROM Test", comment);
       SqlTokenizer tokenizer = new SqlTokenizer(sql);
       tokenizer.ReturnComments = true;
-      Assert.AreEqual("SELECT", tokenizer.NextToken());
-      Assert.AreEqual(comment, tokenizer.NextToken());
-      Assert.AreEqual("*", tokenizer.NextToken());
-      Assert.AreEqual("FROM", tokenizer.NextToken());
-      Assert.AreEqual("Test", tokenizer.NextToken());
-      Assert.Null(tokenizer.NextToken());
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("SELECT"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo(comment));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("*"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("FROM"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("Test"));
+      Assert.That(tokenizer.NextToken(), Is.Null);
 
       tokenizer = new SqlTokenizer(sql);
       tokenizer.ReturnComments = false;
-      Assert.AreEqual("SELECT", tokenizer.NextToken());
-      Assert.AreEqual("*", tokenizer.NextToken());
-      Assert.AreEqual("FROM", tokenizer.NextToken());
-      Assert.AreEqual("Test", tokenizer.NextToken());
-      Assert.Null(tokenizer.NextToken());
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("SELECT"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("*"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("FROM"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("Test"));
+      Assert.That(tokenizer.NextToken(), Is.Null);
     }
 
     [Test]
@@ -75,20 +75,20 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = String.Format("SELECT {0} * FROM Test", comment);
       SqlTokenizer tokenizer = new SqlTokenizer(sql);
       tokenizer.ReturnComments = true;
-      Assert.AreEqual("SELECT", tokenizer.NextToken());
-      Assert.AreEqual(comment, tokenizer.NextToken());
-      Assert.AreEqual("*", tokenizer.NextToken());
-      Assert.AreEqual("FROM", tokenizer.NextToken());
-      Assert.AreEqual("Test", tokenizer.NextToken());
-      Assert.Null(tokenizer.NextToken());
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("SELECT"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo(comment));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("*"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("FROM"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("Test"));
+      Assert.That(tokenizer.NextToken(), Is.Null);
 
       tokenizer = new SqlTokenizer(sql);
       tokenizer.ReturnComments = false;
-      Assert.AreEqual("SELECT", tokenizer.NextToken());
-      Assert.AreEqual("*", tokenizer.NextToken());
-      Assert.AreEqual("FROM", tokenizer.NextToken());
-      Assert.AreEqual("Test", tokenizer.NextToken());
-      Assert.Null(tokenizer.NextToken());
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("SELECT"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("*"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("FROM"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("Test"));
+      Assert.That(tokenizer.NextToken(), Is.Null);
     }
 
     [Test]
@@ -98,20 +98,20 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = String.Format("SELECT{0} * FROM Test", comment);
       SqlTokenizer tokenizer = new SqlTokenizer(sql);
       tokenizer.ReturnComments = true;
-      Assert.AreEqual("SELECT", tokenizer.NextToken());
-      Assert.AreEqual(comment.Trim(), tokenizer.NextToken());
-      Assert.AreEqual("*", tokenizer.NextToken());
-      Assert.AreEqual("FROM", tokenizer.NextToken());
-      Assert.AreEqual("Test", tokenizer.NextToken());
-      Assert.Null(tokenizer.NextToken());
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("SELECT"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo(comment.Trim()));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("*"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("FROM"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("Test"));
+      Assert.That(tokenizer.NextToken(), Is.Null);
 
       tokenizer = new SqlTokenizer(sql);
       tokenizer.ReturnComments = false;
-      Assert.AreEqual("SELECT", tokenizer.NextToken());
-      Assert.AreEqual("*", tokenizer.NextToken());
-      Assert.AreEqual("FROM", tokenizer.NextToken());
-      Assert.AreEqual("Test", tokenizer.NextToken());
-      Assert.Null(tokenizer.NextToken());
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("SELECT"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("*"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("FROM"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("Test"));
+      Assert.That(tokenizer.NextToken(), Is.Null);
     }
 
     [Test]
@@ -120,19 +120,19 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = "SELECT * FROM Test WHERE id=@id AND id2=?id2";
       SqlTokenizer tokenizer = new SqlTokenizer(sql);
       tokenizer.ReturnComments = true;
-      Assert.AreEqual("SELECT", tokenizer.NextToken());
-      Assert.AreEqual("*", tokenizer.NextToken());
-      Assert.AreEqual("FROM", tokenizer.NextToken());
-      Assert.AreEqual("Test", tokenizer.NextToken());
-      Assert.AreEqual("WHERE", tokenizer.NextToken());
-      Assert.AreEqual("id", tokenizer.NextToken());
-      Assert.AreEqual("=", tokenizer.NextToken());
-      Assert.AreEqual("@id", tokenizer.NextToken());
-      Assert.AreEqual("AND", tokenizer.NextToken());
-      Assert.AreEqual("id2", tokenizer.NextToken());
-      Assert.AreEqual("=", tokenizer.NextToken());
-      Assert.AreEqual("?id2", tokenizer.NextToken());
-      Assert.Null(tokenizer.NextToken());
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("SELECT"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("*"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("FROM"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("Test"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("WHERE"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("id"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("="));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("@id"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("AND"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("id2"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("="));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("?id2"));
+      Assert.That(tokenizer.NextToken(), Is.Null);
     }
 
     [Test]
@@ -141,9 +141,9 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = "SELECT * FROM Test WHERE id=@id AND id2=?id2";
       SqlTokenizer tokenizer = new SqlTokenizer(sql);
       tokenizer.ReturnComments = true;
-      Assert.AreEqual("@id", tokenizer.NextParameter());
-      Assert.AreEqual("?id2", tokenizer.NextParameter());
-      Assert.Null(tokenizer.NextParameter());
+      Assert.That(tokenizer.NextParameter(), Is.EqualTo("@id"));
+      Assert.That(tokenizer.NextParameter(), Is.EqualTo("?id2"));
+      Assert.That(tokenizer.NextParameter(), Is.Null);
     }
 
     [Test]
@@ -152,15 +152,15 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = "SELECT * FROM Test WHERE id=@id_$123";
       SqlTokenizer tokenizer = new SqlTokenizer(sql);
       tokenizer.ReturnComments = true;
-      Assert.AreEqual("SELECT", tokenizer.NextToken());
-      Assert.AreEqual("*", tokenizer.NextToken());
-      Assert.AreEqual("FROM", tokenizer.NextToken());
-      Assert.AreEqual("Test", tokenizer.NextToken());
-      Assert.AreEqual("WHERE", tokenizer.NextToken());
-      Assert.AreEqual("id", tokenizer.NextToken());
-      Assert.AreEqual("=", tokenizer.NextToken());
-      Assert.AreEqual("@id_$123", tokenizer.NextToken());
-      Assert.Null(tokenizer.NextToken());
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("SELECT"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("*"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("FROM"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("Test"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("WHERE"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("id"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("="));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("@id_$123"));
+      Assert.That(tokenizer.NextToken(), Is.Null);
     }
 
     [Test]
@@ -169,13 +169,13 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = "SELECT 'a', 1, 'b'";
       SqlTokenizer tokenizer = new SqlTokenizer(sql);
       tokenizer.ReturnComments = false;
-      Assert.AreEqual("SELECT", tokenizer.NextToken());
-      Assert.AreEqual("'a'", tokenizer.NextToken());
-      Assert.AreEqual(",", tokenizer.NextToken());
-      Assert.AreEqual("1", tokenizer.NextToken());
-      Assert.AreEqual(",", tokenizer.NextToken());
-      Assert.AreEqual("'b'", tokenizer.NextToken());
-      Assert.Null(tokenizer.NextToken());
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("SELECT"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("'a'"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo(","));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("1"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo(","));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("'b'"));
+      Assert.That(tokenizer.NextToken(), Is.Null);
     }
 
     [Test]
@@ -184,13 +184,13 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = "SELECT 'a', 1, @@myVar";
       SqlTokenizer tokenizer = new SqlTokenizer(sql);
       tokenizer.ReturnComments = false;
-      Assert.AreEqual("SELECT", tokenizer.NextToken());
-      Assert.AreEqual("'a'", tokenizer.NextToken());
-      Assert.AreEqual(",", tokenizer.NextToken());
-      Assert.AreEqual("1", tokenizer.NextToken());
-      Assert.AreEqual(",", tokenizer.NextToken());
-      Assert.AreEqual("@@myVar", tokenizer.NextToken());
-      Assert.Null(tokenizer.NextToken());
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("SELECT"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("'a'"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo(","));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("1"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo(","));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("@@myVar"));
+      Assert.That(tokenizer.NextToken(), Is.Null);
     }
 
     [Test]
@@ -199,16 +199,16 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = "SELECT 'a', \"a\", `a`";
       SqlTokenizer tokenizer = new SqlTokenizer(sql);
       tokenizer.AnsiQuotes = false;
-      Assert.AreEqual("SELECT", tokenizer.NextToken());
-      Assert.AreEqual("'a'", tokenizer.NextToken());
-      Assert.True(tokenizer.Quoted);
-      Assert.AreEqual(",", tokenizer.NextToken());
-      Assert.AreEqual("\"a\"", tokenizer.NextToken());
-      Assert.True(tokenizer.Quoted);
-      Assert.AreEqual(",", tokenizer.NextToken());
-      Assert.AreEqual("`a`", tokenizer.NextToken());
-      Assert.True(tokenizer.Quoted);
-      Assert.Null(tokenizer.NextToken());
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("SELECT"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("'a'"));
+      Assert.That(tokenizer.Quoted);
+      Assert.That(tokenizer.NextToken(), Is.EqualTo(","));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("\"a\""));
+      Assert.That(tokenizer.Quoted);
+      Assert.That(tokenizer.NextToken(), Is.EqualTo(","));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("`a`"));
+      Assert.That(tokenizer.Quoted);
+      Assert.That(tokenizer.NextToken(), Is.Null);
     }
 
     [Test]
@@ -217,25 +217,25 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = "CREATE PROCEDURE spTest(testid INT, testname VARCHAR(20)) BEGIN SELECT 1; END";
       SqlTokenizer tokenizer = new SqlTokenizer(sql);
       tokenizer.AnsiQuotes = false;
-      Assert.AreEqual("CREATE", tokenizer.NextToken());
-      Assert.AreEqual("PROCEDURE", tokenizer.NextToken());
-      Assert.AreEqual("spTest", tokenizer.NextToken());
-      Assert.AreEqual("(", tokenizer.NextToken());
-      Assert.AreEqual("testid", tokenizer.NextToken());
-      Assert.AreEqual("INT", tokenizer.NextToken());
-      Assert.AreEqual(",", tokenizer.NextToken());
-      Assert.AreEqual("testname", tokenizer.NextToken());
-      Assert.AreEqual("VARCHAR", tokenizer.NextToken());
-      Assert.AreEqual("(", tokenizer.NextToken());
-      Assert.AreEqual("20", tokenizer.NextToken());
-      Assert.AreEqual(")", tokenizer.NextToken());
-      Assert.AreEqual(")", tokenizer.NextToken());
-      Assert.AreEqual("BEGIN", tokenizer.NextToken());
-      Assert.AreEqual("SELECT", tokenizer.NextToken());
-      Assert.AreEqual("1", tokenizer.NextToken());
-      Assert.AreEqual(";", tokenizer.NextToken());
-      Assert.AreEqual("END", tokenizer.NextToken());
-      Assert.Null(tokenizer.NextToken());
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("CREATE"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("PROCEDURE"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("spTest"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("("));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("testid"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("INT"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo(","));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("testname"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("VARCHAR"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("("));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("20"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo(")"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo(")"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("BEGIN"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("SELECT"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("1"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo(";"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("END"));
+      Assert.That(tokenizer.NextToken(), Is.Null);
     }
 
     /// <summary>
@@ -251,13 +251,13 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
       cmd.CommandText = "SELECT name FROM Test";
       object o = cmd.ExecuteScalar();
-      Assert.AreEqual("test -- test", o);
+      Assert.That(o, Is.EqualTo("test -- test"));
 
       cmd.CommandText = "UPDATE Test SET name='Can you explain this ?';";
       cmd.ExecuteNonQuery();
       cmd.CommandText = "SELECT name FROM Test";
       o = cmd.ExecuteScalar();
-      Assert.AreEqual("Can you explain this ?", o);
+      Assert.That(o, Is.EqualTo("Can you explain this ?"));
     }
 
     [Test]
@@ -266,11 +266,11 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = "AND // OR";
       SqlTokenizer tokenizer = new SqlTokenizer(sql);
       tokenizer.AnsiQuotes = false;
-      Assert.AreEqual("AND", tokenizer.NextToken());
-      Assert.AreEqual("/", tokenizer.NextToken());
-      Assert.AreEqual("/", tokenizer.NextToken());
-      Assert.AreEqual("OR", tokenizer.NextToken());
-      Assert.Null(tokenizer.NextToken());
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("AND"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("/"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("/"));
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("OR"));
+      Assert.That(tokenizer.NextToken(), Is.Null);
     }
 
     [Test]
@@ -280,17 +280,17 @@ namespace MySql.Data.MySqlClient.Tests
       SqlTokenizer tokenizer = new SqlTokenizer(sql);
       tokenizer.SqlServerMode = true;
       tokenizer.NextToken();
-      Assert.AreEqual("`a`", tokenizer.NextToken());
-      Assert.True(tokenizer.Quoted);
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("`a`"));
+      Assert.That(tokenizer.Quoted);
       tokenizer.NextToken();  // read ,
-      Assert.AreEqual("[id]", tokenizer.NextToken());
-      Assert.True(tokenizer.Quoted);
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("[id]"));
+      Assert.That(tokenizer.Quoted);
       tokenizer.NextToken();  // read ,
-      Assert.AreEqual("[name]", tokenizer.NextToken());
-      Assert.True(tokenizer.Quoted);
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("[name]"));
+      Assert.That(tokenizer.Quoted);
       tokenizer.NextToken();  // read FROM
-      Assert.AreEqual("[Test]", tokenizer.NextToken());
-      Assert.True(tokenizer.Quoted);
+      Assert.That(tokenizer.NextToken(), Is.EqualTo("[Test]"));
+      Assert.That(tokenizer.Quoted);
     }
   }
 }

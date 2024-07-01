@@ -85,15 +85,15 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
         using (MySqlConnection conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
           if (conn.State == System.Data.ConnectionState.Closed) conn.Open();
-          Assert.AreEqual(true, GenerateAndExecuteMySQLStatements(migrationOperations));
+          Assert.That(GenerateAndExecuteMySQLStatements(migrationOperations), Is.EqualTo(true));
 
           MySqlCommand query = new MySqlCommand("Select Column_name, Is_Nullable, Data_Type from information_schema.Columns where table_schema ='" + conn.Database + "' and table_name = 'Blogs' and column_name ='TotalPosts'", conn);
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("TotalPosts", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("int", reader[2].ToString());
+            Assert.That(reader[0].ToString(), Is.EqualTo("TotalPosts"));
+            Assert.That(reader[1].ToString(), Is.EqualTo("NO"));
+            Assert.That(reader[2].ToString(), Is.EqualTo("int"));
           }
           reader.Close();
           conn.Close();
@@ -122,7 +122,7 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
         using (var conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
           if (conn.State == System.Data.ConnectionState.Closed) conn.Open();
-          Assert.True(GenerateAndExecuteMySQLStatements(migrationOperations));
+          Assert.That(GenerateAndExecuteMySQLStatements(migrationOperations));
           using (MySqlCommand query = new MySqlCommand($"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA ='{conn.Database}'" +
             $" AND TABLE_NAME = 'Posts'", conn))
           {
@@ -137,7 +137,7 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
             query.CommandText = $"SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{conn.Database}' AND " +
               $"TABLE_NAME = 'Posts' AND COLUMN_NAME = 'Password'";
 
-            StringAssert.AreEqualIgnoringCase("binary(10)", query.ExecuteScalar().ToString());
+            Assert.That(query.ExecuteScalar().ToString(), Is.EqualTo("binary(10)").IgnoreCase);
           }
         }
       }
@@ -195,7 +195,7 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
         if (context.Database.Exists()) context.Database.Delete();
         context.Database.Create();
 
-        Assert.AreEqual(true, GenerateAndExecuteMySQLStatements(migrationOperations));
+        Assert.That(GenerateAndExecuteMySQLStatements(migrationOperations), Is.EqualTo(true));
 
         using (var conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
@@ -203,11 +203,11 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
           // check for foreign key creation
           MySqlCommand query = new MySqlCommand("select Count(*) from information_schema.table_constraints where LOWER(constraint_type) = 'foreign key' and constraint_schema = '" + conn.Database + "' and constraint_name = 'FKBlogs'", conn);
           int rows = Convert.ToInt32(query.ExecuteScalar());
-          Assert.AreEqual(1, rows);
+          Assert.That(rows, Is.EqualTo(1));
           // check for table creation          
           query = new MySqlCommand("select Count(*) from information_schema.Tables WHERE `table_name` = 'Posts' and `table_schema` = '" + conn.Database + "' ", conn);
           rows = Convert.ToInt32(query.ExecuteScalar());
-          Assert.AreEqual(1, rows);
+          Assert.That(rows, Is.EqualTo(1));
           conn.Close();
         }
 
@@ -221,7 +221,7 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
           {
             r.Read();
             string sql = r.GetString(1);
-            Assert.True(sql.IndexOf(
+            Assert.That(sql.IndexOf(
               " CONSTRAINT `FKBlogs` FOREIGN KEY (`BlogId`) REFERENCES `blogs` (`BlogId`) ON DELETE CASCADE ON UPDATE CASCADE",
               StringComparison.OrdinalIgnoreCase) != -1);
           }
@@ -259,7 +259,7 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
         context.Database.Create();
 
 
-        Assert.AreEqual(true, GenerateAndExecuteMySQLStatements(migrationOperations));
+        Assert.That(GenerateAndExecuteMySQLStatements(migrationOperations), Is.EqualTo(true));
 
         using (var conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
@@ -268,21 +268,21 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
           // check for table creation          
           var query = new MySqlCommand("select Count(*) from information_schema.Tables WHERE `table_name` = 'Posts' and `table_schema` = '" + conn.Database + "' ", conn);
           int rows = Convert.ToInt32(query.ExecuteScalar());
-          Assert.AreEqual(1, rows);
+          Assert.That(rows, Is.EqualTo(1));
 
           // check if PK exists          
           query = new MySqlCommand("select Count(*) from information_schema.table_constraints where `constraint_type` = 'primary key' and `constraint_schema` = '" + conn.Database + "' and table_name= 'Posts'", conn);
           rows = Convert.ToInt32(query.ExecuteScalar());
-          Assert.AreEqual(0, rows);
+          Assert.That(rows, Is.EqualTo(0));
 
           //check the definition of the column that was PK
           query = new MySqlCommand("Select Column_name, Is_Nullable, Data_Type from information_schema.Columns where table_schema ='" + conn.Database + "' and table_name = 'Posts' and column_name ='PostId'", conn);
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("PostId", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("int", reader[2].ToString());
+            Assert.That(reader[0].ToString(), Is.EqualTo("PostId"));
+            Assert.That(reader[1].ToString(), Is.EqualTo("NO"));
+            Assert.That(reader[2].ToString(), Is.EqualTo("int"));
           }
           reader.Close();
           conn.Close();
@@ -315,7 +315,7 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
         context.Database.Create();
 
 
-        Assert.AreEqual(true, GenerateAndExecuteMySQLStatements(migrationOperations));
+        Assert.That(GenerateAndExecuteMySQLStatements(migrationOperations), Is.EqualTo(true));
 
         using (var conn = new MySqlConnection(context.Database.Connection.ConnectionString))
         {
@@ -324,21 +324,21 @@ namespace MySql.Data.EntityFramework.Migrations.Tests
           // check for table creation          
           var query = new MySqlCommand("select Count(*) from information_schema.Tables WHERE `table_name` = 'Posts' and `table_schema` = '" + conn.Database + "' ", conn);
           int rows = Convert.ToInt32(query.ExecuteScalar());
-          Assert.AreEqual(1, rows);
+          Assert.That(rows, Is.EqualTo(1));
 
           // check if PK exists          
           query = new MySqlCommand("select Count(*) from information_schema.table_constraints where `constraint_type` = 'primary key' and `constraint_schema` = '" + conn.Database + "' and table_name= 'Posts'", conn);
           rows = Convert.ToInt32(query.ExecuteScalar());
-          Assert.AreEqual(0, rows);
+          Assert.That(rows, Is.EqualTo(0));
 
           //check the definition of the column that was PK
           query = new MySqlCommand("Select Column_name, Is_Nullable, Data_Type from information_schema.Columns where table_schema ='" + conn.Database + "' and table_name = 'Posts' and column_name ='PostId'", conn);
           MySqlDataReader reader = query.ExecuteReader();
           while (reader.Read())
           {
-            Assert.AreEqual("PostId", reader[0].ToString());
-            Assert.AreEqual("NO", reader[1].ToString());
-            Assert.AreEqual("int", reader[2].ToString());
+            Assert.That(reader[0].ToString(), Is.EqualTo("PostId"));
+            Assert.That(reader[1].ToString(), Is.EqualTo("NO"));
+            Assert.That(reader[2].ToString(), Is.EqualTo("int"));
           }
           reader.Close();
           conn.Close();

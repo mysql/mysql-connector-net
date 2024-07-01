@@ -77,11 +77,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           {
             while (reader.Read())
             {
-              Assert.Contains(reader.GetString(0), databases);
+              Assert.That(databases.Contains(reader.GetString(0)));
               count++;
             }
           }
-          Assert.AreEqual(3, count);
+          Assert.That(count, Is.EqualTo(3));
         }
       }
     }
@@ -137,9 +137,9 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         });
 
         context.SaveChanges();
-        Assert.AreEqual(2, context.Car.Count());
-        Assert.AreEqual(2, context.BodyShop.Count());
-        Assert.AreEqual(2, context.Employee.Count());
+        Assert.That(context.Car.Count(), Is.EqualTo(2));
+        Assert.That(context.BodyShop.Count(), Is.EqualTo(2));
+        Assert.That(context.Employee.Count(), Is.EqualTo(2));
       }
     }
 

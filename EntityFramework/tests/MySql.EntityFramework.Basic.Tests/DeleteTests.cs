@@ -53,13 +53,13 @@ namespace MySql.Data.EntityFramework.Tests
     {
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
-        Assert.True(ctx.Products.Count() > 0);
+        Assert.That(ctx.Products.Count() > 0);
 
         foreach (Product p in ctx.Products)
           ctx.Products.Remove(p);
         ctx.SaveChanges();
 
-        Assert.AreEqual(0, ctx.Products.Count());
+        Assert.That(ctx.Products.Count(), Is.EqualTo(0));
       }
       // set the flag that will cause the setup to happen again
       // since we just blew away a table
@@ -74,12 +74,12 @@ namespace MySql.Data.EntityFramework.Tests
         int total = ctx.Products.Count();
         int cntLeft = ctx.Products.Where(b => b.MinAge >= 18).Count();
         // make sure the test is valid
-        Assert.True(total > cntLeft);
+        Assert.That(total > cntLeft);
 
         foreach (Product p in ctx.Products.Where(b => b.MinAge < 18).ToList())
           ctx.Products.Remove(p);
         ctx.SaveChanges();
-        Assert.AreEqual(cntLeft, ctx.Products.Count());
+        Assert.That(ctx.Products.Count(), Is.EqualTo(cntLeft));
       }
       // set the flag that will cause the setup to happen again
       // since we just blew away a table

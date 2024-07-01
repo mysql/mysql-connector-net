@@ -58,7 +58,7 @@ namespace MySql.Data.MySqlClient.Tests
         // now run the query again but this time it shouldn't generate a call to the database
         ConsumeReader(cmd);
       }
-      Assert.AreEqual(1, listener.Find("Resultset Opened: field(s) = 3"));
+      Assert.That(listener.Find("Resultset Opened: field(s) = 3"), Is.EqualTo(1));
     }
 
     [Test]
@@ -83,7 +83,7 @@ namespace MySql.Data.MySqlClient.Tests
         // since our next query is past the cache age of 1 second
         ConsumeReader(cmd);
       }
-      Assert.AreEqual(2, listener.Find("Resultset Opened: field(s) = 3"));
+      Assert.That(listener.Find("Resultset Opened: field(s) = 3"), Is.EqualTo(2));
     }
 
     [Test]
@@ -111,7 +111,7 @@ namespace MySql.Data.MySqlClient.Tests
         // to 20 seconds on our command
         ConsumeReader(cmd);
       }
-      Assert.AreEqual(1, listener.Find("Resultset Opened: field(s) = 3"));
+      Assert.That(listener.Find("Resultset Opened: field(s) = 3"), Is.EqualTo(1));
     }
 
     private void ConsumeReader(MySqlCommand cmd)
@@ -119,18 +119,18 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual(1, reader.GetInt32(0));
-        Assert.AreEqual("boo", reader.GetString(1));
-        Assert.AreEqual("hoo", reader.GetString(2));
+        Assert.That(reader.GetInt32(0), Is.EqualTo(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("boo"));
+        Assert.That(reader.GetString(2), Is.EqualTo("hoo"));
         reader.Read();
-        Assert.AreEqual(2, reader.GetInt32(0));
-        Assert.AreEqual("first", reader.GetString(1));
-        Assert.AreEqual("last", reader.GetString(2));
+        Assert.That(reader.GetInt32(0), Is.EqualTo(2));
+        Assert.That(reader.GetString(1), Is.EqualTo("first"));
+        Assert.That(reader.GetString(2), Is.EqualTo("last"));
         reader.Read();
-        Assert.AreEqual(3, reader.GetInt32(0));
-        Assert.AreEqual("fred", reader.GetString(1));
-        Assert.AreEqual("flintstone", reader.GetString(2));
-        Assert.False(reader.Read());
+        Assert.That(reader.GetInt32(0), Is.EqualTo(3));
+        Assert.That(reader.GetString(1), Is.EqualTo("fred"));
+        Assert.That(reader.GetString(2), Is.EqualTo("flintstone"));
+        Assert.That(reader.Read(), Is.False);
       }
     }
   }

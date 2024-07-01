@@ -58,8 +58,8 @@ namespace MySqlX.Data.Tests.RelationalTests
         tasksList.Add(table.Insert().Values(i, i % 250).ExecuteAsync());
       }
 
-      Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
-      Assert.AreEqual(200, table.Count());
+      Assert.That(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
+      Assert.That(table.Count(), Is.EqualTo(200));
     }
 
     [Test]
@@ -83,16 +83,16 @@ namespace MySqlX.Data.Tests.RelationalTests
         tasksList.Add(table.Select().Where("age = :age").Bind("aGe", i).ExecuteAsync());
       }
 
-      Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
+      Assert.That(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
       foreach (Task<RowResult> task in tasksList)
       {
-        Assert.AreEqual(2, task.Result.Columns.Count);
+        Assert.That(task.Result.Columns.Count, Is.EqualTo(2));
         Assert.That(task.Result.Rows, Has.One.Items);
         int value = (int)task.Result.Rows[0][1];
-        Assert.False(validator.Contains(value), value + " value exists");
+        Assert.That(validator.Contains(value), Is.False, value + " value exists");
         validator.Add(value);
       }
-      Assert.AreEqual(rows, validator.Count);
+      Assert.That(validator.Count, Is.EqualTo(rows));
     }
     #region WL14389
     [Test, Description("Table.Select() with shared lock and Table.Update() ")]
@@ -116,7 +116,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         }
         catch (MySqlException ex)
         {
-          Assert.True(ex.Message.Contains("Duplicate"));
+          Assert.That(ex.Message.Contains("Duplicate"));
         }
 
         var table2 = session2.GetSchema("test").GetTable("test");
@@ -124,7 +124,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         for (var i = 0; i < 1000; i++)
         {
           var result = table2.Update().Where("id = 1").Set("age", 2).Execute();
-          Assert.IsNotNull(result);
+          Assert.That(result, Is.Not.Null);
         }
       }
 
@@ -149,7 +149,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         }
         catch (MySqlException ex)
         {
-          Assert.True(ex.Message.Contains("Duplicate"));
+          Assert.That(ex.Message.Contains("Duplicate"));
         }
 
         var table2 = session2.GetSchema("test").GetTable("test");

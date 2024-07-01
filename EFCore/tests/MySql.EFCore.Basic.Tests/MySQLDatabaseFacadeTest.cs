@@ -46,7 +46,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     {
       using (var context = new MySQLOnConfiguringContext())
       {
-        Assert.True(context.Database.IsMySql());
+        Assert.That(context.Database.IsMySql());
       }
     }
 
@@ -56,7 +56,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       using (var context = new MySQLOnModelContext())
       {
         var _ = context.Model; // Trigger context initialization
-        Assert.True(context.IsMySQLSet);
+        Assert.That(context.IsMySQLSet == true);
       }
     }
 
@@ -66,7 +66,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       using (var context = new MySQLConstructorContext())
       {
         var _ = context.Model; // Trigger context initialization
-        Assert.True(context.IsMySQLSet);
+        Assert.That(context.IsMySQLSet == true);
       }
     }
 
@@ -75,13 +75,12 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     {
       using (var context = new MySQLUseInOnConfiguringContext())
       {
-        Assert.AreEqual(
-            CoreStrings.RecursiveOnConfiguring,
+        Assert.That(
             Assert.Throws<InvalidOperationException>(
                 () =>
                 {
                   var _ = context.Model; // Trigger context initialization
-                })!.Message);
+                })!.Message, Is.EqualTo(CoreStrings.RecursiveOnConfiguring));
       }
     }
 
@@ -93,7 +92,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
               .UseInternalServiceProvider(MySQLFixture.DefaultServiceProvider)
               .UseMySQL("Database=Maltesers").Options))
       {
-        Assert.True(context.Database.IsMySql());
+        Assert.That(context.Database.IsMySql());
       }
     }
 
@@ -106,7 +105,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
               .UseMySQL("Database=Maltesers").Options))
       {
         var _ = context.Model; // Trigger context initialization
-        Assert.True(context.IsMySQLSet);
+        Assert.That(context.IsMySQLSet == true);
       }
     }
 
@@ -119,7 +118,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
               .UseMySQL("Database=Maltesers").Options))
       {
         var _ = context.Model; // Trigger context initialization
-        Assert.True(context.IsMySQLSet);
+        Assert.That(context.IsMySQLSet == true);
       }
     }
 
@@ -131,13 +130,12 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
               .UseInternalServiceProvider(MySQLFixture.DefaultServiceProvider)
               .UseMySQL("Database=Maltesers").Options))
       {
-        Assert.AreEqual(
-            CoreStrings.RecursiveOnConfiguring,
+        Assert.That(
             Assert.Throws<InvalidOperationException>(
                 () =>
                 {
                   var _ = context.Model; // Trigger context initialization
-                })!.Message);
+                })!.Message, Is.EqualTo(CoreStrings.RecursiveOnConfiguring));
       }
     }
 

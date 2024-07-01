@@ -68,7 +68,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var yearsDiff = DateTime.Now.Year - lastUpdate.Year;
         var count = context.Actor.Count(a => EF.Functions.DateDiffYear(a.LastUpdate, DateTime.Now) > 0);
 
-        Assert.AreEqual(200, count);
+        Assert.That(count, Is.EqualTo(200));
       }
     }
 
@@ -81,7 +81,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var count = context.Actor
             .Count(a => EF.Functions.DateDiffMonth(a.LastUpdate, DateTime.Now) >= monthsDiff - 1);
 
-        Assert.AreEqual(200, count);
+        Assert.That(count, Is.EqualTo(200));
       }
     }
 
@@ -94,7 +94,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var count = context.Actor
             .Count(a => EF.Functions.DateDiffDay(a.LastUpdate, DateTime.Now) == daysDiff);
 
-        Assert.AreEqual(200, count, "TotalDays: " + daysDiff);
+        Assert.That(count, Is.EqualTo(200), "TotalDays: " + daysDiff);
       }
     }
 
@@ -107,7 +107,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var count = context.Actor
             .Count(a => EF.Functions.DateDiffHour(a.LastUpdate, DateTime.Now) == hoursDiff);
 
-        Assert.AreEqual(200, count, "TotalHours: " + hoursDiff);
+        Assert.That(count, Is.EqualTo(200), "TotalHours: " + hoursDiff);
       }
     }
 
@@ -120,7 +120,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var count = context.Actor
             .Count(a => EF.Functions.DateDiffMinute(a.LastUpdate, DateTime.Now) == minutesDiff);
 
-        Assert.AreEqual(200, count, "TotalMinutes: " + minutesDiff);
+        Assert.That(count, Is.EqualTo(200), "TotalMinutes: " + minutesDiff);
       }
     }
 
@@ -133,7 +133,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var count = context.Actor
             .Count(a => EF.Functions.DateDiffSecond(a.LastUpdate, DateTime.Now) >= secondsDiff);
 
-        Assert.AreEqual(200, count, "TotalSeconds: " + secondsDiff);
+        Assert.That(count, Is.EqualTo(200), "TotalSeconds: " + secondsDiff);
       }
     }
 
@@ -145,7 +145,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         var count = context.Actor
             .Count(a => EF.Functions.DateDiffMicrosecond(a.LastUpdate, DateTime.Now) == 0);
 
-        Assert.AreEqual(0, count);
+        Assert.That(count, Is.EqualTo(0));
       }
     }
 
@@ -156,7 +156,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       {
         var count = context.Actor.Count(o => EF.Functions.Like(o.ActorId, "%A%"));
 
-        Assert.AreEqual(0, count);
+        Assert.That(count, Is.EqualTo(0));
       }
     }
 
@@ -167,7 +167,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       {
         var count = context.Actor.Count(o => EF.Functions.Like(o.LastUpdate, "%A%"));
 
-        Assert.AreEqual(0, count);
+        Assert.That(count, Is.EqualTo(0));
       }
     }
 
@@ -178,7 +178,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       {
         var count = context.Actor.Count(o => EF.Functions.Like(o.ActorId, "!%", "!"));
 
-        Assert.AreEqual(0, count);
+        Assert.That(count, Is.EqualTo(0));
       }
     }
   }

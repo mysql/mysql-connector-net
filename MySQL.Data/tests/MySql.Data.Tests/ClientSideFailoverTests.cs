@@ -62,10 +62,10 @@ namespace MySql.Data.MySqlClient.Tests
       if (!shouldPass)
       {
         Exception ex = Assert.Throws<MySqlException>(() => TryConnection(Settings.ConnectionString));
-        Assert.AreEqual("Unable to connect to any of the specified MySQL hosts.", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Unable to connect to any of the specified MySQL hosts."));
       }
       else
-        Assert.AreEqual(ConnectionState.Open, TryConnection(Settings.ConnectionString));
+        Assert.That(TryConnection(Settings.ConnectionString), Is.EqualTo(ConnectionState.Open));
     }
 
     private static ConnectionState TryConnection(string connString)
@@ -91,11 +91,11 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection conn = new MySqlConnection(Settings.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.State);
-        Assert.AreEqual(Host, conn.Settings.Server);
-        Assert.AreEqual("server.example", FailoverManager.FailoverGroup.Hosts[0].Host);
-        Assert.AreEqual("192.0.10.56", FailoverManager.FailoverGroup.Hosts[1].Host);
-        Assert.AreEqual(Host, FailoverManager.FailoverGroup.Hosts[2].Host);
+        Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
+        Assert.That(conn.Settings.Server, Is.EqualTo(Host));
+        Assert.That(FailoverManager.FailoverGroup.Hosts[0].Host, Is.EqualTo("server.example"));
+        Assert.That(FailoverManager.FailoverGroup.Hosts[1].Host, Is.EqualTo("192.0.10.56"));
+        Assert.That(FailoverManager.FailoverGroup.Hosts[2].Host, Is.EqualTo(Host));
       }
 
       // Multiple hosts with IPv6
@@ -106,7 +106,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlConnection conn = new MySqlConnection(Settings.ConnectionString))
         {
           conn.Open();
-          Assert.AreEqual(ConnectionState.Open, conn.State);
+          Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
         }
       }
 
@@ -124,11 +124,11 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection conn = new MySqlConnection(Settings.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.State);
+        Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
         priority = 100;
         foreach (var host in FailoverManager.FailoverGroup.Hosts)
         {
-          Assert.AreEqual(priority != 0 ? priority-- : 0, host.Priority);
+          Assert.That(host.Priority, Is.EqualTo(priority != 0 ? priority-- : 0));
         }
       }
     }
@@ -149,7 +149,7 @@ namespace MySql.Data.MySqlClient.Tests
         else
           ex = Assert.Throws<MySqlException>(() => conn.Open());
 
-        Assert.AreEqual(exceptionMessage, ex.Message);
+        Assert.That(ex.Message, Is.EqualTo(exceptionMessage));
       }
     }
 
@@ -166,7 +166,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         connArray[i] = new MySqlConnection(Settings.ConnectionString);
         connArray[i].Open();
-        Assert.AreEqual(ConnectionState.Open, connArray[i].State);
+        Assert.That(connArray[i].State, Is.EqualTo(ConnectionState.Open));
       }
 
       // now make sure all the server ids are different
@@ -175,7 +175,7 @@ namespace MySql.Data.MySqlClient.Tests
         for (int j = 0; j < connArray.Length; j++)
         {
           if (i != j)
-            Assert.True(connArray[i].ServerThread != connArray[j].ServerThread);
+            Assert.That(connArray[i].ServerThread != connArray[j].ServerThread);
         }
       }
 

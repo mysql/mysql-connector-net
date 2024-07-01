@@ -102,7 +102,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
 
       Assert.Multiple(() =>
       {
-        Assert.AreEqual("blogman", dbModel.DatabaseName);
+        Assert.That(dbModel.DatabaseName, Is.EqualTo("blogman"));
         Assert.That(dbModel.Tables.Select(c => c.Name), Has.Exactly(1).Matches<string>(table => table.Contains("blogs")));
       });
 
@@ -111,27 +111,27 @@ namespace MySql.EntityFrameworkCore.Design.Tests
       Assert.That(columns.Where(n => n.Name == "id").Select(a => a.Name), Has.Exactly(1).Matches<string>(name => name.Contains("id")));
       Assert.That(columns.Where(n => n.Name == "id").Select(a => a.GetDataType()), Has.One.Items.EqualTo("int" + smallintWidth));
       Assert.That(columns.Where(n => n.Name == "id").Select(a => a.GetPrimaryKeyOrdinal(2)), Has.One.Items.EqualTo(2));
-      Assert.False(columns.Where(n => n.Name == "id").Select(a => a.IsNullable).FirstOrDefault());
+      Assert.That(!columns.Where(n => n.Name == "id").Select(a => a.IsNullable).FirstOrDefault());
       Assert.That(columns.Where(n => n.Name == "id").Select(a => a.GetOrdinal(0)), Has.One.Items.EqualTo(0));
-      Assert.IsNull(columns.Where(n => n.Name == "id").Select(a => a.GetDefaultValue()).FirstOrDefault());
+      Assert.That(columns.Where(n => n.Name == "id").Select(a => a.GetDefaultValue()).FirstOrDefault(), Is.Null);
 
       Assert.That(columns.Where(n => n.Name == "description").Select(a => a.Name), Has.Exactly(1).Matches<string>(name => name.Contains("description")));
       Assert.That(columns.Where(n => n.Name == "description").Select(a => a.GetDataType()), Has.One.Items.EqualTo("varchar(100)"));
       Assert.That(columns.Where(n => n.Name == "description").Select(a => a.GetPrimaryKeyOrdinal(1)), Has.One.Items.EqualTo(1));
-      Assert.False(columns.Where(n => n.Name == "description").Select(a => a.IsNullable).FirstOrDefault());
+      Assert.That(!columns.Where(n => n.Name == "description").Select(a => a.IsNullable).FirstOrDefault());
       Assert.That(columns.Where(n => n.Name == "description").Select(a => a.GetOrdinal(1)), Has.One.Items.EqualTo(1));
-      Assert.IsNull(columns.Where(n => n.Name == "description").Select(a => a.GetDefaultValue()).FirstOrDefault());
+      Assert.That(columns.Where(n => n.Name == "description").Select(a => a.GetDefaultValue()).FirstOrDefault(), Is.Null);
       Assert.That(columns.Where(n => n.Name == "description").Select(a => a.GetMaxLength(100)), Has.One.Items.EqualTo(100));
 
       Assert.That(columns.Where(n => n.Name == "rate").Select(a => a.Name), Has.Exactly(1).Matches<string>(name => name.Contains("rate")));
       Assert.That(columns.Where(n => n.Name == "rate").Select(a => a.GetDataType()), Has.One.Items.EqualTo("decimal(5,2)"));
-      Assert.IsNull(columns.Where(n => n.Name == "rate").Select(a => a.GetPrimaryKeyOrdinal(null)).FirstOrDefault());
-      Assert.True(columns.Where(n => n.Name == "rate").Select(a => a.IsNullable).FirstOrDefault());
+      Assert.That(columns.Where(n => n.Name == "rate").Select(a => a.GetPrimaryKeyOrdinal(null)).FirstOrDefault(), Is.Null);
+      Assert.That(columns.Where(n => n.Name == "rate").Select(a => a.IsNullable).FirstOrDefault());
       Assert.That(columns.Where(n => n.Name == "rate").Select(a => a.GetOrdinal(2)), Has.One.Items.EqualTo(2));
-      StringAssert.AreEqualIgnoringCase(columns.Where(n => n.Name == "rate").Select(a => a.GetDefaultValue()).FirstOrDefault(), "'0.00'");
+      Assert.That("'0.00'", Is.EqualTo(columns.Where(n => n.Name == "rate").Select(a => a.GetDefaultValue()).FirstOrDefault()).IgnoreCase);
       Assert.That(columns.Where(n => n.Name == "rate").Select(a => a.GetPrecision(5)), Has.One.Items.EqualTo(5));
       Assert.That(columns.Where(n => n.Name == "rate").Select(a => a.GetScale(2)), Has.One.Items.EqualTo(2));
-      Assert.IsNull(columns.Where(n => n.Name == "rate").Select(a => a.GetMaxLength(null)).FirstOrDefault());
+      Assert.That(columns.Where(n => n.Name == "rate").Select(a => a.GetMaxLength(null)).FirstOrDefault(), Is.Null);
 
       Assert.That(columns.Where(n => n.Name == "created").Select(a => a.Name), Has.Exactly(1).Matches<string>(name => name.Contains("created")));
       Assert.That(columns.Where(n => n.Name == "created").Select(a => a.GetDefaultValue()), Has.One.Items.EqualTo("CURRENT_TIMESTAMP"));
@@ -163,14 +163,14 @@ namespace MySql.EntityFrameworkCore.Design.Tests
       var dbModel = _fixture!.CreateModel("sakiladb", sql, new List<string> { "city", "country" }, new List<string>());
 
       var fk = (dbModel.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
-      Assert.IsNotNull(fk);
-      Assert.AreEqual("sakiladb", fk[0].Table.Database!.DatabaseName);
-      Assert.AreEqual("city", fk[0].Table.Name);
-      Assert.AreEqual("sakiladb", fk[0].PrincipalTable.Database!.DatabaseName);
-      Assert.AreEqual("country", fk[0].PrincipalTable.Name);
-      Assert.AreEqual("country_id", fk[0].GetColumn().Name);
-      Assert.AreEqual("country_id", fk[0].GetPrincipalColumn().Name);
-      Assert.AreEqual(ReferentialAction.Restrict, fk[0].OnDelete);
+      Assert.That(fk, Is.Not.Null);
+      Assert.That(fk[0].Table.Database!.DatabaseName, Is.EqualTo("sakiladb"));
+      Assert.That(fk[0].Table.Name, Is.EqualTo("city"));
+      Assert.That(fk[0].PrincipalTable.Database!.DatabaseName, Is.EqualTo("sakiladb"));
+      Assert.That(fk[0].PrincipalTable.Name, Is.EqualTo("country"));
+      Assert.That(fk[0].GetColumn().Name, Is.EqualTo("country_id"));
+      Assert.That(fk[0].GetPrincipalColumn().Name, Is.EqualTo("country_id"));
+      Assert.That(fk[0].OnDelete, Is.EqualTo(ReferentialAction.Restrict));
     }
 
     [Test]
@@ -195,23 +195,23 @@ namespace MySql.EntityFrameworkCore.Design.Tests
       Assert.Multiple(() =>
       {
         var c = indexes[0];
-        Assert.AreEqual("sakilaIndex", c.Table!.Database!.DatabaseName);
-        Assert.AreEqual("actor", c.Table.Name);
+        Assert.That(c.Table!.Database!.DatabaseName, Is.EqualTo("sakilaIndex"));
+        Assert.That(c.Table.Name, Is.EqualTo("actor"));
       });
 
       Assert.Multiple(() =>
         {
           var composite = indexes[0];
-          Assert.AreEqual("idx_actor_first_last_name", composite.Name);
-          Assert.False(composite.IsUnique);
-          Assert.AreEqual(new List<string> { "first_name", "last_name" }, composite.GetColumns().Select(c => c.GetColumn().Name).ToList());
+          Assert.That(composite.Name, Is.EqualTo("idx_actor_first_last_name"));
+          Assert.That(!composite.IsUnique);
+          Assert.That(composite.GetColumns().Select(c => c.GetColumn().Name).ToList(), Is.EqualTo(new List<string> { "first_name", "last_name" }));
         });
 
       Assert.Multiple(() =>
         {
           var onecolumn = indexes[1];
-          Assert.AreEqual("last_name", onecolumn.GetColumn().Name);
-          Assert.True(onecolumn.IsUnique);
+          Assert.That(onecolumn.GetColumn().Name, Is.EqualTo("last_name"));
+          Assert.That(onecolumn.IsUnique);
         }
         );
     }
@@ -250,7 +250,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
 
         var databaseModel = databaseModelFactory.Create(_fixture.TestStore.ConnectionString,
             new DatabaseModelFactoryOptions(tables, schemas));
-        Assert.NotNull(databaseModel);
+        Assert.That(databaseModel, Is.Not.Null);
         asserter(databaseModel);
       }
       finally
@@ -345,7 +345,7 @@ namespace MySql.EntityFrameworkCore.Design.Tests
       var selectionSet = new List<string> { "t1", "x1" };
 
       var dbModel = _fixture!.CreateModel("testview", sql, selectionSet, new List<string>());
-      Assert.True(dbModel.Tables.Count == 2);
+      Assert.That(dbModel.Tables.Count == 2);
     }
   }
 }

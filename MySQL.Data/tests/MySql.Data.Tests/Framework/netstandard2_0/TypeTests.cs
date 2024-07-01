@@ -44,12 +44,12 @@ namespace MySql.Data.MySqlClient.Tests
     public void TestSerializationMySqlDataTime()
     {
       MySqlDateTime dt = new MySqlDateTime(2011, 10, 6, 11, 38, 01, 0);
-      Assert.AreEqual(2011, dt.Year);
-      Assert.AreEqual(10, dt.Month);
-      Assert.AreEqual(6, dt.Day);
-      Assert.AreEqual(11, dt.Hour);
-      Assert.AreEqual(38, dt.Minute);
-      Assert.AreEqual(1, dt.Second);
+      Assert.That(dt.Year, Is.EqualTo(2011));
+      Assert.That(dt.Month, Is.EqualTo(10));
+      Assert.That(dt.Day, Is.EqualTo(6));
+      Assert.That(dt.Hour, Is.EqualTo(11));
+      Assert.That(dt.Minute, Is.EqualTo(38));
+      Assert.That(dt.Second, Is.EqualTo(1));
       System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf =
         new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
       MemoryStream ms = new MemoryStream(1024);
@@ -57,12 +57,12 @@ namespace MySql.Data.MySqlClient.Tests
       ms.Position = 0;
       object o = bf.Deserialize(ms);
       dt = (MySqlDateTime)o;
-      Assert.AreEqual(2011, dt.Year);
-      Assert.AreEqual(10, dt.Month);
-      Assert.AreEqual(6, dt.Day);
-      Assert.AreEqual(11, dt.Hour);
-      Assert.AreEqual(38, dt.Minute);
-      Assert.AreEqual(1, dt.Second);
+      Assert.That(dt.Year, Is.EqualTo(2011));
+      Assert.That(dt.Month, Is.EqualTo(10));
+      Assert.That(dt.Day, Is.EqualTo(6));
+      Assert.That(dt.Hour, Is.EqualTo(11));
+      Assert.That(dt.Minute, Is.EqualTo(38));
+      Assert.That(dt.Second, Is.EqualTo(1));
     }
 #endif
   }

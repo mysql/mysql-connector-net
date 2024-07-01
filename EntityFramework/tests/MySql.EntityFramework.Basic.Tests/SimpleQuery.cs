@@ -84,7 +84,7 @@ namespace MySql.Data.EntityFramework.Tests
         context.SaveChanges();
 
         var q = (from u in context.User select u).ToArray();
-        Assert.IsTrue(q.Length == 2);
+        Assert.That(q.Length == 2);
       }
     }
   }

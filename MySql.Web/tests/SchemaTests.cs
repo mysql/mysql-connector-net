@@ -73,12 +73,12 @@ namespace MySql.Web.Tests
         {
           provider.Initialize(null, config);
           if (i < SchemaManager.Version)
-            Assert.False(false, "Should have failed");
+            Assert.That(false, Is.False, "Should have failed");
         }
         catch (ProviderException)
         {
           if (i == SchemaManager.Version)
-            Assert.False(false, "This should not have failed");
+            Assert.That(false, Is.False, "This should not have failed");
         }
       }
     }
@@ -95,14 +95,14 @@ namespace MySql.Web.Tests
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM my_aspnet_schemaversion", Connection);
       object ver = cmd.ExecuteScalar();
-      Assert.AreEqual(4, ver);
+      Assert.That(ver, Is.EqualTo(4));
 
       cmd.CommandText = "SHOW CREATE TABLE my_aspnet_membership";
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
         string createSql = reader.GetString(1);
-        Assert.True(createSql.IndexOf("CHARSET=utf8") != -1);
+        Assert.That(createSql.IndexOf("CHARSET=utf8") != -1);
       }
     }
 
@@ -139,7 +139,7 @@ namespace MySql.Web.Tests
         reader.Read();
         string createTable = reader.GetString(1);
         int index = createTable.IndexOf("COMMENT='1'");
-        Assert.AreNotEqual(-1, index);
+        Assert.That(index, Is.Not.EqualTo(-1));
       }
 
       execSQL(@" ALTER TABLE mysql_Membership 
@@ -150,7 +150,7 @@ namespace MySql.Web.Tests
         reader.Read();
         string createTable = reader.GetString(1);
         int index = createTable.IndexOf("COMMENT='2'");
-        Assert.AreNotEqual(-1, index);
+        Assert.That(index, Is.Not.EqualTo(-1));
       }
     }
 
@@ -175,20 +175,20 @@ namespace MySql.Web.Tests
       execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app2')");
       execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app2')");
       LoadSchema(3);
-      Assert.False(TableExists("mysql_membership"));
-      Assert.False(TableExists("mysql_roles"));
-      Assert.False(TableExists("mysql_usersinroles"));
+      Assert.That(!TableExists("mysql_membership"));
+      Assert.That(!TableExists("mysql_roles"));
+      Assert.That(!TableExists("mysql_usersinroles"));
     }
 
     [Test]
     public void CheckAppsUpgrade()
     {
       DataTable apps = FillTable("SELECT * FROM my_aspnet_applications");
-      Assert.AreEqual(2, apps.Rows.Count);
-      Assert.AreEqual(1, apps.Rows[0]["id"]);
-      Assert.AreEqual("app1", apps.Rows[0]["name"]);
-      Assert.AreEqual(2, apps.Rows[1]["id"]);
-      Assert.AreEqual("app2", apps.Rows[1]["name"]);
+      Assert.That(apps.Rows.Count, Is.EqualTo(2));
+      Assert.That(apps.Rows[0]["id"], Is.EqualTo(1));
+      Assert.That(apps.Rows[0]["name"], Is.EqualTo("app1"));
+      Assert.That(apps.Rows[1]["id"], Is.EqualTo(2));
+      Assert.That(apps.Rows[1]["name"], Is.EqualTo("app2"));
     }
 
     //[Test]

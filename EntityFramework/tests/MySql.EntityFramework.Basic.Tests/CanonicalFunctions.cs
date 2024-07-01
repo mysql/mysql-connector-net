@@ -64,13 +64,13 @@ namespace MySql.Data.EntityFramework.Tests
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         ObjectQuery<Int32> q = context.CreateQuery<Int32>("BitwiseAnd(255,15)");
         foreach (int i in q)
-          Assert.AreEqual(15, i);
+          Assert.That(i, Is.EqualTo(15));
         q = context.CreateQuery<Int32>("BitwiseOr(240,31)");
         foreach (int i in q)
-          Assert.AreEqual(255, i);
+          Assert.That(i, Is.EqualTo(255));
         q = context.CreateQuery<Int32>("BitwiseXor(255,15)");
         foreach (int i in q)
-          Assert.AreEqual(240, i);
+          Assert.That(i, Is.EqualTo(240));
       }
     }
 
@@ -85,9 +85,9 @@ namespace MySql.Data.EntityFramework.Tests
         ObjectQuery<DateTime> q = context.CreateQuery<DateTime>("CurrentDateTime()");
         foreach (DateTime dt in q)
         {
-          Assert.AreEqual(current.Year, dt.Year);
-          Assert.AreEqual(current.Month, dt.Month);
-          Assert.AreEqual(current.Day, dt.Day);
+          Assert.That(dt.Year, Is.EqualTo(current.Year));
+          Assert.That(dt.Month, Is.EqualTo(current.Month));
+          Assert.That(dt.Day, Is.EqualTo(current.Day));
           // we don't check time as that will be always be different
         }
       }
@@ -104,9 +104,9 @@ namespace MySql.Data.EntityFramework.Tests
                         FROM Companies AS c WHERE c.Id=1");
         foreach (DbDataRecord record in q)
         {
-          Assert.AreEqual(1996, record[1]);
-          Assert.AreEqual(11, record[2]);
-          Assert.AreEqual(15, record[3]);
+          Assert.That(record[1], Is.EqualTo(1996));
+          Assert.That(record[2], Is.EqualTo(11));
+          Assert.That(record[3], Is.EqualTo(15));
         }
       }
     }
@@ -122,9 +122,9 @@ namespace MySql.Data.EntityFramework.Tests
                         FROM Companies AS c WHERE c.Id=1");
         foreach (DbDataRecord record in q)
         {
-          Assert.AreEqual(5, record[1]);
-          Assert.AreEqual(18, record[2]);
-          Assert.AreEqual(23, record[3]);
+          Assert.That(record[1], Is.EqualTo(5));
+          Assert.That(record[2], Is.EqualTo(18));
+          Assert.That(record[3], Is.EqualTo(23));
         }
       }
     }
@@ -137,11 +137,11 @@ namespace MySql.Data.EntityFramework.Tests
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         ObjectQuery<Int32> q = context.CreateQuery<Int32>(@"IndexOf('needle', 'haystackneedle')");
         foreach (int index in q)
-          Assert.AreEqual(9, index);
+          Assert.That(index, Is.EqualTo(9));
 
         q = context.CreateQuery<Int32>(@"IndexOf('haystack', 'needle')");
         foreach (int index in q)
-          Assert.AreEqual(0, index);
+          Assert.That(index, Is.EqualTo(0));
       }
     }
 
@@ -154,17 +154,17 @@ namespace MySql.Data.EntityFramework.Tests
         string entitySQL = "CONCAT(LEFT('foo',3),RIGHT('bar',3))";
         ObjectQuery<String> query = context.CreateQuery<String>(entitySQL);
         foreach (string s in query)
-          Assert.AreEqual("foobar", s);
+          Assert.That(s, Is.EqualTo("foobar"));
 
         entitySQL = "CONCAT(LEFT('foobar',3),RIGHT('barfoo',3))";
         query = context.CreateQuery<String>(entitySQL);
         foreach (string s in query)
-          Assert.AreEqual("foofoo", s);
+          Assert.That(s, Is.EqualTo("foofoo"));
 
         entitySQL = "CONCAT(LEFT('foobar',8),RIGHT('barfoo',8))";
         query = context.CreateQuery<String>(entitySQL);
         foreach (string s in query)
-          Assert.AreEqual("foobarbarfoo", s);
+          Assert.That(s, Is.EqualTo("foobarbarfoo"));
       }
     }
 
@@ -177,7 +177,7 @@ namespace MySql.Data.EntityFramework.Tests
         string entitySQL = "Length('abc')";
         ObjectQuery<Int32> query = context.CreateQuery<Int32>(entitySQL);
         foreach (int len in query)
-          Assert.AreEqual(3, len);
+          Assert.That(len, Is.EqualTo(3));
       }
     }
 
@@ -189,13 +189,13 @@ namespace MySql.Data.EntityFramework.Tests
         var context = ((IObjectContextAdapter)ctx).ObjectContext;
         ObjectQuery<string> query = context.CreateQuery<string>("LTrim('   text   ')");
         foreach (string s in query)
-          Assert.AreEqual("text   ", s);
+          Assert.That(s, Is.EqualTo("text   "));
         query = context.CreateQuery<string>("RTrim('   text   ')");
         foreach (string s in query)
-          Assert.AreEqual("   text", s);
+          Assert.That(s, Is.EqualTo("   text"));
         query = context.CreateQuery<string>("Trim('   text   ')");
         foreach (string s in query)
-          Assert.AreEqual("text", s);
+          Assert.That(s, Is.EqualTo("text"));
       }
     }
 
@@ -213,11 +213,11 @@ namespace MySql.Data.EntityFramework.Tests
                     FROM Products AS p WHERE p.Id=1");
         foreach (DbDataRecord r in q)
         {
-          Assert.AreEqual(1, r[0]);
-          Assert.AreEqual(8.865f, (float)r[1]);
-          Assert.AreEqual(9, Convert.ToInt32(r[2]));
-          Assert.AreEqual(8, Convert.ToInt32(r[3]));
-          Assert.AreEqual(9, Convert.ToInt32(r[4]));
+          Assert.That(r[0], Is.EqualTo(1));
+          Assert.That((float)r[1], Is.EqualTo(8.865f));
+          Assert.That(Convert.ToInt32(r[2]), Is.EqualTo(9));
+          Assert.That(Convert.ToInt32(r[3]), Is.EqualTo(8));
+          Assert.That(Convert.ToInt32(r[4]), Is.EqualTo(9));
         }
       }
     }
@@ -231,7 +231,7 @@ namespace MySql.Data.EntityFramework.Tests
         ObjectQuery<string> query = context.CreateQuery<string>("SUBSTRING('foobarfoo',4,3)");
         query = context.CreateQuery<string>("SUBSTRING('foobarfoo',4,30)");
         foreach (string s in query)
-          Assert.AreEqual("barfoo", s);
+          Assert.That(s, Is.EqualTo("barfoo"));
       }
     }
 
@@ -246,9 +246,9 @@ namespace MySql.Data.EntityFramework.Tests
                     Reverse(c.Name) FROM Companies AS c WHERE c.Id=1");
         foreach (DbDataRecord r in q)
         {
-          Assert.AreEqual("HASBRO", r[0]);
-          Assert.AreEqual("hasbro", r[1]);
-          Assert.AreEqual("orbsaH", r[2]);
+          Assert.That(r[0], Is.EqualTo("HASBRO"));
+          Assert.That(r[1], Is.EqualTo("hasbro"));
+          Assert.That(r[2], Is.EqualTo("orbsaH"));
         }
       }
     }
@@ -262,7 +262,7 @@ namespace MySql.Data.EntityFramework.Tests
         ObjectQuery<string> q = context.CreateQuery<string>(
             @"Replace('abcdefghi', 'def', 'zzz')");
         foreach (string s in q)
-          Assert.AreEqual("abczzzghi", s);
+          Assert.That(s, Is.EqualTo("abczzzghi"));
       }
     }
 
@@ -277,8 +277,8 @@ namespace MySql.Data.EntityFramework.Tests
                                         Round(p.Weight, 2) AS [Rounded Weight]
                                         FROM Products AS p WHERE p.Id=1").First();
 
-        Assert.AreEqual((float)8.865, (float)product[1]);
-        Assert.AreEqual((double)8.86, (double)product[2]);
+        Assert.That((float)product[1], Is.EqualTo((float)8.865));
+        Assert.That((double)product[2], Is.EqualTo((double)8.86)  );
       }
     }
 

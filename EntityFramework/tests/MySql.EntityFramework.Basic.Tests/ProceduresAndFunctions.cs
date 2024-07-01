@@ -53,7 +53,7 @@ namespace MySql.Data.EntityFramework.Tests
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         long count = ctx.Database.SqlQuery<long>("call CallStoredProcedure").First();
-        Assert.AreEqual(5, count);
+        Assert.That(count, Is.EqualTo(5));
       }
     }
 
@@ -69,7 +69,7 @@ namespace MySql.Data.EntityFramework.Tests
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         int val = ctx.Database.SqlQuery<int>(@"SELECT spFunc()").Single();
-        Assert.AreEqual(3, val);
+        Assert.That(val, Is.EqualTo(3));
       }
     }
 

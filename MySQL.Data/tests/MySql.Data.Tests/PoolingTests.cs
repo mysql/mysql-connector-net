@@ -59,7 +59,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         c = new MySqlConnection(Settings.ConnectionString);
         c.Open();
-        Assert.AreEqual(serverThread, c.ServerThread);
+        Assert.That(c.ServerThread, Is.EqualTo(serverThread));
         c.Close();
       }
 
@@ -81,7 +81,7 @@ namespace MySql.Data.MySqlClient.Tests
         for (int j = 0; j < connArray.Length; j++)
         {
           if (i != j)
-            Assert.True(connArray[i].ServerThread != connArray[j].ServerThread);
+            Assert.That(connArray[i].ServerThread != connArray[j].ServerThread);
         }
       }
 
@@ -110,7 +110,7 @@ namespace MySql.Data.MySqlClient.Tests
       int secondThreadId = c.ServerThread;
       KillConnection(c);
       c.Close();
-      Assert.False(threadId == secondThreadId);
+      Assert.That(threadId == secondThreadId, Is.False);
     }
 
     [Test]
@@ -126,7 +126,7 @@ namespace MySql.Data.MySqlClient.Tests
       // now attempting to open a connection should fail
       MySqlConnection c2 = new MySqlConnection(connStr);
       Exception ex = Assert.Throws<MySqlException>(() => c2.Open());
-      StringAssert.Contains("error connecting: Timeout expired.  The timeout period elapsed prior to obtaining a connection from the pool.", ex.Message);
+      Assert.That(ex.Message, Does.Contain("error connecting: Timeout expired.  The timeout period elapsed prior to obtaining a connection from the pool."));
 
       // we now kill the first connection to simulate a server stoppage
       KillConnection(c);
@@ -134,7 +134,7 @@ namespace MySql.Data.MySqlClient.Tests
       // now we do something on the first connection
 
       ex = Assert.Throws<InvalidOperationException>(() => c.ChangeDatabase("mysql"));
-      StringAssert.Contains("The connection is not open.", ex.Message);
+      Assert.That(ex.Message, Does.Contain("The connection is not open."));
 
       // Opening a connection now should work
       MySqlConnection connection = new MySqlConnection(connStr);
@@ -155,12 +155,12 @@ namespace MySql.Data.MySqlClient.Tests
 
         cmd.CommandText = "SELECT @testvar";
         object var = cmd.ExecuteScalar();
-        Assert.AreEqual("5", var);
+        Assert.That(var, Is.EqualTo("5"));
         c.Close();
 
         c.Open();
         object var2 = cmd.ExecuteScalar();
-        Assert.AreEqual(DBNull.Value, var2);
+        Assert.That(var2, Is.EqualTo(DBNull.Value));
         KillConnection(c);
       }
     }
@@ -182,7 +182,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection c1 = new MySqlConnection(connStr))
       {
         c1.Open();
-        Assert.True(c1.ServerThread != threadId);
+        Assert.That(c1.ServerThread != threadId);
         KillConnection(c1);
       }
     }
@@ -211,7 +211,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         cmd = new MySqlCommand("SELECT value FROM test WHERE id = 1", con);
         string firstS = cmd.ExecuteScalar().ToString();
-        Assert.AreEqual(originalValue, firstS);
+        Assert.That(firstS, Is.EqualTo(originalValue));
 
         con.Close();
         con.Open();
@@ -222,7 +222,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         KillConnection(con);
         con.Close();
-        Assert.AreEqual(firstS, secondS);
+        Assert.That(secondS, Is.EqualTo(firstS));
       }
     }
 
@@ -285,7 +285,7 @@ namespace MySql.Data.MySqlClient.Tests
             if (recdr.Read())
             {
               int x = recdr.GetOrdinal("name");
-              Assert.AreEqual(1, x);
+              Assert.That(x, Is.EqualTo(1));
             }
           }
         }
@@ -465,7 +465,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
         {
           Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
-          if (Platform.IsWindows()) Assert.True(ex.InnerException.GetType() == typeof(ArgumentException));
+          if (Platform.IsWindows()) Assert.That(ex.InnerException.GetType() == typeof(ArgumentException));
         }
         Thread.Sleep(50);
       }
@@ -558,7 +558,7 @@ namespace MySql.Data.MySqlClient.Tests
         KillConnection(c);
       }
       int count = listener.CountLinesContaining("SHOW VARIABLES");
-      Assert.AreEqual(cache ? 1 : 2, count);
+      Assert.That(count, Is.EqualTo(cache ? 1 : 2));
     }
 
     [Test]
@@ -588,7 +588,7 @@ namespace MySql.Data.MySqlClient.Tests
         c1.Open();
         MySqlCommand cmd = new MySqlCommand("SELECT Count(*) from test", c1);
         var count = cmd.ExecuteScalar();
-        Assert.AreEqual(3, Convert.ToInt32(count));
+        Assert.That(Convert.ToInt32(count), Is.EqualTo(3));
       }
 
       ExecuteSQL("DROP TABLE test ");
@@ -626,13 +626,13 @@ namespace MySql.Data.MySqlClient.Tests
 
       // Get a connection out of the pool.
       myConnection1.Open();
-      Assert.AreEqual(ConnectionState.Open, myConnection1.State);
+      Assert.That(myConnection1.State, Is.EqualTo(ConnectionState.Open));
       // Get a second connection out of the pool.
       myConnection2.Open();
-      Assert.AreEqual(ConnectionState.Open, myConnection2.State);
+      Assert.That(myConnection2.State, Is.EqualTo(ConnectionState.Open));
       // Open a third connection.
       myConnection3.Open();
-      Assert.AreEqual(ConnectionState.Open, myConnection3.State);
+      Assert.That(myConnection3.State, Is.EqualTo(ConnectionState.Open));
       // Return the all connections to the pool.
       myConnection1.Close();
       myConnection2.Close();
@@ -644,7 +644,7 @@ namespace MySql.Data.MySqlClient.Tests
       myConnection3.Open();
       myConnection4.Open();
       Exception ex = Assert.Throws<MySqlException>(() => myConnection5.Open());
-      StringAssert.Contains("Timeout", ex.Message);
+      Assert.That(ex.Message, Does.Contain("Timeout"));
 
       myConnection1.Close();
       myConnection2.Close();
@@ -677,7 +677,7 @@ namespace MySql.Data.MySqlClient.Tests
         var tcpConnections = ipProperties.GetActiveTcpConnections();
         foreach (var info in tcpConnections)
           if (info.LocalEndPoint.Address.ToString() == "127.0.0.1" && info.LocalEndPoint.Port.ToString() == Port.ToString())
-            Assert.True(info.State.ToString() != "CLOSE_WAIT");
+            Assert.That(info.State.ToString() != "CLOSE_WAIT");
       }
       foreach (var item in connectionList)
       {

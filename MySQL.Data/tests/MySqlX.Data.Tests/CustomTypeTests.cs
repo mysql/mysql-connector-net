@@ -86,7 +86,7 @@ namespace MySqlX.Data.Tests
       Collection.Add(Data).Execute();
 
       var count = session.SQL("SELECT COUNT(*) FROM test.test").Execute().FetchOne()[0];
-      Assert.AreEqual(count, Collection.Count());
+      Assert.That(Collection.Count(), Is.EqualTo(count));
     }
 
     [Test]
@@ -95,9 +95,9 @@ namespace MySqlX.Data.Tests
       InitCollection();
 
       var result = Collection.Find("_id = :id").Bind("id", 1).Execute().FetchOne();
-      Assert.NotNull(result);
-      Assert.True(typeof(CustomType).Equals(result.GetType()));
-      Assert.AreEqual(result.DictData["DictData1_1"].Meta, Data[1].DictData["DictData1_1"].Meta);
+      Assert.That(result, Is.Not.Null);
+      Assert.That(typeof(CustomType).Equals(result.GetType()));
+      Assert.That(Data[1].DictData["DictData1_1"].Meta, Is.EqualTo(result.DictData["DictData1_1"].Meta));
     }
 
     [Test]
@@ -106,8 +106,8 @@ namespace MySqlX.Data.Tests
       InitCollection();
 
       var removeStmt = Collection.RemoveOne(1);
-      Assert.AreEqual(1, removeStmt.AffectedItemsCount);
-      Assert.AreEqual(19, Collection.Count());
+      Assert.That(removeStmt.AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(Collection.Count(), Is.EqualTo(19));
     }
 
     [TestCase("_id = :id","id",3)]
@@ -117,8 +117,8 @@ namespace MySqlX.Data.Tests
       InitCollection();
 
       var removeStmt = Collection.Remove(condition).Bind(bind,value).Execute();
-      Assert.AreEqual(1, removeStmt.AffectedItemsCount);
-      Assert.AreEqual(19, Collection.Count());
+      Assert.That(removeStmt.AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(Collection.Count(), Is.EqualTo(19));
     }
 
     [Test]
@@ -128,8 +128,8 @@ namespace MySqlX.Data.Tests
 
       CustomType customTypeNew = new() { Date = DateTime.Now, Name = "NewDoc" };
       var modifyStmt = Collection.Modify("_id = :id").Bind("id", 7).Patch(customTypeNew).Execute();
-      Assert.AreEqual(1, modifyStmt.AffectedItemsCount);
-      Assert.AreEqual("NewDoc", Collection.GetOne(7).Name);
+      Assert.That(modifyStmt.AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(Collection.GetOne(7).Name, Is.EqualTo("NewDoc"));
     }
 
     [Test]
@@ -139,14 +139,14 @@ namespace MySqlX.Data.Tests
 
       var findStmt = Collection.Find("_id = :id and Name = :name").Bind("id", 15).Bind("name", "Name_15");
       var doc = findStmt.Execute();
-      Assert.AreEqual("Name_15", doc.FetchOne().Name);
-      Assert.False(findStmt._isPrepared);
+      Assert.That(doc.FetchOne().Name, Is.EqualTo("Name_15"));
+      Assert.That(findStmt._isPrepared, Is.False);
 
       for (int i = 0; i < Data.Length; i++)
       {
         doc = findStmt.Bind("id", i).Bind("name", $"Name_{i}").Limit(1).Execute();
-        Assert.AreEqual($"Name_{i}", doc.FetchOne().Name);
-        Assert.True(findStmt._isPrepared || !findStmt.Session.SupportsPreparedStatements);
+        Assert.That(doc.FetchOne().Name, Is.EqualTo($"Name_{i}"));
+        Assert.That(findStmt._isPrepared || !findStmt.Session.SupportsPreparedStatements);
       }
     }
 
@@ -182,7 +182,7 @@ namespace MySqlX.Data.Tests
       Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(1));
 
       var count = session.SQL("SELECT COUNT(*) FROM test.test").Execute().FetchOne()[0];
-      Assert.AreEqual(count, Collection.Count());
+      Assert.That(Collection.Count(), Is.EqualTo(count));
     }
   }
 }

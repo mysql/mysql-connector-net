@@ -59,17 +59,17 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Database.EnsureCreated();
         var filter = new[] { Guid.Empty };
         var resultFilter = context.Guidtable.Where(t => filter.Contains(t.Uuid)).ToArray();
-        Assert.IsNotNull(resultFilter);
+        Assert.That(resultFilter, Is.Not.Null);
         Random rnd = new Random();
         var guid = Guid.NewGuid();
         var record = new GuidTable { Id = rnd.Next(100), Uuid = guid };
         context.Guidtable.Add(record);
         context.SaveChanges();
         var rows = context.Guidtable.Count();
-        Assert.AreEqual(1, rows);
+        Assert.That(rows, Is.EqualTo(1));
         filter[0] = guid;
         var resultFilter2 = context.Guidtable.Where(t => filter.Contains(t.Uuid)).ToArray();
-        Assert.AreEqual(1, resultFilter2.Count());
+        Assert.That(resultFilter2.Count(), Is.EqualTo(1));
       }
     }
 

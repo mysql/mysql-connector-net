@@ -52,17 +52,17 @@ namespace MySqlX.Data.Tests.RelationalTests
         .Values("Henry", "22")
         .Values("Patric", 30)
         );
-      Assert.AreEqual(2, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(2));
 
       var selectResult = ExecuteSelectStatement(table.Select());
       while (selectResult.Next()) ;
-      Assert.AreEqual(2, selectResult.Rows.Count);
-      Assert.AreEqual("Henry", selectResult.Rows.ToArray()[0][0]);
-      Assert.AreEqual(22, selectResult.Rows.ToArray()[0][1]);
-      Assert.AreEqual("Patric", selectResult.Rows.ToArray()[1][0]);
-      Assert.AreEqual(30, selectResult.Rows.ToArray()[1][1]);
+      Assert.That(selectResult.Rows.Count, Is.EqualTo(2));
+      Assert.That(selectResult.Rows.ToArray()[0][0], Is.EqualTo("Henry"));
+      Assert.That(selectResult.Rows.ToArray()[0][1], Is.EqualTo(22));
+      Assert.That(selectResult.Rows.ToArray()[1][0], Is.EqualTo("Patric"));
+      Assert.That(selectResult.Rows.ToArray()[1][1], Is.EqualTo(30));
 
-      Assert.AreEqual(2, table.Count());
+      Assert.That(table.Count(), Is.EqualTo(2));
     }
 
     [Test]
@@ -72,13 +72,13 @@ namespace MySqlX.Data.Tests.RelationalTests
       Table table = testSchema.GetTable("test");
 
       var result = ExecuteInsertStatement(table.Insert("name", "age").Values("MARK", "34"));
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
 
       var selectResult = ExecuteSelectStatement(table.Select());
       while (selectResult.Next()) ;
       Assert.That(selectResult.Rows, Has.One.Items);
-      Assert.AreEqual("MARK", selectResult.Rows.ToArray()[0][0]);
-      Assert.AreEqual(34, selectResult.Rows.ToArray()[0][1]);
+      Assert.That(selectResult.Rows.ToArray()[0][0], Is.EqualTo("MARK"));
+      Assert.That(selectResult.Rows.ToArray()[0][1], Is.EqualTo(34));
     }
 
     [Test]
@@ -89,10 +89,10 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       var stmt = table.Insert("name", "age");
       var result = ExecuteInsertStatement(stmt.Values("MARK", "34"));
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
       // error 5014 - Wrong number of fields in row being inserted
-      Assert.AreEqual(5014u, Assert.Throws<MySqlException>(() => result = ExecuteInsertStatement(stmt.Values("George", 34, 1))).Code);
-      Assert.AreEqual(5014u, Assert.Throws<MySqlException>(() => ExecuteInsertStatement(stmt.Values("George", 34))).Code);
+      Assert.That(Assert.Throws<MySqlException>(() => result = ExecuteInsertStatement(stmt.Values("George", 34, 1))).Code, Is.EqualTo(5014u));
+      Assert.That(Assert.Throws<MySqlException>(() => ExecuteInsertStatement(stmt.Values("George", 34))).Code, Is.EqualTo(5014u));
       Assert.That(ExecuteSelectStatement(table.Select()).FetchAll(), Has.One.Items);
     }
 
@@ -117,10 +117,10 @@ namespace MySqlX.Data.Tests.RelationalTests
       var selectResult = ExecuteSelectStatement(table.Select());
       while (selectResult.Next()) ;
 
-      Assert.AreEqual(1, insertResult.AffectedItemsCount);
+      Assert.That(insertResult.AffectedItemsCount, Is.EqualTo(1));
       Assert.That(selectResult.Rows, Has.One.Items);
-      StringAssert.AreEqualIgnoringCase("1", selectResult.Rows.ToArray()[0][0].ToString());
-      StringAssert.AreEqualIgnoringCase(value, selectResult.Rows.ToArray()[0][1].ToString());
+      Assert.That(selectResult.Rows.ToArray()[0][0].ToString(), Is.EqualTo("1").IgnoreCase);
+      Assert.That(selectResult.Rows.ToArray()[0][1].ToString(), Is.EqualTo(value).IgnoreCase);
     }
   }
 }

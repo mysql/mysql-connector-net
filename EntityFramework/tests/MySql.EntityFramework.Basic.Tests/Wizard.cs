@@ -45,17 +45,17 @@ namespace MySql.Data.EntityFramework.Tests
       string token = services.GetProviderManifestToken(Connection);
 
       if (Version < new Version(5, 1))
-        Assert.AreEqual("5.0", token);
+        Assert.That(token, Is.EqualTo("5.0"));
       else if (Version < new Version(5, 5))
-        Assert.AreEqual("5.1", token);
+        Assert.That(token, Is.EqualTo("5.1"));
       else if (Version < new Version(5, 6))
-        Assert.AreEqual("5.5", token);
+        Assert.That(token, Is.EqualTo("5.5"));
       else if (Version < new Version(5, 7))
-        Assert.AreEqual("5.6", token);
+        Assert.That(token, Is.EqualTo("5.6"));
       else if (Version < new Version(8, 0))
-        Assert.AreEqual("5.7", token);
+        Assert.That(token, Is.EqualTo("5.7"));
       else
-        Assert.AreEqual("8.0", token);
+        Assert.That(token, Is.EqualTo("8.0"));
     }
 
     [Test]
@@ -64,7 +64,7 @@ namespace MySql.Data.EntityFramework.Tests
       MySqlProviderManifest manifest = new MySqlProviderManifest(Version.Major + "." + Version.Minor);
       using (XmlReader reader = manifest.GetInformation(DbXmlEnabledProviderManifest.StoreSchemaDefinition))
       {
-        Assert.NotNull(reader);
+        Assert.That(reader, Is.Not.Null);
       }
     }
   }

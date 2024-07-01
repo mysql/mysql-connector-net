@@ -72,11 +72,11 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Timeout = 0;
       loader.Local = true;
       int count = loader.Load();
-      Assert.AreEqual(200, count);
+      Assert.That(count, Is.EqualTo(200));
 
       DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-      Assert.AreEqual(200, dt.Rows.Count);
-      Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
+      Assert.That(dt.Rows.Count, Is.EqualTo(200));
+      Assert.That(dt.Rows[0][1].ToString().Trim(), Is.EqualTo("'Test'"));
     }
 
     [Test]
@@ -103,11 +103,11 @@ namespace MySql.Data.MySqlClient.Tests
         loader.Timeout = 0;
         loader.Local = true;
         int count = loader.Load();
-        Assert.AreEqual(200, count);
+        Assert.That(count, Is.EqualTo(200));
 
         DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-        Assert.AreEqual(200, dt.Rows.Count);
-        Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
+        Assert.That(dt.Rows.Count, Is.EqualTo(200));
+        Assert.That(dt.Rows[0][1].ToString().Trim(), Is.EqualTo("'Test'"));
       }
       finally
       {
@@ -137,10 +137,10 @@ namespace MySql.Data.MySqlClient.Tests
       loader.LineTerminator = "xxx";
       loader.Local = true;
       int count = loader.Load();
-      Assert.AreEqual(200, count);
+      Assert.That(count, Is.EqualTo(200));
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Assert.AreEqual(200, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.That(Convert.ToInt32(cmd.ExecuteScalar()), Is.EqualTo(200));
     }
 
     [Test]
@@ -165,10 +165,10 @@ namespace MySql.Data.MySqlClient.Tests
       loader.NumberOfLinesToSkip = 50;
       loader.Local = true;
       int count = loader.Load();
-      Assert.AreEqual(150, count);
+      Assert.That(count, Is.EqualTo(150));
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Assert.AreEqual(150, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.That(Convert.ToInt32(cmd.ExecuteScalar()), Is.EqualTo(150));
     }
 
     [Test]
@@ -199,10 +199,10 @@ namespace MySql.Data.MySqlClient.Tests
       loader.LinePrefix = "bbb";
       loader.Local = true;
       int count = loader.Load();
-      Assert.AreEqual(200, count);
+      Assert.That(count, Is.EqualTo(200));
 
       MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Assert.AreEqual(200, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.That(Convert.ToInt32(cmd.ExecuteScalar()), Is.EqualTo(200));
     }
 
     [Test]
@@ -226,12 +226,12 @@ namespace MySql.Data.MySqlClient.Tests
       loader.FieldQuotationOptional = true;
       loader.Local = true;
       int count = loader.Load();
-      Assert.AreEqual(200, count);
+      Assert.That(count, Is.EqualTo(200));
 
       DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-      Assert.AreEqual(200, dt.Rows.Count);
-      Assert.AreEqual("col1", dt.Rows[0][1]);
-      Assert.AreEqual("col2", dt.Rows[0][2].ToString().Trim());
+      Assert.That(dt.Rows.Count, Is.EqualTo(200));
+      Assert.That(dt.Rows[0][1], Is.EqualTo("col1"));
+      Assert.That(dt.Rows[0][2].ToString().Trim(), Is.EqualTo("col2"));
     }
 
     [Test]
@@ -255,12 +255,12 @@ namespace MySql.Data.MySqlClient.Tests
       loader.FieldTerminator = ",";
       loader.Local = true;
       int count = loader.Load();
-      Assert.AreEqual(200, count);
+      Assert.That(count, Is.EqualTo(200));
 
       DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-      Assert.AreEqual(200, dt.Rows.Count);
-      Assert.AreEqual("col1still col1", dt.Rows[0][1]);
-      Assert.AreEqual("col2", dt.Rows[0][2].ToString().Trim());
+      Assert.That(dt.Rows.Count, Is.EqualTo(200));
+      Assert.That(dt.Rows[0][1], Is.EqualTo("col1still col1"));
+      Assert.That(dt.Rows[0][2].ToString().Trim(), Is.EqualTo("col2"));
     }
 
     [Test]
@@ -283,7 +283,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.FieldTerminator = ",";
       loader.Local = true;
       int count = loader.Load();
-      Assert.AreEqual(20, count);
+      Assert.That(count, Is.EqualTo(20));
 
       path = Path.GetTempFileName();
       sw = new StreamWriter(new FileStream(path, FileMode.Create));
@@ -302,8 +302,8 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Load();
 
       DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-      Assert.AreEqual(20, dt.Rows.Count);
-      Assert.AreEqual("col2", dt.Rows[0][1].ToString().Trim());
+      Assert.That(dt.Rows.Count, Is.EqualTo(20));
+      Assert.That(dt.Rows[0][1].ToString().Trim(), Is.EqualTo("col2"));
     }
 
     [Test]
@@ -326,7 +326,7 @@ namespace MySql.Data.MySqlClient.Tests
       loader.FieldTerminator = ",";
       loader.Local = true;
       int count = loader.Load();
-      Assert.AreEqual(20, count);
+      Assert.That(count, Is.EqualTo(20));
 
       path = Path.GetTempFileName();
       sw = new StreamWriter(new FileStream(path, FileMode.Create));
@@ -345,8 +345,8 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Load();
 
       DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-      Assert.AreEqual(20, dt.Rows.Count);
-      Assert.AreEqual("col1", dt.Rows[0][1].ToString().Trim());
+      Assert.That(dt.Rows.Count, Is.EqualTo(20));
+      Assert.That(dt.Rows[0][1].ToString().Trim(), Is.EqualTo("col1"));
     }
 
     #region AsyncTests
@@ -373,8 +373,8 @@ namespace MySql.Data.MySqlClient.Tests
         int dataLoaded = loadResult.Result;
         DataTable dt = Utils.FillTable("SELECT * FROM BulkLoadSimpleAsyncTest", Connection);
 
-        Assert.AreEqual(dataLoaded, dt.Rows.Count);
-        Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
+        Assert.That(dt.Rows.Count, Is.EqualTo(dataLoaded));
+        Assert.That(dt.Rows[0][1].ToString().Trim(), Is.EqualTo("'Test'"));
       }).Wait();
     }
 
@@ -406,8 +406,8 @@ namespace MySql.Data.MySqlClient.Tests
           int dataLoaded = loadResult.Result;
 
           DataTable dt = Utils.FillTable("SELECT * FROM BulkLoadReadOnlyFileAsyncTest", Connection);
-          Assert.AreEqual(dataLoaded, dt.Rows.Count);
-          Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
+          Assert.That(dt.Rows.Count, Is.EqualTo(dataLoaded));
+          Assert.That(dt.Rows[0][1].ToString().Trim(), Is.EqualTo("'Test'"));
         }).Wait();
       }
       finally
@@ -442,9 +442,9 @@ namespace MySql.Data.MySqlClient.Tests
         int dataLoaded = loadResult.Result;
         DataTable dt = Utils.FillTable("SELECT * FROM BulkLoadFieldQuotingAsyncTest", Connection);
 
-        Assert.AreEqual(dataLoaded, dt.Rows.Count);
-        Assert.AreEqual("col1", dt.Rows[0][1]);
-        Assert.AreEqual("col2", dt.Rows[0][2].ToString().Trim());
+        Assert.That(dt.Rows.Count, Is.EqualTo(dataLoaded));
+        Assert.That(dt.Rows[0][1], Is.EqualTo("col1"));
+        Assert.That(dt.Rows[0][2].ToString().Trim(), Is.EqualTo("col2"));
       }).Wait();
     }
 
@@ -473,9 +473,9 @@ namespace MySql.Data.MySqlClient.Tests
         int dataLoaded = loadResult.Result;
         DataTable dt = Utils.FillTable("SELECT * FROM BulkLoadEscapingAsyncTest", Connection);
 
-        Assert.AreEqual(dataLoaded, dt.Rows.Count);
-        Assert.AreEqual("col1still col1", dt.Rows[0][1]);
-        Assert.AreEqual("col2", dt.Rows[0][2].ToString().Trim());
+        Assert.That(dt.Rows.Count, Is.EqualTo(dataLoaded));
+        Assert.That(dt.Rows[0][1], Is.EqualTo("col1still col1"));
+        Assert.That(dt.Rows[0][2].ToString().Trim(), Is.EqualTo("col2"));
       }).Wait();
     }
 
@@ -517,8 +517,8 @@ namespace MySql.Data.MySqlClient.Tests
 
       loader.LoadAsync().Wait();
       DataTable dt = Utils.FillTable("SELECT * FROM BulkLoadConflictOptionReplaceAsyncTest", Connection);
-      Assert.AreEqual(20, dt.Rows.Count);
-      Assert.AreEqual("col2", dt.Rows[0][1].ToString().Trim());
+      Assert.That(dt.Rows.Count, Is.EqualTo(20));
+      Assert.That(dt.Rows[0][1].ToString().Trim(), Is.EqualTo("col2"));
     }
 
     [Test]
@@ -563,8 +563,8 @@ namespace MySql.Data.MySqlClient.Tests
       {
         int dataLoaded = loadResult.Result;
         DataTable dt = Utils.FillTable("SELECT * FROM BulkLoadConflictOptionIgnoreAsyncTest", Connection);
-        Assert.AreEqual(20, dt.Rows.Count);
-        Assert.AreEqual("col1", dt.Rows[0][1].ToString().Trim());
+        Assert.That(dt.Rows.Count, Is.EqualTo(20));
+        Assert.That(dt.Rows[0][1].ToString().Trim(), Is.EqualTo("col1"));
       }).Wait();
     }
 
@@ -596,10 +596,10 @@ namespace MySql.Data.MySqlClient.Tests
       {
         int dataLoaded = loadResult.Result;
         DataTable dt = Utils.FillTable("SELECT * FROM BulkLoadColumnOrderAsyncTest", Connection);
-        Assert.AreEqual(20, dt.Rows.Count);
-        Assert.AreEqual("col1", dt.Rows[0][1]);
-        Assert.AreEqual("col2", dt.Rows[0][2]);
-        Assert.AreEqual("col3", dt.Rows[0][3].ToString().Trim());
+        Assert.That(dt.Rows.Count, Is.EqualTo(20));
+        Assert.That(dt.Rows[0][1], Is.EqualTo("col1"));
+        Assert.That(dt.Rows[0][2], Is.EqualTo("col2"));
+        Assert.That(dt.Rows[0][3].ToString().Trim(), Is.EqualTo("col3"));
       }).Wait();
     }
     #endregion
@@ -636,13 +636,13 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Columns.Add("n1");
       loader.Local = true;
       int count = loader.Load();
-      Assert.AreEqual(20, count);
+      Assert.That(count, Is.EqualTo(20));
 
       DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-      Assert.AreEqual(20, dt.Rows.Count);
-      Assert.AreEqual("col1", dt.Rows[0][1]);
-      Assert.AreEqual("col2", dt.Rows[0][2]);
-      Assert.AreEqual("col3", dt.Rows[0][3].ToString().Trim());
+      Assert.That(dt.Rows.Count, Is.EqualTo(20));
+      Assert.That(dt.Rows[0][1], Is.EqualTo("col1"));
+      Assert.That(dt.Rows[0][2], Is.EqualTo("col2"));
+      Assert.That(dt.Rows[0][3].ToString().Trim(), Is.EqualTo("col3"));
     }
 
     /// <summary>
@@ -703,11 +703,11 @@ namespace MySql.Data.MySqlClient.Tests
       if (shouldPass)
       {
         int count = loader.Load();
-        Assert.AreEqual(200, count);
+        Assert.That(count, Is.EqualTo(200));
 
         DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-        Assert.AreEqual(200, dt.Rows.Count);
-        Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
+        Assert.That(dt.Rows.Count, Is.EqualTo(200));
+        Assert.That(dt.Rows[0][1].ToString().Trim(), Is.EqualTo("'Test'"));
       }
       else if (isSymLink && !Directory.Exists(allowLoadLocalInfileInPath))
         Assert.Ignore("For the symbolic link test to run, it should be manually created before executing it.");
@@ -716,11 +716,11 @@ namespace MySql.Data.MySqlClient.Tests
         var ex = Assert.Throws<MySqlException>(() => loader.Load());
         if (allowLoadLocalInfileInPath == " " || allowLoadLocalInfileInPath is null)
           if (Version > new Version(8, 0))
-            Assert.AreEqual("Loading local data is disabled; this must be enabled on both the client and server sides", ex.Message);
+            Assert.That(ex.Message, Is.EqualTo("Loading local data is disabled; this must be enabled on both the client and server sides"));
           else
-            Assert.AreEqual("The used command is not allowed with this MySQL version", ex.Message);
+            Assert.That(ex.Message, Is.EqualTo("The used command is not allowed with this MySQL version"));
         else
-          StringAssert.Contains("allowloadlocalinfileinpath", ex.Message);
+          Assert.That(ex.Message, Does.Contain("allowloadlocalinfileinpath"));
       }
 
       File.Delete(path);
@@ -755,10 +755,10 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters.AddWithValue("@FileSize", fileSize);
         cmd.Parameters.AddWithValue("@File", rawData);
         var result = cmd.ExecuteNonQuery();
-        Assert.IsNotNull(result);
+        Assert.That(result, Is.Not.Null);
         cmd.CommandText = "select count(*) from file;";
         var count = cmd.ExecuteScalar();
-        Assert.AreEqual(1, count);
+        Assert.That(count, Is.EqualTo(1));
       }
     }
 
@@ -783,11 +783,11 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Timeout = 0;
       loader.Local = true;
       int count = loader.Load(stream);
-      Assert.AreEqual(200, count);
+      Assert.That(count, Is.EqualTo(200));
 
       DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-      Assert.AreEqual(200, dt.Rows.Count);
-      Assert.AreEqual("'Test'", dt.Rows[0][1].ToString().Trim());
+      Assert.That(dt.Rows.Count, Is.EqualTo(200));
+      Assert.That(dt.Rows[0][1].ToString().Trim(), Is.EqualTo("'Test'"));
     }
 
     [Test]
@@ -817,10 +817,10 @@ namespace MySql.Data.MySqlClient.Tests
       loader.LinePrefix = "bbb";
       loader.Local = true;
       int count = loader.Load(stream);
-      Assert.AreEqual(200, count);
+      Assert.That(count, Is.EqualTo(200));
 
       using MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test", Connection);
-      Assert.AreEqual(200, Convert.ToInt32(cmd.ExecuteScalar()));
+      Assert.That(Convert.ToInt32(cmd.ExecuteScalar()), Is.EqualTo(200));
     }
 
     [Test]
@@ -847,13 +847,13 @@ namespace MySql.Data.MySqlClient.Tests
       loader.Columns.Add("n1");
       loader.Local = true;
       int count = loader.Load(stream);
-      Assert.AreEqual(20, count);
+      Assert.That(count, Is.EqualTo(20));
 
       DataTable dt = Utils.FillTable("SELECT * FROM Test", Connection);
-      Assert.AreEqual(20, dt.Rows.Count);
-      Assert.AreEqual("col1", dt.Rows[0][1]);
-      Assert.AreEqual("col2", dt.Rows[0][2]);
-      Assert.AreEqual("col3", dt.Rows[0][3].ToString().Trim());
+      Assert.That(dt.Rows.Count, Is.EqualTo(20));
+      Assert.That(dt.Rows[0][1], Is.EqualTo("col1"));
+      Assert.That(dt.Rows[0][2], Is.EqualTo("col2"));
+      Assert.That(dt.Rows[0][3].ToString().Trim(), Is.EqualTo("col3"));
     }
   }
 }

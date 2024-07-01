@@ -202,18 +202,18 @@ namespace MySql.Data.MySqlClient.Tests
             threadId = c.ServerThread;
             MySqlCommand command = new MySqlCommand("SELECT 1", c);
             long ret = (long)command.ExecuteScalar();
-            Assert.AreEqual(1, ret);
+            Assert.That(ret, Is.EqualTo(1));
 
             command.CommandText = "select user()";
             string myUser = (string)command.ExecuteScalar();
             // Check if proxy user is correct
-            StringAssert.StartsWith(UserName + "@", myUser);
+            Assert.That(myUser, Does.StartWith(UserName + "@"));
 
             // check if mysql user is correct
             // (foo_user is mapped to current  OS user)
             command.CommandText = "select current_user()";
             string currentUser = (string)command.ExecuteScalar();
-            StringAssert.StartsWith(UserName, currentUser);
+            Assert.That(currentUser, Does.StartWith(UserName));
           }
         }
 
@@ -329,18 +329,18 @@ namespace MySql.Data.MySqlClient.Tests
           threadId = c.ServerThread;
           MySqlCommand command = new MySqlCommand("SELECT 1", c);
           long ret = (long)command.ExecuteScalar();
-          Assert.AreEqual(1, ret);
+          Assert.That(ret, Is.EqualTo(1));
 
           command.CommandText = "select user()";
           string myUser = (string)command.ExecuteScalar();
           // Check if proxy user is correct
-          StringAssert.StartsWith(UserName + "@", myUser);
+          Assert.That(myUser, Does.StartWith(UserName + "@"));
 
           // check if mysql user is correct
           // (foo_user is mapped to current  OS user)
           command.CommandText = "select current_user()";
           string currentUser = (string)command.ExecuteScalar();
-          StringAssert.StartsWith("foo_user@", currentUser);
+          Assert.That(currentUser, Does.StartWith("foo_user@"));
         }
       }
 
@@ -377,16 +377,16 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          StringAssert.StartsWith("TLSv1", reader.GetString(1));
+          Assert.That(reader.Read(), Is.True);
+          Assert.That(reader.GetString(1), Does.StartWith("TLSv1"));
         }
 
         command.CommandText = String.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          Assert.AreEqual(userName, reader.GetString(0));
-          Assert.AreEqual(pluginName, reader.GetString(1));
+          Assert.That(reader.Read(), Is.True);
+          Assert.That(reader.GetString(0), Is.EqualTo(userName));
+          Assert.That(reader.GetString(1), Is.EqualTo(pluginName));
         }
 
         connection.Close();
@@ -427,16 +427,16 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          StringAssert.StartsWith("TLSv1", reader.GetString(1));
+          Assert.That(reader.Read(), Is.True);
+          Assert.That(reader.GetString(1), Does.StartWith("TLSv1"));
         }
 
         command.CommandText = String.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          Assert.AreEqual(userName, reader.GetString(0));
-          Assert.AreEqual(pluginName, reader.GetString(1));
+          Assert.That(reader.Read(), Is.True);
+          Assert.That(reader.GetString(0), Is.EqualTo(userName));
+          Assert.That(reader.GetString(1), Is.EqualTo(pluginName));
         }
 
         connection.Close();
@@ -464,7 +464,7 @@ namespace MySql.Data.MySqlClient.Tests
         if (serverCompiledUsingOpenSsl)
         {
           Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
-          Assert.AreEqual("Retrieval of the RSA public key is not enabled for insecure connections.", ex.Message);
+          Assert.That(ex.Message, Is.EqualTo("Retrieval of the RSA public key is not enabled for insecure connections."));
         }
         else Assert.Throws<MySqlException>(() => connection.Open());
       }
@@ -491,16 +491,16 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          StringAssert.StartsWith("TLSv1", reader.GetString(1));
+          Assert.That(reader.Read(), Is.True);
+          Assert.That(reader.GetString(1), Does.StartWith("TLSv1"));
         }
 
         command.CommandText = String.Format("SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{0}';", userName);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          Assert.AreEqual(userName, reader.GetString(0));
-          Assert.AreEqual(pluginName, reader.GetString(1));
+          Assert.That(reader.Read(), Is.True);
+          Assert.That(reader.GetString(0), Is.EqualTo(userName));
+          Assert.That(reader.GetString(1), Is.EqualTo(pluginName));
         }
 
         connection.Close();
@@ -542,9 +542,9 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Exception ex = Assert.Throws<MySqlException>(() => connection.Open()); ;
         if (serverCompiledUsingOpenSsl)
-          Assert.AreEqual("Retrieval of the RSA public key is not enabled for insecure connections.", ex.Message);
+          Assert.That(ex.Message, Is.EqualTo("Retrieval of the RSA public key is not enabled for insecure connections."));
         else
-          StringAssert.StartsWith("Authentication to host", ex.Message);
+          Assert.That(ex.Message, Does.StartWith("Authentication to host"));
       }
 
       if (serverCompiledUsingOpenSsl)
@@ -606,8 +606,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
       {
         connection.Open();
-        Assert.AreEqual(ConnectionState.Open, connection.connectionState);
-        Assert.AreEqual(AuthStage.FULL_AUTH, CachingSha2AuthenticationPlugin._authStage);
+        Assert.That(connection.connectionState, Is.EqualTo(ConnectionState.Open));
+        Assert.That(CachingSha2AuthenticationPlugin._authStage, Is.EqualTo(AuthStage.FULL_AUTH));
         connection.Close();
       }
 
@@ -615,8 +615,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
       {
         connection.Open();
-        Assert.AreEqual(ConnectionState.Open, connection.connectionState);
-        Assert.AreEqual(AuthStage.FAST_AUTH, CachingSha2AuthenticationPlugin._authStage);
+        Assert.That(connection.connectionState, Is.EqualTo(ConnectionState.Open));
+        Assert.That(CachingSha2AuthenticationPlugin._authStage, Is.EqualTo(AuthStage.FAST_AUTH));
         connection.Close();
       }
 
@@ -625,14 +625,14 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
       {
         connection.Open();
-        Assert.AreEqual(AuthStage.FULL_AUTH, CachingSha2AuthenticationPlugin._authStage);
+        Assert.That(CachingSha2AuthenticationPlugin._authStage, Is.EqualTo(AuthStage.FULL_AUTH));
         connection.Close();
       }
 
       // Authentication failure - TLS connection.
       builder.Password = "incorrectPassword";
       Exception ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
-      StringAssert.StartsWith("Access denied for user", ex.InnerException.Message);
+      Assert.That(ex.InnerException.Message, Does.StartWith("Access denied for user"));
 
       // Authentication success with empty password – Any connection.
       builder.UserID = "testCachingSha2NoPassword";
@@ -643,8 +643,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
       {
         connection.Open();
-        Assert.AreEqual(ConnectionState.Open, connection.connectionState);
-        Assert.AreEqual(AuthStage.GENERATE_SCRAMBLE, CachingSha2AuthenticationPlugin._authStage);
+        Assert.That(connection.connectionState, Is.EqualTo(ConnectionState.Open));
+        Assert.That(CachingSha2AuthenticationPlugin._authStage, Is.EqualTo(AuthStage.GENERATE_SCRAMBLE));
         connection.Close();
       }
 
@@ -653,8 +653,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
       {
         connection.Open();
-        Assert.AreEqual(ConnectionState.Open, connection.connectionState);
-        Assert.AreEqual(AuthStage.GENERATE_SCRAMBLE, CachingSha2AuthenticationPlugin._authStage);
+        Assert.That(connection.connectionState, Is.EqualTo(ConnectionState.Open));
+        Assert.That(CachingSha2AuthenticationPlugin._authStage, Is.EqualTo(AuthStage.GENERATE_SCRAMBLE));
         connection.Close();
       }
 
@@ -663,12 +663,12 @@ namespace MySql.Data.MySqlClient.Tests
       builder.UserID = "testCachingSha2";
       builder.SslMode = MySqlSslMode.Required;
       ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
-      StringAssert.StartsWith("Access denied for user", ex.InnerException.Message);
+      Assert.That(ex.InnerException.Message, Does.StartWith("Access denied for user"));
 
       // TLS not enabled.
       builder.SslMode = MySqlSslMode.Disabled;
       ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
-      StringAssert.StartsWith("Access denied for user", ex.InnerException.Message);
+      Assert.That(ex.InnerException.Message, Does.StartWith("Access denied for user"));
 
       // Authentication using RSA keys. Only available in servers compiled with OpenSSL (E.g. Commercial).
       bool serverCompiledUsingOpenSsl = false;
@@ -695,21 +695,21 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
         {
           ex = Assert.Throws<MySqlException>(() => connection.Open());
-          Assert.AreEqual("Retrieval of the RSA public key is not enabled for insecure connections.", ex.Message);
+          Assert.That(ex.Message, Is.EqualTo("Retrieval of the RSA public key is not enabled for insecure connections."));
         }
 
         builder.AllowPublicKeyRetrieval = true;
         using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
         {
           connection.Open();
-          Assert.AreEqual(AuthStage.FULL_AUTH, CachingSha2AuthenticationPlugin._authStage);
+          Assert.That(CachingSha2AuthenticationPlugin._authStage, Is.EqualTo(AuthStage.FULL_AUTH));
           connection.Close();
         }
 
         using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
         {
           connection.Open();
-          Assert.AreEqual(AuthStage.FAST_AUTH, CachingSha2AuthenticationPlugin._authStage);
+          Assert.That(CachingSha2AuthenticationPlugin._authStage, Is.EqualTo(AuthStage.FAST_AUTH));
           connection.Close();
         }
 
@@ -718,13 +718,13 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
         {
           connection.Open();
-          Assert.AreEqual(AuthStage.FULL_AUTH, CachingSha2AuthenticationPlugin._authStage);
+          Assert.That(CachingSha2AuthenticationPlugin._authStage, Is.EqualTo(AuthStage.FULL_AUTH));
           connection.Close();
         }
 
         builder.Password = "incorrectPassword";
         ex = Assert.Throws<MySqlException>(() => new MySqlConnection(builder.ConnectionString).Open());
-        StringAssert.StartsWith("Access denied for user", ex.InnerException.Message);
+        Assert.That(ex.InnerException.Message, Does.StartWith("Access denied for user"));
       }
     }
 
@@ -763,9 +763,9 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
         if (serverCompiledUsingOpenSsl)
-          Assert.AreEqual("Retrieval of the RSA public key is not enabled for insecure connections.", ex.Message);
+          Assert.That(ex.Message, Is.EqualTo("Retrieval of the RSA public key is not enabled for insecure connections."));
         else
-          StringAssert.StartsWith("Authentication to host", ex.Message);
+          Assert.That(ex.Message, Does.StartWith("Authentication to host"));
       }
 
       if (serverCompiledUsingOpenSsl)
@@ -813,7 +813,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         connection.Open();
-        Assert.True(connection.State == ConnectionState.Open);
+        Assert.That(connection.State == ConnectionState.Open, Is.True);
         connection.Close();
       }
 
@@ -822,7 +822,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         connection.Open();
-        Assert.True(connection.State == ConnectionState.Open);
+        Assert.That(connection.State == ConnectionState.Open, Is.True);
         connection.Close();
       }
 
@@ -834,9 +834,9 @@ namespace MySql.Data.MySqlClient.Tests
       {
         ex = Assert.Throws<MySqlException>(() => connection.Open());
         if (serverCompiledUsingOpenSsl)
-          Assert.AreEqual("Retrieval of the RSA public key is not enabled for insecure connections.", ex.Message);
+          Assert.That(ex.Message, Is.EqualTo("Retrieval of the RSA public key is not enabled for insecure connections."));
         else
-          StringAssert.StartsWith("Authentication to host", ex.Message);
+          Assert.That(ex.Message, Does.StartWith("Authentication to host"));
       }
 
       settings.AllowPublicKeyRetrieval = true;
@@ -846,14 +846,14 @@ namespace MySql.Data.MySqlClient.Tests
         if (serverCompiledUsingOpenSsl)
         {
           connection.Open();
-          Assert.True(connection.State == ConnectionState.Open);
+          Assert.That(connection.State == ConnectionState.Open);
           connection.Close();
         }
         // Fail since AllowPublicKeyRetrieval is ignored in gpl servers.
         else
         {
           ex = Assert.Throws<MySqlException>(() => connection.Open());
-          StringAssert.StartsWith("Authentication to host", ex.Message);
+          Assert.That(ex.Message, Does.StartWith("Authentication to host"));
         }
       }
     }
@@ -889,7 +889,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(connectionString))
       {
         connection.Open();
-        Assert.True(connection.Settings.AllowPublicKeyRetrieval);
+        Assert.That(connection.Settings.AllowPublicKeyRetrieval, Is.True);
         connection.Close();
       }
     }
@@ -920,14 +920,14 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         connection.Open();
-        Assert.AreEqual(ConnectionState.Open, connection.connectionState);
+        Assert.That(connection.connectionState, Is.EqualTo(ConnectionState.Open));
         var sql = string.Format("select user,plugin from mysql.user where user like '{0}'", settings.UserID);
         MySqlCommand command = new MySqlCommand(sql, connection);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          StringAssert.AreEqualIgnoringCase("test1@MYSQL.LOCAL", reader.GetString(0));
-          StringAssert.AreEqualIgnoringCase("authentication_ldap_simple", reader.GetString(1));
+          Assert.That(reader.Read(), Is.True);
+          Assert.That(reader.GetString(0), Is.EqualTo("test1@MYSQL.LOCAL").IgnoreCase);
+          Assert.That(reader.GetString(1), Is.EqualTo("authentication_ldap_simple").IgnoreCase);
         }
         //test the new user can execute sql statements FR1_1	
         sql = "create table testinserts( id int, name varchar(50),age int)";
@@ -942,13 +942,13 @@ namespace MySql.Data.MySqlClient.Tests
         sql = "select count(*) from testinserts";
         command = new MySqlCommand(sql, connection);
         var counter = command.ExecuteScalar();
-        Assert.AreEqual(4, counter);
+        Assert.That(counter, Is.EqualTo(4));
         //check ssl
         command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          StringAssert.StartsWith("TLSv1", reader.GetString(1));
+          Assert.That(reader.Read(), Is.True);
+          Assert.That(reader.GetString(1), Does.StartWith("TLSv1"));
         }
 
       }
@@ -960,13 +960,13 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlConnection conn = new MySqlConnection(unixConnectionString))
         {
           conn.Open();
-          Assert.AreEqual(ConnectionState.Open, conn.State);
+          Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
         }
 
         using (MySqlConnection connection = new MySqlConnection(unixConnectionString + "sslmode=none"))
         {
           connection.Open();
-          Assert.AreEqual(ConnectionState.Open, connection.State);
+          Assert.That(connection.State, Is.EqualTo(ConnectionState.Open));
         }
       }
 
@@ -981,7 +981,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
-        StringAssert.StartsWith("Access denied for user", ex.InnerException.Message);
+        Assert.That(ex.InnerException.Message, Does.StartWith("Access denied for user"));
       }
 
       // Test connection for INVALID user in LDAP server, expected result FAIL
@@ -995,7 +995,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
-        StringAssert.StartsWith("Access denied for user", ex.InnerException.Message);
+        Assert.That(ex.InnerException.Message, Does.StartWith("Access denied for user"));
       }
 
       // Test connection for VALID user in LDAP server with SSLMode=none, expected result FAIL
@@ -1010,7 +1010,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
-        StringAssert.Contains("Clear-password authentication is not supported over insecure channels", ex.Message);
+        Assert.That(ex.Message, Does.Contain("Clear-password authentication is not supported over insecure channels"));
       }
 
       // Test connection for VALID user in LDAP server with different SSLMode values, expected result pass
@@ -1030,7 +1030,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         connection.Open();
-        Assert.AreEqual(ConnectionState.Open, connection.State);
+        Assert.That(connection.State, Is.EqualTo(ConnectionState.Open));
         connection.Close();
       }
 
@@ -1039,7 +1039,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         connection.Open();
-        Assert.AreEqual(ConnectionState.Open, connection.State);
+        Assert.That(connection.State, Is.EqualTo(ConnectionState.Open));
         connection.Close();
       }
 
@@ -1050,7 +1050,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         connection.Open();
-        Assert.AreEqual(ConnectionState.Open, connection.State);
+        Assert.That(connection.State, Is.EqualTo(ConnectionState.Open));
         connection.Close();
       }
 
@@ -1095,11 +1095,11 @@ namespace MySql.Data.MySqlClient.Tests
           MySqlCommand command = new MySqlCommand($"SELECT `User`, `plugin` FROM `mysql`.`user` WHERE `User` = '{userName}';", connection);
           using (MySqlDataReader reader = command.ExecuteReader())
           {
-            StringAssert.AreEqualIgnoringCase(mechanism, MySqlSASLPlugin.scramMechanism.MechanismName);
-            Assert.AreEqual(ScramBase.AuthState.VALIDATE, MySqlSASLPlugin.scramMechanism._state);
-            Assert.True(reader.Read());
-            StringAssert.AreEqualIgnoringCase(userName, reader.GetString(0));
-            StringAssert.AreEqualIgnoringCase(plugin, reader.GetString(1));
+            Assert.That(MySqlSASLPlugin.scramMechanism.MechanismName, Is.EqualTo(mechanism).IgnoreCase);
+            Assert.That(MySqlSASLPlugin.scramMechanism._state, Is.EqualTo(ScramBase.AuthState.VALIDATE));
+            Assert.That(reader.Read(), Is.True);
+            Assert.That(reader.GetString(0), Is.EqualTo(userName).IgnoreCase);
+            Assert.That(reader.GetString(1), Is.EqualTo(plugin).IgnoreCase);
           }
         }
         else
@@ -1118,19 +1118,19 @@ namespace MySql.Data.MySqlClient.Tests
 
       ScramSha1Mechanism scramSha1 = new ScramSha1Mechanism("user", "pencil", Host);
       scramSha1._cnonce = fixedNonce;
-      Assert.AreEqual(ScramBase.AuthState.INITIAL, scramSha1._state);
+      Assert.That(scramSha1._state, Is.EqualTo(ScramBase.AuthState.INITIAL));
 
       var challenge = Encoding.UTF8.GetString(scramSha1.Challenge(null));
-      Assert.AreEqual("n,a=user,n=user,r=" + fixedNonce, challenge);
-      Assert.AreEqual(ScramBase.AuthState.FINAL, scramSha1._state);
+      Assert.That(challenge, Is.EqualTo("n,a=user,n=user,r=" + fixedNonce));
+      Assert.That(scramSha1._state, Is.EqualTo(ScramBase.AuthState.FINAL));
 
       response = Encoding.UTF8.GetBytes(challenge1);
       challenge = Encoding.UTF8.GetString(scramSha1.Challenge(response));
-      Assert.AreEqual(expected, challenge);
-      Assert.AreEqual(ScramBase.AuthState.VALIDATE, scramSha1._state);
+      Assert.That(challenge, Is.EqualTo(expected));
+      Assert.That(scramSha1._state, Is.EqualTo(ScramBase.AuthState.VALIDATE));
 
       response = Encoding.UTF8.GetBytes(challenge2);
-      Assert.IsNull(scramSha1.Challenge(response));
+      Assert.That(scramSha1.Challenge(response), Is.Null);
     }
 
     [Test]
@@ -1144,19 +1144,19 @@ namespace MySql.Data.MySqlClient.Tests
 
       ScramSha256Mechanism scramSha256 = new ScramSha256Mechanism("user", "pencil", Host);
       scramSha256._cnonce = fixedNonce;
-      Assert.AreEqual(ScramBase.AuthState.INITIAL, scramSha256._state);
+      Assert.That(scramSha256._state, Is.EqualTo(ScramBase.AuthState.INITIAL));
 
       var challenge = Encoding.UTF8.GetString(scramSha256.Challenge(null));
-      Assert.AreEqual("n,a=user,n=user,r=" + fixedNonce, challenge);
-      Assert.AreEqual(ScramBase.AuthState.FINAL, scramSha256._state);
+      Assert.That(challenge, Is.EqualTo("n,a=user,n=user,r=" + fixedNonce));
+      Assert.That(scramSha256._state, Is.EqualTo(ScramBase.AuthState.FINAL));
 
       response = Encoding.UTF8.GetBytes(challenge1);
       challenge = Encoding.UTF8.GetString(scramSha256.Challenge(response));
-      Assert.AreEqual(expected, challenge);
-      Assert.AreEqual(ScramBase.AuthState.VALIDATE, scramSha256._state);
+      Assert.That(challenge, Is.EqualTo(expected));
+      Assert.That(scramSha256._state, Is.EqualTo(ScramBase.AuthState.VALIDATE));
 
       response = Encoding.UTF8.GetBytes(challenge2);
-      Assert.IsNull(scramSha256.Challenge(response));
+      Assert.That(scramSha256.Challenge(response), Is.Null);
     }
     #endregion
 
@@ -1192,9 +1192,9 @@ namespace MySql.Data.MySqlClient.Tests
           MySqlCommand command = new MySqlCommand($"SELECT user();", connection);
           using (MySqlDataReader reader = command.ExecuteReader())
           {
-            StringAssert.AreEqualIgnoringCase("GSSAPI", MySqlSASLPlugin.gssapiMechanism.MechanismName);
-            Assert.True(reader.Read());
-            StringAssert.Contains(userName, reader.GetString(0));
+            Assert.That(MySqlSASLPlugin.gssapiMechanism.MechanismName, Is.EqualTo("GSSAPI").IgnoreCase);
+            Assert.That(reader.Read(), Is.True);
+            Assert.That(reader.GetString(0), Does.Contain(userName));
           }
         }
         else
@@ -1207,27 +1207,27 @@ namespace MySql.Data.MySqlClient.Tests
     public void AssertSaslPrep()
     {
       // Valid String
-      Assert.AreEqual("my,0TEXT", MySqlSASLPlugin.SaslPrep("my,0TEXT"));
-      Assert.AreEqual("my,0 TEXT", MySqlSASLPlugin.SaslPrep("my,0 TEXT"));
+      Assert.That(MySqlSASLPlugin.SaslPrep("my,0TEXT"), Is.EqualTo("my,0TEXT"));
+      Assert.That(MySqlSASLPlugin.SaslPrep("my,0 TEXT"), Is.EqualTo("my,0 TEXT"));
 
       // Queries for matching strings MAY contain unassigned code points.
-      Assert.AreEqual("\u0888my,0TEXT", MySqlSASLPlugin.SaslPrep("\u0888my,0TEXT"));
-      Assert.AreEqual("my,0\u0890TEXT", MySqlSASLPlugin.SaslPrep("my,0\u0890TEXT"));
-      Assert.AreEqual("my,0TEXT\u089F", MySqlSASLPlugin.SaslPrep("my,0TEXT\u089F"));
+      Assert.That(MySqlSASLPlugin.SaslPrep("\u0888my,0TEXT"), Is.EqualTo("\u0888my,0TEXT"));
+      Assert.That(MySqlSASLPlugin.SaslPrep("my,0\u0890TEXT"), Is.EqualTo("my,0\u0890TEXT"));
+      Assert.That(MySqlSASLPlugin.SaslPrep("my,0TEXT\u089F"), Is.EqualTo("my,0TEXT\u089F"));
 
       // Mapping: non-ASCII space characters.
-      Assert.AreEqual("my,0 TEXT", MySqlSASLPlugin.SaslPrep("my,0\u1680TEXT"));
-      Assert.AreEqual("my,0 TEXT", MySqlSASLPlugin.SaslPrep("my,0\u200BTEXT"));
-      Assert.AreEqual(" my,0 TEXT ", MySqlSASLPlugin.SaslPrep("\u00A0my,0\u2000TEXT\u3000"));
+      Assert.That(MySqlSASLPlugin.SaslPrep("my,0\u1680TEXT"), Is.EqualTo("my,0 TEXT"));
+      Assert.That(MySqlSASLPlugin.SaslPrep("my,0\u200BTEXT"), Is.EqualTo("my,0 TEXT"));
+      Assert.That(MySqlSASLPlugin.SaslPrep("\u00A0my,0\u2000TEXT\u3000"), Is.EqualTo(" my,0 TEXT "));
 
       // Mapping: the "commonly mapped to nothing" characters.
-      Assert.AreEqual("my,0TEXT", MySqlSASLPlugin.SaslPrep("my,0\u00ADTEXT"));
-      Assert.AreEqual("my,0TEXT", MySqlSASLPlugin.SaslPrep("my,0\uFE0ATEXT"));
-      Assert.AreEqual("my,0TEXT", MySqlSASLPlugin.SaslPrep("\u00ADmy,0\u1806TE\uFE0FXT\uFEFF"));
+      Assert.That(MySqlSASLPlugin.SaslPrep("my,0\u00ADTEXT"), Is.EqualTo("my,0TEXT"));
+      Assert.That(MySqlSASLPlugin.SaslPrep("my,0\uFE0ATEXT"), Is.EqualTo("my,0TEXT"));
+      Assert.That(MySqlSASLPlugin.SaslPrep("\u00ADmy,0\u1806TE\uFE0FXT\uFEFF"), Is.EqualTo("my,0TEXT"));
 
       // KC Normalization.
-      Assert.AreEqual("my,0 fi TEXT", MySqlSASLPlugin.SaslPrep("my,0 \uFB01 TEXT"));
-      Assert.AreEqual("my,0 fi TEXT", MySqlSASLPlugin.SaslPrep("my,0 \uFB01 TEXT"));
+      Assert.That(MySqlSASLPlugin.SaslPrep("my,0 \uFB01 TEXT"), Is.EqualTo("my,0 fi TEXT"));
+      Assert.That(MySqlSASLPlugin.SaslPrep("my,0 \uFB01 TEXT"), Is.EqualTo("my,0 fi TEXT"));
 
       // Prohibited Output: ASCII control characters.
       Assert.Throws<ArgumentException>(() => MySqlSASLPlugin.SaslPrep("\u007Fmy,0TEXT"));
@@ -1381,11 +1381,11 @@ namespace MySql.Data.MySqlClient.Tests
           MySqlCommand command = new MySqlCommand($"SELECT user();", conn);
           using (MySqlDataReader reader = command.ExecuteReader())
           {
-            Assert.True(reader.Read());
-            StringAssert.Contains(username, reader.GetString(0));
+            Assert.That(reader.Read(), Is.True);
+            Assert.That(reader.GetString(0), Does.Contain(username));
           }
 
-          Assert.True(conn.Settings.KerberosAuthMode == mode);
+          Assert.That(conn.Settings.KerberosAuthMode == mode);
         }
         else
           Assert.Throws<MySqlException>(() => conn.Open());
@@ -1425,9 +1425,9 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand command = new MySqlCommand($"SELECT user();", conn);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
-          Assert.True(reader.Read());
+          Assert.That(reader.Read(), Is.True);
           userName = string.IsNullOrEmpty(userName) ? Environment.UserName : userName;
-          StringAssert.Contains(userName, reader.GetString(0));
+          Assert.That(reader.GetString(0), Does.Contain(userName));
         }
       }
     }
@@ -1438,7 +1438,7 @@ namespace MySql.Data.MySqlClient.Tests
       OciAuthenticationPlugin plugin = new OciAuthenticationPlugin();
       string keyFileInvalidPath = "C:\\invalid\\Path";
       string exMsg = Assert.Throws<MySqlException>(() => OciAuthenticationPlugin.SignData(new byte[0], keyFileInvalidPath)).Message;
-      StringAssert.AreEqualIgnoringCase(Resources.OciKeyFileDoesNotExists, exMsg);
+      Assert.That(exMsg, Is.EqualTo(Resources.OciKeyFileDoesNotExists).IgnoreCase);
     }
 
     public struct Profiles
@@ -1486,13 +1486,13 @@ namespace MySql.Data.MySqlClient.Tests
       if (profiles.missingEntry)
       {
         exMsg = Assert.Throws<MySqlException>(() => plugin.GetOciConfigValues(profiles.profiles, out string keyFile, out string fingerprint, out string securityTokenFilePath)).Message;
-        StringAssert.AreEqualIgnoringCase(Resources.OciEntryNotFound, exMsg);
+        Assert.That(exMsg, Is.EqualTo(Resources.OciEntryNotFound).IgnoreCase);
       }
       else
       {
         plugin.GetOciConfigValues(profiles.profiles, out string keyFile, out string fingerprint, out string securityTokenFilePath);
         exMsg = Assert.Throws<MySqlException>(() => OciAuthenticationPlugin.SignData(new byte[0], keyFile)).Message;
-        StringAssert.AreEqualIgnoringCase(Resources.OciInvalidKeyFile, exMsg);
+        Assert.That(exMsg, Is.EqualTo(Resources.OciInvalidKeyFile).IgnoreCase);
       }
     }
 
@@ -1509,9 +1509,9 @@ namespace MySql.Data.MySqlClient.Tests
       plugin._ociConfigProfile = "TEST";
       plugin.GetOciConfigValues(profiles, out string keyFilePath, out string fingerprint, out string securityTokenFilePath);
 
-      StringAssert.AreEqualIgnoringCase("keyFilePath", keyFilePath);
-      StringAssert.AreEqualIgnoringCase("66:55:44:33:22:11", fingerprint);
-      StringAssert.AreEqualIgnoringCase("securityTokenFilePath", securityTokenFilePath);
+      Assert.That(keyFilePath, Is.EqualTo("keyFilePath").IgnoreCase);
+      Assert.That(fingerprint, Is.EqualTo("66:55:44:33:22:11").IgnoreCase);
+      Assert.That(securityTokenFilePath, Is.EqualTo("securityTokenFilePath").IgnoreCase);
     }
 
     [DatapointSource]
@@ -1541,7 +1541,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var conn = new MySqlConnection(connStringBuilder.ConnectionString))
       {
         string exMsg = Assert.Throws<MySqlException>(() => conn.Open()).Message;
-        StringAssert.AreEqualIgnoringCase(Resources.OciConfigFileNotFound, exMsg);
+        Assert.That(exMsg, Is.EqualTo(Resources.OciConfigFileNotFound).IgnoreCase);
       }
     }
 
@@ -1551,7 +1551,7 @@ namespace MySql.Data.MySqlClient.Tests
       OciAuthenticationPlugin plugin = new OciAuthenticationPlugin();
 
       string exMsg = Assert.Throws<MySqlException>(() => plugin.AuthenticateAsync(false, false).GetAwaiter().GetResult()).Message;
-      StringAssert.AreEqualIgnoringCase(Resources.OciSDKNotFound, exMsg);
+      Assert.That(exMsg, Is.EqualTo(Resources.OciSDKNotFound).IgnoreCase);
     }
 
     [Test]
@@ -1574,7 +1574,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var conn = new MySqlConnection(connStringBuilder.ConnectionString))
       {
         string exMsg = Assert.Throws<MySqlException>(() => conn.Open()).Message;
-        StringAssert.AreEqualIgnoringCase(Resources.OciConfigProfileNotFound, exMsg);
+        Assert.That(exMsg, Is.EqualTo(Resources.OciConfigProfileNotFound).IgnoreCase);
       }
     }
 
@@ -1610,7 +1610,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
       conn.Open();
-      Assert.AreEqual(ConnectionState.Open, conn.State);
+      Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
     }
 
     [TestCase("user_2f", "password1", "password2", true)]
@@ -1643,7 +1643,7 @@ namespace MySql.Data.MySqlClient.Tests
       else
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.State);
+        Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
       }
     }
 
@@ -1677,7 +1677,7 @@ namespace MySql.Data.MySqlClient.Tests
       else
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.State);
+        Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
       }
     }
     #endregion
@@ -1709,7 +1709,7 @@ namespace MySql.Data.MySqlClient.Tests
       using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
       conn.WebAuthnActionRequested += Conn_WebAuthnActionRequested;
       conn.Open();
-      Assert.AreEqual(ConnectionState.Open, conn.State);
+      Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
     }
 
     [Test]
@@ -1735,7 +1735,7 @@ namespace MySql.Data.MySqlClient.Tests
       using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
       conn.WebAuthnActionRequested += Conn_WebAuthnActionRequested;
       conn.Open();
-      Assert.AreEqual(ConnectionState.Open, conn.State);
+      Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
     }
 
     [Test]
@@ -1762,7 +1762,7 @@ namespace MySql.Data.MySqlClient.Tests
       using var conn = new MySqlConnection(connStringBuilder.ConnectionString);
       conn.WebAuthnActionRequested += Conn_WebAuthnActionRequested;
       conn.Open();
-      Assert.AreEqual(ConnectionState.Open, conn.State);
+      Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
     }
 
     [Test]

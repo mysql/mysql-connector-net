@@ -51,7 +51,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         insertStatement.Values(i, i);
       }
       ExecuteInsertStatement(insertStatement);
-      Assert.AreEqual(rowsToInsert, CountRows());
+      Assert.That(CountRows(), Is.EqualTo(rowsToInsert));
     }
 
     private long CountRows()
@@ -62,7 +62,7 @@ namespace MySqlX.Data.Tests.RelationalTests
     private void ExecuteDelete(TableDeleteStatement statement, int expectedRowsCount)
     {
       Result result = ExecuteDeleteStatement(statement);
-      Assert.AreEqual(expectedRowsCount, CountRows());
+      Assert.That(CountRows(), Is.EqualTo(expectedRowsCount));
     }
 
     [Test]
@@ -101,17 +101,17 @@ namespace MySqlX.Data.Tests.RelationalTests
     public void DeleteWithInOperator()
     {
       Table table = testSchema.GetTable("test");
-      Assert.AreEqual(10, CountRows());
+      Assert.That(CountRows(), Is.EqualTo(10));
 
-      Assert.AreEqual(2, ExecuteDeleteStatement(table.Delete().Where("id IN (1,2)")).AffectedItemsCount);
-      Assert.AreEqual(8, CountRows());
+      Assert.That(ExecuteDeleteStatement(table.Delete().Where("id IN (1,2)")).AffectedItemsCount, Is.EqualTo(2));
+      Assert.That(CountRows(), Is.EqualTo(8));
 
       Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("a IN [3]")));
       Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("3 IN a")));
       Assert.Throws<MySqlException>(() => ExecuteDeleteStatement(table.Delete().Where("age IN [3]")));
 
-      Assert.AreEqual(1, ExecuteDeleteStatement(table.Delete().Where("age IN (3)")).AffectedItemsCount);
-      Assert.AreEqual(7, CountRows());
+      Assert.That(ExecuteDeleteStatement(table.Delete().Where("age IN (3)")).AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(CountRows(), Is.EqualTo(7));
     }
   }
 }

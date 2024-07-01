@@ -54,12 +54,12 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE VIEW view2 AS select *, 1 from test");
 
       List<Table> tables = testSchema.GetTables();
-      Assert.AreEqual(2, tables.Count);
+      Assert.That(tables.Count, Is.EqualTo(2));
 
       Table view = tables.First(i => i.IsView);
-      Assert.AreEqual("view2", view.Name);
+      Assert.That(view.Name, Is.EqualTo("view2"));
       MySqlException ex = Assert.Throws<MySqlException>(() => ExecuteInsertStatement(view.Insert().Values(1)));
-      Assert.AreEqual("Column '1' is not updatable", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Column '1' is not updatable"));
     }
 
     [Test]
@@ -70,8 +70,8 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       Table table = testSchema.GetTable("test");
       Table view = testSchema.GetTable("view1");
-      Assert.True(view.IsView);
-      Assert.False(table.IsView);
+      Assert.That(view.IsView);
+      Assert.That(table.IsView, Is.False);
 
       ExecuteSQL("DROP VIEW view1");
     }
@@ -100,13 +100,13 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE VIEW view2 AS select * from test.test2");
 
       var tables = testSchema.GetTables();
-      Assert.AreEqual(true, tables.Count == 4, "Match being done");
-      Assert.AreEqual(2, tables.Count(i => !i.IsView), "Match being done when isview not true");
-      Assert.AreEqual(2, tables.Count(i => i.IsView), "Match being done when isview true");
+      Assert.That(tables.Count == 4, Is.EqualTo(true), "Match being done");
+      Assert.That(tables.Count(i => !i.IsView), Is.EqualTo(2), "Match being done when isview not true");
+      Assert.That(tables.Count(i => i.IsView), Is.EqualTo(2), "Match being done when isview true");
       List<Collection> colls = testSchema.GetCollections();
-      Assert.AreEqual(1, colls.Count, "Match being done");
+      Assert.That(colls.Count, Is.EqualTo(1), "Match being done");
       var view1 = testSchema.GetTable("view1");
-      Assert.True(view1.IsView);
+      Assert.That(view1.IsView);
 
       //Valid Scenario-1
       view1.Select().Execute();
@@ -125,7 +125,7 @@ namespace MySqlX.Data.Tests.RelationalTests
           "CREATE VIEW myView AS SELECT a.ID1 as a_tID,b.ID2 as b_tID, a.firstname as a_firstname, " +
           "b.lastname as b_lastname FROM test1 a JOIN test2 b ON a.ID1=b.ID2;");
       var joinedview = testSchema.GetTable("myView");
-      Assert.True(joinedview.IsView);
+      Assert.That(joinedview.IsView);
 
       joinedview.Select().Execute();
       result = joinedview.Update().Set("a_firstname", "Peter").Where("a_tID=1").Execute();
@@ -137,7 +137,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       //Valid View - Invalid Select/Insert/Update Statements-Scenario-3
       var view2 = testSchema.GetTable("view2");
-      Assert.True(view2.IsView);
+      Assert.That(view2.IsView);
 
       Assert.Throws<MySqlException>(() => view2.Select("id2", "age").Execute());
 
@@ -148,7 +148,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       view2.Select().Execute();
       var res = view2.Delete().Where("id2=100").Execute();
-      Assert.AreEqual(0, res.AffectedItemsCount, "View2-Not Possible to remove an invalid record");
+      Assert.That(res.AffectedItemsCount, Is.EqualTo(0), "View2-Not Possible to remove an invalid record");
 
       //View Doesn't Exist-Scenario-4
       var view3 = testSchema.GetTable("view3");
@@ -160,7 +160,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       //View Passed as Null-Scenario-6
       var view4 = testSchema.GetTable("test1");
-      Assert.IsFalse(view4.IsView);
+      Assert.That(view4.IsView, Is.False);
 
       //Change the query processing env-Scenario-7
       ExecuteSQL("SET sql_mode = '';");
@@ -187,14 +187,14 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE VIEW view2 AS select * from test.test2");
       ExecuteSQL("SELECT * FROM view2");
       var tables = testSchema.GetTables();
-      Assert.True(tables.Count >= 4, "Match being done");
-      Assert.AreEqual(2, tables.Count(i => !i.IsView), "Match being done when isview not true");
-      Assert.AreEqual(2, tables.Count(i => i.IsView), "Match being done when isview true");
+      Assert.That(tables.Count >= 4, "Match being done");
+      Assert.That(tables.Count(i => !i.IsView), Is.EqualTo(2), "Match being done when isview not true");
+      Assert.That(tables.Count(i => i.IsView), Is.EqualTo(2), "Match being done when isview true");
       List<Collection> colls = testSchema.GetCollections();
-      Assert.AreEqual(1, colls.Count, "Match being done");
+      Assert.That(colls.Count, Is.EqualTo(1), "Match being done");
 
       var view1 = tables[2];
-      Assert.True(view1.IsView);
+      Assert.That(view1.IsView);
       //Valid Scenario-1
       view1.Select().Execute();
 
@@ -213,7 +213,7 @@ namespace MySqlX.Data.Tests.RelationalTests
           "CREATE VIEW myView AS SELECT a.ID1 as a_tID,b.ID2 as b_tID, a.firstname as a_firstname, " +
           "b.lastname as b_lastname FROM test1 a JOIN test2 b ON a.ID1=b.ID2;");
       var joinedview = testSchema.GetTables();
-      Assert.True(joinedview[0].IsView);
+      Assert.That(joinedview[0].IsView);
       joinedview[0].Select().Execute();
       result = joinedview[0].Update().Set("a_firstname", "Peter").Where("a_tID=1").Execute();
       result = joinedview[0].Update().Set("a_firstname", "Rob").Where("a_tID=1").Execute();
@@ -225,7 +225,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("DROP VIEW " + joinedview[0].Name);
       //Valid View - Invalid Select/Insert/Update Statements-Scenario-3
       var view2 = testSchema.GetTables();
-      Assert.True(view2[3].IsView);
+      Assert.That(view2[3].IsView);
 
       Assert.Throws<MySqlException>(() => view2[3].Select("id2", "age").Execute());
 
@@ -238,7 +238,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       view2[3].Select().Execute();
       var res = view2[3].Delete().Where("id2=100").Execute();
       //WL11843-Core API v1 alignment Changes
-      Assert.AreEqual(0, res.AffectedItemsCount);
+      Assert.That(res.AffectedItemsCount, Is.EqualTo(0));
 
       //Change the query processing env-Scenario-5
       ExecuteSQL("SET sql_mode = '';");
@@ -250,7 +250,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("DROP VIEW view2");
       //GetTables when there no tables/views -Scenario-4
       var view3 = testSchema.GetTables();
-      Assert.AreEqual(0, view3.Count());
+      Assert.That(view3.Count(), Is.EqualTo(0));
     }
     #endregion WL14389
 

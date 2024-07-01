@@ -68,25 +68,25 @@ namespace MySql.Data.MySqlClient.Tests
       cmd = new MySqlCommand("SELECT id FROM Test WHERE id<50; SELECT * FROM Test WHERE id >= 50;", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.NotNull(reader);
-        Assert.True(reader.HasRows);
-        Assert.True(reader.Read());
-        Assert.AreEqual(1, reader.FieldCount);
-        Assert.True(reader.NextResult());
-        Assert.True(reader.HasRows);
-        Assert.AreEqual(5, reader.FieldCount);
+        Assert.That(reader, Is.Not.Null);
+        Assert.That(reader.HasRows);
+        Assert.That(reader.Read());
+        Assert.That(reader.FieldCount, Is.EqualTo(1));
+        Assert.That(reader.NextResult());
+        Assert.That(reader.HasRows);
+        Assert.That(reader.FieldCount, Is.EqualTo(5));
       }
 
       // now do it again
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.NotNull(reader);
-        Assert.True(reader.HasRows);
-        Assert.True(reader.Read());
-        Assert.AreEqual(1, reader.FieldCount);
-        Assert.True(reader.NextResult());
-        Assert.True(reader.HasRows);
-        Assert.AreEqual(5, reader.FieldCount);
+        Assert.That(reader, Is.Not.Null);
+        Assert.That(reader.HasRows);
+        Assert.That(reader.Read());
+        Assert.That(reader.FieldCount, Is.EqualTo(1));
+        Assert.That(reader.NextResult());
+        Assert.That(reader.HasRows);
+        Assert.That(reader.FieldCount, Is.EqualTo(5));
       }
     }
 
@@ -107,26 +107,26 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
 
         long sizeBytes = reader.GetBytes(4, 0, null, 0, 0);
-        Assert.AreEqual(len, sizeBytes);
+        Assert.That(sizeBytes, Is.EqualTo(len));
 
         byte[] buff1 = new byte[len / 2];
         byte[] buff2 = new byte[len - (len / 2)];
         long buff1cnt = reader.GetBytes(4, 0, buff1, 0, len / 2);
         long buff2cnt = reader.GetBytes(4, buff1cnt, buff2, 0, buff2.Length);
-        Assert.AreEqual(buff1.Length, buff1cnt);
-        Assert.AreEqual(buff2.Length, buff2cnt);
+        Assert.That(buff1cnt, Is.EqualTo(buff1.Length));
+        Assert.That(buff2cnt, Is.EqualTo(buff2.Length));
 
         for (int i = 0; i < buff1.Length; i++)
-          Assert.AreEqual(bytes[i], buff1[i]);
+          Assert.That(buff1[i], Is.EqualTo(bytes[i]));
 
         for (int i = 0; i < buff2.Length; i++)
-          Assert.AreEqual(bytes[buff1.Length + i], buff2[i]);
+          Assert.That(buff2[i], Is.EqualTo(bytes[buff1.Length + i]));
       }
 
       //  now check with sequential access
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SequentialAccess))
       {
-        Assert.True(reader.Read());
+        Assert.That(reader.Read());
         int mylen = len;
         byte[] buff = new byte[8192];
         int startIndex = 0;
@@ -134,9 +134,9 @@ namespace MySql.Data.MySqlClient.Tests
         {
           int readLen = Math.Min(mylen, buff.Length);
           int retVal = (int)reader.GetBytes(4, startIndex, buff, 0, readLen);
-          Assert.AreEqual(readLen, retVal);
+          Assert.That(retVal, Is.EqualTo(readLen));
           for (int i = 0; i < readLen; i++)
-            Assert.AreEqual(bytes[startIndex + i], buff[i]);
+            Assert.That(buff[i], Is.EqualTo(bytes[startIndex + i]));
           startIndex += readLen;
           mylen -= readLen;
         }
@@ -155,10 +155,10 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SingleResult))
       {
         bool result = reader.Read();
-        Assert.True(result);
+        Assert.That(result);
 
         result = reader.NextResult();
-        Assert.False(result);
+        Assert.That(result, Is.False);
       }
     }
 
@@ -180,23 +180,23 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         DataTable dt = reader.GetSchemaTable();
-        Assert.True(true == (Boolean)dt.Rows[0]["IsAutoIncrement"], "Checking auto increment");
-        Assert.False((bool)dt.Rows[0]["IsUnique"], "Checking IsUnique");
-        Assert.True((bool)dt.Rows[0]["IsKey"]);
-        Assert.True(false == (Boolean)dt.Rows[0]["AllowDBNull"], "Checking AllowDBNull");
-        Assert.True(false == (Boolean)dt.Rows[1]["AllowDBNull"], "Checking AllowDBNull");
-        Assert.AreEqual(255, dt.Rows[1]["ColumnSize"]);
-        Assert.AreEqual(40, dt.Rows[2]["ColumnSize"]);
+        Assert.That(true == (Boolean)dt.Rows[0]["IsAutoIncrement"], "Checking auto increment");
+        Assert.That((bool)dt.Rows[0]["IsUnique"], Is.False, "Checking IsUnique");
+        Assert.That((bool)dt.Rows[0]["IsKey"]);
+        Assert.That(false == (Boolean)dt.Rows[0]["AllowDBNull"], "Checking AllowDBNull");
+        Assert.That(false == (Boolean)dt.Rows[1]["AllowDBNull"], "Checking AllowDBNull");
+        Assert.That(dt.Rows[1]["ColumnSize"], Is.EqualTo(255));
+        Assert.That(dt.Rows[2]["ColumnSize"], Is.EqualTo(40));
 
         // udec column
-        Assert.AreEqual(21, dt.Rows[5]["ColumnSize"]);
-        Assert.AreEqual(20, dt.Rows[5]["NumericPrecision"]);
-        Assert.AreEqual(6, dt.Rows[5]["NumericScale"]);
+        Assert.That(dt.Rows[5]["ColumnSize"], Is.EqualTo(21));
+        Assert.That(dt.Rows[5]["NumericPrecision"], Is.EqualTo(20));
+        Assert.That(dt.Rows[5]["NumericScale"], Is.EqualTo(6));
 
         // dec column
-        Assert.AreEqual(46, dt.Rows[6]["ColumnSize"]);
-        Assert.AreEqual(44, dt.Rows[6]["NumericPrecision"]);
-        Assert.AreEqual(3, dt.Rows[6]["NumericScale"]);
+        Assert.That(dt.Rows[6]["ColumnSize"], Is.EqualTo(46));
+        Assert.That(dt.Rows[6]["NumericPrecision"], Is.EqualTo(44));
+        Assert.That(dt.Rows[6]["NumericScale"], Is.EqualTo(3));
       }
     }
 
@@ -212,9 +212,9 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", c2);
         using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.CloseConnection))
         {
-          Assert.True(reader.Read());
+          Assert.That(reader.Read());
           reader.Close();
-          Assert.True(c2.State == ConnectionState.Closed);
+          Assert.That(c2.State == ConnectionState.Closed);
         }
       }
     }
@@ -230,18 +230,18 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
       {
-        Assert.True(reader.Read(), "First read");
-        Assert.False(reader.Read(), "Second read");
-        Assert.False(reader.NextResult(), "Trying NextResult");
+        Assert.That(reader.Read(), "First read");
+        Assert.That(reader.Read(), Is.False, "Second read");
+        Assert.That(reader.NextResult(), Is.False, "Trying NextResult");
       }
 
       cmd.CommandText = "SELECT * FROM Test where id=1";
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
       {
-        Assert.True(reader.Read());
-        Assert.AreEqual("test1", reader.GetString(1));
-        Assert.False(reader.Read());
-        Assert.False(reader.NextResult());
+        Assert.That(reader.Read());
+        Assert.That(reader.GetString(1), Is.EqualTo("test1"));
+        Assert.That(reader.Read(), Is.False);
+        Assert.That(reader.NextResult(), Is.False);
       }
     }
 
@@ -256,23 +256,23 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test LIMIT 2", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
       {
-        Assert.True(reader.Read(), "First read");
-        Assert.False(reader.Read(), "Second read");
-        Assert.False(reader.NextResult(), "Trying NextResult");
+        Assert.That(reader.Read(), "First read");
+        Assert.That(reader.Read(), Is.False, "Second read");
+        Assert.That(reader.NextResult(), Is.False, "Trying NextResult");
       }
 
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
       {
-        Assert.True(reader.Read(), "First read");
-        Assert.False(reader.Read(), "Second read");
-        Assert.False(reader.NextResult(), "Trying NextResult");
+        Assert.That(reader.Read(), "First read");
+        Assert.That(reader.Read(), Is.False, "Second read");
+        Assert.That(reader.NextResult(), Is.False, "Trying NextResult");
       }
 
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SingleRow))
       {
-        Assert.True(reader.Read(), "First read");
-        Assert.False(reader.Read(), "Second read");
-        Assert.False(reader.NextResult(), "Trying NextResult");
+        Assert.That(reader.Read(), "First read");
+        Assert.That(reader.Read(), Is.False, "Second read");
+        Assert.That(reader.NextResult(), Is.False, "Trying NextResult");
       }
     }
 
@@ -285,11 +285,11 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.True(reader.Read(), "First read");
-        Assert.AreEqual(1, reader.GetInt32(0));
-        Assert.AreEqual("test1", reader.GetString(1));
-        Assert.False(reader.Read(), "Second read");
-        Assert.False(reader.NextResult(), "Trying NextResult");
+        Assert.That(reader.Read(), "First read");
+        Assert.That(reader.GetInt32(0), Is.EqualTo(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("test1"));
+        Assert.That(reader.Read(), Is.False, "Second read");
+        Assert.That(reader.NextResult(), Is.False, "Trying NextResult");
       }
     }
 
@@ -305,25 +305,25 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual(1, reader.GetValue(0));
-        Assert.AreEqual("Test", reader.GetValue(1));
-        Assert.AreEqual("Test", reader.GetString(1));
-        Assert.AreEqual(DBNull.Value, reader.GetValue(2));
+        Assert.That(reader.GetValue(0), Is.EqualTo(1));
+        Assert.That(reader.GetValue(1), Is.EqualTo("Test"));
+        Assert.That(reader.GetString(1), Is.EqualTo("Test"));
+        Assert.That(reader.GetValue(2), Is.EqualTo(DBNull.Value));
         reader.Read();
-        Assert.AreEqual(2, reader.GetValue(0));
-        Assert.AreEqual(DBNull.Value, reader.GetValue(1));
+        Assert.That(reader.GetValue(0), Is.EqualTo(2));
+        Assert.That(reader.GetValue(1), Is.EqualTo(DBNull.Value));
         Exception ex = Assert.Throws<SqlNullValueException>(() => reader.GetString(1));
-        Assert.AreEqual("Data is Null. This method or property cannot be called on Null values.", ex.Message);
-        Assert.False(reader.IsDBNull(2));
+        Assert.That(ex.Message, Is.EqualTo("Data is Null. This method or property cannot be called on Null values."));
+        Assert.That(reader.IsDBNull(2), Is.False);
         reader.Read();
-        Assert.AreEqual(3, reader.GetValue(0));
-        Assert.AreEqual("Test2", reader.GetValue(1));
-        Assert.AreEqual("Test2", reader.GetString(1));
-        Assert.AreEqual(DBNull.Value, reader.GetValue(2));
+        Assert.That(reader.GetValue(0), Is.EqualTo(3));
+        Assert.That(reader.GetValue(1), Is.EqualTo("Test2"));
+        Assert.That(reader.GetString(1), Is.EqualTo("Test2"));
+        Assert.That(reader.GetValue(2), Is.EqualTo(DBNull.Value));
         ex = Assert.Throws<SqlNullValueException>(() => reader.GetMySqlDateTime(2));
-        Assert.AreEqual("Data is Null. This method or property cannot be called on Null values.", ex.Message);
-        Assert.False(reader.Read());
-        Assert.False(reader.NextResult());
+        Assert.That(ex.Message, Is.EqualTo("Data is Null. This method or property cannot be called on Null values."));
+        Assert.That(reader.Read(), Is.False);
+        Assert.That(reader.NextResult(), Is.False);
       }
     }
 
@@ -352,16 +352,16 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SequentialAccess))
       {
-        Assert.True(reader.Read());
-        Assert.False(reader.IsDBNull(0));
+        Assert.That(reader.Read());
+        Assert.That(reader.IsDBNull(0), Is.False);
         int i = reader.GetInt32(0);
         string s = reader.GetString(1);
-        Assert.AreEqual(1, i);
-        Assert.AreEqual("test1", s);
+        Assert.That(i, Is.EqualTo(1));
+        Assert.That(s, Is.EqualTo("test1"));
 
         // this next line should throw an exception
         Exception ex = Assert.Throws<MySqlException>(() => i = reader.GetInt32(0));
-        Assert.AreEqual("Invalid attempt to read a prior column using SequentialAccess", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Invalid attempt to read a prior column using SequentialAccess"));
       }
     }
 
@@ -377,7 +377,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         string s = reader["t1"].ToString();
-        Assert.AreEqual("Text value", s);
+        Assert.That(s, Is.EqualTo("Text value"));
       }
     }
 
@@ -408,7 +408,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         char achar = reader.GetChar(1);
-        Assert.AreEqual('a', achar);
+        Assert.That(achar, Is.EqualTo('a'));
       }
     }
 
@@ -419,12 +419,12 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test (id,name) VALUES (1,'Test')", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.False(reader.Read());
+        Assert.That(reader.Read(), Is.False);
         reader.Close();
 
         cmd.CommandText = "SELECT name FROM Test";
         object v = cmd.ExecuteScalar();
-        Assert.AreEqual("Test", v);
+        Assert.That(v, Is.EqualTo("Test"));
       }
     }
 
@@ -456,69 +456,69 @@ namespace MySql.Data.MySqlClient.Tests
       {
         //First ResultSet, should have 49 rows.
         //SELECT id FROM Test WHERE id<?param1;
-        Assert.True(reader.HasRows);
-        Assert.AreEqual(1, reader.FieldCount);
+        Assert.That(reader.HasRows);
+        Assert.That(reader.FieldCount, Is.EqualTo(1));
         for (int i = 0; i < 49; i++)
         {
-          Assert.True(reader.Read());
+          Assert.That(reader.Read());
         }
-        Assert.False(reader.Read());
+        Assert.That(reader.Read(), Is.False);
 
         //Second ResultSet, should have no rows.
         //SELECT id,name FROM Test WHERE id = -50;
-        Assert.True(reader.NextResult());
-        Assert.False(reader.HasRows);
-        Assert.AreEqual(2, reader.FieldCount);
-        Assert.False(reader.Read());
+        Assert.That(reader.NextResult());
+        Assert.That(reader.HasRows, Is.False);
+        Assert.That(reader.FieldCount, Is.EqualTo(2));
+        Assert.That(reader.Read(), Is.False);
 
 
         //Third ResultSet, should have 51 rows.
         //SELECT * FROM Test WHERE id >= ?param1;
-        Assert.True(reader.NextResult());
-        Assert.True(reader.HasRows);
-        Assert.AreEqual(5, reader.FieldCount);
+        Assert.That(reader.NextResult());
+        Assert.That(reader.HasRows);
+        Assert.That(reader.FieldCount, Is.EqualTo(5));
         for (int i = 0; i < 51; i++)
         {
-          Assert.True(reader.Read());
+          Assert.That(reader.Read());
         }
-        Assert.False(reader.Read());
+        Assert.That(reader.Read(), Is.False);
 
 
         //Fourth ResultSet, should have no rows.
         //SELECT id, dt, b1 FROM Test WHERE id = -50;
-        Assert.True(reader.NextResult());
-        Assert.False(reader.HasRows);
-        Assert.AreEqual(3, reader.FieldCount); //Will Fail if uncommented expected 3 returned 5
-        Assert.False(reader.Read());
+        Assert.That(reader.NextResult());
+        Assert.That(reader.HasRows, Is.False);
+        Assert.That(reader.FieldCount, Is.EqualTo(3)); //Will Fail if uncommented expected 3 returned 5
+        Assert.That(reader.Read(), Is.False);
 
         //Fifth ResultSet, should have no rows.
         //SELECT b1 FROM Test WHERE id = -50;
-        Assert.True(reader.NextResult());
-        Assert.False(reader.HasRows);
-        Assert.AreEqual(1, reader.FieldCount); //Will Fail if uncommented expected 1 returned 5
-        Assert.False(reader.Read());
+        Assert.That(reader.NextResult());
+        Assert.That(reader.HasRows, Is.False);
+        Assert.That(reader.FieldCount, Is.EqualTo(1)); //Will Fail if uncommented expected 1 returned 5
+        Assert.That(reader.Read(), Is.False);
 
         //Sixth ResultSet, should have 49 rows.
         //SELECT id, dt, b1 FROM Test WHERE id < ?param1;
-        Assert.True(reader.NextResult());
-        Assert.True(reader.HasRows);
-        Assert.AreEqual(3, reader.FieldCount); //Will Fail if uncommented expected 3 returned 5
+        Assert.That(reader.NextResult());
+        Assert.That(reader.HasRows);
+        Assert.That(reader.FieldCount, Is.EqualTo(3)); //Will Fail if uncommented expected 3 returned 5
         for (int i = 0; i < 49; i++)
         {
-          Assert.True(reader.Read());
+          Assert.That(reader.Read());
         }
-        Assert.False(reader.Read());
+        Assert.That(reader.Read(), Is.False);
 
         //Seventh ResultSet, should have 51 rows.
         //SELECT b1 FROM Test WHERE id >= ?param1;
-        Assert.True(reader.NextResult());
-        Assert.True(reader.HasRows);
-        Assert.AreEqual(1, reader.FieldCount); //Will Fail if uncommented expected 1 returned 5
+        Assert.That(reader.NextResult());
+        Assert.That(reader.HasRows);
+        Assert.That(reader.FieldCount, Is.EqualTo(1)); //Will Fail if uncommented expected 1 returned 5
         for (int i = 0; i < 51; i++)
         {
-          Assert.True(reader.Read());
+          Assert.That(reader.Read());
         }
-        Assert.False(reader.Read());
+        Assert.That(reader.Read(), Is.False);
       }
     }
 
@@ -539,25 +539,25 @@ namespace MySql.Data.MySqlClient.Tests
 
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.NotNull(reader);
-        Assert.True(reader.HasRows);
-        Assert.True(reader.Read());
-        Assert.AreEqual(1, reader.FieldCount);
-        Assert.True(reader.NextResult());
-        Assert.True(reader.HasRows);
-        Assert.AreEqual(5, reader.FieldCount);
+        Assert.That(reader, Is.Not.Null);
+        Assert.That(reader.HasRows);
+        Assert.That(reader.Read());
+        Assert.That(reader.FieldCount, Is.EqualTo(1));
+        Assert.That(reader.NextResult());
+        Assert.That(reader.HasRows);
+        Assert.That(reader.FieldCount, Is.EqualTo(5));
       }
 
       // now do it again
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.NotNull(reader);
-        Assert.True(reader.HasRows);
-        Assert.True(reader.Read());
-        Assert.AreEqual(1, reader.FieldCount);
-        Assert.True(reader.NextResult());
-        Assert.True(reader.HasRows);
-        Assert.AreEqual(5, reader.FieldCount);
+        Assert.That(reader, Is.Not.Null);
+        Assert.That(reader.HasRows);
+        Assert.That(reader.Read());
+        Assert.That(reader.FieldCount, Is.EqualTo(1));
+        Assert.That(reader.NextResult());
+        Assert.That(reader.HasRows);
+        Assert.That(reader.FieldCount, Is.EqualTo(5));
       }
     }
 
@@ -572,7 +572,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         reader.Close();
-        Assert.AreEqual(-1, reader.RecordsAffected);
+        Assert.That(reader.RecordsAffected, Is.EqualTo(-1));
       }
     }
 
@@ -591,7 +591,7 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.Throws<MySqlException>(() => reader = cmd.ExecuteReader());
       else
       {
-        CollectionAssert.IsEmpty(reader = cmd.ExecuteReader());
+        Assert.That(reader = cmd.ExecuteReader(), Is.Empty);
         reader.Close();
       }
     }
@@ -629,7 +629,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         DataTable dt = reader.GetSchemaTable();
-        Assert.Null(dt);
+        Assert.That(dt, Is.Null);
       }
     }
 
@@ -645,8 +645,8 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.True(reader.Read());
-        Assert.False(reader.IsDBNull(1));
+        Assert.That(reader.Read());
+        Assert.That(reader.IsDBNull(1), Is.False);
       }
     }
 
@@ -691,7 +691,7 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", c2);
         using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.CloseConnection))
         {
-          Assert.True(reader.Read());
+          Assert.That(reader.Read());
         }
       }
     }
@@ -710,26 +710,26 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("select * from doesnotexist", Connection);
       MySqlDataReader reader;
       Exception ex = Assert.Throws<MySqlException>(() => reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly));
-      StringAssert.Contains(".doesnotexist' doesn't exist", ex.Message);
+      Assert.That(ex.Message, Does.Contain(".doesnotexist' doesn't exist"));
 
       // Check that failed ExecuteReader did not leave SQL_SELECT_LIMIT
       // set to 0.
       cmd.CommandText = "select now()";
       reader = cmd.ExecuteReader();
-      Assert.True(reader.Read());
+      Assert.That(reader.Read());
       reader.Close();
 
 
       // Check that CommandBehavior.SchemaOnly does not return rows
       reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly);
-      Assert.False(reader.Read());
+      Assert.That(reader.Read(), Is.False);
       reader.Close();
 
 
       reader = cmd.ExecuteReader();
       // Check that prior setting of CommandBehavior did not 
       // leave SQL_SELECT_LIMIT set to 0
-      Assert.True(reader.Read());
+      Assert.That(reader.Read());
       reader.Close();
     }
 
@@ -748,8 +748,8 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         string name1 = reader.GetString(0);
         string name2 = reader.GetString(1);
-        Assert.AreEqual(name1, name2);
-        Assert.AreEqual("test", name1);
+        Assert.That(name2, Is.EqualTo(name1));
+        Assert.That(name1, Is.EqualTo("test"));
       }
 
       cmd.CommandText = "SELECT 'a' AS XYZ, 'b' as Xyz";
@@ -773,7 +773,7 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         Type t = reader.GetFieldType("c1");
         Exception ex = Assert.Throws<IndexOutOfRangeException>(() => reader.GetOrdinal("nocol"));
-        Assert.True(ex.Message.IndexOf("nocol") != -1);
+        Assert.That(ex.Message.IndexOf("nocol") != -1);
       }
     }
 
@@ -802,7 +802,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (var stream = reader.GetStream(0))
         {
           string result = UTF8Encoding.UTF8.GetString(((MemoryStream)stream).ToArray());
-          StringAssert.AreEqualIgnoringCase(str, result);
+          Assert.That(result, Is.EqualTo(str).IgnoreCase);
         }
       }
     }
@@ -835,12 +835,12 @@ namespace MySql.Data.MySqlClient.Tests
       using (var reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual(1, reader.GetFieldValue<int>(0));
-        Assert.AreEqual(1.23, reader.GetFieldValue<decimal>(1));
-        Assert.AreEqual("test", reader.GetFieldValue<string>(2));
-        Assert.AreEqual(dateTime.ToShortDateString(), reader.GetFieldValue<DateTime>(3).ToShortDateString());
-        Assert.AreEqual(true, reader.GetFieldValue<bool>(4));
-        StringAssert.AreEqualIgnoringCase(str, Encoding.UTF8.GetString(((MemoryStream)reader.GetFieldValue<Stream>(5)).ToArray()));
+        Assert.That(reader.GetFieldValue<int>(0), Is.EqualTo(1));
+        Assert.That(reader.GetFieldValue<decimal>(1), Is.EqualTo(1.23));
+        Assert.That(reader.GetFieldValue<string>(2), Is.EqualTo("test"));
+        Assert.That(reader.GetFieldValue<DateTime>(3).ToShortDateString(), Is.EqualTo(dateTime.ToShortDateString()));
+        Assert.That(reader.GetFieldValue<bool>(4), Is.EqualTo(true));
+        Assert.That(Encoding.UTF8.GetString(((MemoryStream)reader.GetFieldValue<Stream>(5)).ToArray()), Is.EqualTo(str).IgnoreCase);
       }
     }
   }

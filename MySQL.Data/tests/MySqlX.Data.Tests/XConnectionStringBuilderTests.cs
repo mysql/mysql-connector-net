@@ -57,7 +57,7 @@ namespace MySqlX.Data.Tests
     public void SessionCanBeOpened()
     {
       using (var session = MySQLX.GetSession(_xConnectionURI))
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
     }
 
     [Test]
@@ -66,16 +66,16 @@ namespace MySqlX.Data.Tests
       if (!Platform.IsWindows()) Assert.Ignore("Check for Linux OS");
 
       using (var session = MySQLX.GetSession(_xConnectionURI))
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
 
       using (var connection = new MySqlConnection(_connectionStringWithSslMode))
       {
         connection.Open();
-        Assert.AreEqual(ConnectionState.Open, connection.State);
+        Assert.That(connection.State, Is.EqualTo(ConnectionState.Open));
       }
 
       using (var session = MySQLX.GetSession(_xConnectionURI + "?sslca=client.pfx&certificatepassword=pass"))
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
     }
 
 #if !NET452
@@ -87,7 +87,7 @@ namespace MySqlX.Data.Tests
     public void ValidateTlsVersionOptionAsString(string options, string result)
     {
       MySqlXConnectionStringBuilder builder = new MySqlXConnectionStringBuilder(_connectionString + options);
-      Assert.AreEqual(result, builder.TlsVersion);
+      Assert.That(builder.TlsVersion, Is.EqualTo(result));
     }
 
 #if !NET452
@@ -101,7 +101,7 @@ namespace MySqlX.Data.Tests
       MySqlXConnectionStringBuilder builder = new MySqlXConnectionStringBuilder(_connectionString);
 
       builder.TlsVersion = options;
-      Assert.AreEqual(result, builder.TlsVersion);
+      Assert.That(builder.TlsVersion, Is.EqualTo(result));
     }
 
 #if !NET452
@@ -122,7 +122,7 @@ namespace MySqlX.Data.Tests
       if (result != null)
       {
         builder.TlsVersion = options;
-        StringAssert.AreEqualIgnoringCase(result, builder.TlsVersion);
+        Assert.That(builder.TlsVersion, Is.EqualTo(result).IgnoreCase);
       }
       else
         Assert.Throws<ArgumentException>(() => { builder.TlsVersion = options; });
@@ -142,7 +142,7 @@ namespace MySqlX.Data.Tests
         for (int j = 0; j < values.GetLength(1); j++)
         {
           var builder = new MySqlXConnectionStringBuilder(String.Format("server=localhost;auth={0}", values[i, j]));
-          Assert.AreEqual((MySqlAuthenticationMode)(i + 1), builder.Auth);
+          Assert.That(builder.Auth, Is.EqualTo((MySqlAuthenticationMode)(i + 1)));
         }
       }
     }
@@ -154,7 +154,7 @@ namespace MySqlX.Data.Tests
       foreach (var value in values)
       {
         Exception ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder(String.Format("server=localhost;aUth={0}", value)));
-        Assert.AreEqual(String.Format("Value '{0}' is not of the correct type.", value), ex.Message);
+        Assert.That(ex.Message, Is.EqualTo(String.Format("Value '{0}' is not of the correct type.", value)));
       }
     }
 
@@ -171,21 +171,21 @@ namespace MySqlX.Data.Tests
         CompressionAlgorithm = "deflate, lz4",
       };
 
-      Assert.IsTrue(connStringBuilder.ContainsKey("dnssrv"));
-      Assert.IsTrue(connStringBuilder.TryGetValue("dns-srv", out var dnssrv));
-      Assert.AreEqual(connStringBuilder.DnsSrv, (bool)dnssrv);
+      Assert.That(connStringBuilder.ContainsKey("dnssrv"));
+      Assert.That(connStringBuilder.TryGetValue("dns-srv", out var dnssrv));
+      Assert.That((bool)dnssrv, Is.EqualTo(connStringBuilder.DnsSrv));
 
-      Assert.IsTrue(connStringBuilder.ContainsKey("compressionAlgorithms"));
-      Assert.IsTrue(connStringBuilder.TryGetValue("Compression-Algorithms", out var compressionAlgorithm));
-      StringAssert.AreEqualIgnoringCase(connStringBuilder.CompressionAlgorithm, (string)compressionAlgorithm);
+      Assert.That(connStringBuilder.ContainsKey("compressionAlgorithms"));
+      Assert.That(connStringBuilder.TryGetValue("Compression-Algorithms", out var compressionAlgorithm));
+      Assert.That((string)compressionAlgorithm, Is.EqualTo(connStringBuilder.CompressionAlgorithm).IgnoreCase);
 
       // Default value
-      Assert.IsTrue(connStringBuilder.TryGetValue("connection-attributes", out var connectionattributes));
-      Assert.AreEqual(connStringBuilder.GetOption("connection-attributes").DefaultValue, connectionattributes);
+      Assert.That(connStringBuilder.TryGetValue("connection-attributes", out var connectionattributes));
+      Assert.That(connectionattributes, Is.EqualTo(connStringBuilder.GetOption("connection-attributes").DefaultValue));
 
       // Non existing option
-      Assert.IsFalse(connStringBuilder.TryGetValue("foo", out var nonexistingoption));
-      Assert.IsNull(nonexistingoption);
+      Assert.That(connStringBuilder.TryGetValue("foo", out var nonexistingoption), Is.False);
+      Assert.That(nonexistingoption, Is.Null);
     }
   }
 }

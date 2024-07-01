@@ -51,9 +51,9 @@ namespace MySql.EntityFrameworkCore.Design.Tests
       var dtAttribute = runtimeAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>();
       var dtType = GetDesignTimeServicesType();
 
-      Assert.NotNull(dtType);
-      Assert.NotNull(dtAttribute);
-      Assert.AreEqual(dtType.FullName, dtAttribute?.TypeName);
+      Assert.That(dtType, Is.Not.Null);
+      Assert.That(dtAttribute, Is.Not.Null);
+      Assert.That(dtAttribute?.TypeName, Is.EqualTo(dtType.FullName));
     }
   }
 }

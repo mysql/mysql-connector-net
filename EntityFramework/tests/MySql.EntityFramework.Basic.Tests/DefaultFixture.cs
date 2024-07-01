@@ -147,14 +147,14 @@ namespace MySql.Data.EntityFramework.Tests
     {
       var exp = Regex.Replace(expected, @"\s", string.Empty);
       var act = Regex.Replace(actual, @"\s", string.Empty);
-      Assert.AreEqual(act, exp);
+      Assert.That(exp, Is.EqualTo(act));
     }
 
     public static void CheckSqlContains(string actual, string expected)
     {
       var exp = Regex.Replace(expected, @"\s", string.Empty);
       var act = Regex.Replace(actual, @"\s", string.Empty);
-      Assert.True(act.Contains(exp));
+      Assert.That(act.Contains(exp));
     }
 
     public DefaultContext GetDefaultContext()

@@ -61,7 +61,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandText = "SELECT name FROM Test WHERE id=1";
       string name = (string)cmd.ExecuteScalar();
 
-      Assert.True("test\"name\"" == name, "Update result with quotation mark");
+      Assert.That("test\"name\"" == name, "Update result with quotation mark");
     }
 
     #region Async
@@ -74,12 +74,12 @@ namespace MySql.Data.MySqlClient.Tests
       try
       {
         int result = await MySqlHelper.ExecuteNonQueryAsync(Connection, "call MSHNonQueryAsyncSpTest", null);
-        Assert.AreNotEqual(-1, result);
+        Assert.That(result, Is.Not.EqualTo(-1));
 
         MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM MSHNonQueryAsyncTest;", Connection);
         cmd.CommandType = System.Data.CommandType.Text;
         object cnt = cmd.ExecuteScalar();
-        Assert.AreEqual(100, Convert.ToInt32(cnt));
+        Assert.That(Convert.ToInt32(cnt), Is.EqualTo(100));
       }
       finally
       {
@@ -101,34 +101,34 @@ namespace MySql.Data.MySqlClient.Tests
         string sql = "SELECT MSHDataSetAsyncTable1.key FROM MSHDataSetAsyncTable1 WHERE MSHDataSetAsyncTable1.key=1; " +
                      "SELECT MSHDataSetAsyncTable2.key FROM MSHDataSetAsyncTable2 WHERE MSHDataSetAsyncTable2.key=1";
         DataSet ds = await MySqlHelper.ExecuteDatasetAsync(Connection, sql, null);
-        Assert.AreEqual(2, ds.Tables.Count);
-        Assert.AreEqual(1, ds.Tables[0].Rows.Count);
-        Assert.AreEqual(1, ds.Tables[1].Rows.Count);
-        Assert.AreEqual(1, ds.Tables[0].Rows[0]["key"]);
-        Assert.AreEqual(1, ds.Tables[1].Rows[0]["key"]);
+        Assert.That(ds.Tables.Count, Is.EqualTo(2));
+        Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(1));
+        Assert.That(ds.Tables[1].Rows.Count, Is.EqualTo(1));
+        Assert.That(ds.Tables[0].Rows[0]["key"], Is.EqualTo(1));
+        Assert.That(ds.Tables[1].Rows[0]["key"], Is.EqualTo(1));
 
         ds = await MySqlHelper.ExecuteDatasetAsync(Connection, sql);
-        Assert.AreEqual(2, ds.Tables.Count);
-        Assert.AreEqual(1, ds.Tables[0].Rows.Count);
-        Assert.AreEqual(1, ds.Tables[1].Rows[0]["key"]);
+        Assert.That(ds.Tables.Count, Is.EqualTo(2));
+        Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(1));
+        Assert.That(ds.Tables[1].Rows[0]["key"], Is.EqualTo(1));
 
         ds = await MySqlHelper.ExecuteDatasetAsync(Connection.ConnectionString, sql, null);
-        Assert.AreEqual(1, ds.Tables[0].Rows.Count);
-        Assert.AreEqual(1, ds.Tables[1].Rows.Count);
-        Assert.AreEqual(1, ds.Tables[0].Rows[0]["key"]);
+        Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(1));
+        Assert.That(ds.Tables[1].Rows.Count, Is.EqualTo(1));
+        Assert.That(ds.Tables[0].Rows[0]["key"], Is.EqualTo(1));
 
         ds = await MySqlHelper.ExecuteDatasetAsync(Connection.ConnectionString, sql);
-        Assert.AreEqual(2, ds.Tables.Count);
-        Assert.AreEqual(1, ds.Tables[0].Rows.Count);
-        Assert.AreEqual(1, ds.Tables[1].Rows[0]["key"]);
+        Assert.That(ds.Tables.Count, Is.EqualTo(2));
+        Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(1));
+        Assert.That(ds.Tables[1].Rows[0]["key"], Is.EqualTo(1));
 
         ds = await MySqlHelper.ExecuteDatasetAsync(Connection.ConnectionString, sql, CancellationToken.None, null);
-        Assert.AreEqual(2, ds.Tables.Count);
-        Assert.AreEqual(1, ds.Tables[0].Rows.Count);
+        Assert.That(ds.Tables.Count, Is.EqualTo(2));
+        Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(1));
 
         ds = await MySqlHelper.ExecuteDatasetAsync(Connection, sql, CancellationToken.None);
-        Assert.AreEqual(2, ds.Tables.Count);
-        Assert.AreEqual(1, ds.Tables[0].Rows[0]["key"]);
+        Assert.That(ds.Tables.Count, Is.EqualTo(2));
+        Assert.That(ds.Tables[0].Rows[0]["key"], Is.EqualTo(1));
       }
       finally
       {
@@ -147,17 +147,17 @@ namespace MySql.Data.MySqlClient.Tests
       {
         using (MySqlDataReader reader = await MySqlHelper.ExecuteReaderAsync(Connection, "call MSHReaderAsyncSpTest"))
         {
-          Assert.NotNull(reader);
-          Assert.True(reader.Read(), "can read");
-          Assert.True(reader.NextResult());
-          Assert.True(reader.Read());
-          Assert.AreEqual("done", reader.GetString(0));
+          Assert.That(reader, Is.Not.Null);
+          Assert.That(reader.Read(), "can read");
+          Assert.That(reader.NextResult());
+          Assert.That(reader.Read());
+          Assert.That(reader.GetString(0), Is.EqualTo("done"));
           reader.Close();
 
           MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM MSHReaderAsyncTest", Connection);
           cmd.CommandType = CommandType.Text;
           object cnt = cmd.ExecuteScalar();
-          Assert.AreEqual(1, Convert.ToInt32(cnt));
+          Assert.That(Convert.ToInt32(cnt), Is.EqualTo(1));
         }
       }
       finally
@@ -176,7 +176,7 @@ namespace MySql.Data.MySqlClient.Tests
       try
       {
         object result = await MySqlHelper.ExecuteScalarAsync(Connection, "SELECT MSHScalarAsyncTable1.key FROM MSHScalarAsyncTable1 WHERE MSHScalarAsyncTable1.key=1;");
-        Assert.AreEqual(1, int.Parse(result.ToString()));
+        Assert.That(int.Parse(result.ToString()), Is.EqualTo(1));
       }
       finally
       {
@@ -193,7 +193,7 @@ namespace MySql.Data.MySqlClient.Tests
       try
       {
         DataRow result = await MySqlHelper.ExecuteDataRowAsync(Connection.ConnectionString, "SELECT name FROM Test WHERE id=1", null);
-        Assert.AreEqual("name", result[0]);
+        Assert.That(result[0], Is.EqualTo("name"));
 
       }
       finally
@@ -216,7 +216,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlHelper.UpdateDataSet(Connection.ConnectionString, "SELECT * FROM Test", ds, "Test");
       DataRow result = ds.Tables["Test"].Rows[0];
-      Assert.AreEqual("updatedName", result["name"]);
+      Assert.That(result["name"], Is.EqualTo("updatedName"));
     }
 
     [Test]
@@ -235,7 +235,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         await MySqlHelper.UpdateDataSetAsync(Connection.ConnectionString, "SELECT * FROM Test", ds, "Test");
         DataRow result = ds.Tables["Test"].Rows[0];
-        Assert.AreEqual("updatedName", result["name"]);
+        Assert.That(result["name"], Is.EqualTo("updatedName"));
       }
       finally
       {
@@ -252,20 +252,20 @@ namespace MySql.Data.MySqlClient.Tests
 
       DataSet ds = MySqlHelper.ExecuteDataset(Connection, "SELECT * FROM Test");
       Assert.That(ds.Tables, Has.One.Items);
-      Assert.AreEqual(2, ds.Tables[0].Rows.Count);
-      Assert.AreEqual("name", ds.Tables[0].Rows[0][1]);
+      Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(2));
+      Assert.That(ds.Tables[0].Rows[0][1], Is.EqualTo("name"));
 
       MySqlParameter mySqlParameter = new MySqlParameter("@id", 2);
       ds = MySqlHelper.ExecuteDataset(Connection, "SELECT * FROM Test WHERE id = @id", mySqlParameter);
       Assert.That(ds.Tables, Has.One.Items);
-      Assert.AreEqual(1, ds.Tables[0].Rows.Count);
-      Assert.AreEqual("name2", ds.Tables[0].Rows[0][1]);
+      Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(1));
+      Assert.That(ds.Tables[0].Rows[0][1], Is.EqualTo("name2"));
 
       ds = MySqlHelper.ExecuteDataset(Connection.ConnectionString, "SELECT * FROM Test", null);
       Assert.That(ds.Tables, Has.One.Items);
-      Assert.AreEqual(2, ds.Tables[0].Rows.Count);
-      Assert.AreEqual("name", ds.Tables[0].Rows[0][1]);
-      Assert.AreEqual("name2", ds.Tables[0].Rows[1][1]);
+      Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(2));
+      Assert.That(ds.Tables[0].Rows[0][1], Is.EqualTo("name"));
+      Assert.That(ds.Tables[0].Rows[1][1], Is.EqualTo("name2"));
     }
     #endregion
   }

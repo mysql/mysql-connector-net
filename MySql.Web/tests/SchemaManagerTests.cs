@@ -76,12 +76,12 @@ namespace MySql.Web.Tests
         {
           provider.Initialize(null, config);
           if (i < SchemaManager.Version)
-            Assert.False(false, "Should have failed");
+            Assert.That(false, Is.False, "Should have failed");
         }
         catch (ProviderException)
         {
           if (i == SchemaManager.Version)
-            Assert.False(false, "This should not have failed");
+            Assert.That(false, Is.False, "This should not have failed");
         }
       }
     }
@@ -98,14 +98,14 @@ namespace MySql.Web.Tests
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM my_aspnet_schemaversion", Connection);
       object ver = cmd.ExecuteScalar();
-      Assert.AreEqual(4, ver);
+      Assert.That(ver, Is.EqualTo(4));
 
       cmd.CommandText = "SHOW CREATE TABLE my_aspnet_membership";
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
         string createSql = reader.GetString(1);
-        Assert.True(createSql.IndexOf("CHARSET=utf8") != -1);
+        Assert.That(createSql.IndexOf("CHARSET=utf8") != -1);
       }
     }
 
@@ -142,7 +142,7 @@ namespace MySql.Web.Tests
         reader.Read();
         string createTable = reader.GetString(1);
         int index = createTable.IndexOf("COMMENT='1'");
-        Assert.AreNotEqual(-1, index);
+        Assert.That(index, Is.Not.EqualTo(-1));
       }
 
       execSQL(@" ALTER TABLE mysql_Membership 
@@ -153,7 +153,7 @@ namespace MySql.Web.Tests
         reader.Read();
         string createTable = reader.GetString(1);
         int index = createTable.IndexOf("COMMENT='2'");
-        Assert.AreNotEqual(-1, index);
+        Assert.That(index, Is.Not.EqualTo(-1));
       }
     }
 
@@ -178,84 +178,84 @@ namespace MySql.Web.Tests
       execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user1', 'role1', 'app2')");
       execSQL(@"INSERT INTO mysql_UsersInRoles VALUES ('user2', 'role2', 'app2')");
       LoadSchema(3);
-      Assert.False(TableExists("mysql_membership"));
-      Assert.False(TableExists("mysql_roles"));
-      Assert.False(TableExists("mysql_usersinroles"));
+      Assert.That(!TableExists("mysql_membership"));
+      Assert.That(!TableExists("mysql_roles"));
+      Assert.That(!TableExists("mysql_usersinroles"));
     }
 
     [Test]
     public void CheckAppsUpgrade()
     {
       DataTable apps = FillTable("SELECT * FROM my_aspnet_applications");
-      Assert.AreEqual(2, apps.Rows.Count);
-      Assert.AreEqual(1, apps.Rows[0]["id"]);
-      Assert.AreEqual("app1", apps.Rows[0]["name"]);
-      Assert.AreEqual(2, apps.Rows[1]["id"]);
-      Assert.AreEqual("app2", apps.Rows[1]["name"]);
+      Assert.That(apps.Rows.Count, Is.EqualTo(2));
+      Assert.That(apps.Rows[0]["id"], Is.EqualTo(1));
+      Assert.That(apps.Rows[0]["name"], Is.EqualTo("app1"));
+      Assert.That(apps.Rows[1]["id"], Is.EqualTo(2));
+      Assert.That(apps.Rows[1]["name"], Is.EqualTo("app2"));
     }
 
     [Test]
     public void CheckUsersUpgrade()
     {
       DataTable dt = FillTable("SELECT * FROM my_aspnet_users");
-      Assert.AreEqual(4, dt.Rows.Count);
-      Assert.AreEqual(1, dt.Rows[0]["id"]);
-      Assert.AreEqual(1, dt.Rows[0]["applicationId"]);
-      Assert.AreEqual("user1", dt.Rows[0]["name"]);
-      Assert.AreEqual(2, dt.Rows[1]["id"]);
-      Assert.AreEqual(1, dt.Rows[1]["applicationId"]);
-      Assert.AreEqual("user2", dt.Rows[1]["name"]);
-      Assert.AreEqual(3, dt.Rows[2]["id"]);
-      Assert.AreEqual(2, dt.Rows[2]["applicationId"]);
-      Assert.AreEqual("user1", dt.Rows[2]["name"]);
-      Assert.AreEqual(4, dt.Rows[3]["id"]);
-      Assert.AreEqual(2, dt.Rows[3]["applicationId"]);
-      Assert.AreEqual("user2", dt.Rows[3]["name"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(4));
+      Assert.That(dt.Rows[0]["id"], Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["applicationId"], Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("user1"));
+      Assert.That(dt.Rows[1]["id"], Is.EqualTo(2));
+      Assert.That(dt.Rows[1]["applicationId"], Is.EqualTo(1));
+      Assert.That(dt.Rows[1]["name"], Is.EqualTo("user2"));
+      Assert.That(dt.Rows[2]["id"], Is.EqualTo(3));
+      Assert.That(dt.Rows[2]["applicationId"], Is.EqualTo(2));
+      Assert.That(dt.Rows[2]["name"], Is.EqualTo("user1"));
+      Assert.That(dt.Rows[3]["id"], Is.EqualTo(4));
+      Assert.That(dt.Rows[3]["applicationId"], Is.EqualTo(2));
+      Assert.That(dt.Rows[3]["name"], Is.EqualTo("user2"));
     }
 
     [Test]
     public void CheckRolesUpgrade()
     {
       DataTable dt = FillTable("SELECT * FROM my_aspnet_roles");
-      Assert.AreEqual(4, dt.Rows.Count);
-      Assert.AreEqual(1, dt.Rows[0]["id"]);
-      Assert.AreEqual(1, dt.Rows[0]["applicationId"]);
-      Assert.AreEqual("role1", dt.Rows[0]["name"]);
-      Assert.AreEqual(2, dt.Rows[1]["id"]);
-      Assert.AreEqual(1, dt.Rows[1]["applicationId"]);
-      Assert.AreEqual("role2", dt.Rows[1]["name"]);
-      Assert.AreEqual(3, dt.Rows[2]["id"]);
-      Assert.AreEqual(2, dt.Rows[2]["applicationId"]);
-      Assert.AreEqual("role1", dt.Rows[2]["name"]);
-      Assert.AreEqual(4, dt.Rows[3]["id"]);
-      Assert.AreEqual(2, dt.Rows[3]["applicationId"]);
-      Assert.AreEqual("role2", dt.Rows[3]["name"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(4));
+      Assert.That(dt.Rows[0]["id"], Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["applicationId"], Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("role1"));
+      Assert.That(dt.Rows[1]["id"], Is.EqualTo(2));
+      Assert.That(dt.Rows[1]["applicationId"], Is.EqualTo(1));
+      Assert.That(dt.Rows[1]["name"], Is.EqualTo("role2"));
+      Assert.That(dt.Rows[2]["id"], Is.EqualTo(3));
+      Assert.That(dt.Rows[2]["applicationId"], Is.EqualTo(2));
+      Assert.That(dt.Rows[2]["name"], Is.EqualTo("role1"));
+      Assert.That(dt.Rows[3]["id"], Is.EqualTo(4));
+      Assert.That(dt.Rows[3]["applicationId"], Is.EqualTo(2));
+      Assert.That(dt.Rows[3]["name"], Is.EqualTo("role2"));
     }
 
     [Test]
     public void CheckMembershipUpgrade()
     {
       DataTable dt = FillTable("SELECT * FROM my_aspnet_membership");
-      Assert.AreEqual(4, dt.Rows.Count);
-      Assert.AreEqual(1, dt.Rows[0]["userid"]);
-      Assert.AreEqual(2, dt.Rows[1]["userid"]);
-      Assert.AreEqual(3, dt.Rows[2]["userid"]);
-      Assert.AreEqual(4, dt.Rows[3]["userid"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(4));
+      Assert.That(dt.Rows[0]["userid"], Is.EqualTo(1));
+      Assert.That(dt.Rows[1]["userid"], Is.EqualTo(2));
+      Assert.That(dt.Rows[2]["userid"], Is.EqualTo(3));
+      Assert.That(dt.Rows[3]["userid"], Is.EqualTo(4));
     }
 
     [Test]
     public void CheckUsersInRolesUpgrade()
     {
       DataTable dt = FillTable("SELECT * FROM my_aspnet_usersinroles");
-      Assert.AreEqual(4, dt.Rows.Count);
-      Assert.AreEqual(1, dt.Rows[0]["userid"]);
-      Assert.AreEqual(1, dt.Rows[0]["roleid"]);
-      Assert.AreEqual(2, dt.Rows[1]["userid"]);
-      Assert.AreEqual(2, dt.Rows[1]["roleid"]);
-      Assert.AreEqual(3, dt.Rows[2]["userid"]);
-      Assert.AreEqual(3, dt.Rows[2]["roleid"]);
-      Assert.AreEqual(4, dt.Rows[3]["userid"]);
-      Assert.AreEqual(4, dt.Rows[3]["roleid"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(4));
+      Assert.That(dt.Rows[0]["userid"], Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["roleid"], Is.EqualTo(1));
+      Assert.That(dt.Rows[1]["userid"], Is.EqualTo(2));
+      Assert.That(dt.Rows[1]["roleid"], Is.EqualTo(2));
+      Assert.That(dt.Rows[2]["userid"], Is.EqualTo(3));
+      Assert.That(dt.Rows[2]["roleid"], Is.EqualTo(3));
+      Assert.That(dt.Rows[3]["userid"], Is.EqualTo(4));
+      Assert.That(dt.Rows[3]["roleid"], Is.EqualTo(4));
     }
 
     /// <summary>
@@ -300,7 +300,7 @@ namespace MySql.Web.Tests
             lastEngine = currentEngine;
           }
 
-          Assert.AreEqual(lastEngine, currentEngine);
+          Assert.That(currentEngine, Is.EqualTo(lastEngine));
         }
       }
     }
@@ -314,7 +314,7 @@ namespace MySql.Web.Tests
       config.Add("connectionString", badConnectionString);
 
       Exception ex = Assert.Throws<ArgumentException>(() => provider.Initialize(null, config));
-      Assert.AreEqual("Option not supported.\r\nParameter name: fookey", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Option not supported.\r\nParameter name: fookey"));
     }
   }
 }

@@ -57,15 +57,15 @@ namespace MySql.Data.MySqlClient.Tests
       if (prepare) cmd.Prepare();
 
       var result = cmd.ExecuteScalar();
-      if (Version >= new Version(8, 0, 26) || !prepare) StringAssert.AreEqualIgnoringCase("v1", result.ToString());
-      else Assert.IsEmpty(result.ToString());
+      if (Version >= new Version(8, 0, 26) || !prepare) Assert.That(result.ToString(), Is.EqualTo("v1").IgnoreCase);
+      else Assert.That(result.ToString(), Is.Empty);
 
       cmd.Attributes.SetAttribute("n2", 123);
       cmd.CommandText = "SELECT mysql_query_attribute_string('n2')";
       if (prepare) cmd.Prepare();
       result = cmd.ExecuteScalar();
-      if (Version >= new Version(8, 0, 26) || !prepare) StringAssert.AreEqualIgnoringCase("123", result.ToString());
-      else Assert.IsEmpty(result.ToString());
+      if (Version >= new Version(8, 0, 26) || !prepare) Assert.That(result.ToString(), Is.EqualTo("123").IgnoreCase);
+      else Assert.That(result.ToString(), Is.Empty);
 
       MySqlAttribute attr = new MySqlAttribute();
       attr.AttributeName = "n3";
@@ -74,8 +74,8 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandText = "SELECT mysql_query_attribute_string('n3')";
       if (prepare) cmd.Prepare();
       result = cmd.ExecuteScalar();
-      if (Version >= new Version(8, 0, 26) || !prepare) StringAssert.AreEqualIgnoringCase("v3", result.ToString());
-      else Assert.IsEmpty(result.ToString());
+      if (Version >= new Version(8, 0, 26) || !prepare) Assert.That(result.ToString(), Is.EqualTo("v3").IgnoreCase);
+      else Assert.That(result.ToString(), Is.Empty);
     }
 
     [TestCase("StringType", "value1")]
@@ -93,7 +93,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Attributes.SetAttribute(name, value);
       cmd.CommandText = $"SELECT mysql_query_attribute_string('{name}')";
       var result = cmd.ExecuteScalar();
-      StringAssert.AreEqualIgnoringCase(value.ToString(), result.ToString());
+      Assert.That(result.ToString(), Is.EqualTo(value.ToString()).IgnoreCase);
     }
 
     [Test]
@@ -108,7 +108,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Attributes.SetAttribute("TimeSpan", time);
       cmd.CommandText = "SELECT mysql_query_attribute_string('TimeSpan')";
       var result = cmd.ExecuteScalar();
-      StringAssert.StartsWith(time.ToString(), result.ToString());
+      Assert.That(result.ToString(), Does.StartWith(time.ToString()));
     }
 
     [Test]
@@ -123,7 +123,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Attributes.SetAttribute("DateTime", dateTime);
       cmd.CommandText = "SELECT mysql_query_attribute_string('DateTime')";
       var result = cmd.ExecuteScalar();
-      Assert.AreEqual(dateTime.ToString("yyyy-MM-dd HH:mm:ss.ffffff"), result.ToString());
+      Assert.That(result.ToString(), Is.EqualTo(dateTime.ToString("yyyy-MM-dd HH:mm:ss.ffffff")));
     }
 
     [Test]
@@ -131,13 +131,13 @@ namespace MySql.Data.MySqlClient.Tests
     {
       using MySqlCommand cmd = new MySqlCommand();
       cmd.Attributes.SetAttribute("foo", "bar");
-      Assert.AreEqual(1, cmd.Attributes.Count);
+      Assert.That(cmd.Attributes.Count, Is.EqualTo(1));
 
       cmd.Attributes.SetAttribute("bar", "foo");
-      Assert.AreEqual(2, cmd.Attributes.Count);
+      Assert.That(cmd.Attributes.Count, Is.EqualTo(2));
 
       cmd.Attributes.Clear();
-      Assert.AreEqual(0, cmd.Attributes.Count);
+      Assert.That(cmd.Attributes.Count, Is.EqualTo(0));
     }
 
     [Test]
@@ -153,7 +153,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandText = "SELECT mysql_query_attribute_string('foo')";
 
       var result = cmd.ExecuteScalar();
-      StringAssert.AreEqualIgnoringCase("bar", result.ToString());
+      Assert.That(result.ToString(), Is.EqualTo("bar").IgnoreCase);
     }
 
     [TestCase(true)]
@@ -177,8 +177,8 @@ namespace MySql.Data.MySqlClient.Tests
       if (prepare) cmd.Prepare();
 
       var result = cmd.ExecuteScalar();
-      StringAssert.AreEqualIgnoringCase("test", result.ToString());
-      StringAssert.Contains(string.Format(Resources.QueryAttributesNotSupported, Version), listener.Strings[0]);
+      Assert.That(result.ToString(), Is.EqualTo("test").IgnoreCase);
+      Assert.That(listener.Strings[0], Does.Contain(string.Format(Resources.QueryAttributesNotSupported, Version)));
     }
 
     [TestCase(true)]
@@ -199,9 +199,9 @@ namespace MySql.Data.MySqlClient.Tests
       {
         while (reader.Read())
         {
-          StringAssert.AreEqualIgnoringCase("Hello World", reader.GetString(0));
-          StringAssert.AreEqualIgnoringCase("Goodbye World", reader.GetString(1));
-          if (Version >= new Version(8, 0, 26) || !prepare) StringAssert.AreEqualIgnoringCase("bar", reader.GetString(2));
+          Assert.That(reader.GetString(0), Is.EqualTo("Hello World").IgnoreCase);
+          Assert.That(reader.GetString(1), Is.EqualTo("Goodbye World").IgnoreCase);
+          if (Version >= new Version(8, 0, 26) || !prepare) Assert.That(reader.GetString(2), Is.EqualTo("bar").IgnoreCase);
         }
       }
     }
@@ -236,11 +236,11 @@ namespace MySql.Data.MySqlClient.Tests
       using var reader = cmd.ExecuteReader();
       while (reader.Read())
       {
-        StringAssert.AreEqualIgnoringCase("attribute", reader.GetValue(0).ToString());
-        StringAssert.AreEqualIgnoringCase("attribute2", reader.GetValue(1).ToString());
-        StringAssert.AreEqualIgnoringCase("parameter", reader.GetValue(2).ToString());
-        StringAssert.AreEqualIgnoringCase("parameter2", reader.GetValue(3).ToString());
-        StringAssert.AreEqualIgnoringCase("attribute3", reader.GetValue(4).ToString());
+        Assert.That(reader.GetValue(0).ToString(), Is.EqualTo("attribute").IgnoreCase);
+        Assert.That(reader.GetValue(1).ToString(), Is.EqualTo("attribute2").IgnoreCase);
+        Assert.That(reader.GetValue(2).ToString(), Is.EqualTo("parameter").IgnoreCase);
+        Assert.That(reader.GetValue(3).ToString(), Is.EqualTo("parameter2").IgnoreCase);
+        Assert.That(reader.GetValue(4).ToString(), Is.EqualTo("attribute3").IgnoreCase);
       }
     }
   }

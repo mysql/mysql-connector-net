@@ -112,7 +112,7 @@ namespace MySql.Data.MySqlClient.Tests
                &&
                nodesDependantAssembly[0].ChildNodes[0].Attributes[0].Value.Contains("MySql"))
             {              
-              Assert.True(true, "Error when removing assembly binding redirection");
+              Assert.That(true, "Error when removing assembly binding redirection");
             }
           }
         }        

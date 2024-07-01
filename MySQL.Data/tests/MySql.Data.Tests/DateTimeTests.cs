@@ -60,9 +60,9 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", c);
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          Assert.AreEqual(DateTime.MinValue.Date, reader.GetDateTime(1).Date);
-          Assert.AreEqual(DateTime.MinValue.Date, reader.GetDateTime(2).Date);
+          Assert.That(reader.Read());
+          Assert.That(reader.GetDateTime(1).Date, Is.EqualTo(DateTime.MinValue.Date));
+          Assert.That(reader.GetDateTime(2).Date, Is.EqualTo(DateTime.MinValue.Date));
         }
       }
     }
@@ -80,18 +80,18 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.True(reader.Read());
+        Assert.That(reader.Read());
 
         MySqlDateTime testDate = reader.GetMySqlDateTime(2);
-        Assert.False(testDate.IsValidDateTime, "IsZero is false");
+        Assert.That(testDate.IsValidDateTime, Is.False, "IsZero is false");
 
         Exception ex = Assert.Throws<MySqlConversionException>(() => reader.GetValue(2));
-        Assert.AreEqual("Unable to convert MySQL date/time value to System.DateTime", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Unable to convert MySQL date/time value to System.DateTime"));
 
-        Assert.True(reader.Read());
+        Assert.That(reader.Read());
 
         DateTime dt2 = (DateTime)reader.GetValue(2);
-        Assert.AreEqual(new DateTime(2004, 11, 11).Date, dt2.Date);
+        Assert.That(dt2.Date, Is.EqualTo(new DateTime(2004, 11, 11).Date));
       }
 
       ExecuteSQL($"SET SQL_MODE = '{sql_mode}'");
@@ -108,12 +108,12 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?someday", now);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.True(reader.Read());
+        Assert.That(reader.Read());
         DateTime dt = reader.GetDateTime(0);
-        Assert.AreEqual(later.Date, dt.Date);
-        Assert.AreEqual(later.Hour, dt.Hour);
-        Assert.AreEqual(later.Minute, dt.Minute);
-        Assert.AreEqual(later.Second, dt.Second);
+        Assert.That(dt.Date, Is.EqualTo(later.Date));
+        Assert.That(dt.Hour, Is.EqualTo(later.Hour));
+        Assert.That(dt.Minute, Is.EqualTo(later.Minute));
+        Assert.That(dt.Second, Is.EqualTo(later.Second));
       }
     }
 
@@ -130,7 +130,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         Exception ex = Assert.Throws<MySqlConversionException>(() => reader.GetDateTime(2));
-        Assert.AreEqual("Unable to convert MySQL date/time value to System.DateTime", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Unable to convert MySQL date/time value to System.DateTime"));
       }
     }
 
@@ -157,12 +157,12 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandText = "SELECT id,dt FROM Test";
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.True(reader.Read());
-        Assert.AreEqual(DateTime.Parse("9997-10-29").Date, reader.GetDateTime(1).Date);
-        Assert.True(reader.Read());
-        Assert.AreEqual(DateTime.Parse("9997-10-30").Date, reader.GetDateTime(1).Date);
-        Assert.True(reader.Read());
-        Assert.AreEqual(DateTime.Parse("9999-12-31").Date, reader.GetDateTime(1).Date);
+        Assert.That(reader.Read());
+        Assert.That(reader.GetDateTime(1).Date, Is.EqualTo(DateTime.Parse("9997-10-29").Date));
+        Assert.That(reader.Read());
+        Assert.That(reader.GetDateTime(1).Date, Is.EqualTo(DateTime.Parse("9997-10-30").Date));
+        Assert.That(reader.Read());
+        Assert.That(reader.GetDateTime(1).Date, Is.EqualTo(DateTime.Parse("9999-12-31").Date));
       }
     }
 
@@ -180,12 +180,12 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM Test", Connection);
       using (var reader = cmd2.ExecuteReader())
       {
-        Assert.True(reader.Read());
+        Assert.That(reader.Read());
         DateTime dt = reader.GetDateTime("dt");
-        Assert.AreEqual(2005, dt.Year);
-        Assert.AreEqual(3, dt.Month);
-        Assert.AreEqual(4, dt.Day);
-        Assert.False(reader.Read());
+        Assert.That(dt.Year, Is.EqualTo(2005));
+        Assert.That(dt.Month, Is.EqualTo(3));
+        Assert.That(dt.Day, Is.EqualTo(4));
+        Assert.That(reader.Read(), Is.False);
       }
     }
 
@@ -258,7 +258,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       DateTime dt = DateTime.Now;
       MySqlDateTime mdt = new MySqlDateTime(dt);
-      Assert.AreEqual(dt.ToString(CultureInfo.InvariantCulture), mdt.ToString());
+      Assert.That(mdt.ToString(), Is.EqualTo(dt.ToString(CultureInfo.InvariantCulture)));
     }
 
     /// <summary>
@@ -280,7 +280,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?datefilter", dt.Date);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.True(reader.Read());
+        Assert.That(reader.Read());
       }
     }
 
@@ -307,7 +307,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           command.Prepare();
           var result = (TimeSpan)command.ExecuteScalar();
-          Assert.True(result.ToString() == "1.02:03:04.5670000");
+          Assert.That(result.ToString() == "1.02:03:04.5670000");
         }
 
         ExecuteSQL(@"Delete from test_time;");
@@ -322,7 +322,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           command.Prepare();
           var result = (TimeSpan)command.ExecuteScalar();
-          Assert.True(result.ToString() == "1.02:03:04.0005600");
+          Assert.That(result.ToString() == "1.02:03:04.0005600");
         }
 
       }
@@ -360,7 +360,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       while (rdr.Read())
       {
-        Assert.AreEqual("12:34:56.123456", rdr.GetDateTime(0).ToString("hh:mm:ss.ffffff"));
+        Assert.That(rdr.GetDateTime(0).ToString("hh:mm:ss.ffffff"), Is.EqualTo("12:34:56.123456"));
       }
       rdr.Close();
     }
@@ -418,7 +418,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         while (rdr.Read())
         {
-          Assert.AreEqual("12:34:59.999999", rdr.GetDateTime(0).ToString("hh:mm:ss.ffffff"));
+          Assert.That(rdr.GetDateTime(0).ToString("hh:mm:ss.ffffff"), Is.EqualTo("12:34:59.999999"));
         }
         rdr.Close();
       }
@@ -457,9 +457,9 @@ namespace MySql.Data.MySqlClient.Tests
         while (rdr.Read())
         {
 #if !NETFRAMEWORK
-          Assert.AreEqual(345, rdr.GetTimeSpan(0).Milliseconds);
+          Assert.That(rdr.GetTimeSpan(0).Milliseconds, Is.EqualTo(345));
 #else
-          Assert.AreEqual(346, rdr.GetTimeSpan(0).Milliseconds);
+          Assert.That(rdr.GetTimeSpan(0).Milliseconds, Is.EqualTo(346));
 #endif
         }
       }
@@ -505,7 +505,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           while (rdr.Read())
           {
-            Assert.AreEqual(2, rdr.GetTimeSpan(0).Milliseconds);
+            Assert.That(rdr.GetTimeSpan(0).Milliseconds, Is.EqualTo(2));
           }
         }
       }
@@ -547,7 +547,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         while (rdr.Read())
         {
-          Assert.AreEqual(123456, rdr.GetMySqlDateTime(0).Microsecond);
+          Assert.That(rdr.GetMySqlDateTime(0).Microsecond, Is.EqualTo(123456));
         }
         rdr.Close();
       }
@@ -590,7 +590,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           while (rdr.Read())
           {
-            Assert.AreEqual(123456, rdr.GetMySqlDateTime(0).Microsecond);
+            Assert.That(rdr.GetMySqlDateTime(0).Microsecond, Is.EqualTo(123456));
           }
         }
       }
@@ -617,8 +617,8 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
         DateTime dt1 = reader.GetDateTime(0);
         DateTime ts = reader.GetDateTime(1);
-        Assert.AreEqual(DateTimeKind.Unspecified, dt1.Kind);
-        Assert.AreEqual(DateTimeKind.Local, ts.Kind);
+        Assert.That(dt1.Kind, Is.EqualTo(DateTimeKind.Unspecified));
+        Assert.That(ts.Kind, Is.EqualTo(DateTimeKind.Local));
       }
     }
 
@@ -656,7 +656,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
           DateTime ts = reader.GetDateTime(1);
-          Assert.AreEqual(DateTimeKind.Utc, ts.Kind);
+          Assert.That(ts.Kind, Is.EqualTo(DateTimeKind.Utc));
         }
         // Now set it to non-UTC
         cmd.CommandText = "set @@global.time_zone = '+5:00'";
@@ -669,7 +669,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
           DateTime ts = reader.GetDateTime(1);
-          Assert.AreEqual(DateTimeKind.Local, ts.Kind);
+          Assert.That(ts.Kind, Is.EqualTo(DateTimeKind.Local));
         }
       }
       finally
@@ -716,7 +716,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         while (rdr.Read())
         {
-          Assert.AreEqual("11:09:07.0060", rdr.GetDateTime(0).ToString("hh:mm:ss.ffff"));
+          Assert.That(rdr.GetDateTime(0).ToString("hh:mm:ss.ffff"), Is.EqualTo("11:09:07.0060"));
         }
         rdr.Close();
       }
@@ -743,7 +743,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       while (rdr.Read())
       {
-        Assert.AreEqual("11:09:07.0060", rdr.GetDateTime(0).ToString("hh:mm:ss.ffff"));
+        Assert.That(rdr.GetDateTime(0).ToString("hh:mm:ss.ffff"), Is.EqualTo("11:09:07.0060"));
       }
       rdr.Close();
     }
@@ -769,7 +769,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       while (rdr.Read())
       {
-        Assert.AreEqual(dt.ToString("hh:mm:ss.ffff"), rdr.GetDateTime(0).ToString("hh:mm:ss.ffff"));
+        Assert.That(rdr.GetDateTime(0).ToString("hh:mm:ss.ffff"), Is.EqualTo(dt.ToString("hh:mm:ss.ffff")));
       }
       rdr.Close();
     }
@@ -783,7 +783,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Connection = Connection;
       string date = cmd.ExecuteScalar().ToString();
       DateTime temp;
-      Assert.True(DateTime.TryParse(date, out temp));
+      Assert.That(DateTime.TryParse(date, out temp));
     }
 
     /// <summary>
@@ -811,7 +811,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       while (reader.Read())
       {
-        Assert.True(DateTime.TryParse(reader.GetDateTime(0).ToString(), out tempDate));
+        Assert.That(DateTime.TryParse(reader.GetDateTime(0).ToString(), out tempDate));
       }
       reader.Close();
     }
@@ -837,13 +837,13 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandText = " SELECT * from ReadAndWriteMicroseconds";
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.True(reader.Read());
-        Assert.AreEqual(milliseconds.Ticks, reader.GetTimeSpan(1).Ticks);
-        Assert.AreEqual(microseconds.Ticks, reader.GetTimeSpan(2).Ticks);
-        Assert.AreEqual(microseconds.Ticks, reader.GetDateTime(3).Ticks);
-        Assert.AreEqual(microseconds.Millisecond, reader.GetDateTime(3).Millisecond);
-        Assert.AreEqual(microseconds.Millisecond, reader.GetMySqlDateTime(3).Millisecond);
-        Assert.AreEqual((microseconds.Ticks % 10000000) / 10, reader.GetMySqlDateTime(3).Microsecond);
+        Assert.That(reader.Read());
+        Assert.That(reader.GetTimeSpan(1).Ticks, Is.EqualTo(milliseconds.Ticks));
+        Assert.That(reader.GetTimeSpan(2).Ticks, Is.EqualTo(microseconds.Ticks));
+        Assert.That(reader.GetDateTime(3).Ticks, Is.EqualTo(microseconds.Ticks));
+        Assert.That(reader.GetDateTime(3).Millisecond, Is.EqualTo(microseconds.Millisecond));
+        Assert.That(reader.GetMySqlDateTime(3).Millisecond, Is.EqualTo(microseconds.Millisecond));
+        Assert.That(reader.GetMySqlDateTime(3).Microsecond, Is.EqualTo((microseconds.Ticks % 10000000) / 10));
       }
     }
 
@@ -864,7 +864,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         using (MySqlConnection conn2 = GetConnection())
         {
-          Assert.AreEqual(timeZoneHours, conn2.driver.timeZoneOffset);
+          Assert.That(conn2.driver.timeZoneOffset, Is.EqualTo(timeZoneHours));
         }
       }
       finally
@@ -894,9 +894,9 @@ namespace MySql.Data.MySqlClient.Tests
         var myTimestampSb = (DateTime)reader["mytimestampcolumn"];
         var myTimestampGdt = reader.GetDateTime("mytimestampcolumn");
 
-        Assert.True(myTimestampSb.Kind == myTimestampGdt.Kind);
-        Assert.True(conn.driver.timeZoneOffset == ((DateTimeOffset)myTimestampSb).Offset.Hours, $"Driver: {conn.driver.timeZoneOffset}; Sb: {((DateTimeOffset)myTimestampSb).Offset.Hours}");
-        Assert.True(conn.driver.timeZoneOffset == ((DateTimeOffset)myTimestampGdt).Offset.Hours);
+        Assert.That(myTimestampSb.Kind == myTimestampGdt.Kind);
+        Assert.That(conn.driver.timeZoneOffset == ((DateTimeOffset)myTimestampSb).Offset.Hours, $"Driver: {conn.driver.timeZoneOffset}; Sb: {((DateTimeOffset)myTimestampSb).Offset.Hours}");
+        Assert.That(conn.driver.timeZoneOffset == ((DateTimeOffset)myTimestampGdt).Offset.Hours);
 
         reader.Close();
       }
@@ -932,7 +932,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
           var val = reader.GetValue(0);
-          StringAssert.StartsWith(timeValue.Substring(0, 14), val.ToString());
+          Assert.That(val.ToString(), Does.StartWith(timeValue.Substring(0, 14)));
         }
 
         cmd.CommandText = "DROP TABLE IF EXISTS T";
@@ -951,7 +951,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
           var val = reader.GetTimeSpan(0);
-          StringAssert.StartsWith(timeValue.Substring(0, 12), val.ToString());
+          Assert.That(val.ToString(), Does.StartWith(timeValue.Substring(0, 12)));
         }
       }
     }
@@ -986,9 +986,9 @@ namespace MySql.Data.MySqlClient.Tests
     {
       var mySqlDateTime = new MySqlDateTime(DateTime.Now);
 
-      Assert.AreEqual(TypeCode.DateTime, ((IConvertible)mySqlDateTime).GetTypeCode());
-      Assert.NotNull(((IConvertible)mySqlDateTime).ToString());
-      Assert.NotNull(Convert.ToString(mySqlDateTime));
+      Assert.That(((IConvertible)mySqlDateTime).GetTypeCode(), Is.EqualTo(TypeCode.DateTime));
+      Assert.That(((IConvertible)mySqlDateTime).ToString(), Is.Not.Null);
+      Assert.That(Convert.ToString(mySqlDateTime), Is.Not.Null);
     }
   }
 }

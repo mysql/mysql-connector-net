@@ -58,8 +58,8 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", connection);
 
       Exception ex = Assert.Throws<InvalidOperationException>(() => cmd.ExecuteReader());
-      Assert.AreEqual("Connection must be valid and open.", ex.Message);
-      Assert.AreEqual(ConnectionState.Closed, connection.State);
+      Assert.That(ex.Message, Is.EqualTo("Connection must be valid and open."));
+      Assert.That(connection.State, Is.EqualTo(ConnectionState.Closed));
       connection.Close();
 
     }
@@ -76,7 +76,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (Exception ex)
       {
-        Assert.AreEqual(1064, ex.Data["Server Error Code"]);
+        Assert.That(ex.Data["Server Error Code"], Is.EqualTo(1064));
       }
     }
 
@@ -100,7 +100,7 @@ namespace MySql.Data.MySqlClient.Tests
         Thread.Sleep(6000);
         command = new MySqlCommand("SELECT CONNECTION_ID();", connection);
         var ex = Assert.Throws<MySqlException>(() => command.ExecuteScalar());
-        Assert.AreEqual((int)MySqlErrorCode.ErrorClientInteractionTimeout, ex.Number);
+        Assert.That(ex.Number, Is.EqualTo((int)MySqlErrorCode.ErrorClientInteractionTimeout));
       }
     }
 
@@ -158,7 +158,7 @@ namespace MySql.Data.MySqlClient.Tests
           ExecuteSQL("SET GLOBAL max_connections = 1;");
         }
         MySqlException exDefault = Assert.Throws<MySqlException>(() => conn.Open());
-        Assert.AreEqual(exNumber, exDefault.Number);
+        Assert.That(exDefault.Number, Is.EqualTo(exNumber));
       }
     }
   }

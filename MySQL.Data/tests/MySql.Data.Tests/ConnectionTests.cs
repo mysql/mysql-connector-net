@@ -49,38 +49,38 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnection c = new MySqlConnection();
 
       // public properties
-      Assert.True(15 == c.ConnectionTimeout, "ConnectionTimeout");
-      Assert.True(String.Empty == c.Database, "Database");
-      Assert.True(String.Empty == c.DataSource, "DataSource");
-      Assert.True(false == c.UseCompression, "Use Compression");
-      Assert.True(ConnectionState.Closed == c.State, "State");
+      Assert.That(15 == c.ConnectionTimeout, "ConnectionTimeout");
+      Assert.That(String.Empty == c.Database, "Database");
+      Assert.That(String.Empty == c.DataSource, "DataSource");
+      Assert.That(false == c.UseCompression, "Use Compression");
+      Assert.That(ConnectionState.Closed == c.State, "State");
 
       c = new MySqlConnection("connection timeout=25; user id=myuser; " +
           "password=mypass; database=Test;server=myserver; use compression=true; " +
           "pooling=false;min pool size=5; max pool size=101");
 
       // public properties
-      Assert.True(25 == c.ConnectionTimeout, "ConnectionTimeout");
-      Assert.True("Test" == c.Database, "Database");
-      Assert.True("myserver" == c.DataSource, "DataSource");
-      Assert.True(true == c.UseCompression, "Use Compression");
-      Assert.True(ConnectionState.Closed == c.State, "State");
+      Assert.That(25 == c.ConnectionTimeout, "ConnectionTimeout");
+      Assert.That("Test" == c.Database, "Database");
+      Assert.That("myserver" == c.DataSource, "DataSource");
+      Assert.That(true == c.UseCompression, "Use Compression");
+      Assert.That(ConnectionState.Closed == c.State, "State");
 
       c.ConnectionString = "connection timeout=15; user id=newuser; " +
           "password=newpass; port=3308; database=mydb; data source=myserver2; " +
           "use compression=true; pooling=true; min pool size=3; max pool size=76";
 
       // public properties
-      Assert.True(15 == c.ConnectionTimeout, "ConnectionTimeout");
-      Assert.True("mydb" == c.Database, "Database");
-      Assert.True("myserver2" == c.DataSource, "DataSource");
-      Assert.True(true == c.UseCompression, "Use Compression");
-      Assert.True(ConnectionState.Closed == c.State, "State");
+      Assert.That(15 == c.ConnectionTimeout, "ConnectionTimeout");
+      Assert.That("mydb" == c.Database, "Database");
+      Assert.That("myserver2" == c.DataSource, "DataSource");
+      Assert.That(true == c.UseCompression, "Use Compression");
+      Assert.That(ConnectionState.Closed == c.State, "State");
 
       // Bug #30791289 - MYSQLCONNECTION(NULL) NOW THROWS NULLREFERENCEEXCEPTION
       var conn = new MySqlConnection($"server={Host};");
       conn.ConnectionString = null;
-      Assert.AreEqual(string.Empty, conn.ConnectionString);
+      Assert.That(conn.ConnectionString, Is.EqualTo(string.Empty));
     }
 
     [Test]
@@ -91,12 +91,12 @@ namespace MySql.Data.MySqlClient.Tests
       using (c)
       {
         c.Open();
-        Assert.True(c.State == ConnectionState.Open);
-        Assert.AreEqual(connStr.Database, c.Database);
+        Assert.That(c.State == ConnectionState.Open);
+        Assert.That(c.Database, Is.EqualTo(connStr.Database));
 
         string dbName = CreateDatabase("db1");
         c.ChangeDatabase(dbName);
-        Assert.AreEqual(dbName, c.Database);
+        Assert.That(c.Database, Is.EqualTo(dbName));
       }
     }
 
@@ -110,7 +110,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         var ex = Assert.Catch<MySqlException>(() => CreateCommandTimeoutException());
         //Prior to the fix the exception thrown was 'error connecting: Timeout expired.  The timeout period elapsed prior to obtaining a connection from the pool.  This may have occurred because all pooled connections were in use and max pool size was reached.' after the 10th execution.
-        Assert.AreEqual("Fatal error encountered during command execution.", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Fatal error encountered during command execution."));
       }
     }
 
@@ -197,8 +197,8 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand cmd2 = new MySqlCommand("SELECT id, active FROM test", d);
         using (MySqlDataReader reader = cmd2.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          Assert.True(reader.GetBoolean(1));
+          Assert.That(reader.Read());
+          Assert.That(reader.GetBoolean(1));
         }
       }
     }
@@ -211,8 +211,8 @@ namespace MySql.Data.MySqlClient.Tests
     {
       var conn2 = GetConnection();
       KillConnection(conn2);
-      Assert.False(conn2.Ping());
-      Assert.True(conn2.State == ConnectionState.Closed);
+      Assert.That(conn2.Ping(), Is.False);
+      Assert.That(conn2.State == ConnectionState.Closed);
       conn2.Open();
       conn2.Close();
     }
@@ -245,7 +245,7 @@ namespace MySql.Data.MySqlClient.Tests
       connStr.Server = "badHostName";
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
       var ex = Assert.Throws<MySqlException>(() => c.Open());
-      if (Platform.IsWindows()) Assert.IsTrue(ex.InnerException.GetType() == typeof(ArgumentException));
+      if (Platform.IsWindows()) Assert.That(ex.InnerException.GetType() == typeof(ArgumentException));
     }
 
     /// <summary>
@@ -265,7 +265,7 @@ namespace MySql.Data.MySqlClient.Tests
           c.Open();
           string str = c.ConnectionString;
           int index = str.IndexOf("Database=");
-          Assert.AreEqual(-1, index);
+          Assert.That(index, Is.EqualTo(-1));
         }
       }
     }
@@ -284,12 +284,12 @@ namespace MySql.Data.MySqlClient.Tests
       c.Open();
       threadId = c.ServerThread;
       WeakReference wr = new WeakReference(c);
-      Assert.True(wr.IsAlive);
+      Assert.That(wr.IsAlive);
       c = null;
       GC.Collect();
       GC.WaitForPendingFinalizers();
-      Assert.False(wr.IsAlive);
-      Assert.True(check.closed);
+      Assert.That(wr.IsAlive, Is.False);
+      Assert.That(check.closed);
 
       MySqlCommand cmd = new MySqlCommand("KILL " + threadId, Connection);
       cmd.ExecuteNonQuery();
@@ -366,10 +366,10 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlTransaction txn = await Connection.BeginTransactionAsync();
       MySqlConnection c = txn.Connection;
-      Assert.AreEqual(Connection, c);
+      Assert.That(c, Is.EqualTo(Connection));
       MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM TranAsyncTest WHERE key2='P'", Connection, txn);
       MySqlTransaction t2 = cmd.Transaction;
-      Assert.AreEqual(txn, t2);
+      Assert.That(t2, Is.EqualTo(txn));
       MySqlDataReader reader = null;
       try
       {
@@ -379,7 +379,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (Exception ex)
       {
-        Assert.False(ex.Message != string.Empty, ex.Message);
+        Assert.That(ex.Message != string.Empty, Is.False, ex.Message);
         txn.Rollback();
       }
       finally
@@ -407,9 +407,9 @@ namespace MySql.Data.MySqlClient.Tests
     {
       var conn = new MySqlConnection(Connection.ConnectionString);
       await conn.OpenAsync();
-      Assert.True(conn.State == ConnectionState.Open);
+      Assert.That(conn.State == ConnectionState.Open);
       await conn.CloseAsync();
-      Assert.True(conn.State == ConnectionState.Closed);
+      Assert.That(conn.State == ConnectionState.Closed);
     }
 
     [Test]
@@ -442,7 +442,7 @@ namespace MySql.Data.MySqlClient.Tests
     public async Task GetSchemaCollectionAsync()
     {
       var schemaColl = await Connection.GetSchemaCollectionAsync("MetaDataCollections", null);
-      Assert.NotNull(schemaColl);
+      Assert.That(schemaColl, Is.Not.Null);
     }
 
     #endregion
@@ -481,7 +481,7 @@ namespace MySql.Data.MySqlClient.Tests
       c.Open();
       c.Close();
       MySqlConnectionStringBuilder afterOpenSettings = new MySqlConnectionStringBuilder(c.ConnectionString);
-      Assert.AreEqual(connStr.Password, afterOpenSettings.Password);
+      Assert.That(afterOpenSettings.Password, Is.EqualTo(connStr.Password));
 
       // Persist Security Info = false means that it should not be returned
       connStr.PersistSecurityInfo = false;
@@ -489,7 +489,7 @@ namespace MySql.Data.MySqlClient.Tests
       c.Open();
       c.Close();
       afterOpenSettings = new MySqlConnectionStringBuilder(c.ConnectionString);
-      Assert.True(String.IsNullOrEmpty(afterOpenSettings.Password));
+      Assert.That(String.IsNullOrEmpty(afterOpenSettings.Password));
     }
 
     /// <summary>
@@ -505,48 +505,48 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnection c = new MySqlConnection(connStr.ConnectionString);
 
       // The password, is not returned as part of the connection if the connection is open or has ever been in an open state
-      StringAssert.Contains("password", c.ConnectionString);
+      Assert.That(c.ConnectionString, Does.Contain("password"));
 
       // After open password should not be displayed
       c.Open();
-      StringAssert.DoesNotContain("password", c.ConnectionString);
+      Assert.That(c.ConnectionString, Does.Not.Contain("password"));
 
       // Verify clone from open connection should not show password
       var cloneConnection = (MySqlConnection)c.Clone();
-      StringAssert.DoesNotContain("password", cloneConnection.ConnectionString);
+      Assert.That(cloneConnection.ConnectionString, Does.Not.Contain("password"));
 
       // After close connection the password should not be displayed
       c.Close();
-      StringAssert.DoesNotContain("password", c.ConnectionString);
+      Assert.That(c.ConnectionString, Does.Not.Contain("password"));
 
       // Verify clone connection doesn't show password after open connection
       cloneConnection.Open();
-      StringAssert.DoesNotContain("password", cloneConnection.ConnectionString);
+      Assert.That(cloneConnection.ConnectionString, Does.Not.Contain("password"));
 
       // Verify clone connection doesn't show password after close connection
       cloneConnection.Close();
-      StringAssert.DoesNotContain("password", cloneConnection.ConnectionString);
+      Assert.That(cloneConnection.ConnectionString, Does.Not.Contain("password"));
 
       // Verify password for a clone of closed connection, password should appears
       var closedConnection = new MySqlConnection(connStr.ConnectionString);
       var cloneClosed = (MySqlConnection)closedConnection.Clone();
-      StringAssert.Contains("password", cloneClosed.ConnectionString);
+      Assert.That(cloneClosed.ConnectionString, Does.Contain("password"));
 
       // Open connection of a closed connection clone, password should be empty
-      Assert.False(cloneClosed.hasBeenOpen);
+      Assert.That(cloneClosed.hasBeenOpen, Is.False);
       cloneClosed.Open();
-      StringAssert.DoesNotContain("password", cloneClosed.ConnectionString);
-      Assert.True(cloneClosed.hasBeenOpen);
+      Assert.That(cloneClosed.ConnectionString, Does.Not.Contain("password"));
+      Assert.That(cloneClosed.hasBeenOpen);
 
       // Close connection of a closed connection clone, password should be empty
       cloneClosed.Close();
-      StringAssert.DoesNotContain("password", cloneClosed.ConnectionString);
+      Assert.That(cloneClosed.ConnectionString, Does.Not.Contain("password"));
 
       // Clone Password shloud be present if PersistSecurityInfo is true
       connStr.PersistSecurityInfo = true;
       c = new MySqlConnection(connStr.ConnectionString);
       cloneConnection = (MySqlConnection)c.Clone();
-      StringAssert.Contains("password", cloneConnection.ConnectionString);
+      Assert.That(cloneConnection.ConnectionString, Does.Contain("password"));
     }
 
     [Test]
@@ -561,9 +561,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       DateTime start = DateTime.Now;
       var ex = Assert.Throws<MySqlException>(() => c.Open());
-      Assert.True(ex.InnerException.InnerException is TimeoutException);
+      Assert.That(ex.InnerException.InnerException is TimeoutException);
       TimeSpan diff = DateTime.Now.Subtract(start);
-      Assert.True(diff.TotalSeconds < 6, $"Timeout exceeded: {diff.TotalSeconds}");
+      Assert.That(diff.TotalSeconds < 6, $"Timeout exceeded: {diff.TotalSeconds}");
     }
 
     [Test]
@@ -624,12 +624,12 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder(Connection.ConnectionString);
       connStr.PersistSecurityInfo = false;
 
-      Assert.False(String.IsNullOrEmpty(connStr.Password));
+      Assert.That(String.IsNullOrEmpty(connStr.Password), Is.False);
       MySqlConnection c = new MySqlConnection(connStr.GetConnectionString(true));
       c.Open();
       c.Close();
       connStr = new MySqlConnectionStringBuilder(c.ConnectionString);
-      Assert.True(String.IsNullOrEmpty(connStr.Password));
+      Assert.That(String.IsNullOrEmpty(connStr.Password));
     }
 
     /// <summary>
@@ -657,13 +657,13 @@ namespace MySql.Data.MySqlClient.Tests
     {
       MySqlConnection connection = new MySqlConnection(Connection.ConnectionString);
       connection.Open();
-      Assert.AreEqual(ConnectionState.Open, connection.State);
+      Assert.That(connection.State, Is.EqualTo(ConnectionState.Open));
 
       connection.AbortAsync(false).GetAwaiter().GetResult();
-      Assert.AreEqual(ConnectionState.Closed, connection.State);
+      Assert.That(connection.State, Is.EqualTo(ConnectionState.Closed));
 
       connection.Open();
-      Assert.AreEqual(ConnectionState.Open, connection.State);
+      Assert.That(connection.State, Is.EqualTo(ConnectionState.Open));
 
       connection.Close();
     }
@@ -681,7 +681,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM performance_schema.session_connect_attrs WHERE PROCESSLIST_ID = connection_id()", Connection);
       MySqlDataReader dr = cmd.ExecuteReader();
-      Assert.True(dr.HasRows, "No session_connect_attrs found");
+      Assert.That(dr.HasRows, "No session_connect_attrs found");
       MySqlConnectAttrs connectAttrs = new MySqlConnectAttrs();
       bool isValidated = false;
       using (dr)
@@ -690,13 +690,13 @@ namespace MySql.Data.MySqlClient.Tests
         {
           if (dr.GetString(1).ToLowerInvariant().Contains("_client_name"))
           {
-            Assert.AreEqual(connectAttrs.ClientName, dr.GetString(2));
+            Assert.That(dr.GetString(2), Is.EqualTo(connectAttrs.ClientName));
             isValidated = true;
             break;
           }
         }
       }
-      Assert.True(isValidated, "Missing _client_name attribute");
+      Assert.That(isValidated, "Missing _client_name attribute");
     }
 
     /// <summary>
@@ -727,7 +727,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         cmd.CommandText = "SELECT 1";
         MySqlException ex = Assert.Throws<MySqlException>(() => cmd.ExecuteScalar());
-        Assert.AreEqual(1820, ex.Number);
+        Assert.That(ex.Number, Is.EqualTo(1820));
 
         if (Version >= new Version(5, 7, 6))
           cmd.CommandText = string.Format("SET PASSWORD = '{0}1'", _EXPIRED_USER);
@@ -754,7 +754,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection c = new MySqlConnection(connstr))
       {
         c.Open();
-        Assert.AreEqual(ConnectionState.Open, c.State);
+        Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
       }
     }
 
@@ -773,7 +773,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection conn = new MySqlConnection(sb.ToString()))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.State);
+        Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
       }
     }
 
@@ -793,10 +793,10 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.State);
+        Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
         MySqlCommand cmd = new MySqlCommand(sql, conn);
         var ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
-        Assert.AreEqual(1820, ex.Number);
+        Assert.That(ex.Number, Is.EqualTo(1820));
       }
     }
 
@@ -835,7 +835,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         conn.Open();
         MySqlCommand cmd = new MySqlCommand("SELECT 8", conn);
-        StringAssert.StartsWith("8", cmd.ExecuteScalar().ToString());
+        Assert.That(cmd.ExecuteScalar().ToString(), Does.StartWith("8"));
       }
 
       sb.Password = expiredPwd;
@@ -869,7 +869,7 @@ namespace MySql.Data.MySqlClient.Tests
       // Named Pipes connection protocol is not allowed to use SSL connections.
       using var conn = new MySqlConnection(sb.ConnectionString);
       var ex = Assert.Throws<MySqlException>(() => conn.Open());
-      StringAssert.AreEqualIgnoringCase(string.Format(Resources.SslNotAllowedForConnectionProtocol, sb.ConnectionProtocol), ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(string.Format(Resources.SslNotAllowedForConnectionProtocol, sb.ConnectionProtocol)).IgnoreCase);
     }
 
     /// <summary>
@@ -941,7 +941,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var conn = new MySqlConnection(sb.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.State);
+        Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
       }
 
       // Shared Memory connection protocol is not allowed to use SSL connections.
@@ -949,7 +949,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var conn = new MySqlConnection(sb.ConnectionString))
       {
         var ex = Assert.Throws<MySqlException>(() => conn.Open());
-        StringAssert.AreEqualIgnoringCase(string.Format(Resources.SslNotAllowedForConnectionProtocol, sb.ConnectionProtocol), ex.Message);
+        Assert.That(ex.Message, Is.EqualTo(string.Format(Resources.SslNotAllowedForConnectionProtocol, sb.ConnectionProtocol)).IgnoreCase);
       }
     }
 
@@ -1199,7 +1199,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       string fullQuery = string.Format(query, sb.ToString(0, sb.Length - 2));
       var res = MySqlHelper.ExecuteNonQuery(Connection.ConnectionString + ";ssl-mode=none", fullQuery, mySqlParameters.ToArray());
-      Assert.AreEqual(res, 40000);
+      Assert.That(40000, Is.EqualTo(res));
 
       ExecuteSQL("SET GLOBAL max_allowed_packet=1024000");
       ExecuteSQL($"DROP TABLE `{Settings.Database}`.`testmalformed`;");
@@ -1225,9 +1225,9 @@ namespace MySql.Data.MySqlClient.Tests
             {
               if (i == 0)
               {
-                Assert.AreEqual("ON", reader.GetString(1));
+                Assert.That(reader.GetString(1), Is.EqualTo("ON"));
               }
-              Assert.IsNotNull(reader.GetString(1));
+              Assert.That(reader.GetString(1), Is.Not.Null);
               i++;
             }
           }
@@ -1242,7 +1242,7 @@ namespace MySql.Data.MySqlClient.Tests
           {
             while (reader.Read())
             {
-              Assert.IsNotNull(reader.GetString(0));
+              Assert.That(reader.GetString(0), Is.Not.Null);
               i++;
             }
           }
@@ -1266,9 +1266,9 @@ namespace MySql.Data.MySqlClient.Tests
             {
               if (i == 0)
               {
-                Assert.AreEqual("OFF", reader.GetString(1));
+                Assert.That(reader.GetString(1), Is.EqualTo("OFF"));
               }
-              Assert.IsNotNull(reader.GetString(1));
+              Assert.That(reader.GetString(1), Is.Not.Null);
               i++;
             }
           }
@@ -1284,7 +1284,7 @@ namespace MySql.Data.MySqlClient.Tests
           {
             while (reader.Read())
             {
-              Assert.IsNotNull(reader.GetString(0));
+              Assert.That(reader.GetString(0), Is.Not.Null);
               i++;
             }
           }
@@ -1310,7 +1310,7 @@ namespace MySql.Data.MySqlClient.Tests
           }
 
           dbConn.Open();
-          Assert.AreEqual(ConnectionState.Open, dbConn.State);
+          Assert.That(dbConn.State, Is.EqualTo(ConnectionState.Open));
           MySqlCommand cmd = new MySqlCommand();
           cmd.Connection = dbConn;
           cmd.CommandText = "select * from performance_schema.session_status where variable_name like 'COMPRESSION%' order by 1";
@@ -1327,14 +1327,14 @@ namespace MySql.Data.MySqlClient.Tests
                   {
                     // Compression should have been set to OFF as UseCompression is set to True in connection string but server is 
                     // started with uncompressed and uncompressed/zstd
-                    Assert.AreEqual("OFF", reader.GetString(1));
+                    Assert.That(reader.GetString(1), Is.EqualTo("OFF"));
                   }
                   else
                   {
-                    Assert.AreEqual("ON", reader.GetString(1));
+                    Assert.That(reader.GetString(1), Is.EqualTo("ON"));
                   }
                 }
-                Assert.IsNotNull(reader.GetString(1));
+                Assert.That(reader.GetString(1), Is.Not.Null);
                 i++;
               }
             }
@@ -1349,7 +1349,7 @@ namespace MySql.Data.MySqlClient.Tests
             {
               while (reader.Read())
               {
-                Assert.AreEqual(compressionAlgorithms[k], reader.GetString(0));
+                Assert.That(reader.GetString(0), Is.EqualTo(compressionAlgorithms[k]));
                 i++;
               }
             }
@@ -1380,7 +1380,7 @@ namespace MySql.Data.MySqlClient.Tests
           }
 
           dbConn.Open();
-          Assert.AreEqual(ConnectionState.Open, dbConn.State);
+          Assert.That(dbConn.State, Is.EqualTo(ConnectionState.Open));
           MySqlCommand cmd = new MySqlCommand();
           cmd.Connection = dbConn;
           cmd.CommandText = "select * from performance_schema.session_status where variable_name like 'COMPRESSION%' order by 1";
@@ -1393,9 +1393,9 @@ namespace MySql.Data.MySqlClient.Tests
               {
                 if (i == 0)
                 {
-                  Assert.AreEqual("OFF", reader.GetString(1));
+                  Assert.That(reader.GetString(1), Is.EqualTo("OFF"));
                 }
-                Assert.IsNotNull(reader.GetString(1));
+                Assert.That(reader.GetString(1), Is.Not.Null);
                 i++;
               }
             }
@@ -1410,7 +1410,7 @@ namespace MySql.Data.MySqlClient.Tests
             {
               while (reader.Read())
               {
-                Assert.AreEqual(compressionAlgorithms[k], reader.GetString(0));
+                Assert.That(reader.GetString(0), Is.EqualTo(compressionAlgorithms[k]));
                 i++;
               }
             }
@@ -1514,7 +1514,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
       {
         conn.Open();
-        Assert.True(conn.IsPasswordExpired);
+        Assert.That(conn.IsPasswordExpired);
       }
 
       ExecuteSQL($"ALTER USER '{_EXPIRED_USER}'@'{host}' Identified BY '{_newPwd}'");
@@ -1532,9 +1532,9 @@ namespace MySql.Data.MySqlClient.Tests
         using (var rdr = cmd.ExecuteReader())
         {
           while (rdr.Read())
-            Assert.IsNotNull(rdr[0].ToString());
+            Assert.That(rdr[0].ToString(), Is.Not.Null);
         }
-        Assert.False(conn.IsPasswordExpired);
+        Assert.That(conn.IsPasswordExpired, Is.False);
       }
     }
 
@@ -1556,7 +1556,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
       {
         conn.Open();
-        Assert.True(conn.IsPasswordExpired);
+        Assert.That(conn.IsPasswordExpired);
       }
 
       ExecuteSQL($"set password for {expiredFull}='{_newPwd}'");
@@ -1575,9 +1575,9 @@ namespace MySql.Data.MySqlClient.Tests
           using (var rdr = cmd.ExecuteReader())
           {
             while (rdr.Read())
-              Assert.IsNotNull(rdr[0].ToString());
+              Assert.That(rdr[0].ToString(), Is.Not.Null);
           }
-          Assert.False(conn.IsPasswordExpired);
+          Assert.That(conn.IsPasswordExpired, Is.False);
         }
 
         sb.UserID = _EXPIRED_USER;
@@ -1598,7 +1598,7 @@ namespace MySql.Data.MySqlClient.Tests
       connStr = $"server={Settings.Server};user={Settings.UserID};port={Settings.Port};password={Settings.Password};connectiontimeout=10000";
       using (var conn = new MySqlConnection(connStr))
       {
-        Assert.IsInstanceOf<MySqlConnection>(conn);
+        Assert.That(conn, Is.InstanceOf<MySqlConnection>());
       }
     }
 
@@ -1607,9 +1607,9 @@ namespace MySql.Data.MySqlClient.Tests
     {
       MySqlConnection conn = new MySqlConnection(Settings.ConnectionString);
       conn.Open();
-      Assert.AreEqual(ConnectionState.Open, conn.connectionState);
+      Assert.That(conn.connectionState, Is.EqualTo(ConnectionState.Open));
       conn.Dispose();
-      Assert.AreEqual(ConnectionState.Closed, conn.connectionState);
+      Assert.That(conn.connectionState, Is.EqualTo(ConnectionState.Closed));
     }
 
     [Test]
@@ -1620,7 +1620,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var conn = new MySqlConnection(myConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.State);
+        Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
       }
 
       myConnectionString = $"server={Host};user={Settings.UserID};port={Port};password=wrong";
@@ -1628,7 +1628,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         var ex = Assert.Throws<MySqlException>(() => conn.Open());
         code = ((MySqlException)ex.GetBaseException()).Number;
-        Assert.AreEqual(1045, code);
+        Assert.That(code, Is.EqualTo(1045));
       }
     }
 
@@ -1727,7 +1727,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.State);
+        Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
         MySqlCommand cmd = new MySqlCommand(sql, conn);
         cmd.ExecuteNonQuery();
       }
@@ -1742,7 +1742,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.State);
+        Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
         MySqlCommand cmd = new MySqlCommand(sql, conn);
         Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
       }
@@ -1758,7 +1758,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection conn = new MySqlConnection(sb.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.State);
+        Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
         MySqlCommand cmd = new MySqlCommand(sql, conn);
         Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
       }

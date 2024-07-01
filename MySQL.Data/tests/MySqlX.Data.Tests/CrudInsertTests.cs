@@ -51,8 +51,8 @@ namespace MySqlX.Data.Tests
     {
       Collection coll = CreateCollection("test");
       Result r = ExecuteAddStatement(coll.Add(@"{ ""_id"": 1, ""foo"": 1 }"));
-      Assert.AreEqual(1, r.AffectedItemsCount);
-      Assert.AreEqual(1, coll.Count());
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(coll.Count(), Is.EqualTo(1));
     }
 
     [Test]
@@ -63,14 +63,14 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 5))
       {
         // Code 5115 Document is missing a required field
-        Assert.AreEqual(5115u, Assert.Throws<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
+        Assert.That(Assert.Throws<MySqlException>(() => ExecuteAddStatement(stmt)).Code, Is.EqualTo(5115u));
         return;
       }
       Result r = ExecuteAddStatement(stmt);
-      Assert.AreEqual(1, r.AffectedItemsCount);
-      Assert.AreEqual(1, coll.Count());
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(coll.Count(), Is.EqualTo(1));
       Assert.That(r.GeneratedIds, Has.One.Items);
-      Assert.False(string.IsNullOrWhiteSpace(r.GeneratedIds[0]));
+      Assert.That(string.IsNullOrWhiteSpace(r.GeneratedIds[0]), Is.False);
     }
 
     [Test]
@@ -83,13 +83,13 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 5))
       {
         // Code 5115 Document is missing a required field
-        Assert.AreEqual(5115u, Assert.Throws<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
+        Assert.That(Assert.Throws<MySqlException>(() => ExecuteAddStatement(stmt)).Code, Is.EqualTo(5115u));
         return;
       }
       Result r = ExecuteAddStatement(stmt);
-      Assert.AreEqual(3, r.AffectedItemsCount);
-      Assert.AreEqual(3, coll.Count());
-      Assert.AreEqual(3, r.GeneratedIds.Count);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(3));
+      Assert.That(coll.Count(), Is.EqualTo(3));
+      Assert.That(r.GeneratedIds.Count, Is.EqualTo(3));
     }
 
     [Test]
@@ -99,9 +99,9 @@ namespace MySqlX.Data.Tests
 
       Collection coll = CreateCollection("test");
       Result r = ExecuteAddStatement(coll.Add(obj));
-      Assert.AreEqual(1, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1));
       //TODO:  pull object and verify data
-      Assert.AreEqual(1, coll.Count());
+      Assert.That(coll.Count(), Is.EqualTo(1));
     }
 
     [Test]
@@ -114,15 +114,15 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 5))
       {
         // Code 5115 Document is missing a required field
-        Assert.AreEqual(5115u, Assert.Throws<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
+        Assert.That(Assert.Throws<MySqlException>(() => ExecuteAddStatement(stmt)).Code, Is.EqualTo(5115u));
         return;
       }
       Result r = ExecuteAddStatement(stmt);
-      Assert.AreEqual(1, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1));
       //TODO:  pull object and verify data
-      Assert.AreEqual(1, coll.Count());
+      Assert.That(coll.Count(), Is.EqualTo(1));
       Assert.That(r.GeneratedIds, Has.One.Items);
-      Assert.False(string.IsNullOrWhiteSpace(r.GeneratedIds[0]));
+      Assert.That(string.IsNullOrWhiteSpace(r.GeneratedIds[0]), Is.False);
     }
 
     [Test]
@@ -137,8 +137,8 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
-      Assert.AreEqual(4, coll.Count());
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
+      Assert.That(coll.Count(), Is.EqualTo(4));
     }
 
     [Test]
@@ -149,15 +149,15 @@ namespace MySqlX.Data.Tests
       if (!session.Version.isAtLeast(8, 0, 5))
       {
         // Code 5115 Document is missing a required field
-        Assert.AreEqual(5115u, Assert.Throws<MySqlException>(() => ExecuteAddStatement(stmt)).Code);
+        Assert.That(Assert.Throws<MySqlException>(() => ExecuteAddStatement(stmt)).Code, Is.EqualTo(5115u));
         return;
       }
       Result result = ExecuteAddStatement(stmt);
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
 
       result = ExecuteModifyStatement(coll.Modify($"_id = '{result.GeneratedIds[0]}'").Set("pages", "20"));
-      Assert.AreEqual(1, result.AffectedItemsCount);
-      CollectionAssert.IsEmpty(result.GeneratedIds);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(result.GeneratedIds, Is.Empty);
     }
 
     [Test]
@@ -177,8 +177,8 @@ namespace MySqlX.Data.Tests
         stmt.Add(doc);
       }
       Result r = ExecuteAddStatement(stmt);
-      Assert.AreEqual((ulong)docs.Length + 1, r.AffectedItemsCount);
-      Assert.AreEqual(5, coll.Count());
+      Assert.That(r.AffectedItemsCount, Is.EqualTo((ulong)docs.Length + 1));
+      Assert.That(coll.Count(), Is.EqualTo(5));
     }
 
     [Test]
@@ -187,10 +187,10 @@ namespace MySqlX.Data.Tests
       Collection coll = CreateCollection("test");
 
       var insertResult = ExecuteAddStatement(coll.Add(new DbDoc[] { }));
-      Assert.AreEqual(0ul, insertResult.AffectedItemsCount);
+      Assert.That(insertResult.AffectedItemsCount, Is.EqualTo(0ul));
 
       var result = ExecuteFindStatement(coll.Find()).FetchAll();
-      CollectionAssert.IsEmpty(result);
+      Assert.That(result, Is.Empty);
     }
 
     [Test]
@@ -218,7 +218,7 @@ namespace MySqlX.Data.Tests
       ExecuteAddStatement(coll.Add(d2));
       var result = ExecuteFindStatement(coll.Find()).FetchAll();
       Assert.That(result, Has.One.Items);
-      Assert.AreEqual(d2.ToString(), result[0].ToString());
+      Assert.That(result[0].ToString(), Is.EqualTo(d2.ToString()));
     }
 
     [Test]
@@ -226,13 +226,13 @@ namespace MySqlX.Data.Tests
     {
       Guid guid1 = new Guid();
       Guid guid2 = new Guid();
-      Assert.AreEqual(0, Tools.CompareGuids(guid1, guid2));
-      Assert.AreEqual(0, Tools.CompareGuids(guid1.ToString(), guid2.ToString()));
+      Assert.That(Tools.CompareGuids(guid1, guid2), Is.EqualTo(0));
+      Assert.That(Tools.CompareGuids(guid1.ToString(), guid2.ToString()), Is.EqualTo(0));
 
       guid1 = Guid.NewGuid();
       guid2 = Guid.NewGuid();
-      Assert.True(Tools.CompareGuids(guid1, guid2) != 0);
-      Assert.True(Tools.CompareGuids(guid1.ToString(), guid2.ToString()) != 0);
+      Assert.That(Tools.CompareGuids(guid1, guid2) != 0);
+      Assert.That(Tools.CompareGuids(guid1.ToString(), guid2.ToString()) != 0);
     }
 
     [Test]
@@ -251,10 +251,10 @@ namespace MySqlX.Data.Tests
 
       ExecuteAddStatement(collection.Add(docs));
       var result = ExecuteFindStatement(collection.Find()).FetchAll();
-      Assert.AreEqual(docs.Length, result.Count);
+      Assert.That(result.Count, Is.EqualTo(docs.Length));
 
       for (int i = 0; i < docs.Length; i++)
-        Assert.AreEqual(docs[i].ToString(), result[i].ToString());
+        Assert.That(result[i].ToString(), Is.EqualTo(docs[i].ToString()));
     }
 
     [Test]
@@ -271,13 +271,13 @@ namespace MySqlX.Data.Tests
       Collection collection = CreateCollection("test");
       ExecuteAddStatement(collection.Add(docs));
       var result = ExecuteFindStatement(collection.Find()).FetchAll();
-      Assert.AreEqual(docs.Length, result.Count);
+      Assert.That(result.Count, Is.EqualTo(docs.Length));
       for (int i = 0; i < docs.Length; i++)
       {
         var currentDoc = new DbDoc(docs[i]);
         var resultingDoc = new DbDoc(result[i]);
-        Assert.AreEqual(currentDoc.Id, resultingDoc.Id);
-        Assert.AreEqual(currentDoc["foo"], resultingDoc["foo"]);
+        Assert.That(resultingDoc.Id, Is.EqualTo(currentDoc.Id));
+        Assert.That(resultingDoc["foo"], Is.EqualTo(currentDoc["foo"]));
       }
     }
 
@@ -295,29 +295,29 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result result = ExecuteAddStatement(collection.Add(docs));
-      Assert.AreEqual(4, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(4));
 
       // Add a document.
-      Assert.AreEqual(1, collection.AddOrReplaceOne(5, new { _id = 5, title = "Book 5", pages = 60 }).AffectedItemsCount);
-      Assert.True(collection.GetOne(5) != null);
+      Assert.That(collection.AddOrReplaceOne(5, new { _id = 5, title = "Book 5", pages = 60 }).AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(collection.GetOne(5) != null);
 
-      Assert.AreEqual(1, collection.AddOrReplaceOne("6", new { title = "Book 6", pages = 70 }).AffectedItemsCount);
-      Assert.True(collection.GetOne(6) != null);
-      Assert.True(collection.GetOne("6") != null);
+      Assert.That(collection.AddOrReplaceOne("6", new { title = "Book 6", pages = 70 }).AffectedItemsCount, Is.EqualTo(1));
+      Assert.That(collection.GetOne(6) != null);
+      Assert.That(collection.GetOne("6") != null);
 
       // Replace a document.
-      Assert.AreEqual(2, collection.AddOrReplaceOne(1, new { _id = 1, title = "Book X", pages = 10 }).AffectedItemsCount);
+      Assert.That(collection.AddOrReplaceOne(1, new { _id = 1, title = "Book X", pages = 10 }).AffectedItemsCount, Is.EqualTo(2));
       DbDoc document = collection.GetOne(1);
-      Assert.AreEqual(1, Convert.ToInt32(document.Id));
-      Assert.AreEqual("Book X", document["title"]);
-      Assert.AreEqual(10, Convert.ToInt32(document["pages"]));
+      Assert.That(Convert.ToInt32(document.Id), Is.EqualTo(1));
+      Assert.That(document["title"], Is.EqualTo("Book X"));
+      Assert.That(Convert.ToInt32(document["pages"]), Is.EqualTo(10));
 
-      Assert.AreEqual(2, collection.AddOrReplaceOne(1, new { title = "Book Y", pages = 9, other = "value" }).AffectedItemsCount);
+      Assert.That(collection.AddOrReplaceOne(1, new { title = "Book Y", pages = 9, other = "value" }).AffectedItemsCount, Is.EqualTo(2));
       document = collection.GetOne(1);
-      Assert.AreEqual(1, Convert.ToInt32(document.Id));
-      Assert.AreEqual("Book Y", document["title"]);
-      Assert.AreEqual(9, Convert.ToInt32(document["pages"]));
-      Assert.AreEqual("value", document["other"]);
+      Assert.That(Convert.ToInt32(document.Id), Is.EqualTo(1));
+      Assert.That(document["title"], Is.EqualTo("Book Y"));
+      Assert.That(Convert.ToInt32(document["pages"]), Is.EqualTo(9));
+      Assert.That(document["other"], Is.EqualTo("value"));
 
       // Expected exceptions.
       Assert.Throws<ArgumentNullException>(() => collection.AddOrReplaceOne(null, docs[1]));
@@ -346,13 +346,13 @@ namespace MySqlX.Data.Tests
         };
         Result result = col.Add(data).Execute();
         var data1 = col.Remove("_id = 1").Execute();
-        Assert.AreEqual(1, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+        Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
         data1 = col.Remove("_id = 2").Execute();
-        Assert.AreEqual(1, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+        Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
         data1 = col.Remove("_id = 3").Execute();
-        Assert.AreEqual(1, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+        Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
         data1 = col.Remove("_id = 4").Execute();
-        Assert.AreEqual(1, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+        Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
         sessionPlain.Close();
       }
     }
@@ -370,7 +370,7 @@ namespace MySqlX.Data.Tests
       Schema db = session.GetSchema(schemaName);
       var col = CreateCollection("my_collection_123456789");
       col = db.GetCollection("my_collection_123456789", true);
-      Assert.IsNotNull(col);
+      Assert.That(col, Is.Not.Null);
       Assert.Throws<MySqlException>(() => db.CreateCollection("my_collection_123456789", false));
     }
 
@@ -388,15 +388,15 @@ namespace MySqlX.Data.Tests
       };
       Result result = col.Add(docs).Execute();
 
-      Assert.AreEqual(4, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(4), "Matching the updated record count");
       var foundDocs = col.Find("pages > 20").Execute();
-      Assert.AreEqual(true, foundDocs.Next(), "Next Node Exist");
-      Assert.AreEqual("Book 2", foundDocs.Current["title"], "Matching the Node Value");
-      Assert.AreEqual(true, foundDocs.Next(), "Next Node Exist");
-      Assert.AreEqual("Book 3", foundDocs.Current["title"], "Matching the Node Value");
-      Assert.AreEqual(true, foundDocs.Next(), "Next Node Exist");
-      Assert.AreEqual("Book 4", foundDocs.Current["title"], "Matching the Node Value");
-      Assert.AreEqual(false, foundDocs.Next(), "Next Node doesnot Exist");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Next Node Exist");
+      Assert.That(foundDocs.Current["title"], Is.EqualTo("Book 2"), "Matching the Node Value");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Next Node Exist");
+      Assert.That(foundDocs.Current["title"], Is.EqualTo("Book 3"), "Matching the Node Value");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Next Node Exist");
+      Assert.That(foundDocs.Current["title"], Is.EqualTo("Book 4"), "Matching the Node Value");
+      Assert.That(foundDocs.Next(), Is.EqualTo(false), "Next Node doesnot Exist");
       db.DropCollection("my_collection_1");
     }
 
@@ -414,17 +414,17 @@ namespace MySqlX.Data.Tests
       };
 
       var result = col.Add(docs).Execute();
-      Assert.AreEqual(4, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(4), "Matching the updated record count");
       var foundDocs = col.Find().Execute();
-      Assert.AreEqual(true, foundDocs.Next(), "Next Node Exist");
-      Assert.AreEqual("Book 1", foundDocs.Current["title"], "Matching the Node Value");
-      Assert.AreEqual(true, foundDocs.Next(), "Next Node Exist");
-      Assert.AreEqual("Book 2", foundDocs.Current["title"], "Matching the Node Value");
-      Assert.AreEqual(true, foundDocs.Next(), "Next Node Exist");
-      Assert.AreEqual("Book 3", foundDocs.Current["title"], "Matching the Node Value");
-      Assert.AreEqual(true, foundDocs.Next(), "Next Node Exist");
-      Assert.AreEqual("Book 4", foundDocs.Current["title"], "Matching the Node Value");
-      Assert.AreEqual(false, foundDocs.Next(), "Next Node doesnot Exist");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Next Node Exist");
+      Assert.That(foundDocs.Current["title"], Is.EqualTo("Book 1"), "Matching the Node Value");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Next Node Exist");
+      Assert.That(foundDocs.Current["title"], Is.EqualTo("Book 2"), "Matching the Node Value");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Next Node Exist");
+      Assert.That(foundDocs.Current["title"], Is.EqualTo("Book 3"), "Matching the Node Value");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Next Node Exist");
+      Assert.That(foundDocs.Current["title"], Is.EqualTo("Book 4"), "Matching the Node Value");
+      Assert.That(foundDocs.Next(), Is.EqualTo(false), "Next Node doesnot Exist");
     }
 
     [Test, Description("Test MySQLX plugin Collection Scenarios - Add/Remove JSON Object with id")]
@@ -440,11 +440,11 @@ namespace MySqlX.Data.Tests
         DbDocs.SetValue("title", "Book 0");
         DbDocs.SetValue("pages", "10");
         var result = col.Add(DbDocs).Execute();
-        Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the updated record count");
+        Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the updated record count");
         DbDoc jsonremovedoc = new DbDoc();
         jsonremovedoc.SetValue("_id", "0");
         var foundDocs = col.Remove("_id='0'").Execute();
-        Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+        Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
         db.DropCollection("my_collection_1");
         sessionPlain.Close();
       }
@@ -461,9 +461,9 @@ namespace MySqlX.Data.Tests
       DbDocs.SetValue("title", "Book 0");
       DbDocs.SetValue("pages", "10");
       var result = col.Add(DbDocs).Execute();
-      Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the updated record count");
       var foundDocs = col.Remove("pages > 0").Execute();
-      Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       db.DropCollection("my_collection_1");
     }
 
@@ -482,19 +482,19 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       var result = col.Add(docs).Execute();
-      Assert.AreEqual(5, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(5), "Matching the updated record count");
       var foundDocs = col.Remove("_id=1").Execute();
-      Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       docs = new[]
       {
         new {  _id = 1, title = "Book 1", pages = 20 },
       };
       result = col.Add(docs).Execute();
-      Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the updated record count");
       result = col.Remove("pages > 10").Limit(1).Execute();
-      Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the updated record count");
       result = col.Remove("pages > 10").Limit(3).Execute();
-      Assert.AreEqual(3, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(3), "Matching the updated record count");
       Assert.Throws<ArgumentOutOfRangeException>(() => col.Remove("pages > 10").Limit(0).Execute());
       db.DropCollection("my_collection_1");
     }
@@ -519,11 +519,11 @@ namespace MySqlX.Data.Tests
       }
       var res = col.Add(jsonlist).Execute();
 
-      Assert.AreEqual(jsonlist[0].ToString(), jsonlist[0].ToString(), "String Match being done");
+      Assert.That(jsonlist[0].ToString(), Is.EqualTo(jsonlist[0].ToString()), "String Match being done");
       for (int i = 0; i < numOfRecords; i++)
       {
         var data1 = col.Remove($"_id = '{i + 1000}'").Execute();
-        Assert.AreEqual(1, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+        Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       }
     }
 
@@ -546,25 +546,25 @@ namespace MySqlX.Data.Tests
         newDoc2 = null;
       }
       col.Add(jsonlist).Execute();
-      Assert.AreEqual(jsonlist[0].ToString(), jsonlist[0].ToString(), "String Match being done");
+      Assert.That(jsonlist[0].ToString(), Is.EqualTo(jsonlist[0].ToString()), "String Match being done");
 
       Result result = col.Remove("F3 > 305").Limit(1).Execute();
-      Assert.AreEqual(1, (int)result.AffectedItemsCount, "Match being done");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Match being done");
 
       result = col.Remove("F3 > 303").Sort("F3 DESC").Execute();
-      Assert.AreEqual(5, (int)result.AffectedItemsCount, "Match being done");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(5), "Match being done");
 
       result = col.Remove("F3 > 303").Sort("F3 DESC").Execute();
-      Assert.AreEqual(0, (int)result.AffectedItemsCount, "Match being done");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(0), "Match being done");
 
       result = col.Remove("F3 = 303").Sort("F2 DESC").Execute();
-      Assert.AreEqual(1, (int)result.AffectedItemsCount, "Match being done");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Match being done");
 
       result = col.Remove("F3 < 301").Sort("F2 DESC").Execute();
-      Assert.AreEqual(1, (int)result.AffectedItemsCount, "Match being done");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Match being done");
 
       result = col.Remove("F3 < 301").Sort("F2 DESC").Execute();
-      Assert.AreEqual(0, (int)result.AffectedItemsCount, "Match being done");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(0), "Match being done");
 
       db.DropCollection("my_collection_1");
 
@@ -580,23 +580,23 @@ namespace MySqlX.Data.Tests
       DbDocs.SetValue("title", "Book 0");
       DbDocs.SetValue("pages", 10);
       var result = col.Add(DbDocs).Execute();
-      Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the updated record count");
       var foundDocs = col.Remove("pages > 0").Execute();
-      Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
 
       var docs = new { _id = 100001, title = "Book 1", pages = 20 };
       result = col.Add(docs).Execute();
-      Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the updated record count");
 
       foundDocs = col.Remove("pages=20").Execute();
-      Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
 
       docs = new { _id = -100001, title = "Book 1", pages = 20 };
       result = col.Add(docs).Execute();
-      Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the updated record count");
 
       foundDocs = col.Remove("pages=20").Execute();
-      Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       var docs1 = new[]
       {
         new { _id = -100001, title = "Book 0", pages = 10 },
@@ -605,13 +605,13 @@ namespace MySqlX.Data.Tests
         new { _id = 10000001, title = "Book 3", pages = 40 }
       };
       result = col.Add(docs1).Execute();
-      Assert.AreEqual(4, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(4), "Matching the updated record count");
 
       foundDocs = col.Remove("pages > 10").Execute();
-      Assert.AreEqual(3, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(3), "Matching the deleted record count");
 
       foundDocs = col.Remove("pages=10").Execute();
-      Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       docs1 = new[]
       {
         new { _id = -100001, title = "Book 0", pages = 10 },
@@ -621,27 +621,27 @@ namespace MySqlX.Data.Tests
         new { _id = 10000009, title = "Book 4", pages = 50 }
       };
       result = col.Add(docs1).Execute();
-      Assert.AreEqual(5, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(5), "Matching the updated record count");
 
       foundDocs = col.Remove("pages = 40").Execute();
-      Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
 
       foundDocs = col.Remove("pages >= 10").Execute();
-      Assert.AreEqual(4, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(4), "Matching the deleted record count");
 
       result = col.Add(docs1).Execute();
-      Assert.AreEqual(5, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(5), "Matching the updated record count");
       foundDocs = col.Remove("pages = 40").Limit(1).Execute();
-      Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       foundDocs = col.Remove("pages <= 50").Execute();
-      Assert.AreEqual(4, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(4), "Matching the deleted record count");
 
       result = col.Add(docs1).Execute();
-      Assert.AreEqual(5, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(5), "Matching the updated record count");
       foundDocs = col.Remove("pages = 40").Limit(1).Sort("title").Execute();
-      Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       foundDocs = col.Remove("pages <= 50").Execute();
-      Assert.AreEqual(4, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(4), "Matching the deleted record count");
 
       docs1 = new[]
       {
@@ -652,9 +652,9 @@ namespace MySqlX.Data.Tests
       };
 
       result = col.Add(docs1).Execute();
-      Assert.AreEqual(4, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(4), "Matching the updated record count");
       foundDocs = col.Remove("pages = :Pages").Bind("pAges", 50).Execute();
-      Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
     }
 
     [Test, Description("Test MySQLX plugin Collection Scenarios - Add Single/Multiple Docs - Remove Condition/ID/Condition-Limit/Condition-Limit-OrderBy/Bind using invalid conditions")]
@@ -670,23 +670,23 @@ namespace MySqlX.Data.Tests
       DbDocs.SetValue("pages", 10);
       var result = col.Add(DbDocs).Execute();
 
-      Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the updated record count");
       var foundDocs = col.Remove("pages > 10").Execute();
-      Assert.AreEqual(0, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(0), "Matching the deleted record count");
 
       var docs = new { _id = 100001, title = "Book 1", pages = 20 };
       result = col.Add(docs).Execute();
-      Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the updated record count");
 
       foundDocs = col.Remove("pages >= 10").Execute();
-      Assert.AreEqual(2, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(2), "Matching the deleted record count");
 
       docs = new { _id = -100001, title = "Book 1", pages = 20 };
       result = col.Add(docs).Execute();
-      Assert.AreEqual(1, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Matching the updated record count");
 
       foundDocs = col.Remove("pages > 10").Execute();
-      Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
 
 
       var docs1 = new[]
@@ -697,13 +697,13 @@ namespace MySqlX.Data.Tests
         new { _id = 10000001, title = "Book 3", pages = 40 }
       };
       result = col.Add(docs1).Execute();
-      Assert.AreEqual(4, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(4), "Matching the updated record count");
 
       foundDocs = col.Remove("pages > 50").Execute();
-      Assert.AreEqual(0, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(0), "Matching the deleted record count");
 
       foundDocs = col.Remove("pages < 50").Execute();
-      Assert.AreEqual(4, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(4), "Matching the deleted record count");
 
       docs1 = new[]
       {
@@ -714,28 +714,28 @@ namespace MySqlX.Data.Tests
         new { _id = 10000009, title = "Book 4", pages = 50 }
       };
       result = col.Add(docs1).Execute();
-      Assert.AreEqual(5, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(5), "Matching the updated record count");
 
       foundDocs = col.Remove("pages = 0").Execute();
-      Assert.AreEqual(0, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(0), "Matching the deleted record count");
 
       foundDocs = col.Remove("pages <= 50").Execute();
-      Assert.AreEqual(5, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(5), "Matching the deleted record count");
 
       result = col.Add(docs1).Execute();
-      Assert.AreEqual(5, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(5), "Matching the updated record count");
       foundDocs = col.Remove("pages = 60").Limit(1).Execute();
-      Assert.AreEqual(0, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(0), "Matching the deleted record count");
 
       foundDocs = col.Remove("pages <= 50").Execute();
-      Assert.AreEqual(5, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(5), "Matching the deleted record count");
 
       result = col.Add(docs1).Execute();
-      Assert.AreEqual(5, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(5), "Matching the updated record count");
       foundDocs = col.Remove("pages = 04").Limit(1).Sort("title").Execute();
-      Assert.AreEqual(0, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(0), "Matching the deleted record count");
       foundDocs = col.Remove("pages <= 50").Execute();
-      Assert.AreEqual(5, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(5), "Matching the deleted record count");
 
       docs1 = new[]
       {
@@ -746,13 +746,13 @@ namespace MySqlX.Data.Tests
       };
 
       result = col.Add(docs1).Execute();
-      Assert.AreEqual(4, (int)result.AffectedItemsCount, "Matching the updated record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(4), "Matching the updated record count");
       foundDocs = col.Remove("pages1 = :Pages").Bind("pAges", 50).Execute();
-      Assert.AreEqual(0, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(0), "Matching the deleted record count");
       foundDocs = col.Remove("pages = :Pages").Bind("pAges", 51).Execute();
-      Assert.AreEqual(0, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(0), "Matching the deleted record count");
       foundDocs = col.Remove("pages = :Pages").Bind("pAges", 50).Execute();
-      Assert.AreEqual(1, (int)foundDocs.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)foundDocs.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       db.DropCollection("my_collection_1");
 
     }
@@ -775,18 +775,18 @@ namespace MySqlX.Data.Tests
         new {  _id = 8, title = "Book 8", pages = 80 },
       };
       Result result = col.Add(data).Execute();
-      Assert.AreEqual(8, (int)result.AffectedItemsCount, "Matching the added record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(8), "Matching the added record count");
       var data1 = col.Remove("_id=1").Execute();
-      Assert.AreEqual(1, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       data1 = col.Remove("pages = :Pages").Bind("pAges", 80).Execute();
-      Assert.AreEqual(1, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       data1 = col.Remove("pages = :Pages").Bind("pAges", 70).Execute();
-      Assert.AreEqual(1, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       var remData = col.Remove("_id = :param1 AND title = :param2");
       data1 = remData.Bind("param1", 5).Bind("param2", "Book 5").Execute();
-      Assert.AreEqual(1, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       data1 = remData.Bind("param1", 6).Bind("param2", "Book 6").Execute();
-      Assert.AreEqual(1, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       db.DropCollection("my_collection_123456789");
     }
 
@@ -806,20 +806,20 @@ namespace MySqlX.Data.Tests
         new {  _id = 8, title = "Book 8", pages = 80 },
       };
       Result result = col.Add(data).Execute();
-      Assert.AreEqual(8, (int)result.AffectedItemsCount, "Matching the added record count");
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(8), "Matching the added record count");
       var data1 = col.Remove("_id=1").Execute();
-      Assert.AreEqual(1, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       data1 = col.Remove("pages = :Pages").Bind("pAges", 80).Execute();
-      Assert.AreEqual(1, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       data1 = col.Remove("pages = :Pages").Bind("pAges", 70).Execute();
-      Assert.AreEqual(1, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       var remData = col.Remove("_id = :param1 AND title = :param2");
 
       data1 = remData.Bind("param1", 35).Bind("param2", "Book 33").Execute();
-      Assert.AreEqual(0, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(0), "Matching the deleted record count");
 
       data1 = remData.Bind("param1", 6).Bind("param2", "Book 6").Execute();
-      Assert.AreEqual(1, (int)data1.AffectedItemsCount, "Matching the deleted record count");
+      Assert.That((int)data1.AffectedItemsCount, Is.EqualTo(1), "Matching the deleted record count");
       testSchema.DropCollection("my_collection_123456789");
     }
 
@@ -834,7 +834,7 @@ namespace MySqlX.Data.Tests
       };
       Result result = coll.Add(docs).Execute();
       var documentIds = result.GeneratedIds;
-      Assert.False(documentIds != null && documentIds.Count > 0);
+      Assert.That(documentIds != null && documentIds.Count > 0, Is.False);
 
       coll = CreateCollection("test");
       var docs1 = new[]
@@ -849,7 +849,7 @@ namespace MySqlX.Data.Tests
       {
         if (documentIds1 != null)
         {
-          Assert.AreEqual(documentIds1[i].ToString(), documentIds1[i].ToString(), "Matching the document ID with unique id");
+          Assert.That(documentIds1[i].ToString(), Is.EqualTo(documentIds1[i].ToString()), "Matching the document ID with unique id");
         }
         if (!firstset.Add(documentIds1[i]))
         {
@@ -868,7 +868,7 @@ namespace MySqlX.Data.Tests
 
       var r1 = coll.Add(docs).Execute();
       documentIds = r1.GeneratedIds;
-      Assert.False(documentIds != null && documentIds.Count > 0);
+      Assert.That(documentIds != null && documentIds.Count > 0, Is.False);
 
       coll = CreateCollection("test");
       docs1 = new[]
@@ -887,7 +887,7 @@ namespace MySqlX.Data.Tests
       {
         if (documentIds != null)
         {
-          Assert.AreEqual(documentIds1[i].ToString(), documentIds1[i].ToString(), "Matching the document ID with unique id");
+          Assert.That(documentIds1[i].ToString(), Is.EqualTo(documentIds1[i].ToString()), "Matching the document ID with unique id");
         }
 
         if (!firstset.Add(documentIds1[i]))
@@ -910,7 +910,7 @@ namespace MySqlX.Data.Tests
       };
       Result result = col.Add(data).Execute();
       var documentIds = result.GeneratedIds;
-      Assert.False(documentIds != null && documentIds.Count > 0);
+      Assert.That(documentIds != null && documentIds.Count > 0, Is.False);
     }
 
     [Test, Description("Test MySQLX UUID Scenario-2(Check UUID generated when multiple JSON docs are added using collection.add().add()..without _id fields)")]
@@ -941,7 +941,7 @@ namespace MySqlX.Data.Tests
       {
         if (documentIds != null)
         {
-          Assert.AreEqual(documentIds[i].ToString(), documentIds[i].ToString(), "Matching the document ID with unique id");
+          Assert.That(documentIds[i].ToString(), Is.EqualTo(documentIds[i].ToString()), "Matching the document ID with unique id");
         }
         if (!firstset.Add(documentIds[i]))
         {
@@ -959,19 +959,19 @@ namespace MySqlX.Data.Tests
       var stmt = col.Add(@"{ ""foo"": 1 }", @"{""foo"": 2 }", @"{ ""foo"": 3 }", @"{ ""foo"": 4 }");
       Result r = col.Add(@"{ ""foo"": 1 }", @"{""foo"": 2 }", @"{ ""foo"": 3 }", @"{ ""foo"": 4 }").Execute();
       long count = col.Count();
-      Assert.AreEqual(count, 4, "Matching the Collection Count");
+      Assert.That(4, Is.EqualTo(count), "Matching the Collection Count");
       var documentIds = r.GeneratedIds;
       if (documentIds != null)
       {
-        Assert.AreEqual(documentIds[0].ToString(), documentIds[0].ToString(), "Matching the document ID without unique id");
-        Assert.AreEqual(documentIds[1].ToString(), documentIds[1].ToString(), "Matching the document ID without unique id");
-        Assert.AreEqual(documentIds[2].ToString(), documentIds[2].ToString(), "Matching the document ID without unique id");
-        Assert.AreEqual(documentIds[3].ToString(), documentIds[3].ToString(), "Matching the document ID without unique id");
+        Assert.That(documentIds[0].ToString(), Is.EqualTo(documentIds[0].ToString()), "Matching the document ID without unique id");
+        Assert.That(documentIds[1].ToString(), Is.EqualTo(documentIds[1].ToString()), "Matching the document ID without unique id");
+        Assert.That(documentIds[2].ToString(), Is.EqualTo(documentIds[2].ToString()), "Matching the document ID without unique id");
+        Assert.That(documentIds[3].ToString(), Is.EqualTo(documentIds[3].ToString()), "Matching the document ID without unique id");
       }
 
       var collectionName = col.Name;
-      Assert.AreEqual(collectionName, "my_collection_123456789", "Matching the collection Name");
-      Assert.AreEqual(schemaName, col.Schema.Name, "Matching the Schema Name");
+      Assert.That("my_collection_123456789", Is.EqualTo(collectionName), "Matching the collection Name");
+      Assert.That(col.Schema.Name, Is.EqualTo(schemaName), "Matching the Schema Name");
     }
 
     [Test, Description("Test MySQLX UUID Scenario-4(Check UUID generated when multiple JSON docs are added using some containing and some not containing _id fields)")]
@@ -999,13 +999,13 @@ namespace MySqlX.Data.Tests
       Result result = stmt.Execute();
       var documentIdsCount = result.GeneratedIds.Count;
       var documentIds = result.GeneratedIds;
-      Assert.AreEqual(4, documentIdsCount, "Matching the document ID count");
+      Assert.That(documentIdsCount, Is.EqualTo(4), "Matching the document ID count");
       if (documentIds != null)
       {
-        Assert.AreEqual(documentIds[0].ToString(), documentIds[0].ToString(), "Matching the document ID with unique id");
-        Assert.AreEqual(documentIds[1].ToString(), documentIds[1].ToString(), "Matching the document ID with unique id");
-        Assert.AreEqual(documentIds[2].ToString(), documentIds[2].ToString(), "Matching the document ID with unique id");
-        Assert.AreEqual(documentIds[3].ToString(), documentIds[3].ToString(), "Matching the document ID without unique id");
+        Assert.That(documentIds[0].ToString(), Is.EqualTo(documentIds[0].ToString()), "Matching the document ID with unique id");
+        Assert.That(documentIds[1].ToString(), Is.EqualTo(documentIds[1].ToString()), "Matching the document ID with unique id");
+        Assert.That(documentIds[2].ToString(), Is.EqualTo(documentIds[2].ToString()), "Matching the document ID with unique id");
+        Assert.That(documentIds[3].ToString(), Is.EqualTo(documentIds[3].ToString()), "Matching the document ID without unique id");
       }
     }
 
@@ -1025,13 +1025,13 @@ namespace MySqlX.Data.Tests
         newDoc2 = null;
       }
       Result r = testCollection.Add(jsonlist).Execute();
-      Assert.AreEqual(1000, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1000), "Matching");
       var documentIds = r.GeneratedIds;
-      Assert.False(documentIds != null && documentIds.Count > 0);
+      Assert.That(documentIds != null && documentIds.Count > 0, Is.False);
 
       Schema testSchema = session.GetSchema(schemaName);
       Table test = testSchema.GetCollectionAsTable("test");
-      Assert.AreEqual(true, test.ExistsInDatabase(), "Matching");
+      Assert.That(test.ExistsInDatabase(), Is.EqualTo(true), "Matching");
     }
 
     [Test, Description("Test MySQLX UUID Scenario-6(Check that no duplicate UUID is generated by adding multiple doc from the same collection in a session when there are no _id fields)")]
@@ -1053,16 +1053,16 @@ namespace MySqlX.Data.Tests
       var r = testCollection.Add(jsonlist);
       var result = r.Execute();
       var countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(1000, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1000), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         var generatedIDs1 = result.GeneratedIds[i];
-        Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+        Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
       }
 
       Schema testSchema = session.GetSchema(schemaName);
       Table test = testSchema.GetCollectionAsTable("test");
-      Assert.AreEqual(true, test.ExistsInDatabase(), "Matching");
+      Assert.That(test.ExistsInDatabase(), Is.EqualTo(true), "Matching");
     }
 
     [Test, Description("Test MySQLX UUID Scenario-7(Check UUID generated when multiple JSON docs are added using collection.add(doc, doc, doc... ) when docs contains _id fields with negative numbers,big positive numbers)")]
@@ -1088,11 +1088,11 @@ namespace MySqlX.Data.Tests
       var r = col.Add(data1).Add(data2);
       var result = r.Execute();
       var countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(4, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(4), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         var generatedIDs1 = result.GeneratedIds[i];
-        Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+        Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
       }
 
     }
@@ -1121,11 +1121,11 @@ namespace MySqlX.Data.Tests
       var r = col.Add(data1).Add(data2);
       var result = r.Execute();
       var countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(4, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(4), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         var generatedIDs1 = result.GeneratedIds[i];
-        Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+        Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
       }
 
     }
@@ -1147,11 +1147,11 @@ namespace MySqlX.Data.Tests
 
       Result result = testCollection.Add(jsonlist).Execute();
       //ID with blank could be added as per bug#27627861 as client will not do any validation and server will do"
-      Assert.IsNotNull(result);
+      Assert.That(result, Is.Not.Null);
 
       Schema testSchema = session.GetSchema("test");
       Table test = testSchema.GetCollectionAsTable("test");
-      Assert.AreEqual(true, test.ExistsInDatabase(), "Matching");
+      Assert.That(test.ExistsInDatabase(), Is.EqualTo(true), "Matching");
     }
 
     [Test, Description("Test MySQLX plugin Collection JSON Depth Scenarios")]
@@ -1170,7 +1170,7 @@ namespace MySqlX.Data.Tests
       }
 
       var result = col1.Add(d1).Execute();
-      Assert.Greater(result.AffectedItemsCount, 0);
+      Assert.That(result.AffectedItemsCount, Is.GreaterThan(0));
 
       var data1 = new DbDoc(@"{ ""_id"": 1, ""pages"": 20,
                   ""person"": { ""name"": ""Fred"", ""age"": 45 }
@@ -1188,12 +1188,12 @@ namespace MySqlX.Data.Tests
       d2.SetValue("taker2", data2);
 
       result = col.Add(d2).Execute();
-      Assert.Greater(result.AffectedItemsCount, 0);
+      Assert.That(result.AffectedItemsCount, Is.GreaterThan(0));
 
       var result1 = col1.Find().Execute().FetchAll();
-      Assert.AreEqual(1, result1.Count);
+      Assert.That(result1.Count, Is.EqualTo(1));
       var result2 = col.Find().Execute().FetchAll();
-      Assert.AreEqual(1, result2.Count);
+      Assert.That(result2.Count, Is.EqualTo(1));
     }
 
     [Test, Description("Test MySQLX plugin Collection Add function with null")]
@@ -1204,12 +1204,12 @@ namespace MySqlX.Data.Tests
       Collection col = CreateCollection("my_collection_1");
       var d1 = new DbDoc();
       d1.SetValue("id" + "_" + i.ToString(), "test");
-      Assert.AreEqual(1, col.Add(d1).Execute().AffectedItemsCount);
+      Assert.That(col.Add(d1).Execute().AffectedItemsCount, Is.EqualTo(1));
       var result1 = col.Find(null).Execute();
-      Assert.AreEqual(0, result1.AffectedItemsCount);
+      Assert.That(result1.AffectedItemsCount, Is.EqualTo(0));
       Assert.Throws<ArgumentNullException>(() => col.Add(null).Execute());
       var result2 = col.Add().Execute();
-      Assert.AreEqual(0, result2.AffectedItemsCount);
+      Assert.That(result2.AffectedItemsCount, Is.EqualTo(0));
     }
 
     [Test, Description("Test MySQLX plugin Invalid JSON String")]
@@ -1219,7 +1219,7 @@ namespace MySqlX.Data.Tests
       String json = "";
       json = "{'_id':'1004','F1': [] }";
       Exception ex = Assert.Throws<Exception>(() => col.Add(json).Execute());
-      StringAssert.Contains("The value provided is not a valid JSON document", ex.Message);
+      Assert.That(ex.Message, Does.Contain("The value provided is not a valid JSON document"));
     }
 
     [Test, Description("Test MySQLX plugin JSON String long expression")]
@@ -1246,7 +1246,7 @@ namespace MySqlX.Data.Tests
 
       var docs = col.Find().Fields(("{'X':" + query2 + "}")).Execute();
       var res = col.Modify("$.F1 = 1234").Set("F1", query2).Limit(1).Execute();
-      Assert.AreEqual(1, res.AffectedItemsCount);
+      Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
     }
 
     [Test, Description("Test MySQLX plugin Binary Expression")]
@@ -1260,18 +1260,18 @@ namespace MySqlX.Data.Tests
 
       var docs1 = col.Find().Fields("$._id as _id", "1 << 4 as tmp").Execute();
       var res = docs1.FetchAll();
-      StringAssert.AreEqualIgnoringCase("1004", res[0].Id.ToString());
+      Assert.That(res[0].Id.ToString(), Is.EqualTo("1004").IgnoreCase);
 
       docs1 = col.Find().Fields("$._id as _id", "$.F2 ^ 1 as tmp").Execute();
       res = docs1.FetchAll();
-      StringAssert.AreEqualIgnoringCase("1004", res[0].Id.ToString());
+      Assert.That(res[0].Id.ToString(), Is.EqualTo("1004").IgnoreCase);
       col.Add("{\"_id\":\"100001\",\"x1\":\"31\", \"x2\":\"13\", \"x3\":\"8\", \"x4\":\"18446744073709551614\"}").Execute();
       docs1 = col.Find("CAST($.x1 as SIGNED) | pow(2,$.x1) = $.x1").Fields("$._id as _id, $.x1 as x1, $.x2 as x2, $.x3 as x3 , $.x2 | pow(2,$.x1) as tmp").Execute();
       res = docs1.FetchAll();
-      Assert.IsNotNull(res);
+      Assert.That(res, Is.Not.Null);
       docs1 = col.Find("~16 = ~CAST($.F2 as SIGNED)").Fields("$._id as _id,$.F2 as f2, ~1 as tmp").Execute();
       res = docs1.FetchAll();
-      Assert.IsNotNull(res);
+      Assert.That(res, Is.Not.Null);
       int maxrec = 100;
       DbDoc newDoc = new DbDoc();
       newDoc.SetValue("_id", maxrec + 1000);
@@ -1283,17 +1283,17 @@ namespace MySqlX.Data.Tests
       json = "{'_id':'" + (maxrec + 1000 + 1) + "','F1':'Field-1-Data-" + (maxrec + 1) + "','F2':'Field-2-Data-" + (maxrec + 1) + "','F3':" + (300 + maxrec + 1) + "}";
       json = json.Replace("'", "\"");
       var res1 = col1.Add(json).Execute();
-      Assert.AreEqual(1, res1.AffectedItemsCount);
+      Assert.That(res1.AffectedItemsCount, Is.EqualTo(1));
       json = "{'F1': 'Field-1-Data-9999','F2': 'Field-2-Data-9999','F3': 'Field-3-Data-9999'}".Replace("'", "\"");
       col1.Add(json).Add(json.Replace("9", "8")).Execute();
-      Assert.AreEqual(1, res1.AffectedItemsCount);
+      Assert.That(res1.AffectedItemsCount, Is.EqualTo(1));
 
       var docs = col1.Find("$._id = 1100").Fields("$_id as _id,$.F1 as f1, $.F2 as f2, $.F3 as f3").Execute();
       var res2 = docs.FetchOne();
-      Assert.AreEqual("1100", res2["_id"].ToString());
-      Assert.AreEqual("Field-1-Data-100", res2["f1"].ToString());
-      Assert.AreEqual("Field-2-Data-100", res2["f2"].ToString());
-      Assert.AreEqual("400", res2["f3"].ToString());
+      Assert.That(res2["_id"].ToString(), Is.EqualTo("1100"));
+      Assert.That(res2["f1"].ToString(), Is.EqualTo("Field-1-Data-100"));
+      Assert.That(res2["f2"].ToString(), Is.EqualTo("Field-2-Data-100"));
+      Assert.That(res2["f3"].ToString(), Is.EqualTo("400"));
 
     }
 
@@ -1310,11 +1310,11 @@ namespace MySqlX.Data.Tests
         col.Add("{\"" + splName[i] + "\":\"data" + i + "\",\"ID\":" + i + "}").Execute();
         var docs = col.Find("$.ID = " + i).Fields("$.`" + splName[i] + "` as col1,$.ID as Id").Execute();
         var res = docs.FetchOne();
-        Assert.AreEqual(i.ToString(), res["Id"].ToString(), "Matching the ID");
+        Assert.That(res["Id"].ToString(), Is.EqualTo(i.ToString()), "Matching the ID");
         if (i == 30)
-          Assert.AreEqual("data" + i, "data30", "Matching the String");
+          Assert.That("data30", Is.EqualTo("data" + i), "Matching the String");
         else
-          Assert.AreEqual("data" + i, res["col1"].ToString(), "Matching the String");
+          Assert.That(res["col1"].ToString(), Is.EqualTo("data" + i), "Matching the String");
       }
     }
 
@@ -1360,13 +1360,13 @@ namespace MySqlX.Data.Tests
       }
 
       var tabRes = col.Add(newDoc).Add(newDoc1).Execute();
-      Assert.AreEqual(2, tabRes.AffectedItemsCount, "Matching the affected records");
+      Assert.That(tabRes.AffectedItemsCount, Is.EqualTo(2), "Matching the affected records");
 
       tabRes = col.Add(jsonlist).Add(newDoc2).Execute();
-      Assert.AreEqual(6, tabRes.AffectedItemsCount, "Matching the affected records");
+      Assert.That(tabRes.AffectedItemsCount, Is.EqualTo(6), "Matching the affected records");
 
       tabRes = col.Add(jsonlist1).Add(jsonlist2).Execute();
-      Assert.AreEqual(10, tabRes.AffectedItemsCount, "Matching the affected records");
+      Assert.That(tabRes.AffectedItemsCount, Is.EqualTo(10), "Matching the affected records");
     }
 
     [Test, Description("Test MySQLX plugin Collection Add Array")]
@@ -1393,7 +1393,7 @@ namespace MySqlX.Data.Tests
 
       jsonlist = null;
       var res = col.Find().Execute().FetchAll();
-      Assert.AreEqual(5, res.Count, "Matching the find count");
+      Assert.That(res.Count, Is.EqualTo(5), "Matching the find count");
     }
 
     [Test, Description("Test MySQLX plugin Collection JSON Scenarios")]
@@ -1406,9 +1406,9 @@ namespace MySqlX.Data.Tests
       string json = @"{ ""_id"": 0, ""title"": ""Book 0"" ,""pages"": 10,""name"": ""Jeoff Archer""}";
       Result r = col.Add(json).Execute();
 
-      Assert.AreEqual(1, (int)r.AffectedItemsCount, "Matching Affected Records Count");
+      Assert.That((int)r.AffectedItemsCount, Is.EqualTo(1), "Matching Affected Records Count");
       var foundDocs = col.Find("pages > 5").Execute();
-      Assert.AreEqual(1, foundDocs.Count(), "Matching Count");
+      Assert.That(foundDocs.Count(), Is.EqualTo(1), "Matching Count");
 
       json = @"{ ""_id"" : 99950, ""city"" : ""KETCHIKAN"", ""loc"" : ""[ -133.18479, 55.942471 ]"", ""pop"" : 422, ""state"" : ""AK"" }";
       r = col.Add(json).Execute();
@@ -1421,7 +1421,7 @@ namespace MySqlX.Data.Tests
       d2.SetValue("pages", 20);
       d2.SetValue("person", new { name = "Fred", age = 45 });
 
-      Assert.AreEqual(d.Equals(d2), true, "Matching");
+      Assert.That(true, Is.EqualTo(d.Equals(d2)), "Matching");
       col.Add(d).Execute();
 
       d = new DbDoc(@"{""id"":100,""FirstName"":""xyz"",""lastname"":""pqr"",
@@ -1453,14 +1453,14 @@ namespace MySqlX.Data.Tests
 
       var result = col.Find("$._id = 0").Fields("$._id as _id,$.name as name, $.pages as pages, $.title as title").Execute();
       var res1 = result.FetchOne();
-      Assert.AreEqual(0, res1["_id"]);
-      Assert.AreEqual("Jeoff Archer", res1["name"]);
-      Assert.AreEqual(10, res1["pages"]);
-      Assert.AreEqual("Book 0", res1["title"]);
+      Assert.That(res1["_id"], Is.EqualTo(0));
+      Assert.That(res1["name"], Is.EqualTo("Jeoff Archer"));
+      Assert.That(res1["pages"], Is.EqualTo(10));
+      Assert.That(res1["title"], Is.EqualTo("Book 0"));
 
       result = col.Find("$._id > 0").Fields().Execute();
       var res2 = result.FetchAll();
-      Assert.AreEqual(6, res2.Count());
+      Assert.That(res2.Count(), Is.EqualTo(6));
 
       DbDoc test = new DbDoc();
       test.SetValue("_id", 1);
@@ -1469,7 +1469,7 @@ namespace MySqlX.Data.Tests
       var res = coll.Add(test).Execute();
       foundDocs = coll.Find().Execute();
       var docs1 = foundDocs.FetchAll();
-      Assert.AreEqual(1, docs1.Count);
+      Assert.That(docs1.Count, Is.EqualTo(1));
     }
 
     [Test, Description("Verify that the field and column _id has a value when it's not given to a document-Scenario-1(single document add)")]
@@ -1486,10 +1486,10 @@ namespace MySqlX.Data.Tests
       var stmt = col.Add(data);
       result = stmt.Execute();
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+      Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
       VerifyGeneratedID(generatedIDs1);
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1502,10 +1502,10 @@ namespace MySqlX.Data.Tests
       stmt = col.Add(DbDocs);
       result = stmt.Execute();
       generatedIDs2 = result.GeneratedIds[0];
-      Assert.AreEqual(generatedIDs2, generatedIDs2, "ID generated by the server");
+      Assert.That(generatedIDs2, Is.EqualTo(generatedIDs2), "ID generated by the server");
       VerifyGeneratedID(generatedIDs2);
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1516,10 +1516,10 @@ namespace MySqlX.Data.Tests
       stmt = col.Add(docs);
       result = stmt.Execute();
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+      Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
       VerifyGeneratedID(generatedIDs1);
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1529,10 +1529,10 @@ namespace MySqlX.Data.Tests
       stmt = col.Add("{ \"foo\": 100 }");
       result = stmt.Execute();
       generatedIDs2 = result.GeneratedIds[0];
-      Assert.AreEqual(generatedIDs2, generatedIDs2, "ID generated by the server");
+      Assert.That(generatedIDs2, Is.EqualTo(generatedIDs2), "ID generated by the server");
       VerifyGeneratedID(generatedIDs2);
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1572,13 +1572,13 @@ namespace MySqlX.Data.Tests
       var stmt = col.Add(data1);
       result = stmt.Execute();
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(4, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(4), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         generatedIDs1 = result.GeneratedIds[i];
-        Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+        Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
         VerifyGeneratedID(generatedIDs1);
-        Assert.False(!firstset.Add(generatedIDs1));
+        Assert.That(!firstset.Add(generatedIDs1), Is.False);
       }
 
       for (int i = 0; i < countgenerateIDs; i++)
@@ -1589,13 +1589,13 @@ namespace MySqlX.Data.Tests
       stmt = col.Add(@"{ ""foo"": 1 }", @"{""foo"": 2 }", @"{ ""foo"": 3 }", @"{ ""foo"": 4 }");
       result = stmt.Execute();
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(4, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(4), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         generatedIDs1 = result.GeneratedIds[i];
-        Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+        Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
         VerifyGeneratedID(generatedIDs1);
-        Assert.False(!firstset.Add(generatedIDs1));
+        Assert.That(!firstset.Add(generatedIDs1), Is.False);
       }
 
       for (int i = 0; i < countgenerateIDs; i++)
@@ -1633,7 +1633,7 @@ namespace MySqlX.Data.Tests
       result = col.Add(data).Execute();
       countgenerateIDs = result.GeneratedIds.Count;
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1644,10 +1644,10 @@ namespace MySqlX.Data.Tests
       var stmt = col.Add(data);
       result = stmt.Execute();
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+      Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
       VerifyGeneratedID(generatedIDs1);
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1663,7 +1663,7 @@ namespace MySqlX.Data.Tests
       result = col.Add(data).Execute();
       countgenerateIDs = result.GeneratedIds.Count;
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1676,10 +1676,10 @@ namespace MySqlX.Data.Tests
       stmt = col.Add(DbDocs);
       result = stmt.Execute();
       generatedIDs2 = result.GeneratedIds[0];
-      Assert.AreEqual(generatedIDs2, generatedIDs2, "ID generated by the server");
+      Assert.That(generatedIDs2, Is.EqualTo(generatedIDs2), "ID generated by the server");
       VerifyGeneratedID(generatedIDs2);
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1695,7 +1695,7 @@ namespace MySqlX.Data.Tests
       result = col.Add(data).Execute();
       countgenerateIDs = result.GeneratedIds.Count;
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1706,10 +1706,10 @@ namespace MySqlX.Data.Tests
       stmt = col.Add(docs);
       result = stmt.Execute();
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+      Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
       VerifyGeneratedID(generatedIDs1);
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1725,7 +1725,7 @@ namespace MySqlX.Data.Tests
       result = col.Add(data).Execute();
       countgenerateIDs = result.GeneratedIds.Count;
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1735,10 +1735,10 @@ namespace MySqlX.Data.Tests
       stmt = col.Add("{ \"foo\": 100 }");
       result = stmt.Execute();
       generatedIDs2 = result.GeneratedIds[0];
-      Assert.AreEqual(generatedIDs2, generatedIDs2, "ID generated by the server");
+      Assert.That(generatedIDs2, Is.EqualTo(generatedIDs2), "ID generated by the server");
       VerifyGeneratedID(generatedIDs2);
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1775,7 +1775,7 @@ namespace MySqlX.Data.Tests
       result = col.Add(data).Execute();
       countgenerateIDs = result.GeneratedIds.Count;
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1790,13 +1790,13 @@ namespace MySqlX.Data.Tests
       var stmt = col.Add(data1).Add(data2);
       result = stmt.Execute();
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(2, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(2), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         generatedIDs1 = result.GeneratedIds[i];
-        Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+        Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
         VerifyGeneratedID(generatedIDs1);
-        Assert.False(!firstset.Add(generatedIDs1));
+        Assert.That(!firstset.Add(generatedIDs1), Is.False);
       }
       for (int i = 0; i < countgenerateIDs; i++)
       {
@@ -1812,7 +1812,7 @@ namespace MySqlX.Data.Tests
       result = col.Add(data).Execute();
       countgenerateIDs = result.GeneratedIds.Count;
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1828,13 +1828,13 @@ namespace MySqlX.Data.Tests
       stmt = col.Add(DbDocs1).Add(DbDocs2);
       result = stmt.Execute();
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(2, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(2), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         generatedIDs1 = result.GeneratedIds[i];
-        Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+        Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
         VerifyGeneratedID(generatedIDs1);
-        Assert.False(!firstset.Add(generatedIDs1));
+        Assert.That(!firstset.Add(generatedIDs1), Is.False);
       }
       for (int i = 0; i < countgenerateIDs; i++)
       {
@@ -1851,7 +1851,7 @@ namespace MySqlX.Data.Tests
       result = col.Add(data).Execute();
       countgenerateIDs = result.GeneratedIds.Count;
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1864,13 +1864,13 @@ namespace MySqlX.Data.Tests
 
       result = stmt.Execute();
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(2, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(2), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         generatedIDs1 = result.GeneratedIds[i];
-        Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+        Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
         VerifyGeneratedID(generatedIDs1);
-        Assert.False(!firstset.Add(generatedIDs1));
+        Assert.That(!firstset.Add(generatedIDs1), Is.False);
       }
       for (int i = 0; i < countgenerateIDs; i++)
       {
@@ -1886,7 +1886,7 @@ namespace MySqlX.Data.Tests
       result = col.Add(data).Execute();
       countgenerateIDs = result.GeneratedIds.Count;
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1896,11 +1896,11 @@ namespace MySqlX.Data.Tests
       stmt = col.Add("{ \"foo1\": 100 }").Add("{ \"foo2\": 200 }");
       result = stmt.Execute();
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(2, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(2), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         generatedIDs1 = result.GeneratedIds[i];
-        Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+        Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
         VerifyGeneratedID(generatedIDs1);
         if (!firstset.Add(generatedIDs1))
         {
@@ -1943,7 +1943,7 @@ namespace MySqlX.Data.Tests
       result = col.Add(data).Execute();
       countgenerateIDs = result.GeneratedIds.Count;
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1962,13 +1962,13 @@ namespace MySqlX.Data.Tests
       var stmt = col.Add(data1);
       result = stmt.Execute();
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(4, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(4), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         generatedIDs1 = result.GeneratedIds[i];
-        Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+        Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
         VerifyGeneratedID(generatedIDs1);
-        Assert.False(!firstset.Add(generatedIDs1));
+        Assert.That(!firstset.Add(generatedIDs1), Is.False);
       }
       for (int i = 0; i < countgenerateIDs; i++)
       {
@@ -1979,7 +1979,7 @@ namespace MySqlX.Data.Tests
       result = col.Add(@"{ ""foo"": 0, ""_id"":0 }", @"{""foo"": 5 }").Execute();
       countgenerateIDs = result.GeneratedIds.Count;
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         idStringList.Add(result.GeneratedIds[i]);
@@ -1989,13 +1989,13 @@ namespace MySqlX.Data.Tests
       stmt = col.Add(@"{ ""foo"": 1 }", @"{""foo"": 2 }", @"{ ""foo"": 3 }", @"{ ""foo"": 4 }");
       result = stmt.Execute();
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(4, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(4), "Count of the ID generated by the server");
       for (int i = 0; i < countgenerateIDs; i++)
       {
         generatedIDs1 = result.GeneratedIds[i];
-        Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+        Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
         VerifyGeneratedID(generatedIDs1);
-        Assert.False(!firstset.Add(generatedIDs1));
+        Assert.That(!firstset.Add(generatedIDs1), Is.False);
       }
       for (int i = 0; i < countgenerateIDs; i++)
       {
@@ -2024,20 +2024,20 @@ namespace MySqlX.Data.Tests
       };
       Result result = col.Add(data).Execute();
       var generatedIDs = result.GeneratedIds;
-      Assert.AreEqual(0, generatedIDs.Count, "Matches");
+      Assert.That(generatedIDs.Count, Is.EqualTo(0), "Matches");
       var doc = col.Find("_id like :param").Bind("param", "1e9c92fda74ed311944e00059a3c7a00").Execute();
       var docs = doc.FetchAll().Count();
-      Assert.AreEqual(1, docs, "Matches");
+      Assert.That(docs, Is.EqualTo(1), "Matches");
 
       //Anonymous Object
       var data1 = new { _id = "1e9c92fda74ed311944e00059a3c7a01", title = "Book 0", pages = 10 };
       result = col.Add(data1).Execute();
 
       generatedIDs = result.GeneratedIds;
-      Assert.AreEqual(0, generatedIDs.Count, "Matches");
+      Assert.That(generatedIDs.Count, Is.EqualTo(0), "Matches");
       doc = col.Find("_id like :param").Bind("param", "1e9c92fda74ed311944e00059a3c7a01").Execute();
       docs = doc.FetchAll().Count();
-      Assert.AreEqual(1, docs, "Matches");
+      Assert.That(docs, Is.EqualTo(1), "Matches");
 
       // DbDoc
       DbDoc DbDocs = new DbDoc();
@@ -2047,18 +2047,18 @@ namespace MySqlX.Data.Tests
       result = col.Add(DbDocs).Execute();
 
       generatedIDs = result.GeneratedIds;
-      Assert.AreEqual(0, generatedIDs.Count, "Matches");
+      Assert.That(generatedIDs.Count, Is.EqualTo(0), "Matches");
       doc = col.Find("_id like :param").Bind("param", "1e9c92fda74ed311944e00059a3c7a02").Execute();
       docs = doc.FetchAll().Count();
-      Assert.AreEqual(1, docs, "Matches");
+      Assert.That(docs, Is.EqualTo(1), "Matches");
 
       //JSON
       result = col.Add("{\"_id\":\"1e9c92fda74ed311944e00059a3c7a03\",\"title\": \"Book 0\",\"pages\": 10}").Execute();
       generatedIDs = result.GeneratedIds;
-      Assert.AreEqual(0, generatedIDs.Count, "Matches");
+      Assert.That(generatedIDs.Count, Is.EqualTo(0), "Matches");
       doc = col.Find("_id like :param").Bind("param", "1e9c92fda74ed311944e00059a3c7a03").Execute();
       docs = doc.FetchAll().Count();
-      Assert.AreEqual(1, docs, "Matches");
+      Assert.That(docs, Is.EqualTo(1), "Matches");
     }
 
     [Test, Description("Client provided _id shouldnt be discarded and generatedids() should give empty list for anonymous object array -multiple documents multiple add with negative number")]
@@ -2075,26 +2075,26 @@ namespace MySqlX.Data.Tests
       };
       Result result = col.Add(data1).Add(data2).Execute();
       var generatedIDs = result.GeneratedIds;
-      Assert.AreEqual(0, generatedIDs.Count, "Matches");
+      Assert.That(generatedIDs.Count, Is.EqualTo(0), "Matches");
       var doc = col.Find("_id like :param").Bind("param", "1e9c92fda74ed311944e00059a3c7a00").Execute();
       var docs = doc.FetchAll().Count();
-      Assert.AreEqual(1, docs, "Matches");
+      Assert.That(docs, Is.EqualTo(1), "Matches");
       doc = col.Find("_id like :param").Bind("param", -1).Execute();
       docs = doc.FetchAll().Count();
-      Assert.AreEqual(1, docs, "Matches");
+      Assert.That(docs, Is.EqualTo(1), "Matches");
 
       // Anonymous Object
       var data3 = new { _id = "1e9c92fda74ed311944e00059a3c7a01", title = "Book 0", pages = 10 };
       var data4 = new { _id = -2, title = "Book 0", pages = 10 };
       result = col.Add(data3).Add(data4).Execute();
       generatedIDs = result.GeneratedIds;
-      Assert.AreEqual(0, generatedIDs.Count, "Matches");
+      Assert.That(generatedIDs.Count, Is.EqualTo(0), "Matches");
       doc = col.Find("_id like :param").Bind("param", "1e9c92fda74ed311944e00059a3c7a01").Execute();
       docs = doc.FetchAll().Count();
-      Assert.AreEqual(1, docs, "Matches");
+      Assert.That(docs, Is.EqualTo(1), "Matches");
       doc = col.Find("_id like :param").Bind("param", -2).Execute();
       docs = doc.FetchAll().Count();
-      Assert.AreEqual(1, docs, "Matches");
+      Assert.That(docs, Is.EqualTo(1), "Matches");
 
       //DbDoc
       DbDoc DbDocs1 = new DbDoc();
@@ -2107,26 +2107,26 @@ namespace MySqlX.Data.Tests
       DbDocs2.SetValue("_id", -3);
       result = col.Add(DbDocs1).Add(DbDocs2).Execute();
       generatedIDs = result.GeneratedIds;
-      Assert.AreEqual(0, generatedIDs.Count, "Matches");
+      Assert.That(generatedIDs.Count, Is.EqualTo(0), "Matches");
       doc = col.Find("_id like :param").Bind("param", "1e9c92fda74ed311944e00059a3c7a02").Execute();
       docs = doc.FetchAll().Count();
-      Assert.AreEqual(1, docs, "Matches");
+      Assert.That(docs, Is.EqualTo(1), "Matches");
       doc = col.Find("_id like :param").Bind("param", -3).Execute();
       docs = doc.FetchAll().Count();
-      Assert.AreEqual(1, docs, "Matches");
+      Assert.That(docs, Is.EqualTo(1), "Matches");
 
       // JSON
       result = col.Add("{\"_id\":\"1e9c92fda74ed311944e00059a3c7a03\",\"title\": \"Book 0\",\"pages\": 10}").
           Add("{\"_id\":-4,\"title\": \"Book 0\",\"pages\": 10}").
           Execute();
       generatedIDs = result.GeneratedIds;
-      Assert.AreEqual(0, generatedIDs.Count, "Matches");
+      Assert.That(generatedIDs.Count, Is.EqualTo(0), "Matches");
       doc = col.Find("_id like :param").Bind("param", "1e9c92fda74ed311944e00059a3c7a03").Execute();
       docs = doc.FetchAll().Count();
-      Assert.AreEqual(1, docs, "Matches");
+      Assert.That(docs, Is.EqualTo(1), "Matches");
       doc = col.Find("_id like :param").Bind("param", -4).Execute();
       docs = doc.FetchAll().Count();
-      Assert.AreEqual(1, docs, "Matches");
+      Assert.That(docs, Is.EqualTo(1), "Matches");
     }
 
     [Test, Description("Client provided _id shouldnt be discarded and generatedids() should give empty list for anonymous object array -multiple documents single add with negative number,zero and big positive numbers")]
@@ -2145,12 +2145,12 @@ namespace MySqlX.Data.Tests
       };
       Result result = col.Add(data1).Execute();
       var generatedIDs = result.GeneratedIds;
-      Assert.AreEqual(0, generatedIDs.Count, "Matches");
+      Assert.That(generatedIDs.Count, Is.EqualTo(0), "Matches");
       for (int i = 0; i < idList.Length; i++)
       {
         var doc = col.Find("_id like :param").Bind("param", idList[i]).Execute();
         var docs = doc.FetchAll().Count();
-        Assert.AreEqual(1, docs, "Matches the Document ID");
+        Assert.That(docs, Is.EqualTo(1), "Matches the Document ID");
       }
     }
 
@@ -2169,12 +2169,12 @@ namespace MySqlX.Data.Tests
               new { _id = idList[1], title = "Book 0", pages = 10 }
       };
       Result result1 = col.Add(data1).Execute();
-      Assert.AreEqual(1, result1.AffectedItemsCount);
+      Assert.That(result1.AffectedItemsCount, Is.EqualTo(1));
       result1 = null;
 
       col = CreateCollection("my_collection");
       result1 = col.Add(data2).Execute();
-      Assert.AreEqual(1, result1.AffectedItemsCount);
+      Assert.That(result1.AffectedItemsCount, Is.EqualTo(1));
       result1 = null;
 
       col = CreateCollection("my_collection");
@@ -2184,7 +2184,7 @@ namespace MySqlX.Data.Tests
       DbDocs1.SetValue("pages", 10);
       DbDocs1.SetValue("_id", "");
       result1 = col.Add(DbDocs1).Execute();
-      Assert.AreEqual(1, result1.AffectedItemsCount);
+      Assert.That(result1.AffectedItemsCount, Is.EqualTo(1));
       result1 = null;
 
       col = CreateCollection("my_collection");
@@ -2193,18 +2193,18 @@ namespace MySqlX.Data.Tests
       DbDocs2.SetValue("pages", 20);
       DbDocs2.SetValue("_id", " ");
       result1 = col.Add(DbDocs2).Execute();
-      Assert.AreEqual(1, result1.AffectedItemsCount);
+      Assert.That(result1.AffectedItemsCount, Is.EqualTo(1));
       result1 = null;
 
       // JSON
       col = CreateCollection("my_collection");
       result1 = col.Add("{\"_id\":\"\",\"title\": \"Book 0\",\"pages\": 10}").Execute();
-      Assert.AreEqual(1, result1.AffectedItemsCount);
+      Assert.That(result1.AffectedItemsCount, Is.EqualTo(1));
       result1 = null;
 
       col = CreateCollection("my_collection");
       result1 = col.Add("{\"_id\":\" \",\"title\": \"Book 0\",\"pages\": 10}").Execute();
-      Assert.AreEqual(1, result1.AffectedItemsCount);
+      Assert.That(result1.AffectedItemsCount, Is.EqualTo(1));
       result1 = null;
 
     }
@@ -2224,12 +2224,12 @@ namespace MySqlX.Data.Tests
       DbDocs2.SetValue("pages", 20);
       DbDocs2.SetValue("_id", 1);
       var ex = Assert.Throws<MySqlException>(() => col.Add(DbDocs1).Add(DbDocs2).Execute());
-      Assert.AreEqual(exception, ex.Message, "Checking the exception");
+      Assert.That(ex.Message, Is.EqualTo(exception), "Checking the exception");
 
       // JSON
       ex = Assert.Throws<MySqlException>(() => col.Add("{\"_id\":1,\"title\": \"Book 0\",\"pages\": 10}").
            Add("{\"_id\":1,\"title\": \"Book 1\",\"pages\": 20}").Execute());
-      Assert.AreEqual(exception, ex.Message, "Checking the exception");
+      Assert.That(ex.Message, Is.EqualTo(exception), "Checking the exception");
 
       // Anonymous Object Array
       object[] data1 = new object[]
@@ -2241,7 +2241,7 @@ namespace MySqlX.Data.Tests
         new { _id = 1, title = "Book 1", pages = 20 }
       };
       ex = Assert.Throws<MySqlException>(() => col.Add(data1).Add(data2).Execute());
-      Assert.AreEqual(exception, ex.Message, "Checking the exception");
+      Assert.That(ex.Message, Is.EqualTo(exception), "Checking the exception");
     }
 
     [Test, Description("Verify the behaviour if a sequence is incremented by the user and added as _id for the document")]
@@ -2259,10 +2259,10 @@ namespace MySqlX.Data.Tests
 
       result = stmt.Execute();
       generatedIDs1 = result.GeneratedIds[0];
-      Assert.AreEqual(generatedIDs1, generatedIDs1, "ID generated by the server");
+      Assert.That(generatedIDs1, Is.EqualTo(generatedIDs1), "ID generated by the server");
       VerifyGeneratedID(generatedIDs1);
       countgenerateIDs = result.GeneratedIds.Count;
-      Assert.AreEqual(1, countgenerateIDs, "Count of the ID generated by the server");
+      Assert.That(countgenerateIDs, Is.EqualTo(1), "Count of the ID generated by the server");
       generatedString = generatedIDs1;
       incrementedString = Increment(generatedIDs1, Mode.AlphaNumeric);
 
@@ -2270,17 +2270,17 @@ namespace MySqlX.Data.Tests
       stmt = col.Add(data);
       string exception = "Document contains a field value that is not unique but required to be";
       Exception ex = Assert.Throws<MySqlException>(() => stmt.Execute());
-      Assert.AreEqual(exception, ex.Message, "Matching the exception");
+      Assert.That(ex.Message, Is.EqualTo(exception), "Matching the exception");
 
       data = new object[] { new { title = "Book 3", pages = 50, _id = incrementedString } };
       stmt = col.Add(data);
       result = stmt.Execute();
-      Assert.IsNotNull(result);
+      Assert.That(result, Is.Not.Null);
 
       data = new object[] { new { title = "Book 4", pages = 60 } };
       stmt = col.Add(data);
       ex = Assert.Throws<MySqlException>(() => stmt.Execute());
-      Assert.AreEqual(exception, ex.Message, "Matching the exception");
+      Assert.That(ex.Message, Is.EqualTo(exception), "Matching the exception");
 
     }
 
@@ -2292,7 +2292,7 @@ namespace MySqlX.Data.Tests
       CreateCollection("my_collection");
       var r1 = await CollectionAddThread1();
       _ = await CollectionAddThread2();
-      Assert.AreEqual(1000, r1);
+      Assert.That(r1, Is.EqualTo(1000));
     }
     public Task<int> CollectionAddThread1()
     {
@@ -2309,7 +2309,7 @@ namespace MySqlX.Data.Tests
         newDoc2 = null;
       }
       Result r = col.Add(jsonlist).Execute();
-      Assert.AreEqual(1000, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1000), "Matching");
       int countgenerateIDs = r.GeneratedIds.Count;
       for (int i = 0; i < countgenerateIDs; i++)
       {
@@ -2344,7 +2344,7 @@ namespace MySqlX.Data.Tests
         newDoc2 = null;
       }
       Result r = col.Add(jsonlist).Execute();
-      Assert.AreEqual(1000, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1000), "Matching");
       int countgenerateIDs = r.GeneratedIds.Count;
       for (int i = 0; i < countgenerateIDs; i++)
       {
@@ -2381,7 +2381,7 @@ namespace MySqlX.Data.Tests
       d2.SetValue("pages", 20);
       d2.SetValue("taker1", data1);
       string expected = $"{{{newLine}  \"id\": 1, {newLine}  \"pages\": 20, {newLine}  \"taker1\": {{{newLine}    \"id\": 1, {newLine}    \"pages\": 20, {newLine}    \"person\": {{{newLine}      \"name\": \"Fred\", {newLine}      \"age\": 45{newLine}    }}{newLine}  }}{newLine}}}";
-      Assert.AreEqual(expected, d2.ToString());
+      Assert.That(d2.ToString(), Is.EqualTo(expected));
     }
 
     [Test, Description("ADDITION OF OBJ FAILS AFTER CREATE INDEX IN 5.7.12 SERVER(WORKS WITH 5.7.9)")]
@@ -2391,7 +2391,7 @@ namespace MySqlX.Data.Tests
       testColl.CreateIndex("testIndex", "{\"fields\": [ { \"field\":$.myId, \"type\":\"INT\" , \"required\":true} ] }");
       testColl.CreateIndex("testIndex1", "{\"fields\": [ { \"field\":$.myAge, \"type\":\"FLOAT\" , \"required\":true} ] }");
       var result = testColl.Add(new { myId = 1, myAge = 35.1, _id = 1 }).Execute();
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
     }
 
     [Test, Description("Test valid insert at Depth n for multiple arrays))")]
@@ -2420,7 +2420,7 @@ namespace MySqlX.Data.Tests
       json = json + "}";
 
       var res = collection.Add(json).Execute();
-      Assert.AreEqual(1, res.AffectedItemsCount);
+      Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
     }
 
     #endregion WL14389
@@ -2430,32 +2430,32 @@ namespace MySqlX.Data.Tests
     public void VerifyGeneratedID(string input)
     {
       byte[] array = Encoding.ASCII.GetBytes(input);
-      Assert.False(array.Length < 28);
+      Assert.That(array.Length < 28, Is.False);
 
       byte[] uniquePrefix = new byte[4];
       Array.Copy(array, 0, uniquePrefix, 0, 4);
 
-      Assert.AreEqual(System.Text.Encoding.UTF8.GetString(uniquePrefix), System.Text.Encoding.UTF8.GetString(uniquePrefix),
+      Assert.That(System.Text.Encoding.UTF8.GetString(uniquePrefix), Is.EqualTo(System.Text.Encoding.UTF8.GetString(uniquePrefix)),
           "Unique Prefix of the Generated ID");
 
       byte[] startTimeStamp = new byte[8];
       Array.Copy(array, 4, startTimeStamp, 0, 8);
-      Assert.AreEqual(System.Text.Encoding.UTF8.GetString(startTimeStamp), System.Text.Encoding.UTF8.GetString(startTimeStamp),
+      Assert.That(System.Text.Encoding.UTF8.GetString(startTimeStamp), Is.EqualTo(System.Text.Encoding.UTF8.GetString(startTimeStamp)),
           "StartTimeStamp of the Generated ID");
 
       byte[] serial = new byte[16];
       Array.Copy(array, 12, serial, 0, 16);
-      Assert.AreEqual(System.Text.Encoding.UTF8.GetString(serial), System.Text.Encoding.UTF8.GetString(serial),
+      Assert.That(System.Text.Encoding.UTF8.GetString(serial), Is.EqualTo(System.Text.Encoding.UTF8.GetString(serial)),
           "Serial Number of the Generated ID");
     }
 
     public bool VerifySequence(string input1, string input2)
     {
       byte[] array1 = Encoding.ASCII.GetBytes(input1);
-      Assert.False(array1.Length < 28);
+      Assert.That(array1.Length < 28, Is.False);
       byte[] array2 = Encoding.ASCII.GetBytes(input2);
-      Assert.False(array2.Length < 28);
-      Assert.AreNotEqual(input1, input2);
+      Assert.That(array2.Length < 28, Is.False);
+      Assert.That(input2, Is.Not.EqualTo(input1));
       string incrementedString = Increment(input1, Mode.AlphaNumeric);
       if (incrementedString.Equals(input2))
       {

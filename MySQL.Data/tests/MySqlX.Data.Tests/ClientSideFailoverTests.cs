@@ -56,13 +56,13 @@ namespace MySqlX.Data.Tests
       // Single host.
       using (var session = MySQLX.GetSession(ConnectionString))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       // Multiple hosts.
       using (var session = MySQLX.GetSession($"server=10.10.10.10, {Host}, 20.20.20.20, 30.30.30.30;port={XPort};uid=test;password=test;connecttimeout={connectionTimeout}"))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       // Multiple hosts with IPv6
@@ -70,23 +70,23 @@ namespace MySqlX.Data.Tests
       {
         using (var session = MySQLX.GetSession($"server=10.10.10.10, {localServerIpv6}, 20.20.20.20, 30.30.30.30;port={XPort};uid=test;password=test;connecttimeout={connectionTimeout}"))
         {
-          Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+          Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         }
       }
 
       // Multiple hosts using synonyms for "server" connection option.
       using (var session = MySQLX.GetSession($"host=10.10.10.10, {Host};port={XPort};uid=test;password=test;connecttimeout=" + connectionTimeout))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       // Multiple hosts. All attempts fail.
       Exception ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession($"server= 10.10.10.10, 20.20.20.20 ;port={XPort};uid=test;password=test;connecttimeout={connectionTimeout}"));
-      Assert.AreEqual("Unable to connect to any of the specified MySQL hosts.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Unable to connect to any of the specified MySQL hosts."));
 
       // Providing port number as part of the host name.
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server= 10.10.10.10:33050, 20.20.20.20:33060, {Host}:{XPort} ;port={XPort};uid=test;password=test;connecttimeout={connectionTimeout}"));
-      Assert.AreEqual("Providing a port number as part of the host address isn't supported when using connection strings in basic format or anonymous objects. Use URI format instead.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Providing a port number as part of the host address isn't supported when using connection strings in basic format or anonymous objects. Use URI format instead."));
     }
 
     [Test]
@@ -97,13 +97,13 @@ namespace MySqlX.Data.Tests
       // Single host.
       using (var session = MySQLX.GetSession($"mysqlx://test:test@{Host}:{XPort}?connecttimeout={connectionTimeout}"))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       // Single host and port as an array. Successful connection.
       using (var session = MySQLX.GetSession($"mysqlx://test:test@[{Host}:" + XPort + "]?connecttimeout=" + connectionTimeout))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       // Single host as an array. Failed connection.
@@ -112,13 +112,13 @@ namespace MySqlX.Data.Tests
       // Multiple hosts.
       using (var session = MySQLX.GetSession($"mysqlx://test:test@[192.1.10.10,{Host}:" + XPort + "]?connecttimeout=" + connectionTimeout))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       // Multiple hosts and a schema.
       using (var session = MySQLX.GetSession($"mysqlx://test:test@[192.1.10.10,{Host}:" + XPort + "]/test?connecttimeout=" + connectionTimeout))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       // Multiple hosts which may or may not contain a port number.
@@ -126,7 +126,7 @@ namespace MySqlX.Data.Tests
       {
         using (var session = MySQLX.GetSession($"mysqlx://test:test@[192.1.10.10,120.0.0.2:22000,[{localServerIpv6}]:{XPort}]/test?connecttimeout={connectionTimeout}"))
         {
-          Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+          Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         }
       }
     }
@@ -141,13 +141,13 @@ namespace MySqlX.Data.Tests
       // Single host.
       using (var session = MySQLX.GetSession(new { server = Host, port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       // Multiple hosts.
       using (var session = MySQLX.GetSession(new { server = $"10.10.10.10, {Host}", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       // Multiple hosts with IPv6      
@@ -155,23 +155,23 @@ namespace MySqlX.Data.Tests
       {
         using (var session = MySQLX.GetSession(new { server = $"10.10.10.10, {localServerIpv6}", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
         {
-          Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+          Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         }
       }
 
       // Multiple hosts using synonyms for "server" connection option. First attempt fails, second is succesful.
       using (var session = MySQLX.GetSession(new { datasource = $"10.10.10.10, {Host}", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       // Multiple hosts. All attempts fail.
       Exception ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new { server = "10.10.10.10, 20.20.20.20", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }));
-      Assert.AreEqual("Unable to connect to any of the specified MySQL hosts.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Unable to connect to any of the specified MySQL hosts."));
 
       // Providing port number as part of the host name.
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = "10.10.10.10:33060, 20.20.20.20:33060", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }));
-      Assert.AreEqual("Providing a port number as part of the host address isn't supported when using connection strings in basic format or anonymous objects. Use URI format instead.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Providing a port number as part of the host address isn't supported when using connection strings in basic format or anonymous objects. Use URI format instead."));
     }
 
     [Test]
@@ -189,11 +189,11 @@ namespace MySqlX.Data.Tests
           Session newSession = MySQLX.GetSession($"server=(address={Host},priority=100);port=" + XPort + ";uid=test;password=test;");
           sessions.Add(newSession);
         }
-        Assert.False(true, "MySqlException should be thrown");
+        Assert.That(true, Is.False, "MySqlException should be thrown");
       }
       catch (MySqlException exception)
       {
-        Assert.AreEqual(ResourcesX.UnableToOpenSession, exception.Message);
+        Assert.That(exception.Message, Is.EqualTo(ResourcesX.UnableToOpenSession));
       }
       finally
       {
@@ -202,20 +202,20 @@ namespace MySqlX.Data.Tests
 
       using (var session = MySQLX.GetSession($"server=(address={Host},priority=100);port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(Host, session.Settings.Server);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Server, Is.EqualTo(Host));
       }
 
       using (var session = MySQLX.GetSession($"server=(address=server.example,priority=50),(address={Host},priority=100);port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(Host, session.Settings.Server);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Server, Is.EqualTo(Host));
       }
 
       using (var session = MySQLX.GetSession($"server=(address=server.example,priority=100),(address={Host},priority=25),(address=192.0.10.56,priority=75);port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(Host, session.Settings.Server);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Server, Is.EqualTo(Host));
       }
 
       using (var session = MySQLX.GetSession(new
@@ -227,33 +227,33 @@ namespace MySqlX.Data.Tests
         sslmode = MySqlSslMode.Disabled
       }))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(Host, session.Settings.Server);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Server, Is.EqualTo(Host));
       }
 
       using (var session = MySQLX.GetSession($"server=(address=server.example,priority=100),(address={Host},priority=25),(address=192.0.10.56,priority=75);port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(Host, session.Settings.Server);
-        Assert.AreEqual("server.example", FailoverManager.FailoverGroup.Hosts[0].Host);
-        Assert.AreEqual("192.0.10.56", FailoverManager.FailoverGroup.Hosts[1].Host);
-        Assert.AreEqual(Host, FailoverManager.FailoverGroup.Hosts[2].Host);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Server, Is.EqualTo(Host));
+        Assert.That(FailoverManager.FailoverGroup.Hosts[0].Host, Is.EqualTo("server.example"));
+        Assert.That(FailoverManager.FailoverGroup.Hosts[1].Host, Is.EqualTo("192.0.10.56"));
+        Assert.That(FailoverManager.FailoverGroup.Hosts[2].Host, Is.EqualTo(Host));
       }
 
       // Priority outside the 0-100 allowed range.
       Exception ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server=(address=server.example,priority=-20),(address={Host},priority=100);port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout));
-      Assert.AreEqual("The priority must be between 0 and 100.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100."));
 
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server=(address=server.example,priority=-50),(address={Host},priority=101);port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout));
-      Assert.AreEqual("The priority must be between 0 and 100.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100."));
 
       // Set priority for a subset of the hosts.
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server=(address=server.example),(address={Host},priority=100);port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout));
-      Assert.AreEqual("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server=(address=server.example,priority=50),(address={Host});port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout));
-      Assert.AreEqual("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server=(address=server.example,priority=50),(address={Host},priority=100),(address=server.example);port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout));
-      Assert.AreEqual("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
 
       // Automatically set priority if no priority is given.
       string hostList = string.Empty;
@@ -266,11 +266,11 @@ namespace MySqlX.Data.Tests
 
       using (var session = MySQLX.GetSession($"server={hostList};port={XPort};uid=test;password=test;connecttimeout={connectionTimeout}"))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         priority = 100;
         foreach (var host in FailoverManager.FailoverGroup.Hosts)
         {
-          Assert.AreEqual(priority != 0 ? priority-- : 0, host.Priority);
+          Assert.That(host.Priority, Is.EqualTo(priority != 0 ? priority-- : 0));
         }
       }
     }
@@ -290,11 +290,11 @@ namespace MySqlX.Data.Tests
           Session newSession = MySQLX.GetSession($"mysqlx://test:test@[(address={Host}:" + XPort + ",priority=50)]?connecttimeout=" + connectionTimeout);
           sessions.Add(newSession);
         }
-        Assert.False(true, "MySqlException should be thrown");
+        Assert.That(true, Is.False, "MySqlException should be thrown");
       }
       catch (MySqlException exception)
       {
-        Assert.AreEqual(ResourcesX.UnableToOpenSession, exception.Message);
+        Assert.That(exception.Message, Is.EqualTo(ResourcesX.UnableToOpenSession));
       }
       finally
       {
@@ -303,39 +303,39 @@ namespace MySqlX.Data.Tests
 
       using (var session = MySQLX.GetSession($"mysqlx://test:test@[(address=server.example,priority=50),(address={Host}:{XPort},priority=100)]?connecttimeout=" + connectionTimeout))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(Host, session.Settings.Server);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Server, Is.EqualTo(Host));
       }
 
       using (var session = MySQLX.GetSession($"mysqlx://test:test@[(address=server.example,priority=50),(address={Host}:{XPort},priority=100)]?connecttimeout=" + connectionTimeout))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(Host, session.Settings.Server);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Server, Is.EqualTo(Host));
       }
 
       using (var session = MySQLX.GetSession($"mysqlx://test:test@[(address=server.example,priority=100),(address={Host}:{XPort},priority=25),(address=192.0.10.56,priority=75)]?connecttimeout=" + connectionTimeout))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(Host, session.Settings.Server);
-        Assert.AreEqual("server.example", FailoverManager.FailoverGroup.Hosts[0].Host);
-        Assert.AreEqual("192.0.10.56", FailoverManager.FailoverGroup.Hosts[1].Host);
-        Assert.AreEqual(Host, FailoverManager.FailoverGroup.Hosts[2].Host);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Server, Is.EqualTo(Host));
+        Assert.That(FailoverManager.FailoverGroup.Hosts[0].Host, Is.EqualTo("server.example"));
+        Assert.That(FailoverManager.FailoverGroup.Hosts[1].Host, Is.EqualTo("192.0.10.56"));
+        Assert.That(FailoverManager.FailoverGroup.Hosts[2].Host, Is.EqualTo(Host));
       }
 
       // Priority outside the 0-100 allowed range.
       Exception ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"mysqlx://test:test@[(address=server.example,priority=-20),(address={Host}:{XPort},priority=100)]?connecttimeout=" + connectionTimeout));
-      Assert.AreEqual("The priority must be between 0 and 100.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100."));
 
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"mysqlx://test:test@[(address=server.example,priority=50),(address={Host}:{XPort},priority=101)]?connecttimeout=" + connectionTimeout));
-      Assert.AreEqual("The priority must be between 0 and 100.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100."));
 
       // Set priority for a subset of the hosts.
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"mysqlx://test:test@[(address=server.example),(address={Host}:{XPort},priority=100)]?connecttimeout=" + connectionTimeout));
-      Assert.AreEqual("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"mysqlx://test:test@[(address=server.example,priority=100),(address={Host}:{XPort})]?connecttimeout=" + connectionTimeout));
-      Assert.AreEqual("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"mysqlx://test:test@[(address=server.example),(address={Host}:{XPort}),(address=server2.example,priority=100)]?connecttimeout=" + connectionTimeout));
-      Assert.AreEqual("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
 
       // Automatically set priority if no priority is given.
       string hostList = string.Empty;
@@ -348,11 +348,11 @@ namespace MySqlX.Data.Tests
 
       using (var session = MySQLX.GetSession($"mysqlx://test:test@[{hostList}]?connecttimeout=" + connectionTimeout))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         priority = 100;
         foreach (var host in FailoverManager.FailoverGroup.Hosts)
         {
-          Assert.AreEqual(priority != 0 ? priority-- : 0, host.Priority);
+          Assert.That(host.Priority, Is.EqualTo(priority != 0 ? priority-- : 0));
         }
       }
     }
@@ -375,11 +375,11 @@ namespace MySqlX.Data.Tests
           sessions.Add(newSession);
         }
 
-        Assert.False(true, "MySqlException should be thrown");
+        Assert.That(true, Is.False, "MySqlException should be thrown");
       }
       catch (MySqlException exception)
       {
-        Assert.AreEqual(ResourcesX.UnableToOpenSession, exception.Message);
+        Assert.That(exception.Message, Is.EqualTo(ResourcesX.UnableToOpenSession));
       }
       finally
       {
@@ -388,44 +388,44 @@ namespace MySqlX.Data.Tests
 
       using (var session = MySQLX.GetSession(new { server = $"(address={Host},priority=100)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(Host, session.Settings.Server);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Server, Is.EqualTo(Host));
       }
 
       using (var session = MySQLX.GetSession(new { server = $"(address=server.example,priority=50),(address={Host},priority=100)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(Host, session.Settings.Server);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Server, Is.EqualTo(Host));
       }
 
       using (var session = MySQLX.GetSession(new { server = $"(address=server.example,priority=100),(address={Host},priority=25),(address=192.0.10.56,priority=75)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
-        Assert.AreEqual(Host, session.Settings.Server);
-        Assert.AreEqual("server.example", FailoverManager.FailoverGroup.Hosts[0].Host);
-        Assert.AreEqual("192.0.10.56", FailoverManager.FailoverGroup.Hosts[1].Host);
-        Assert.AreEqual(Host, FailoverManager.FailoverGroup.Hosts[2].Host);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+        Assert.That(session.Settings.Server, Is.EqualTo(Host));
+        Assert.That(FailoverManager.FailoverGroup.Hosts[0].Host, Is.EqualTo("server.example"));
+        Assert.That(FailoverManager.FailoverGroup.Hosts[1].Host, Is.EqualTo("192.0.10.56"));
+        Assert.That(FailoverManager.FailoverGroup.Hosts[2].Host, Is.EqualTo(Host));
       }
 
       using (var session = MySQLX.GetSession(new { host = $"(address={Host},priority=2),(address={Host},priority=3)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       // Priority outside the 0-100 allowed range.
       Exception ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = $"(address=server.example,priority=-20),(address={Host},priority=100)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }));
-      Assert.AreEqual("The priority must be between 0 and 100.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100."));
 
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = $"(address=server.example,priority=-50),(address={Host},priority=101)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }));
-      Assert.AreEqual("The priority must be between 0 and 100.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100."));
 
       // Set priority for a subset of the hosts.
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = $"(address=server.example),(address={Host},priority=100)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }));
-      Assert.AreEqual("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = $"(address=server.example,priority=50),(address={Host})", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }));
-      Assert.AreEqual("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = $"(address=server.example,priority=50),(address={Host},priority=100),(address=server.example)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }));
-      Assert.AreEqual("You must either assign no priority to any of the hosts or give a priority for every host.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
 
       // Automatically set priority if no priority is given.
       string hostList = string.Empty;
@@ -438,11 +438,11 @@ namespace MySqlX.Data.Tests
 
       using (var session = MySQLX.GetSession(new { server = hostList, port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }))
       {
-        Assert.AreEqual(SessionState.Open, session.InternalSession.SessionState);
+        Assert.That(session.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         priority = 100;
         foreach (var host in FailoverManager.FailoverGroup.Hosts)
         {
-          Assert.AreEqual(priority != 0 ? priority-- : 0, host.Priority);
+          Assert.That(host.Priority, Is.EqualTo(priority != 0 ? priority-- : 0));
         }
       }
     }
@@ -482,12 +482,12 @@ namespace MySqlX.Data.Tests
                                               sb.UserID + ";password=" + sb.Password + ";connect-timeout=" +
                                               connectionTimeout + ";ssl-mode=Required"))
       {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         var schema = session1.GetSchema("test");
-        Assert.IsNotNull(schema);
+        Assert.That(schema, Is.Not.Null);
         schema.DropCollection("test123");
         var testColl = schema.CreateCollection("test123");
-        Assert.IsNotNull(testColl);
+        Assert.That(testColl, Is.Not.Null);
         schema.DropCollection("test123");
       }
 
@@ -501,12 +501,12 @@ namespace MySqlX.Data.Tests
       var connStr = "mysqlx://test:test@[" + hostList + "]" + "?ssl-mode=Required";
       using (var session1 = MySQLX.GetSession(connStr))
       {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         var schema = session1.GetSchema("test");
-        Assert.IsNotNull(schema);
+        Assert.That(schema, Is.Not.Null);
         schema.DropCollection("test123");
         var testColl = schema.CreateCollection("test123");
-        Assert.IsNotNull(testColl);
+        Assert.That(testColl, Is.Not.Null);
         schema.DropCollection("test123");
       }
 
@@ -527,12 +527,12 @@ namespace MySqlX.Data.Tests
         sslmode = MySqlSslMode.Disabled
       }))
       {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         var schema = session.GetSchema("test");
-        Assert.IsNotNull(schema);
+        Assert.That(schema, Is.Not.Null);
         schema.DropCollection("test123");
         var testColl = schema.CreateCollection("test123");
-        Assert.IsNotNull(testColl);
+        Assert.That(testColl, Is.Not.Null);
         schema.DropCollection("test123");
       }
     }
@@ -546,7 +546,7 @@ namespace MySqlX.Data.Tests
       var connStr = $"mysqlx://test:test@[ (address={Host}:{XPort}, priority=0,address={Host}:{XPort}, priority=100)]?ssl-mode=Required";
       using (var sessionTest = MySQLX.GetSession(connStr))
       {
-        Assert.AreEqual(SessionState.Open, sessionTest.InternalSession.SessionState);
+        Assert.That(sessionTest.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       var address_priority = $"(address = {Host}, priority = 0),(address={Host}, priority=100)";
@@ -555,7 +555,7 @@ namespace MySqlX.Data.Tests
                 ";password=" + sb.Password + ";ssl-mode=Required";
       using (var sessionTest = MySQLX.GetSession(connStr))
       {
-        Assert.AreEqual(SessionState.Open, sessionTest.InternalSession.SessionState);
+        Assert.That(sessionTest.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       using (var sessionTest = MySQLX.GetSession(new
@@ -567,7 +567,7 @@ namespace MySqlX.Data.Tests
         sslmode = MySqlSslMode.Disabled
       }))
       {
-        Assert.AreEqual(SessionState.Open, sessionTest.InternalSession.SessionState);
+        Assert.That(sessionTest.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
     }
@@ -583,7 +583,7 @@ namespace MySqlX.Data.Tests
 
       using (var sessionTest = MySQLX.GetSession(connStr))
       {
-        Assert.AreEqual(SessionState.Open, sessionTest.InternalSession.SessionState);
+        Assert.That(sessionTest.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       var address_priority = $"(address={Host}, priority=0),(address={Host}, priority=100)";
@@ -591,7 +591,7 @@ namespace MySqlX.Data.Tests
                 ";ssl-mode=Required;" + "port=" + sb.Port;
       using (var sessionTest = MySQLX.GetSession(connStr))
       {
-        Assert.AreEqual(SessionState.Open, sessionTest.InternalSession.SessionState);
+        Assert.That(sessionTest.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
       using (var sessionTest = MySQLX.GetSession(new
       {
@@ -602,7 +602,7 @@ namespace MySqlX.Data.Tests
         port = sb.Port
       }))
       {
-        Assert.AreEqual(SessionState.Open, sessionTest.InternalSession.SessionState);
+        Assert.That(sessionTest.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
     }
 
@@ -622,26 +622,26 @@ namespace MySqlX.Data.Tests
         var test = "server=" + hostList[i] + ";uid=test;password=test;connect-timeout=" + connectionTimeout + ";ssl-mode=required;" + "port=" + XPort;
         using (var session1 = MySQLX.GetSession(test))
         {
-          Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+          Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         }
 
         using (var session1 = MySQLX.GetSession("server=" + hostList[i] + ";port=" + XPort + ";uid=test;password=test;connect-timeout=" + connectionTimeout + ";ssl-mode=Required"))
         {
-          Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+          Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         }
 
         hostList[i] = "(address=" + Host + ":" + XPort + ",priority=" + (priority != 0 ? priority-- : 0) + ")";
         var connStr = "mysqlx://test:test@[" + hostList[i] + "]?ssl-mode=Required";
         using (var session1 = MySQLX.GetSession(connStr))
         {
-          Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+          Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         }
 
         hostListPort[i] = $"(address={Host}:{XPort},priority={(priority != 0 ? priority-- : 0)})";
         connStr = "mysqlx://test:test@[" + hostList[i] + "]?ssl-mode=Required";
         using (var session1 = MySQLX.GetSession(connStr))
         {
-          Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+          Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         }
 
         hostList[i] = "(address=" + Host + ",priority=" + (priority != 0 ? priority-- : 0) + ")";
@@ -654,7 +654,7 @@ namespace MySqlX.Data.Tests
           sslmode = MySqlSslMode.Required
         }))
         {
-          Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+          Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
         }
       }
     }
@@ -671,14 +671,14 @@ namespace MySqlX.Data.Tests
 
       using (var session1 = MySQLX.GetSession(connStr))
       {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       connStr = $"mysqlx://test:test@[ (address={Host}:{XPort}, priority=100)]" +
                 $"/?ssl-mode=Required&ssl-ca-pwd={certificatePassword}&ssl-ca={sslCa}";
       using (var session1 = MySQLX.GetSession(connStr))
       {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       connStr = $"mysqlx://test:test@[ (address={Host}" + ":" + XPort + ", priority=100)]" +
@@ -689,14 +689,14 @@ namespace MySqlX.Data.Tests
       connStr = "server=" + address_priority + ";port=" + XPort + ";uid=test;password=test;ssl-mode=VerifyCA;ssl-ca-pwd=pass;ssl-ca=" + sslCa;
       using (var session1 = MySQLX.GetSession(connStr))
       {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       address_priority = $"(address = {Host}, priority = 25)";
       connStr = "server=" + address_priority + ";port=" + XPort + ";uid=test;password=test;ssl-mode=Required;ssl-ca-pwd=" + certificatePassword + ";ssl-ca=" + sslCa;
       using (var session1 = MySQLX.GetSession(connStr))
       {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       connStr = "server=" + address_priority + ";port=" + XPort + ";uid=test;password=test;ssl-mode=VerifyFull;ssl-ca-pwd=" +
@@ -714,7 +714,7 @@ namespace MySqlX.Data.Tests
         CertificatePassword = certificatePassword
       }))
       {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       using (var session1 = MySQLX.GetSession(new
@@ -728,7 +728,7 @@ namespace MySqlX.Data.Tests
         CertificatePassword = certificatePassword
       }))
       {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
 
       Assert.Catch(() => MySQLX.GetSession(new
@@ -765,7 +765,7 @@ namespace MySqlX.Data.Tests
         CertificatePassword = certificatePassword
       }))
       {
-        Assert.AreEqual(SessionState.Open, session1.InternalSession.SessionState);
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
       }
     }
     #endregion

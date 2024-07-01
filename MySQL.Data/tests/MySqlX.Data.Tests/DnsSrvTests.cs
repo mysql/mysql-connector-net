@@ -50,7 +50,7 @@ namespace MySqlX.Data.Tests
     {
       connString = connString.Replace("localhost", Host).Replace("33060", XPort);
       var exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connString));
-      Assert.AreEqual(exceptionMessage, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(exceptionMessage));
     }
 
     [TestCase("server=localhost;port=33060;dns-srv=false;uid=test;password=test;")]
@@ -62,7 +62,7 @@ namespace MySqlX.Data.Tests
     {
       connString = connString.Replace("localhost", Host).Replace("33060", XPort);
       using (var session = MySQLX.GetSession(connString))
-        Assert.NotNull(session);
+        Assert.That(session, Is.Not.Null);
     }
 
     [Test]
@@ -73,35 +73,35 @@ namespace MySqlX.Data.Tests
       sb.Port = UInt32.Parse(XPort);
       sb.Server = Host;
       var exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(sb.ConnectionString));
-      Assert.AreEqual(MySql.Data.Resources.DnsSrvInvalidConnOptionPort, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(MySql.Data.Resources.DnsSrvInvalidConnOptionPort));
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetClient(sb.ConnectionString, new { pooling = new { enabled = true } }));
-      Assert.AreEqual(MySql.Data.Resources.DnsSrvInvalidConnOptionPort, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(MySql.Data.Resources.DnsSrvInvalidConnOptionPort));
 
       sb = new MySqlXConnectionStringBuilder();
       sb.DnsSrv = true;
       sb.Server = $"{Host}, 10.10.10.10";
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(sb.ConnectionString));
-      Assert.AreEqual(MySql.Data.Resources.DnsSrvInvalidConnOptionMultihost, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(MySql.Data.Resources.DnsSrvInvalidConnOptionMultihost));
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetClient(sb.ConnectionString, new { pooling = new { enabled = true } }));
-      Assert.AreEqual(MySql.Data.Resources.DnsSrvInvalidConnOptionMultihost, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(MySql.Data.Resources.DnsSrvInvalidConnOptionMultihost));
 
       sb = new MySqlXConnectionStringBuilder();
       sb.DnsSrv = true;
       sb.Server = $"(address={Host},priority=100), (address=10.10.10.10,priority=90)";
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(sb.ConnectionString));
-      Assert.AreEqual(MySql.Data.Resources.DnsSrvInvalidConnOptionMultihost, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(MySql.Data.Resources.DnsSrvInvalidConnOptionMultihost));
 
       var connDataHost = new { server = $"(address={Host},priority=100), (address=10.10.10.10,priority=90)", dnssrv = true };
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetClient(connDataHost, new { pooling = new { enabled = true } }));
-      Assert.AreEqual(MySql.Data.Resources.DnsSrvInvalidConnOptionMultihost, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(MySql.Data.Resources.DnsSrvInvalidConnOptionMultihost));
 
       var connDataPort = new { server = Host, port = XPort, dnssrv = true };
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetClient(connDataPort, new { pooling = new { enabled = true } }));
-      Assert.AreEqual(MySql.Data.Resources.DnsSrvInvalidConnOptionPort, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(MySql.Data.Resources.DnsSrvInvalidConnOptionPort));
 
       var connDataUnix = new { server = Host, protocol = "unix", dnssrv = true };
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetClient(connDataUnix, new { pooling = new { enabled = true } }));
-      Assert.AreEqual(MySql.Data.Resources.DnsSrvInvalidConnOptionUnixSocket, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(MySql.Data.Resources.DnsSrvInvalidConnOptionUnixSocket));
     }
 
     [TestCase("mysqlx+srv://test:test@localhost:33060", "Specifying a port number with DNS SRV lookup is not permitted.")]
@@ -114,10 +114,10 @@ namespace MySqlX.Data.Tests
     {
       connStringUri = connStringUri.Replace("localhost", Host).Replace("33060", XPort);
       var exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connStringUri));
-      Assert.AreEqual(exceptionMessage, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(exceptionMessage));
 
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetClient(connStringUri, new { pooling = new { enabled = true } }));
-      Assert.AreEqual(exceptionMessage, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(exceptionMessage));
     }
 
     [TestCase("mysqlx+srv://test:test@localhost")]
@@ -129,7 +129,7 @@ namespace MySqlX.Data.Tests
     {
       connString = connString.Replace("localhost", Host);
       var ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(connString));
-      Assert.AreEqual(string.Format(MySql.Data.Resources.DnsSrvNoHostsAvailable, Host), ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(string.Format(MySql.Data.Resources.DnsSrvNoHostsAvailable, Host)));
     }
 
     [Test]
@@ -138,7 +138,7 @@ namespace MySqlX.Data.Tests
       using (var client = MySQLX.GetClient($"mysqlx+srv://test:test@{Host}?dns-srv=true;", new { pooling = new { enabled = true } }))
       {
         var ex = Assert.Throws<MySqlException>(() => client.GetSession());
-        Assert.AreEqual(string.Format(MySql.Data.Resources.DnsSrvNoHostsAvailable, Host), ex.Message);
+        Assert.That(ex.Message, Is.EqualTo(string.Format(MySql.Data.Resources.DnsSrvNoHostsAvailable, Host)));
       }
     }
   }

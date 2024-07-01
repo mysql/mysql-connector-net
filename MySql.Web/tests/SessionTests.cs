@@ -147,7 +147,7 @@ namespace MySql.Web.Tests
       SetSessionItemExpiredCallback(true);
       _evt.WaitOne();
 
-      Assert.AreEqual(strSessionID, calledId);
+      Assert.That(calledId, Is.EqualTo(strSessionID));
 
       int i = 0;
       while (((long)CountSessions() != 0) && (i < 10))
@@ -156,7 +156,7 @@ namespace MySql.Web.Tests
         i++;
       }
 
-      Assert.AreEqual(0, CountSessions());
+      Assert.That(CountSessions(), Is.EqualTo(0));
     }
 
 
@@ -166,7 +166,7 @@ namespace MySql.Web.Tests
       execSQL(@"delete from my_aspnet_sessions;
                 delete from my_aspnet_sessioncleanup;");
       SetSessionItemExpiredCallback(false);
-      Assert.AreNotEqual(strSessionID, calledId);
+      Assert.That(calledId, Is.Not.EqualTo(strSessionID));
 
       int i = 0;
       while (((long)MySqlHelper.ExecuteScalar(Connection, "SELECT Count(*) FROM my_aspnet_sessions;") != 0) && (i < 10))
@@ -175,7 +175,7 @@ namespace MySql.Web.Tests
         i++;
       }
 
-      Assert.AreEqual(0, CountSessions());
+      Assert.That(CountSessions(), Is.EqualTo(0));
     }
 
     [Test]
@@ -202,7 +202,7 @@ namespace MySql.Web.Tests
       }
 
       session.Dispose();
-      Assert.AreEqual(1, CountSessions());
+      Assert.That(CountSessions(), Is.EqualTo(1));
       session.Dispose();
     }
 
@@ -340,7 +340,7 @@ namespace MySql.Web.Tests
         // OK if wait is less than session timeout
         Debug.WriteLine(string.Empty);
         Debug.WriteLine(totalMillisecs);
-        Assert.True(totalMillisecs < 30000);
+        Assert.That(totalMillisecs < 30000);
       }
       finally
       {

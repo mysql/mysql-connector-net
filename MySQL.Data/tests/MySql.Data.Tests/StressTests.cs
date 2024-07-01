@@ -76,12 +76,12 @@ namespace MySql.Data.MySqlClient.Tests
           reader.Read();
           byte[] dataOut = new byte[len];
           long count = reader.GetBytes(2, 0, dataOut, 0, len);
-          Assert.AreEqual(len, count);
+          Assert.That(count, Is.EqualTo(len));
           int i = 0;
           try
           {
             for (; i < len; i++)
-              Assert.AreEqual(dataIn[i], dataOut[i]);
+              Assert.That(dataOut[i], Is.EqualTo(dataIn[i]));
           }
           catch (Exception)
           {
@@ -90,10 +90,10 @@ namespace MySql.Data.MySqlClient.Tests
 
           reader.Read();
           count = reader.GetBytes(2, 0, dataOut, 0, len);
-          Assert.AreEqual(len, count);
+          Assert.That(count, Is.EqualTo(len));
 
           for (int x = 0; x < len; x++)
-            Assert.AreEqual(dataIn2[x], dataOut[x]);
+            Assert.That(dataOut[x], Is.EqualTo(dataIn2[x]));
         }
       }
     }
@@ -121,12 +121,12 @@ namespace MySql.Data.MySqlClient.Tests
       {
         while (reader.Read())
         {
-          Assert.True(i2 + 1 == reader.GetInt32(0), "Sequence out of order");
+          Assert.That(i2 + 1 == reader.GetInt32(0), "Sequence out of order");
           i2++;
         }
         reader.Close();
 
-        Assert.AreEqual(8000, i2);
+        Assert.That(i2, Is.EqualTo(8000));
         cmd = new MySqlCommand("delete from Test where id >= 100", Connection);
         cmd.ExecuteNonQuery();
       }

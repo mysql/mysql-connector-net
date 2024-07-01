@@ -46,15 +46,15 @@ namespace MySqlX.Data.Tests.ResultTests
       stmt.Add(@"{ ""_id"": 3, ""foo"": 3 }");
       stmt.Add(@"{ ""_id"": 4, ""foo"": 4 }");
       Result result = ExecuteAddStatement(stmt);
-      Assert.AreEqual(4, (int)result.AffectedItemsCount);
+      Assert.That((int)result.AffectedItemsCount, Is.EqualTo(4));
 
       var docResult = ExecuteFindStatement(testColl.Find());
       var docs = docResult.FetchAll();
       WeakReference wr = new WeakReference(docResult);
       docResult = null;
       GC.Collect();
-      Assert.False(wr.IsAlive);
-      Assert.AreEqual(4, docs.Count);
+      Assert.That(wr.IsAlive, Is.False);
+      Assert.That(docs.Count, Is.EqualTo(4));
     }
 #endif
   }

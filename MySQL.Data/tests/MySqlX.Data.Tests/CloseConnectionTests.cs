@@ -55,7 +55,7 @@ namespace MySqlX.Data.Tests
       using (Session session1 = MySQLX.GetSession(ConnectionString))
       {
         Schema test = session1.GetSchema("test");
-        Assert.AreEqual(SessionState.Open, session1.XSession.SessionState);
+        Assert.That(session1.XSession.SessionState, Is.EqualTo(SessionState.Open));
         var threadId1 = (UInt64)session1.ThreadId;
 
         // Kill connection
@@ -63,9 +63,9 @@ namespace MySqlX.Data.Tests
         Thread.Sleep(5000);
 
         Exception ex = Assert.Throws<MySqlException>(() => session1.SQL("select 1").Execute());
-        StringAssert.Contains(ResourcesX.NoticeKilledConnection, ex.Message);
+        Assert.That(ex.Message, Does.Contain(ResourcesX.NoticeKilledConnection));
 
-        Assert.AreEqual(SessionState.Closed, session1.XSession.SessionState);
+        Assert.That(session1.XSession.SessionState, Is.EqualTo(SessionState.Closed));
       }
     }
 
@@ -79,14 +79,14 @@ namespace MySqlX.Data.Tests
       ExecuteSqlAsRoot("SET GLOBAL mysqlx_wait_timeout = 5");
       using (Session localsession = MySQLX.GetSession(ConnectionString))
       {
-        Assert.AreEqual(SessionState.Open, localsession.XSession.SessionState);
+        Assert.That(localsession.XSession.SessionState, Is.EqualTo(SessionState.Open));
         //wait for server to kill idle connection
         Thread.Sleep(7000);
 
         Exception ex = Assert.Throws<MySqlException>(() => localsession.SQL("select 1").Execute());
-        StringAssert.Contains(ResourcesX.NoticeIdleConnection, ex.Message);
+        Assert.That(ex.Message, Does.Contain(ResourcesX.NoticeIdleConnection));
 
-        Assert.AreEqual(SessionState.Closed, localsession.XSession.SessionState);
+        Assert.That(localsession.XSession.SessionState, Is.EqualTo(SessionState.Closed));
       }
       ExecuteSqlAsRoot("SET GLOBAL mysqlx_read_timeout = 28800");
       ExecuteSqlAsRoot("SET GLOBAL mysqlx_wait_timeout = 28800");
@@ -122,8 +122,8 @@ namespace MySqlX.Data.Tests
       Thread.Sleep(5000);
 
       MySqlException ex = Assert.Throws<MySqlException>(() => { closeData.Action.Invoke(sessionCol); });
-      Assert.AreEqual(ResourcesX.NoticeKilledConnection, ex.Message);
-      Assert.AreEqual(SessionState.Closed, sessionCol.XSession.SessionState);
+      Assert.That(ex.Message, Is.EqualTo(ResourcesX.NoticeKilledConnection));
+      Assert.That(sessionCol.XSession.SessionState, Is.EqualTo(SessionState.Closed));
     }
 
     //Shutdown server Notice, exception expected
@@ -135,16 +135,16 @@ namespace MySqlX.Data.Tests
 
       using (Session localsession = MySQLX.GetSession(BaseTest.ConnectionString))
       {
-        Assert.AreEqual(SessionState.Open, localsession.XSession.SessionState);
+        Assert.That(localsession.XSession.SessionState, Is.EqualTo(SessionState.Open));
 
         // Shutdown local MySQL Server
         ShutdownServer();
         Thread.Sleep(2000);
 
         Exception ex = Assert.Throws<MySqlException>(() => localsession.SQL("select 1").Execute());
-        StringAssert.Contains(ResourcesX.NoticeServerShutdown, ex.Message);
+        Assert.That(ex.Message, Does.Contain(ResourcesX.NoticeServerShutdown));
 
-        Assert.AreEqual(SessionState.Closed, localsession.XSession.SessionState);
+        Assert.That(localsession.XSession.SessionState, Is.EqualTo(SessionState.Closed));
       }
     }
 
@@ -176,24 +176,24 @@ namespace MySqlX.Data.Tests
 
         //verify session 1 open
         var result1 = session1.SQL("select sqrt(9) as raiz;").Execute().FetchOne().GetString("raiz");
-        StringAssert.Contains("3", result1);
+        Assert.That(result1, Does.Contain("3"));
 
         //try to use session 2
         Exception ex1 = Assert.Throws<MySqlException>(() => session2.SQL("select sqrt(9) as raiz;").Execute());
-        StringAssert.Contains(ResourcesX.NoticeKilledConnection, ex1.Message);
+        Assert.That(ex1.Message, Does.Contain(ResourcesX.NoticeKilledConnection));
 
         //verify session 3 open
         var result2 = session3.SQL("select sqrt(9) as raiz;").Execute().FetchOne().GetString("raiz");
-        StringAssert.Contains("3", result2);
+        Assert.That(result2, Does.Contain("3"));
 
         //try to use session 2 once it is Invalid
         Exception ex2 = Assert.Throws<MySqlException>(() => session2.SQL("SELECT 5").Execute());
-        Assert.AreEqual(ResourcesX.InvalidSession, ex2.Message);
+        Assert.That(ex2.Message, Is.EqualTo(ResourcesX.InvalidSession));
 
         //reuse session2
         session2 = client.GetSession();
         var result3 = session2.SQL("select sqrt(9) as raiz;").Execute().FetchOne().GetString("raiz");
-        StringAssert.Contains("3", result3);
+        Assert.That(result3, Does.Contain("3"));
       }
     }
 
@@ -216,13 +216,13 @@ namespace MySqlX.Data.Tests
 
         // All connections should receive a close notification and become closed and invalid
         Exception ex1 = Assert.Throws<MySqlException>(() => session1.SQL("select sqrt(9) as raiz;").Execute());
-        StringAssert.Contains(ResourcesX.NoticeServerShutdown, ex1.Message);
+        Assert.That(ex1.Message, Does.Contain(ResourcesX.NoticeServerShutdown));
 
         Exception ex2 = Assert.Throws<MySqlException>(() => session2.SQL("select sqrt(9) as raiz;").Execute());
-        StringAssert.Contains(ResourcesX.NoticeServerShutdown, ex2.Message);
+        Assert.That(ex2.Message, Does.Contain(ResourcesX.NoticeServerShutdown));
 
         Exception ex3 = Assert.Throws<MySqlException>(() => session3.SQL("select sqrt(9) as raiz;").Execute());
-        StringAssert.Contains(ResourcesX.NoticeServerShutdown, ex3.Message);
+        Assert.That(ex3.Message, Does.Contain(ResourcesX.NoticeServerShutdown));
       }
     }
 
@@ -243,10 +243,10 @@ namespace MySqlX.Data.Tests
         Thread.Sleep(8000);
 
         Exception ex1 = Assert.Throws<MySqlException>(() => session1.SQL("select sqrt(9) as raiz;").Execute());
-        StringAssert.Contains(ResourcesX.NoticeIdleConnection, ex1.Message);
+        Assert.That(ex1.Message, Does.Contain(ResourcesX.NoticeIdleConnection));
 
         Exception ex2 = Assert.Throws<MySqlException>(() => session2.SQL("select sqrt(9) as raiz;").Execute());
-        StringAssert.Contains(ResourcesX.NoticeIdleConnection, ex2.Message);
+        Assert.That(ex2.Message, Does.Contain(ResourcesX.NoticeIdleConnection));
 
       }
       ExecuteSqlAsRoot("SET GLOBAL mysqlx_read_timeout = 28800");

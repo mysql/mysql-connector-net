@@ -79,26 +79,26 @@ namespace MySql.Web.Tests
       provider.SetPropertyValues(ctx, values);
 
       DataTable dt = FillTable("SELECT * FROM my_aspnet_applications");
-      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_applications is not 1");
+      Assert.That(1 == dt.Rows.Count, "Rows count on table my_aspnet_applications is not 1");
 
       dt = FillTable("SELECT * FROM my_aspnet_users");
-      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_users is not 1");
+      Assert.That(1 == dt.Rows.Count, "Rows count on table my_aspnet_users is not 1");
 
 
       dt = FillTable("SELECT * FROM my_aspnet_profiles");
-      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_profiles is not 1");
+      Assert.That(1 == dt.Rows.Count, "Rows count on table my_aspnet_profiles is not 1");
 
       values["color"].PropertyValue = "green";
       provider.SetPropertyValues(ctx, values);
 
       dt = FillTable("SELECT * FROM my_aspnet_applications");
-      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_applications is not 1 after setting property");
+      Assert.That(1 == dt.Rows.Count, "Rows count on table my_aspnet_applications is not 1 after setting property");
 
       dt = FillTable("SELECT * FROM my_aspnet_users");
-      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_users is not 1 after setting property");
+      Assert.That(1 == dt.Rows.Count, "Rows count on table my_aspnet_users is not 1 after setting property");
 
       dt = FillTable("SELECT * FROM my_aspnet_profiles");
-      Assert.True(1 == dt.Rows.Count, "Rows count on table my_aspnet_profiles is not 1 after setting property");
+      Assert.That(1 == dt.Rows.Count, "Rows count on table my_aspnet_profiles is not 1 after setting property");
     }
 
     [Test]
@@ -120,13 +120,13 @@ namespace MySql.Web.Tests
       provider.SetPropertyValues(ctx, values);
 
       DataTable dt = FillTable("SELECT * FROM my_aspnet_applications");
-      Assert.True(0 == dt.Rows.Count, "Table my_aspnet_applications Rows is not 0");
+      Assert.That(0 == dt.Rows.Count, "Table my_aspnet_applications Rows is not 0");
 
       dt = FillTable("SELECT * FROM my_aspnet_users");
-      Assert.True(0 == dt.Rows.Count, "Table my_aspnet_users Rows is not 0");
+      Assert.That(0 == dt.Rows.Count, "Table my_aspnet_users Rows is not 0");
 
       dt = FillTable("SELECT * FROM my_aspnet_profiles");
-      Assert.True(0 == dt.Rows.Count, "Table my_aspnet_profiles Rows is not 0");
+      Assert.That(0 == dt.Rows.Count, "Table my_aspnet_profiles Rows is not 0");
 
     }
 
@@ -143,11 +143,11 @@ namespace MySql.Web.Tests
       profile.Save();
 
       DataTable dt = FillTable("SELECT * FROM my_aspnet_applications");
-      Assert.AreEqual(1, dt.Rows.Count);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
       dt = FillTable("SELECT * FROM my_aspnet_users");
-      Assert.AreEqual(1, dt.Rows.Count);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
       dt = FillTable("SELECT * FROM my_aspnet_profiles");
-      Assert.AreEqual(1, dt.Rows.Count);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
 
       // now retrieve them
       SettingsPropertyCollection getProps = new SettingsPropertyCollection();
@@ -161,13 +161,13 @@ namespace MySql.Web.Tests
       ctx.Add("IsAuthenticated", true);
       ctx.Add("UserName", "foo");
       SettingsPropertyValueCollection getValues = provider.GetPropertyValues(ctx, getProps);
-      Assert.AreEqual(1, getValues.Count);
+      Assert.That(getValues.Count, Is.EqualTo(1));
       SettingsPropertyValue getValue1 = getValues["FavoriteColors"];
       StringCollection outValue = (StringCollection)getValue1.PropertyValue;
-      Assert.AreEqual(3, outValue.Count);
-      Assert.AreEqual("red", outValue[0]);
-      Assert.AreEqual("green", outValue[1]);
-      Assert.AreEqual("blue", outValue[2]);
+      Assert.That(outValue.Count, Is.EqualTo(3));
+      Assert.That(outValue[0], Is.EqualTo("red"));
+      Assert.That(outValue[1], Is.EqualTo("green"));
+      Assert.That(outValue[2], Is.EqualTo("blue"));
     }
 
     [Test]
@@ -191,9 +191,9 @@ namespace MySql.Web.Tests
       ctx.Add("UserName", "foo");
 
       SettingsPropertyValueCollection getValues = provider.GetPropertyValues(ctx, getProps);
-      Assert.AreEqual(1, getValues.Count);
+      Assert.That(getValues.Count, Is.EqualTo(1));
       SettingsPropertyValue getValue1 = getValues["BirthDate"];
-      Assert.AreEqual(date, getValue1.PropertyValue);
+      Assert.That(getValue1.PropertyValue, Is.EqualTo(date));
     }
 
     /// <summary>
@@ -235,9 +235,9 @@ namespace MySql.Web.Tests
       ctx.Add("UserName", "foo");
 
       SettingsPropertyValueCollection getValues = provider.GetPropertyValues(ctx, getProps);
-      Assert.AreEqual(1, getValues.Count);
+      Assert.That(getValues.Count, Is.EqualTo(1));
       SettingsPropertyValue getValue1 = getValues["Name"];
-      Assert.AreEqual("Fred Flintstone", getValue1.PropertyValue);
+      Assert.That(getValue1.PropertyValue, Is.EqualTo("Fred Flintstone"));
     }
 
     /// <summary>
@@ -264,7 +264,7 @@ namespace MySql.Web.Tests
       int total;
       ProfileInfoCollection profiles = provider.GetAllProfiles(
           ProfileAuthenticationOption.All, 0, 10, out total);
-      Assert.AreEqual(1, total);
+      Assert.That(total, Is.EqualTo(1));
     }
 
     /// <summary>
@@ -277,11 +277,11 @@ namespace MySql.Web.Tests
       profile.SetPropertyValue("Name", "this is my name");
       profile.Save();
       profile = ProfileBase.Create("foo", true); // refresh profile from database
-      Assert.AreEqual("this is my name", profile.GetPropertyValue("Name"));
+      Assert.That(profile.GetPropertyValue("Name"), Is.EqualTo("this is my name"));
 
-      Assert.AreEqual(1, ProfileManager.DeleteProfiles(new string[] { "foo" }));
+      Assert.That(ProfileManager.DeleteProfiles(new string[] { "foo" }), Is.EqualTo(1));
       profile = ProfileBase.Create("foo", true); // refresh profile from database
-      Assert.AreEqual(string.Empty, profile.GetPropertyValue("Name"));
+      Assert.That(profile.GetPropertyValue("Name"), Is.Empty);
     }
 
   }

@@ -72,7 +72,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
           ");" + EOL;
       string fullResult = result.Replace(" NULL,", ",");
 
-      Assert.True(result == Sql || fullResult == Sql);
+      Assert.That(result == Sql || fullResult == Sql);
     }
 
     [Test]
@@ -81,28 +81,28 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
       base.AddColumnOperation_with_maxLength();
       string result = "ALTER TABLE `Person` ADD `Name` varchar(30);" + EOL;
       string fullResult = "ALTER TABLE `Person` ADD `Name` varchar(30) NULL;" + EOL;
-      Assert.True(result == Sql || fullResult == Sql);
+      Assert.That(result == Sql || fullResult == Sql);
     }
 
     [Test]
     public override void AddColumnOperationWithComputedValueSql()
     {
       base.AddColumnOperationWithComputedValueSql();
-      Assert.AreEqual("ALTER TABLE `People` ADD `DisplayName` varchar(50) AS (CONCAT_WS(' ', LastName , FirstName));" + EOL, Sql);
+      Assert.That(Sql, Is.EqualTo("ALTER TABLE `People` ADD `DisplayName` varchar(50) AS (CONCAT_WS(' ', LastName , FirstName));" + EOL));
     }
 
     [Test]
     public override void AddColumnOperationWithDefaultValueSql()
     {
       base.AddColumnOperationWithDefaultValueSql();
-      Assert.AreEqual("ALTER TABLE `People` ADD `Timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP;" + EOL, Sql);
+      Assert.That(Sql, Is.EqualTo("ALTER TABLE `People` ADD `Timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP;" + EOL));
     }
 
     [Test]
     public override void AlterColumnOperation()
     {
       base.AlterColumnOperation();
-      Assert.AreEqual("ALTER TABLE `Person` MODIFY `Age` int NOT NULL DEFAULT 7;" + EOL, Sql);
+      Assert.That(Sql, Is.EqualTo("ALTER TABLE `Person` MODIFY `Age` int NOT NULL DEFAULT 7;" + EOL));
     }
 
 
@@ -110,21 +110,21 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     public override void AlterColumnOperationWithoutType()
     {
       base.AlterColumnOperationWithoutType();
-      Assert.AreEqual("ALTER TABLE `Person` MODIFY `Age` int NOT NULL;" + EOL, Sql);
+      Assert.That(Sql, Is.EqualTo("ALTER TABLE `Person` MODIFY `Age` int NOT NULL;" + EOL));
     }
 
     [Test]
     public override void RenameTableOperationInSchema()
     {
       base.RenameTableOperationInSchema();
-      Assert.AreEqual("ALTER TABLE t1 RENAME t2;" + EOL, Sql);
+      Assert.That(Sql, Is.EqualTo("ALTER TABLE t1 RENAME t2;" + EOL));
     }
 
     [Test]
     public override void CreateUniqueIndexOperation()
     {
       base.CreateUniqueIndexOperation();
-      Assert.AreEqual("CREATE UNIQUE INDEX `IXPersonName` ON `Person` (`FirstName`, `LastName`);" + EOL, Sql);
+      Assert.That(Sql, Is.EqualTo("CREATE UNIQUE INDEX `IXPersonName` ON `Person` (`FirstName`, `LastName`);" + EOL));
     }
 
     [Test]
@@ -132,7 +132,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     {
       base.CreateNonUniqueIndexOperation();
 
-      Assert.AreEqual("CREATE INDEX `IXPersonName` ON `Person` (`Name`);" + EOL, Sql);
+      Assert.That(Sql, Is.EqualTo("CREATE INDEX `IXPersonName` ON `Person` (`Name`);" + EOL));
     }
 
     [Test]
@@ -140,28 +140,28 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     public override void RenameIndexOperation()
     {
       base.RenameIndexOperation();
-      Assert.AreEqual("DROP INDEX IXPersonName ON Person; CREATE INDEX IXNombre;" + EOL, Sql);
+      Assert.That(Sql, Is.EqualTo("DROP INDEX IXPersonName ON Person; CREATE INDEX IXNombre;" + EOL));
     }
 
     [Test]
     public override void DropIndexOperation()
     {
       base.DropIndexOperation();
-      Assert.AreEqual("DROP INDEX IXPersonName ON Person;" + EOL, Sql);
+      Assert.That(Sql, Is.EqualTo("DROP INDEX IXPersonName ON Person;" + EOL));
     }
 
     [Test]
     public override void DropPrimaryKeyOperation()
     {
       base.DropPrimaryKeyOperation();
-      Assert.AreEqual(string.Empty, Sql);
+      Assert.That(Sql, Is.EqualTo(string.Empty));
     }
 
     [Test]
     public override void AddPrimaryKeyOperation()
     {
       base.AddPrimaryKeyOperation();
-      Assert.AreEqual(string.Empty, Sql);
+      Assert.That(Sql, Is.EqualTo(string.Empty));
     }
   }
 }

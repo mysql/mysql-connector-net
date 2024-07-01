@@ -174,19 +174,19 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       foreach (char c in refSql)
         if (!Char.IsWhiteSpace(c))
           str2.Append(c);
-      Assert.AreEqual(0, String.Compare(str1.ToString(), str2.ToString(), true));
+      Assert.That(String.Compare(str1.ToString(), str2.ToString(), true), Is.EqualTo(0));
     }
 
     private class AssertFailTraceListener : DefaultTraceListener
     {
       public override void Fail(string message)
       {
-        Assert.True(message == String.Empty, "Failure: " + message);
+        Assert.That(message == String.Empty, "Failure: " + message);
       }
 
       public override void Fail(string message, string detailMessage)
       {
-        Assert.True(message == String.Empty, "Failure: " + message);
+        Assert.That(message == String.Empty, "Failure: " + message);
       }
     }
   }

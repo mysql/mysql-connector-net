@@ -111,7 +111,7 @@ namespace MySqlX.Data.Tests
         if (SchemaExistsInDatabase(schema))
           s.DropSchema(schemaName);
         schema.Session.DropSchema(schemaName);
-        Assert.False(SchemaExistsInDatabase(schema));
+        Assert.That(SchemaExistsInDatabase(schema), Is.False);
       }
 
       DropUsers();

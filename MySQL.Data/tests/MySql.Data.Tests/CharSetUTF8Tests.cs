@@ -67,7 +67,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         string s = reader.GetString(0);
-        Assert.AreEqual(szParam, s);
+        Assert.That(s, Is.EqualTo(szParam));
       }
     }
 
@@ -88,8 +88,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         DataTable dt = reader.GetSchemaTable();
-        Assert.AreEqual(40, dt.Rows[0]["ColumnSize"]);
-        Assert.AreEqual(20, dt.Rows[1]["ColumnSize"]);
+        Assert.That(dt.Rows[0]["ColumnSize"], Is.EqualTo(40));
+        Assert.That(dt.Rows[1]["ColumnSize"], Is.EqualTo(20));
       }
     }
 
@@ -103,7 +103,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlCommand cmd = new MySqlCommand("select `Numéro` from Test", Connection);
       var exception = Assert.Throws<MySqlException>(() => cmd.ExecuteScalar());
-      Assert.AreEqual("Unknown column 'Numéro' in 'field list'", exception.Message);
+      Assert.That(exception.Message, Is.EqualTo("Unknown column 'Numéro' in 'field list'"));
     }
 
     /// <summary>
@@ -121,8 +121,8 @@ namespace MySql.Data.MySqlClient.Tests
       DataSet ds = new DataSet();
       ad.Fill(ds);
       ad.FillSchema(ds, SchemaType.Mapped);
-      Assert.AreEqual(1, ds.Tables[0].Columns["name"].MaxLength);
-      Assert.AreEqual(20, ds.Tables[0].Columns["longname"].MaxLength);
+      Assert.That(ds.Tables[0].Columns["name"].MaxLength, Is.EqualTo(1));
+      Assert.That(ds.Tables[0].Columns["longname"].MaxLength, Is.EqualTo(20));
     }
 
     [Test]
@@ -156,10 +156,10 @@ namespace MySql.Data.MySqlClient.Tests
         da.Fill(dt);
         foreach (DataColumn col in dt.Columns)
         {
-          Assert.AreEqual(typeof(string), col.DataType);
+          Assert.That(col.DataType, Is.EqualTo(typeof(string)));
           string s = (string)dt.Rows[0][0];
           byte[] b = utf8.GetBytes(s);
-          Assert.AreEqual(utf8_string, dt.Rows[0][col.Ordinal].ToString());
+          Assert.That(dt.Rows[0][col.Ordinal].ToString(), Is.EqualTo(utf8_string));
         }
       }
 
@@ -174,11 +174,11 @@ namespace MySql.Data.MySqlClient.Tests
         foreach (DataColumn col in dt.Columns)
         {
           if (col.ColumnName.StartsWith("exclude", StringComparison.OrdinalIgnoreCase))
-            Assert.AreEqual(typeof(byte[]), col.DataType);
+            Assert.That(col.DataType, Is.EqualTo(typeof(byte[])));
           else
           {
-            Assert.AreEqual(typeof(string), col.DataType);
-            Assert.AreEqual(utf8_string, dt.Rows[0][col.Ordinal].ToString());
+            Assert.That(col.DataType, Is.EqualTo(typeof(string)));
+            Assert.That(dt.Rows[0][col.Ordinal].ToString(), Is.EqualTo(utf8_string));
           }
         }
       }
@@ -195,11 +195,11 @@ namespace MySql.Data.MySqlClient.Tests
         {
           if (col.ColumnName.StartsWith("include", StringComparison.OrdinalIgnoreCase))
           {
-            Assert.AreEqual(typeof(string), col.DataType);
-            Assert.AreEqual(utf8_string, dt.Rows[0][col.Ordinal].ToString());
+            Assert.That(col.DataType, Is.EqualTo(typeof(string)));
+            Assert.That(dt.Rows[0][col.Ordinal].ToString(), Is.EqualTo(utf8_string));
           }
           else
-            Assert.AreEqual(typeof(byte[]), col.DataType);
+            Assert.That(col.DataType, Is.EqualTo(typeof(byte[])));
         }
       }
     }
@@ -220,13 +220,13 @@ namespace MySql.Data.MySqlClient.Tests
         DataTable dt = new DataTable();
         da.Fill(dt);
 
-        Assert.AreEqual("Numéro", dt.Columns[0].ColumnName);
+        Assert.That(dt.Columns[0].ColumnName, Is.EqualTo("Numéro"));
 
         MySqlCommand cmd = new MySqlCommand("SELECT NOW() AS 'Numéro'", c);
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           int ord = reader.GetOrdinal("Numéro");
-          Assert.AreEqual(0, ord);
+          Assert.That(ord, Is.EqualTo(0));
         }
       }
     }
@@ -242,7 +242,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         string s1 = reader.GetString(0);
-        Assert.AreEqual("困巫忘否役", s1);
+        Assert.That(s1, Is.EqualTo("困巫忘否役"));
       }
     }
 
@@ -279,21 +279,21 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual("ЁЄЉҖҚ", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("ЁЄЉҖҚ"));
         reader.Read();
-        Assert.AreEqual("兣冘凥凷冋", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("兣冘凥凷冋"));
         reader.Read();
-        Assert.AreEqual("困巫忘否役", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("困巫忘否役"));
         reader.Read();
-        Assert.AreEqual("涯割晦叶角", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("涯割晦叶角"));
         reader.Read();
-        Assert.AreEqual("ברחפע", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("ברחפע"));
         reader.Read();
-        Assert.AreEqual("ψόβΩΞ", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("ψόβΩΞ"));
         reader.Read();
-        Assert.AreEqual("þðüçöÝÞÐÜÇÖ", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("þðüçöÝÞÐÜÇÖ"));
         reader.Read();
-        Assert.AreEqual("ฅๆษ", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("ฅๆษ"));
       }
     }
 
@@ -334,21 +334,21 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual("ЁЄЉҖҚ", reader.GetString(0));
+        Assert.That(reader.GetString(0), Is.EqualTo("ЁЄЉҖҚ"));
         reader.Read();
-        Assert.AreEqual("兣冘凥凷冋", reader.GetString(0));
+        Assert.That(reader.GetString(0), Is.EqualTo("兣冘凥凷冋"));
         reader.Read();
-        Assert.AreEqual("困巫忘否役", reader.GetString(0));
+        Assert.That(reader.GetString(0), Is.EqualTo("困巫忘否役"));
         reader.Read();
-        Assert.AreEqual("涯割晦叶角", reader.GetString(0));
+        Assert.That(reader.GetString(0), Is.EqualTo("涯割晦叶角"));
         reader.Read();
-        Assert.AreEqual("ברחפע", reader.GetString(0));
+        Assert.That(reader.GetString(0), Is.EqualTo("ברחפע"));
         reader.Read();
-        Assert.AreEqual("ψόβΩΞ", reader.GetString(0));
+        Assert.That(reader.GetString(0), Is.EqualTo("ψόβΩΞ"));
         reader.Read();
-        Assert.AreEqual("þðüçöÝÞÐÜÇÖ", reader.GetString(0));
+        Assert.That(reader.GetString(0), Is.EqualTo("þðüçöÝÞÐÜÇÖ"));
         reader.Read();
-        Assert.AreEqual("ฅๆษ", reader.GetString(0));
+        Assert.That(reader.GetString(0), Is.EqualTo("ฅๆษ"));
       }
     }
 
@@ -362,8 +362,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = ExecuteReader("SELECT * FROM Test"))
       {
         reader.Read();
-        Assert.AreEqual("困巫忘否役", reader.GetString(1));
-        Assert.AreEqual("涝搞谷侪魍", reader.GetString(2));
+        Assert.That(reader.GetString(1), Is.EqualTo("困巫忘否役"));
+        Assert.That(reader.GetString(2), Is.EqualTo("涝搞谷侪魍"));
       }
     }
 
@@ -379,7 +379,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual("щьеи", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("щьеи"));
       }
     }
 
@@ -400,7 +400,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("?parameter", MySqlDbType.VarString);
       cmd.Parameters[0].Value = "šđčćžŠĐČĆŽ";
       object o = cmd.ExecuteScalar();
-      Assert.AreEqual(1, o);
+      Assert.That(o, Is.EqualTo(1));
     }
 
     [Test]
@@ -415,7 +415,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual("ĞËÇÄŞ", reader.GetString(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("ĞËÇÄŞ"));
       }
     }
   }

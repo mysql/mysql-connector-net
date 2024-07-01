@@ -48,10 +48,10 @@ namespace MySqlX.Data.Tests.ResultTests
       WeakReference wr = new WeakReference(result);
       result = null;
       GC.Collect();
-      Assert.False(wr.IsAlive);
-      Assert.AreEqual(2, rows.Count);
-      Assert.AreEqual(22, rows[0]["age"]);
-      Assert.AreEqual("Patric", rows[1]["name"]);
+      Assert.That(wr.IsAlive, Is.False);
+      Assert.That(rows.Count, Is.EqualTo(2));
+      Assert.That(rows[0]["age"], Is.EqualTo(22));
+      Assert.That(rows[1]["name"], Is.EqualTo("Patric"));
     }
 #endif
   }

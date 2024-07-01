@@ -51,16 +51,16 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       var foundDocs = ExecuteFindStatement(coll.Find("pages > 20"));
-      Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"].ToString() == "Book 2");
-      Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"].ToString() == "Book 3");
-      Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"].ToString() == "Book 4");
-      Assert.False(foundDocs.Next());
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Current["title"].ToString() == "Book 2");
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Current["title"].ToString() == "Book 3");
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Current["title"].ToString() == "Book 4");
+      Assert.That(foundDocs.Next(), Is.False);
     }
 
     [Test]
@@ -75,16 +75,16 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       var foundDocs = ExecuteFindStatement(coll.Find("pages > 20").Sort("pages DESC"));
-      Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"].ToString() == "Book 4");
-      Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"].ToString() == "Book 3");
-      Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"].ToString() == "Book 2");
-      Assert.False(foundDocs.Next());
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Current["title"].ToString() == "Book 4");
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Current["title"].ToString() == "Book 3");
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Current["title"].ToString() == "Book 2");
+      Assert.That(foundDocs.Next(), Is.False);
     }
 
     [Test]
@@ -99,16 +99,16 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       var foundDocs = ExecuteFindStatement(coll.Find("pages > 20").Limit(1));
-      Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"].ToString() == "Book 2");
-      Assert.False(foundDocs.Next());
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Current["title"].ToString() == "Book 2");
+      Assert.That(foundDocs.Next(), Is.False);
 
       var resultDocs = ExecuteFindStatement(coll.Find("pages > 20").Offset(1).Limit(2)).FetchAll();
-      Assert.AreEqual(40, resultDocs[0]["pages"]);
-      Assert.AreEqual(50, resultDocs[1]["pages"]);
+      Assert.That(resultDocs[0]["pages"], Is.EqualTo(40));
+      Assert.That(resultDocs[1]["pages"], Is.EqualTo(50));
 
       // Limit out of range.
       Assert.Throws<ArgumentOutOfRangeException>(() => ExecuteFindStatement(coll.Find().Limit(0)));
@@ -127,12 +127,12 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       var foundDocs = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40));
-      Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Current["title"].ToString() == "Book 3");
-      Assert.False(foundDocs.Next());
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Current["title"].ToString() == "Book 3");
+      Assert.That(foundDocs.Next(), Is.False);
     }
 
     [Test]
@@ -147,15 +147,15 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       DbDoc docParams = new DbDoc(new { pages1 = 30, pages2 = 40 });
       var foundDocs = ExecuteFindStatement(coll.Find("pages = :Pages1 || pages = :Pages2").Bind(docParams));
-      Assert.True(foundDocs.Next());
-      Assert.AreEqual("Book 2", foundDocs.Current["title"]);
-      Assert.True(foundDocs.Next());
-      Assert.AreEqual("Book 3", foundDocs.Current["title"]);
-      Assert.False(foundDocs.Next());
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Current["title"], Is.EqualTo("Book 2"));
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Current["title"], Is.EqualTo("Book 3"));
+      Assert.That(foundDocs.Next(), Is.False);
     }
 
     [Test]
@@ -170,15 +170,15 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       var jsonParams = new { pages1 = 30, pages2 = 40 };
       var foundDocs = ExecuteFindStatement(coll.Find("pages = :Pages1 || pages = :Pages2").Bind(jsonParams));
-      Assert.True(foundDocs.Next());
-      Assert.AreEqual("Book 2", foundDocs.Current["title"]);
-      Assert.True(foundDocs.Next());
-      Assert.AreEqual("Book 3", foundDocs.Current["title"]);
-      Assert.False(foundDocs.Next());
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Current["title"], Is.EqualTo("Book 2"));
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Current["title"], Is.EqualTo("Book 3"));
+      Assert.That(foundDocs.Next(), Is.False);
     }
 
     [Test]
@@ -193,15 +193,15 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       var jsonParams = "{ \"pages1\" : 30, \"pages2\" : 40 }";
       var foundDocs = ExecuteFindStatement(coll.Find("pages = :Pages1 || pages = :Pages2").Bind(jsonParams));
-      Assert.True(foundDocs.Next());
-      Assert.AreEqual("Book 2", foundDocs.Current["title"]);
-      Assert.True(foundDocs.Next());
-      Assert.AreEqual("Book 3", foundDocs.Current["title"]);
-      Assert.False(foundDocs.Next());
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Current["title"], Is.EqualTo("Book 2"));
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Current["title"], Is.EqualTo("Book 3"));
+      Assert.That(foundDocs.Next(), Is.False);
     }
 
     [Test]
@@ -211,10 +211,10 @@ namespace MySqlX.Data.Tests
       Collection coll = CreateCollection("test");
 
       Exception ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll.Find().LockShared()));
-      Assert.AreEqual("This functionality is only supported from server version 8.0.3 onwards.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("This functionality is only supported from server version 8.0.3 onwards."));
 
       ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll.Find().LockExclusive()));
-      Assert.AreEqual("This functionality is only supported from server version 8.0.3 onwards.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("This functionality is only supported from server version 8.0.3 onwards."));
     }
 
     [Test]
@@ -283,11 +283,11 @@ namespace MySqlX.Data.Tests
 
         // Modify() is allowed for non-locked documents.
         Result result = ExecuteModifyStatement(coll2.Modify("_id = 2").Set("a", 2));
-        Assert.AreEqual(1, result.AffectedItemsCount);
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
         // Session1 blocks, Modify() is not allowed for locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteModifyStatement(coll2.Modify("_id = 1").Set("a", 2)));
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Lock wait timeout exceeded; try restarting transaction"));
 
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         // Modify() is allowed since document isn't locked anymore.
@@ -323,13 +323,13 @@ namespace MySqlX.Data.Tests
 
         // Modify() is allowed for non-locked documents.
         Result result = ExecuteModifyStatement(coll2.Modify("_id = 2").Set("a", 2));
-        Assert.AreEqual(1, result.AffectedItemsCount);
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
         // Session2 blocks, Modify() is not allowed for locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteModifyStatement(coll2.Modify("_id = 1").Set("a", 2)));
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Lock wait timeout exceeded; try restarting transaction"));
         ex = Assert.Throws<MySqlException>(() => ExecuteModifyStatement(coll2.Modify("_id = 1").Change("a", 12)));
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Lock wait timeout exceeded; try restarting transaction"));
 
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
         // Modify() is allowed since document isn't locked anymore.
@@ -369,7 +369,7 @@ namespace MySqlX.Data.Tests
         // Session2 blocks due to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll2.Find("_id = 1").LockShared()));
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Lock wait timeout exceeded; try restarting transaction"));
 
         // Session unlocks documents.
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
@@ -402,7 +402,7 @@ namespace MySqlX.Data.Tests
 
         ExecuteSQLStatement(session.SQL("START TRANSACTION"));
         var docResult = ExecuteFindStatement(coll.Find("_id in (1, 3)").LockShared());
-        Assert.AreEqual(2, docResult.FetchAll().Count);
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(2));
 
         ExecuteSQLStatement(session2.SQL("START TRANSACTION"));
         // Should return immediately since document isn't locked.
@@ -413,7 +413,7 @@ namespace MySqlX.Data.Tests
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll2.Find("_id = 1").LockExclusive()));
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Lock wait timeout exceeded; try restarting transaction"));
 
         // Session unlocks documents.
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
@@ -454,7 +454,7 @@ namespace MySqlX.Data.Tests
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         ExecuteSQLStatement(session2.SQL("SET SESSION innodb_lock_wait_timeout=1"));
         Exception ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll2.Find("_id = 1").LockExclusive()));
-        Assert.AreEqual("Lock wait timeout exceeded; try restarting transaction", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Lock wait timeout exceeded; try restarting transaction"));
 
         // Session unlocks documents.
         ExecuteSQLStatement(session.SQL("ROLLBACK"));
@@ -481,13 +481,13 @@ namespace MySqlX.Data.Tests
       Assert.That(ExecuteFindStatement(coll.Find("b[0] NOT IN (0,2,3)")).FetchAll(), Has.One.Items);
       Assert.That(ExecuteFindStatement(coll.Find("b[1] not in (\"a\", \"b\", \"c\")")).FetchAll(), Has.One.Items);
       Assert.That(ExecuteFindStatement(coll.Find("a in [1,2,3]")).FetchAll(), Has.One.Items);
-      CollectionAssert.IsEmpty(ExecuteFindStatement(coll.Find("a in [2,3,4]")).FetchAll());
+      Assert.That(ExecuteFindStatement(coll.Find("a in [2,3,4]")).FetchAll(), Is.Empty);
       Assert.That(ExecuteFindStatement(coll.Find("a NOT in [0,2,3]")).FetchAll(), Has.One.Items);
       Assert.That(ExecuteFindStatement(coll.Find("b not IN [1,2,3]")).FetchAll(), Has.One.Items);
-      CollectionAssert.IsEmpty(ExecuteFindStatement(coll.Find("b[0] not IN [1,2,3]")).FetchAll());
-      CollectionAssert.IsEmpty(ExecuteFindStatement(coll.Find("c NOT IN [1,2,3]")).FetchAll());
-      CollectionAssert.IsEmpty(ExecuteFindStatement(coll.Find("a IN ('', ' ')")).FetchAll());
-      CollectionAssert.IsEmpty(ExecuteFindStatement(coll.Find("'' IN (1,2,3)")).FetchAll());
+      Assert.That(ExecuteFindStatement(coll.Find("b[0] not IN [1,2,3]")).FetchAll(), Is.Empty);
+      Assert.That(ExecuteFindStatement(coll.Find("c NOT IN [1,2,3]")).FetchAll(), Is.Empty);
+      Assert.That(ExecuteFindStatement(coll.Find("a IN ('', ' ')")).FetchAll(), Is.Empty);
+      Assert.That(ExecuteFindStatement(coll.Find("'' IN (1,2,3)")).FetchAll(), Is.Empty);
       Assert.That(ExecuteFindStatement(coll.Find("d IN ('')")).FetchAll(), Has.One.Items);
 
       Collection movies = CreateCollection("movies");
@@ -495,28 +495,28 @@ namespace MySqlX.Data.Tests
       ExecuteAddStatement(movies.Add(new DbDoc(docString)));
 
       Assert.That(ExecuteFindStatement(movies.Find("(1>5) in (true, false)")).FetchAll(), Has.One.Items);
-      CollectionAssert.IsEmpty(ExecuteFindStatement(movies.Find("(1+5) in (1, 2, 3, 4, 5)")).FetchAll());
+      Assert.That(ExecuteFindStatement(movies.Find("(1+5) in (1, 2, 3, 4, 5)")).FetchAll(), Is.Empty);
       Assert.That(ExecuteFindStatement(movies.Find("('a'>'b') in (true, false)")).FetchAll(), Has.One.Items);
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(movies.Find("(1>5) in [true, false]")).FetchAll());
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(movies.Find("(1+5) in [1, 2, 3, 4, 5]")).FetchAll());
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(movies.Find("('a'>'b') in [true, false]")).FetchAll());
       Assert.That(ExecuteFindStatement(movies.Find("true IN [(1>5), !(false), (true || false), (false && true)]")).FetchAll(), Has.One.Items);
       Assert.That(ExecuteFindStatement(movies.Find("true IN ((1>5), !(false), (true || false), (false && true))")).FetchAll(), Has.One.Items);
-      CollectionAssert.IsEmpty(ExecuteFindStatement(movies.Find("{\"field\":true} IN (\"mystring\", 124, myvar, othervar.jsonobj)")).FetchAll());
-      CollectionAssert.IsEmpty(ExecuteFindStatement(movies.Find("actor.name IN ['a name', null, (1<5-4), myvar.jsonobj.name]")).FetchAll());
+      Assert.That(ExecuteFindStatement(movies.Find("{\"field\":true} IN (\"mystring\", 124, myvar, othervar.jsonobj)")).FetchAll(), Is.Empty);
+      Assert.That(ExecuteFindStatement(movies.Find("actor.name IN ['a name', null, (1<5-4), myvar.jsonobj.name]")).FetchAll(), Is.Empty);
       Assert.That(ExecuteFindStatement(movies.Find("!false && true IN [true]")).FetchAll(), Has.One.Items);
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(movies.Find("1-5/2*2 > 3-2/1*2 IN [true, false]")).FetchAll());
-      CollectionAssert.IsEmpty(ExecuteFindStatement(movies.Find("true IN [1-5/2*2 > 3-2/1*2]")).FetchAll());
+      Assert.That(ExecuteFindStatement(movies.Find("true IN [1-5/2*2 > 3-2/1*2]")).FetchAll(), Is.Empty);
       Assert.That(ExecuteFindStatement(movies.Find(" 'African Egg' IN ('African Egg', 1, true, NULL, [0,1,2], { 'title' : 'Atomic Firefighter' }) ")).FetchAll(), Has.One.Items);
       Assert.That(ExecuteFindStatement(movies.Find(" 1 IN ('African Egg', 1, true, NULL, [0,1,2], { 'title' : 'Atomic Firefighter' }) ")).FetchAll(), Has.One.Items);
       Assert.That(ExecuteFindStatement(movies.Find(" [0,1,2] IN ('African Egg', 1, true, NULL, [0,1,2], { 'title' : 'Atomic Firefighter' }) ")).FetchAll(), Has.One.Items);
       Assert.That(ExecuteFindStatement(movies.Find(" { 'title' : 'Atomic Firefighter' } IN ('African Egg', 1, true, NULL, [0,1,2], { 'title' : 'Atomic Firefighter' }) ")).FetchAll(), Has.One.Items);
-      CollectionAssert.IsEmpty(ExecuteFindStatement(movies.Find("title IN ('African Egg', 'The Witcher', 'Jurassic Perk')")).FetchAll());
+      Assert.That(ExecuteFindStatement(movies.Find("title IN ('African Egg', 'The Witcher', 'Jurassic Perk')")).FetchAll(), Is.Empty);
       Assert.That(ExecuteFindStatement(movies.Find("releaseyear IN (2006, 2010, 2017)")).FetchAll(), Has.One.Items);
       Assert.That(ExecuteFindStatement(movies.Find("1 IN [1,2,3]")).FetchAll(), Has.One.Items);
-      CollectionAssert.IsEmpty(ExecuteFindStatement(movies.Find("0 IN [1,2,3]")).FetchAll());
+      Assert.That(ExecuteFindStatement(movies.Find("0 IN [1,2,3]")).FetchAll(), Is.Empty);
       Assert.That(ExecuteFindStatement(movies.Find("0 NOT IN [1,2,3]")).FetchAll(), Has.One.Items);
-      CollectionAssert.IsEmpty(ExecuteFindStatement(movies.Find("1 NOT IN [1,2,3]")).FetchAll());
+      Assert.That(ExecuteFindStatement(movies.Find("1 NOT IN [1,2,3]")).FetchAll(), Is.Empty);
       Assert.That(ExecuteFindStatement(movies.Find("releaseyear IN [2006, 2007, 2008]")).FetchAll(), Has.One.Items);
     }
 
@@ -534,10 +534,10 @@ namespace MySqlX.Data.Tests
       Assert.That(ExecuteFindStatement(coll.Find("c.e[0] in [1,2,3]")).FetchAll(), Has.One.Items);
       Assert.That(ExecuteFindStatement(coll.Find("5 in f[*].x")).FetchAll(), Has.One.Items);
       Assert.That(ExecuteFindStatement(coll.Find("3 in c.e")).FetchAll(), Has.One.Items);
-      CollectionAssert.IsEmpty(ExecuteFindStatement(coll.Find("5 in c.e")).FetchAll());
-      CollectionAssert.IsEmpty(ExecuteFindStatement(coll.Find("\"foo\" in " + docString)).FetchAll());
-      CollectionAssert.IsEmpty(ExecuteFindStatement(coll.Find("\"a\" in " + docString)).FetchAll());
-      CollectionAssert.IsEmpty(ExecuteFindStatement(coll.Find("a in " + docString)).FetchAll());
+      Assert.That(ExecuteFindStatement(coll.Find("5 in c.e")).FetchAll(), Is.Empty);
+      Assert.That(ExecuteFindStatement(coll.Find("\"foo\" in " + docString)).FetchAll(), Is.Empty);
+      Assert.That(ExecuteFindStatement(coll.Find("\"a\" in " + docString)).FetchAll(), Is.Empty);
+      Assert.That(ExecuteFindStatement(coll.Find("a in " + docString)).FetchAll(), Is.Empty);
       Assert.That(ExecuteFindStatement(coll.Find("{\"a\":1} in " + docString)).FetchAll(), Has.One.Items);
       Assert.That(ExecuteFindStatement(coll.Find("\"foo\" in b")).FetchAll(), Has.One.Items);
 
@@ -546,13 +546,13 @@ namespace MySqlX.Data.Tests
       ExecuteAddStatement(movies.Add(new DbDoc(docString)));
 
       Assert.That(ExecuteFindStatement(movies.Find("{ \"name\" : \"MILLA PECK\" } IN actors")).FetchAll(), Has.One.Items);
-      CollectionAssert.IsEmpty(ExecuteFindStatement(movies.Find("'African Egg' in movietitle")).FetchAll());
+      Assert.That(ExecuteFindStatement(movies.Find("'African Egg' in movietitle")).FetchAll(), Is.Empty);
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(movies.Find("(1 = NULL) IN title")).FetchAll());
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(movies.Find("NOT NULL IN title")).FetchAll());
       Assert.That(ExecuteFindStatement(movies.Find("[\"Rusty Couturier\", \"Angelic Orduno\", \"Carin Postell\"] IN additionalinfo.writers")).FetchAll(), Has.One.Items);
       Assert.That(ExecuteFindStatement(movies.Find("{ \"name\" : \"MILLA PECK\", \"country\" : \"Mexico\", \"birthdate\": \"12 Jan 1984\"} IN actors")).FetchAll(), Has.One.Items);
-      CollectionAssert.IsEmpty(ExecuteFindStatement(movies.Find("true IN title")).FetchAll());
-      CollectionAssert.IsEmpty(ExecuteFindStatement(movies.Find("false IN genre")).FetchAll());
+      Assert.That(ExecuteFindStatement(movies.Find("true IN title")).FetchAll(), Is.Empty);
+      Assert.That(ExecuteFindStatement(movies.Find("false IN genre")).FetchAll(), Is.Empty);
       Assert.That(ExecuteFindStatement(movies.Find("'Sharice Legaspi' IN additionalinfo.director")).FetchAll(), Has.One.Items);
       Assert.That(ExecuteFindStatement(movies.Find("'Mexico' IN actors[*].country")).FetchAll(), Has.One.Items);
       Assert.That(ExecuteFindStatement(movies.Find("'Angelic Orduno' IN additionalinfo.writers")).FetchAll(), Has.One.Items);
@@ -568,7 +568,7 @@ namespace MySqlX.Data.Tests
       ExecuteAddStatement(coll.Add(new DbDoc(docString)));
 
       Assert.That(ExecuteFindStatement(coll.Find("\"1001\" in $._id")).FetchAll(), Has.One.Items);
-      CollectionAssert.IsEmpty(ExecuteFindStatement(coll.Find("\"1002\" in $._id")).FetchAll());
+      Assert.That(ExecuteFindStatement(coll.Find("\"1002\" in $._id")).FetchAll(), Is.Empty);
       Assert.That(ExecuteFindStatement(coll.Find("(1+2) in (1, 2, 3)")).FetchAll(), Has.One.Items);
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll.Find("(1+2) in [1, 2, 3]")).FetchAll());
       Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll.Find("(1+2) in $.ARR")).FetchAll());
@@ -586,7 +586,7 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       // Expected exceptions.
       Assert.Throws<ArgumentNullException>(() => coll.GetOne(null));
@@ -595,19 +595,19 @@ namespace MySqlX.Data.Tests
 
       // Get document using numeric parameter.
       DbDoc document = coll.GetOne(1);
-      Assert.AreEqual(1, document.Id);
-      Assert.AreEqual("Book 1", document["title"]);
-      Assert.AreEqual(20, Convert.ToInt32(document["pages"]));
+      Assert.That(document.Id, Is.EqualTo(1));
+      Assert.That(document["title"], Is.EqualTo("Book 1"));
+      Assert.That(Convert.ToInt32(document["pages"]), Is.EqualTo(20));
 
       // Get document using string parameter.
       document = coll.GetOne("3");
-      Assert.AreEqual(3, document.Id);
-      Assert.AreEqual("Book 3", document["title"]);
-      Assert.AreEqual(40, Convert.ToInt32(document["pages"]));
+      Assert.That(document.Id, Is.EqualTo(3));
+      Assert.That(document["title"], Is.EqualTo("Book 3"));
+      Assert.That(Convert.ToInt32(document["pages"]), Is.EqualTo(40));
 
       // Get a non-existing document.
       document = coll.GetOne(5);
-      Assert.Null(document);
+      Assert.That(document, Is.Null);
     }
 
     public enum LockMode { Exclusive, Shared }
@@ -650,7 +650,7 @@ namespace MySqlX.Data.Tests
           {
             case LockContention.Default:
               // error 1205 Lock wait timeout exceeded; try restarting transaction
-              Assert.AreEqual(1205u, Assert.Throws<MySqlException>(() => ExecuteFindStatement(stmt2).FetchAll()).Code);
+              Assert.That(Assert.Throws<MySqlException>(() => ExecuteFindStatement(stmt2).FetchAll()).Code, Is.EqualTo(1205u));
               break;
             case LockContention.NoWait:
               // error 1205 Lock wait timeout exceeded; try restarting transaction
@@ -658,16 +658,16 @@ namespace MySqlX.Data.Tests
               if (session.XSession.GetServerVersion().isAtLeast(8, 0, 5))
                 // error 3572 Statement aborted because lock(s) could not be acquired immediately and NOWAIT is set
                 expectedError = 3572;
-              Assert.AreEqual(expectedError, Assert.Throws<MySqlException>(() => ExecuteFindStatement(stmt2).FetchAll()).Code);
+              Assert.That(Assert.Throws<MySqlException>(() => ExecuteFindStatement(stmt2).FetchAll()).Code, Is.EqualTo(expectedError));
               break;
             case LockContention.SkipLocked:
               if (!session.XSession.GetServerVersion().isAtLeast(8, 0, 5))
               {
                 // error 1205 Lock wait timeout exceeded; try restarting transaction
-                Assert.AreEqual(1205u, Assert.Throws<MySqlException>(() => ExecuteFindStatement(stmt2).FetchAll()).Code);
+                Assert.That(Assert.Throws<MySqlException>(() => ExecuteFindStatement(stmt2).FetchAll()).Code, Is.EqualTo(1205u));
                 break;
               }
-              CollectionAssert.IsEmpty(ExecuteFindStatement(stmt2).FetchAll());
+              Assert.That(ExecuteFindStatement(stmt2).FetchAll(), Is.Empty);
               break;
             default:
               throw new NotImplementedException(lockOption.ToString());
@@ -694,56 +694,56 @@ namespace MySqlX.Data.Tests
         new { _id = 7, name = "elizabeth olsen", age = 31}
       };
       Result r = ExecuteAddStatement(collection.Add(docs));
-      Assert.AreEqual(7, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(7));
 
       // GroupBy operation.
       // GroupBy returns 5 rows since age 45 and 24 is repeated.
       var result = ExecuteFindStatement(collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy("age"));
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
 
       // GroupBy with null.
       result = ExecuteFindStatement(collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(null));
-      Assert.AreEqual(7, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(7));
       result = ExecuteFindStatement(collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(null, null));
-      Assert.AreEqual(7, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(7));
       result = ExecuteFindStatement(collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(null, "age"));
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
 
       // Having operation.
       // Having reduces the original 5 rows to 3 since 2 rows have a cnt=2, due to the repeated names.
       result = ExecuteFindStatement(collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("cnt = 1"));
-      Assert.AreEqual(3, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(3));
 
       // Having with null.
       result = ExecuteFindStatement(collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(null));
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
 
       // GroupBy with invalid field name.
       var ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy("none")));
-      Assert.AreEqual("Unknown column 'none' in 'group statement'", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Unknown column 'none' in 'group statement'"));
 
       // GroupBy with empty strings.
       var ex2 = Assert.Throws<ArgumentException>(() => ExecuteFindStatement(collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy("")));
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex2.Message);
+      Assert.That(ex2.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
       ex2 = Assert.Throws<ArgumentException>(() => ExecuteFindStatement(collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(" ")));
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex2.Message);
+      Assert.That(ex2.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
       ex2 = Assert.Throws<ArgumentException>(() => ExecuteFindStatement(collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy(string.Empty)));
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex2.Message);
+      Assert.That(ex2.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
 
       // Having with invalid field name.
       ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("none = 1")));
-      Assert.AreEqual("Invalid expression in grouping criteria", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Invalid expression in grouping criteria"));
 
       // Having with empty strings.
       ex2 = Assert.Throws<ArgumentException>(() => ExecuteFindStatement(collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having("")));
-      Assert.AreEqual("Unable to parse query ''", ex2.Message);
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+      Assert.That(ex2.Message, Is.EqualTo("Unable to parse query ''"));
+      Assert.That(ex2.InnerException.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
       ex2 = Assert.Throws<ArgumentException>(() => ExecuteFindStatement(collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(" ")));
-      Assert.AreEqual("Unable to parse query ' '", ex2.Message);
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+      Assert.That(ex2.Message, Is.EqualTo("Unable to parse query ' '"));
+      Assert.That(ex2.InnerException.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
       ex2 = Assert.Throws<ArgumentException>(() => ExecuteFindStatement(collection.Find().Fields("_id as ID", "count(name) as cnt", "age as Age").GroupBy("age").Having(string.Empty)));
-      Assert.AreEqual("Unable to parse query ''", ex2.Message);
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex2.InnerException.Message);
+      Assert.That(ex2.Message, Is.EqualTo("Unable to parse query ''"));
+      Assert.That(ex2.InnerException.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
     }
 
     [Test]
@@ -758,18 +758,18 @@ namespace MySqlX.Data.Tests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4ul, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4ul));
 
       // Single field.
       var result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields("title"));
       var document = result.FetchOne();
       Assert.That(document.values, Has.One.Items);
-      Assert.AreEqual("Book 3", document["title"]);
+      Assert.That(document["title"], Is.EqualTo("Book 3"));
 
       // Null values are ignored.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields(null));
       document = result.FetchOne();
-      Assert.AreEqual(3, document.values.Count);
+      Assert.That(document.values.Count, Is.EqualTo(3));
 
       // Null values are ignored.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields("title", null));
@@ -780,41 +780,41 @@ namespace MySqlX.Data.Tests
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields(new string[] { "title" }));
       document = result.FetchOne();
       Assert.That(document.values, Has.One.Items);
-      Assert.AreEqual("Book 3", document["title"]);
+      Assert.That(document["title"], Is.EqualTo("Book 3"));
 
       // Single field with alias.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pages", 20).Fields("title as title2"));
       document = result.FetchOne();
       Assert.That(document.values, Has.One.Items);
-      Assert.AreEqual("Book 1", document["title2"]);
-      Assert.False(document.values.ContainsKey("title"));
+      Assert.That(document["title2"], Is.EqualTo("Book 1"));
+      Assert.That(document.values.ContainsKey("title"), Is.False);
 
       // Unexistent field returns null.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pages", 20).Fields("book"));
       document = result.FetchOne();
       Assert.That(document.values, Has.One.Items);
-      Assert.Null(document["book"]);
+      Assert.That(document["book"], Is.Null);
 
       // Unexistent field with alias returns null.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pages", 20).Fields("book as book1"));
       document = result.FetchOne();
       Assert.That(document.values, Has.One.Items);
-      Assert.Null(document["book1"]);
+      Assert.That(document["book1"], Is.Null);
 
       // Multiple fields.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields("title", "pages", "other"));
       document = result.FetchOne();
-      Assert.AreEqual(3, document.values.Count);
-      Assert.AreEqual("Book 3", document["title"]);
-      Assert.AreEqual(40, document["pages"]);
-      Assert.Null(document["other"]);
+      Assert.That(document.values.Count, Is.EqualTo(3));
+      Assert.That(document["title"], Is.EqualTo("Book 3"));
+      Assert.That(document["pages"], Is.EqualTo(40));
+      Assert.That(document["other"], Is.Null);
 
       // Multiple fields in array.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields(new string[] { "title", "pages" }));
       document = result.FetchOne();
-      Assert.AreEqual(2, document.values.Count);
-      Assert.AreEqual("Book 3", document["title"]);
-      Assert.AreEqual(40, document["pages"]);
+      Assert.That(document.values.Count, Is.EqualTo(2));
+      Assert.That(document["title"], Is.EqualTo("Book 3"));
+      Assert.That(document["pages"], Is.EqualTo(40));
 
       // Sending a document doesn't generate an error.
       result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pages", 20).Fields("{\"_id\":\"1004\",\"F1\": 1234 }"));
@@ -822,15 +822,15 @@ namespace MySqlX.Data.Tests
 
       // Empty string and white space raises error.
       var ex = Assert.Throws<ArgumentException>(() => ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields("")));
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
       ex = Assert.Throws<ArgumentException>(() => ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields("  ")));
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
       ex = Assert.Throws<ArgumentException>(() => ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields(string.Empty)));
-      Assert.AreEqual("No more tokens when expecting one at token pos 0", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("No more tokens when expecting one at token pos 0"));
 
       // Multiple word field name raises error.
       ex = Assert.Throws<ArgumentException>(() => result = ExecuteFindStatement(coll.Find("pages = :Pages").Bind("pAges", 40).Fields("Book 1")));
-      Assert.AreEqual("Expression has unexpected token '1' at position 1.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Expression has unexpected token '1' at position 1."));
     }
 
     [TestCase("", "")]
@@ -849,26 +849,26 @@ namespace MySqlX.Data.Tests
         new {  _id = $"{prefix}4{suffix}", title = $"{prefix}Book 4{suffix}", pages = 50 },
       };
       r = coll.Add(docs).Execute();
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       var findStmt = coll.Find("_id = :id and pages = :pages").Bind("id", $"{prefix}3{suffix}").Bind("pages", 40);
       var doc = ExecuteFindStatement(findStmt);
       var books = doc.FetchAll();
       Assert.That(books, Has.One.Items);
-      Assert.AreEqual($"{prefix}3{suffix}", books[0]["_id"]);
+      Assert.That(books[0]["_id"], Is.EqualTo($"{prefix}3{suffix}"));
 
       findStmt = coll.Find("_id = :id and pages = :pages").Bind("Id", $"{prefix}2{suffix}").Bind("Pages", 30);
       doc = ExecuteFindStatement(findStmt);
       books = doc.FetchAll();
       Assert.That(books, Has.One.Items);
-      Assert.AreEqual($"{prefix}2{suffix}", books[0]["_id"]);
+      Assert.That(books[0]["_id"], Is.EqualTo($"{prefix}2{suffix}"));
 
       findStmt = coll.Find("title = :title").Bind("Title", $"{prefix}Book 4{suffix}");
       doc = ExecuteFindStatement(findStmt);
       books = doc.FetchAll();
       Assert.That(books, Has.One.Items);
-      Assert.AreEqual($"{prefix}4{suffix}", books[0]["_id"]);
-      Assert.AreEqual(50, books[0]["pages"]);
+      Assert.That(books[0]["_id"], Is.EqualTo($"{prefix}4{suffix}"));
+      Assert.That(books[0]["pages"], Is.EqualTo(50));
     }
 
     [TestCase(":hobbies IN $.additionalinfo.hobbies", "hobbies", "painting", 4)]
@@ -886,15 +886,15 @@ namespace MySqlX.Data.Tests
         new { _id = 4, title = $"Book 4", pages = 50, additionalinfo = new DbDoc("{\"company\":\"zxc\",\"vehicle\":\"boat\",\"hobbies\":\"painting\"}") },
       };
       r = coll.Add(docs).Execute();
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       var findStmt = coll.Find(condition);
       if (bind != null) findStmt.Bind(bind, value);
       var result = findStmt.Execute().FetchAll();
-      Assert.AreEqual(id == 0 ? 0 : 1, result.Count);
+      Assert.That(result.Count, Is.EqualTo(id == 0 ? 0 : 1));
       if (id > 0)
       {
-        Assert.AreEqual(id, result[0]["_id"]);
+        Assert.That(result[0]["_id"], Is.EqualTo(id));
       }
     }
 
@@ -911,36 +911,36 @@ namespace MySqlX.Data.Tests
       coll.Add("{ \"_id\":6, \"title\": \"Book 6\",\"list\":[\" \"]}").Execute();
 
       var result = ExecuteFindStatement(coll.Find("[7] OVERLAPS $.list")).FetchAll();
-      Assert.AreEqual("Book 2", result[0]["title"]);
+      Assert.That(result[0]["title"], Is.EqualTo("Book 2"));
       result = ExecuteFindStatement(coll.Find("[8] overlaps $.list")).FetchAll();
-      CollectionAssert.IsEmpty(result);
+      Assert.That(result, Is.Empty);
       result = ExecuteFindStatement(coll.Find("[1, 4] OVERLAPS $.list")).FetchAll();
-      CollectionAssert.IsNotEmpty(result);
-      Assert.AreEqual("Book 1", result[0]["title"]);
-      Assert.AreEqual("Book 3", result[1]["title"]);
+      Assert.That(result, Is.Not.Empty);
+      Assert.That(result[0]["title"], Is.EqualTo("Book 1"));
+      Assert.That(result[1]["title"], Is.EqualTo("Book 3"));
       result = ExecuteFindStatement(coll.Find("$.list OVERLAPS [1, 2]")).FetchAll();
-      CollectionAssert.IsNotEmpty(result);
-      Assert.AreEqual("Book 1", result[0]["title"]);
-      Assert.AreEqual("Book 4", result[1]["title"]);
+      Assert.That(result, Is.Not.Empty);
+      Assert.That(result[0]["title"], Is.EqualTo("Book 1"));
+      Assert.That(result[1]["title"], Is.EqualTo("Book 4"));
       result = ExecuteFindStatement(coll.Find("'Book 1' NOT OVERLAPS $.title").Fields("_id")).FetchAll();
-      Assert.AreEqual(5, result.Count);
-      Assert.AreEqual(3, result[1].Id);
+      Assert.That(result.Count, Is.EqualTo(5));
+      Assert.That(result[1].Id, Is.EqualTo(3));
       result = ExecuteFindStatement(coll.Find(":title NOT OVERLAPS $.title").Bind("title", "Book 1").Fields("_id")).FetchAll();
-      Assert.AreEqual(5, result.Count);
-      Assert.AreEqual(4, result[2].Id);
+      Assert.That(result.Count, Is.EqualTo(5));
+      Assert.That(result[2].Id, Is.EqualTo(4));
       result = ExecuteFindStatement(coll.Find("$.list OVERLAPS :list").Bind("list", 9)).FetchAll();
-      Assert.AreEqual("Book 3", result[0]["title"]);
+      Assert.That(result[0]["title"], Is.EqualTo("Book 3"));
       var jsonParams = new { list = 4 };
       result = ExecuteFindStatement(coll.Find("$.list OVERLAPS :list").Bind(jsonParams).Fields("count(_id) as ID", "title as Title", "list as List").
         GroupBy("title", "list").Having("ID > 0")).FetchAll();
-      Assert.AreEqual(2, result.Count);
-      Assert.AreEqual("Book 1", result[0]["Title"]);
+      Assert.That(result.Count, Is.EqualTo(2));
+      Assert.That(result[0]["Title"], Is.EqualTo("Book 1"));
       result = ExecuteFindStatement(coll.Find("[''] OVERLAPS $.list")).FetchAll();
       Assert.That(result, Has.One.Items);
-      Assert.AreEqual(5, result[0].Id);
+      Assert.That(result[0].Id, Is.EqualTo(5));
       result = ExecuteFindStatement(coll.Find("[' '] OVERLAPS $.list")).FetchAll();
       Assert.That(result, Has.One.Items);
-      Assert.AreEqual(6, result[0].Id);
+      Assert.That(result[0].Id, Is.EqualTo(6));
 
       Assert.Throws<ArgumentException>(() => ExecuteFindStatement(coll.Find("$.list OVERLAPS -")).FetchAll());
       Assert.Throws<ArgumentException>(() => ExecuteFindStatement(coll.Find("[2, 9] OVERLAPS")).FetchAll());
@@ -968,43 +968,43 @@ namespace MySqlX.Data.Tests
         };
 
       Result r = collection.Add(docs1).Execute();
-      Assert.AreEqual(8, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(8));
 
       // GroupBy operation.
       // GroupBy returns 5 rows since age 45 and 24 is repeated.
       var result = collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy("age").Execute();
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
       result = collection.Find().Fields("_id as ID", "name as Name", "profit as Profit", "test as test").GroupBy("test").Having("test=1.92").Execute();
-      Assert.AreEqual(1, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(1));
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>=31").
           Sort("profit DESC").Execute();
-      Assert.AreEqual(result.FetchAll().Count, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(result.FetchAll().Count));
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30 && max($.age)<32")
          .Execute();
-      Assert.AreEqual(2, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(2));
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>300000000")
         .Execute();
-      Assert.AreEqual(0, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(0));
 
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30").
           Having("max($.age)<32")
          .Execute();
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
 
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30").
          Having("max($.age)<32").Limit(5)
         .Execute();
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
 
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30").
          Having("max($.age)<32").Limit(3)
         .Execute();
-      Assert.AreEqual(3, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(3));
 
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30").
           Having("max($.age)<32").Limit(3).Offset(2)
          .Execute();
-      Assert.AreEqual(3, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(3));
 
       Assert.Throws<ArgumentException>(() => collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("date=21/11/2011").Execute());
     }
@@ -1028,7 +1028,7 @@ namespace MySqlX.Data.Tests
       };
 
       Result r = collection.Add(docs1).Execute();
-      Assert.AreEqual(8, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(8));
 
       // GroupBy operation.
       // GroupBy returns 5 rows since age 45 and 24 is repeated.
@@ -1040,52 +1040,52 @@ namespace MySqlX.Data.Tests
       k = result1.FetchAll().Count;
 
       var result = collection.Find().Fields("_id as ID", "name as Name", "age as Age").GroupBy("age").Execute();
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
       result = collection.Find().Fields("_id as ID", "name as Name", "profit as Profit", "test as test").GroupBy("test").Having("test=1.92").Execute();
-      Assert.AreEqual(1, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(1));
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>=31").
           Sort("profit DESC").Execute();
-      Assert.AreEqual(result.FetchAll().Count, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(result.FetchAll().Count));
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30 && max($.age)<32")
           .Execute();
-      Assert.AreEqual(2, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(2));
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>300000000")
         .Execute();
-      Assert.AreEqual(0, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(0));
 
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30").
           Having("max($.age)<32")
           .Execute();
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
 
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30").
           Having("max($.age)<32").Limit(5)
         .Execute();
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
 
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30").
           Having("max($.age)<32").Limit(3)
         .Execute();
-      Assert.AreEqual(3, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(3));
 
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30").
           Having("max($.age)<32").Limit(3).Offset(2)
           .Execute();
-      Assert.AreEqual(3, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(3));
 
       result = collection.Find().Fields("$._id as _id", "$.test as test").GroupBy("$.test").Limit(5).Offset(1).Execute();
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
 
       result = collection.Find().Fields("$._id as _id", "$.test as test").GroupBy("$.test").Limit(5).Offset(-1).Execute();
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
 
       result = collection.Find().Fields("$._id as _id", "$.test as test").GroupBy("$.test").Limit(8).Execute();
-      Assert.AreEqual(8, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(8));
 
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30").
               Having("max($.age)<32").Limit(3).Offset(-1)
             .Execute();
-      Assert.AreEqual(3, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(3));
 
       Assert.Throws<ArgumentOutOfRangeException>(() => collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30").
           Having("max($.age)<32").Limit(-1).Offset(0)
@@ -1105,10 +1105,10 @@ namespace MySqlX.Data.Tests
       var res = collection.Add(jsonlist).Execute();
 
       result = collection.Find().Fields("$.F1 as F1", "$.F2 as F2").GroupBy("$.F1").Limit(3).Offset(1).Execute();
-      Assert.AreEqual(3, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(3));
 
       result = collection.Find().Fields("$.F1 as F1", "$.F2 as F2").GroupBy("$.F1").Limit(3).Offset(1844674407370955161).Execute();
-      Assert.AreEqual(0, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(0));
     }
 
     [Test, Description("Collection.Find().Limit(x,y)")]
@@ -1129,7 +1129,7 @@ namespace MySqlX.Data.Tests
       };
 
       Result r = collection.Add(docs1).Execute();
-      Assert.AreEqual(8, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(8));
 
       // GroupBy operation.
       var result1 = collection.Find().Limit(2).Offset(-2378723).Execute();
@@ -1168,17 +1168,17 @@ namespace MySqlX.Data.Tests
       var result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30").
           Having("max($.age)<32").Limit(3).Offset(2)
           .Execute();
-      Assert.AreEqual(3, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(3));
 
       result = collection.Find().Fields("$._id as _id", "$.test as test").GroupBy("$.test").Limit(5).Offset(1).Execute();
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
       result = collection.Find().Fields("$._id as _id", "$.test as test").GroupBy("$.test").Limit(5).Offset(-1).Execute();
-      Assert.AreEqual(5, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(5));
 
       result = collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30").
       Having("max($.age)<32").Limit(3).Offset(-1)
       .Execute();
-      Assert.AreEqual(3, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(3));
 
       Assert.Throws<ArgumentOutOfRangeException>(() => collection.Find().Fields("max($.age) as age", "max($.profit) as Profit", "max($.test) as test").GroupBy("$.test").Having("max($.age)>30").
       Having("max($.age)<32").Limit(-1).Offset(0)
@@ -1226,14 +1226,14 @@ namespace MySqlX.Data.Tests
       string[] test1 = new string[] { "_id=1" };
       string[] test2 = new string[] { "_id=2" };
       var res = col.Find("$._id = 1").Execute().FetchAll();
-      Assert.AreEqual(1, res.Count, "Matching the find count");
-      Assert.AreEqual(d1.ToString(), res[0].ToString(), "Matching the string");
+      Assert.That(res.Count, Is.EqualTo(1), "Matching the find count");
+      Assert.That(res[0].ToString(), Is.EqualTo(d1.ToString()), "Matching the string");
       res = col.Find("$._id = 2").Execute().FetchAll();
-      Assert.AreEqual(1, res.Count, "Matching the find count");
-      Assert.AreEqual(d2.ToString(), res[0].ToString(), "Matching the string");
+      Assert.That(res.Count, Is.EqualTo(1), "Matching the find count");
+      Assert.That(res[0].ToString(), Is.EqualTo(d2.ToString()), "Matching the string");
       res = col.Find("$._id = 3").Execute().FetchAll();
-      Assert.AreEqual(1, res.Count, "Matching the find count");
-      Assert.AreEqual(d3.ToString(), res[0].ToString(), "Matching the string");
+      Assert.That(res.Count, Is.EqualTo(1), "Matching the find count");
+      Assert.That(res[0].ToString(), Is.EqualTo(d3.ToString()), "Matching the string");
 
     }
 
@@ -1262,14 +1262,14 @@ namespace MySqlX.Data.Tests
       string[] test1 = new string[] { "_id=1" };
       string[] test2 = new string[] { "_id=2" };
       var res = col.Find("$._id = 1").Execute().FetchAll();
-      Assert.AreEqual(1, res.Count, "Matching the find count");
-      Assert.AreEqual(d1.ToString(), res[0].ToString(), "Matching the string");
+      Assert.That(res.Count, Is.EqualTo(1), "Matching the find count");
+      Assert.That(res[0].ToString(), Is.EqualTo(d1.ToString()), "Matching the string");
       res = col.Find("$._id = 2").Execute().FetchAll();
-      Assert.AreEqual(1, res.Count, "Matching the find count");
-      Assert.AreEqual(d2.ToString(), res[0].ToString(), "Matching the string");
+      Assert.That(res.Count, Is.EqualTo(1), "Matching the find count");
+      Assert.That(res[0].ToString(), Is.EqualTo(d2.ToString()), "Matching the string");
       res = col.Find("$._id = 3").Execute().FetchAll();
-      Assert.AreEqual(1, res.Count, "Matching the find count");
-      Assert.AreEqual(d3.ToString(), res[0].ToString(), "Matching the string");
+      Assert.That(res.Count, Is.EqualTo(1), "Matching the find count");
+      Assert.That(res[0].ToString(), Is.EqualTo(d3.ToString()), "Matching the string");
     }
 
     /// <summary>
@@ -1344,12 +1344,12 @@ namespace MySqlX.Data.Tests
         var coll2 = session2.GetSchema("test").GetCollection("test");
         session.SQL("START TRANSACTION").Execute();
         var docResult = coll.Find("_id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         docResult = coll2.Find("_id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 blocks due to to LockExclusive() not allowing to read locked documents.
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
@@ -1359,7 +1359,7 @@ namespace MySqlX.Data.Tests
 
         session.Commit();
         var result = coll2.Modify("a = 1").Set("a", 12).Execute();
-        Assert.AreEqual(1, result.AffectedItemsCount);
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
       }
@@ -1390,7 +1390,7 @@ namespace MySqlX.Data.Tests
 
         session.SQL("START TRANSACTION").Execute();
         var docResult = coll.Find("_id = 1").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
@@ -1406,7 +1406,7 @@ namespace MySqlX.Data.Tests
             docResult = coll2.Find("_id = 2").Execute();
             break;
         }
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         // Session2 returns immediately.
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
@@ -1419,7 +1419,7 @@ namespace MySqlX.Data.Tests
         // Session2 returns immediately as session is committed.
         session.Commit();
         var result = coll2.Modify("a = 1").Set("a", 12).Execute();
-        Assert.AreEqual(1, result.AffectedItemsCount);
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
 
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
@@ -1468,7 +1468,7 @@ namespace MySqlX.Data.Tests
             docResult = coll2.Find("_id = :id").LockShared(LockContention.SkipLocked).Bind("id", 1).Execute();
             break;
         }
-        Assert.AreEqual(0, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(0), "Matching the document ID");
 
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
@@ -1497,7 +1497,7 @@ namespace MySqlX.Data.Tests
 
         session.SQL("START TRANSACTION").Execute();
         var docResult = coll.Find("_id = 1").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
 
@@ -1505,13 +1505,13 @@ namespace MySqlX.Data.Tests
         Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll2.Find("_id = :id").LockExclusive(LockContention.SkipLocked).LockExclusive(LockContention.NoWait).Bind("id", 1)));
 
         docResult = coll2.Find("_id = :id").LockExclusive(LockContention.SkipLocked).LockShared(LockContention.NoWait).Bind("id", 1).Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         docResult = coll2.Find("_id = :id").LockExclusive(LockContention.SkipLocked).LockShared(LockContention.SkipLocked).Bind("id", 1).Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         docResult = coll2.Find("_id = :id").LockShared(LockContention.SkipLocked).LockExclusive(LockContention.SkipLocked).Bind("id", 1).Execute();
-        Assert.AreEqual(0, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(0), "Matching the document ID");
 
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
@@ -1540,19 +1540,19 @@ namespace MySqlX.Data.Tests
 
         session.SQL("START TRANSACTION").Execute();
         var docResult = coll.Find("_id >1").LockShared().Execute();
-        Assert.AreEqual(2, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(2), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
 
         docResult = coll2.Find("_id < 3").LockShared(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(2, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(2), "Matching the document ID");
 
         docResult = coll2.Find("_id < 3").LockShared(LockContention.NoWait).Execute();
-        Assert.AreEqual(2, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(2), "Matching the document ID");
 
         docResult = coll2.Find("_id < 3").LockExclusive(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
@@ -1581,16 +1581,16 @@ namespace MySqlX.Data.Tests
 
         session.SQL("START TRANSACTION").Execute();
         var docResult = coll.Find("_id >1").LockExclusive().Execute();
-        Assert.AreEqual(2, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(2), "Matching the document ID");
 
         session2.SQL("START TRANSACTION").Execute();
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
 
         docResult = coll2.Find("_id < 3").LockShared(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         docResult = coll2.Find("_id < 3").LockExclusive(LockContention.SkipLocked).Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
@@ -1619,15 +1619,15 @@ namespace MySqlX.Data.Tests
 
         session.SQL("START TRANSACTION").Execute();
         var docResult = coll.Find("_id = 1").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         docResult = coll2.Find("_id = 1").Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
         // Should allow to modify immediately since document isn't locked.
         var result = coll2.Modify("_id = 2").Set("a", 10).Execute();
-        Assert.AreEqual(1, (int)result.AffectedItemsCount, "Match being done");
+        Assert.That((int)result.AffectedItemsCount, Is.EqualTo(1), "Match being done");
         Assert.Throws<MySqlException>(() => ExecuteModifyStatement(coll2.Modify("_id = 1").Change("a", 10)));
 
         session.SQL("ROLLBACK").Execute();
@@ -1659,14 +1659,14 @@ namespace MySqlX.Data.Tests
 
         session.SQL("START TRANSACTION").Execute();
         var docResult = coll.Find("_id = 1").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         docResult = coll2.Find("_id = 2").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         // Should return immediately due to LockShared() allows reading by other sessions.
         docResult = coll2.Find("_id = 1").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         session.SQL("ROLLBACK").Execute();
         session2.SQL("ROLLBACK").Execute();
       }
@@ -1696,20 +1696,20 @@ namespace MySqlX.Data.Tests
 
         session.SQL("START TRANSACTION").Execute();
         var docResult = coll.Find("_id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         docResult = coll2.Find("_id = 2").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
         // Session2 blocks due to LockExclusive() not allowing to read locked documents.
         Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll2.Find("_id = 1").LockShared()));
         // Session unlocks documents.
         session.SQL("ROLLBACK").Execute();
         docResult = coll2.Find("_id = 1").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         docResult = coll.Find("_id = 1").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         session2.SQL("ROLLBACK").Execute();
       }
 
@@ -1738,21 +1738,21 @@ namespace MySqlX.Data.Tests
 
         session.SQL("START TRANSACTION").Execute();
         var docResult = coll.Find("_id = 1").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document IDs");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document IDs");
         docResult = coll.Find("_id = 3").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document IDs");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document IDs");
         session2.SQL("START TRANSACTION").Execute();
 
         // Should return immediately since document isn't locked.
         docResult = coll2.Find("_id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         // Should return immediately due to LockShared() allows reading by other sessions.
         docResult = coll2.Find("_id = 2").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
         // Session1 blocks due to LockExclusive() not allowing to read locked documents.
         coll2.Find("_id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll2.Find("_id = 1").LockExclusive()));
         Assert.Throws<MySqlException>(() => ExecuteModifyStatement(coll2.Modify("_id = 1").Set("a", 100)));
         // Session unlocks documents.
@@ -1785,11 +1785,11 @@ namespace MySqlX.Data.Tests
 
         session.SQL("START TRANSACTION").Execute();
         var docResult = coll.Find("_id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document IDs");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document IDs");
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately due to LockShared() allows reading by other sessions.
         docResult = coll2.Find("_id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         session.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
         Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll.Find("_id = 2").LockExclusive()));
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
@@ -1798,10 +1798,10 @@ namespace MySqlX.Data.Tests
         // Session unlocks documents.
         session2.SQL("ROLLBACK").Execute();
         docResult = coll.Find("_id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         session.SQL("ROLLBACK").Execute();
         docResult = coll2.Find("_id = 1").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
       }
 
       ExecuteSQLStatement(session.SQL("SET autocommit = 1"));
@@ -1828,18 +1828,18 @@ namespace MySqlX.Data.Tests
         var coll2 = session2.GetSchema("test").GetCollection("test");
         session.SQL("START TRANSACTION").Execute();
         var docResult = coll.Find("_id in (1,3)").LockExclusive().Execute();
-        Assert.AreEqual(2, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(2), "Matching the document ID");
         session2.SQL("START TRANSACTION").Execute();
         // Should return immediately since document isn't locked.
         docResult = coll2.Find("_id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         // Should return immediately due to LockShared() allows reading by other sessions.
         docResult = coll2.Find("_id = 2").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         session2.SQL("SET SESSION innodb_lock_wait_timeout=1").Execute();
         // Session1 blocks due to LockExclusive() not allowing to read locked documents.
         coll2.Find("_id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll2.Find("_id = 1").LockExclusive()));
         Assert.Throws<MySqlException>(() => ExecuteModifyStatement(coll2.Modify("_id = 1").Set("a", 100)));
         // Session unlocks documents.
@@ -1871,18 +1871,18 @@ namespace MySqlX.Data.Tests
 
         session.SQL("START TRANSACTION").Execute();
         var docResult = coll.Find("_id = 1").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         session2.SQL("START TRANSACTION").Execute();
 
         // Should return immediately since document isn't locked.
         docResult = coll2.Find("_id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         docResult = coll2.Find("_id = 2").LockExclusive().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         docResult = coll2.Find("_id = 2").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         docResult = coll2.Find("_id = 2").LockShared().Execute();
-        Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+        Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
         // Session unlocks documents.
         session2.SQL("ROLLBACK").Execute();
         session.SQL("ROLLBACK").Execute();
@@ -1899,16 +1899,16 @@ namespace MySqlX.Data.Tests
       var col = CreateCollection("my_collection_1");
       string json = @"{ ""_id"": 0, ""title"": ""Book 0"" ,""pages"": 10,""name"": ""Jeoff Archer""}";
       Result r = col.Add(json).Execute();
-      Assert.AreEqual(1, (int)r.AffectedItemsCount, "Matching Affected Records Count");
+      Assert.That((int)r.AffectedItemsCount, Is.EqualTo(1), "Matching Affected Records Count");
       var foundDocs = col.Find("1 in (1,2,3,6)").Execute();
-      Assert.AreEqual(1, foundDocs.FetchAll().Count, "Matching Count");
+      Assert.That(foundDocs.FetchAll().Count, Is.EqualTo(1), "Matching Count");
       //var result = col.Find("0 in $._id").Fields("$.name as name, $.pages as pages, $.title as title").Execute();
       foundDocs = col.Find("'Book 0' in $.title").Execute();
-      Assert.AreEqual(1, foundDocs.FetchAll().Count, "Matching Count");
+      Assert.That(foundDocs.FetchAll().Count, Is.EqualTo(1), "Matching Count");
       foundDocs = col.Find("100 in _id").Execute();
-      Assert.AreEqual(0, foundDocs.FetchAll().Count, "Matching Count");
+      Assert.That(foundDocs.FetchAll().Count, Is.EqualTo(0), "Matching Count");
       foundDocs = col.Find("100 not in _id").Execute();
-      Assert.AreEqual(1, foundDocs.FetchAll().Count, "Matching Count");
+      Assert.That(foundDocs.FetchAll().Count, Is.EqualTo(1), "Matching Count");
 
       json = @"{ ""_id"" : 99950, ""city"" : ""KETCHIKAN"", ""loc"" : ""[ -133.18479, 55.942471 ]"", ""pop"" : 422, ""state"" : ""AK"" }";
       r = col.Add(json).Execute();
@@ -1922,7 +1922,7 @@ namespace MySqlX.Data.Tests
       d2.SetValue("pages", 20);
       d2.SetValue("person", new { name = "Fred", age = 45 });
 
-      Assert.AreEqual(d.Equals(d2), true, "Matching");
+      Assert.That(true, Is.EqualTo(d.Equals(d2)), "Matching");
       col.Add(d).Execute();
 
 
@@ -1955,32 +1955,32 @@ namespace MySqlX.Data.Tests
 
       var result = col.Find("0 in $._id").Fields("$._id as _id,$.name as name, $.pages as pages, $.title as title").Execute();
       var res1 = result.FetchOne();
-      Assert.AreEqual(0, res1["_id"]);
-      Assert.AreEqual("Jeoff Archer", res1["name"]);
-      Assert.AreEqual(10, res1["pages"]);
-      Assert.AreEqual("Book 0", res1["title"]);
+      Assert.That(res1["_id"], Is.EqualTo(0));
+      Assert.That(res1["name"], Is.EqualTo("Jeoff Archer"));
+      Assert.That(res1["pages"], Is.EqualTo(10));
+      Assert.That(res1["title"], Is.EqualTo("Book 0"));
 
       result = col.Find("0 in $._id OR 1 in $._id").Fields("$._id as _id,$.name as name, $.pages as pages, $.title as title").Execute();
       res1 = result.FetchOne();
-      Assert.AreEqual(0, res1["_id"]);
-      Assert.AreEqual("Jeoff Archer", res1["name"]);
-      Assert.AreEqual(10, res1["pages"]);
-      Assert.AreEqual("Book 0", res1["title"]);
+      Assert.That(res1["_id"], Is.EqualTo(0));
+      Assert.That(res1["name"], Is.EqualTo("Jeoff Archer"));
+      Assert.That(res1["pages"], Is.EqualTo(10));
+      Assert.That(res1["title"], Is.EqualTo("Book 0"));
 
       result = col.Find("0 not in $._id").Fields("$._id as _id,$.name as name, $.pages as pages, $.title as title").Execute();
       var res2 = result.FetchAll();
-      Assert.AreEqual(6, res2.Count, "Matching the find count");
+      Assert.That(res2.Count, Is.EqualTo(6), "Matching the find count");
 
       result = col.Find("'Jeoff Archer' in $.name").Execute();
       res1 = result.FetchOne();
-      Assert.AreEqual(0, res1["_id"]);
-      Assert.AreEqual("Jeoff Archer", res1["name"]);
-      Assert.AreEqual(10, res1["pages"]);
-      Assert.AreEqual("Book 0", res1["title"]);
+      Assert.That(res1["_id"], Is.EqualTo(0));
+      Assert.That(res1["name"], Is.EqualTo("Jeoff Archer"));
+      Assert.That(res1["pages"], Is.EqualTo(10));
+      Assert.That(res1["title"], Is.EqualTo("Book 0"));
 
       result = col.Find("0 not in $._id").Fields().Execute();
       res2 = result.FetchAll();
-      Assert.IsNotNull(res2[0]["_id"]);
+      Assert.That(res2[0]["_id"], Is.Not.Null);
 
       var test = new DbDoc();
       test.SetValue("_id", 1);
@@ -1995,10 +1995,10 @@ namespace MySqlX.Data.Tests
               "'ABBBBBBBBBBBBBBXXXXXXXXXXXXXXXYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYTTTTTTYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYABBBBBBBBBBBBBBXXXXXXXXXXXXXXXYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYTTTTTTYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYABBBBBBBBBBBBBBXXXXXXXXXXXXXXXYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYTTTTTTYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYABBBBBBBBBBBBBBXXXXXXXXXXXXXXXYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYTTTTTTYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYABBBBBBBBBBBBBBXXXXXXXXXXXXXXXYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYTTTTTTYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY' in $.name")
           .Execute();
       var docs1 = foundDocs2.FetchAll();
-      Assert.AreEqual(1, docs1.Count);
+      Assert.That(docs1.Count, Is.EqualTo(1));
       foundDocs2 = coll.Find("3488888888.9 in $.age").Execute();
       docs1 = foundDocs2.FetchAll();
-      Assert.AreEqual(1, docs1.Count);
+      Assert.That(docs1.Count, Is.EqualTo(1));
     }
 
     [Test, Description("Test MySQLX plugin Collection Array or Object contains operator Scenarios-3")]
@@ -2022,17 +2022,17 @@ namespace MySqlX.Data.Tests
           .Execute();
       var docs = col.Find().Execute();
       var result1 = col.Find("\"10-15-2017\" in $.misc").Execute().FetchAll().Count;
-      Assert.AreEqual(1, result1);
+      Assert.That(result1, Is.EqualTo(1));
       result1 = col.Find("\"10-15-2019\" in $.misc").Execute().FetchAll().Count;
-      Assert.AreEqual(0, result1);
+      Assert.That(result1, Is.EqualTo(0));
       var doc = docs.FetchOne();
       var result = col.Find("1 in $.age").Fields("$.name as name, $.age as age, $.misc as misc").Sort("name DESC").Execute();
-      Assert.AreEqual(3, result.FetchAll().Count);
+      Assert.That(result.FetchAll().Count, Is.EqualTo(3));
       var coll = CreateCollection("test");
       coll.Add(new DbDoc("{ \"a\": 1, \"b\": [ 1, \"value\" ], \"d\":\"\", \"ARR1\":[\"Field-1-Data-0\"] }")).Execute();
       result = coll.Find("JSON_TYPE($.ARR1) = 'ARRAY' AND \"Field-1-Data-0\" in $.ARR1").Execute();
       var count = result.FetchAll().Count;
-      Assert.AreEqual(1, count);
+      Assert.That(count, Is.EqualTo(1));
 
     }
 
@@ -2048,9 +2048,9 @@ namespace MySqlX.Data.Tests
       coll.Add("{ \"name\": [\"name1\", \"name2\", \"name3\"], \"age\": 1 , \"misc\": 1.2}").Execute();
       coll.Add("{ \"name\": {\"first\" : \"ABCDEF1\", \"middle\" : \"ABCDEF2\", \"last\" : \"ABCDEF3\"}, \"age\": 1 , \"misc\": 1.2}").Execute();
       var docs = coll.Find("4 in $.age").Execute().FetchAll().Count;
-      Assert.True(docs > 0);
+      Assert.That(docs > 0);
       var res3 = coll.Find("4 in $.age").Sort("name ASC").Execute().FetchAll();
-      Assert.AreEqual(docs, res3.Count);
+      Assert.That(res3.Count, Is.EqualTo(docs));
     }
 
     [Test, Description("Test MySQLX plugin Find with overlap Bugs")]
@@ -2067,11 +2067,11 @@ namespace MySqlX.Data.Tests
         coll.Add("{\"" + splName[i] + "\":\"data" + i + "\",\"ID\":" + i + "}").Execute();
         var docs2 = coll.Find("$.ID OVERLAPS " + i).Fields("$.`" + splName[i] + "` as col1,$.ID as Id").Execute();
         var res2 = docs2.FetchOne();
-        Assert.AreEqual(i.ToString(), res2["Id"].ToString(), "Matching the ID");
+        Assert.That(res2["Id"].ToString(), Is.EqualTo(i.ToString()), "Matching the ID");
         if (i == 30)
-          Assert.AreEqual("data" + i, "data30", "Matching the String");
+          Assert.That("data30", Is.EqualTo("data" + i), "Matching the String");
         else
-          Assert.AreEqual("data" + i, res2["col1"].ToString(), "Matching the String");
+          Assert.That(res2["col1"].ToString(), Is.EqualTo("data" + i), "Matching the String");
       }
 
       coll = CreateCollection("test");
@@ -2109,25 +2109,25 @@ namespace MySqlX.Data.Tests
 
       var docs = coll.Find("$._id OVERLAPS 1100").Fields("$_id as _id,$.F1 as f1, $.F2 as f2, $.F3 as f3").Execute();
       var res1 = docs.FetchOne();
-      Assert.AreEqual("1100", res1["_id"].ToString());
-      Assert.AreEqual("Field-1-Data-100", res1["f1"].ToString());
-      Assert.AreEqual("Field-2-Data-100", res1["f2"].ToString());
-      Assert.AreEqual("400", res1["f3"].ToString());
+      Assert.That(res1["_id"].ToString(), Is.EqualTo("1100"));
+      Assert.That(res1["f1"].ToString(), Is.EqualTo("Field-1-Data-100"));
+      Assert.That(res1["f2"].ToString(), Is.EqualTo("Field-2-Data-100"));
+      Assert.That(res1["f3"].ToString(), Is.EqualTo("400"));
       Assert.Throws<ArgumentException>(() => ExecuteFindStatement(coll.Find("$.F2 OVERLAPS #").Fields("$_id as _id,$.F1 as f1, $.F2 as f2, $.F3 as f3")));
 
       docs = coll.Find("$.F2 OVERLAPS 'ABCD'").Fields("$_id as _id,$.F1 as f1, $.F2 as f2, $.F3 as f3").Execute();
       res1 = docs.FetchOne();
-      Assert.AreEqual("1005", res1["_id"]);
-      Assert.AreEqual(123, res1["f1"]);
-      Assert.AreEqual("ABCD", res1["f2"]);
+      Assert.That(res1["_id"], Is.EqualTo("1005"));
+      Assert.That(res1["f1"], Is.EqualTo(123));
+      Assert.That(res1["f2"], Is.EqualTo("ABCD"));
       Assert.Throws<ArgumentException>(() => ExecuteFindStatement(coll.Find("$.F2 OVERLAPS [1234").Fields("$_id as _id,$.F1 as f1, $.F2 as f2, $.F3 as f3")));
       Assert.Throws<ArgumentException>(() => ExecuteFindStatement(coll.Find("$.F2 OVERLAPS S()R%^").Fields("$_id as _id,$.F1 as f1, $.F2 as f2, $.F3 as f3")));
 
       docs = coll.Find("$.F2 OVERLAPS 'S()R%^'").Fields("$_id as _id,$.F1 as f1, $.F2 as f2, $.F3 as f3").Execute();
       res1 = docs.FetchOne();
-      Assert.AreEqual("1007", res1["_id"]);
-      Assert.AreEqual(123, res1["f1"]);
-      Assert.AreEqual("S()R%^", res1["f2"]);
+      Assert.That(res1["_id"], Is.EqualTo("1007"));
+      Assert.That(res1["f1"], Is.EqualTo(123));
+      Assert.That(res1["f2"], Is.EqualTo("S()R%^"));
     }
 
     [Test, Description("Test MySQLX plugin Find with overlap and Many conditions")]
@@ -2152,7 +2152,7 @@ namespace MySqlX.Data.Tests
         j++;
       }
       var docs = coll.Find(query).Execute();
-      Assert.True(docs.FetchAll().Count > 0);
+      Assert.That(docs.FetchAll().Count > 0);
     }
 
     [Test, Description("Deprecated Find Where")]
@@ -2167,11 +2167,11 @@ namespace MySqlX.Data.Tests
                   new {  _id = 4, title = "Book 4", pages = 50 },
                   };
       var result1 = collection.Add(docs).Execute();
-      Assert.AreEqual(4, result1.AffectedItemsCount);
+      Assert.That(result1.AffectedItemsCount, Is.EqualTo(4));
 
       //Deprecated Find().Where() in 8.0.17
       var result2 = collection.Find("$._id = 1").Where("true").Execute().FetchAll();
-      Assert.AreEqual(4, result2.Count);
+      Assert.That(result2.Count, Is.EqualTo(4));
     }
 
     [Test, Description("Test MySQLX plugin Collection match count")]
@@ -2218,35 +2218,35 @@ namespace MySqlX.Data.Tests
       var final = col.Add(d1, d2).Add(d3).Execute();
       var res1 = col.Find().Fields("{\"_id\":\"1\",\"books\": \"test1\" }").Fields("{\"_id\":\"2\",\"books\": \"test2\" }").Fields("{\"_id\":\"3\",\"books\": \"test3\" }").Execute().FetchAll();
       res1 = col.Find().Fields(new string[] { "_id", "books", "count" }).Execute().FetchAll();
-      Assert.AreEqual(3, res1.Count, "Matching the find count");
-      Assert.AreEqual(d1.ToString(), res1[0].ToString(), "Matching the doc string 1");
-      Assert.AreEqual(d2.ToString(), res1[1].ToString(), "Matching the doc string 2");
-      Assert.AreEqual(d3.ToString(), res1[2].ToString(), "Matching the doc string 3");
+      Assert.That(res1.Count, Is.EqualTo(3), "Matching the find count");
+      Assert.That(res1[0].ToString(), Is.EqualTo(d1.ToString()), "Matching the doc string 1");
+      Assert.That(res1[1].ToString(), Is.EqualTo(d2.ToString()), "Matching the doc string 2");
+      Assert.That(res1[2].ToString(), Is.EqualTo(d3.ToString()), "Matching the doc string 3");
       final = col.Add(new DbDoc[] { d4, d5 }).Execute();
       var res2 = col.Find().Fields("$._id as _id,$.books as books, $.count as count").Execute().FetchAll();
-      Assert.AreEqual(5, res2.Count, "Matching the find count");
-      Assert.AreEqual(d1.ToString(), res2[0].ToString(), "Matching the doc string 1");
-      Assert.AreEqual(d2.ToString(), res2[1].ToString(), "Matching the doc string 2");
-      Assert.AreEqual(d3.ToString(), res2[2].ToString(), "Matching the doc string 3");
-      Assert.AreEqual(d4.ToString(), res2[3].ToString(), "Matching the doc string 4");
-      Assert.AreEqual(d5.ToString(), res2[4].ToString(), "Matching the doc string 5");
+      Assert.That(res2.Count, Is.EqualTo(5), "Matching the find count");
+      Assert.That(res2[0].ToString(), Is.EqualTo(d1.ToString()), "Matching the doc string 1");
+      Assert.That(res2[1].ToString(), Is.EqualTo(d2.ToString()), "Matching the doc string 2");
+      Assert.That(res2[2].ToString(), Is.EqualTo(d3.ToString()), "Matching the doc string 3");
+      Assert.That(res2[3].ToString(), Is.EqualTo(d4.ToString()), "Matching the doc string 4");
+      Assert.That(res2[4].ToString(), Is.EqualTo(d5.ToString()), "Matching the doc string 5");
       final = col.Add(d6, d7).Execute();
       var res3 = col.Find().Sort("count ASC").Execute().FetchAll();
-      Assert.AreEqual(d6.ToString(), res3[0].ToString(), "Matching the doc string 7");
-      Assert.AreEqual(d1.ToString(), res3[1].ToString(), "Matching the doc string 1");
-      Assert.AreEqual(d2.ToString(), res3[2].ToString(), "Matching the doc string 2");
-      Assert.AreEqual(d3.ToString(), res3[3].ToString(), "Matching the doc string 3");
-      Assert.AreEqual(d4.ToString(), res3[4].ToString(), "Matching the doc string 4");
-      Assert.AreEqual(d5.ToString(), res3[5].ToString(), "Matching the doc string 5");
-      Assert.AreEqual(d7.ToString(), res3[6].ToString(), "Matching the doc string 6");
+      Assert.That(res3[0].ToString(), Is.EqualTo(d6.ToString()), "Matching the doc string 7");
+      Assert.That(res3[1].ToString(), Is.EqualTo(d1.ToString()), "Matching the doc string 1");
+      Assert.That(res3[2].ToString(), Is.EqualTo(d2.ToString()), "Matching the doc string 2");
+      Assert.That(res3[3].ToString(), Is.EqualTo(d3.ToString()), "Matching the doc string 3");
+      Assert.That(res3[4].ToString(), Is.EqualTo(d4.ToString()), "Matching the doc string 4");
+      Assert.That(res3[5].ToString(), Is.EqualTo(d5.ToString()), "Matching the doc string 5");
+      Assert.That(res3[6].ToString(), Is.EqualTo(d7.ToString()), "Matching the doc string 6");
       var res4 = col.Find().Sort("count DESC").Execute().FetchAll();
-      Assert.AreEqual(d7.ToString(), res4[0].ToString(), "Matching the doc string 6");
-      Assert.AreEqual(d5.ToString(), res4[1].ToString(), "Matching the doc string 1");
-      Assert.AreEqual(d4.ToString(), res4[2].ToString(), "Matching the doc string 2");
-      Assert.AreEqual(d3.ToString(), res4[3].ToString(), "Matching the doc string 3");
-      Assert.AreEqual(d2.ToString(), res4[4].ToString(), "Matching the doc string 4");
-      Assert.AreEqual(d1.ToString(), res4[5].ToString(), "Matching the doc string 5");
-      Assert.AreEqual(d6.ToString(), res4[6].ToString(), "Matching the doc string 7");
+      Assert.That(res4[0].ToString(), Is.EqualTo(d7.ToString()), "Matching the doc string 6");
+      Assert.That(res4[1].ToString(), Is.EqualTo(d5.ToString()), "Matching the doc string 1");
+      Assert.That(res4[2].ToString(), Is.EqualTo(d4.ToString()), "Matching the doc string 2");
+      Assert.That(res4[3].ToString(), Is.EqualTo(d3.ToString()), "Matching the doc string 3");
+      Assert.That(res4[4].ToString(), Is.EqualTo(d2.ToString()), "Matching the doc string 4");
+      Assert.That(res4[5].ToString(), Is.EqualTo(d1.ToString()), "Matching the doc string 5");
+      Assert.That(res4[6].ToString(), Is.EqualTo(d6.ToString()), "Matching the doc string 7");
       col.Modify("_id = 1").Unset("count").Unset("books").Execute();
       col.Modify("_id = 1").Set("count", 10).Set("books", "test1").Execute();
 
@@ -2260,21 +2260,21 @@ namespace MySqlX.Data.Tests
 
       Result r = col.Add(@"{ ""_id"": 1, ""foo"": 1 }").Execute();
       long count = col.Count();
-      Assert.AreEqual(count, 1, "Matching the Collection Count");
+      Assert.That(1, Is.EqualTo(count), "Matching the Collection Count");
 
       var collectionName = col.Name;
-      Assert.AreEqual(collectionName, "my_collection_123456789", "Matching the collection Name");
+      Assert.That("my_collection_123456789", Is.EqualTo(collectionName), "Matching the collection Name");
 
       var schema = col.Schema.Name;
-      Assert.AreEqual(schema, schemaName, "Matching the Schema Name");
+      Assert.That(schemaName, Is.EqualTo(schema), "Matching the Schema Name");
 
       r = col.Add(@"{ ""_id"": 2, ""foo"": 2 }").Execute();
       count = col.Count();
-      Assert.AreEqual(count, 2, "Matching the Collection Count");
+      Assert.That(2, Is.EqualTo(count), "Matching the Collection Count");
 
       r = col.Remove("_id=2").Execute();
       count = col.Count();
-      Assert.AreEqual(count, 1, "Matching the Collection Count");
+      Assert.That(1, Is.EqualTo(count), "Matching the Collection Count");
       session.Schema.DropCollection("my_collection_123456789");
     }
 

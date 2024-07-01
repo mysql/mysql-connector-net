@@ -76,7 +76,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Employees.Add(e);
         context.SaveChanges();
         var employeeComputedColumn = context.Employees.FirstOrDefault();
-        Assert.True(employeeComputedColumn!.DisplayName!.Equals("Stuart Jos"), "Wrong computed column");
+        Assert.That(employeeComputedColumn!.DisplayName!.Equals("Stuart Jos"), "Wrong computed column");
         context.Database.EnsureDeleted();
       }
     }
@@ -101,7 +101,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           context.QuickEntity.Add(e);
           context.SaveChanges();
           var row = context.QuickEntity.FirstOrDefault();
-          Assert.AreEqual(dt, row!.Created);
+          Assert.That(row!.Created, Is.EqualTo(dt));
         }
         finally
         {
@@ -130,7 +130,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           context.QuickEntity.Add(e);
           context.SaveChanges();
           var result = await context.QuickEntity.FirstOrDefaultAsync();
-          Assert.AreEqual(dt, result!.Created);
+          Assert.That(result!.Created, Is.EqualTo(dt));
         }
         catch (Exception)
         {
@@ -164,7 +164,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           var reader = cmd.ExecuteReader();
           while (reader.Read())
           {
-            Assert.True(reader.GetString(1).ToString().Equals("AlternateKey_LicensePlate"), "Wrong index creation");
+            Assert.That(reader.GetString(1).ToString().Equals("AlternateKey_LicensePlate"), "Wrong index creation");
           }
         }
       }
@@ -189,7 +189,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           var reader = cmd.ExecuteReader();
           while (reader.Read())
           {
-            Assert.True(reader.GetString(0).ToString().Equals("somecars"), "Wrong table name");
+            Assert.That(reader.GetString(0).ToString().Equals("somecars"), "Wrong table name");
           }
         }
         context.Database.EnsureDeleted();
@@ -216,7 +216,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           var reader = cmd.ExecuteReader();
           while (reader.Read())
           {
-            Assert.True(reader.GetString(0).ToString().Equals("somecars"), "Wrong table name");
+            Assert.That(reader.GetString(0).ToString().Equals("somecars"), "Wrong table name");
           }
         }
         context.Database.EnsureDeleted();
@@ -247,7 +247,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Employees.Add(e);
         context.SaveChanges();
         var employeeComputedColumn = context.Employees.SingleOrDefault();
-        Assert.True(employeeComputedColumn!.DisplayName!.Equals("Stuart Jos"), "Wrong computed column");
+        Assert.That(employeeComputedColumn!.DisplayName!.Equals("Stuart Jos"), "Wrong computed column");
         context.Database.EnsureDeleted();
       }
     }
@@ -329,9 +329,9 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Employees.Add(e);
         context.SaveChanges();
         var result = context.Employees.Where(t => t.FirstName!.Contains("XXXXXXXX$%^&*()!")).ToList();
-        Assert.IsEmpty(result);
+        Assert.That(result, Is.Empty);
         result = context.Employees.Where(t => t.FirstName!.Contains("null")).ToList();
-        Assert.IsEmpty(result);
+        Assert.That(result, Is.Empty);
         context.Database.EnsureDeleted();
       }
     }
@@ -378,10 +378,10 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           MySqlCommand cmd = new MySqlCommand("SHOW TABLES", conn);
           using (MySqlDataReader reader = cmd.ExecuteReader())
           {
-            Assert.True(reader.Read());
-            StringAssert.AreEqualIgnoringCase("continentlist", reader.GetString(0));
-            Assert.True(reader.Read());
-            StringAssert.AreEqualIgnoringCase("countrylist", reader.GetString(0));
+            Assert.That(reader.Read());
+            Assert.That(reader.GetString(0), Is.EqualTo("continentlist").IgnoreCase);
+            Assert.That(reader.Read());
+            Assert.That(reader.GetString(0), Is.EqualTo("countrylist").IgnoreCase);
           }
 
         }
@@ -407,7 +407,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
             string createTable = reader.GetString(1);
             createTable = Regex.Replace(createTable, @"\t|\n|\r", string.Empty);
             string txt = "CREATE TABLE `testcharsetda` (  `TestCharsetDAId` varbinary(255) NOT NULL,  PRIMARY KEY (`TestCharsetDAId`)) ENGINE=InnoDB DEFAULT CHARSET=ascii";
-            StringAssert.AreEqualIgnoringCase(txt, createTable);
+            Assert.That(createTable, Is.EqualTo(txt).IgnoreCase);
           }
 
           cmd.CommandText = "SHOW CREATE TABLE `TestCharsetFA`";
@@ -422,12 +422,12 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
             if (createTable.Contains("COLLATE latin7_general_ci"))
             {
               txt = "CREATE TABLE `testcharsetfa` (  `TestCharsetFAId` varchar(255) CHARACTER SET latin7 COLLATE latin7_general_ci NOT NULL,  PRIMARY KEY (`TestCharsetFAId`)) ENGINE=InnoDB DEFAULT CHARSET=utf16";
-              StringAssert.AreEqualIgnoringCase(txt, createTable);
+              Assert.That(createTable, Is.EqualTo(txt).IgnoreCase);
             }
             else
             {
               txt = "CREATE TABLE `testcharsetfa` (  `TestCharsetFAId` varchar(255) CHARACTER SET latin7 NOT NULL,  PRIMARY KEY (`TestCharsetFAId`)) ENGINE=InnoDB DEFAULT CHARSET=utf16";
-              StringAssert.AreEqualIgnoringCase(txt, createTable);
+              Assert.That(createTable, Is.EqualTo(txt).IgnoreCase);
             }
           }
 
@@ -438,7 +438,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
             string createTable = reader.GetString(1);
             createTable = Regex.Replace(createTable, @"\t|\n|\r", string.Empty);
             string txt = "CREATE TABLE `testcollationda` (  `TestCollationDAId` varchar(255) CHARACTER SET greek COLLATE greek_bin NOT NULL,  PRIMARY KEY (`TestCollationDAId`)) ENGINE=InnoDB DEFAULT CHARSET=cp932 COLLATE=cp932_bin";
-            StringAssert.AreEqualIgnoringCase(txt, createTable);
+            Assert.That(createTable, Is.EqualTo(txt).IgnoreCase);
           }
 
           cmd.CommandText = "SHOW CREATE TABLE `TestCollationFA`";
@@ -448,7 +448,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
             string createTable = reader.GetString(1);
             createTable = Regex.Replace(createTable, @"\t|\n|\r", string.Empty);
             string txt = "CREATE TABLE `testcollationfa` (  `TestCollationFAId` varchar(255) CHARACTER SET ucs2 COLLATE ucs2_bin NOT NULL,  PRIMARY KEY (`TestCollationFAId`)) ENGINE=InnoDB DEFAULT CHARSET=koi8u COLLATE=koi8u_bin";
-            StringAssert.AreEqualIgnoringCase(txt, createTable);
+            Assert.That(createTable, Is.EqualTo(txt).IgnoreCase);
           }
         }
       }

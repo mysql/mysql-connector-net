@@ -54,48 +54,48 @@ namespace MySql.Data.MySqlClient.Tests
       sb.ConnectionString = "server=localhost;uid=reggie;pwd=pass;port=1111;" +
           "connection timeout=23; pooling=true; min pool size=33; " +
           "max pool size=66;keepalive=1";
-      Assert.AreEqual("localhost", sb.Server);
-      Assert.AreEqual("reggie", sb.UserID);
-      Assert.AreEqual("pass", sb.Password);
-      Assert.AreEqual(1111, Convert.ToInt32(sb.Port));
-      Assert.AreEqual(23, Convert.ToInt32(sb.ConnectionTimeout));
-      Assert.True(sb.Pooling);
-      Assert.AreEqual(33, Convert.ToInt32(sb.MinimumPoolSize));
-      Assert.AreEqual(66, Convert.ToInt32(sb.MaximumPoolSize));
-      Assert.AreEqual(1, Convert.ToInt32(sb.Keepalive));
+      Assert.That(sb.Server, Is.EqualTo("localhost"));
+      Assert.That(sb.UserID, Is.EqualTo("reggie"));
+      Assert.That(sb.Password, Is.EqualTo("pass"));
+      Assert.That(Convert.ToInt32(sb.Port), Is.EqualTo(1111));
+      Assert.That(Convert.ToInt32(sb.ConnectionTimeout), Is.EqualTo(23));
+      Assert.That(sb.Pooling);
+      Assert.That(Convert.ToInt32(sb.MinimumPoolSize), Is.EqualTo(33));
+      Assert.That(Convert.ToInt32(sb.MaximumPoolSize), Is.EqualTo(66));
+      Assert.That(Convert.ToInt32(sb.Keepalive), Is.EqualTo(1));
       Exception ex = Assert.Throws<ArgumentException>(() => sb.ConnectionString = "server=localhost;badkey=badvalue");
 #if NETFRAMEWORK
-      Assert.AreEqual($"Option not supported.{Environment.NewLine}Parameter name: badkey", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo($"Option not supported.{Environment.NewLine}Parameter name: badkey"));
 #else
-      Assert.AreEqual("Option not supported. (Parameter 'badkey')", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Option not supported. (Parameter 'badkey')"));
 #endif
       sb.Clear();
-      Assert.AreEqual(15, Convert.ToInt32(sb.ConnectionTimeout));
-      Assert.True(sb.Pooling);
-      Assert.True(sb.Pooling);
-      Assert.AreEqual(3306, Convert.ToInt32(sb.Port));
-      Assert.AreEqual(String.Empty, sb.Server);
-      Assert.False(sb.PersistSecurityInfo);
-      Assert.AreEqual(0, Convert.ToInt32(sb.ConnectionLifeTime));
-      Assert.False(sb.ConnectionReset);
-      Assert.AreEqual(0, Convert.ToInt32(sb.MinimumPoolSize));
-      Assert.AreEqual(100, Convert.ToInt32(sb.MaximumPoolSize));
-      Assert.AreEqual(String.Empty, sb.UserID);
-      Assert.AreEqual(String.Empty, sb.Password);
-      Assert.False(sb.UseUsageAdvisor);
-      Assert.AreEqual(String.Empty, sb.CharacterSet);
-      Assert.False(sb.UseCompression);
-      Assert.AreEqual("MYSQL", sb.PipeName);
-      Assert.False(sb.Logging);
-      Assert.True(sb.AllowBatch);
-      Assert.False(sb.ConvertZeroDateTime);
-      Assert.AreEqual("MYSQL", sb.SharedMemoryName);
-      Assert.AreEqual(String.Empty, sb.Database);
-      Assert.AreEqual(MySqlConnectionProtocol.Sockets, sb.ConnectionProtocol);
-      Assert.False(sb.AllowZeroDateTime);
-      Assert.False(sb.UsePerformanceMonitor);
-      Assert.AreEqual(25, Convert.ToInt32(sb.ProcedureCacheSize));
-      Assert.AreEqual(0, Convert.ToInt32(sb.Keepalive));
+      Assert.That(Convert.ToInt32(sb.ConnectionTimeout), Is.EqualTo(15));
+      Assert.That(sb.Pooling);
+      Assert.That(sb.Pooling);
+      Assert.That(Convert.ToInt32(sb.Port), Is.EqualTo(3306));
+      Assert.That(sb.Server, Is.EqualTo(String.Empty));
+      Assert.That(sb.PersistSecurityInfo, Is.False);
+      Assert.That(Convert.ToInt32(sb.ConnectionLifeTime), Is.EqualTo(0));
+      Assert.That(sb.ConnectionReset, Is.False);
+      Assert.That(Convert.ToInt32(sb.MinimumPoolSize), Is.EqualTo(0));
+      Assert.That(Convert.ToInt32(sb.MaximumPoolSize), Is.EqualTo(100));
+      Assert.That(sb.UserID, Is.EqualTo(String.Empty));
+      Assert.That(sb.Password, Is.EqualTo(String.Empty));
+      Assert.That(sb.UseUsageAdvisor, Is.False);
+      Assert.That(sb.CharacterSet, Is.EqualTo(String.Empty));
+      Assert.That(sb.UseCompression, Is.False);
+      Assert.That(sb.PipeName, Is.EqualTo("MYSQL"));
+      Assert.That(sb.Logging, Is.False);
+      Assert.That(sb.AllowBatch);
+      Assert.That(sb.ConvertZeroDateTime, Is.False);
+      Assert.That(sb.SharedMemoryName, Is.EqualTo("MYSQL"));
+      Assert.That(sb.Database, Is.EqualTo(String.Empty));
+      Assert.That(sb.ConnectionProtocol, Is.EqualTo(MySqlConnectionProtocol.Sockets));
+      Assert.That(sb.AllowZeroDateTime, Is.False);
+      Assert.That(sb.UsePerformanceMonitor, Is.False);
+      Assert.That(Convert.ToInt32(sb.ProcedureCacheSize), Is.EqualTo(25));
+      Assert.That(Convert.ToInt32(sb.Keepalive), Is.EqualTo(0));
     }
 
     /// <summary>
@@ -107,7 +107,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder();
       s["database"] = "test";
       s["database"] = "test2";
-      Assert.AreEqual("database=test2", s.ConnectionString);
+      Assert.That(s.ConnectionString, Is.EqualTo("database=test2"));
     }
 
     /// <summary>
@@ -118,8 +118,8 @@ namespace MySql.Data.MySqlClient.Tests
     {
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder();
       s.ConnectionString = "compress=;pooling=";
-      Assert.False(s.UseCompression);
-      Assert.True(s.Pooling);
+      Assert.That(s.UseCompression, Is.False);
+      Assert.That(s.Pooling);
     }
 
     /// <summary>
@@ -130,18 +130,18 @@ namespace MySql.Data.MySqlClient.Tests
     {
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder();
       s["database"] = "test";
-      Assert.True(s.ContainsKey("initial catalog"));
+      Assert.That(s.ContainsKey("initial catalog"));
       s["server"] = "myserver";
-      Assert.True(s.ContainsKey("server"));
-      Assert.True(s.ContainsKey("host"));
-      Assert.False(s.ContainsKey("badkey"));
+      Assert.That(s.ContainsKey("server"));
+      Assert.That(s.ContainsKey("host"));
+      Assert.That(s.ContainsKey("badkey"), Is.False);
     }
 
     [Test]
     public void SettingCheckParameters()
     {
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder("server=localhost;check parameters=false");
-      Assert.False(s.CheckParameters);
+      Assert.That(s.CheckParameters, Is.False);
     }
 
     [TestCase("foo keyword")]
@@ -151,9 +151,9 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder();
       Exception ex = Assert.Throws<ArgumentException>(() => s[invalidKey] = "foo");
 #if NETFRAMEWORK
-      Assert.AreEqual($"Option not supported.{Environment.NewLine}Parameter name: {invalidKey}", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo($"Option not supported.{Environment.NewLine}Parameter name: {invalidKey}"));
 #else
-      Assert.AreEqual($"Option not supported. (Parameter '{invalidKey}')", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo($"Option not supported. (Parameter '{invalidKey}')"));
 #endif
     }
 
@@ -166,7 +166,7 @@ namespace MySql.Data.MySqlClient.Tests
       object obj;
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder("server=localhost;");
       s.TryGetValue("unknownproperty", out obj);
-      Assert.Null(obj);
+      Assert.That(obj, Is.Null);
     }
 
 #if !NETFRAMEWORK
@@ -231,7 +231,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       var builder = new MySqlConnectionStringBuilder();
       builder.TableCaching = true;
-      Assert.True(builder.TableCaching);
+      Assert.That(builder.TableCaching);
     }
 
     /// <summary>
@@ -246,11 +246,11 @@ namespace MySql.Data.MySqlClient.Tests
       var builder = new MySqlConnectionStringBuilder();
       builder.DefaultAuthenticationPlugin = " ";
       var ex = Assert.Throws<MySqlException>(() => builder.DefaultAuthenticationPlugin = method);
-      StringAssert.AreEqualIgnoringCase(string.Format(Resources.AuthenticationMethodNotSupported, method), ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(string.Format(Resources.AuthenticationMethodNotSupported, method)).IgnoreCase);
 
       var connStr = $"server=localhost;userid=root;defaultauthenticationplugin={method}";
       ex = Assert.Throws<MySqlException>(() => new MySqlConnection(connStr));
-      StringAssert.AreEqualIgnoringCase(string.Format(Resources.AuthenticationMethodNotSupported, method), ex.Message);
+      Assert.That(ex.Message, Is.EqualTo(string.Format(Resources.AuthenticationMethodNotSupported, method)).IgnoreCase);
 
       connStr = "server=localhost;userid=root;defaultauthenticationplugin=";
       var conn = new MySqlConnection(connStr);
@@ -266,17 +266,17 @@ namespace MySql.Data.MySqlClient.Tests
     {
       string value = "test";
       var conn = new MySqlConnection($"{alias}={value};pwd2={value};pwd3={value}");
-      StringAssert.AreEqualIgnoringCase(value, conn.Settings.Password);
-      StringAssert.AreEqualIgnoringCase(value, conn.Settings.Password2);
-      StringAssert.AreEqualIgnoringCase(value, conn.Settings.Password3);
+      Assert.That(conn.Settings.Password, Is.EqualTo(value).IgnoreCase);
+      Assert.That(conn.Settings.Password2, Is.EqualTo(value).IgnoreCase);
+      Assert.That(conn.Settings.Password3, Is.EqualTo(value).IgnoreCase);
 
       var connBuilder = new MySqlConnectionStringBuilder();
       connBuilder[alias] = value;
       connBuilder["pwd2"] = value;
       connBuilder["pwd3"] = value;
-      StringAssert.AreEqualIgnoringCase(value, connBuilder.Password);
-      StringAssert.AreEqualIgnoringCase(value, connBuilder.Password2);
-      StringAssert.AreEqualIgnoringCase(value, connBuilder.Password3);
+      Assert.That(connBuilder.Password, Is.EqualTo(value).IgnoreCase);
+      Assert.That(connBuilder.Password2, Is.EqualTo(value).IgnoreCase);
+      Assert.That(connBuilder.Password3, Is.EqualTo(value).IgnoreCase);
     }
 
     [Test, Description("Session BaseString/MySQLConnectionString Builder")]
@@ -299,7 +299,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var conn = new MySqlConnection(mysql.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.connectionState);
+        Assert.That(conn.connectionState, Is.EqualTo(ConnectionState.Open));
       }
 
       mysql = new MySqlConnectionStringBuilder(Settings.ConnectionString);
@@ -316,7 +316,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var conn = new MySqlConnection(mysql.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.connectionState);
+        Assert.That(conn.connectionState, Is.EqualTo(ConnectionState.Open));
       }
 
       mysql = new MySqlConnectionStringBuilder(Settings.ConnectionString);
@@ -329,7 +329,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var conn = new MySqlConnection(mysql.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.connectionState);
+        Assert.That(conn.connectionState, Is.EqualTo(ConnectionState.Open));
       }
 
       ////Scenario-2
@@ -382,7 +382,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var conn = new MySqlConnection(mysql.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.connectionState);
+        Assert.That(conn.connectionState, Is.EqualTo(ConnectionState.Open));
       }
 
       mysql.SslCa = _sslCa;
@@ -390,7 +390,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var conn = new MySqlConnection(mysql.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.connectionState);
+        Assert.That(conn.connectionState, Is.EqualTo(ConnectionState.Open));
       }
 
       ////Basic Scenarios
@@ -401,7 +401,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var conn = new MySqlConnection(mysql.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.connectionState);
+        Assert.That(conn.connectionState, Is.EqualTo(ConnectionState.Open));
       }
     }
 
@@ -418,21 +418,21 @@ namespace MySql.Data.MySqlClient.Tests
         MinimumPoolSize = 10,
       };
 
-      Assert.IsTrue(connStringBuilder.ContainsKey("data source"));
-      Assert.IsTrue(connStringBuilder.TryGetValue("host", out var server));
-      StringAssert.AreEqualIgnoringCase(connStringBuilder.Server, (string)server);
+      Assert.That(connStringBuilder.ContainsKey("data source"));
+      Assert.That(connStringBuilder.TryGetValue("host", out var server));
+      Assert.That((string)server, Is.EqualTo(connStringBuilder.Server).IgnoreCase);
 
-      Assert.IsTrue(connStringBuilder.ContainsKey("MinimumPoolSize"));
-      Assert.IsTrue(connStringBuilder.TryGetValue("Minimum Pool Size", out var minpoolsize));
-      Assert.AreEqual(connStringBuilder.MinimumPoolSize, (uint)minpoolsize);
+      Assert.That(connStringBuilder.ContainsKey("MinimumPoolSize"));
+      Assert.That(connStringBuilder.TryGetValue("Minimum Pool Size", out var minpoolsize));
+      Assert.That((uint)minpoolsize, Is.EqualTo(connStringBuilder.MinimumPoolSize));
 
       // Default value
-      Assert.IsTrue(connStringBuilder.TryGetValue("allowpublickeyretrieval", out var allowpublickeyretrieval));
-      Assert.AreEqual(connStringBuilder.GetOption("allowpublickeyretrieval").DefaultValue, allowpublickeyretrieval);
+      Assert.That(connStringBuilder.TryGetValue("allowpublickeyretrieval", out var allowpublickeyretrieval));
+      Assert.That(allowpublickeyretrieval, Is.EqualTo(connStringBuilder.GetOption("allowpublickeyretrieval").DefaultValue));
 
       // Non existing option
-      Assert.IsFalse(connStringBuilder.TryGetValue("bar", out var nonexistingoption));
-      Assert.IsNull(nonexistingoption);
+      Assert.That(connStringBuilder.TryGetValue("bar", out var nonexistingoption), Is.False);
+      Assert.That(nonexistingoption, Is.Null);
     }
 
     /// <summary>
@@ -448,17 +448,17 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnection conn;
 
       conn = new MySqlConnection();
-      Assert.True(conn.Settings.KerberosAuthMode == KerberosAuthMode.AUTO);
+      Assert.That(conn.Settings.KerberosAuthMode == KerberosAuthMode.AUTO);
 
       foreach (KerberosAuthMode mode in Enum.GetValues(typeof(KerberosAuthMode)))
       {
         connString = $"kerberosauthmode={mode}";
         conn = new MySqlConnection(connString);
-        Assert.True(conn.Settings.KerberosAuthMode == mode);
+        Assert.That(conn.Settings.KerberosAuthMode == mode);
 
         connString = $"kerberos auth mode={mode}";
         conn = new MySqlConnection(connString);
-        Assert.True(conn.Settings.KerberosAuthMode == mode);
+        Assert.That(conn.Settings.KerberosAuthMode == mode);
       }
 
       connString = "kerberosauthmode=INVALID";

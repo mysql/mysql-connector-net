@@ -48,37 +48,37 @@ namespace MySqlX.Data.Tests
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"type\": \"INDEX\" }"));
-      Assert.AreEqual("Field 'fields' is mandatory.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Field 'fields' is mandatory."));
 
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\" } ], \"unexpectedField\" : false }"));
-      Assert.AreEqual("Field name 'unexpectedField' is not allowed.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Field name 'unexpectedField' is not allowed."));
 
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"fields\":$.myField, \"types\":\"TEXT\" } ] }"));
-      Assert.AreEqual("Field 'field' is mandatory.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Field 'field' is mandatory."));
 
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"types\":\"TEXT\" } ] }"));
-      Assert.AreEqual("Field 'type' is mandatory.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Field 'type' is mandatory."));
 
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\", \"unexpectedField\" : false } ] }"));
-      Assert.AreEqual("Field name 'unexpectedField' is not allowed.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Field name 'unexpectedField' is not allowed."));
 
       if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
       collection = CreateCollection("test");
 
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ], \"type\":\"indexa\" }"));
-      Assert.AreEqual("Argument value 'indexa' for index type is invalid", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Argument value 'indexa' for index type is invalid"));
 
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ], \"type\":\"OTheR\" }"));
-      Assert.AreEqual("Argument value 'OTheR' for index type is invalid", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Argument value 'OTheR' for index type is invalid"));
 
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex1", "{\"fields\": [ { \"field\":$.myGeoJsonField, \"type\":\"GEOJSON\" } ], \"type\":\"Spatial\" }"));
-      Assert.AreEqual("GEOJSON index requires 'constraint.required: TRUE", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("GEOJSON index requires 'constraint.required: TRUE"));
 
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex2", "{\"fields\": [ { \"field\":$.myGeoJsonField, \"type\":\"GEOJSON\" } ], \"type\":\"spatial\" }"));
-      Assert.AreEqual("GEOJSON index requires 'constraint.required: TRUE", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("GEOJSON index requires 'constraint.required: TRUE"));
 
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex3", "{\"fields\": [ { \"field\":$.myGeoJsonField, \"type\":\"GEOJSON\" } ], \"type\":\"sPaTiAl\" }"));
-      Assert.AreEqual("GEOJSON index requires 'constraint.required: TRUE", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("GEOJSON index requires 'constraint.required: TRUE"));
     }
 
     [Test]
@@ -215,11 +215,11 @@ namespace MySqlX.Data.Tests
 
       collection.DropIndex("myIndex");
       Exception ex = Assert.Throws<Exception>(() => ValidateIndex("myIndex", "test", "t10", false, false, false, 1, 10));
-      Assert.AreEqual("Index not found.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Index not found."));
       ex = Assert.Throws<Exception>(() => ValidateIndex("myIndex", "test", "t10", false, true, false, 2, 10));
-      Assert.AreEqual("Index not found.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Index not found."));
       ex = Assert.Throws<Exception>(() => ValidateIndex("myIndex", "test", "i_u", false, false, true, 3));
-      Assert.AreEqual("Index not found.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Index not found."));
     }
 
     [Test]
@@ -229,7 +229,7 @@ namespace MySqlX.Data.Tests
 
       collection.CreateIndex("myUniqueIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ] }");
       Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myUniqueIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ] }"));
-      Assert.AreEqual("Duplicate key name 'myUniqueIndex'", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Duplicate key name 'myUniqueIndex'"));
     }
 
     [Test]
@@ -238,11 +238,11 @@ namespace MySqlX.Data.Tests
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<Exception>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\" = $.myField, \"type\" = \"TEXT\" } ] }"));
-      Assert.AreEqual("The value provided is not a valid JSON document. Expected token ':'", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("The value provided is not a valid JSON document. Expected token ':'"));
       ex = Assert.Throws<Exception>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\" ] }"));
-      Assert.AreEqual("The value provided is not a valid JSON document. Expected token ','", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("The value provided is not a valid JSON document. Expected token ','"));
       ex = Assert.Throws<Exception>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, type:\"TEXT\" } }"));
-      Assert.AreEqual("The value provided is not a valid JSON document. Expected token '\"'", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("The value provided is not a valid JSON document. Expected token '\"'"));
     }
 
     [Test]
@@ -251,15 +251,15 @@ namespace MySqlX.Data.Tests
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\", \"myCustomField\":\"myCustomValue\" } ] }"));
-      Assert.AreEqual("Field name 'myCustomField' is not allowed.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Field name 'myCustomField' is not allowed."));
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"mytype\":\"INT\" } ] }"));
-      Assert.AreEqual("Field 'type' is mandatory.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Field 'type' is mandatory."));
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"myfield\":$.myField, \"type\":\"INT\" } ] }"));
-      Assert.AreEqual("Field 'field' is mandatory.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Field 'field' is mandatory."));
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.name, \"type\":\"TEXT\" , \"myCustomField\":\"myCustomValue\"} ] }"));
-      Assert.AreEqual("Field name 'myCustomField' is not allowed.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Field name 'myCustomField' is not allowed."));
       ex = Assert.Throws<Exception>(() => collection.CreateIndex("myIndex", ""));
-      Assert.AreEqual("The value provided is not a valid JSON document. Index was outside the bounds of the array.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("The value provided is not a valid JSON document. Index was outside the bounds of the array."));
     }
 
     [Test]
@@ -268,9 +268,9 @@ namespace MySqlX.Data.Tests
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ], \"type\":\"indexa\" }"));
-      Assert.AreEqual("Argument value 'indexa' for index type is invalid", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Argument value 'indexa' for index type is invalid"));
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\" } ], \"type\":\"OTheR\" }"));
-      Assert.AreEqual("Argument value 'OTheR' for index type is invalid", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Argument value 'OTheR' for index type is invalid"));
     }
 
     [Test]
@@ -279,7 +279,7 @@ namespace MySqlX.Data.Tests
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"GEOJSON\", \"required\":false, \"options\":2, \"srid\":4326 } ], \"type\":\"SPATIAL\" }"));
-      Assert.AreEqual("GEOJSON index requires 'constraint.required: TRUE", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("GEOJSON index requires 'constraint.required: TRUE"));
     }
 
     [Test]
@@ -289,13 +289,13 @@ namespace MySqlX.Data.Tests
 
       // Missing key length for text type.
       Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"Text\" } ] }"));
-      StringAssert.EndsWith("used in key specification without a key length", ex.Message);
+      Assert.That(ex.Message, Does.EndWith("used in key specification without a key length"));
 
       // Invalid index types.
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"Texta\" } ] }"));
-      StringAssert.EndsWith("Invalid or unsupported type specification 'Texta'", ex.Message);
+      Assert.That(ex.Message, Does.EndWith("Invalid or unsupported type specification 'Texta'"));
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"INTO\" } ] }"));
-      StringAssert.EndsWith("Invalid or unsupported type specification 'INTO'", ex.Message);
+      Assert.That(ex.Message, Does.EndWith("Invalid or unsupported type specification 'INTO'"));
       try
       {
         collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.name, \"type\":\"Datetime\"} ] }");
@@ -317,10 +317,10 @@ namespace MySqlX.Data.Tests
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{ \"fields\": [ { \"field\":\"$.myField\", \"type\":\"INT\", \"options\":2, \"srid\":4326 } ] }"));
-      Assert.AreEqual("Unsupported argument specification for '$.myField'", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Unsupported argument specification for '$.myField'"));
 
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"GEOJSON\", \"options\":2, \"srid\":4326 } ], \"type\":\"SPATIAL\" }"));
-      Assert.AreEqual("GEOJSON index requires 'constraint.required: TRUE", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("GEOJSON index requires 'constraint.required: TRUE"));
     }
 
     [Test]
@@ -341,9 +341,9 @@ namespace MySqlX.Data.Tests
       collection.DropIndex("-myIndex");
 
       Exception ex = Assert.Throws<MySqlException>(() => collection.CreateIndex(null, "{\"fields\": [ { \"field\":$.name, \"type\":\"TEXT(64)\" , \"required\":true} ] }"));
-      Assert.AreEqual("Invalid value for argument 'name'", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Invalid value for argument 'name'"));
       ex = Assert.Throws<MySqlException>(() => collection.CreateIndex("myIndex1243536464r4urgfu4rgh43urvbnu4rgh4u3rive39irgf9r4fri3jgnfi", "{\"fields\": [ { \"field\":$.name, \"type\":\"TEXT(64)\" , \"required\":true} ] }"));
-      Assert.AreEqual("Identifier name 'myIndex1243536464r4urgfu4rgh43urvbnu4rgh4u3rive39irgf9r4fri3jgnfi' is too long", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Identifier name 'myIndex1243536464r4urgfu4rgh43urvbnu4rgh4u3rive39irgf9r4fri3jgnfi' is too long"));
     }
 
     [Test]
@@ -395,15 +395,15 @@ namespace MySqlX.Data.Tests
     {
       if (!session.Version.isAtLeast(8, 0, 11)) Assert.Ignore("This test is for MySql 8.0.11 or higher.");
       Collection testColl = CreateCollection("test1");
-      Assert.IsTrue(testColl.ExistsInDatabase());
+      Assert.That(testColl.ExistsInDatabase());
       testColl.CreateIndex("testIndex", "{\"fields\": [ { \"field\":$.myId, \"type\":\"INTEGER UNSIGNED\" , \"required\":true} ] }");
       testColl.CreateIndex("testIndex1", "{\"fields\": [ { \"field\":$.myAge, \"type\":\"FLOAT UNSIGNED\" , \"required\":true} ] }");
       var result = testColl.Add(new { myId = 1, myAge = 35.1, _id = 1 }).Add(new { myId = 2, myAge = 41.9, _id = 2 }).Execute();
-      Assert.True(result.AffectedItemsCount > 0);
+      Assert.That(result.AffectedItemsCount > 0);
       Collection testCol2 = CreateCollection("test2");
       testCol2.CreateIndex("testIndex2", "{\"fields\": [ { \"field\":$.myId, \"type\":\"INT\" , \"required\":true} ] }");
       result = testCol2.Add(new { myId = 1 }).Execute();
-      Assert.True(result.AffectedItemsCount > 0);
+      Assert.That(result.AffectedItemsCount > 0);
     }
 
     [Test, Description("Create valid index on a single key with all options")]
@@ -416,7 +416,7 @@ namespace MySqlX.Data.Tests
       Assert.Throws<MySqlException>(() => ExecuteAddStatement(col.Add(new { age = 10 })));
       col.DropIndex("myIndex");
       result = col.Add(new { age = 10 }).Execute();
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
     }
 
     [Test, Description("Create a valid index on a single key of all DATATYPES.Datatypes supported: INT [UNSIGNED] TINYINT [UNSIGNED] SMALLINT [UNSIGNED] MEDIUMINT [UNSIGNED] INTEGER [UNSIGNED] BIGINT [UNSIGNED] REAL [UNSIGNED] FLOAT [UNSIGNED] DOUBLE [UNSIGNED] DECIMAL [UNSIGNED] NUMERIC [UNSIGNED] DATE TIME TIMESTAMP DATETIME TEXT[(length)]")]
@@ -482,7 +482,7 @@ namespace MySqlX.Data.Tests
       Result result = col.Add(new { name = "Sakila", age = 15 }).Execute();
       Thread.Sleep(2000);
       Exception ex = Assert.Throws<MySqlException>(() => col.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.name, \"type\":\"DATETIME\"} ] }"));
-      StringAssert.Contains("Incorrect datetime value", ex.Message);
+      Assert.That(ex.Message, Does.Contain("Incorrect datetime value"));
     }
 
     [Test, Description("Create an index specifiying SPATIAL as the index type for a non spatial data type and vice versa")]
@@ -583,7 +583,7 @@ namespace MySqlX.Data.Tests
       result = col.Add(new { name = "Maria", age = 20 }).Execute();
       result = col.Add(new { name = "Maria", age = 21 }).Execute();
       var Removing = col.Remove("name='Maria'").Execute();
-      Assert.AreEqual(2, (int)Removing.AffectedItemsCount, "Matches");
+      Assert.That((int)Removing.AffectedItemsCount, Is.EqualTo(2), "Matches");
     }
 
     [Test, Description("Create invalid index with non-existent key")]
@@ -633,14 +633,14 @@ namespace MySqlX.Data.Tests
       collection.Add(doc11).Execute();
       collection.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "Time" + "\", \"array\": true}]}");
       var docResult = collection.Find("'23:59:59.15' in myField").Execute();
-      Assert.AreEqual(2, docResult.FetchAll().Count, "Matching the document ID");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(2), "Matching the document ID");
       docResult = collection.Find("'1' in $.myField").Execute();
-      Assert.AreEqual(3, docResult.FetchAll().Count, "Matching the document ID");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(3), "Matching the document ID");
       docResult = collection.Find("1 in $.myField").Execute();
-      Assert.AreEqual(3, docResult.FetchAll().Count, "Matching the document ID");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(3), "Matching the document ID");
       docResult = collection.Find(":myField IN $.myField").Bind("myField", "23:59:59.15").Execute();
       docResult = collection.Find(":myField IN $._id").Bind("myField", true).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID");
 
       collection = CreateCollection("test");
       collection.Add(doc).Execute();
@@ -839,13 +839,13 @@ namespace MySqlX.Data.Tests
       doc = new[] { new { _id = 1, name = "Char", myField = new[] { "foo@mail.com" } } };
       collection.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "CHAR(11)" + "\", \"array\": true}]}");
       Exception ex = Assert.Throws<MySqlException>(() => collection.Add(doc).Execute());
-      Assert.AreEqual("Data too long for functional index 'myIndex'.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Data too long for functional index 'myIndex'."));
 
       collection = CreateCollection("test");
       var doc1 = new[] { new { _id = 1, name = "Char", myField = "foo@mail.com" } };
       collection.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "CHAR(11)" + "\", \"array\": true}]}");
       ex = Assert.Throws<MySqlException>(() => collection.Add(doc1).Execute());
-      Assert.AreEqual("Data too long for functional index 'myIndex'.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Data too long for functional index 'myIndex'."));
 
       collection = CreateCollection("test");
       doc = new[] { new { _id = 1, name = "Binary", myField = new[] { "foo@mail.com", "bar@mail.com", "qux@mail.com" } } };
@@ -997,34 +997,34 @@ namespace MySqlX.Data.Tests
       Assert.Throws<FormatException>(() => coll.CreateIndex("charArrayIndex1", "{\"fields\": [{\"field\": \"$.charField1\", \"array\": true}]}"));
 
       Exception e = Assert.Throws<MySqlException>(() => coll.CreateIndex("intArrayIndex1", "{\"fields\": [{\"field\": \"$.intField1\", \"type\": \"SIGNED INTEGER\", \"array\": null}]}"));
-      Assert.AreEqual(expectedException, e.Message, "Matching the expected exception");
+      Assert.That(e.Message, Is.EqualTo(expectedException), "Matching the expected exception");
 
       e = Assert.Throws<MySqlException>(() => coll.CreateIndex("intArrayIndex1", "{\"fields\": [{\"field\": \"$.intField1\", \"type\": \"SIGNED INTEGER\", \"array\": NULL}]}"));
-      Assert.AreEqual(expectedException, e.Message, "Matching the expected exception");
+      Assert.That(e.Message, Is.EqualTo(expectedException), "Matching the expected exception");
 
       e = Assert.Throws<MySqlException>(() => coll.CreateIndex("uintArrayIndex1", "{\"fields\": [{\"field\": \"$.uintField\", \"type\": \"UNSIGNED INTEGER\", \"array\": null}]}"));
-      Assert.AreEqual(expectedException, e.Message, "Matching the expected exception");
+      Assert.That(e.Message, Is.EqualTo(expectedException), "Matching the expected exception");
 
       e = Assert.Throws<MySqlException>(() => coll.CreateIndex("floatArrayIndex1", "{\"fields\": [{\"field\": \"$.floatField\", \"type\": \"DECIMAL(10,2)\", \"array\": null}]}"));
-      Assert.AreEqual(expectedException, e.Message, "Matching the expected exception");
+      Assert.That(e.Message, Is.EqualTo(expectedException), "Matching the expected exception");
 
       e = Assert.Throws<MySqlException>(() => coll.CreateIndex("floatArrayIndex1", "{\"fields\": [{\"field\": \"$.floatField\", \"type\": \"DECIMAL(10,2)\", \"array\": NULL}]}"));
-      Assert.AreEqual(expectedException, e.Message, "Matching the expected exception");
+      Assert.That(e.Message, Is.EqualTo(expectedException), "Matching the expected exception");
 
       e = Assert.Throws<MySqlException>(() => coll.CreateIndex("dateArrayIndex1", "{\"fields\": [{\"field\": \"$.dateField\", \"type\": \"DATE\", \"array\": null}]}"));
-      Assert.AreEqual(expectedException, e.Message, "Matching the expected exception");
+      Assert.That(e.Message, Is.EqualTo(expectedException), "Matching the expected exception");
 
       e = Assert.Throws<MySqlException>(() => coll.CreateIndex("datetimeArrayIndex1", "{\"fields\": [{\"field\": \"$.datetimeField\", \"type\": \"DATETIME\", \"array\": null}]}"));
-      Assert.AreEqual(expectedException, e.Message, "Matching the expected exception");
+      Assert.That(e.Message, Is.EqualTo(expectedException), "Matching the expected exception");
 
       e = Assert.Throws<MySqlException>(() => coll.CreateIndex("timeArrayIndex1", "{\"fields\": [{\"field\": \"$.timeField\", \"type\": \"TIME\", \"array\": null}]}"));
-      Assert.AreEqual(expectedException, e.Message, "Matching the expected exception");
+      Assert.That(e.Message, Is.EqualTo(expectedException), "Matching the expected exception");
 
       e = Assert.Throws<MySqlException>(() => coll.CreateIndex("charArrayIndex1", "{\"fields\": [{\"field\": \"$.charField\", \"type\": \"CHAR(256)\", \"array\": null}]}"));
-      Assert.AreEqual(expectedException, e.Message, "Matching the expected exception");
+      Assert.That(e.Message, Is.EqualTo(expectedException), "Matching the expected exception");
 
       e = Assert.Throws<MySqlException>(() => coll.CreateIndex("binaryArrayIndex1", "{\"fields\": [{\"field\": \"$.binaryField\", \"type\": \"BINARY(256)\", \"array\": null}]}"));
-      Assert.AreEqual(expectedException, e.Message, "Matching the expected exception");
+      Assert.That(e.Message, Is.EqualTo(expectedException), "Matching the expected exception");
 
       Assert.Throws<MySqlException>(() => ExecuteAddStatement(coll.Add("{\"intField\" : [1,[2, 3],4], \"uintField\" : [51,[52, 53],54], \"dateField\" : [\"2019-1-1\", [\"2019-2-1\", \"2019-3-1\"], \"2019-4-1\"], " +
             "\"datetimeField\" : [\"9999-12-30 23:59:59\", [\"9999-12-31 23:59:59\"], \"9999-12-31 23:59:59\"], \"charField\" : [\"abcd1\", \"abcd1\", \"abcd2\", \"abcd4\"], " +
@@ -1041,7 +1041,7 @@ namespace MySqlX.Data.Tests
       for (int i = 0; i < fields.Length; i++)
       {
         var res = coll.Add(fields[i]).Execute();
-        Assert.AreEqual(1, res.AffectedItemsCount);
+        Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
       }
 
       fields = new string[] {"{\"intField\" : []}", "{\"uintField\" : []}", "{\"charField\" : []}",
@@ -1049,7 +1049,7 @@ namespace MySqlX.Data.Tests
       for (int i = 0; i < fields.Length; i++)
       {
         var res = coll.Add(fields[i]).Execute();
-        Assert.AreEqual(1, res.AffectedItemsCount);
+        Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
       }
 
       fields = new string[] { "[]", "[]", "[]", "[]", "[]", "[]", "[]", "[]" };
@@ -1153,7 +1153,7 @@ namespace MySqlX.Data.Tests
       DbDoc doc = docs.FetchOne();
       var findStatement = coll.Find("57.6");
       var res1 = findStatement.Execute().FetchAll();
-      Assert.AreEqual(5, res1.Count, "Matching the find count");
+      Assert.That(res1.Count, Is.EqualTo(5), "Matching the find count");
 
       coll = CreateCollection("test");
 
@@ -1244,17 +1244,17 @@ namespace MySqlX.Data.Tests
       coll.Add(doc22).Execute();
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "Time" + "\", \"array\": true}]}");
       var docResult = coll.Find("CAST(CAST('12:00:00' as TIME) as JSON) in $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time");
       docResult = coll.Find("CAST(CAST('9:00:00' as TIME) as JSON) in $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time");
       docResult = coll.Find("CAST(CAST(:dt as TIME) as JSON) in $.myField").Bind("dt", "9:00:00").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as TIME) as JSON) in $.myField").Bind("dt", "12:00:00").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time-With Bind");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "9:00:00").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time-With Bind-Bug");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "01:01:01.001").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time-With Bind-Bug");
 
       coll = CreateCollection("test");
       doc = new[] { new { _id = 1, name = "Decimal", myField = "5" } };
@@ -1263,19 +1263,19 @@ namespace MySqlX.Data.Tests
       coll.Add(doc22).Execute();
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "Decimal" + "\", \"array\": true}]}");
       docResult = coll.Find("CAST(CAST('3.0' as DECIMAL) as JSON) in $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal");
       docResult = coll.Find("CAST(CAST('5' as DECIMAL) as JSON) in $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal");
       docResult = coll.Find("CAST(CAST(:dt as DECIMAL) as JSON) in $.myField").Bind("dt", "5").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as DECIMAL) as JSON) in $.myField").Bind("dt", "3.0").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal-With Bind");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "5").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal-With Bind-Bug");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", 5).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal-With Bind-Bug");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", 3.0).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal-With Bind-Bug");
 
       coll = CreateCollection("test");
       doc = new[] { new { _id = 1, name = "Date", myField = "2019-01-04" } };
@@ -1284,19 +1284,19 @@ namespace MySqlX.Data.Tests
       coll.Add(doc22).Execute();
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "Date" + "\", \"array\": true}]}");
       docResult = coll.Find("CAST(CAST('2019-01-04' as DATE) as JSON) in $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date");
       docResult = coll.Find("CAST(CAST('2019-01-01' as DATE) as JSON) in $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date");
       docResult = coll.Find("CAST(CAST(:dt as DATE) as JSON) in $.myField").Bind("dt", "2019-01-04").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as DATE) as JSON) in $.myField").Bind("dt", "2019-01-01").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date-With Bind");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", 2019 - 01 - 04).Execute();
-      Assert.AreEqual(0, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(0), "Matching the document ID-Date-With Bind-Bug");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "2019-01-04").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date-With Bind-Bug");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "2019-01-01").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date-With Bind-Bug");
 
       coll = CreateCollection("test");
       doc = new[] { new { _id = 1, name = "DateTime", myField = "9999-02-02 01:20:33" } };
@@ -1305,17 +1305,17 @@ namespace MySqlX.Data.Tests
       coll.Add(doc22).Execute();
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "DateTime" + "\", \"array\": true}]}");
       docResult = coll.Find("CAST(CAST('1000-01-01 00:00:00' as DATETIME) as JSON) in $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-DateTime");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-DateTime");
       docResult = coll.Find("CAST(CAST('9999-02-02 01:20:33' as DATETIME) as JSON) in $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-DateTime");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-DateTime");
       docResult = coll.Find("CAST(CAST(:dt as DATETIME) as JSON) in $.myField").Bind("dt", "9999-02-02 01:20:33").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as DATETIME) as JSON) in $.myField").Bind("dt", "9999-12-31 23:59:59").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date-With Bind");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "9999-02-02 01:20:33").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-DateTime-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-DateTime-With Bind-Bug");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "1000-01-01 00:00:00").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-DateTime-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-DateTime-With Bind-Bug");
 
       coll = CreateCollection("test");
       doc = new[] { new { _id = 1, name = "Signed", myField = "100" } };
@@ -1324,19 +1324,19 @@ namespace MySqlX.Data.Tests
       coll.Add(doc22).Execute();
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "Signed" + "\", \"array\": true}]}");
       docResult = coll.Find("CAST(CAST('100' as SIGNED) as JSON) in $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED");
       docResult = coll.Find("CAST(CAST('3' as SIGNED) as JSON) in $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED");
       docResult = coll.Find("CAST(CAST(:dt as SIGNED) as JSON) in $.myField").Bind("dt", "100").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as SIGNED) as JSON) in $.myField").Bind("dt", "19").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED-With Bind");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", 100).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Signed-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Signed-With Bind");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "100").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Signed-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Signed-With Bind");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "3").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Signed-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Signed-With Bind");
 
       coll = CreateCollection("test");
       doc = new[] { new { _id = 1, name = "SIGNED INTEGER", myField = "100" } };
@@ -1345,21 +1345,21 @@ namespace MySqlX.Data.Tests
       coll.Add(doc22).Execute();
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "SIGNED INTEGER" + "\", \"array\": true}]}");
       docResult = coll.Find("CAST(CAST('100' as SIGNED INTEGER) as JSON) in $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER");
       docResult = coll.Find("CAST(CAST('3' as SIGNED INTEGER) as JSON) in $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER");
       docResult = coll.Find("CAST(CAST(:dt as SIGNED INTEGER) as JSON) in $.myField").Bind("dt", "100").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as SIGNED INTEGER) as JSON) in $.myField").Bind("dt", "19").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER-With Bind");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", 100).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "100").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", 3).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "3").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
 
       coll = CreateCollection("test");
       doc = new[] { new { _id = 1, name = "Unsigned", myField = "100" } };
@@ -1368,21 +1368,21 @@ namespace MySqlX.Data.Tests
       coll.Add(doc22).Execute();
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "Unsigned" + "\", \"array\": true}]}");
       docResult = coll.Find("CAST(CAST('100' as UNSIGNED) as JSON) in $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned");
       docResult = coll.Find("CAST(CAST('3' as UNSIGNED) as JSON) in $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned");
       docResult = coll.Find("CAST(CAST(:dt as UNSIGNED) as JSON) in $.myField").Bind("dt", "100").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as UNSIGNED) as JSON) in $.myField").Bind("dt", "19").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned-With Bind");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", 100).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned-With Bind-Bug");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "100").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned-With Bind-Bug");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", 3).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned-With Bind-Bug");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "3").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned-With Bind-Bug");
 
       coll = CreateCollection("test");
       doc = new[] { new { _id = 1, name = "Char", myField = "too@mail.com" } };
@@ -1391,9 +1391,9 @@ namespace MySqlX.Data.Tests
       coll.Add(doc22).Execute();
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "CHAR(128)" + "\", \"array\": true}]}");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "too@mail.com").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-CHAR(128)-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-CHAR(128)-With Bind");
       docResult = coll.Find(":dt IN $.myField").Bind("dt", "foo@mail.com").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-CHAR(128)-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-CHAR(128)-With Bind");
     }
 
     /// <summary>
@@ -1409,34 +1409,34 @@ namespace MySqlX.Data.Tests
       coll.Add(doc).Execute();
       coll.Add(doc22).Execute();
       var docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "9:00:00").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time-With Bind-Bug before index creation");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time-With Bind-Bug before index creation");
       docResult = coll.Find(":dt not overlaps $.myField").Bind("dt", "9:00:00").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time-With Bind-Bug before index creation");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time-With Bind-Bug before index creation");
       docResult = coll.Find("CAST(CAST('01:01:01.001' as TIME) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(0, docResult.FetchAll().Count, "Matching the document ID-Time before index creation");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(0), "Matching the document ID-Time before index creation");
       docResult = coll.Find("CAST(CAST('01:01:01.001' as TIME) as JSON) not overlaps $.myField").Execute();
-      Assert.AreEqual(2, docResult.FetchAll().Count, "Matching the document ID-Time before index creation");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(2), "Matching the document ID-Time before index creation");
 
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "Time" + "\", \"array\": true}]}");
 
       docResult = coll.Find("CAST(CAST('12:00:00' as TIME) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time");
       docResult = coll.Find("CAST(CAST('9:00:00' as TIME) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time");
       docResult = coll.Find("CAST(CAST(:dt as TIME) as JSON) overlaps $.myField").Bind("dt", "9:00:00").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as TIME) as JSON) overlaps $.myField").Bind("dt", "12:00:00").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time-With Bind");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "9:00:00").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time-With Bind-Bug");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "01:01:01.001").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time-With Bind-Bug");
       docResult = coll.Find(":dt not overlaps $.myField").Bind("dt", "01:01:01.001").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time-With Bind-Bug");
       docResult = coll.Find(":dt not IN $.myField").Bind("dt", "01:01:01.001").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time-With Bind-Bug");
       docResult = coll.Find("CAST(CAST(:dt as TIME) as JSON) not overlaps $.myField").Bind("dt", "12:00:00").Execute();
-      Assert.AreEqual(2, docResult.FetchAll().Count, "Matching the document ID-Time-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(2), "Matching the document ID-Time-With Bind");
 
       coll = CreateCollection("test");
 
@@ -1445,35 +1445,35 @@ namespace MySqlX.Data.Tests
       coll.Add(doc).Execute();
       coll.Add(doc22).Execute();
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "5").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-DECIMAL-With Bind-Bug before index creation");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-DECIMAL-With Bind-Bug before index creation");
       docResult = coll.Find(":dt not overlaps $.myField").Bind("dt", "5").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-DECIMAL-With Bind-Bug before index creation");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-DECIMAL-With Bind-Bug before index creation");
       docResult = coll.Find("CAST(CAST('5' as DECIMAL) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(0, docResult.FetchAll().Count, "Matching the document ID-DECIMAL before index creation");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(0), "Matching the document ID-DECIMAL before index creation");
       docResult = coll.Find("CAST(CAST('5' as DECIMAL) as JSON) not overlaps $.myField").Execute();
-      Assert.AreEqual(2, docResult.FetchAll().Count, "Matching the document ID-DECIMAL before index creation");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(2), "Matching the document ID-DECIMAL before index creation");
 
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "Decimal" + "\", \"array\": true}]}");
       docResult = coll.Find("CAST(CAST('3.0' as DECIMAL) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal");
       docResult = coll.Find("CAST(CAST('5' as DECIMAL) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal");
       docResult = coll.Find("CAST(CAST(:dt as DECIMAL) as JSON) overlaps $.myField").Bind("dt", "5").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as DECIMAL) as JSON) overlaps $.myField").Bind("dt", "3.0").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal-With Bind");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "5").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal-With Bind-Bug");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", 5).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal-With Bind-Bug");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", 3.0).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal-With Bind-Bug");
       docResult = coll.Find(":dt not overlaps $.myField").Bind("dt", "5").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Decimal-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Decimal-With Bind-Bug");
       docResult = coll.Find(":dt not overlaps $.myField").Bind("dt", 3.0).Execute();
-      Assert.AreEqual(2, docResult.FetchAll().Count, "Matching the document ID-Decimal-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(2), "Matching the document ID-Decimal-With Bind-Bug");
       docResult = coll.Find("CAST(CAST(:dt as DECIMAL) as JSON) not overlaps $.myField").Bind("dt", "3.0").Execute();
-      Assert.AreEqual(2, docResult.FetchAll().Count, "Matching the document ID-Decimal-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(2), "Matching the document ID-Decimal-With Bind");
 
       coll = CreateCollection("test");
 
@@ -1483,23 +1483,23 @@ namespace MySqlX.Data.Tests
       coll.Add(doc22).Execute();
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "Date" + "\", \"array\": true}]}");
       docResult = coll.Find("CAST(CAST('2019-01-04' as DATE) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date");
       docResult = coll.Find("CAST(CAST('2019-01-01' as DATE) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date");
       docResult = coll.Find("CAST(CAST(:dt as DATE) as JSON) overlaps $.myField").Bind("dt", "2019-01-04").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as DATE) as JSON) overlaps $.myField").Bind("dt", "2019-01-01").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date-With Bind");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", 2019 - 01 - 04).Execute();
-      Assert.AreEqual(0, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(0), "Matching the document ID-Date-With Bind-Bug");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "2019-01-04").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date-With Bind-Bug");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "2019-01-01").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date-With Bind-Bug");
       docResult = coll.Find(":dt not overlaps $.myField").Bind("dt", "2019-01-01").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date-With Bind-Bug");
       docResult = coll.Find("CAST(CAST(:dt as DATE) as JSON) not overlaps $.myField").Bind("dt", "2019-01-04").Execute();
-      Assert.AreEqual(2, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(2), "Matching the document ID-Date-With Bind");
 
       coll = CreateCollection("test");
 
@@ -1509,21 +1509,21 @@ namespace MySqlX.Data.Tests
       coll.Add(doc22).Execute();
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "DateTime" + "\", \"array\": true}]}");
       docResult = coll.Find("CAST(CAST('1000-01-01 00:00:00' as DATETIME) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-DateTime");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-DateTime");
       docResult = coll.Find("CAST(CAST('9999-02-02 01:20:33' as DATETIME) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-DateTime");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-DateTime");
       docResult = coll.Find("CAST(CAST(:dt as DATETIME) as JSON) overlaps $.myField").Bind("dt", "9999-02-02 01:20:33").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as DATETIME) as JSON) overlaps $.myField").Bind("dt", "9999-12-31 23:59:59").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Date-With Bind");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "9999-02-02 01:20:33").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-DateTime-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-DateTime-With Bind-Bug");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "1000-01-01 00:00:00").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-DateTime-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-DateTime-With Bind-Bug");
       docResult = coll.Find(":dt not overlaps $.myField").Bind("dt", "1000-01-01 00:00:00").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-DateTime-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-DateTime-With Bind-Bug");
       docResult = coll.Find("CAST(CAST(:dt as DATETIME) as JSON) not overlaps $.myField").Bind("dt", "9999-12-31 23:59:59").Execute();
-      Assert.AreEqual(2, docResult.FetchAll().Count, "Matching the document ID-Date-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(2), "Matching the document ID-Date-With Bind");
 
       coll = CreateCollection("test");
 
@@ -1533,23 +1533,23 @@ namespace MySqlX.Data.Tests
       coll.Add(doc22).Execute();
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "Signed" + "\", \"array\": true}]}");
       docResult = coll.Find("CAST(CAST('100' as SIGNED) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED");
       docResult = coll.Find("CAST(CAST('3' as SIGNED) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED");
       docResult = coll.Find("CAST(CAST(:dt as SIGNED) as JSON) overlaps $.myField").Bind("dt", "100").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as SIGNED) as JSON) overlaps $.myField").Bind("dt", "19").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED-With Bind");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", 100).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Signed-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Signed-With Bind");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "100").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Signed-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Signed-With Bind");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "3").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Signed-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Signed-With Bind");
       docResult = coll.Find(":dt not overlaps $.myField").Bind("dt", "100").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Signed-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Signed-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as SIGNED) as JSON) not overlaps $.myField").Bind("dt", "19").Execute();
-      Assert.AreEqual(2, docResult.FetchAll().Count, "Matching the document ID-SIGNED-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(2), "Matching the document ID-SIGNED-With Bind");
 
       coll = CreateCollection("test");
       doc = new[] { new { _id = 1, name = "SIGNED INTEGER", myField = "100" } };
@@ -1558,25 +1558,25 @@ namespace MySqlX.Data.Tests
       coll.Add(doc22).Execute();
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "SIGNED INTEGER" + "\", \"array\": true}]}");
       docResult = coll.Find("CAST(CAST('100' as SIGNED INTEGER) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER");
       docResult = coll.Find("CAST(CAST('3' as SIGNED INTEGER) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER");
       docResult = coll.Find("CAST(CAST(:dt as SIGNED INTEGER) as JSON) overlaps $.myField").Bind("dt", "100").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as SIGNED INTEGER) as JSON) overlaps $.myField").Bind("dt", "19").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER-With Bind");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", 100).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "100").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", 3).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "3").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
       docResult = coll.Find(":dt not overlaps $.myField").Bind("dt", "3").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER-With Bind-Bug");
       docResult = coll.Find("CAST(CAST(:dt as SIGNED INTEGER) as JSON) overlaps $.myField").Bind("dt", "19").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-SIGNED INTEGER-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-SIGNED INTEGER-With Bind");
 
       coll = CreateCollection("test");
       doc = new[] { new { _id = 1, name = "Unsigned", myField = "100" } };
@@ -1585,25 +1585,25 @@ namespace MySqlX.Data.Tests
       coll.Add(doc22).Execute();
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "Unsigned" + "\", \"array\": true}]}");
       docResult = coll.Find("CAST(CAST('100' as UNSIGNED) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned");
       docResult = coll.Find("CAST(CAST('3' as UNSIGNED) as JSON) overlaps $.myField").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned");
       docResult = coll.Find("CAST(CAST(:dt as UNSIGNED) as JSON) overlaps $.myField").Bind("dt", "100").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned-With Bind");
       docResult = coll.Find("CAST(CAST(:dt as UNSIGNED) as JSON) overlaps $.myField").Bind("dt", "19").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned-With Bind");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", 100).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned-With Bind-Bug");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "100").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned-With Bind-Bug");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", 3).Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned-With Bind-Bug");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "3").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned-With Bind-Bug");
       docResult = coll.Find(":dt not overlaps $.myField").Bind("dt", "3").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned-With Bind-Bug");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned-With Bind-Bug");
       docResult = coll.Find("CAST(CAST(:dt as UNSIGNED) as JSON) overlaps $.myField").Bind("dt", "19").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Unsigned-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Unsigned-With Bind");
 
       coll = CreateCollection("test");
       doc = new[] { new { _id = 1, name = "Char", myField = "too@mail.com" } };
@@ -1612,11 +1612,11 @@ namespace MySqlX.Data.Tests
       coll.Add(doc22).Execute();
       coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"" + "CHAR(128)" + "\", \"array\": true}]}");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "too@mail.com").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-CHAR(128)-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-CHAR(128)-With Bind");
       docResult = coll.Find(":dt overlaps $.myField").Bind("dt", "foo@mail.com").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-CHAR(128)-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-CHAR(128)-With Bind");
       docResult = coll.Find(":dt not overlaps $.myField").Bind("dt", "foo@mail.com").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-CHAR(128)-With Bind");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-CHAR(128)-With Bind");
     }
 
     [Test, Description("Index using overlaps")]
@@ -1635,34 +1635,34 @@ namespace MySqlX.Data.Tests
       coll.Add(doc34).Execute();
 
       var docResult = coll.Find(":dt overlaps $.myField1").Bind("dt", "9:00:00").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the document ID-Time-With Bind-Bug before index creation");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the document ID-Time-With Bind-Bug before index creation");
       coll.CreateIndex("myIndex1", "{\"fields\": [{\"field\": $.myField1, \"type\":\"" + "Time" + "\", \"array\": true}]}");
       coll.CreateIndex("myIndex2", "{\"fields\": [{\"field\": $.myField2, \"type\":\"" + "Time" + "\", \"array\": true}]}");
       coll.CreateIndex("myIndex3", "{\"fields\": [{\"field\": $.myField3, \"type\":\"" + "Time" + "\", \"array\": true}]}");
       coll.CreateIndex("myIndex4", "{\"fields\": [{\"field\": $.myField1, \"type\":\"" + "Time" + "\", \"array\": true}]}");
       coll.CreateIndex("myIndex5", "{\"fields\": [{\"field\": $.myField3, \"type\":\"" + "Time" + "\", \"array\": true}]}");
       docResult = coll.Find("myIndex1 overlaps myIndex2").Execute();
-      Assert.AreEqual(0, docResult.FetchAll().Count, "Matching the indexes using overlaps");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(0), "Matching the indexes using overlaps");
       docResult = coll.Find("myIndex2 overlaps myIndex3").Execute();
-      Assert.AreEqual(0, docResult.FetchAll().Count, "Matching the indexes using overlaps");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(0), "Matching the indexes using overlaps");
       docResult = coll.Find("myIndex2 not overlaps myIndex3").Execute();
-      Assert.AreEqual(0, docResult.FetchAll().Count, "Matching the indexes using not overlaps");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(0), "Matching the indexes using not overlaps");
       docResult = coll.Find("myIndex1 overlaps myIndex4").Execute();
-      Assert.AreEqual(0, docResult.FetchAll().Count, "Matching the indexes using overlaps");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(0), "Matching the indexes using overlaps");
       docResult = coll.Find("'myIndex3' overlaps 'myIndex5'").Execute();
-      Assert.AreEqual(0, docResult.FetchAll().Count, "Matching the indexes using overlaps");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(0), "Matching the indexes using overlaps");
       docResult = coll.Find("$.myField3 overlaps $.myField2").Execute();
-      Assert.AreEqual(0, docResult.FetchAll().Count, "Matching the indexes using overlaps");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(0), "Matching the indexes using overlaps");
       docResult = coll.Find("$.myField1 overlaps $.myField3").Execute();
-      Assert.AreEqual(0, docResult.FetchAll().Count, "Matching the indexes using overlaps");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(0), "Matching the indexes using overlaps");
       docResult = coll.Find("$.myField2 overlaps $.myField4").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the indexes using overlaps");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the indexes using overlaps");
       docResult = coll.Find("$.myField2 not overlaps $.myField4").Execute();
-      Assert.AreEqual(0, docResult.FetchAll().Count, "Matching the indexes using not overlaps");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(0), "Matching the indexes using not overlaps");
       docResult = coll.Find("$.myField5 overlaps $.myField3").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the indexes using overlaps");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the indexes using overlaps");
       docResult = coll.Find("$.myField5 not overlaps $.myField3").Execute();
-      Assert.AreEqual(1, docResult.FetchAll().Count, "Matching the indexes using not overlaps");
+      Assert.That(docResult.FetchAll().Count, Is.EqualTo(1), "Matching the indexes using not overlaps");
     }
 
     [Test, Description("multikey scenarios with observations")]
@@ -1733,7 +1733,7 @@ namespace MySqlX.Data.Tests
     {
       if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
       Collection testColl = CreateCollection("test");
-      Assert.AreEqual(true, testColl.ExistsInDatabase(), "ExistsInDatabase failed");
+      Assert.That(testColl.ExistsInDatabase(), Is.EqualTo(true), "ExistsInDatabase failed");
 
       testColl.CreateIndex("testIndex12", "{\"fields\": [ { \"field\":$.myId, \"type\":\"DOUBLE\" , \"required\":true} ] }");
       testColl.CreateIndex("testIndex", "{\"fields\": [ { \"field\":$.myId, \"type\":\"DOUBLE UNSIGNED\" , \"required\":true} ] }");
@@ -1745,11 +1745,11 @@ namespace MySqlX.Data.Tests
       testColl.Add(new { myId = 990.196078431, myAge = 10000000 }).Execute();
       testColl.DropIndex("testIndex");
       var result = testColl.Add(new { myId = 990.196078431, myAge = 10000000 }).Execute();
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
 
       testColl.DropIndex("testIndex1");
       result = testColl.Add(new { myId = 990.196078431, myAge = 10000000 }).Execute();
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
       Assert.Throws<MySqlException>(() => testColl.CreateIndex("testIndex2", "{\"fields\": [ { \"field\":$.myName, \"type\":\"TEXT\" , \"required\":true} ] }"));
     }
 
@@ -1758,7 +1758,7 @@ namespace MySqlX.Data.Tests
     {
       if (!session.Version.isAtLeast(5, 7, 0)) Assert.Ignore("This test is for MySql 5.7 or higher.");
       Collection testColl = CreateCollection("test");
-      Assert.AreEqual(true, testColl.ExistsInDatabase(), "ExistsInDatabase failed");
+      Assert.That(testColl.ExistsInDatabase(), Is.EqualTo(true), "ExistsInDatabase failed");
 
       testColl.CreateIndex("testIndex", "{\"fields\": [ { \"field\":$.myId, \"type\":\"TINYINT UNSIGNED\" , \"required\":true} ] }");
       testColl.CreateIndex("testIndex1", "{\"fields\": [ { \"field\":$.myAge, \"type\":\"SMALLINT UNSIGNED\" , \"required\":true} ] }");
@@ -1822,27 +1822,27 @@ namespace MySqlX.Data.Tests
               continue;
 
             indexFound = true;
-            Assert.AreEqual(collectionName, reader["Table"]);
-            Assert.AreEqual(unique ? 0 : 1, Convert.ToInt16(reader["Non_unique"]));
+            Assert.That(reader["Table"], Is.EqualTo(collectionName));
+            Assert.That(Convert.ToInt16(reader["Non_unique"]), Is.EqualTo(unique ? 0 : 1));
 
             if (!array && !string.IsNullOrEmpty(reader["Column_name"].ToString()))
             {
               var columnNameTokens = reader["Column_name"].ToString().Split('_');
-              Assert.AreEqual(dataType, isUnsigned ? string.Format("{0}_{1}", columnNameTokens[1], columnNameTokens[2]) : columnNameTokens[1]);
+              Assert.That(isUnsigned ? string.Format("{0}_{1}", columnNameTokens[1], columnNameTokens[2]) : columnNameTokens[1], Is.EqualTo(dataType));
             }
             else if (array && !string.IsNullOrEmpty(reader["Expression"].ToString()))
             {
               string expression = reader["Expression"].ToString();
               int pos = reader["Expression"].ToString().IndexOf(" as ");
               expression = expression.Substring(pos + 4);
-              StringAssert.Contains("array", expression);
+              Assert.That(expression, Does.Contain("array"));
               expression = expression.Substring(0, expression.IndexOf(" array"));
               Assert.That(dataType, Is.EqualTo(expression.Replace(" ", string.Empty)).IgnoreCase);
             }
 
-            Assert.AreEqual(required ? "" : "YES", reader["Null"]);
+            Assert.That(reader["Null"], Is.EqualTo(required ? "" : "YES"));
             if (length != null)
-              Assert.AreEqual(length, Convert.ToInt32(reader["Sub_part"]));
+              Assert.That(Convert.ToInt32(reader["Sub_part"]), Is.EqualTo(length));
             break;
           }
         }

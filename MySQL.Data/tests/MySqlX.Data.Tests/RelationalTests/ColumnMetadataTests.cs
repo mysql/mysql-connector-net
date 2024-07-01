@@ -46,46 +46,46 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema(schemaName).GetTable("test").Select("1 + 1 as a", "b", "c"));
       var rows = r.FetchAll();
-      Assert.AreEqual(3, r.Columns.Count);
-      Assert.AreEqual("def", r.Columns[0].DatabaseName);
-      Assert.Null(r.Columns[0].SchemaName);
-      Assert.Null(r.Columns[0].TableName);
-      Assert.Null(r.Columns[0].TableLabel);
-      Assert.Null(r.Columns[0].ColumnName);
-      Assert.AreEqual("a", r.Columns[0].ColumnLabel);
-      Assert.AreEqual(ColumnType.Tinyint, r.Columns[0].Type);
-      Assert.AreEqual(3u, r.Columns[0].Length);
-      Assert.AreEqual(0u, r.Columns[0].FractionalDigits);
-      Assert.True(r.Columns[0].IsNumberSigned);
-      Assert.Null(r.Columns[0].CharacterSetName);
-      Assert.Null(r.Columns[0].CollationName);
-      Assert.False(r.Columns[0].IsPadded);
+      Assert.That(r.Columns.Count, Is.EqualTo(3));
+      Assert.That(r.Columns[0].DatabaseName, Is.EqualTo("def"));
+      Assert.That(r.Columns[0].SchemaName, Is.Null);
+      Assert.That(r.Columns[0].TableName, Is.Null);
+      Assert.That(r.Columns[0].TableLabel, Is.Null);
+      Assert.That(r.Columns[0].ColumnName, Is.Null);
+      Assert.That(r.Columns[0].ColumnLabel, Is.EqualTo("a"));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Tinyint));
+      Assert.That(r.Columns[0].Length, Is.EqualTo(3u));
+      Assert.That(r.Columns[0].FractionalDigits, Is.EqualTo(0u));
+      Assert.That(r.Columns[0].IsNumberSigned);
+      Assert.That(r.Columns[0].CharacterSetName, Is.Null);
+      Assert.That(r.Columns[0].CollationName, Is.Null);
+      Assert.That(r.Columns[0].IsPadded, Is.False);
 
-      Assert.AreEqual(schemaName, r.Columns[1].SchemaName);
-      Assert.AreEqual("test", r.Columns[1].TableName);
-      Assert.AreEqual("test", r.Columns[1].TableLabel);
-      Assert.AreEqual("b", r.Columns[1].ColumnName);
-      Assert.AreEqual("b", r.Columns[1].ColumnLabel);
-      Assert.AreEqual(ColumnType.String, r.Columns[1].Type);
-      Assert.AreEqual(255u, r.Columns[1].Length);
-      Assert.AreEqual(0u, r.Columns[1].FractionalDigits);
-      Assert.False(r.Columns[1].IsNumberSigned);
-      Assert.AreEqual("utf8mb4", r.Columns[1].CharacterSetName);
-      Assert.AreEqual("utf8mb4_0900_ai_ci", r.Columns[1].CollationName);
-      Assert.False(r.Columns[1].IsPadded);
+      Assert.That(r.Columns[1].SchemaName, Is.EqualTo(schemaName));
+      Assert.That(r.Columns[1].TableName, Is.EqualTo("test"));
+      Assert.That(r.Columns[1].TableLabel, Is.EqualTo("test"));
+      Assert.That(r.Columns[1].ColumnName, Is.EqualTo("b"));
+      Assert.That(r.Columns[1].ColumnLabel, Is.EqualTo("b"));
+      Assert.That(r.Columns[1].Type, Is.EqualTo(ColumnType.String));
+      Assert.That(r.Columns[1].Length, Is.EqualTo(255u));
+      Assert.That(r.Columns[1].FractionalDigits, Is.EqualTo(0u));
+      Assert.That(r.Columns[1].IsNumberSigned, Is.False);
+      Assert.That(r.Columns[1].CharacterSetName, Is.EqualTo("utf8mb4"));
+      Assert.That(r.Columns[1].CollationName, Is.EqualTo("utf8mb4_0900_ai_ci"));
+      Assert.That(r.Columns[1].IsPadded, Is.False);
 
-      Assert.AreEqual(schemaName, r.Columns[2].SchemaName);
-      Assert.AreEqual("test", r.Columns[2].TableName);
-      Assert.AreEqual("test", r.Columns[2].TableLabel);
-      Assert.AreEqual("c", r.Columns[2].ColumnName);
-      Assert.AreEqual("c", r.Columns[2].ColumnLabel);
-      Assert.AreEqual(ColumnType.String, r.Columns[2].Type);
-      Assert.AreEqual(20u, r.Columns[2].Length);
-      Assert.AreEqual(0u, r.Columns[2].FractionalDigits);
-      Assert.False(r.Columns[2].IsNumberSigned);
-      Assert.AreEqual("utf8mb4", r.Columns[2].CharacterSetName);
-      Assert.AreEqual("utf8mb4_0900_ai_ci", r.Columns[2].CollationName);
-      Assert.False(r.Columns[2].IsPadded);
+      Assert.That(r.Columns[2].SchemaName, Is.EqualTo(schemaName));
+      Assert.That(r.Columns[2].TableName, Is.EqualTo("test"));
+      Assert.That(r.Columns[2].TableLabel, Is.EqualTo("test"));
+      Assert.That(r.Columns[2].ColumnName, Is.EqualTo("c"));
+      Assert.That(r.Columns[2].ColumnLabel, Is.EqualTo("c"));
+      Assert.That(r.Columns[2].Type, Is.EqualTo(ColumnType.String));
+      Assert.That(r.Columns[2].Length, Is.EqualTo(20u));
+      Assert.That(r.Columns[2].FractionalDigits, Is.EqualTo(0u));
+      Assert.That(r.Columns[2].IsNumberSigned, Is.False);
+      Assert.That(r.Columns[2].CharacterSetName, Is.EqualTo("utf8mb4"));
+      Assert.That(r.Columns[2].CollationName, Is.EqualTo("utf8mb4_0900_ai_ci"));
+      Assert.That(r.Columns[2].IsPadded, Is.False);
       //Assert.AreEqual("Δ", rows[0][2]);
     }
 
@@ -101,26 +101,26 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema(schemaName).GetTable("test").Select("b"));
       var rows = r.FetchAll();
 
-      Assert.AreEqual(schemaName, r.Columns[0].SchemaName);
-      Assert.AreEqual("test", r.Columns[0].TableName);
-      Assert.AreEqual("test", r.Columns[0].TableLabel);
-      Assert.AreEqual("b", r.Columns[0].ColumnName);
-      Assert.AreEqual("b", r.Columns[0].ColumnLabel);
-      Assert.AreEqual(ColumnType.String, r.Columns[0].Type);
-      Assert.AreEqual(0u, r.Columns[0].FractionalDigits);
-      Assert.AreEqual(false, r.Columns[0].IsNumberSigned);
-      Assert.AreEqual(defaultValues[0][0], r.Columns[0].CharacterSetName);
-      Assert.AreEqual(defaultValues[0][1], r.Columns[0].CollationName);
-      Assert.AreEqual(false, r.Columns[0].IsPadded);
-      Assert.AreEqual("CAR", rows[0][0]);
+      Assert.That(r.Columns[0].SchemaName, Is.EqualTo(schemaName));
+      Assert.That(r.Columns[0].TableName, Is.EqualTo("test"));
+      Assert.That(r.Columns[0].TableLabel, Is.EqualTo("test"));
+      Assert.That(r.Columns[0].ColumnName, Is.EqualTo("b"));
+      Assert.That(r.Columns[0].ColumnLabel, Is.EqualTo("b"));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.String));
+      Assert.That(r.Columns[0].FractionalDigits, Is.EqualTo(0u));
+      Assert.That(r.Columns[0].IsNumberSigned, Is.EqualTo(false));
+      Assert.That(r.Columns[0].CharacterSetName, Is.EqualTo(defaultValues[0][0]));
+      Assert.That(r.Columns[0].CollationName, Is.EqualTo(defaultValues[0][1]));
+      Assert.That(r.Columns[0].IsPadded, Is.EqualTo(false));
+      Assert.That(rows[0][0], Is.EqualTo("CAR"));
 
       using (var connection = new MySqlConnection(ConnectionStringRoot))
       {
         connection.Open();
         if (connection.driver.Version.isAtLeast(8, 0, 1))
-          Assert.AreEqual(1020u, r.Columns[0].Length);
+          Assert.That(r.Columns[0].Length, Is.EqualTo(1020u));
         else
-          Assert.AreEqual(255u, r.Columns[0].Length);
+          Assert.That(r.Columns[0].Length, Is.EqualTo(255u));
       }
     }
 
@@ -130,11 +130,11 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("CREATE TABLE test(columnA VARCHAR(255), columnB INT, columnX BIT)");
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema(schemaName).GetTable("test").Select());
 
-      Assert.AreEqual(3, r.ColumnCount);
-      Assert.AreEqual(r.Columns.Count, r.ColumnCount);
-      Assert.AreEqual("columnA", r.ColumnNames[0]);
-      Assert.AreEqual("columnB", r.ColumnNames[1]);
-      Assert.AreEqual("columnX", r.ColumnNames[2]);
+      Assert.That(r.ColumnCount, Is.EqualTo(3));
+      Assert.That(r.ColumnCount, Is.EqualTo(r.Columns.Count));
+      Assert.That(r.ColumnNames[0], Is.EqualTo("columnA"));
+      Assert.That(r.ColumnNames[1], Is.EqualTo("columnB"));
+      Assert.That(r.ColumnNames[2], Is.EqualTo("columnX"));
     }
 
     [Test]
@@ -147,19 +147,19 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema(schemaName).GetTable("test").Select("b"));
       var rows = r.FetchAll();
 
-      Assert.AreEqual(schemaName, r.Columns[0].SchemaName);
-      Assert.AreEqual("test", r.Columns[0].TableName);
-      Assert.AreEqual("test", r.Columns[0].TableLabel);
-      Assert.AreEqual("b", r.Columns[0].ColumnName);
-      Assert.AreEqual("b", r.Columns[0].ColumnLabel);
-      Assert.AreEqual(ColumnType.String, r.Columns[0].Type);
-      Assert.AreEqual(255u, r.Columns[0].Length);
-      Assert.AreEqual(0u, r.Columns[0].FractionalDigits);
-      Assert.False(r.Columns[0].IsNumberSigned);
-      Assert.AreEqual("utf8mb4", r.Columns[0].CharacterSetName);
-      Assert.AreEqual("utf8mb4_0900_ai_ci", r.Columns[0].CollationName);
-      Assert.False(r.Columns[0].IsPadded);
-      Assert.AreEqual("Δ", rows[0][0]);
+      Assert.That(r.Columns[0].SchemaName, Is.EqualTo(schemaName));
+      Assert.That(r.Columns[0].TableName, Is.EqualTo("test"));
+      Assert.That(r.Columns[0].TableLabel, Is.EqualTo("test"));
+      Assert.That(r.Columns[0].ColumnName, Is.EqualTo("b"));
+      Assert.That(r.Columns[0].ColumnLabel, Is.EqualTo("b"));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.String));
+      Assert.That(r.Columns[0].Length, Is.EqualTo(255u));
+      Assert.That(r.Columns[0].FractionalDigits, Is.EqualTo(0u));
+      Assert.That(r.Columns[0].IsNumberSigned, Is.False);
+      Assert.That(r.Columns[0].CharacterSetName, Is.EqualTo("utf8mb4"));
+      Assert.That(r.Columns[0].CollationName, Is.EqualTo("utf8mb4_0900_ai_ci"));
+      Assert.That(r.Columns[0].IsPadded, Is.False);
+      Assert.That(rows[0][0], Is.EqualTo("Δ"));
     }
   }
 }

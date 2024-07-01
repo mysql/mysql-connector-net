@@ -144,7 +144,7 @@ namespace MySql.Web.Tests
       psq.PathToMatch = "~/default.aspx";
       psq.UserInactiveSinceDate = DateTime.UtcNow.AddMinutes(1);
       var collection = p.FindState(PersonalizationScope.User, psq, 1, 1, out totalRecords);
-      Assert.AreEqual(1, totalRecords);
+      Assert.That(totalRecords, Is.EqualTo(1));
     }
 
     [Test]
@@ -159,7 +159,7 @@ namespace MySql.Web.Tests
       psq.UserInactiveSinceDate = DateTime.UtcNow.AddMinutes(1);
       //System.Threading.Thread.Sleep(1000);
       totalRecords = p.GetCountOfState(PersonalizationScope.User, psq);
-      Assert.AreEqual(1, totalRecords);
+      Assert.That(totalRecords, Is.EqualTo(1));
     }
 
     [Test]
@@ -172,7 +172,7 @@ namespace MySql.Web.Tests
       psq.PathToMatch = "~/default.aspx";
       psq.UserInactiveSinceDate = DateTime.UtcNow;
       totalRecords = p.GetCountOfState(PersonalizationScope.Shared, psq);
-      Assert.AreEqual(1, totalRecords);
+      Assert.That(totalRecords, Is.EqualTo(1));
     }
 
     [Test]
@@ -188,7 +188,7 @@ namespace MySql.Web.Tests
       users[0] = @"GabPC\Gab";
 
       totalRecords = p.ResetState(PersonalizationScope.User, paths, users);
-      Assert.AreEqual(1, totalRecords);
+      Assert.That(totalRecords, Is.EqualTo(1));
     }
 
     [Test]
@@ -205,7 +205,7 @@ namespace MySql.Web.Tests
 
       int totalRecords;
       totalRecords = p.ResetState(PersonalizationScope.Shared, paths, users);
-      Assert.AreEqual(1, totalRecords);
+      Assert.That(totalRecords, Is.EqualTo(1));
     }
 
     [Test]
@@ -216,7 +216,7 @@ namespace MySql.Web.Tests
 
       int totalRecords;
       totalRecords = p.ResetState(PersonalizationScope.Shared, null, null);
-      Assert.AreEqual(1, totalRecords);
+      Assert.That(totalRecords, Is.EqualTo(1));
     }
 
 
@@ -228,7 +228,7 @@ namespace MySql.Web.Tests
       int totalRecords;
 
       totalRecords = p.ResetUserState("~/default.aspx", Convert.ToDateTime("2038-01-19 03:14:07.999999")); // TimeStamp MaxValue
-      Assert.AreEqual(1, totalRecords);
+      Assert.That(totalRecords, Is.EqualTo(1));
     }
 
   }

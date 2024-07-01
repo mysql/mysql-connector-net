@@ -61,7 +61,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void DnsSrvConnectionStringInvalidConfiguration(string connString, string exceptionMessage)
     {
       var exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(connString));
-      Assert.AreEqual(exceptionMessage, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(exceptionMessage));
     }
 
     [TestCase("server=localhost;port=33060;dns-srv=false;")]
@@ -75,7 +75,7 @@ namespace MySql.Data.MySqlClient.Tests
     public void DnsSrvConnectionStringValidConfiguration(string connString)
     {
       var conn = new MySqlConnection(connString);
-      Assert.NotNull(conn);
+      Assert.That(conn, Is.Not.Null);
     }
 
     [Test]
@@ -86,21 +86,21 @@ namespace MySql.Data.MySqlClient.Tests
       sb.Port = 3306;
       sb.Server = "localhost";
       var exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(sb.ConnectionString));
-      Assert.AreEqual(Resources.DnsSrvInvalidConnOptionPort, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(Resources.DnsSrvInvalidConnOptionPort));
 
       sb = new MySqlConnectionStringBuilder();
       sb.DnsSrv = true;
       sb.Server = "_mysqlx._tcp.foo.abc.com";
       sb.ConnectionProtocol = MySqlConnectionProtocol.Unix;
       exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(sb.ConnectionString));
-      Assert.AreEqual(Resources.DnsSrvInvalidConnOptionUnixSocket, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(Resources.DnsSrvInvalidConnOptionUnixSocket));
 
       sb = new MySqlConnectionStringBuilder();
       sb.DnsSrv = true;
       sb.Server = "localhost, 10.10.10.10";
       sb.ConnectionProtocol = MySqlConnectionProtocol.Unix;
       exception = Assert.Throws<ArgumentException>(() => new MySqlConnection(sb.ConnectionString));
-      Assert.AreEqual(Resources.DnsSrvInvalidConnOptionMultihost, exception.Message);
+      Assert.That(exception.Message, Is.EqualTo(Resources.DnsSrvInvalidConnOptionMultihost));
     }
 
     [Test]
@@ -126,7 +126,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       var sortedRecords = DnsSrv.SortSrvRecords(dnsRecords.ToList());
 
-      Assert.True(sortedRecords.Select(r => r.Target).SequenceEqual(expectedOrder.Select(r => r.Target)));
+      Assert.That(sortedRecords.Select(r => r.Target).SequenceEqual(expectedOrder.Select(r => r.Target)));
     }
   }
 }

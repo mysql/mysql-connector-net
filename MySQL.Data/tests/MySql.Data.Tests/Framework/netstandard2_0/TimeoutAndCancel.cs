@@ -50,7 +50,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       object o = cmdToRun.ExecuteScalar();
       resetEvent.Set();
-      Assert.Null(o);
+      Assert.That(o, Is.Null);
     }
 
 #if NETFRAMEWORK
@@ -77,7 +77,7 @@ namespace MySql.Data.MySqlClient.Tests
       // now cancel the command
       cmd.Cancel();
 
-      Assert.True(resetEvent.WaitOne(30 * 1000), "timeout");
+      Assert.That(resetEvent.WaitOne(30 * 1000), "timeout");
     }
 #endif
 
@@ -115,13 +115,13 @@ namespace MySql.Data.MySqlClient.Tests
         catch (MySqlException ex)
         {
           if (Version < new Version("8.0.24"))
-            StringAssert.StartsWith("Fatal", ex.Message);
+            Assert.That(ex.Message, Does.StartWith("Fatal"));
           else
-            StringAssert.StartsWith("The client was disconnected", ex.Message);
+            Assert.That(ex.Message, Does.StartWith("The client was disconnected"));
         }
 
-        Assert.AreEqual(1, stateChangeCount);
-        Assert.AreEqual(ConnectionState.Closed, c.State);
+        Assert.That(stateChangeCount, Is.EqualTo(1));
+        Assert.That(c.State, Is.EqualTo(ConnectionState.Closed));
       }
 
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -130,7 +130,7 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand cmd = new MySqlCommand("SELECT now() as thetime, database() as db", c);
         using (MySqlDataReader r = cmd.ExecuteReader())
         {
-          Assert.True(r.Read());
+          Assert.That(r.Read(), Is.True);
         }
       }
     }
@@ -218,17 +218,17 @@ namespace MySql.Data.MySqlClient.Tests
           }
           catch (MySqlException ex)
           {
-            Assert.True(ex.Number == (int)MySqlErrorCode.QueryInterrupted);
+            Assert.That(ex.Number, Is.EqualTo((int)MySqlErrorCode.QueryInterrupted));
             if (rows < 1000)
             {
               bool readOK = reader.Read();
-              Assert.False(readOK);
+              Assert.That(readOK, Is.False);
             }
           }
 
         }
       }
-      Assert.True(rows < 1000);
+      Assert.That(rows < 1000);
     }
 
     /// <summary>
@@ -262,11 +262,11 @@ namespace MySql.Data.MySqlClient.Tests
         }
         catch (MySqlException ex)
         {
-          Assert.True(ex.InnerException is TimeoutException);
-          Assert.True(c.State == ConnectionState.Open);
+          Assert.That(ex.InnerException is TimeoutException, Is.True);
+          Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
         }
         string connStr2 = c.ConnectionString.ToLower(CultureInfo.InvariantCulture);
-        Assert.AreEqual(connStr1.ToLower(CultureInfo.InvariantCulture), connStr2);
+        Assert.That(connStr2, Is.EqualTo(connStr1.ToLower(CultureInfo.InvariantCulture)));
         c.Close();        
       }
      
@@ -311,7 +311,7 @@ namespace MySql.Data.MySqlClient.Tests
             // normally and then the problem, described above, occurs
             for (; i < rows; i++)
             {
-              Assert.False(!reader.Read(),"unexpected 'false' from reader.Read");
+              Assert.That(!reader.Read(), Is.False, "unexpected 'false' from reader.Read");
               if (i % 10 == 0)
                 Thread.Sleep(1);
               object v = reader.GetValue(1);
@@ -337,7 +337,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         // IT is relatively hard to predict where
         Console.WriteLine("Warning: all reads completed!");
-        Assert.True(i == rows);
+        Assert.That(i, Is.EqualTo(rows));
       }
     }
   }

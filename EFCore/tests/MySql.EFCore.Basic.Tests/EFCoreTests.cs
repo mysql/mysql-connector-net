@@ -51,8 +51,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       using (SakilaLiteContext context = new SakilaLiteContext())
       {
         var customer = _customerById(context, 9);
-        Assert.AreEqual(9, customer.CustomerId);
-        Assert.AreEqual("MOORE", customer.LastName);
+        Assert.That(customer.CustomerId, Is.EqualTo(9));
+        Assert.That(customer.LastName, Is.EqualTo("MOORE"));
       }
     }
 
@@ -68,14 +68,14 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Attach(actor = new Actor { ActorId = 21, FirstName = "KIRSTEN", LastName = "PALTROW" });
 
         var changes = context.ChangeTracker.Entries();
-        Assert.AreEqual(2, changes.Count());
+        Assert.That(changes.Count(), Is.EqualTo(2));
         Assert.That(changes.Select(c => c.State), Has.Exactly(1).Matches<EntityState>(state => state.Equals(EntityState.Added)));
         Assert.That(changes.Select(c => c.State), Has.Exactly(1).Matches<EntityState>(state => state.Equals(EntityState.Unchanged)));
 
         context.SaveChanges();
 
         var list = context.Actor.ToList();
-        Assert.AreEqual(1, list.Count);
+        Assert.That(list.Count, Is.EqualTo(1));
       }
     }
 
@@ -93,8 +93,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Database.ExecuteSqlInterpolated($"INSERT INTO actor(actor_id, first_name, last_name, last_update) VALUES ({id}, {firstName}, {lastName}, {lastUpdate:u})");
         Actor actor = context.Set<Actor>().FromSqlInterpolated($"SELECT * FROM actor WHERE actor_id={id} and last_name={lastName}").First();
 
-        Assert.AreEqual(id, actor.ActorId);
-        Assert.AreEqual(firstName, actor.FirstName);
+        Assert.That(actor.ActorId, Is.EqualTo(id));
+        Assert.That(actor.FirstName, Is.EqualTo(firstName));
       }
     }
 
@@ -156,7 +156,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         && w.LastUpdate >= DateTime.Today.AddDays(-15));
 
         var res = scenario1.Count();
-        Assert.AreEqual(0, res);
+        Assert.That(res, Is.EqualTo(0));
 
         var dt = DateTime.Today.AddDays(-15);
         var scenario2 = context.Actor.Where(
@@ -165,7 +165,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         && w.LastUpdate >= dt);
 
         var res2 = scenario2.Count();
-        Assert.AreEqual(0, res2);
+        Assert.That(res2, Is.EqualTo(0));
 
         var scenario3 = context.Actor.Where(
         w => w.FirstName == "GARY"
@@ -173,7 +173,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         && w.LastUpdate >= DateTime.Today.AddDays(3));
 
         var res3 = scenario3.Count();
-        Assert.AreEqual(0, res3);
+        Assert.That(res3, Is.EqualTo(0));
       }
     }
 

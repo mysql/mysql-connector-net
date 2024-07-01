@@ -54,7 +54,7 @@ namespace MySqlX.Data.Tests
       Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(1));
 
       var count = session.SQL("SELECT COUNT(*) FROM test.test").Execute().FetchOne()[0];
-      Assert.AreEqual(count, coll.Count());
+      Assert.That(coll.Count(), Is.EqualTo(count));
     }
 
     [Test]
@@ -78,15 +78,15 @@ namespace MySqlX.Data.Tests
         tasksList.Add(coll.Find("age = :age").Bind("AgE", i).ExecuteAsync());
       }
 
-      Assert.True(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
+      Assert.That(Task.WaitAll(tasksList.ToArray(), TimeSpan.FromMinutes(2)), "WaitAll timeout");
       foreach (Task<DocResult<DbDoc>> task in tasksList)
       {
         var doc = task.Result.FetchOne();
         string value = task.Result.Current["age"].ToString();
-        Assert.False(validator.Contains(value), value + " value exists");
+        Assert.That(validator.Contains(value), Is.False, value + " value exists");
         validator.Add(value);
       }
-      Assert.AreEqual(docs, validator.Count);
+      Assert.That(validator.Count, Is.EqualTo(docs));
     }
 
     [Test, Description("Create valid index using a document field type of array and setting array to true/with single key on all possible datatypes concurrently)")]
@@ -102,7 +102,7 @@ namespace MySqlX.Data.Tests
       int v1 = await IndexArrayMultiThreading_T1();
       int v2 = await IndexArrayMultiThreading_T2();
 
-      Assert.AreEqual(2, v1 + v2);
+      Assert.That(v1 + v2, Is.EqualTo(2));
     }
 
     private async Task<int> IndexArrayMultiThreading_T1()

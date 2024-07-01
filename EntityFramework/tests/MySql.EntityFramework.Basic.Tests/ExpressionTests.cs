@@ -54,7 +54,7 @@ namespace MySql.Data.EntityFramework.Tests
       {
         string str = "Garbage";
         var records = ctx.Products.Where(p => p.Name.StartsWith(str)).ToArray();
-        Assert.AreEqual(1, records.Count());
+        Assert.That(records.Count(), Is.EqualTo(1));
       }
     }
 
@@ -67,7 +67,7 @@ namespace MySql.Data.EntityFramework.Tests
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var records = ctx.Products.Where(p => p.Name.StartsWith("Garbage")).ToArray();
-        Assert.AreEqual(1, records.Count());
+        Assert.That(records.Count(), Is.EqualTo(1));
       }
     }
 
@@ -81,7 +81,7 @@ namespace MySql.Data.EntityFramework.Tests
       {
         string str = "Hoop";
         var records = ctx.Products.Where(p => p.Name.EndsWith(str)).ToArray();
-        Assert.AreEqual(1, records.Count());
+        Assert.That(records.Count(), Is.EqualTo(1));
       }
     }
 
@@ -94,7 +94,7 @@ namespace MySql.Data.EntityFramework.Tests
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var records = ctx.Products.Where(p => p.Name.EndsWith("Hoop")).ToArray();
-        Assert.AreEqual(1, records.Count());
+        Assert.That(records.Count(), Is.EqualTo(1));
       }
     }
 
@@ -109,7 +109,7 @@ namespace MySql.Data.EntityFramework.Tests
       {
         string str = "bage";
         var records = ctx.Products.Where(p => p.Name.Contains(str)).ToArray();
-        Assert.AreEqual(1, records.Count());
+        Assert.That(records.Count(), Is.EqualTo(1));
       }
     }
 
@@ -123,7 +123,7 @@ namespace MySql.Data.EntityFramework.Tests
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var records = ctx.Products.Where(p => p.Name.Contains("bage")).ToArray();
-        Assert.AreEqual(1, records.Count());
+        Assert.That(records.Count(), Is.EqualTo(1));
       }
     }
 
@@ -136,7 +136,7 @@ namespace MySql.Data.EntityFramework.Tests
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         var records = ctx.Products.Where(p => p.Name.Contains("%")).ToArray();
-        Assert.AreEqual(0, records.Count());
+        Assert.That(records.Count(), Is.EqualTo(0));
       }
     }
 

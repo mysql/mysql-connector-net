@@ -49,14 +49,14 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("rvalue"));
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(float), r.Columns[0].ClrType);
-      Assert.AreEqual(14, (int)r.Columns[0].Length);
-      Assert.AreEqual(8, (int)r.Columns[0].FractionalDigits);
-      Assert.AreEqual(ColumnType.Float, r.Columns[0].Type);
-      Assert.AreEqual(3, rows.Count);
-      Assert.AreEqual(23.4f, (float)rows[0][0]);
-      Assert.AreEqual(14.8f, rows[1][0]);
-      Assert.AreEqual(11.9f, rows[2][0]);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(float)));
+      Assert.That((int)r.Columns[0].Length, Is.EqualTo(14));
+      Assert.That((int)r.Columns[0].FractionalDigits, Is.EqualTo(8));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Float));
+      Assert.That(rows.Count, Is.EqualTo(3));
+      Assert.That((float)rows[0][0], Is.EqualTo(23.4f));
+      Assert.That(rows[1][0], Is.EqualTo(14.8f));
+      Assert.That(rows[2][0], Is.EqualTo(11.9f));
     }
 
     [Test]
@@ -68,14 +68,14 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("rvalue"));
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(double), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.Double, r.Columns[0].Type);
-      Assert.AreEqual(12, (int)r.Columns[0].Length);
-      Assert.AreEqual(4, (int)r.Columns[0].FractionalDigits);
-      Assert.AreEqual(3, rows.Count);
-      Assert.AreEqual(23.4, rows[0][0]);
-      Assert.AreEqual(14.8, rows[1][0]);
-      Assert.AreEqual(11.9, rows[2][0]);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(double)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Double));
+      Assert.That((int)r.Columns[0].Length, Is.EqualTo(12));
+      Assert.That((int)r.Columns[0].FractionalDigits, Is.EqualTo(4));
+      Assert.That(rows.Count, Is.EqualTo(3));
+      Assert.That(rows[0][0], Is.EqualTo(23.4));
+      Assert.That(rows[1][0], Is.EqualTo(14.8));
+      Assert.That(rows[2][0], Is.EqualTo(11.9));
     }
 
     [Test]
@@ -87,12 +87,12 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("rvalue"));
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(string), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.Set, r.Columns[0].Type);
-      Assert.AreEqual(3, rows.Count);
-      Assert.AreEqual("A", rows[0][0]);
-      Assert.AreEqual("A,B", rows[1][0]);
-      Assert.AreEqual("B", rows[2][0]);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(string)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Set));
+      Assert.That(rows.Count, Is.EqualTo(3));
+      Assert.That(rows[0][0], Is.EqualTo("A"));
+      Assert.That(rows[1][0], Is.EqualTo("A,B"));
+      Assert.That(rows[2][0], Is.EqualTo("B"));
     }
 
     [Test]
@@ -104,12 +104,12 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select("rvalue"));
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(string), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.Enum, r.Columns[0].Type);
-      Assert.AreEqual(3, rows.Count);
-      Assert.AreEqual("Alpha", rows[0][0]);
-      Assert.AreEqual("Beta", rows[1][0]);
-      Assert.AreEqual("C", rows[2][0]);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(string)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Enum));
+      Assert.That(rows.Count, Is.EqualTo(3));
+      Assert.That(rows[0][0], Is.EqualTo("Alpha"));
+      Assert.That(rows[1][0], Is.EqualTo("Beta"));
+      Assert.That(rows[2][0], Is.EqualTo("C"));
     }
 
     [Test]
@@ -121,27 +121,27 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
-      Assert.AreEqual(5, r.Columns.Count);
-      Assert.AreEqual(typeof(sbyte), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.Tinyint, r.Columns[0].Type);
-      Assert.AreEqual((sbyte)127, rows[0][0]);
-      Assert.AreEqual((sbyte)-128, rows[1][0]);
-      Assert.AreEqual(typeof(Int16), r.Columns[1].ClrType);
-      Assert.AreEqual(ColumnType.Smallint, r.Columns[1].Type);
-      Assert.AreEqual((short)32767, rows[0][1]);
-      Assert.AreEqual((short)-32768, rows[1][1]);
-      Assert.AreEqual(typeof(Int32), r.Columns[2].ClrType);
-      Assert.AreEqual(ColumnType.Mediumint, r.Columns[2].Type);
-      Assert.AreEqual(8388607, rows[0][2]);
-      Assert.AreEqual(-8388608, rows[1][2]);
-      Assert.AreEqual(typeof(Int32), r.Columns[3].ClrType);
-      Assert.AreEqual(ColumnType.Int, r.Columns[3].Type);
-      Assert.AreEqual(2147483647, rows[0][3]);
-      Assert.AreEqual(-2147483648, rows[1][3]);
-      Assert.AreEqual(typeof(Int64), r.Columns[4].ClrType);
-      Assert.AreEqual(ColumnType.Bigint, r.Columns[4].Type);
-      Assert.AreEqual((long)9223372036854775807, rows[0][4]);
-      Assert.AreEqual((long)-9223372036854775808, rows[1][4]);
+      Assert.That(r.Columns.Count, Is.EqualTo(5));
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(sbyte)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Tinyint));
+      Assert.That(rows[0][0], Is.EqualTo((sbyte)127));
+      Assert.That(rows[1][0], Is.EqualTo((sbyte)-128));
+      Assert.That(r.Columns[1].ClrType, Is.EqualTo(typeof(Int16)));
+      Assert.That(r.Columns[1].Type, Is.EqualTo(ColumnType.Smallint));
+      Assert.That(rows[0][1], Is.EqualTo((short)32767));
+      Assert.That(rows[1][1], Is.EqualTo((short)-32768));
+      Assert.That(r.Columns[2].ClrType, Is.EqualTo(typeof(Int32)));
+      Assert.That(r.Columns[2].Type, Is.EqualTo(ColumnType.Mediumint));
+      Assert.That(rows[0][2], Is.EqualTo(8388607));
+      Assert.That(rows[1][2], Is.EqualTo(-8388608));
+      Assert.That(r.Columns[3].ClrType, Is.EqualTo(typeof(Int32)));
+      Assert.That(r.Columns[3].Type, Is.EqualTo(ColumnType.Int));
+      Assert.That(rows[0][3], Is.EqualTo(2147483647));
+      Assert.That(rows[1][3], Is.EqualTo(-2147483648));
+      Assert.That(r.Columns[4].ClrType, Is.EqualTo(typeof(Int64)));
+      Assert.That(r.Columns[4].Type, Is.EqualTo(ColumnType.Bigint));
+      Assert.That(rows[0][4], Is.EqualTo((long)9223372036854775807));
+      Assert.That(rows[1][4], Is.EqualTo((long)-9223372036854775808));
     }
 
     [Test]
@@ -152,22 +152,22 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
-      Assert.AreEqual(5, r.Columns.Count);
-      Assert.AreEqual(typeof(byte), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.Tinyint, r.Columns[0].Type);
-      Assert.AreEqual((byte)255, rows[0][0]);
-      Assert.AreEqual(typeof(UInt16), r.Columns[1].ClrType);
-      Assert.AreEqual(ColumnType.Smallint, r.Columns[1].Type);
-      Assert.AreEqual((ushort)65535, rows[0][1]);
-      Assert.AreEqual(typeof(UInt32), r.Columns[2].ClrType);
-      Assert.AreEqual(ColumnType.Mediumint, r.Columns[2].Type);
-      Assert.AreEqual((uint)16777215, rows[0][2]);
-      Assert.AreEqual(typeof(UInt32), r.Columns[3].ClrType);
-      Assert.AreEqual(ColumnType.Int, r.Columns[3].Type);
-      Assert.AreEqual((uint)4294967295, rows[0][3]);
-      Assert.AreEqual(typeof(UInt64), r.Columns[4].ClrType);
-      Assert.AreEqual(ColumnType.Bigint, r.Columns[4].Type);
-      Assert.AreEqual((ulong)18446744073709551615, rows[0][4]);
+      Assert.That(r.Columns.Count, Is.EqualTo(5));
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(byte)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Tinyint));
+      Assert.That(rows[0][0], Is.EqualTo((byte)255));
+      Assert.That(r.Columns[1].ClrType, Is.EqualTo(typeof(UInt16)));
+      Assert.That(r.Columns[1].Type, Is.EqualTo(ColumnType.Smallint));
+      Assert.That(rows[0][1], Is.EqualTo((ushort)65535));
+      Assert.That(r.Columns[2].ClrType, Is.EqualTo(typeof(UInt32)));
+      Assert.That(r.Columns[2].Type, Is.EqualTo(ColumnType.Mediumint));
+      Assert.That(rows[0][2], Is.EqualTo((uint)16777215));
+      Assert.That(r.Columns[3].ClrType, Is.EqualTo(typeof(UInt32)));
+      Assert.That(r.Columns[3].Type, Is.EqualTo(ColumnType.Int));
+      Assert.That(rows[0][3], Is.EqualTo((uint)4294967295));
+      Assert.That(r.Columns[4].ClrType, Is.EqualTo(typeof(UInt64)));
+      Assert.That(r.Columns[4].Type, Is.EqualTo(ColumnType.Bigint));
+      Assert.That(rows[0][4], Is.EqualTo((ulong)18446744073709551615));
     }
 
     [Test]
@@ -179,9 +179,9 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(UInt64), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.Bit, r.Columns[0].Type);
-      Assert.AreEqual((ulong)127, rows[0][0]);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(UInt64)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Bit));
+      Assert.That(rows[0][0], Is.EqualTo((ulong)127));
     }
 
     [Test]
@@ -194,14 +194,14 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(decimal), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.Decimal, r.Columns[0].Type);
-      Assert.AreEqual(-1.23m, rows[0][0]);
-      Assert.AreEqual(-12.345m, rows[1][0]);
-      Assert.AreEqual(5m, rows[2][0]);
-      Assert.AreEqual(43m, rows[3][0]);
-      Assert.AreEqual(14523.2887238m, rows[4][0]);
-      Assert.AreEqual(-8947.8923784m, rows[5][0]);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(decimal)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Decimal));
+      Assert.That(rows[0][0], Is.EqualTo(-1.23m));
+      Assert.That(rows[1][0], Is.EqualTo(-12.345m));
+      Assert.That(rows[2][0], Is.EqualTo(5m));
+      Assert.That(rows[3][0], Is.EqualTo(43m));
+      Assert.That(rows[4][0], Is.EqualTo(14523.2887238m));
+      Assert.That(rows[5][0], Is.EqualTo(-8947.8923784m));
     }
 
     [Test]
@@ -214,10 +214,10 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(string), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.Json, r.Columns[0].Type);
-      Assert.AreEqual("{\"id\": 1, \"name\": \"John\"}", rows[0][0]);
-      Assert.AreEqual("[\"a\", 1, \"b\", 2]", rows[1][0]);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(string)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Json));
+      Assert.That(rows[0][0], Is.EqualTo("{\"id\": 1, \"name\": \"John\"}"));
+      Assert.That(rows[1][0], Is.EqualTo("[\"a\", 1, \"b\", 2]"));
     }
 
     [Test]
@@ -229,9 +229,9 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(string), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.String, r.Columns[0].Type);
-      Assert.AreEqual("表", rows[0][0]);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(string)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.String));
+      Assert.That(rows[0][0], Is.EqualTo("表"));
     }
 
     [Test]
@@ -244,11 +244,11 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(UInt32), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.Int, r.Columns[0].Type);
-      Assert.False(r.Columns[0].IsNumberSigned);
-      Assert.True(r.Columns[0].IsPadded);
-      Assert.AreEqual("0000000100", rows[0][0].ToString());
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(UInt32)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Int));
+      Assert.That(r.Columns[0].IsNumberSigned, Is.False);
+      Assert.That(r.Columns[0].IsPadded);
+      Assert.That(rows[0][0].ToString(), Is.EqualTo("0000000100"));
     }
 
     [Test]
@@ -260,9 +260,9 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(string), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.String, r.Columns[0].Type);
-      Assert.AreEqual("John", rows[0][0]);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(string)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.String));
+      Assert.That(rows[0][0], Is.EqualTo("John"));
     }
 
     [Test]
@@ -274,9 +274,9 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(string), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.String, r.Columns[0].Type);
-      Assert.AreEqual("Mark", rows[0][0]);
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(string)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.String));
+      Assert.That(rows[0][0], Is.EqualTo("Mark"));
     }
 
     [Test]
@@ -288,10 +288,9 @@ namespace MySqlX.Data.Tests.RelationalTests
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema("test").GetTable("test").Select());
       var rows = r.FetchAll();
       Assert.That(r.Columns, Has.One.Items);
-      Assert.AreEqual(typeof(byte[]), r.Columns[0].ClrType);
-      Assert.AreEqual(ColumnType.Geometry, r.Columns[0].Type);
-      Assert.AreEqual("0000000001020000000400000000000000000000000000000000000000000000000000244000000000000024400000000000003440000000000000394000000000000049400000000000004E40",
-        BitConverter.ToString((byte[])rows[0][0]).Replace("-", ""));
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(byte[])));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Geometry));
+      Assert.That(BitConverter.ToString((byte[])rows[0][0]).Replace("-", ""), Is.EqualTo("0000000001020000000400000000000000000000000000000000000000000000000000244000000000000024400000000000003440000000000000394000000000000049400000000000004E40"));
     }
 
     [Test]
@@ -302,13 +301,13 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = ExecuteSelectStatement(GetSession().GetSchema(schemaName).GetTable("test").Select());
       var rows = r.FetchAll();
-      Assert.AreEqual(2, r.Columns.Count);
-      Assert.AreEqual(typeof(byte[]), r.Columns[0].ClrType);
-      Assert.AreEqual(typeof(string), r.Columns[1].ClrType);
-      Assert.AreEqual(ColumnType.Bytes, r.Columns[0].Type);
-      Assert.AreEqual(ColumnType.String, r.Columns[1].Type);
-      Assert.AreEqual(CharSetMap.GetEncoding(r.Columns[0].CharacterSetName).GetBytes("Car"), rows[0][0]);
-      Assert.AreEqual("Plane", rows[0][1]);
+      Assert.That(r.Columns.Count, Is.EqualTo(2));
+      Assert.That(r.Columns[0].ClrType, Is.EqualTo(typeof(byte[])));
+      Assert.That(r.Columns[1].ClrType, Is.EqualTo(typeof(string)));
+      Assert.That(r.Columns[0].Type, Is.EqualTo(ColumnType.Bytes));
+      Assert.That(r.Columns[1].Type, Is.EqualTo(ColumnType.String));
+      Assert.That(rows[0][0], Is.EqualTo(CharSetMap.GetEncoding(r.Columns[0].CharacterSetName).GetBytes("Car")));
+      Assert.That(rows[0][1], Is.EqualTo("Plane"));
     }
   }
 }

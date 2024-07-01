@@ -57,9 +57,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Clear();
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual(1, dt.Rows[0]["id"]);
-      Assert.AreEqual((decimal)23.4, Convert.ToDecimal(dt.Rows[0]["dec1"]));
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["id"], Is.EqualTo(1));
+      Assert.That(Convert.ToDecimal(dt.Rows[0]["dec1"]), Is.EqualTo((decimal)23.4));
       cb.Dispose();
     }
 
@@ -100,7 +100,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader dr = cmd.ExecuteReader())
       {
         dr.Read();
-        Assert.AreEqual(20, dr.GetUInt16(0));
+        Assert.That(dr.GetUInt16(0), Is.EqualTo(20));
       }
     }
 
@@ -118,11 +118,11 @@ namespace MySql.Data.MySqlClient.Tests
       {
         DataTable dt = reader.GetSchemaTable();
         DataRow columnDefinition = dt.Rows[0];
-        Assert.AreEqual(35, columnDefinition[SchemaTableColumn.NumericPrecision]);
+        Assert.That(columnDefinition[SchemaTableColumn.NumericPrecision], Is.EqualTo(35));
         columnDefinition = dt.Rows[1];
-        Assert.AreEqual(36, columnDefinition[SchemaTableColumn.NumericPrecision]);
+        Assert.That(columnDefinition[SchemaTableColumn.NumericPrecision], Is.EqualTo(36));
         columnDefinition = dt.Rows[2];
-        Assert.AreEqual(36, columnDefinition[SchemaTableColumn.NumericPrecision]);
+        Assert.That(columnDefinition[SchemaTableColumn.NumericPrecision], Is.EqualTo(36));
       }
     }
   }

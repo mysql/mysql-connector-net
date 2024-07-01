@@ -63,7 +63,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void CanUseSkipAndTake()
     {
-      Assert.False(context.Database.EnsureCreated());
+      Assert.That(!context.Database.EnsureCreated());
       var people
               = context.Set<Guest>()
                   .Skip(2)
@@ -76,56 +76,56 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void CanIncludeAddressData()
     {
-      Assert.False(context.Database.EnsureCreated());
+      Assert.That(!context.Database.EnsureCreated());
       var people
               = context.Set<Guest>()
                   .Include(p => p.Address)
                   .ToList();
 
-      Assert.AreEqual(4, people.Count);
-      Assert.AreEqual(3, people.Count(p => p.Address != null));
+      Assert.That(people.Count, Is.EqualTo(4));
+      Assert.That(people.Count(p => p.Address != null), Is.EqualTo(3));
     }
 
     [Test]
     public void CanIncludeGuestData()
     {
-      Assert.False(context.Database.EnsureCreated());
+      Assert.That(!context.Database.EnsureCreated());
       var ad
               = context.Set<Address>()
                   .Include(p => p.Guest)
                   .ToList();
 
-      Assert.AreEqual(3, ad.Count);
+      Assert.That(ad.Count, Is.EqualTo(3));
       var rows = ad.Select(g => g.Guest).Where(a => a != null).ToList();
-      Assert.AreEqual(3, rows.Count());
+      Assert.That(rows.Count(), Is.EqualTo(3));
     }
 
 
     [Test]
     public void CanIncludeGuestShadowProperty()
     {
-      Assert.False(context.Database.EnsureCreated());
+      Assert.That(!context.Database.EnsureCreated());
       var addressRelative
             = context.Set<AddressRelative>()
                 .Include(a => a.Relative)
                 .ToList();
 
-      Assert.AreEqual(3, addressRelative.Count);
-      Assert.True(addressRelative.All(p => p.Relative != null));
+      Assert.That(addressRelative.Count, Is.EqualTo(3));
+      Assert.That(addressRelative.All(p => p.Relative != null));
     }
 
     [Test]
     public void MixClientServerEvaluation()
     {
-      Assert.False(context.Database.EnsureCreated());
+      Assert.That(!context.Database.EnsureCreated());
       var list
             = context.Set<Address>()
             .OrderByDescending(a => a.City)
             .Select(a => new { Id = a.IdAddress, City = SetCity(a.City!) })
             .ToList();
 
-      Assert.AreEqual(3, list.Count);
-      StringAssert.EndsWith(" city", list.First().City);
+      Assert.That(list.Count, Is.EqualTo(3));
+      Assert.That(list.First().City, Does.EndWith(" city"));
     }
 
     private static string SetCity(string name)
@@ -136,16 +136,16 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void RawSqlQueries()
     {
-      Assert.False(context.Database.EnsureCreated());
+      Assert.That(!context.Database.EnsureCreated());
       var guests = context.Set<Guest>().FromSqlRaw("SELECT * FROM Guests")
         .ToList();
-      Assert.AreEqual(4, guests.Count);
+      Assert.That(guests.Count, Is.EqualTo(4));
     }
 
     [Test]
     public void UsingTransactions()
     {
-      Assert.False(context.Database.EnsureCreated());
+      Assert.That(!context.Database.EnsureCreated());
       using (var transaction = context.Database.BeginTransaction())
       {
         context.Set<Guest>().Add(new Guest()
@@ -154,15 +154,15 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         });
         context.SaveChanges();
       }
-      Assert.AreEqual(4, context.Set<Guest>().Count());
+      Assert.That(context.Set<Guest>().Count(), Is.EqualTo(4));
     }
 
     [Test]
     public void DbSetFind()
     {
       var address = context.Set<Address>().Find(1);
-      Assert.NotNull(address);
-      Assert.AreEqual("Michigan", address!.City);
+      Assert.That(address, Is.Not.Null);
+      Assert.That(address!.City, Is.EqualTo("Michigan"));
     }
 
 
@@ -199,10 +199,10 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           }
           //Adding "COLLATION" to the string validation at table creation (this happens since MySql 8.0.5 Server)
           if (jsonTableDesc.Contains("COLLATE=utf8mb4_0900_ai_ci"))
-            StringAssert.AreEqualIgnoringCase($"CREATE TABLE `jsonentity` (\n  `Id` smallint{smallintWidth} NOT NULL AUTO_INCREMENT," +
-            $"\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET={charset} COLLATE=utf8mb4_0900_ai_ci", jsonTableDesc);
-          else StringAssert.AreEqualIgnoringCase($"CREATE TABLE `jsonentity` (\n  `Id` smallint{smallintWidth} NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) " +
-            $"ENGINE=InnoDB DEFAULT CHARSET={charset}", jsonTableDesc);
+            Assert.That(jsonTableDesc, Is.EqualTo($"CREATE TABLE `jsonentity` (\n  `Id` smallint{smallintWidth} NOT NULL AUTO_INCREMENT," +
+            $"\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB DEFAULT CHARSET={charset} COLLATE=utf8mb4_0900_ai_ci").IgnoreCase);
+          else Assert.That(jsonTableDesc, Is.EqualTo($"CREATE TABLE `jsonentity` (\n  `Id` smallint{smallintWidth} NOT NULL AUTO_INCREMENT,\n  `jsoncol` json DEFAULT NULL,\n  PRIMARY KEY (`Id`)\n) " +
+            $"ENGINE=InnoDB DEFAULT CHARSET={charset}").IgnoreCase);
         }
 
         context.JsonEntity.Add(new JsonData()
@@ -211,7 +211,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         });
         context.SaveChanges();
         JsonData json = context.JsonEntity.First();
-        Assert.AreEqual("{ \"name\": \"Ronald\", \"city\": \"Austin\" }", json.jsoncol);
+        Assert.That(json.jsoncol, Is.EqualTo("{ \"name\": \"Ronald\", \"city\": \"Austin\" }"));
       }
     }
 
@@ -234,7 +234,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         });
 
         var ex = Assert.Throws<DbUpdateException>(() => context.SaveChanges())?.GetBaseException();
-        Assert.AreEqual(3140, ((MySqlException)ex!).Number);
+        Assert.That(((MySqlException)ex!).Number, Is.EqualTo(3140));
       }
     }
 
@@ -266,8 +266,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Triangle.AddRange(data);
         context.Triangle.Add(data[1]);
         context.SaveChanges();
-        Assert.AreEqual(75, data[0].Area);
-        Assert.AreEqual(50, data[1].Area);
+        Assert.That(data[0].Area, Is.EqualTo(75));
+        Assert.That(data[1].Area, Is.EqualTo(50));
       }
     }
 
@@ -278,12 +278,12 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       {
         context.PopulateData();
         var america = context.Continents.Single(c => c.Code == "AM");
-        Assert.Null(america.Countries);
+        Assert.That(america.Countries, Is.Null);
         context.Entry(america)
           .Collection(c => c.Countries!)
           .Load();
-        Assert.AreEqual(5, america.Countries!.Count);
-        Assert.AreEqual("United States", america.Countries.Single(c => c.Code == "US").Name);
+        Assert.That(america.Countries!.Count, Is.EqualTo(5));
+        Assert.That(america.Countries.Single(c => c.Code == "US").Name, Is.EqualTo("United States"));
       }
     }
 
@@ -294,7 +294,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       {
         context.PopulateData();
         var asia = context.Continents.Single(c => c.Code == "AS");
-        Assert.Null(asia.Countries);
+        Assert.That(asia.Countries, Is.Null);
         var list = context.Entry(asia)
           .Collection(c => c.Countries!)
           .Query()

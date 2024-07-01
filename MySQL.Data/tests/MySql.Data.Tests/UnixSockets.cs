@@ -51,7 +51,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection conn = new MySqlConnection(unixConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.State);
+        Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
       }
     }
   }

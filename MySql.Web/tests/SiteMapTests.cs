@@ -80,39 +80,39 @@ namespace MySql.Web.Tests
       SimpleWorkerRequest req = new SimpleWorkerRequest("/dummy", Environment.CurrentDirectory, "default.aspx", null, new StringWriter());
       HttpContext.Current = new HttpContext(req);
 
-      Assert.AreEqual(node.Title, "Evan's Gambit");
+      Assert.That("Evan's Gambit", Is.EqualTo(node.Title));
       SiteMapNode nodep = prov.GetParentNode(node);
-      Assert.AreEqual(node.Description, "The Funny Italian Game");
-      Assert.False(node.HasChildNodes);
+      Assert.That("The Funny Italian Game", Is.EqualTo(node.Description));
+      Assert.That(!node.HasChildNodes);
       SiteMapNode node2 = node.NextSibling;
-      Assert.IsNotNull(node2);
-      Assert.AreEqual(node2.Title, "Sicilian Defense");
-      Assert.AreEqual(node2.Description, "Sharp Double Edge Defense");
+      Assert.That(node2, Is.Not.Null);
+      Assert.That("Sicilian Defense", Is.EqualTo(node2.Title));
+      Assert.That("Sharp Double Edge Defense", Is.EqualTo(node2.Description));
 
       node = node.PreviousSibling;
-      Assert.IsNotNull(node);
-      Assert.AreEqual(node.Title, "Ruy Lopez");
-      Assert.AreEqual(node.Description, "The spanish opening");
-      Assert.False(node.HasChildNodes);
-      Assert.IsNotNull(node.NextSibling);
+      Assert.That(node, Is.Not.Null);
+      Assert.That("Ruy Lopez", Is.EqualTo(node.Title));
+      Assert.That("The spanish opening", Is.EqualTo(node.Description));
+      Assert.That(!node.HasChildNodes);
+      Assert.That(node.NextSibling, Is.Not.Null);
 
       node = node.ParentNode;
-      Assert.AreEqual(node.Title, "Chess Openings");
+      Assert.That("Chess Openings", Is.EqualTo(node.Title));
 
       node = node.ParentNode;
-      Assert.AreEqual(node.Title, "Index");
+      Assert.That("Index", Is.EqualTo(node.Title));
 
       node = node.ParentNode;
-      Assert.IsNull(node);
+      Assert.That(node, Is.Null);
 
       node = prov.RootNode;
-      Assert.AreEqual(node.Title, "Index");
+      Assert.That("Index", Is.EqualTo(node.Title));
       string[] childData = new string[] { "Chess Openings", "Middle Game", "Endings" };
 
       for (int i = 0; i < node.ChildNodes.Count; i++)
       {
         SiteMapNode child = node.ChildNodes[i];
-        Assert.AreEqual(child.Title, childData[i]);
+        Assert.That(childData[i], Is.EqualTo(child.Title));
       }
     }
   }

@@ -54,9 +54,9 @@ namespace MySqlX.Data.Tests.RelationalTests
       using (var ss = MySQLX.GetSession(ConnectionString))
       {
         SqlResult r = ss.SQL("SELECT * FROM test.test").Execute();
-        Assert.True(r.Next());
-        Assert.AreEqual(1, r[0]);
-        Assert.False(r.NextResult());
+        Assert.That(r.Next());
+        Assert.That(r[0], Is.EqualTo(1));
+        Assert.That(r.NextResult(), Is.False);
       }
 
     }
@@ -68,13 +68,13 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       Session session = GetSession(true);
       var result = ExecuteSQLStatement(session.SQL("CALL my_proc()"));
-      Assert.True(result.HasData);
+      Assert.That(result.HasData);
       var row = result.FetchOne();
-      Assert.NotNull(row);
-      Assert.AreEqual((sbyte)5, row[0]);
-      Assert.False(result.Next());
-      Assert.Null(result.FetchOne());
-      Assert.False(result.NextResult());
+      Assert.That(row, Is.Not.Null);
+      Assert.That(row[0], Is.EqualTo((sbyte)5));
+      Assert.That(result.Next(), Is.False);
+      Assert.That(result.FetchOne(), Is.Null);
+      Assert.That(result.NextResult(), Is.False);
     }
 
     [Test]
@@ -85,28 +85,28 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       Session session = GetSession(true);
       var result = ExecuteSQLStatement(session.SQL("CALL my_proc()"));
-      Assert.True(result.HasData);
+      Assert.That(result.HasData);
       var row = result.FetchOne();
-      Assert.NotNull(row);
-      Assert.AreEqual((sbyte)5, row[0]);
-      Assert.False(result.Next());
-      Assert.Null(result.FetchOne());
+      Assert.That(row, Is.Not.Null);
+      Assert.That(row[0], Is.EqualTo((sbyte)5));
+      Assert.That(result.Next(), Is.False);
+      Assert.That(result.FetchOne(), Is.Null);
 
-      Assert.True(result.NextResult());
+      Assert.That(result.NextResult());
       row = result.FetchOne();
-      Assert.NotNull(row);
-      Assert.AreEqual("A", row[0]);
-      Assert.False(result.Next());
-      Assert.Null(result.FetchOne());
+      Assert.That(row, Is.Not.Null);
+      Assert.That(row[0], Is.EqualTo("A"));
+      Assert.That(result.Next(), Is.False);
+      Assert.That(result.FetchOne(), Is.Null);
 
-      Assert.True(result.NextResult());
+      Assert.That(result.NextResult());
       row = result.FetchOne();
-      Assert.NotNull(row);
-      Assert.AreEqual((sbyte)10, row[0]);
-      Assert.False(result.Next());
-      Assert.Null(result.FetchOne());
+      Assert.That(row, Is.Not.Null);
+      Assert.That(row[0], Is.EqualTo((sbyte)10));
+      Assert.That(result.Next(), Is.False);
+      Assert.That(result.FetchOne(), Is.Null);
 
-      Assert.False(result.NextResult());
+      Assert.That(result.NextResult(), Is.False);
     }
 
     [Test]
@@ -120,10 +120,10 @@ namespace MySqlX.Data.Tests.RelationalTests
           .Bind(++i, ((char)('@' + i)).ToString()));
 
       SqlResult result = ExecuteSQLStatement(GetSession(true).SQL("select * from test.test where id=?").Bind(5));
-      Assert.True(result.Next());
+      Assert.That(result.Next());
       Assert.That(result.Rows, Has.One.Items);
-      Assert.AreEqual(5, result[0]);
-      Assert.AreEqual("E", result[1]);
+      Assert.That(result[0], Is.EqualTo(5));
+      Assert.That(result[1], Is.EqualTo("E"));
     }
 
     [Test]
@@ -134,12 +134,12 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       var session = GetSession(true);
       var result = ExecuteSQLStatement(session.SQL("INSERT INTO test.test VALUES(1, ?), (2, 'B');").Bind(null));
-      Assert.AreEqual(2ul, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(2ul));
 
       var sqlResult = ExecuteSQLStatement(session.SQL("SELECT * FROM test.test WHERE letter is ?").Bind(null)).FetchAll();
       Assert.That(sqlResult, Has.One.Items);
-      Assert.AreEqual(1, sqlResult[0][0]);
-      Assert.Null(sqlResult[0][1]);
+      Assert.That(sqlResult[0][0], Is.EqualTo(1));
+      Assert.That(sqlResult[0][1], Is.Null);
     }
 
     [Test]
@@ -148,7 +148,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       var session = GetSession(true);
       var stmt = ExecuteSQLStatement(session.SQL("SELECT 1 AS UNO"));
       var result = stmt.FetchAll();
-      Assert.AreEqual("UNO", stmt.Columns[0].ColumnLabel);
+      Assert.That(stmt.Columns[0].ColumnLabel, Is.EqualTo("UNO"));
     }
 
     #region WL14389
@@ -163,7 +163,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       var sqlRes = session.SQL("call newproc(?, ?)").Bind(10).Bind("X").Execute();
       var ex = Assert.Throws<MySqlException>(() => session.SQL("drop procedure if exists newproc ").Execute());
-      StringAssert.AreEqualIgnoringCase("Table 'test.notab' doesn't exist", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Table 'test.notab' doesn't exist").IgnoreCase);
     }
 
     [Test, Description("Stored Procedure Table Positive using Session")]
@@ -199,13 +199,13 @@ namespace MySqlX.Data.Tests.RelationalTests
             do
             {
               if (row[0] != null)
-                Assert.IsNotNull(row[0].ToString());
+                Assert.That(row[0].ToString(), Is.Not.Null);
 
               if (row[1] != null)
-                Assert.IsNotNull(row[1].ToString());
+                Assert.That(row[1].ToString(), Is.Not.Null);
 
               if (row[2] != null)
-                Assert.IsNotNull(row[2].ToString());
+                Assert.That(row[2].ToString(), Is.Not.Null);
 
             } while (res.Next()); while (res.NextResult()) ;
           }
@@ -293,13 +293,13 @@ namespace MySqlX.Data.Tests.RelationalTests
             do
             {
               if (row[0] != null)
-                Assert.IsNotNull(row[0].ToString());
+                Assert.That(row[0].ToString(), Is.Not.Null);
 
               if (row[1] != null)
-                Assert.IsNotNull(row[1].ToString());
+                Assert.That(row[1].ToString(), Is.Not.Null);
 
               if (row[2] != null)
-                Assert.IsNotNull(row[2].ToString());
+                Assert.That(row[2].ToString(), Is.Not.Null);
 
             } while (res.Next()); while (res.NextResult()) ;
           }
@@ -382,7 +382,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         if (res.HasData)
         {
           var row = res.FetchOne();
-          Assert.IsNull(row);
+          Assert.That(row, Is.Null);
         }
         res.Next();
         res.NextResult();
@@ -417,7 +417,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -440,7 +440,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -462,7 +462,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -484,7 +484,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -506,7 +506,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -528,7 +528,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -550,7 +550,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -572,7 +572,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
     }
@@ -605,7 +605,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -627,7 +627,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -649,7 +649,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -671,7 +671,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -693,7 +693,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
     }
@@ -726,7 +726,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -748,7 +748,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -770,7 +770,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -792,7 +792,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -814,7 +814,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -836,7 +836,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
 
@@ -858,7 +858,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         myResult = sessionTest.SQL("SELECT @my_var").Execute();
         // Gets the row and prints the first column
         row = myResult.FetchOne();
-        Assert.IsNotNull(row[0].ToString());
+        Assert.That(row[0].ToString(), Is.Not.Null);
         sessionTest.SQL("DROP DATABASE DBName").Execute();
       }
     }
@@ -941,15 +941,15 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = session.GetSchema("test").GetTable("test").Select("c1").Execute();
       var rows = r.FetchAll();
-      Assert.AreEqual(1, r.Columns.Count, "Matching");
-      Assert.AreEqual(typeof(float).ToString(), r.Columns[0].ClrType.ToString(), "Matching");
-      Assert.AreEqual(MySqlDbType.Float.ToString(), r.Columns[0].Type.ToString(), "Matching");
-      Assert.AreEqual(14, (int)r.Columns[0].Length, "Matching");
-      Assert.AreEqual(8, (int)r.Columns[0].FractionalDigits, "Matching");
-      Assert.AreEqual(3, rows.Count, "Matching");
-      Assert.AreEqual(22.7f, (float)rows[0][0], "Matching");
-      Assert.AreEqual(-100000.38984f, (float)rows[1][0], "Matching");
-      Assert.AreEqual(0f, (float)rows[2][0], "Matching");
+      Assert.That(r.Columns.Count, Is.EqualTo(1), "Matching");
+      Assert.That(r.Columns[0].ClrType.ToString(), Is.EqualTo(typeof(float).ToString()), "Matching");
+      Assert.That(r.Columns[0].Type.ToString(), Is.EqualTo(MySqlDbType.Float.ToString()), "Matching");
+      Assert.That((int)r.Columns[0].Length, Is.EqualTo(14), "Matching");
+      Assert.That((int)r.Columns[0].FractionalDigits, Is.EqualTo(8), "Matching");
+      Assert.That(rows.Count, Is.EqualTo(3), "Matching");
+      Assert.That((float)rows[0][0], Is.EqualTo(22.7f), "Matching");
+      Assert.That((float)rows[1][0], Is.EqualTo(-100000.38984f), "Matching");
+      Assert.That((float)rows[2][0], Is.EqualTo(0f), "Matching");
     }
 
     [Test, Description("Test MySQLX plugin MySQL Date Time Bug")]
@@ -961,7 +961,7 @@ namespace MySqlX.Data.Tests.RelationalTests
 
       RowResult r = session.GetSchema("test").GetTable("test1212").Select("dt").Execute();
       var rows = r.FetchAll();
-      Assert.AreEqual(1, r.Columns.Count, "Matching Coulumn Count");
+      Assert.That(r.Columns.Count, Is.EqualTo(1), "Matching Coulumn Count");
 
     }
 
@@ -974,7 +974,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL(@"INSERT INTO test.test VALUES(100000,' { ""name"" : ""bob"",""Date"": ""2015-10-09"",""Time"": ""12:18:29.000000"",""DateTimeOfRegistration"": ""2015-10-09 12:18:29.000000"",""age"":12} ')");
       RowResult r = session.GetSchema("test").GetTable("test").Select("jsoncolumn").Execute();
       var rows = r.FetchAll();
-      Assert.AreEqual(1, r.Columns.Count, "Matching");
+      Assert.That(r.Columns.Count, Is.EqualTo(1), "Matching");
     }
 
     [Test, Description("Test MySQLX plugin JSON Variant")]
@@ -988,7 +988,7 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL(@"INSERT INTO test VALUES (2, '[""a"", {""b"": [true, false]}, [10, 20]]')");
       ExecuteSQL(@"INSERT INTO test VALUES (3, '{""id"":1,""name"":""test""}')");
       var r = ExecuteSQL(@"SELECT JSON_EXTRACT('{""id"": 1, ""name"": ""test""}','$.name')").FetchOne();
-      Assert.AreEqual("\"test\"", r[0]);
+      Assert.That(r[0], Is.EqualTo("\"test\""));
     }
 
     [Test, Description("Test MySQLX plugin big int as PK")]
@@ -1000,9 +1000,9 @@ namespace MySqlX.Data.Tests.RelationalTests
       ExecuteSQL("DROP TABLE IF EXISTS Test");
       ExecuteSQL("CREATE TABLE test (Id bigint NOT NULL PRIMARY KEY, jsoncolumn JSON)");
       var res = ExecuteSQL("INSERT INTO test VALUES (934157136952, '[1]')");
-      Assert.AreEqual(1, res.AffectedItemsCount);
+      Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
       res = ExecuteSQL(@"INSERT INTO test VALUES (9223372036854775807, '[""a"", {""b"": [true, false]}, [10, 20]]')");
-      Assert.AreEqual(1, res.AffectedItemsCount);
+      Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
       Assert.Throws<MySqlException>(() => ExecuteSQL("INSERT INTO test VALUES ('str1', '[1]')"));
     }
 
@@ -1017,9 +1017,9 @@ namespace MySqlX.Data.Tests.RelationalTests
         ss.SQL("DROP TABLE IF EXISTS test.test").Execute();
         ss.SQL("CREATE TABLE test.test (Id tinyint NOT NULL PRIMARY KEY, jsoncolumn JSON)").Execute();
         var res = ss.SQL("INSERT INTO test.test VALUES (1, '[1]')").Execute();
-        Assert.AreEqual(1, res.AffectedItemsCount);
+        Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
         res = ss.SQL(@"INSERT INTO test.test VALUES (2, '[""a"", {""b"": [true, false]}, [10, 20]]')").Execute();
-        Assert.AreEqual(1, res.AffectedItemsCount);
+        Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
         Assert.Throws<MySqlException>(() => ss.SQL("INSERT INTO test.test VALUES ('str1', '[1]')").Execute());
       }
     }
@@ -1035,9 +1035,9 @@ namespace MySqlX.Data.Tests.RelationalTests
         ss.SQL("DROP TABLE IF EXISTS test.test").Execute();
         ss.SQL("CREATE TABLE test.test (Id smallint NOT NULL PRIMARY KEY, jsoncolumn JSON)").Execute();
         var res = ss.SQL("INSERT INTO test.test VALUES (99, '[1]')").Execute();
-        Assert.AreEqual(1, res.AffectedItemsCount);
+        Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
         res = ss.SQL(@"INSERT INTO test.test VALUES (1, '[""a"", {""b"": [true, false]}, [10, 20]]')").Execute();
-        Assert.AreEqual(1, res.AffectedItemsCount);
+        Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
         Assert.Throws<MySqlException>(() => ss.SQL("INSERT INTO test.test VALUES ('str1', '[1]')").Execute());
         ss.SQL("DROP TABLE IF EXISTS test.test");
       }
@@ -1057,7 +1057,7 @@ namespace MySqlX.Data.Tests.RelationalTests
         while (result.Next())
         {
           Assert.That(result.Rows, Has.Exactly(3).Items);
-          Assert.True(expecteddataValue.Contains(result[0].ToString()));
+          Assert.That(expecteddataValue.Contains(result[0].ToString()));
         }
       }
     }

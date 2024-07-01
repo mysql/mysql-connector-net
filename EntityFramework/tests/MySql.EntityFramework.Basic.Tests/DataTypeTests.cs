@@ -57,7 +57,7 @@ namespace MySql.Data.EntityFramework.Tests
         ctx.SaveChanges();
 
         Child d = ctx.Children.Where(x => x.ChildId == "ABC").Single();
-        Assert.AreEqual(birth, d.BirthTime);
+        Assert.That(d.BirthTime, Is.EqualTo(birth));
       }
     }
 
@@ -111,7 +111,7 @@ namespace MySql.Data.EntityFramework.Tests
         ctx.SaveChanges();
 
         p = ctx.Products.First();
-        Assert.AreEqual(now, p.CreatedDate);
+        Assert.That(p.CreatedDate, Is.EqualTo(now));
       }
     }
 
@@ -135,7 +135,7 @@ namespace MySql.Data.EntityFramework.Tests
         ctx.SaveChanges();
 
         Child d = ctx.Children.Where(x => x.ChildId == "GUID").Single();
-        Assert.AreEqual(g, d.Label);
+        Assert.That(d.Label, Is.EqualTo(g));
 
       }
     }
@@ -156,7 +156,7 @@ namespace MySql.Data.EntityFramework.Tests
         IsNullable = true
       };
 
-      Assert.AreEqual(DbType.Decimal, newDecimalParameter.DbType);
+      Assert.That(newDecimalParameter.DbType, Is.EqualTo(DbType.Decimal));
     }
   }
 }

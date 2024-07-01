@@ -49,11 +49,11 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlTransaction txn = Connection.BeginTransaction();
       MySqlConnection c = txn.Connection;
-      Assert.AreEqual(Connection, c);
+      Assert.That(c, Is.EqualTo(Connection));
       MySqlCommand cmd = new MySqlCommand("SELECT name, name2 FROM Test WHERE key2='P'",
         Connection, txn);
       MySqlTransaction t2 = cmd.Transaction;
-      Assert.AreEqual(txn, t2);
+      Assert.That(t2, Is.EqualTo(txn));
       MySqlDataReader reader = null;
       try
       {
@@ -63,7 +63,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (Exception ex)
       {
-        Assert.False(ex.Message != string.Empty, ex.Message);
+        Assert.That(ex.Message != string.Empty, Is.False, ex.Message);
         txn.Rollback();
       }
       finally
@@ -81,7 +81,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlTransaction t1 = Connection.BeginTransaction();
 
       Exception ex = Assert.Throws<InvalidOperationException>(() => { Connection.BeginTransaction(); });
-      Assert.AreEqual("Nested transactions are not supported.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Nested transactions are not supported."));
 
       t1.Rollback();
     }
@@ -99,7 +99,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (Exception ex)
       {
-        Assert.AreEqual("The connection is not open.", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("The connection is not open."));
       }
     }
 
@@ -128,12 +128,12 @@ namespace MySql.Data.MySqlClient.Tests
         //try
         //{
         Exception ex = Assert.Throws<InvalidOperationException>(() => trans.Commit());
-        Assert.AreEqual("Connection must be valid and open to commit transaction", ex.Message);
+        Assert.That(ex.Message, Is.EqualTo("Connection must be valid and open to commit transaction"));
         //}
         //catch (Exception)
         //{
         //}
-        Assert.AreEqual(ConnectionState.Closed, c.State);
+        Assert.That(c.State, Is.EqualTo(ConnectionState.Closed));
         c.Close();    // this should work even though we are closed
       }
     }
@@ -155,7 +155,7 @@ namespace MySql.Data.MySqlClient.Tests
       Type t = txn.GetType();
       FieldInfo fi = t.GetField("open", BindingFlags.Instance | BindingFlags.NonPublic);
       bool isOpen = (bool)fi.GetValue(txn);
-      Assert.False(isOpen);
+      Assert.That(isOpen, Is.False);
     }
 
     [Test]
@@ -197,7 +197,7 @@ namespace MySql.Data.MySqlClient.Tests
         myTransaction.Rollback(); // to rollback actions
         cmdtoexec.CommandText = "select count(*) from transactiontable";
         var count = cmdtoexec.ExecuteScalar();
-        Assert.AreEqual(0,count);
+        Assert.That(count, Is.EqualTo(0));
       }
     }
 

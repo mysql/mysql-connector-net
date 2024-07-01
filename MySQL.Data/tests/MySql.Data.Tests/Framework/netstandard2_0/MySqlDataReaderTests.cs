@@ -50,9 +50,9 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
       {
         DataTable table = reader.GetSchemaTable();
-        Assert.AreEqual(5, table.Rows.Count);
-        Assert.AreEqual(22, table.Columns.Count);
-        Assert.False(reader.Read());
+        Assert.That(table.Rows.Count, Is.EqualTo(5));
+        Assert.That(table.Columns.Count, Is.EqualTo(22));
+        Assert.That(!reader.Read());
       }
     }
 

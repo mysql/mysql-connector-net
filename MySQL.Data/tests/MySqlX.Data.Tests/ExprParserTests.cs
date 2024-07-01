@@ -98,12 +98,12 @@ namespace MySqlX.Data.Tests
       }
       Expr expr = new ExprParser(input).Parse();
       string canonicalized = ExprUnparser.ExprToString(expr);
-      Assert.AreEqual(expected, canonicalized);
+      Assert.That(canonicalized, Is.EqualTo(expected));
 
       // System.err.println("Canonicalized: " + canonicalized);
       Expr expr2 = new ExprParser(canonicalized).Parse();
       string recanonicalized = ExprUnparser.ExprToString(expr2);
-      Assert.AreEqual(expected, recanonicalized);
+      Assert.That(recanonicalized, Is.EqualTo(expected));
     }
 
     /**
@@ -210,104 +210,104 @@ namespace MySqlX.Data.Tests
     public void TestExprTree()
     {
       Expr expr = new ExprParser("a like 'xyz' and $.count > 10 + 1").Parse();
-      Assert.AreEqual(Expr.Types.Type.Operator, expr.Type);
-      Assert.AreEqual("&&", expr.Operator.Name);
-      Assert.AreEqual(2, expr.Operator.Param.Count);
+      Assert.That(expr.Type, Is.EqualTo(Expr.Types.Type.Operator));
+      Assert.That(expr.Operator.Name, Is.EqualTo("&&"));
+      Assert.That(expr.Operator.Param.Count, Is.EqualTo(2));
 
       // check left side of AND: (a like 'xyz')
       Expr andLeft = expr.Operator.Param[0];
-      Assert.AreEqual(Expr.Types.Type.Operator, andLeft.Type);
-      Assert.AreEqual("like", andLeft.Operator.Name);
-      Assert.AreEqual(2, andLeft.Operator.Param.Count);
+      Assert.That(andLeft.Type, Is.EqualTo(Expr.Types.Type.Operator));
+      Assert.That(andLeft.Operator.Name, Is.EqualTo("like"));
+      Assert.That(andLeft.Operator.Param.Count, Is.EqualTo(2));
       Expr identA = andLeft.Operator.Param[0];
-      Assert.AreEqual(Expr.Types.Type.Ident, identA.Type);
-      Assert.AreEqual("a", identA.Identifier.Name);
+      Assert.That(identA.Type, Is.EqualTo(Expr.Types.Type.Ident));
+      Assert.That(identA.Identifier.Name, Is.EqualTo("a"));
       Expr literalXyz = andLeft.Operator.Param[1];
-      Assert.AreEqual(Expr.Types.Type.Literal, literalXyz.Type);
+      Assert.That(literalXyz.Type, Is.EqualTo(Expr.Types.Type.Literal));
       Scalar scalarXyz = literalXyz.Literal;
-      Assert.AreEqual(Scalar.Types.Type.VString, scalarXyz.Type);
-      Assert.AreEqual("xyz", scalarXyz.VString.Value.ToStringUtf8());
+      Assert.That(scalarXyz.Type, Is.EqualTo(Scalar.Types.Type.VString));
+      Assert.That(scalarXyz.VString.Value.ToStringUtf8(), Is.EqualTo("xyz"));
 
       // check right side of AND: ($.count > 10 + 1)
       Expr andRight = expr.Operator.Param[1];
-      Assert.AreEqual(Expr.Types.Type.Operator, andRight.Type);
-      Assert.AreEqual(">", andRight.Operator.Name);
-      Assert.AreEqual(2, andRight.Operator.Param.Count);
+      Assert.That(andRight.Type, Is.EqualTo(Expr.Types.Type.Operator));
+      Assert.That(andRight.Operator.Name, Is.EqualTo(">"));
+      Assert.That(andRight.Operator.Param.Count, Is.EqualTo(2));
       Expr countDocPath = andRight.Operator.Param[0];
-      Assert.AreEqual(Expr.Types.Type.Ident, countDocPath.Type);
+      Assert.That(countDocPath.Type, Is.EqualTo(Expr.Types.Type.Ident));
       ColumnIdentifier countId = countDocPath.Identifier;
-      Assert.AreEqual(string.Empty, countId.Name);
-      Assert.AreEqual(string.Empty, countId.TableName);
-      Assert.AreEqual(string.Empty, countId.SchemaName);
+      Assert.That(countId.Name, Is.EqualTo(string.Empty));
+      Assert.That(countId.TableName, Is.EqualTo(string.Empty));
+      Assert.That(countId.SchemaName, Is.EqualTo(string.Empty));
       Assert.That(countId.DocumentPath.Count==1);
-      Assert.AreEqual(DocumentPathItem.Types.Type.Member, countId.DocumentPath[0].Type);
-      Assert.AreEqual("count", countId.DocumentPath[0].Value);
+      Assert.That(countId.DocumentPath[0].Type, Is.EqualTo(DocumentPathItem.Types.Type.Member));
+      Assert.That(countId.DocumentPath[0].Value, Is.EqualTo("count"));
       Expr addition = andRight.Operator.Param[1];
       Scalar addLeftScalar = addition.Operator.Param[0].Literal;
       Scalar addRightScalar = addition.Operator.Param[1].Literal;
-      Assert.AreEqual(Expr.Types.Type.Operator, addition.Type);
-      Assert.AreEqual("+", addition.Operator.Name);
-      Assert.AreEqual(2, addition.Operator.Param.Count);
-      Assert.AreEqual(Expr.Types.Type.Literal, addition.Operator.Param[0].Type);
-      Assert.AreEqual(Expr.Types.Type.Literal, addition.Operator.Param[1].Type);
-      Assert.AreEqual(Scalar.Types.Type.VSint, addLeftScalar.Type);
-      Assert.AreEqual(Scalar.Types.Type.VSint, addRightScalar.Type);
-      Assert.AreEqual(10, addLeftScalar.VSignedInt);
-      Assert.AreEqual(1, addRightScalar.VSignedInt);
+      Assert.That(addition.Type, Is.EqualTo(Expr.Types.Type.Operator));
+      Assert.That(addition.Operator.Name, Is.EqualTo("+"));
+      Assert.That(addition.Operator.Param.Count, Is.EqualTo(2));
+      Assert.That(addition.Operator.Param[0].Type, Is.EqualTo(Expr.Types.Type.Literal));
+      Assert.That(addition.Operator.Param[1].Type, Is.EqualTo(Expr.Types.Type.Literal));
+      Assert.That(addLeftScalar.Type, Is.EqualTo(Scalar.Types.Type.VSint));
+      Assert.That(addRightScalar.Type, Is.EqualTo(Scalar.Types.Type.VSint));
+      Assert.That(addLeftScalar.VSignedInt, Is.EqualTo(10));
+      Assert.That(addRightScalar.VSignedInt, Is.EqualTo(1));
     }
 
     [Test]
     public void TestOrderByParserBasic()
     {
       List<Order> orderSpec = new ExprParser("a, b desc").ParseOrderSpec();
-      Assert.AreEqual(2, orderSpec.Count);
+      Assert.That(orderSpec.Count, Is.EqualTo(2));
       Order o1 = orderSpec[0];
-      Assert.False(o1.HasDirection);
-      Assert.AreEqual("a", ExprUnparser.ExprToString(o1.Expr));
+      Assert.That(o1.HasDirection, Is.False);
+      Assert.That(ExprUnparser.ExprToString(o1.Expr), Is.EqualTo("a"));
       Order o2 = orderSpec[1];
-      Assert.True(o2.HasDirection);
-      Assert.AreEqual(Order.Types.Direction.Desc, o2.Direction);
-      Assert.AreEqual("b", ExprUnparser.ExprToString(o2.Expr));
+      Assert.That(o2.HasDirection);
+      Assert.That(o2.Direction, Is.EqualTo(Order.Types.Direction.Desc));
+      Assert.That(ExprUnparser.ExprToString(o2.Expr), Is.EqualTo("b"));
     }
 
     [Test]
     public void TestOrderByParserComplexExpressions()
     {
       List<Order> orderSpec = new ExprParser("field not in ('a',func('b', 2.0),'c') desc, 1-a$**[0].*, now () + $.b + c > 2 asc").ParseOrderSpec();
-      Assert.AreEqual(3, orderSpec.Count);
+      Assert.That(orderSpec.Count, Is.EqualTo(3));
       Order o1 = orderSpec[0];
-      Assert.True(o1.HasDirection);
-      Assert.AreEqual(Order.Types.Direction.Desc, o1.Direction);
-      Assert.AreEqual("field not in(\"a\", func(\"b\", 2), \"c\")", ExprUnparser.ExprToString(o1.Expr));
+      Assert.That(o1.HasDirection);
+      Assert.That(o1.Direction, Is.EqualTo(Order.Types.Direction.Desc));
+      Assert.That(ExprUnparser.ExprToString(o1.Expr), Is.EqualTo("field not in(\"a\", func(\"b\", 2), \"c\")"));
       Order o2 = orderSpec[1];
-      Assert.False(o2.HasDirection);
-      Assert.AreEqual("(1 - a$**[0].*)", ExprUnparser.ExprToString(o2.Expr));
+      Assert.That(o2.HasDirection, Is.False);
+      Assert.That(ExprUnparser.ExprToString(o2.Expr), Is.EqualTo("(1 - a$**[0].*)"));
       Order o3 = orderSpec[2];
-      Assert.True(o3.HasDirection);
-      Assert.AreEqual(Order.Types.Direction.Asc, o3.Direction);
-      Assert.AreEqual("(((now() + $.b) + c) > 2)", ExprUnparser.ExprToString(o3.Expr));
+      Assert.That(o3.HasDirection);
+      Assert.That(o3.Direction, Is.EqualTo(Order.Types.Direction.Asc));
+      Assert.That(ExprUnparser.ExprToString(o3.Expr), Is.EqualTo("(((now() + $.b) + c) > 2)"));
     }
 
     [Test]
     public void TestNamedPlaceholders()
     {
       ExprParser parser = new ExprParser("a = :a and b = :b and (c = 'x' or d = :b)");
-      Assert.AreEqual("IDENT(a)", parser.tokens[0].ToString());
-      Assert.AreEqual("EQ", parser.tokens[1].ToString());
+      Assert.That(parser.tokens[0].ToString(), Is.EqualTo("IDENT(a)"));
+      Assert.That(parser.tokens[1].ToString(), Is.EqualTo("EQ"));
       Expr e = parser.Parse();
-      Assert.AreEqual(0, parser.placeholderNameToPosition["a"]);
-      Assert.AreEqual(1, parser.placeholderNameToPosition["b"]);
-      Assert.AreEqual(2, parser.positionalPlaceholderCount);
+      Assert.That(parser.placeholderNameToPosition["a"], Is.EqualTo(0));
+      Assert.That(parser.placeholderNameToPosition["b"], Is.EqualTo(1));
+      Assert.That(parser.positionalPlaceholderCount, Is.EqualTo(2));
 
       Expr aEqualsPlaceholder = e.Operator.Param[0].Operator.Param[0].Operator.Param[1];
-      Assert.AreEqual(Expr.Types.Type.Placeholder, aEqualsPlaceholder.Type);
-      Assert.AreEqual((uint)0, aEqualsPlaceholder.Position);
+      Assert.That(aEqualsPlaceholder.Type, Is.EqualTo(Expr.Types.Type.Placeholder));
+      Assert.That(aEqualsPlaceholder.Position, Is.EqualTo((uint)0));
       Expr bEqualsPlaceholder = e.Operator.Param[0].Operator.Param[1].Operator.Param[1];
-      Assert.AreEqual(Expr.Types.Type.Placeholder, bEqualsPlaceholder.Type);
-      Assert.AreEqual((uint)1, bEqualsPlaceholder.Position);
+      Assert.That(bEqualsPlaceholder.Type, Is.EqualTo(Expr.Types.Type.Placeholder));
+      Assert.That(bEqualsPlaceholder.Position, Is.EqualTo((uint)1));
       Expr dEqualsPlaceholder = e.Operator.Param[1].Operator.Param[1].Operator.Param[1];
-      Assert.AreEqual(Expr.Types.Type.Placeholder, dEqualsPlaceholder.Type);
-      Assert.AreEqual((uint)1, dEqualsPlaceholder.Position);
+      Assert.That(dEqualsPlaceholder.Type, Is.EqualTo(Expr.Types.Type.Placeholder));
+      Assert.That(dEqualsPlaceholder.Position, Is.EqualTo((uint)1));
     }
 
     [Test]
@@ -315,23 +315,23 @@ namespace MySqlX.Data.Tests
     {
       ExprParser parser = new ExprParser("a == :1 and b == :3 and (c == :2 or d == :2)");
       Expr e = parser.Parse();
-      Assert.AreEqual(0, parser.placeholderNameToPosition["1"]);
-      Assert.AreEqual(1, parser.placeholderNameToPosition["3"]);
-      Assert.AreEqual(2, parser.placeholderNameToPosition["2"]);
-      Assert.AreEqual(3, parser.positionalPlaceholderCount);
+      Assert.That(parser.placeholderNameToPosition["1"], Is.EqualTo(0));
+      Assert.That(parser.placeholderNameToPosition["3"], Is.EqualTo(1));
+      Assert.That(parser.placeholderNameToPosition["2"], Is.EqualTo(2));
+      Assert.That(parser.positionalPlaceholderCount, Is.EqualTo(3));
 
       Expr aEqualsPlaceholder = e.Operator.Param[0].Operator.Param[0].Operator.Param[1];
-      Assert.AreEqual(Expr.Types.Type.Placeholder, aEqualsPlaceholder.Type);
-      Assert.AreEqual((uint)0, aEqualsPlaceholder.Position);
+      Assert.That(aEqualsPlaceholder.Type, Is.EqualTo(Expr.Types.Type.Placeholder));
+      Assert.That(aEqualsPlaceholder.Position, Is.EqualTo((uint)0));
       Expr bEqualsPlaceholder = e.Operator.Param[0].Operator.Param[1].Operator.Param[1];
-      Assert.AreEqual(Expr.Types.Type.Placeholder, bEqualsPlaceholder.Type);
-      Assert.AreEqual((uint)1, bEqualsPlaceholder.Position);
+      Assert.That(bEqualsPlaceholder.Type, Is.EqualTo(Expr.Types.Type.Placeholder));
+      Assert.That(bEqualsPlaceholder.Position, Is.EqualTo((uint)1));
       Expr cEqualsPlaceholder = e.Operator.Param[1].Operator.Param[0].Operator.Param[1];
-      Assert.AreEqual(Expr.Types.Type.Placeholder, cEqualsPlaceholder.Type);
-      Assert.AreEqual((uint)2, cEqualsPlaceholder.Position);
+      Assert.That(cEqualsPlaceholder.Type, Is.EqualTo(Expr.Types.Type.Placeholder));
+      Assert.That(cEqualsPlaceholder.Position, Is.EqualTo((uint)2));
       Expr dEqualsPlaceholder = e.Operator.Param[1].Operator.Param[1].Operator.Param[1];
-      Assert.AreEqual(Expr.Types.Type.Placeholder, dEqualsPlaceholder.Type);
-      Assert.AreEqual((uint)2, dEqualsPlaceholder.Position);
+      Assert.That(dEqualsPlaceholder.Type, Is.EqualTo(Expr.Types.Type.Placeholder));
+      Assert.That(dEqualsPlaceholder.Position, Is.EqualTo((uint)2));
     }
 
     [Test]
@@ -339,20 +339,20 @@ namespace MySqlX.Data.Tests
     {
       ExprParser parser = new ExprParser("a = ? and b = ? and (c = 'x' or d = ?)");
       Expr e = parser.Parse();
-      Assert.AreEqual(0, parser.placeholderNameToPosition["0"]);
-      Assert.AreEqual(1, parser.placeholderNameToPosition["1"]);
-      Assert.AreEqual(2, parser.placeholderNameToPosition["2"]);
-      Assert.AreEqual(3, parser.positionalPlaceholderCount);
+      Assert.That(parser.placeholderNameToPosition["0"], Is.EqualTo(0));
+      Assert.That(parser.placeholderNameToPosition["1"], Is.EqualTo(1));
+      Assert.That(parser.placeholderNameToPosition["2"], Is.EqualTo(2));
+      Assert.That(parser.positionalPlaceholderCount, Is.EqualTo(3));
 
       Expr aEqualsPlaceholder = e.Operator.Param[0].Operator.Param[0].Operator.Param[1];
-      Assert.AreEqual(Expr.Types.Type.Placeholder, aEqualsPlaceholder.Type);
-      Assert.AreEqual((uint)0, aEqualsPlaceholder.Position);
+      Assert.That(aEqualsPlaceholder.Type, Is.EqualTo(Expr.Types.Type.Placeholder));
+      Assert.That(aEqualsPlaceholder.Position, Is.EqualTo((uint)0));
       Expr bEqualsPlaceholder = e.Operator.Param[0].Operator.Param[1].Operator.Param[1];
-      Assert.AreEqual(Expr.Types.Type.Placeholder, bEqualsPlaceholder.Type);
-      Assert.AreEqual((uint)1, bEqualsPlaceholder.Position);
+      Assert.That(bEqualsPlaceholder.Type, Is.EqualTo(Expr.Types.Type.Placeholder));
+      Assert.That(bEqualsPlaceholder.Position, Is.EqualTo((uint)1));
       Expr dEqualsPlaceholder = e.Operator.Param[1].Operator.Param[1].Operator.Param[1];
-      Assert.AreEqual(Expr.Types.Type.Placeholder, dEqualsPlaceholder.Type);
-      Assert.AreEqual((uint)2, dEqualsPlaceholder.Position);
+      Assert.That(dEqualsPlaceholder.Type, Is.EqualTo(Expr.Types.Type.Placeholder));
+      Assert.That(dEqualsPlaceholder.Position, Is.EqualTo((uint)2));
     }
 
     [Test]
@@ -360,24 +360,24 @@ namespace MySqlX.Data.Tests
     {
       Expr e = new ExprParser("{'a':1, 'b':\"a string\"}").Parse();
 
-      Assert.AreEqual("{'a':1, 'b':\"a string\"}", ExprUnparser.ExprToString(e));
+      Assert.That(ExprUnparser.ExprToString(e), Is.EqualTo("{'a':1, 'b':\"a string\"}"));
 
-      Assert.AreEqual(Expr.Types.Type.Object, e.Type);
+      Assert.That(e.Type, Is.EqualTo(Expr.Types.Type.Object));
       Mysqlx.Expr.Object o = e.Object;
-      Assert.AreEqual(2, o.Fld.Count);
+      Assert.That(o.Fld.Count, Is.EqualTo(2));
       Mysqlx.Expr.Object.Types.ObjectField of;
 
       of = o.Fld[0];
-      Assert.AreEqual("a", of.Key);
+      Assert.That(of.Key, Is.EqualTo("a"));
       e = of.Value;
-      Assert.AreEqual(Expr.Types.Type.Literal, e.Type);
-      Assert.AreEqual(1, e.Literal.VSignedInt);
+      Assert.That(e.Type, Is.EqualTo(Expr.Types.Type.Literal));
+      Assert.That(e.Literal.VSignedInt, Is.EqualTo(1));
 
       of = o.Fld[1];
-      Assert.AreEqual("b", of.Key);
+      Assert.That(of.Key, Is.EqualTo("b"));
       e = of.Value;
-      Assert.AreEqual(Expr.Types.Type.Literal, e.Type);
-      Assert.AreEqual("a string", e.Literal.VString.Value.ToStringUtf8());
+      Assert.That(e.Type, Is.EqualTo(Expr.Types.Type.Literal));
+      Assert.That(e.Literal.VString.Value.ToStringUtf8(), Is.EqualTo("a string"));
     }
 
     [Test]
@@ -387,8 +387,8 @@ namespace MySqlX.Data.Tests
 
       proj = new ExprParser("$.a as a").ParseDocumentProjection();
       Assert.That(proj, Has.One.Items);
-      Assert.AreNotEqual(string.Empty, proj[0].Alias);
-      Assert.AreEqual("a", proj[0].Alias);
+      Assert.That(proj[0].Alias, Is.Not.EqualTo(string.Empty));
+      Assert.That(proj[0].Alias, Is.EqualTo("a"));
 
       proj = new ExprParser("$.a as a, $.b as b, $.c as c").ParseDocumentProjection();
     }
@@ -398,26 +398,26 @@ namespace MySqlX.Data.Tests
     {
       List<Projection> projList = new ExprParser("$.a as b, (1 + 1) * 100 as x, 2 as j42").ParseDocumentProjection();
 
-      Assert.AreEqual(3, projList.Count);
+      Assert.That(projList.Count, Is.EqualTo(3));
 
       // check $.a as b
       Projection proj = projList[0];
       IList<DocumentPathItem> paths = proj.Source.Identifier.DocumentPath;
-      Assert.AreEqual(1, paths.Count);
-      Assert.AreEqual(DocumentPathItem.Types.Type.Member, paths[0].Type);
-      Assert.AreEqual("a", paths[0].Value);
+      Assert.That(paths.Count, Is.EqualTo(1));
+      Assert.That(paths[0].Type, Is.EqualTo(DocumentPathItem.Types.Type.Member));
+      Assert.That(paths[0].Value, Is.EqualTo("a"));
 
-      Assert.AreEqual("b", proj.Alias);
+      Assert.That(proj.Alias, Is.EqualTo("b"));
 
       // check (1 + 1) * 100 as x
       proj = projList[1];
-      Assert.AreEqual("((1 + 1) * 100)", ExprUnparser.ExprToString(proj.Source));
-      Assert.AreEqual("x", proj.Alias);
+      Assert.That(ExprUnparser.ExprToString(proj.Source), Is.EqualTo("((1 + 1) * 100)"));
+      Assert.That(proj.Alias, Is.EqualTo("x"));
 
       // check 2 as j42
       proj = projList[2];
-      Assert.AreEqual("2", ExprUnparser.ExprToString(proj.Source));
-      Assert.AreEqual("j42", proj.Alias);
+      Assert.That(ExprUnparser.ExprToString(proj.Source), Is.EqualTo("2"));
+      Assert.That(proj.Alias, Is.EqualTo("j42"));
     }
 
     [Test]
@@ -427,7 +427,7 @@ namespace MySqlX.Data.Tests
       string projString = "{'a':'value for a', 'b':1+1, 'c'::bindvar, 'd':$.member[22], 'e':{'nested':'doc'}}";
       Projection proj = new Projection();
       proj.Source = new ExprParser(projString, false).Parse();
-      Assert.AreEqual(Expr.Types.Type.Object, proj.Source.Type);
+      Assert.That(proj.Source.Type, Is.EqualTo(Expr.Types.Type.Object));
 
       IEnumerator<Mysqlx.Expr.Object.Types.ObjectField> fields = proj.Source.Object.Fld.GetEnumerator();
       string[][] array = new string[][] {
@@ -440,10 +440,10 @@ namespace MySqlX.Data.Tests
       {
         fields.MoveNext();
         Mysqlx.Expr.Object.Types.ObjectField f = fields.Current;
-        Assert.AreEqual(pair[0], f.Key);
-        Assert.AreEqual(pair[1], ExprUnparser.ExprToString(f.Value));
+        Assert.That(f.Key, Is.EqualTo(pair[0]));
+        Assert.That(ExprUnparser.ExprToString(f.Value), Is.EqualTo(pair[1]));
       });
-      Assert.False(fields.MoveNext());
+      Assert.That(fields.MoveNext(), Is.False);
     }
 
     [Test]
@@ -452,7 +452,7 @@ namespace MySqlX.Data.Tests
       // this is not a single doc as the project but multiple docs as embedded fields
       string projString = "{'a':1} as a, {'b':2} as b";
       List<Projection> projList = new ExprParser(projString).ParseDocumentProjection();
-      Assert.AreEqual(2, projList.Count);
+      Assert.That(projList.Count, Is.EqualTo(2));
       // TODO: verification of remaining elements
     }
 
@@ -460,10 +460,10 @@ namespace MySqlX.Data.Tests
     public void TestTableInsertProjection()
     {
       Column col = new ExprParser("a").ParseTableInsertField();
-      Assert.AreEqual("a", col.Name);
+      Assert.That(col.Name, Is.EqualTo("a"));
 
       col = new ExprParser("`double weird `` string`").ParseTableInsertField();
-      Assert.AreEqual("double weird ` string", col.Name);
+      Assert.That(col.Name, Is.EqualTo("double weird ` string"));
     }
 
     [Test]
@@ -471,45 +471,45 @@ namespace MySqlX.Data.Tests
     {
       ColumnIdentifier col;
       col = new ExprParser("a").ParseTableUpdateField();
-      Assert.AreEqual("a", col.Name);
+      Assert.That(col.Name, Is.EqualTo("a"));
 
       col = new ExprParser("b.c").ParseTableUpdateField();
-      Assert.AreEqual("b", col.TableName);
-      Assert.AreEqual("c", col.Name);
+      Assert.That(col.TableName, Is.EqualTo("b"));
+      Assert.That(col.Name, Is.EqualTo("c"));
 
       col = new ExprParser("d.e$.the_path[2]").ParseTableUpdateField();
-      Assert.AreEqual("d", col.TableName);
-      Assert.AreEqual("e", col.Name);
-      Assert.AreEqual(2, col.DocumentPath.Count);
-      Assert.AreEqual("the_path", col.DocumentPath[0].Value);
-      Assert.AreEqual((uint)2, col.DocumentPath[1].Index);
+      Assert.That(col.TableName, Is.EqualTo("d"));
+      Assert.That(col.Name, Is.EqualTo("e"));
+      Assert.That(col.DocumentPath.Count, Is.EqualTo(2));
+      Assert.That(col.DocumentPath[0].Value, Is.EqualTo("the_path"));
+      Assert.That(col.DocumentPath[1].Index, Is.EqualTo((uint)2));
 
       col = new ExprParser("`zzz\\``").ParseTableUpdateField();
-      Assert.AreEqual("zzz`", col.Name);
+      Assert.That(col.Name, Is.EqualTo("zzz`"));
     }
 
     [Test]
     public void TestTrivialTableSelectProjection()
     {
       List<Projection> proj = new ExprParser("a, b as c").ParseTableSelectProjection();
-      Assert.AreEqual(2, proj.Count);
-      Assert.AreEqual("a", ExprUnparser.ExprToString(proj[0].Source));
-      Assert.AreEqual(string.Empty, proj[0].Alias);
-      Assert.AreEqual("b", ExprUnparser.ExprToString(proj[1].Source));
-      Assert.AreNotEqual(string.Empty, proj[1].Alias);
-      Assert.AreEqual("c", proj[1].Alias);
+      Assert.That(proj.Count, Is.EqualTo(2));
+      Assert.That(ExprUnparser.ExprToString(proj[0].Source), Is.EqualTo("a"));
+      Assert.That(proj[0].Alias, Is.EqualTo(string.Empty));
+      Assert.That(ExprUnparser.ExprToString(proj[1].Source), Is.EqualTo("b"));
+      Assert.That(proj[1].Alias, Is.Not.EqualTo(string.Empty));
+      Assert.That(proj[1].Alias, Is.EqualTo("c"));
     }
 
     [Test]
     public void TestStarTableSelectProjection()
     {
       List<Projection> proj = new ExprParser("*, b as c").ParseTableSelectProjection();
-      Assert.AreEqual(2, proj.Count);
-      Assert.AreEqual("*", ExprUnparser.ExprToString(proj[0].Source));
-      Assert.AreEqual(string.Empty, proj[0].Alias);
-      Assert.AreEqual("b", ExprUnparser.ExprToString(proj[1].Source));
-      Assert.AreNotEqual(string.Empty, proj[1].Alias);
-      Assert.AreEqual("c", proj[1].Alias);
+      Assert.That(proj.Count, Is.EqualTo(2));
+      Assert.That(ExprUnparser.ExprToString(proj[0].Source), Is.EqualTo("*"));
+      Assert.That(proj[0].Alias, Is.EqualTo(string.Empty));
+      Assert.That(ExprUnparser.ExprToString(proj[1].Source), Is.EqualTo("b"));
+      Assert.That(proj[1].Alias, Is.Not.EqualTo(string.Empty));
+      Assert.That(proj[1].Alias, Is.EqualTo("c"));
     }
 
     [Test]
@@ -517,13 +517,13 @@ namespace MySqlX.Data.Tests
     {
       string projectionString = "(1 + 1) * 100 as `one-o-two`, 'a is \\'a\\'' as `what is 'a'`";
       List<Projection> proj = new ExprParser(projectionString).ParseTableSelectProjection();
-      Assert.AreEqual(2, proj.Count);
+      Assert.That(proj.Count, Is.EqualTo(2));
 
-      Assert.AreEqual("((1 + 1) * 100)", ExprUnparser.ExprToString(proj[0].Source));
-      Assert.AreEqual("one-o-two", proj[0].Alias);
+      Assert.That(ExprUnparser.ExprToString(proj[0].Source), Is.EqualTo("((1 + 1) * 100)"));
+      Assert.That(proj[0].Alias, Is.EqualTo("one-o-two"));
 
-      Assert.AreEqual("a is 'a'", proj[1].Source.Literal.VString.Value.ToStringUtf8());
-      Assert.AreEqual("what is 'a'", proj[1].Alias);
+      Assert.That(proj[1].Source.Literal.VString.Value.ToStringUtf8(), Is.EqualTo("a is 'a'"));
+      Assert.That(proj[1].Alias, Is.EqualTo("what is 'a'"));
     }
 
     [Test]
@@ -540,13 +540,13 @@ namespace MySqlX.Data.Tests
     public void UnqualifiedDocPaths()
     {
       Expr expr = new ExprParser("1 + b[0]", false).Parse();
-      Assert.AreEqual("(1 + $.b[0])", ExprUnparser.ExprToString(expr));
+      Assert.That(ExprUnparser.ExprToString(expr), Is.EqualTo("(1 + $.b[0])"));
       expr = new ExprParser("a.*", false).Parse();
-      Assert.AreEqual("$.a.*", ExprUnparser.ExprToString(expr));
+      Assert.That(ExprUnparser.ExprToString(expr), Is.EqualTo("$.a.*"));
       expr = new ExprParser("bL . vT .*", false).Parse();
-      Assert.AreEqual("$.bL.vT.*", ExprUnparser.ExprToString(expr));
+      Assert.That(ExprUnparser.ExprToString(expr), Is.EqualTo("$.bL.vT.*"));
       expr = new ExprParser("dd ** .X", false).Parse();
-      Assert.AreEqual("$.dd**.X", ExprUnparser.ExprToString(expr));
+      Assert.That(ExprUnparser.ExprToString(expr), Is.EqualTo("$.dd**.X"));
     }
 
     [TestCase("info$.additionalinfo.hobbies", "info$.additionalinfo.hobbies", true)]
@@ -560,13 +560,12 @@ namespace MySqlX.Data.Tests
     {
       if(unparserString == null)
       {
-        Assert.AreEqual($"Unable to parse query '{exprString}'", 
-          Assert.Throws<ArgumentException>(() => new ExprParser(exprString, isRelational).Parse()).Message);
+        Assert.That(Assert.Throws<ArgumentException>(() => new ExprParser(exprString, isRelational).Parse()).Message, Is.EqualTo($"Unable to parse query '{exprString}'"));
       }
       else
       {
         Expr expr = new ExprParser(exprString, isRelational).Parse();
-        Assert.AreEqual(unparserString, ExprUnparser.ExprToString(expr));
+        Assert.That(ExprUnparser.ExprToString(expr), Is.EqualTo(unparserString));
       }
     }
   }

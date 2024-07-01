@@ -76,15 +76,15 @@ namespace MySql.Data.MySqlClient.Tests
       da.Fill(ds, "Test");
 
       Assert.That(ds.Tables, Has.One.Items);
-      Assert.AreEqual(3, ds.Tables[0].Rows.Count);
+      Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(3));
 
-      Assert.AreEqual(1, ds.Tables[0].Rows[0]["id2"]);
-      Assert.AreEqual(2, ds.Tables[0].Rows[1]["id2"]);
-      Assert.AreEqual(3, ds.Tables[0].Rows[2]["id2"]);
+      Assert.That(ds.Tables[0].Rows[0]["id2"], Is.EqualTo(1));
+      Assert.That(ds.Tables[0].Rows[1]["id2"], Is.EqualTo(2));
+      Assert.That(ds.Tables[0].Rows[2]["id2"], Is.EqualTo(3));
 
-      Assert.AreEqual("Name 1", ds.Tables[0].Rows[0]["name"]);
-      Assert.AreEqual(DBNull.Value, ds.Tables[0].Rows[1]["name"]);
-      Assert.AreEqual(String.Empty, ds.Tables[0].Rows[2]["name"]);
+      Assert.That(ds.Tables[0].Rows[0]["name"], Is.EqualTo("Name 1"));
+      Assert.That(ds.Tables[0].Rows[1]["name"], Is.EqualTo(DBNull.Value));
+      Assert.That(ds.Tables[0].Rows[2]["name"], Is.EqualTo(String.Empty));
     }
 
     [Test]
@@ -103,8 +103,8 @@ namespace MySql.Data.MySqlClient.Tests
       int count = da.Update(dt);
 
       // make sure our refresh of auto increment values worked
-      Assert.True(count == 1, "checking insert count");
-      Assert.True(dt.Rows[dt.Rows.Count - 1]["id"] != null, "Checking auto increment column");
+      Assert.That(count == 1, "checking insert count");
+      Assert.That(dt.Rows[dt.Rows.Count - 1]["id"] != null, "Checking auto increment column");
 
       dt.Rows.Clear();
       da.Fill(dt);
@@ -116,25 +116,25 @@ namespace MySql.Data.MySqlClient.Tests
       dt.Rows[0]["tm"] = day1.TimeOfDay;
       count = da.Update(dt);
 
-      Assert.True(dt.Rows[0]["ts"] != null, "checking refresh of record");
-      Assert.True(dt.Rows[0]["id2"] != null, "checking refresh of primary column");
+      Assert.That(dt.Rows[0]["ts"] != null, "checking refresh of record");
+      Assert.That(dt.Rows[0]["id2"] != null, "checking refresh of primary column");
 
       dt.Rows.Clear();
       da.Fill(dt);
 
-      Assert.True(count == 1, "checking update count");
+      Assert.That(count == 1, "checking update count");
       DateTime dateTime = (DateTime)dt.Rows[0]["dt"];
-      Assert.True(day1.Date == dateTime.Date, "checking date");
-      Assert.True(day1.TimeOfDay == (TimeSpan)dt.Rows[0]["tm"], "checking time");
+      Assert.That(day1.Date == dateTime.Date, "checking date");
+      Assert.That(day1.TimeOfDay == (TimeSpan)dt.Rows[0]["tm"], "checking time");
 
       dt.Rows[0].Delete();
       count = da.Update(dt);
 
-      Assert.True(count == 1, "checking insert count");
+      Assert.That(count == 1, "checking insert count");
 
       dt.Rows.Clear();
       da.Fill(dt);
-      Assert.True(dt.Rows.Count == 0, "checking row count");
+      Assert.That(dt.Rows.Count == 0, "checking row count");
       cb.Dispose();
     }
 
@@ -159,8 +159,8 @@ namespace MySql.Data.MySqlClient.Tests
       dt.Rows.Add(row);
       da.Update(dt);
 
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual(2, dt.Rows[0]["OriginalId"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["OriginalId"], Is.EqualTo(2));
     }
 
     [Test]
@@ -179,13 +179,13 @@ namespace MySql.Data.MySqlClient.Tests
       dt.Rows[0]["name"] = "Test Update";
       int updateCnt = da.Update(dt);
 
-      Assert.AreEqual(1, updateCnt);
+      Assert.That(updateCnt, Is.EqualTo(1));
 
       dt.Rows.Clear();
       da.Fill(dt);
 
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("Test Update", dt.Rows[0]["name"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("Test Update"));
     }
 
     [Test]
@@ -204,13 +204,13 @@ namespace MySql.Data.MySqlClient.Tests
       dt.Rows[0]["name"] = "";
       int updateCnt = da.Update(dt);
 
-      Assert.AreEqual(1, updateCnt);
+      Assert.That(updateCnt, Is.EqualTo(1));
 
       dt.Rows.Clear();
       da.Fill(dt);
 
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("", dt.Rows[0]["name"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo(""));
     }
 
     [Test]
@@ -230,7 +230,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Clear();
       da.Fill(dt);
-      Assert.AreEqual("This is my new note", dt.Rows[0]["notes"]);
+      Assert.That(dt.Rows[0]["notes"], Is.EqualTo("This is my new note"));
     }
 
     [Test]
@@ -244,7 +244,7 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = new DataTable();
       da.Fill(dt);
 
-      Assert.AreEqual(500, dt.Rows.Count);
+      Assert.That(dt.Rows.Count, Is.EqualTo(500));
     }
 
     [Test]
@@ -258,14 +258,14 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = new DataTable();
       da.Fill(dt);
 
-      Assert.AreEqual("Test", dt.Rows[0]["name"]);
-      Assert.AreEqual("Test 1", dt.Rows[1]["name"]);
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("Test"));
+      Assert.That(dt.Rows[1]["name"], Is.EqualTo("Test 1"));
 
-      Assert.AreEqual("Text 1", dt.Rows[0]["b1"]);
-      Assert.AreEqual("Text 2", dt.Rows[1]["b1"]);
+      Assert.That(dt.Rows[0]["b1"], Is.EqualTo("Text 1"));
+      Assert.That(dt.Rows[1]["b1"], Is.EqualTo("Text 2"));
 
-      Assert.AreEqual(new DateTime(2004, 8, 1, 0, 0, 0).ToString(), dt.Rows[0]["dt"].ToString());
-      Assert.AreEqual(new DateTime(2004, 7, 2, 0, 0, 0).ToString(), dt.Rows[1]["dt"].ToString());
+      Assert.That(dt.Rows[0]["dt"].ToString(), Is.EqualTo(new DateTime(2004, 8, 1, 0, 0, 0).ToString()));
+      Assert.That(dt.Rows[1]["dt"].ToString(), Is.EqualTo(new DateTime(2004, 7, 2, 0, 0, 0).ToString()));
     }
 
     [Test]
@@ -280,14 +280,14 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = new DataTable();
       da.Fill(dt);
 
-      Assert.AreEqual(String.Empty, dt.Rows[0]["name"]);
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo(String.Empty));
 
       dt.Rows[0]["name"] = "Test";
       da.Update(dt);
 
       dt.Clear();
       da.Fill(dt);
-      Assert.AreEqual("Test", dt.Rows[0]["name"]);
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("Test"));
     }
 
     [Test]
@@ -312,11 +312,11 @@ namespace MySql.Data.MySqlClient.Tests
       string sql = "SELECT table1.key FROM table1 WHERE table1.key=1; " +
         "SELECT table2.key FROM table2 WHERE table2.key=1";
       DataSet ds = MySqlHelper.ExecuteDataset(Connection, sql, null);
-      Assert.AreEqual(2, ds.Tables.Count);
-      Assert.AreEqual(1, ds.Tables[0].Rows.Count);
-      Assert.AreEqual(1, ds.Tables[1].Rows.Count);
-      Assert.AreEqual(1, ds.Tables[0].Rows[0]["key"]);
-      Assert.AreEqual(1, ds.Tables[1].Rows[0]["key"]);
+      Assert.That(ds.Tables.Count, Is.EqualTo(2));
+      Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(1));
+      Assert.That(ds.Tables[1].Rows.Count, Is.EqualTo(1));
+      Assert.That(ds.Tables[0].Rows[0]["key"], Is.EqualTo(1));
+      Assert.That(ds.Tables[1].Rows[0]["key"], Is.EqualTo(1));
     }
 
     /// <summary>
@@ -332,7 +332,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
       DataSet ds = new DataSet();
       da.Fill(ds);
-      Assert.AreEqual(1, Convert.ToInt32(ds.Tables[0].Rows[0]["id"]));
+      Assert.That(Convert.ToInt32(ds.Tables[0].Rows[0]["id"]), Is.EqualTo(1));
       DataRow row = ds.Tables[0].NewRow();
       ds.Tables[0].Rows.Add(row);
 
@@ -340,8 +340,8 @@ namespace MySql.Data.MySqlClient.Tests
 
       ds.Clear();
       da.Fill(ds);
-      Assert.AreEqual(1, Convert.ToInt32(ds.Tables[0].Rows[0]["id"]));
-      Assert.AreEqual(2, Convert.ToInt32(ds.Tables[0].Rows[1]["id"]));
+      Assert.That(Convert.ToInt32(ds.Tables[0].Rows[0]["id"]), Is.EqualTo(1));
+      Assert.That(Convert.ToInt32(ds.Tables[0].Rows[1]["id"]), Is.EqualTo(2));
       cb.Dispose();
     }
 
@@ -360,9 +360,9 @@ namespace MySql.Data.MySqlClient.Tests
       da.Fill(ds);
 
       Assert.That(ds.Tables, Has.One.Items);
-      Assert.AreEqual(3, ds.Tables[0].Rows.Count);
-      Assert.AreEqual(88, ds.Tables[0].Rows[2]["amount"]);
-      Assert.AreEqual(DBNull.Value, ds.Tables[0].Rows[2]["id"]);
+      Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(3));
+      Assert.That(ds.Tables[0].Rows[2]["amount"], Is.EqualTo(88));
+      Assert.That(ds.Tables[0].Rows[2]["id"], Is.EqualTo(DBNull.Value));
     }
 
     /// <summary>
@@ -407,7 +407,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         int intCallNum = Int32.Parse(reader.GetValue(0).ToString());
-        Assert.AreEqual(1, intCallNum);
+        Assert.That(intCallNum, Is.EqualTo(1));
       }
     }
 
@@ -424,24 +424,24 @@ namespace MySql.Data.MySqlClient.Tests
       {
         MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", c);
         MySqlCommandBuilder cb = new MySqlCommandBuilder(da);
-        Assert.True(c.State == ConnectionState.Closed);
+        Assert.That(c.State == ConnectionState.Closed);
         DataTable dt = new DataTable();
         da.Fill(dt);
-        Assert.True(c.State == ConnectionState.Closed);
-        Assert.AreEqual(1, dt.Rows.Count);
+        Assert.That(c.State == ConnectionState.Closed);
+        Assert.That(dt.Rows.Count, Is.EqualTo(1));
 
         dt.Rows[0][0] = 2;
         DataRow[] rows = new DataRow[1];
         rows[0] = dt.Rows[0];
         da.Update(dt);
-        Assert.True(c.State == ConnectionState.Closed);
+        Assert.That(c.State == ConnectionState.Closed);
 
         dt.Clear();
         c.Open();
-        Assert.True(c.State == ConnectionState.Open);
+        Assert.That(c.State == ConnectionState.Open);
         da.Fill(dt);
-        Assert.True(c.State == ConnectionState.Open);
-        Assert.AreEqual(1, dt.Rows.Count);
+        Assert.That(c.State == ConnectionState.Open);
+        Assert.That(dt.Rows.Count, Is.EqualTo(1));
         cb.Dispose();
       }
     }
@@ -481,9 +481,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Clear();
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual(1, dt.Rows[0]["id"]);
-      Assert.AreEqual("Test1", dt.Rows[0]["name"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["id"], Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("Test1"));
 
       row = dt.NewRow();
       row["name"] = System.DBNull.Value;
@@ -493,9 +493,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Clear();
       da.Fill(dt);
-      Assert.AreEqual(2, dt.Rows.Count);
-      Assert.AreEqual(2, dt.Rows[1]["id"]);
-      Assert.AreEqual(DBNull.Value, dt.Rows[1]["name"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(2));
+      Assert.That(dt.Rows[1]["id"], Is.EqualTo(2));
+      Assert.That(dt.Rows[1]["name"], Is.EqualTo(DBNull.Value));
 
       row = dt.NewRow();
       row["name"] = "Test3";
@@ -505,9 +505,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Clear();
       da.Fill(dt);
-      Assert.AreEqual(3, dt.Rows.Count);
-      Assert.AreEqual(3, dt.Rows[2]["id"]);
-      Assert.AreEqual("Test3", dt.Rows[2]["name"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(3));
+      Assert.That(dt.Rows[2]["id"], Is.EqualTo(3));
+      Assert.That(dt.Rows[2]["name"], Is.EqualTo("Test3"));
       cb.Dispose();
     }
 
@@ -530,7 +530,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM Test", Connection);
       DataTable dt = new DataTable();
       da.Fill(0, 10, new DataTable[] { dt });
-      Assert.AreEqual(10, dt.Rows.Count);
+      Assert.That(dt.Rows.Count, Is.EqualTo(10));
     }
 
     private string MakeLargeString(int len)
@@ -591,11 +591,11 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Rows.Clear();
       da.Fill(dt);
-      Assert.AreEqual(100, dt.Rows.Count);
+      Assert.That(dt.Rows.Count, Is.EqualTo(100));
       for (int i = 0; i < 100; i++)
       {
-        Assert.AreEqual(i + 1, dt.Rows[i]["id"]);
-        Assert.AreEqual("name " + (i + 1), dt.Rows[i]["name"]);
+        Assert.That(dt.Rows[i]["id"], Is.EqualTo(i + 1));
+        Assert.That(dt.Rows[i]["name"], Is.EqualTo("name " + (i + 1)));
       }
     }
 
@@ -627,13 +627,13 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Rows.Clear();
       da.Fill(dt);
-      Assert.AreEqual(3, dt.Rows.Count);
-      Assert.AreEqual(2, dt.Rows[0]["id"]);
-      Assert.AreEqual(4, dt.Rows[1]["id"]);
-      Assert.AreEqual(6, dt.Rows[2]["id"]);
-      Assert.AreEqual("new test value", dt.Rows[0]["name"]);
-      Assert.AreEqual("Test 1", dt.Rows[1]["name"]);
-      Assert.AreEqual("new test value #2", dt.Rows[2]["name"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(3));
+      Assert.That(dt.Rows[0]["id"], Is.EqualTo(2));
+      Assert.That(dt.Rows[1]["id"], Is.EqualTo(4));
+      Assert.That(dt.Rows[2]["id"], Is.EqualTo(6));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("new test value"));
+      Assert.That(dt.Rows[1]["name"], Is.EqualTo("Test 1"));
+      Assert.That(dt.Rows[2]["name"], Is.EqualTo("new test value #2"));
     }
 
     [Test]
@@ -675,13 +675,13 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Rows.Clear();
       da.Fill(dt);
-      Assert.AreEqual(3, dt.Rows.Count);
-      Assert.AreEqual(4, dt.Rows[0]["id"]);
-      Assert.AreEqual(6, dt.Rows[1]["id"]);
-      Assert.AreEqual(7, dt.Rows[2]["id"]);
-      Assert.AreEqual("Test 1", dt.Rows[0]["name"]);
-      Assert.AreEqual("new test value #2", dt.Rows[1]["name"]);
-      Assert.AreEqual("foobar", dt.Rows[2]["name"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(3));
+      Assert.That(dt.Rows[0]["id"], Is.EqualTo(4));
+      Assert.That(dt.Rows[1]["id"], Is.EqualTo(6));
+      Assert.That(dt.Rows[2]["id"], Is.EqualTo(7));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("Test 1"));
+      Assert.That(dt.Rows[1]["name"], Is.EqualTo("new test value #2"));
+      Assert.That(dt.Rows[2]["name"], Is.EqualTo("foobar"));
     }
 
     [Test]
@@ -717,9 +717,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Rows.Clear();
       da.Fill(dt);
-      Assert.AreEqual(numRows, dt.Rows.Count);
+      Assert.That(dt.Rows.Count, Is.EqualTo(numRows));
       for (int i = 0; i < numRows; i++)
-        Assert.AreEqual(i, dt.Rows[i]["id"]);
+        Assert.That(dt.Rows[i]["id"], Is.EqualTo(i));
     }
 
     [Test]
@@ -733,9 +733,9 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlDataAdapter da = new MySqlDataAdapter("SELECT CONCAT(1,2)", c);
         DataTable dt = new DataTable();
         da.Fill(dt);
-        Assert.AreEqual(1, dt.Rows.Count);
-        Assert.AreEqual("12", dt.Rows[0][0]);
-        Assert.True(dt.Rows[0][0] is string);
+        Assert.That(dt.Rows.Count, Is.EqualTo(1));
+        Assert.That(dt.Rows[0][0], Is.EqualTo("12"));
+        Assert.That(dt.Rows[0][0] is string);
       }
     }
 
@@ -804,7 +804,7 @@ namespace MySql.Data.MySqlClient.Tests
       table.Rows.Add(r);
       da.Update(table);
 
-      Assert.AreEqual(DataRowState.Unchanged, r.RowState);
+      Assert.That(r.RowState, Is.EqualTo(DataRowState.Unchanged));
 
       table.Rows[0].Delete();
 
@@ -814,8 +814,8 @@ namespace MySql.Data.MySqlClient.Tests
 
       da.Update(table); // here was concurrencyviolation
       da.Fill(ds);
-      Assert.AreEqual(1, ds.Tables["T"].Rows.Count);
-      Assert.AreEqual("row2", ds.Tables["T"].Rows[0]["field"]);
+      Assert.That(ds.Tables["T"].Rows.Count, Is.EqualTo(1));
+      Assert.That(ds.Tables["T"].Rows[0]["field"], Is.EqualTo("row2"));
     }
 
     /// <summary>
@@ -866,11 +866,11 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Rows.Clear();
       da.Fill(dt);
-      Assert.AreEqual(100, dt.Rows.Count);
+      Assert.That(dt.Rows.Count, Is.EqualTo(100));
       for (int i = 0; i < 100; i++)
       {
-        Assert.AreEqual(i + 1, dt.Rows[i]["id"]);
-        Assert.AreEqual("name " + (i + 1), dt.Rows[i]["name"]);
+        Assert.That(dt.Rows[i]["id"], Is.EqualTo(i + 1));
+        Assert.That(dt.Rows[i]["name"], Is.EqualTo("name " + (i + 1)));
       }
 
       foreach (DataRow row in dt.Rows)
@@ -885,7 +885,7 @@ namespace MySql.Data.MySqlClient.Tests
       da.Update(dt);
       dt.Rows.Clear();
       da.Fill(dt);
-      Assert.AreEqual(0, dt.Rows.Count);
+      Assert.That(dt.Rows.Count, Is.EqualTo(0));
 
     }
 
@@ -950,13 +950,13 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable table = ds.Tables["bugtable"];
       DataRow row = table.Rows[0];
       row["field"] = "newvalue";
-      Assert.AreEqual(DataRowState.Modified, row.RowState);
-      Assert.AreEqual(0, (int)row["counter"]);
+      Assert.That(row.RowState, Is.EqualTo(DataRowState.Modified));
+      Assert.That((int)row["counter"], Is.EqualTo(0));
 
       da.Update(table);
 
       // Verify that "counter" field was changed by updating stored procedure.
-      Assert.AreEqual(1, (int)row["counter"]);
+      Assert.That((int)row["counter"], Is.EqualTo(1));
     }
 
     [Test]
@@ -973,13 +973,13 @@ namespace MySql.Data.MySqlClient.Tests
         adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
         DataTable table = new DataTable();
         adapter.Fill(table);
-        Assert.AreEqual(1, table.Rows.Count);
+        Assert.That(table.Rows.Count, Is.EqualTo(1));
 
         adapter = new MySqlDataAdapter("SimpleSelect", connection);
         adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
         table = new DataTable();
         adapter.Fill(table);
-        Assert.AreEqual(1, table.Rows.Count);
+        Assert.That(table.Rows.Count, Is.EqualTo(1));
 
         MySqlConnection.ClearPool(connection);
       }
@@ -1000,7 +1000,7 @@ namespace MySql.Data.MySqlClient.Tests
         adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
         DataTable table = new DataTable();
         adapter.Fill(table);
-        Assert.AreEqual(1, table.Rows.Count);
+        Assert.That(table.Rows.Count, Is.EqualTo(1));
 
         adapter.SelectCommand = new MySqlCommand("SimpleSelect2", connection);
         adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
@@ -1009,7 +1009,7 @@ namespace MySql.Data.MySqlClient.Tests
         try
         {
           adapter.Fill(table);
-          Assert.AreEqual(1, table.Rows.Count);
+          Assert.That(table.Rows.Count, Is.EqualTo(1));
         }
         finally
         {
@@ -1037,7 +1037,7 @@ namespace MySql.Data.MySqlClient.Tests
         var changes = dt.GetChanges();
         var count = da.Update(changes);
         dt.AcceptChanges();
-        Assert.True(count == 1, "checking update count");
+        Assert.That(count == 1, "checking update count");
         await conn.CloseAsync();
       }
 
@@ -1054,7 +1054,7 @@ namespace MySql.Data.MySqlClient.Tests
         var changes = dt.GetChanges();
         var count = da.Update(changes);
         dt.AcceptChanges();
-        Assert.True(count == 1, "checking update count");
+        Assert.That(count == 1, "checking update count");
         await conn.CloseAsync();
       }
     }
@@ -1105,7 +1105,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         dataAdapter.UpdateBatchSize = 2;
         var ex = Assert.Throws<MySqlException>(() => dataAdapter.Update(dataRows));
-        StringAssert.AreEqualIgnoringCase(Resources.QueryTooLarge, ex.Message);
+        Assert.That(ex.Message, Is.EqualTo(Resources.QueryTooLarge).IgnoreCase);
       }
 
       // setting back to the initial value
@@ -1126,31 +1126,31 @@ namespace MySql.Data.MySqlClient.Tests
       await da.FillAsync(ds, "DAFillAsyncTest");
 
       Assert.That(ds.Tables, Has.One.Items);
-      Assert.AreEqual(3, ds.Tables[0].Rows.Count);
+      Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(3));
 
-      Assert.AreEqual(1, ds.Tables[0].Rows[0]["id2"]);
-      Assert.AreEqual(2, ds.Tables[0].Rows[1]["id2"]);
-      Assert.AreEqual(3, ds.Tables[0].Rows[2]["id2"]);
+      Assert.That(ds.Tables[0].Rows[0]["id2"], Is.EqualTo(1));
+      Assert.That(ds.Tables[0].Rows[1]["id2"], Is.EqualTo(2));
+      Assert.That(ds.Tables[0].Rows[2]["id2"], Is.EqualTo(3));
 
-      Assert.AreEqual("Name 1", ds.Tables[0].Rows[0]["name"]);
-      Assert.AreEqual(DBNull.Value, ds.Tables[0].Rows[1]["name"]);
-      Assert.AreEqual(String.Empty, ds.Tables[0].Rows[2]["name"]);
+      Assert.That(ds.Tables[0].Rows[0]["name"], Is.EqualTo("Name 1"));
+      Assert.That(ds.Tables[0].Rows[1]["name"], Is.EqualTo(DBNull.Value));
+      Assert.That(ds.Tables[0].Rows[2]["name"], Is.EqualTo(String.Empty));
 
       ds.Reset();
       await da.FillAsync(ds);
 
       Assert.That(ds.Tables, Has.One.Items);
-      Assert.AreEqual(3, ds.Tables[0].Rows.Count);
-      Assert.AreEqual("Name 1", ds.Tables[0].Rows[0]["name"]);
+      Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(3));
+      Assert.That(ds.Tables[0].Rows[0]["name"], Is.EqualTo("Name 1"));
 
       ds.Reset();
       await da.FillAsync(ds, 1, 2, "DAFillAsyncTest");
 
       Assert.That(ds.Tables, Has.One.Items);
-      Assert.AreEqual(2, ds.Tables[0].Rows.Count);
-      Assert.AreEqual(2, ds.Tables[0].Rows[0]["id2"]);
-      Assert.AreEqual(DBNull.Value, ds.Tables[0].Rows[0]["name"]);
-      Assert.AreEqual(String.Empty, ds.Tables[0].Rows[1]["name"]);
+      Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(2));
+      Assert.That(ds.Tables[0].Rows[0]["id2"], Is.EqualTo(2));
+      Assert.That(ds.Tables[0].Rows[0]["name"], Is.EqualTo(DBNull.Value));
+      Assert.That(ds.Tables[0].Rows[1]["name"], Is.EqualTo(String.Empty));
 
       ds.Reset();
       using (MySqlCommand cmd = new MySqlCommand("select * from DAFillAsyncTest", Connection))
@@ -1158,18 +1158,18 @@ namespace MySql.Data.MySqlClient.Tests
         await da.FillAsync(ds, "DAFillAsyncTest", reader, 0, 1);
 
       Assert.That(ds.Tables, Has.One.Items);
-      Assert.AreEqual(1, ds.Tables[0].Rows.Count);
-      Assert.AreEqual(1, ds.Tables[0].Rows[0]["id2"]);
-      Assert.AreEqual("Name 1", ds.Tables[0].Rows[0]["name"]);
+      Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(1));
+      Assert.That(ds.Tables[0].Rows[0]["id2"], Is.EqualTo(1));
+      Assert.That(ds.Tables[0].Rows[0]["name"], Is.EqualTo("Name 1"));
 
       ds.Reset();
       using (MySqlCommand cmd = new MySqlCommand("select * from DAFillAsyncTest", Connection))
         await da.FillAsync(ds, 0, 2, "DAFillAsyncTest", cmd, CommandBehavior.Default);
 
       Assert.That(ds.Tables, Has.One.Items);
-      Assert.AreEqual(2, ds.Tables[0].Rows.Count);
-      Assert.AreEqual(1, ds.Tables[0].Rows[0]["id2"]);
-      Assert.AreEqual(DBNull.Value, ds.Tables[0].Rows[1]["name"]);
+      Assert.That(ds.Tables[0].Rows.Count, Is.EqualTo(2));
+      Assert.That(ds.Tables[0].Rows[0]["id2"], Is.EqualTo(1));
+      Assert.That(ds.Tables[0].Rows[1]["name"], Is.EqualTo(DBNull.Value));
     }
 
     [Test]
@@ -1185,51 +1185,51 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = new DataTable();
       await da.FillAsync(dt);
 
-      Assert.AreEqual(3, dt.Rows.Count);
-      Assert.AreEqual(7, dt.Columns.Count);
-      Assert.AreEqual("Name 1", dt.Rows[0]["name"]);
-      Assert.AreEqual(DBNull.Value, dt.Rows[1]["name"]);
-      Assert.AreEqual(String.Empty, dt.Rows[2]["name"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(3));
+      Assert.That(dt.Columns.Count, Is.EqualTo(7));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("Name 1"));
+      Assert.That(dt.Rows[1]["name"], Is.EqualTo(DBNull.Value));
+      Assert.That(dt.Rows[2]["name"], Is.EqualTo(String.Empty));
 
       dt.Reset();
       using (MySqlCommand cmd = new MySqlCommand("select * from DAFillAsyncDtTest", Connection))
       using (MySqlDataReader reader = cmd.ExecuteReader())
         await da.FillAsync(dt, reader);
 
-      Assert.AreEqual(3, dt.Rows.Count);
-      Assert.AreEqual(7, dt.Columns.Count);
-      Assert.AreEqual(1, dt.Rows[0]["id2"]);
-      Assert.AreEqual(2, dt.Rows[1]["id2"]);
-      Assert.AreEqual(3, dt.Rows[2]["id2"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(3));
+      Assert.That(dt.Columns.Count, Is.EqualTo(7));
+      Assert.That(dt.Rows[0]["id2"], Is.EqualTo(1));
+      Assert.That(dt.Rows[1]["id2"], Is.EqualTo(2));
+      Assert.That(dt.Rows[2]["id2"], Is.EqualTo(3));
 
       dt.Reset();
       using (MySqlCommand cmd = new MySqlCommand("select * from DAFillAsyncDtTest", Connection))
         await da.FillAsync(dt, cmd, CommandBehavior.Default);
 
-      Assert.AreEqual(3, dt.Rows.Count);
-      Assert.AreEqual(7, dt.Columns.Count);
-      Assert.AreEqual(DBNull.Value, dt.Rows[1]["name"]);
-      Assert.AreEqual(2, dt.Rows[1]["id2"]);
-      Assert.AreEqual(3, dt.Rows[2]["id2"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(3));
+      Assert.That(dt.Columns.Count, Is.EqualTo(7));
+      Assert.That(dt.Rows[1]["name"], Is.EqualTo(DBNull.Value));
+      Assert.That(dt.Rows[1]["id2"], Is.EqualTo(2));
+      Assert.That(dt.Rows[2]["id2"], Is.EqualTo(3));
 
       dt.Reset();
       DataTable[] dataTables = { dt };
       await da.FillAsync(0, 1, dataTables);
 
       Assert.That(dataTables, Has.One.Items);
-      Assert.AreEqual(1, dataTables[0].Rows.Count);
-      Assert.AreEqual(1, dataTables[0].Rows[0]["id2"]);
-      Assert.AreEqual("Name 1", dataTables[0].Rows[0]["name"]);
+      Assert.That(dataTables[0].Rows.Count, Is.EqualTo(1));
+      Assert.That(dataTables[0].Rows[0]["id2"], Is.EqualTo(1));
+      Assert.That(dataTables[0].Rows[0]["name"], Is.EqualTo("Name 1"));
 
       dt.Reset();
       using (MySqlCommand cmd = new MySqlCommand("select * from DAFillAsyncDtTest", Connection))
         await da.FillAsync(dataTables, 1, 2, cmd, CommandBehavior.Default);
 
       Assert.That(dataTables, Has.One.Items);
-      Assert.AreEqual(2, dataTables[0].Rows.Count);
-      Assert.AreEqual(2, dataTables[0].Rows[0]["id2"]);
-      Assert.AreEqual(DBNull.Value, dataTables[0].Rows[0]["name"]);
-      Assert.AreEqual(String.Empty, dataTables[0].Rows[1]["name"]);
+      Assert.That(dataTables[0].Rows.Count, Is.EqualTo(2));
+      Assert.That(dataTables[0].Rows[0]["id2"], Is.EqualTo(2));
+      Assert.That(dataTables[0].Rows[0]["name"], Is.EqualTo(DBNull.Value));
+      Assert.That(dataTables[0].Rows[1]["name"], Is.EqualTo(String.Empty));
     }
 
     [Test]
@@ -1248,48 +1248,48 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlDataAdapter da = new MySqlDataAdapter(cmd);
       DataTable schema = new DataTable();
       await da.FillSchemaAsync(schema, SchemaType.Source);
-      Assert.AreEqual(2, schema.Columns.Count);
+      Assert.That(schema.Columns.Count, Is.EqualTo(2));
 
       DataSet ds = new DataSet();
       await da.FillSchemaAsync(ds, SchemaType.Source);
-      Assert.True(ds.Tables.Count == 1);
-      Assert.AreEqual(2, ds.Tables[0].Columns.Count);
+      Assert.That(ds.Tables.Count == 1);
+      Assert.That(ds.Tables[0].Columns.Count, Is.EqualTo(2));
 
       ds.Reset();
       using (cmd)
       using (reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
         await da.FillSchemaAsync(ds, SchemaType.Source, "DAFillSchemaAsyncTest", reader);
 
-      Assert.True(ds.Tables.Count == 1);
-      Assert.AreEqual(2, ds.Tables[0].Columns.Count);
+      Assert.That(ds.Tables.Count == 1);
+      Assert.That(ds.Tables[0].Columns.Count, Is.EqualTo(2));
 
       ds.Reset();
       using (cmd)
         await da.FillSchemaAsync(ds, SchemaType.Source, cmd, "DAFillSchemaAsyncTest", CommandBehavior.SchemaOnly);
 
-      Assert.True(ds.Tables.Count == 1);
-      Assert.AreEqual(2, ds.Tables[0].Columns.Count);
+      Assert.That(ds.Tables.Count == 1);
+      Assert.That(ds.Tables[0].Columns.Count, Is.EqualTo(2));
 
       ds.Reset();
       using (cmd)
         await da.FillSchemaAsync(ds, SchemaType.Source, "DAFillSchemaAsyncTest", CancellationToken.None);
 
-      Assert.True(ds.Tables.Count == 1);
-      Assert.AreEqual(2, ds.Tables[0].Columns.Count);
+      Assert.That(ds.Tables.Count == 1);
+      Assert.That(ds.Tables[0].Columns.Count, Is.EqualTo(2));
 
       DataTable dataTable = new DataTable();
       using (cmd)
       using (reader = cmd.ExecuteReader(CommandBehavior.SchemaOnly))
         await da.FillSchemaAsync(dataTable, SchemaType.Source, reader);
 
-      Assert.AreEqual(2, dataTable.Columns.Count);
+      Assert.That(dataTable.Columns.Count, Is.EqualTo(2));
 
       dataTable.Reset();
       using (cmd)
         await da.FillSchemaAsync(dataTable, SchemaType.Source, cmd, CommandBehavior.SchemaOnly);
 
-      Assert.AreEqual(2, dataTable.Columns.Count);
-      Assert.AreEqual("id", dataTable.Columns[0].ColumnName);
+      Assert.That(dataTable.Columns.Count, Is.EqualTo(2));
+      Assert.That(dataTable.Columns[0].ColumnName, Is.EqualTo("id"));
     }
 
     [Test]
@@ -1307,8 +1307,8 @@ namespace MySql.Data.MySqlClient.Tests
       dt.Rows.Add(dr);
       int count = await da.UpdateAsync(dt);
 
-      Assert.True(count == 1, "checking insert count");
-      Assert.True(dt.Rows[dt.Rows.Count - 1]["id"] != null, "Checking auto increment column");
+      Assert.That(count == 1, "checking insert count");
+      Assert.That(dt.Rows[dt.Rows.Count - 1]["id"] != null, "Checking auto increment column");
 
       dt.Rows.Clear();
       da.Fill(dt);
@@ -1320,25 +1320,25 @@ namespace MySql.Data.MySqlClient.Tests
       dt.Rows[0]["tm"] = day1.TimeOfDay;
       count = await da.UpdateAsync(dt);
 
-      Assert.True(dt.Rows[0]["ts"] != null, "checking refresh of record");
-      Assert.True(dt.Rows[0]["id2"] != null, "checking refresh of primary column");
+      Assert.That(dt.Rows[0]["ts"] != null, "checking refresh of record");
+      Assert.That(dt.Rows[0]["id2"] != null, "checking refresh of primary column");
 
       dt.Rows.Clear();
       da.Fill(dt);
 
-      Assert.True(count == 1, "checking update count");
+      Assert.That(count == 1, "checking update count");
       DateTime dateTime = (DateTime)dt.Rows[0]["dt"];
-      Assert.True(day1.Date == dateTime.Date, "checking date");
-      Assert.True(day1.TimeOfDay == (TimeSpan)dt.Rows[0]["tm"], "checking time");
+      Assert.That(day1.Date == dateTime.Date, "checking date");
+      Assert.That(day1.TimeOfDay == (TimeSpan)dt.Rows[0]["tm"], "checking time");
 
       dt.Rows[0].Delete();
       count = await da.UpdateAsync(dt);
 
-      Assert.True(count == 1, "checking insert count");
+      Assert.That(count == 1, "checking insert count");
 
       dt.Rows.Clear();
       da.Fill(dt);
-      Assert.True(dt.Rows.Count == 0, "checking row count");
+      Assert.That(dt.Rows.Count == 0, "checking row count");
 
       dr = dt.NewRow();
       dr["id2"] = 3;
@@ -1347,7 +1347,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       DataRow[] dataRows = dt.Select(null, null, DataViewRowState.Added);
       count = await da.UpdateAsync(dataRows);
-      Assert.True(count == 1, "checking update count");
+      Assert.That(count == 1, "checking update count");
 
       DataSet ds = new DataSet();
       da.Fill(ds);
@@ -1357,7 +1357,7 @@ namespace MySql.Data.MySqlClient.Tests
       ds.Tables[0].Rows.Add(dr);
 
       count = await da.UpdateAsync(ds);
-      Assert.True(count == 1, "checking update count");
+      Assert.That(count == 1, "checking update count");
 
       dr = dt.NewRow();
       dr["id2"] = 4;
@@ -1370,7 +1370,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       dataRows = dt.Select(null, null, DataViewRowState.Added);
       count = await da.UpdateAsync(dataRows, mapping);
-      Assert.True(count == 1, "checking update count");
+      Assert.That(count == 1, "checking update count");
 
       ds.Reset();
       da.FillSchema(ds, SchemaType.Mapped);
@@ -1381,7 +1381,7 @@ namespace MySql.Data.MySqlClient.Tests
       ds.Tables[0].Rows.Add(dr);
 
       count = await da.UpdateAsync(ds, "Table");
-      Assert.True(count == 1, "checking update count");
+      Assert.That(count == 1, "checking update count");
 
       cb.Dispose();
     }

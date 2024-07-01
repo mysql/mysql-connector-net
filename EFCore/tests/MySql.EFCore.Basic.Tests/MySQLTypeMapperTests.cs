@@ -103,33 +103,33 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       using (var context = new AllDataTypesContext())
       {
         var data = context.AllDataTypes.First();
-        Assert.AreEqual(1, data.AddressNumber1);
-        Assert.AreEqual(2, data.AddressNumber2);
-        Assert.AreEqual(3, data.AddressNumber3);
-        Assert.AreEqual(4, data.AddressNumber4);
-        Assert.AreEqual((long)5, data.AddressNumber5);
-        Assert.AreEqual(6.36f, data.AddressNumber6);
-        Assert.AreEqual(7.49f, data.AddressNumber7);
-        Assert.AreEqual(8.64d, data.AddressNumber8);
-        Assert.AreEqual(9.81m, data.AddressNumber9);
-        Assert.AreEqual(10, data.AddressNumber10);
-        Assert.AreEqual("BuildingName1", data.BuildingName1);
-        Assert.AreEqual("BuildingName2", data.BuildingName2);
-        Assert.AreEqual("BuildingName3", data.BuildingName3);
-        Assert.AreEqual("BuildingName4", data.BuildingName4);
-        Assert.AreEqual("BuildingName5", data.BuildingName5);
-        Assert.AreEqual("BuildingName6".PadRight(120, '\0'), UTF8Encoding.UTF8.GetString(data.BuildingName6!));
-        Assert.AreEqual("BuildingName7", UTF8Encoding.UTF8.GetString(data.BuildingName7!));
-        Assert.AreEqual("BuildingName8", UTF8Encoding.UTF8.GetString(data.BuildingName8!));
-        Assert.AreEqual("BuildingName9", UTF8Encoding.UTF8.GetString(data.BuildingName9!));
-        Assert.AreEqual("BuildingName10", UTF8Encoding.UTF8.GetString(data.BuildingName10!));
-        Assert.AreEqual("small", data.BuildingName11);
-        Assert.AreEqual("small,medium,large", data.BuildingName12);
-        Assert.AreEqual(now.Date, data.BuildingName13);
-        Assert.AreEqual(now, data.BuildingName14);
-        Assert.AreEqual(now.TimeOfDay, data.BuildingName15);
-        Assert.AreEqual(now, data.BuildingName16);
-        Assert.AreEqual(now.Year, data.BuildingName17);
+        Assert.That(data.AddressNumber1, Is.EqualTo(1));
+        Assert.That(data.AddressNumber2, Is.EqualTo(2));
+        Assert.That(data.AddressNumber3, Is.EqualTo(3));
+        Assert.That(data.AddressNumber4, Is.EqualTo(4));
+        Assert.That(data.AddressNumber5, Is.EqualTo((long)5));
+        Assert.That(data.AddressNumber6, Is.EqualTo(6.36f));
+        Assert.That(data.AddressNumber7, Is.EqualTo(7.49f));
+        Assert.That(data.AddressNumber8, Is.EqualTo(8.64d));
+        Assert.That(data.AddressNumber9, Is.EqualTo(9.81m));
+        Assert.That(data.AddressNumber10, Is.EqualTo(10));
+        Assert.That(data.BuildingName1, Is.EqualTo("BuildingName1"));
+        Assert.That(data.BuildingName2, Is.EqualTo("BuildingName2"));
+        Assert.That(data.BuildingName3, Is.EqualTo("BuildingName3"));
+        Assert.That(data.BuildingName4, Is.EqualTo("BuildingName4"));
+        Assert.That(data.BuildingName5, Is.EqualTo("BuildingName5"));
+        Assert.That(UTF8Encoding.UTF8.GetString(data.BuildingName6!), Is.EqualTo("BuildingName6".PadRight(120, '\0')));
+        Assert.That(UTF8Encoding.UTF8.GetString(data.BuildingName7!), Is.EqualTo("BuildingName7"));
+        Assert.That(UTF8Encoding.UTF8.GetString(data.BuildingName8!), Is.EqualTo("BuildingName8"));
+        Assert.That(UTF8Encoding.UTF8.GetString(data.BuildingName9!), Is.EqualTo("BuildingName9"));
+        Assert.That(UTF8Encoding.UTF8.GetString(data.BuildingName10!), Is.EqualTo("BuildingName10"));
+        Assert.That(data.BuildingName11, Is.EqualTo("small"));
+        Assert.That(data.BuildingName12, Is.EqualTo("small,medium,large"));
+        Assert.That(data.BuildingName13, Is.EqualTo(now.Date));
+        Assert.That(data.BuildingName14, Is.EqualTo(now));
+        Assert.That(data.BuildingName15, Is.EqualTo(now.TimeOfDay));
+        Assert.That(data.BuildingName16, Is.EqualTo(now));
+        Assert.That(data.BuildingName17, Is.EqualTo(now.Year));
       }
     }
 
@@ -169,9 +169,9 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 
         var data = context.AllBlobTypes.First();
 
-        Assert.AreEqual(data1.Length, data.Example1.Length);
-        Assert.AreEqual(data2.Length, data.Example2.Length);
-        Assert.AreEqual(data3.Length, data.Example3.Length);
+        Assert.That(data.Example1.Length, Is.EqualTo(data1.Length));
+        Assert.That(data.Example2.Length, Is.EqualTo(data2.Length));
+        Assert.That(data.Example3.Length, Is.EqualTo(data3.Length));
       }
     }
 
@@ -203,10 +203,10 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           {
             string field = reader.GetString("field");
             string type = validation[field];
-            Assert.AreEqual(type, reader.GetString("type"));
+            Assert.That(reader.GetString("type"), Is.EqualTo(type));
             counter++;
           }
-          Assert.AreEqual(validation.Count, counter);
+          Assert.That(counter, Is.EqualTo(validation.Count));
         }
       }
     }

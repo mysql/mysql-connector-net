@@ -48,12 +48,12 @@ namespace MySqlX.Data.Tests
       Session session = GetSession();
       List<Schema> schemas = session.GetSchemas();
 
-      Assert.True(schemas.Exists(s => s.Name == base.testSchema.Name));
+      Assert.That(schemas.Exists(s => s.Name == base.testSchema.Name));
 
       Schema schema = session.GetSchema(schemaName);
-      Assert.AreEqual(schemaName, schema.Name);
+      Assert.That(schema.Name, Is.EqualTo(schemaName));
       schema = session.GetSchema(null);
-      Assert.IsNull(schema.Name);
+      Assert.That(schema.Name, Is.Null);
     }
 
     [Test]
@@ -61,7 +61,7 @@ namespace MySqlX.Data.Tests
     {
       Session s = GetSession();
       Schema schema = s.GetSchema("test-schema");
-      Assert.False(SchemaExistsInDatabase(schema));
+      Assert.That(SchemaExistsInDatabase(schema), Is.False);
     }
 
     [Test]
@@ -71,7 +71,7 @@ namespace MySqlX.Data.Tests
       ExecuteSQL("CREATE TABLE test(id int)");
 
       List<Table> tables = testSchema.GetTables();
-      Assert.True(tables.Count == 1);
+      Assert.That(tables.Count == 1);
     }
 
     [Test]
@@ -85,9 +85,9 @@ namespace MySqlX.Data.Tests
       ExecuteSQL("CREATE VIEW view2 AS select * from test");
 
       List<Table> tables = testSchema.GetTables();
-      Assert.AreEqual(3, tables.Count);
-      Assert.AreEqual(1, tables.Count(i => !i.IsView));
-      Assert.AreEqual(2, tables.Count(i => i.IsView));
+      Assert.That(tables.Count, Is.EqualTo(3));
+      Assert.That(tables.Count(i => !i.IsView), Is.EqualTo(1));
+      Assert.That(tables.Count(i => i.IsView), Is.EqualTo(2));
 
       List<Collection> colls = testSchema.GetCollections();
       Assert.That(colls, Has.One.Items);
@@ -100,14 +100,14 @@ namespace MySqlX.Data.Tests
       Collection testCollection = CreateCollection("test");
 
       Result r = ExecuteAddStatement(testCollection.Add(@"{ ""_id"": 1, ""foo"": 1 }"));
-      Assert.AreEqual(1, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(1));
 
       Table test = testSchema.GetCollectionAsTable("test");
-      Assert.True(TableExistsInDatabase(test));
+      Assert.That(TableExistsInDatabase(test));
 
       RowResult result = ExecuteSelectStatement(test.Select("_id"));
-      Assert.True(result.Next());
-      Assert.AreEqual("1", result[0]);
+      Assert.That(result.Next());
+      Assert.That(result[0], Is.EqualTo("1"));
     }
 
     [Test]
@@ -117,15 +117,15 @@ namespace MySqlX.Data.Tests
       Session session = GetSession();
       session.CreateSchema(schemaName);
       Schema schema = session.GetSchema(schemaName);
-      Assert.True(SchemaExistsInDatabase(schema));
+      Assert.That(SchemaExistsInDatabase(schema));
 
       // Drop existing schema.
       session.DropSchema(schemaName);
-      Assert.False(SchemaExistsInDatabase(schema));
+      Assert.That(SchemaExistsInDatabase(schema), Is.False);
 
       // Drop non-existing schema.
       session.DropSchema(schemaName);
-      Assert.False(SchemaExistsInDatabase(schema));
+      Assert.That(SchemaExistsInDatabase(schema), Is.False);
 
       // Empty, whitespace and null schema name.
       Assert.Throws<ArgumentNullException>(() => session.DropSchema(string.Empty));
@@ -203,7 +203,7 @@ namespace MySqlX.Data.Tests
         db = session.CreateSchema("test_123456789");
       }
       else { db = session.CreateSchema("test_123456789"); }
-      Assert.True(db.ExistsInDatabase());
+      Assert.That(db.ExistsInDatabase());
       Assert.Throws<MySqlException>(() => session.CreateSchema("test_123456789"));
       session.DropSchema("test_123456789");
       Assert.Throws<MySqlException>(() => session.CreateSchema("test_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789"));
@@ -217,10 +217,10 @@ namespace MySqlX.Data.Tests
       if (!session.GetSchema("test1").ExistsInDatabase())
         session.CreateSchema("test1");
       Assert.DoesNotThrow(() => session.SetCurrentSchema("test1"));
-      Assert.AreEqual("test1", session.Schema.Name);
+      Assert.That(session.Schema.Name, Is.EqualTo("test1"));
       // Retry the same schema
       Assert.DoesNotThrow(() => session.SetCurrentSchema("test1"));
-      Assert.AreEqual("test1", session.Schema.Name);
+      Assert.That(session.Schema.Name, Is.EqualTo("test1"));
       session.Schema.CreateCollection("my_collection_123456789");
       session.Schema.DropCollection("my_collection_123456789");
       //Exceptions
@@ -231,7 +231,7 @@ namespace MySqlX.Data.Tests
       //No Active Schema
       using (Session sessionPlain = MySQLX.GetSession(ConnectionString))
       {
-        Assert.IsNull(sessionPlain.GetCurrentSchema());
+        Assert.That(sessionPlain.GetCurrentSchema(), Is.Null);
       }
     }
 
@@ -257,7 +257,7 @@ namespace MySqlX.Data.Tests
         session.SQL("DROP DATABASE IF EXISTS dbname1").Execute();
         session.SQL("CREATE DATABASE dbname1").Execute();
         session.SQL("USE dbname1").Execute();
-        StringAssert.AreEqualIgnoringCase("dbname1", session.GetCurrentSchema().Name);
+        Assert.That(session.GetCurrentSchema().Name, Is.EqualTo("dbname1").IgnoreCase);
         session.SQL("CREATE TABLE address1" +
                     "(address_number  INT NOT NULL AUTO_INCREMENT, " +
                     "building_name  VARCHAR(100) NOT NULL, " +
@@ -270,7 +270,7 @@ namespace MySqlX.Data.Tests
         session.SQL("DROP DATABASE IF EXISTS dbname2").Execute();
         session.SQL("CREATE DATABASE dbname2").Execute();
         session.SQL("USE dbname2").Execute();
-        StringAssert.AreEqualIgnoringCase("dbname2", session.GetCurrentSchema().Name);
+        Assert.That(session.GetCurrentSchema().Name, Is.EqualTo("dbname2").IgnoreCase);
         session.SQL("CREATE TABLE address2" +
                     "(address_number  INT NOT NULL AUTO_INCREMENT, " +
                     "building_name  VARCHAR(100) NOT NULL, " +
@@ -280,11 +280,11 @@ namespace MySqlX.Data.Tests
                     " VALUES " +
                     "(2,'MySQL2','BGL2');").Execute();
         session.SetCurrentSchema("dbname1");
-        Assert.AreEqual("dbname1", session.Schema.Name);
+        Assert.That(session.Schema.Name, Is.EqualTo("dbname1"));
         session.SQL("SELECT * FROM address1").Execute();
         session.SQL("DROP TABLE address1").Execute();
         session.SetCurrentSchema("dbname2");
-        StringAssert.AreEqualIgnoringCase("dbName2", session.Schema.Name);
+        Assert.That(session.Schema.Name, Is.EqualTo("dbName2").IgnoreCase);
         session.SQL("SELECT * FROM address2").Execute();
         session.SQL("DROP TABLE address2").Execute();
         session.SQL("DROP DATABASE dbname1").Execute();

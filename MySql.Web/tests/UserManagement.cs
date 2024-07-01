@@ -55,16 +55,16 @@ namespace MySql.Web.Tests
       // create the user
       MembershipCreateStatus status;
       provider.CreateUser("foo", "barbar!", "foo@bar.com", null, null, true, null, out status);
-      Assert.AreEqual(MembershipCreateStatus.Success, status);
+      Assert.That(status, Is.EqualTo(MembershipCreateStatus.Success));
 
       // verify that the password format is hashed.
       DataTable table = FillTable("SELECT * FROM my_aspnet_membership");
       MembershipPasswordFormat rowFormat =
         (MembershipPasswordFormat)Convert.ToInt32(table.Rows[0]["PasswordFormat"]);
-      Assert.AreEqual(format, rowFormat);
+      Assert.That(rowFormat, Is.EqualTo(format));
 
       //  then attempt to verify the user
-      Assert.True(provider.ValidateUser("foo", "barbar!"));
+      Assert.That(provider.ValidateUser("foo", "barbar!"));
 
     }
 
@@ -108,19 +108,19 @@ namespace MySql.Web.Tests
       CreateUserWithFormat(MembershipPasswordFormat.Hashed);
       ArgumentException ex = Assert.Throws<ArgumentException>(() => provider.ChangePassword("foo", "barbar!", "bar2"));
 
-      Assert.AreEqual("newPassword", ex.ParamName);
-      Assert.True(ex.Message.Contains("length of parameter"));
+      Assert.That(ex.ParamName, Is.EqualTo("newPassword"));
+      Assert.That(ex.Message.Contains("length of parameter"));
       ArgumentException ex1 = Assert.Throws<ArgumentException>(() => provider.ChangePassword("foo", "barbar!", "barbar2"));
-      Assert.AreEqual("newPassword", ex1.ParamName);
-      Assert.True(ex1.Message.Contains("alpha numeric"));
+      Assert.That(ex1.ParamName, Is.EqualTo("newPassword"));
+      Assert.That(ex1.Message.Contains("alpha numeric"));
 
       // now test regex strength testing
       bool result = provider.ChangePassword("foo", "barbar!", "zzzxxx!");
-      Assert.False(result);
+      Assert.That(!result);
 
       // now do one that should work
       result = provider.ChangePassword("foo", "barbar!", "barfoo!");
-      Assert.True(result);
+      Assert.That(result);
 
       provider.ValidateUser("foo", "barfoo!");
 
@@ -146,26 +146,26 @@ namespace MySql.Web.Tests
       MembershipCreateStatus status;
       MembershipUser user = provider.CreateUser("foo", "xyz",
         "foo@bar.com", null, null, true, null, out status);
-      Assert.IsNull(user);
-      Assert.AreEqual(MembershipCreateStatus.InvalidPassword, status);
+      Assert.That(user, Is.Null);
+      Assert.That(status, Is.EqualTo(MembershipCreateStatus.InvalidPassword));
 
       // now with not enough non-alphas
       user = provider.CreateUser("foo", "xyz1234",
         "foo@bar.com", null, null, true, null, out status);
-      Assert.IsNull(user);
-      Assert.AreEqual(MembershipCreateStatus.InvalidPassword, status);
+      Assert.That(user, Is.Null);
+      Assert.That(status, Is.EqualTo(MembershipCreateStatus.InvalidPassword));
 
       // now one that doesn't pass the regex test
       user = provider.CreateUser("foo", "xyzxyz!",
         "foo@bar.com", null, null, true, null, out status);
-      Assert.IsNull(user);
-      Assert.AreEqual(MembershipCreateStatus.InvalidPassword, status);
+      Assert.That(user, Is.Null);
+      Assert.That(status, Is.EqualTo(MembershipCreateStatus.InvalidPassword));
 
       // now one that works
       user = provider.CreateUser("foo", "barbar!",
         "foo@bar.com", null, null, true, null, out status);
-      Assert.IsNotNull(user);
-      Assert.AreEqual(MembershipCreateStatus.Success, status);
+      Assert.That(user, Is.Not.Null);
+      Assert.That(status, Is.EqualTo(MembershipCreateStatus.Success));
 
       //Cleanup
       provider.DeleteUser("foo", true);
@@ -178,11 +178,11 @@ namespace MySql.Web.Tests
       execSQL(@"delete from my_aspnet_membership;
                 delete from my_aspnet_users;");
       CreateUserWithFormat(MembershipPasswordFormat.Hashed);
-      Assert.True(provider.DeleteUser("foo", true));
+      Assert.That(provider.DeleteUser("foo", true));
       DataTable table = FillTable("SELECT * FROM my_aspnet_membership");
-      Assert.AreEqual(0, table.Rows.Count);
+      Assert.That(table.Rows.Count, Is.EqualTo(0));
       table = FillTable("SELECT * FROM my_aspnet_users");
-      Assert.AreEqual(0, table.Rows.Count);
+      Assert.That(table.Rows.Count, Is.EqualTo(0));
 
       CreateUserWithFormat(MembershipPasswordFormat.Hashed);
       provider = new MySQLMembershipProvider();
@@ -190,11 +190,11 @@ namespace MySql.Web.Tests
       config.Add("connectionStringName", "LocalMySqlServer");
       config.Add("applicationName", "/");
       provider.Initialize(null, config);
-      Assert.True(Membership.DeleteUser("foo", false));
+      Assert.That(Membership.DeleteUser("foo", false));
       table = FillTable("SELECT * FROM my_aspnet_membership");
-      Assert.AreEqual(0, table.Rows.Count);
+      Assert.That(table.Rows.Count, Is.EqualTo(0));
       table = FillTable("SELECT * FROM my_aspnet_users");
-      Assert.AreEqual(1, table.Rows.Count);
+      Assert.That(table.Rows.Count, Is.EqualTo(1));
     }
 
     [Test]
@@ -203,8 +203,8 @@ namespace MySql.Web.Tests
       CreateUserWithFormat(MembershipPasswordFormat.Hashed);
       int records;
       MembershipUserCollection users = provider.FindUsersByName("F%", 0, 10, out records);
-      Assert.AreEqual(1, records);
-      Assert.AreEqual("foo", users["foo"].UserName);
+      Assert.That(records, Is.EqualTo(1));
+      Assert.That(users["foo"].UserName, Is.EqualTo("foo"));
 
       //Cleanup
       provider.DeleteUser("foo", true);
@@ -217,8 +217,8 @@ namespace MySql.Web.Tests
 
       int records;
       MembershipUserCollection users = provider.FindUsersByEmail("foo@bar.com", 0, 10, out records);
-      Assert.AreEqual(1, records);
-      Assert.AreEqual("foo", users["foo"].UserName);
+      Assert.That(records, Is.EqualTo(1));
+      Assert.That(users["foo"].UserName, Is.EqualTo("foo"));
 
       //Cleanup
       provider.DeleteUser("foo", true);
@@ -233,18 +233,18 @@ namespace MySql.Web.Tests
         Membership.CreateUser("foo", "barbar!", null, "question", "answer", true, out status);
         int records;
         MembershipUserCollection users = Membership.FindUsersByName("F%", 0, 10, out records);
-        Assert.AreEqual(1, records);
-        Assert.AreEqual("foo", users["foo"].UserName);
+        Assert.That(records, Is.EqualTo(1));
+        Assert.That(users["foo"].UserName, Is.EqualTo("foo"));
 
         Membership.CreateUser("test", "barbar!", "myemail@host.com",
           "question", "answer", true, out status);
         users = Membership.FindUsersByName("T%", 0, 10, out records);
-        Assert.AreEqual(1, records);
-        Assert.AreEqual("test", users["test"].UserName);
+        Assert.That(records, Is.EqualTo(1));
+        Assert.That(users["test"].UserName, Is.EqualTo("test"));
       }
       catch (Exception ex)
       {
-        Assert.True(ex.Message != String.Empty, ex.Message);
+        Assert.That(ex.Message != String.Empty, ex.Message);
       }
 
       //Cleanup
@@ -256,14 +256,14 @@ namespace MySql.Web.Tests
     public void NumberOfUsersOnline()
     {
       int numOnline = Membership.GetNumberOfUsersOnline();
-      Assert.AreEqual(0, numOnline);
+      Assert.That(numOnline, Is.EqualTo(0));
 
       MembershipCreateStatus status;
       Membership.CreateUser("foo", "barbar!", null, "question", "answer", true, out status);
       Membership.CreateUser("foo2", "barbar!", null, "question", "answer", true, out status);
 
       numOnline = Membership.GetNumberOfUsersOnline();
-      Assert.AreEqual(2, numOnline);
+      Assert.That(numOnline, Is.EqualTo(2));
 
       //Cleanup
       Membership.DeleteUser("foo");
@@ -275,23 +275,23 @@ namespace MySql.Web.Tests
     {
       MembershipCreateStatus status;
       Membership.CreateUser("foo", "barbar!", null, "question", "answer", true, out status);
-      Assert.False(Membership.ValidateUser("foo", "bar2"));
-      Assert.False(Membership.ValidateUser("foo", "bar3"));
-      Assert.False(Membership.ValidateUser("foo", "bar3"));
-      Assert.False(Membership.ValidateUser("foo", "bar3"));
-      Assert.False(Membership.ValidateUser("foo", "bar3"));
+      Assert.That(!Membership.ValidateUser("foo", "bar2"));
+      Assert.That(!Membership.ValidateUser("foo", "bar3"));
+      Assert.That(!Membership.ValidateUser("foo", "bar3"));
+      Assert.That(!Membership.ValidateUser("foo", "bar3"));
+      Assert.That(!Membership.ValidateUser("foo", "bar3"));
 
       // the user should be locked now so the right password should fail
-      Assert.False(Membership.ValidateUser("foo", "barbar!"));
+      Assert.That(!Membership.ValidateUser("foo", "barbar!"));
 
       MembershipUser user = Membership.GetUser("foo");
-      Assert.True(user.IsLockedOut);
+      Assert.That(user.IsLockedOut);
 
-      Assert.True(user.UnlockUser());
+      Assert.That(user.UnlockUser());
       user = Membership.GetUser("foo");
-      Assert.False(user.IsLockedOut);
+      Assert.That(!user.IsLockedOut);
 
-      Assert.True(Membership.ValidateUser("foo", "barbar!"));
+      Assert.That(Membership.ValidateUser("foo", "barbar!"));
 
       //Cleanup
       Membership.DeleteUser("foo");
@@ -303,13 +303,13 @@ namespace MySql.Web.Tests
       MembershipCreateStatus status;
       Membership.CreateUser("foo", "barbar!", "foo@bar.com", "question", "answer", true, out status);
       string username = Membership.GetUserNameByEmail("foo@bar.com");
-      Assert.AreEqual("foo", username);
+      Assert.That(username, Is.EqualTo("foo"));
 
       username = Membership.GetUserNameByEmail("foo@b.com");
-      Assert.IsNull(username);
+      Assert.That(username, Is.Null);
 
       username = Membership.GetUserNameByEmail("  foo@bar.com   ");
-      Assert.AreEqual("foo", username);
+      Assert.That(username, Is.EqualTo("foo"));
 
       //Cleanup
       Membership.DeleteUser("foo");
@@ -320,7 +320,7 @@ namespace MySql.Web.Tests
     {
       MembershipCreateStatus status;
       Membership.CreateUser("foo", "barbar!", "foo@bar.com", "color", "blue", true, out status);
-      Assert.AreEqual(MembershipCreateStatus.Success, status);
+      Assert.That(status, Is.EqualTo(MembershipCreateStatus.Success));
 
       MembershipUser user = Membership.GetUser("foo");
 
@@ -332,11 +332,11 @@ namespace MySql.Web.Tests
       Membership.UpdateUser(user);
 
       MembershipUser newUser = Membership.GetUser("foo");
-      Assert.AreEqual(user.Comment, newUser.Comment);
-      Assert.AreEqual(user.Email, newUser.Email);
-      Assert.AreEqual(user.IsApproved, newUser.IsApproved);
-      Assert.AreEqual(user.LastActivityDate, newUser.LastActivityDate);
-      Assert.AreEqual(user.LastLoginDate, newUser.LastLoginDate);
+      Assert.That(newUser.Comment, Is.EqualTo(user.Comment));
+      Assert.That(newUser.Email, Is.EqualTo(user.Email));
+      Assert.That(newUser.IsApproved, Is.EqualTo(user.IsApproved));
+      Assert.That(newUser.LastActivityDate, Is.EqualTo(user.LastActivityDate));
+      Assert.That(newUser.LastLoginDate, Is.EqualTo(user.LastLoginDate));
 
       //Cleanup
       Membership.DeleteUser("foo");
@@ -350,11 +350,11 @@ namespace MySql.Web.Tests
       }
       catch (ArgumentNullException ane)
       {
-        Assert.AreEqual("password", ane.ParamName);
+        Assert.That(ane.ParamName, Is.EqualTo("password"));
       }
       catch (ArgumentException)
       {
-        Assert.IsNotNull(pw);
+        Assert.That(pw, Is.Not.Null);
       }
     }
 
@@ -363,7 +363,7 @@ namespace MySql.Web.Tests
     {
       MembershipCreateStatus status;
       Membership.CreateUser("foo", "barbar!", "foo@bar.com", "color", "blue", true, out status);
-      Assert.AreEqual(MembershipCreateStatus.Success, status);
+      Assert.That(status, Is.EqualTo(MembershipCreateStatus.Success));
 
       MembershipUser user = Membership.GetUser("foo");
       ChangePasswordQAHelper(user, "", "newQ", "newA");
@@ -372,10 +372,10 @@ namespace MySql.Web.Tests
       ChangePasswordQAHelper(user, null, "newQ", "newA");
 
       bool result = user.ChangePasswordQuestionAndAnswer("barbar!", "newQ", "newA");
-      Assert.True(result);
+      Assert.That(result);
 
       user = Membership.GetUser("foo");
-      Assert.AreEqual("newQ", user.PasswordQuestion);
+      Assert.That(user.PasswordQuestion, Is.EqualTo("newQ"));
 
       //Cleanup
       Membership.DeleteUser("foo");
@@ -392,18 +392,18 @@ namespace MySql.Web.Tests
           "question", "answer", true, out status);
 
       MembershipUserCollection users = Membership.GetAllUsers();
-      Assert.AreEqual(100, users.Count);
+      Assert.That(users.Count, Is.EqualTo(100));
       int index = 0;
       foreach (MembershipUser user in users)
-        Assert.AreEqual(String.Format("foo{0}", index++), user.UserName);
+        Assert.That(user.UserName, Is.EqualTo(String.Format("foo{0}", index++)));
 
       int total;
       users = Membership.GetAllUsers(2, 10, out total);
-      Assert.AreEqual(10, users.Count);
-      Assert.AreEqual(100, total);
+      Assert.That(users.Count, Is.EqualTo(10));
+      Assert.That(total, Is.EqualTo(100));
       index = 0;
       foreach (MembershipUser user in users)
-        Assert.AreEqual(String.Format("foo2{0}", index++), user.UserName);
+        Assert.That(user.UserName, Is.EqualTo(String.Format("foo2{0}", index++)));
 
       //Cleanup
       MySqlHelper.ExecuteScalar(Connection, "DELETE FROM my_aspnet_users");
@@ -435,7 +435,7 @@ namespace MySql.Web.Tests
         else
         {
           Exception ex = Assert.Throws<ProviderException>(() => provider.GetPassword("foo", answer));
-          Assert.AreEqual(ex.Message, "Password Retrieval Not Enabled.");
+          Assert.That("Password Retrieval Not Enabled.", Is.EqualTo(ex.Message));
         }
       }
       else
@@ -452,7 +452,7 @@ namespace MySql.Web.Tests
         else
         {
           password = provider.GetPassword("foo", answer);
-          Assert.AreEqual("barbar!", password);
+          Assert.That(password, Is.EqualTo("barbar!"));
         }
       }
 
@@ -509,7 +509,7 @@ namespace MySql.Web.Tests
       MembershipCreateStatus status;
       Membership.CreateUser("foo", "barbar!", null, "question", "answer", true, out status);
       MembershipUser user = Membership.GetUser(1);
-      Assert.AreEqual("foo", user.UserName);
+      Assert.That(user.UserName, Is.EqualTo("foo"));
 
       // now move the activity date back outside the login
       // window
@@ -517,10 +517,10 @@ namespace MySql.Web.Tests
       Membership.UpdateUser(user);
 
       user = Membership.GetUser("foo");
-      Assert.False(user.IsOnline);
+      Assert.That(!user.IsOnline);
 
       user = Membership.GetUser("foo", true);
-      Assert.True(user.IsOnline);
+      Assert.That(user.IsOnline);
 
       // now move the activity date back outside the login
       // window again
@@ -528,10 +528,10 @@ namespace MySql.Web.Tests
       Membership.UpdateUser(user);
 
       user = Membership.GetUser(1);
-      Assert.False(user.IsOnline);
+      Assert.That(!user.IsOnline);
 
       user = Membership.GetUser(1, true);
-      Assert.True(user.IsOnline);
+      Assert.That(user.IsOnline);
 
       //Cleanup
       Membership.DeleteUser("foo");
@@ -553,15 +553,15 @@ namespace MySql.Web.Tests
 
 
       MembershipUserCollection users = Membership.FindUsersByName("fo%");
-      Assert.AreEqual(100, users.Count);
+      Assert.That(users.Count, Is.EqualTo(100));
 
       int total;
       users = Membership.FindUsersByName("fo%", 2, 10, out total);
-      Assert.AreEqual(10, users.Count);
-      Assert.AreEqual(100, total);
+      Assert.That(users.Count, Is.EqualTo(10));
+      Assert.That(total, Is.EqualTo(100));
       int index = 0;
       foreach (MembershipUser user in users)
-        Assert.AreEqual(String.Format("foo2{0}", index++), user.UserName);
+        Assert.That(user.UserName, Is.EqualTo(String.Format("foo2{0}", index++)));
 
       //Cleanup
       MySqlHelper.ExecuteScalar(Connection, "DELETE FROM my_aspnet_users");
@@ -582,10 +582,10 @@ namespace MySql.Web.Tests
       provider.Initialize(null, config);
 
       Exception ex = Assert.Throws<ArgumentException>(() => provider.CreateUser("foo", "barbar!", "foo@bar.com", "color", null, true, null, out status));
-      Assert.True(ex.Message.StartsWith("Password answer supplied is invalid", StringComparison.OrdinalIgnoreCase));
+      Assert.That(ex.Message.StartsWith("Password answer supplied is invalid", StringComparison.OrdinalIgnoreCase));
 
       ex = Assert.Throws<ArgumentException>(() => provider.CreateUser("foo", "barbar!", "foo@bar.com", "", "blue", true, null, out status));
-      Assert.True(ex.Message.StartsWith("Password question supplied is invalid", StringComparison.OrdinalIgnoreCase));
+      Assert.That(ex.Message.StartsWith("Password question supplied is invalid", StringComparison.OrdinalIgnoreCase));
 
     }
 
@@ -601,10 +601,10 @@ namespace MySql.Web.Tests
 
       MembershipCreateStatus status;
       MembershipUser user = provider.CreateUser("foo", "pw!pass", "email", null, null, true, null, out status);
-      Assert.IsNull(user);
+      Assert.That(user, Is.Null);
 
       user = provider.CreateUser("foo", "pw!pa!!", "email", null, null, true, null, out status);
-      Assert.IsNotNull(user);
+      Assert.That(user, Is.Not.Null);
 
       //Cleanup
       Membership.DeleteUser("foo");
@@ -628,10 +628,10 @@ namespace MySql.Web.Tests
       provider.Initialize(null, config);
 
       MembershipUser user = provider.CreateUser("foo", "barbar!", "foo@bar.com", null, null, true, null, out status);
-      Assert.IsNotNull(user);
+      Assert.That(user, Is.Not.Null);
 
       string pw = provider.GetPassword("foo", null);
-      Assert.AreEqual("barbar!", pw);
+      Assert.That(pw, Is.EqualTo("barbar!"));
 
       //Cleanup
       Membership.DeleteUser("foo");
@@ -654,10 +654,10 @@ namespace MySql.Web.Tests
       provider.Initialize(null, config);
 
       MembershipUser user = provider.CreateUser("foo", "barbar!", "foo@bar.com", null, null, true, null, out status);
-      Assert.IsNotNull(user);
+      Assert.That(user, Is.Not.Null);
 
       string pw = provider.GetPassword("foo", null);
-      Assert.AreEqual("barbar!", pw);
+      Assert.That(pw, Is.EqualTo("barbar!"));
 
       //Cleanup
       provider.DeleteUser("foo", true);
@@ -688,7 +688,7 @@ namespace MySql.Web.Tests
       provider2.Initialize(null, config2);
 
       bool worked = provider2.ValidateUser("foo", "bar!bar");
-      Assert.AreEqual(false, worked);
+      Assert.That(worked, Is.EqualTo(false));
 
       //Cleanup
       provider.DeleteUser("foo", true);
@@ -734,7 +734,7 @@ namespace MySql.Web.Tests
       provider.Initialize(null, config);
       MembershipCreateStatus status;
       provider.CreateUser("foo", "bar!bar", null, null, null, true, null, out status);
-      Assert.True(status == MembershipCreateStatus.Success);
+      Assert.That(status == MembershipCreateStatus.Success);
 
       MySQLMembershipProvider provider2 = new MySQLMembershipProvider();
       NameValueCollection config2 = new NameValueCollection();
@@ -744,11 +744,11 @@ namespace MySql.Web.Tests
       config2.Add("passwordFormat", "Clear");
       provider2.Initialize(null, config2);
       provider2.CreateUser("foo2", "foo!foo", null, null, null, true, null, out status);
-      Assert.True(status == MembershipCreateStatus.Success);
+      Assert.That(status == MembershipCreateStatus.Success);
 
       provider.ApplicationName = "/myapp";
-      Assert.False(provider.ValidateUser("foo", "bar!bar"));
-      Assert.True(provider.ValidateUser("foo2", "foo!foo"));
+      Assert.That(!provider.ValidateUser("foo", "bar!bar"));
+      Assert.That(provider.ValidateUser("foo2", "foo!foo"));
 
       //Cleanup
       //provider.DeleteUser("foo2", true);
@@ -767,10 +767,10 @@ namespace MySql.Web.Tests
       Membership.CreateUser("code", "thecode!", null, "question", "answer", true, out status);
 
       MembershipUser user = Membership.GetUser("code");
-      Assert.AreEqual("code", user.UserName);
+      Assert.That(user.UserName, Is.EqualTo("code"));
 
       user = Membership.GetUser("co_e");
-      Assert.IsNull(user);
+      Assert.That(user, Is.Null);
 
       //Cleanup
       Membership.DeleteUser("code");
@@ -783,10 +783,10 @@ namespace MySql.Web.Tests
       Membership.CreateUser("code", "thecode!", "code@mysql.com", "question", "answer", true, out status);
 
       string username = Membership.GetUserNameByEmail("code@mysql.com");
-      Assert.AreEqual("code", username);
+      Assert.That(username, Is.EqualTo("code"));
 
       username = Membership.GetUserNameByEmail("co_e@mysql.com");
-      Assert.IsNull(username);
+      Assert.That(username, Is.Null);
 
       //Cleanup
       Membership.DeleteUser("code");
@@ -807,20 +807,20 @@ namespace MySql.Web.Tests
 
       MembershipCreateStatus status;
       MembershipUser muser1 = provider.CreateUser(" with trailing space ", "dummypassword1!", "w@w1.w", "yes", "yes", true, null, out status);
-      Assert.AreNotEqual(null, muser1);
+      Assert.That(muser1, Is.Not.EqualTo(null));
       MembershipUser muser2 = provider.GetUser("with trailing space", false);
-      Assert.AreNotEqual(null, muser1);
+      Assert.That(muser1, Is.Not.EqualTo(null));
 
       Roles.CreateRole("SomeRole");
-      Assert.True(Roles.GetAllRoles().Length > 0);
+      Assert.That(Roles.GetAllRoles().Length > 0);
 
       bool isInRole = Roles.IsUserInRole(muser2.UserName, "SomeRole");
-      Assert.False(isInRole);
+      Assert.That(!isInRole);
 
       Roles.AddUserToRole(muser2.UserName, "SomeRole");
 
       isInRole = Roles.IsUserInRole(muser2.UserName, "SomeRole");
-      Assert.True(isInRole);
+      Assert.That(isInRole);
     }
   }
 }

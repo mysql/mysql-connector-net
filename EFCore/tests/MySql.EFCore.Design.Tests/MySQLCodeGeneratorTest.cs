@@ -50,9 +50,9 @@ namespace MySql.EntityFrameworkCore.Design.Tests
 
       var result = codeGenerator.GenerateUseProvider("Data Source=Test", providerOptions: null);
 
-      Assert.AreEqual("UseMySQL", result.Method);
+      Assert.That(result.Method, Is.EqualTo("UseMySQL"));
       Assert.That(result.Arguments, Has.Exactly(1).EqualTo("Data Source=Test"));
-      Assert.Null(result.ChainedCall);
+      Assert.That(result.ChainedCall, Is.Null);
     }
 
     [Test]
@@ -66,13 +66,13 @@ namespace MySql.EntityFrameworkCore.Design.Tests
 
       var result = codeGenerator.GenerateUseProvider("Data Source=Test", providerOptions);
 
-      Assert.AreEqual("UseMySQL", result.Method);
+      Assert.That(result.Method, Is.EqualTo("UseMySQL"));
       Assert.That(result.Arguments, Has.Exactly(1).EqualTo("Data Source=Test"));
-      Assert.IsInstanceOf<NestedClosureCodeFragment>(result.Arguments[1]);
+      Assert.That(result.Arguments[1], Is.InstanceOf<NestedClosureCodeFragment>());
       NestedClosureCodeFragment nestedClosure = (NestedClosureCodeFragment)result.Arguments[1]!;
-      Assert.AreEqual("x", nestedClosure?.Parameter);
-      Assert.AreSame(providerOptions, nestedClosure?.MethodCalls[0]);
-      Assert.Null(result.ChainedCall);
+      Assert.That(nestedClosure?.Parameter, Is.EqualTo("x"));
+      Assert.That(nestedClosure?.MethodCalls[0], Is.SameAs(providerOptions));
+      Assert.That(result.ChainedCall, Is.Null);
     }
 
     private static readonly MethodInfo UseMySqlServerMethodInfo

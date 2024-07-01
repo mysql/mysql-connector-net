@@ -93,7 +93,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
       foreach (char c in refSql)
         if (!Char.IsWhiteSpace(c))
           str2.Append(c);
-      Assert.AreEqual(0, String.Compare(str1.ToString(), str2.ToString(), true));
+      Assert.That(String.Compare(str1.ToString(), str2.ToString(), true), Is.EqualTo(0));
     }
 
 

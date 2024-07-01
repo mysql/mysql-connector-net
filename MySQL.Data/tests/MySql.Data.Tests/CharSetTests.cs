@@ -64,9 +64,9 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("SELECT * FROM Test", Connection);
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.True(reader.Read());
+        Assert.That(reader.Read());
         object o = reader.GetValue(1);
-        Assert.True(o is string);
+        Assert.That(o is string);
       }
     }
 
@@ -82,7 +82,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         MySqlCommand cmd = new MySqlCommand("SELECT id FROM Test WHERE name LIKE 'Test'", conn);
         object id = cmd.ExecuteScalar();
-        Assert.AreEqual(1, id);
+        Assert.That(id, Is.EqualTo(1));
       }
     }
 
@@ -103,7 +103,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.AreEqual("Trädgårdsvägen1", reader.GetString(0));
+          Assert.That(reader.GetString(0), Is.EqualTo("Trädgårdsvägen1"));
         }
       }
     }
@@ -126,7 +126,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.AreEqual("äâáàç", reader.GetString(0));
+          Assert.That(reader.GetString(0), Is.EqualTo("äâáàç"));
         }
       }
     }
@@ -145,7 +145,7 @@ namespace MySql.Data.MySqlClient.Tests
           "SELECT CONCAT('Trädgårdsvägen', 1)", c);
         DataTable dt = new DataTable();
         da.Fill(dt);
-        Assert.True(dt.Rows[0][0] is byte[]);
+        Assert.That(dt.Rows[0][0] is byte[]);
       }
       connStr = Connection.ConnectionString + ";respect binary flags=false";
       using (MySqlConnection c = new MySqlConnection(connStr))
@@ -156,8 +156,8 @@ namespace MySql.Data.MySqlClient.Tests
           "SELECT CONCAT('Trädgårdsvägen', 1)", c);
         DataTable dt = new DataTable();
         da.Fill(dt);
-        Assert.True(dt.Rows[0][0] is string);
-        Assert.AreEqual("Trädgårdsvägen1", dt.Rows[0][0]);
+        Assert.That(dt.Rows[0][0] is string);
+        Assert.That(dt.Rows[0][0], Is.EqualTo("Trädgårdsvägen1"));
       }
     }
 
@@ -183,7 +183,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (MySqlException e)
       {
-        Assert.AreEqual(expected, e.Message);
+        Assert.That(e.Message, Is.EqualTo(expected));
       }
     }
 
@@ -224,10 +224,10 @@ namespace MySql.Data.MySqlClient.Tests
         {
           for (int i = 0; i < reader.FieldCount; i++)
           {
-            Assert.True(j == reader.GetInt32(0));
-            Assert.True(firstNames[j] == reader.GetString(1));
-            Assert.True(lastNames[j] == reader.GetString(2));
-            Assert.True(lastUpdates[j] == reader.GetDateTime(3));
+            Assert.That(j, Is.EqualTo(reader.GetInt32(0)));
+            Assert.That(firstNames[j], Is.EqualTo(reader.GetString(1)));
+            Assert.That(lastNames[j], Is.EqualTo(reader.GetString(2)));
+            Assert.That(lastUpdates[j], Is.EqualTo(reader.GetDateTime(3)));
           }
           j++;
         }
@@ -269,10 +269,10 @@ namespace MySql.Data.MySqlClient.Tests
         {
           for (int i = 0; i < reader.FieldCount; i++)
           {
-            Assert.True(j == reader.GetInt32(0));
-            Assert.True(firstNames[j] == reader.GetString(1));
-            Assert.True(lastNames[j] == reader.GetString(2));
-            Assert.True(lastUpdates[j] == reader.GetDateTime(3));
+            Assert.That(j, Is.EqualTo(reader.GetInt32(0)));
+            Assert.That(firstNames[j], Is.EqualTo(reader.GetString(1)));
+            Assert.That(lastNames[j], Is.EqualTo(reader.GetString(2)));
+            Assert.That(lastUpdates[j], Is.EqualTo(reader.GetDateTime(3)));
           }
           j++;
         }
@@ -306,9 +306,9 @@ namespace MySql.Data.MySqlClient.Tests
         while (reader.Read())
         {
           if (reader.GetUInt32(0) == 1)
-            Assert.AreEqual("㭋玤䂜蚌", reader.GetString(1));
+            Assert.That(reader.GetString(1), Is.EqualTo("㭋玤䂜蚌"));
           if (reader.GetUInt32(0) == 2)
-            Assert.AreEqual("念奴娇·赤壁怀古 ·苏东坡", reader.GetString(1));
+            Assert.That(reader.GetString(1), Is.EqualTo("念奴娇·赤壁怀古 ·苏东坡"));
         }
       }
     }
@@ -343,7 +343,7 @@ namespace MySql.Data.MySqlClient.Tests
           using (MySqlConnection conn = new MySqlConnection(rootSb.ConnectionString))
           {
             conn.Open();
-            Assert.AreEqual(database, conn.Database);
+            Assert.That(conn.Database, Is.EqualTo(database));
           }
         }
         finally
@@ -366,7 +366,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         while (reader.Read())
         {
-          Assert.AreEqual("瑵ㅦ氶⁥整瑳", reader[0].ToString());
+          Assert.That(reader[0].ToString(), Is.EqualTo("瑵ㅦ氶⁥整瑳"));
         }
       }
     }
@@ -382,7 +382,7 @@ namespace MySql.Data.MySqlClient.Tests
         connection.Open();
         MySqlCommand cmd = new MySqlCommand("SELECT '涯割晦叶角'", connection);
         string s = (string)cmd.ExecuteScalar();
-        Assert.AreEqual("涯割晦叶角", s);
+        Assert.That(s, Is.EqualTo("涯割晦叶角"));
       }
     }
 
@@ -428,7 +428,7 @@ namespace MySql.Data.MySqlClient.Tests
           using (MySqlConnection conn = new MySqlConnection(sb.ToString()))
           {
             conn.Open();
-            Assert.AreEqual(database, conn.Database);
+            Assert.That(conn.Database, Is.EqualTo(database));
           }
         }
         finally
@@ -453,9 +453,9 @@ namespace MySql.Data.MySqlClient.Tests
         reader.Read();
 
         if (Connection.driver.Version.isAtLeast(8, 0, 1))
-          Assert.AreEqual("utf8mb4", reader.GetString("Value"));
+          Assert.That(reader.GetString("Value"), Is.EqualTo("utf8mb4"));
         else
-          Assert.AreEqual("latin1", reader.GetString("Value"));
+          Assert.That(reader.GetString("Value"), Is.EqualTo("latin1"));
       }
     }
 
@@ -470,21 +470,21 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand cmd = rootConnection.CreateCommand();
         cmd.CommandText = "SELECT @@character_set_server";
         string characterSet = cmd.ExecuteScalar().ToString();
-        Assert.False(string.IsNullOrWhiteSpace(characterSet));
+        Assert.That(string.IsNullOrWhiteSpace(characterSet), Is.False);
 
         cmd.CommandText = "SHOW VARIABLES LIKE 'character_set_c%'";
         using (MySqlDataReader dr = cmd.ExecuteReader())
         {
-          Assert.True(dr.HasRows);
+          Assert.That(dr.HasRows);
           while (dr.Read())
           {
             switch (dr.GetString(0).ToLowerInvariant())
             {
               case "character_set_client":
-                Assert.AreEqual(characterSet, dr.GetString(1));
+                Assert.That(dr.GetString(1), Is.EqualTo(characterSet));
                 break;
               case "character_set_connection":
-                Assert.AreEqual(characterSet, dr.GetString(1));
+                Assert.That(dr.GetString(1), Is.EqualTo(characterSet));
                 break;
               default:
                 throw new InvalidOperationException(string.Format("Variable '{0}' not expected.", dr.GetString(0)));
@@ -493,7 +493,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
 
         cmd.CommandText = "SELECT @@character_set_results";
-        Assert.AreEqual(DBNull.Value, cmd.ExecuteScalar());
+        Assert.That(cmd.ExecuteScalar(), Is.EqualTo(DBNull.Value));
       }
     }
 
@@ -516,7 +516,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           cmd.CommandType = CommandType.StoredProcedure;
           var result = cmd.ExecuteNonQuery();
-          Assert.AreEqual(0, result);
+          Assert.That(result, Is.EqualTo(0));
         }
       }
     }
@@ -538,8 +538,8 @@ namespace MySql.Data.MySqlClient.Tests
       {
         while (reader.Read())
         {
-          StringAssert.AreEqualIgnoringCase("£", reader[0].ToString());
-          StringAssert.AreEqualIgnoringCase("{\"Value\": \"£\"}", reader[1].ToString());
+          Assert.That(reader[0].ToString(), Is.EqualTo("£").IgnoreCase);
+          Assert.That(reader[1].ToString(), Is.EqualTo("{\"Value\": \"£\"}").IgnoreCase);
         }
       }
     }
@@ -561,26 +561,26 @@ namespace MySql.Data.MySqlClient.Tests
         var cmd = rootConnection.CreateCommand();
         cmd.CommandText = "SELECT @@character_set_server";
         var characterSet = cmd.ExecuteScalar().ToString();
-        Assert.AreEqual(false, string.IsNullOrWhiteSpace(characterSet));
+        Assert.That(string.IsNullOrWhiteSpace(characterSet), Is.EqualTo(false));
 
         cmd.CommandText = "SHOW VARIABLES LIKE 'character_set_c%'";
         using (var dr = cmd.ExecuteReader())
         {
-          Assert.AreEqual(true, dr.HasRows);
+          Assert.That(dr.HasRows, Is.EqualTo(true));
           while (dr.Read())
             switch (dr.GetString(0).ToLowerInvariant())
             {
               case "character_set_client":
-                Assert.AreEqual(characterSet, dr.GetString(1));
+                Assert.That(dr.GetString(1), Is.EqualTo(characterSet));
                 break;
               case "character_set_connection":
-                Assert.AreEqual(characterSet, dr.GetString(1));
+                Assert.That(dr.GetString(1), Is.EqualTo(characterSet));
                 break;
             }
         }
 
         cmd.CommandText = "SELECT @@character_set_results";
-        Assert.AreEqual(DBNull.Value, cmd.ExecuteScalar());
+        Assert.That(cmd.ExecuteScalar(), Is.EqualTo(DBNull.Value));
       }
     }
 
@@ -601,20 +601,20 @@ namespace MySql.Data.MySqlClient.Tests
         var cmd = rootConnection.CreateCommand();
         cmd.CommandText = "SELECT @@character_set_server";
         var characterSet = cmd.ExecuteScalar().ToString();
-        Assert.AreEqual(false, string.IsNullOrWhiteSpace(characterSet));
+        Assert.That(string.IsNullOrWhiteSpace(characterSet), Is.EqualTo(false));
 
         cmd.CommandText = "SHOW VARIABLES LIKE 'character_set_c%'";
         using (var dr = cmd.ExecuteReader())
         {
-          Assert.AreEqual(true, dr.HasRows);
+          Assert.That(dr.HasRows, Is.EqualTo(true));
           while (dr.Read())
             switch (dr.GetString(0).ToLowerInvariant())
             {
               case "character_set_client":
-                StringAssert.StartsWith(expectedCharSet, dr.GetString(1));
+                Assert.That(dr.GetString(1), Does.StartWith(expectedCharSet));
                 break;
               case "character_set_connection":
-                StringAssert.StartsWith(expectedCharSet, dr.GetString(1));
+                Assert.That(dr.GetString(1), Does.StartWith(expectedCharSet));
                 break;
               default:
                 Assert.Fail($"Variable {dr.GetString(0)} not expected."); break;
@@ -622,7 +622,7 @@ namespace MySql.Data.MySqlClient.Tests
         }
 
         cmd.CommandText = "SELECT @@character_set_results";
-        Assert.AreEqual(DBNull.Value, cmd.ExecuteScalar());
+        Assert.That(cmd.ExecuteScalar(), Is.EqualTo(DBNull.Value));
       }
     }
 

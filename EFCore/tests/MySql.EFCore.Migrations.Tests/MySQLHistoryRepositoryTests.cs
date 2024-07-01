@@ -81,9 +81,8 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
       var creator = context.GetService<IRelationalDatabaseCreator>();
 
       var cmdBuilder = context.GetService<IRawSqlCommandBuilder>();
-      Assert.False(creator.Exists());
-      Assert.AreEqual("IF EXISTS(SELECT * FROM `__EFMigrationsHistory` WHERE `MigrationId` = 'MigrationId')\nBEGIN",
-          cmdBuilder.Build(repository.GetBeginIfExistsScript("MigrationId")).CommandText.Replace("\r", string.Empty));
+      Assert.That(!creator.Exists());
+      Assert.That(cmdBuilder.Build(repository.GetBeginIfExistsScript("MigrationId")).CommandText.Replace("\r", string.Empty), Is.EqualTo("IF EXISTS(SELECT * FROM `__EFMigrationsHistory` WHERE `MigrationId` = 'MigrationId')\nBEGIN"));
     }
   }
 }

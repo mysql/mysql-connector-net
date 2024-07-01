@@ -75,7 +75,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (prepared)
         cmd.Prepare();
       int count = cmd.ExecuteNonQuery();
-      Assert.AreEqual(1, count);
+      Assert.That(count, Is.EqualTo(1));
 
       try
       {
@@ -84,9 +84,9 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.AreEqual((decimal)2.3, (decimal)reader.GetFloat(0));
-          Assert.AreEqual(4.6, reader.GetDouble(1));
-          Assert.AreEqual((decimal)23.82, reader.GetDecimal(2));
+          Assert.That((decimal)reader.GetFloat(0), Is.EqualTo((decimal)2.3));
+          Assert.That(reader.GetDouble(1), Is.EqualTo(4.6));
+          Assert.That(reader.GetDecimal(2), Is.EqualTo((decimal)23.82));
         }
       }
       finally
@@ -134,12 +134,12 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlCommand cmd = new MySqlCommand("SELECT dt FROM test", Connection);
       DateTime dt = (DateTime)cmd.ExecuteScalar();
-      Assert.AreEqual(2007, dt.Year);
-      Assert.AreEqual(1, dt.Month);
-      Assert.AreEqual(1, dt.Day);
-      Assert.AreEqual(12, dt.Hour);
-      Assert.AreEqual(30, dt.Minute);
-      Assert.AreEqual(45, dt.Second);
+      Assert.That(dt.Year, Is.EqualTo(2007));
+      Assert.That(dt.Month, Is.EqualTo(1));
+      Assert.That(dt.Day, Is.EqualTo(1));
+      Assert.That(dt.Hour, Is.EqualTo(12));
+      Assert.That(dt.Minute, Is.EqualTo(30));
+      Assert.That(dt.Second, Is.EqualTo(45));
 
       Thread.CurrentThread.CurrentCulture = curCulture;
       Thread.CurrentThread.CurrentUICulture = curUICulture;
@@ -172,9 +172,9 @@ namespace MySql.Data.MySqlClient.Tests
             "select *,(select b from bug52187b) as field_b from bug52187a", con);
           DataTable dt = new DataTable();
           da.Fill(dt);
-          Assert.AreEqual(1, dt.Rows.Count);
-          Assert.AreEqual((decimal)1.25, (decimal)dt.Rows[0][0]);
-          Assert.AreEqual((decimal)5.99, (decimal)dt.Rows[0][1]);
+          Assert.That(dt.Rows.Count, Is.EqualTo(1));
+          Assert.That((decimal)dt.Rows[0][0], Is.EqualTo((decimal)1.25));
+          Assert.That((decimal)dt.Rows[0][1], Is.EqualTo((decimal)5.99));
         }
       }
       finally

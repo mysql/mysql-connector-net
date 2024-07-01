@@ -84,7 +84,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
                   var originalValue = entry.Property(property.Name).OriginalValue;
                   var databaseValue = databaseEntry.Property(property.Name).CurrentValue;
                   entry.Property(property.Name).OriginalValue = databaseEntry.Property(property.Name).CurrentValue;
-                  Assert.AreEqual("Jane", databaseValue);
+                  Assert.That(databaseValue, Is.EqualTo("Jane"));
                 }
               }
             }

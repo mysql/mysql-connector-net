@@ -62,7 +62,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       {
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
-        Assert.True(context.Posts.Count() == 0);
+        Assert.That(context.Posts.Count(), Is.EqualTo(0));
         context.Database.EnsureDeleted();
       }
     }
@@ -79,7 +79,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 
       using (var context = serviceProvider.GetRequiredService<NoConfigurationContext>())
       {
-        Assert.AreEqual(CoreStrings.NoProviderConfigured, Assert.Throws<InvalidOperationException>(() => context.Blogs.Any())!.Message);
+        Assert.That(Assert.Throws<InvalidOperationException>(() => context.Blogs.Any())!.Message, Is.EqualTo(CoreStrings.NoProviderConfigured));
       }
     }
 
@@ -104,7 +104,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           var reader = cmd.ExecuteReader();
           while (reader.Read())
           {
-            Assert.True(string.Equals(dbname, reader.GetString(0), StringComparison.CurrentCultureIgnoreCase), "Database was not created");
+            Assert.That(string.Equals(dbname, reader.GetString(0), StringComparison.CurrentCultureIgnoreCase), "Database was not created");
           }
         }
         context.Database.EnsureDeleted();
@@ -132,7 +132,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           var reader = cmd.ExecuteReader();
           while (reader.Read())
           {
-            Assert.True(string.Equals(dbname, reader.GetString(0), StringComparison.CurrentCultureIgnoreCase), "Database was not created");
+            Assert.That(string.Equals(dbname, reader.GetString(0), StringComparison.CurrentCultureIgnoreCase), "Database was not created");
           }
         }
         context.Database.EnsureDeleted();
@@ -152,8 +152,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       using (var context = serviceProvider.GetRequiredService<SimpleContextWithIgnore>())
       {
         context.Database.EnsureCreated();
-        Assert.True(context.Model.GetEntityTypes().Count() == 2, "Wrong model generation");
-        Assert.True(context.Blogs.ToList().Count == 0, "");
+        Assert.That(context.Model.GetEntityTypes().Count(), Is.EqualTo(2), "Wrong model generation");
+        Assert.That(context.Blogs.ToList().Count, Is.EqualTo(0), "");
         context.Database.EnsureDeleted();
       }
     }
@@ -167,7 +167,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
                                               new MySqlConnection(MySQLTestStore.CreateConnectionString("db-optionsindbcontext"))))
       {
         context.Database.EnsureCreated();
-        Assert.True(context.Blogs.Count() == 0);
+        Assert.That(context.Blogs.Count(), Is.EqualTo(0));
         context.Database.EnsureDeleted();
       }
 
@@ -205,11 +205,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 
       protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
       {
-        Assert.AreSame(_options, optionsBuilder.Options);
+        Assert.That(optionsBuilder.Options, Is.SameAs(_options));
 
         optionsBuilder.UseMySQL(_connection);
 
-        Assert.AreNotSame(_options, optionsBuilder.Options);
+        Assert.That(optionsBuilder.Options, Is.Not.SameAs(_options));
       }
 
       public override void Dispose()

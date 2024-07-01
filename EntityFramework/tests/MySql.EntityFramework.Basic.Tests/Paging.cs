@@ -97,7 +97,7 @@ namespace MySql.Data.EntityFramework.Tests
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         int cnt = ctx.Products.Take(2).Count();
-        Assert.AreEqual(2, cnt);
+        Assert.That(cnt, Is.EqualTo(2));
       }
     }
   }

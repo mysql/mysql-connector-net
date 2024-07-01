@@ -61,7 +61,7 @@ namespace MySqlX.Data.Tests
 
       using (var session = MySQLX.GetSession(ConnectionString))
       {
-        Assert.AreEqual("utf8mb4", session.Settings.CharacterSet);
+        Assert.That(session.Settings.CharacterSet, Is.EqualTo("utf8mb4"));
       }
 
       using (var connection = new MySqlConnection(ConnectionStringRoot))
@@ -70,26 +70,26 @@ namespace MySqlX.Data.Tests
         MySqlCommand cmd = new MySqlCommand("SHOW VARIABLES LIKE 'character_set_connection'", connection);
         MySqlDataReader reader = cmd.ExecuteReader();
         reader.Read();
-        Assert.AreEqual("utf8mb4", reader.GetString("Value"));
+        Assert.That(reader.GetString("Value"), Is.EqualTo("utf8mb4"));
         reader.Close();
 
         cmd.CommandText = "SHOW VARIABLES LIKE 'character_set_database'";
         reader = cmd.ExecuteReader();
         reader.Read();
-        Assert.AreEqual("utf8mb4", reader.GetString("Value"));
+        Assert.That(reader.GetString("Value"), Is.EqualTo("utf8mb4"));
         reader.Close();
 
         cmd.CommandText = "SHOW VARIABLES LIKE 'character_set_server'";
         reader = cmd.ExecuteReader();
         reader.Read();
-        Assert.AreEqual("utf8mb4", reader.GetString("Value"));
+        Assert.That(reader.GetString("Value"), Is.EqualTo("utf8mb4"));
         reader.Close();
 
         cmd.CommandText = "SHOW VARIABLES LIKE 'collation_%'";
         reader = cmd.ExecuteReader();
         while (reader.Read())
         {
-          Assert.AreEqual("utf8mb4_0900_ai_ci", reader.GetString("Value"));
+          Assert.That(reader.GetString("Value"), Is.EqualTo("utf8mb4_0900_ai_ci"));
         }
         reader.Close();
       }
@@ -105,7 +105,7 @@ namespace MySqlX.Data.Tests
         connection.Open();
         var command = new MySqlCommand("SELECT id, collation_name FROM INFORMATION_SCHEMA.COLLATIONS", connection);
         var reader = command.ExecuteReader();
-        Assert.True(reader.HasRows);
+        Assert.That(reader.HasRows);
 
         while (reader.Read())
         {
@@ -115,7 +115,7 @@ namespace MySqlX.Data.Tests
           if (!_serverVersion.isAtLeast(8, 0, 30) && collationName.Contains("utf8_"))
             collationName = collationName.Replace("utf8_", "utf8mb3_");
 
-          Assert.AreEqual(CollationMap.GetCollationName(id), collationName);
+          Assert.That(collationName, Is.EqualTo(CollationMap.GetCollationName(id)));
         }
       }
     }
@@ -132,12 +132,12 @@ namespace MySqlX.Data.Tests
       {
         // Search utf8mb4 database.
         var result = ExecuteSQLStatement(session.SQL("SHOW COLLATION WHERE id = 255"));
-        Assert.True(result.HasData);
+        Assert.That(result.HasData);
         var data = result.FetchOne();
-        Assert.AreEqual("utf8mb4_0900_ai_ci", data.GetString("Collation"));
+        Assert.That(data.GetString("Collation"), Is.EqualTo("utf8mb4_0900_ai_ci"));
 
         // Check in CollationMap.
-        Assert.AreEqual("utf8mb4_0900_ai_ci", CollationMap.GetCollationName(255));
+        Assert.That(CollationMap.GetCollationName(255), Is.EqualTo("utf8mb4_0900_ai_ci"));
       }
     }
 
@@ -150,25 +150,25 @@ namespace MySqlX.Data.Tests
       using (Session session = MySQLX.GetSession(ConnectionString))
       {
         var result = ExecuteSQLStatement(session.SQL("SHOW COLLATION WHERE `Default` ='Yes';"));
-        Assert.True(result.HasData);
+        Assert.That(result.HasData);
       }
 
       using (Session session = MySQLX.GetSession(ConnectionString + ";charset=latin1"))
       {
         var result = ExecuteSQLStatement(session.SQL("SHOW COLLATION WHERE `Default` ='Yes';"));
-        Assert.True(result.HasData);
+        Assert.That(result.HasData);
       }
 
       using (Session session = MySQLX.GetSession(ConnectionString + ";charset=utf8mb4"))
       {
         var result = ExecuteSQLStatement(session.SQL("SHOW COLLATION WHERE `Default` ='Yes';"));
-        Assert.True(result.HasData);
+        Assert.That(result.HasData);
       }
 
       using (Session session = MySQLX.GetSession(ConnectionString + ";charset=utf-8"))
       {
         var result = ExecuteSQLStatement(session.SQL("SHOW COLLATION WHERE `Default` ='Yes';"));
-        Assert.True(result.HasData);
+        Assert.That(result.HasData);
       }
     }
 
@@ -196,29 +196,29 @@ namespace MySqlX.Data.Tests
         ExecuteSQL("SELECT * FROM view2");
 
         List<Table> tables = test.GetTables();
-        Assert.AreEqual(4, tables.Count);
-        Assert.AreEqual(2, tables.FindAll(i => !i.IsView).Count);
-        Assert.AreEqual(2, tables.FindAll(i => i.IsView).Count);
+        Assert.That(tables.Count, Is.EqualTo(4));
+        Assert.That(tables.FindAll(i => !i.IsView).Count, Is.EqualTo(2));
+        Assert.That(tables.FindAll(i => i.IsView).Count, Is.EqualTo(2));
         ExecuteSelectStatement(tables[0].Select());
         ExecuteSelectStatement(tables[1].Select());
         ExecuteSelectStatement(tables[2].Select());
         ExecuteSelectStatement(tables[3].Select());
-        Assert.AreEqual("test1", tables[0].Name);
-        Assert.AreEqual("test2", tables[1].Name);
-        Assert.AreEqual("view1", tables[2].Name);
-        Assert.AreEqual("view2", tables[3].Name);
+        Assert.That(tables[0].Name, Is.EqualTo("test1"));
+        Assert.That(tables[1].Name, Is.EqualTo("test2"));
+        Assert.That(tables[2].Name, Is.EqualTo("view1"));
+        Assert.That(tables[3].Name, Is.EqualTo("view2"));
 
         Table table = test.GetTable("test2");
-        Assert.AreEqual("test2", table.Name);
+        Assert.That(table.Name, Is.EqualTo("test2"));
 
         Collection c = test.CreateCollection("coll");
 
         List<Collection> collections = test.GetCollections();
         Assert.That(collections, Has.One.Items);
-        Assert.AreEqual("coll", collections[0].Name);
+        Assert.That(collections[0].Name, Is.EqualTo("coll"));
 
         Collection collection = test.GetCollection("coll");
-        Assert.AreEqual("coll", collection.Name);
+        Assert.That(collection.Name, Is.EqualTo("coll"));
       }
     }
 
@@ -288,39 +288,39 @@ namespace MySqlX.Data.Tests
       for (int i = 0; i < columns.Length; i++)
       {
         var tableType = result.Columns[i].Type;
-        Assert.AreEqual(columnTypeMatch[i], tableType.ToString(), "Matching the table Type");
+        Assert.That(tableType.ToString(), Is.EqualTo(columnTypeMatch[i]), "Matching the table Type");
         string tableLabel = result.Columns[i].TableLabel;
-        Assert.AreEqual("address", tableLabel, "Matching the table label");
+        Assert.That(tableLabel, Is.EqualTo("address"), "Matching the table label");
         string columnName = result.Columns[i].ColumnName;
-        Assert.AreEqual(columns[i].ToString(), columnName, "Matching the Column Name");
+        Assert.That(columnName, Is.EqualTo(columns[i].ToString()), "Matching the Column Name");
         string columnLabel = result.Columns[i].ColumnLabel;
-        Assert.AreEqual(columns[i].ToString(), columnLabel, "Matching the Column Label");
+        Assert.That(columnLabel, Is.EqualTo(columns[i].ToString()), "Matching the Column Label");
         uint columnLength = result.Columns[i].Length;
-        Assert.AreEqual(columnLength, columnLength, "Matching the Column Length");
+        Assert.That(columnLength, Is.EqualTo(columnLength), "Matching the Column Length");
         var columnType = result.Columns[i].Type;
-        Assert.AreEqual(columnTypeMatch[i], columnType.ToString(), "Matching the Column Type");
+        Assert.That(columnType.ToString(), Is.EqualTo(columnTypeMatch[i]), "Matching the Column Type");
         var columnFD = result.Columns[i].FractionalDigits;
-        Assert.AreEqual(FDLength[i], columnFD, "Matching the Column FD");
+        Assert.That(columnFD, Is.EqualTo(FDLength[i]), "Matching the Column FD");
         var columnIsSigned = result.Columns[i].IsNumberSigned;
-        Assert.AreEqual(columnIsSignedMatch[i], columnIsSigned.ToString(), "Matching whether column is signed or not");
+        Assert.That(columnIsSigned.ToString(), Is.EqualTo(columnIsSignedMatch[i]), "Matching whether column is signed or not");
         string columnCollation = result.Columns[i].CollationName;
         if (i == 10 || i == 11 || i == 12 || i == 13 || i == 14 || i == 20 || i == 21)
-          Assert.AreEqual(columnCollation, columnCollation, "Matching the Collation Name for default characters");
+          Assert.That(columnCollation, Is.EqualTo(columnCollation), "Matching the Collation Name for default characters");
         else if (i == 15 || i == 16 || i == 17 || i == 18 || i == 19)
-          Assert.AreEqual("binary", columnCollation, "Matching the Collation Name for default characters");
+          Assert.That(columnCollation, Is.EqualTo("binary"), "Matching the Collation Name for default characters");
         else
-          Assert.AreEqual(null, columnCollation, "Matching the Collation Name as null for data types other than characters");
+          Assert.That(columnCollation, Is.EqualTo(null), "Matching the Collation Name as null for data types other than characters");
         string columnCharacterSet = result.Columns[i].CharacterSetName;
         if (i == 10 || i == 11 || i == 12 || i == 13 || i == 14 || i == 20 || i == 21)
-          Assert.AreEqual(columnCharacterSet, columnCharacterSet, "Matching the CharacterSet Name for default characters");
+          Assert.That(columnCharacterSet, Is.EqualTo(columnCharacterSet), "Matching the CharacterSet Name for default characters");
         else if (i == 15 || i == 16 || i == 17 || i == 18 || i == 19)
-          Assert.AreEqual("binary", columnCharacterSet, "Matching the Collation Name for default characters");
+          Assert.That(columnCharacterSet, Is.EqualTo("binary"), "Matching the Collation Name for default characters");
         else
-          Assert.AreEqual(null, columnCharacterSet, "Matching the Collation Name as null for data types other than characters");
+          Assert.That(columnCharacterSet, Is.EqualTo(null), "Matching the Collation Name as null for data types other than characters");
         var columnIsPadded = result.Columns[i].IsPadded;
-        Assert.AreEqual(columnIsPaddedMatch[i], columnIsPadded.ToString(), "Matching whether column is padded or not");
+        Assert.That(columnIsPadded.ToString(), Is.EqualTo(columnIsPaddedMatch[i]), "Matching whether column is padded or not");
         var columnClrType = result.Columns[i].ClrType;
-        Assert.AreEqual(clrTypeMatch[i], columnClrType.ToString(), "Matching whether column CLR Type");
+        Assert.That(columnClrType.ToString(), Is.EqualTo(clrTypeMatch[i]), "Matching whether column CLR Type");
       }
     }
 
@@ -388,37 +388,37 @@ namespace MySqlX.Data.Tests
       for (int i = 0; i < columns.Length; i++)
       {
         string tableLabel = result.Columns[i].TableLabel;
-        Assert.AreEqual("address", tableLabel, "Matching the table label");
+        Assert.That(tableLabel, Is.EqualTo("address"), "Matching the table label");
         string columnName = result.Columns[i].ColumnName;
-        Assert.AreEqual(columns[i].ToString(), columnName, "Matching the Column Name");
+        Assert.That(columnName, Is.EqualTo(columns[i].ToString()), "Matching the Column Name");
         string columnLabel = result.Columns[i].ColumnLabel;
-        Assert.AreEqual(columns[i].ToString(), columnLabel, "Matching the Column Label");
+        Assert.That(columnLabel, Is.EqualTo(columns[i].ToString()), "Matching the Column Label");
         uint columnLength = result.Columns[i].Length;
-        Assert.AreEqual(Length[i], columnLength, "Matching the Column Length");
+        Assert.That(columnLength, Is.EqualTo(Length[i]), "Matching the Column Length");
         var columnType = result.Columns[i].Type;
-        Assert.AreEqual(columnTypeMatch[i], columnType.ToString(), "Matching the Column Type");
+        Assert.That(columnType.ToString(), Is.EqualTo(columnTypeMatch[i]), "Matching the Column Type");
         var columnFD = result.Columns[i].FractionalDigits;
-        Assert.AreEqual(FDLength[i], columnFD, "Matching the Column FD");
+        Assert.That(columnFD, Is.EqualTo(FDLength[i]), "Matching the Column FD");
         var columnIsSigned = result.Columns[i].IsNumberSigned;
-        Assert.AreEqual(columnIsSignedMatch[i], columnIsSigned.ToString(), "Matching whether column is signed or not");
+        Assert.That(columnIsSigned.ToString(), Is.EqualTo(columnIsSignedMatch[i]), "Matching whether column is signed or not");
         string columnCollation = result.Columns[i].CollationName;
         if (i == 10 || i == 11 || i == 12 || i == 13 || i == 14 || i == 20 || i == 21)
-          Assert.AreEqual(columnCollation, columnCollation, "Matching the Collation Name for default characters");
+          Assert.That(columnCollation, Is.EqualTo(columnCollation), "Matching the Collation Name for default characters");
         else if (i == 15 || i == 16 || i == 17 || i == 18 || i == 19)
-          Assert.AreEqual("binary", columnCollation, "Matching the Collation Name for default characters");
+          Assert.That(columnCollation, Is.EqualTo("binary"), "Matching the Collation Name for default characters");
         else
-          Assert.AreEqual(null, columnCollation, "Matching the Collation Name as null for data types other than characters");
+          Assert.That(columnCollation, Is.EqualTo(null), "Matching the Collation Name as null for data types other than characters");
         string columnCharacterSet = result.Columns[i].CharacterSetName;
         if (i == 10 || i == 11 || i == 12 || i == 13 || i == 14 || i == 20 || i == 21)
-          StringAssert.AreEqualIgnoringCase(defaultCharset, columnCharacterSet, "Matching the CharacterSet Name for default characters");
+          Assert.That(columnCharacterSet, Is.EqualTo(defaultCharset).IgnoreCase, "Matching the CharacterSet Name for default characters");
         else if (i == 15 || i == 16 || i == 17 || i == 18 || i == 19)
-          Assert.AreEqual("binary", columnCharacterSet, "Matching the Collation Name for default characters");
+          Assert.That(columnCharacterSet, Is.EqualTo("binary"), "Matching the Collation Name for default characters");
         else
-          Assert.AreEqual(null, columnCharacterSet, "Matching the Collation Name as null for data types other than characters");
+          Assert.That(columnCharacterSet, Is.EqualTo(null), "Matching the Collation Name as null for data types other than characters");
         var columnIsPadded = result.Columns[i].IsPadded;
-        Assert.AreEqual(columnIsPaddedMatch[i], columnIsPadded.ToString(), "Matching whether column is padded or not");
+        Assert.That(columnIsPadded.ToString(), Is.EqualTo(columnIsPaddedMatch[i]), "Matching whether column is padded or not");
         var columnClrType = result.Columns[i].ClrType;
-        Assert.AreEqual(clrTypeMatch[i], columnClrType.ToString(), "Matching whether column CLR Type");
+        Assert.That(columnClrType.ToString(), Is.EqualTo(clrTypeMatch[i]), "Matching whether column CLR Type");
       }
       session.SQL($"drop table if exists address").Execute();
     }
@@ -481,73 +481,73 @@ namespace MySqlX.Data.Tests
       for (int i = 0; i < columns1.Length; i++)
       {
         string tableName = result1.Columns[i].TableName;
-        Assert.AreEqual("result1", tableName, "Matching the table name");
+        Assert.That(tableName, Is.EqualTo("result1"), "Matching the table name");
         string tableLabel = result1.Columns[i].TableLabel;
-        Assert.AreEqual("result1", tableLabel, "Matching the table label");
+        Assert.That(tableLabel, Is.EqualTo("result1"), "Matching the table label");
         string columnName = result1.Columns[i].ColumnName;
-        Assert.AreEqual(columns1[i].ToString(), columnName, "Matching the Column Name");
+        Assert.That(columnName, Is.EqualTo(columns1[i].ToString()), "Matching the Column Name");
         string columnLabel = result1.Columns[i].ColumnLabel;
-        Assert.AreEqual(columns1[i].ToString(), columnLabel, "Matching the Column Label");
+        Assert.That(columnLabel, Is.EqualTo(columns1[i].ToString()), "Matching the Column Label");
         uint columnLength = result1.Columns[i].Length;
-        Assert.AreEqual(Length1[i], Length1[i], "Matching the Column Length");
+        Assert.That(Length1[i], Is.EqualTo(Length1[i]), "Matching the Column Length");
         var columnType = result1.Columns[i].Type;
-        Assert.AreEqual(columnTypeMatch1[i], columnType.ToString(), "Matching the Column Type");
+        Assert.That(columnType.ToString(), Is.EqualTo(columnTypeMatch1[i]), "Matching the Column Type");
         var columnFD = result1.Columns[i].FractionalDigits;
-        Assert.AreEqual(FDLength1[i], columnFD, "Matching the Column FD");
+        Assert.That(columnFD, Is.EqualTo(FDLength1[i]), "Matching the Column FD");
         var columnIsSigned = result1.Columns[i].IsNumberSigned;
-        Assert.AreEqual(columnIsSignedMatch1[i], columnIsSigned.ToString(), "Matching whether column is signed or not");
+        Assert.That(columnIsSigned.ToString(), Is.EqualTo(columnIsSignedMatch1[i]), "Matching whether column is signed or not");
         string columnCollation = result1.Columns[i].CollationName;
         if (i == 2 || i == 5)
         {
-          StringAssert.Contains(defaultCharset, columnCollation, "Matching the Collation Name for default characters");
+          Assert.That(columnCollation, Does.Contain(defaultCharset), "Matching the Collation Name for default characters");
         }
         else
         {
-          Assert.AreEqual(null, columnCollation, "Matching the Collation Name as null for data types other than characters");
+          Assert.That(columnCollation, Is.EqualTo(null), "Matching the Collation Name as null for data types other than characters");
         }
         string columnCharacterSet = result1.Columns[i].CharacterSetName;
         if (i == 2 || i == 5)
-          StringAssert.AreEqualIgnoringCase(defaultCharset, columnCharacterSet, "Matching the CharacterSet Name for default characters");
+          Assert.That(columnCharacterSet, Is.EqualTo(defaultCharset).IgnoreCase, "Matching the CharacterSet Name for default characters");
         else
-          Assert.AreEqual(null, columnCharacterSet, "Matching the Collation Name as null for data types other than characters");
+          Assert.That(columnCharacterSet, Is.EqualTo(null), "Matching the Collation Name as null for data types other than characters");
         var columnIsPadded = result1.Columns[i].IsPadded;
-        Assert.AreEqual(columnIsPaddedMatch1[i], columnIsPadded.ToString(), "Matching whether column is padded or not");
+        Assert.That(columnIsPadded.ToString(), Is.EqualTo(columnIsPaddedMatch1[i]), "Matching whether column is padded or not");
         var columnClrType = result1.Columns[i].ClrType;
-        Assert.AreEqual(clrTypeMatch1[i], columnClrType.ToString(), "Matching whether column CLR Type");
+        Assert.That(columnClrType.ToString(), Is.EqualTo(clrTypeMatch1[i]), "Matching whether column CLR Type");
       }
 
       for (int i = 0; i < columns2.Length; i++)
       {
         string tableName = result2.Columns[i].TableName;
-        Assert.AreEqual("result2", tableName, "Matching the table name");
+        Assert.That(tableName, Is.EqualTo("result2"), "Matching the table name");
         string tableLabel = result2.Columns[i].TableLabel;
-        Assert.AreEqual("result2", tableLabel, "Matching the table label");
+        Assert.That(tableLabel, Is.EqualTo("result2"), "Matching the table label");
         string columnName = result2.Columns[i].ColumnName;
-        Assert.AreEqual(columns2[i].ToString(), columnName, "Matching the Column Name");
+        Assert.That(columnName, Is.EqualTo(columns2[i].ToString()), "Matching the Column Name");
         string columnLabel = result2.Columns[i].ColumnLabel;
-        Assert.AreEqual(columns2[i].ToString(), columnLabel, "Matching the Column Label");
+        Assert.That(columnLabel, Is.EqualTo(columns2[i].ToString()), "Matching the Column Label");
         uint columnLength = result2.Columns[i].Length;
-        Assert.AreEqual(Length2[i], columnLength, "Matching the Column Length");
+        Assert.That(columnLength, Is.EqualTo(Length2[i]), "Matching the Column Length");
         var columnType = result2.Columns[i].Type;
-        Assert.AreEqual(columnTypeMatch2[i], columnType.ToString(), "Matching the Column Type");
+        Assert.That(columnType.ToString(), Is.EqualTo(columnTypeMatch2[i]), "Matching the Column Type");
         var columnFD = result2.Columns[i].FractionalDigits;
-        Assert.AreEqual(FDLength2[i], columnFD, "Matching the Column FD");
+        Assert.That(columnFD, Is.EqualTo(FDLength2[i]), "Matching the Column FD");
         var columnIsSigned = result2.Columns[i].IsNumberSigned;
-        Assert.AreEqual(columnIsSignedMatch2[i], columnIsSigned.ToString(), "Matching whether column is signed or not");
+        Assert.That(columnIsSigned.ToString(), Is.EqualTo(columnIsSignedMatch2[i]), "Matching whether column is signed or not");
         string columnCollation = result2.Columns[i].CollationName;
         if (i == 2)
-          StringAssert.Contains(defaultCharset, columnCollation, "Matching the Collation Name for default characters");
+          Assert.That(columnCollation, Does.Contain(defaultCharset), "Matching the Collation Name for default characters");
         else
-          Assert.AreEqual(null, columnCollation, "Matching the Collation Name as null for data types other than characters");
+          Assert.That(columnCollation, Is.EqualTo(null), "Matching the Collation Name as null for data types other than characters");
         string columnCharacterSet = result2.Columns[i].CharacterSetName;
         if (i == 2)
-          StringAssert.AreEqualIgnoringCase(defaultCharset, columnCharacterSet, "Matching the CharacterSet Name for default characters");
+          Assert.That(columnCharacterSet, Is.EqualTo(defaultCharset).IgnoreCase, "Matching the CharacterSet Name for default characters");
         else
-          Assert.AreEqual(null, columnCharacterSet, "Matching the Collation Name as null for data types other than characters");
+          Assert.That(columnCharacterSet, Is.EqualTo(null), "Matching the Collation Name as null for data types other than characters");
         var columnIsPadded = result2.Columns[i].IsPadded;
-        Assert.AreEqual(columnIsPaddedMatch2[i], columnIsPadded.ToString(), "Matching whether column is padded or not");
+        Assert.That(columnIsPadded.ToString(), Is.EqualTo(columnIsPaddedMatch2[i]), "Matching whether column is padded or not");
         var columnClrType = result2.Columns[i].ClrType;
-        Assert.AreEqual(clrTypeMatch2[i], columnClrType.ToString(), "Matching whether column CLR Type");
+        Assert.That(columnClrType.ToString(), Is.EqualTo(clrTypeMatch2[i]), "Matching whether column CLR Type");
       }
 
       session.SQL("DROP TABLE if exists test").Execute();
@@ -555,95 +555,95 @@ namespace MySqlX.Data.Tests
       session.SQL("INSERT INTO test VALUES('Bob')").Execute();
       result2 = session.GetSchema(schemaName).GetTable("test").Select("1 + 1 as a", "b").Execute();
       var rows = result2.FetchAll();
-      Assert.AreEqual(2, result2.Columns.Count, "Matching Column Count");
+      Assert.That(result2.Columns.Count, Is.EqualTo(2), "Matching Column Count");
 
-      Assert.AreEqual(null, result2.Columns[0].SchemaName, "Matching Column Schema Name");
-      Assert.AreEqual(null, result2.Columns[0].TableName, "Matching Column Table Name");
-      Assert.AreEqual(null, result2.Columns[0].TableLabel, "Matching Column Table Label");
-      Assert.AreEqual(null, result2.Columns[0].ColumnName, "Matching Column Name");
-      Assert.AreEqual("a", result2.Columns[0].ColumnLabel, "Matching Column Label");
-      Assert.AreEqual("Tinyint", result2.Columns[0].Type.ToString(), "Matching Column Type");
-      Assert.AreEqual(3u, result2.Columns[0].Length, "Matching Column Length");
-      Assert.AreEqual(0u, result2.Columns[0].FractionalDigits, "Matching Column FD");
-      Assert.AreEqual(true, result2.Columns[0].IsNumberSigned, "Matching Column Is Signed");
-      Assert.AreEqual(null, result2.Columns[0].CharacterSetName, "Matching Character Set Name");
-      Assert.AreEqual(null, result2.Columns[0].CollationName, "Matching Collation Name");
-      Assert.AreEqual(false, result2.Columns[0].IsPadded, "Matching Column Padded");
+      Assert.That(result2.Columns[0].SchemaName, Is.EqualTo(null), "Matching Column Schema Name");
+      Assert.That(result2.Columns[0].TableName, Is.EqualTo(null), "Matching Column Table Name");
+      Assert.That(result2.Columns[0].TableLabel, Is.EqualTo(null), "Matching Column Table Label");
+      Assert.That(result2.Columns[0].ColumnName, Is.EqualTo(null), "Matching Column Name");
+      Assert.That(result2.Columns[0].ColumnLabel, Is.EqualTo("a"), "Matching Column Label");
+      Assert.That(result2.Columns[0].Type.ToString(), Is.EqualTo("Tinyint"), "Matching Column Type");
+      Assert.That(result2.Columns[0].Length, Is.EqualTo(3u), "Matching Column Length");
+      Assert.That(result2.Columns[0].FractionalDigits, Is.EqualTo(0u), "Matching Column FD");
+      Assert.That(result2.Columns[0].IsNumberSigned, Is.EqualTo(true), "Matching Column Is Signed");
+      Assert.That(result2.Columns[0].CharacterSetName, Is.EqualTo(null), "Matching Character Set Name");
+      Assert.That(result2.Columns[0].CollationName, Is.EqualTo(null), "Matching Collation Name");
+      Assert.That(result2.Columns[0].IsPadded, Is.EqualTo(false), "Matching Column Padded");
 
-      Assert.AreEqual(schemaName, result2.Columns[1].SchemaName, "Matching Column Schema Name");
-      Assert.AreEqual("test", result2.Columns[1].TableName, "Matching Column Table Name");
-      Assert.AreEqual("test", result2.Columns[1].TableLabel, "Matching Column Table Label");
-      Assert.AreEqual("b", result2.Columns[1].ColumnName, "Matching Column Name");
-      Assert.AreEqual("b", result2.Columns[1].ColumnLabel, "Matching Column Label");
-      Assert.AreEqual("String", result2.Columns[1].Type.ToString(), "Matching Column Type");
-      Assert.AreEqual(1020u, result2.Columns[1].Length, "Matching Column Length");
-      Assert.AreEqual(0u, result2.Columns[1].FractionalDigits, "Matching Column FD");
-      Assert.AreEqual(false, result2.Columns[1].IsNumberSigned, "Matching Column Is Signed");
-      Assert.AreEqual(defaultCharset, result2.Columns[1].CharacterSetName, "Matching Character Set Name");
-      StringAssert.Contains(defaultCharset, result2.Columns[1].CollationName, "Matching Collation Name");
-      Assert.AreEqual(false, result2.Columns[1].IsPadded, "Matching Column Padded");
+      Assert.That(result2.Columns[1].SchemaName, Is.EqualTo(schemaName), "Matching Column Schema Name");
+      Assert.That(result2.Columns[1].TableName, Is.EqualTo("test"), "Matching Column Table Name");
+      Assert.That(result2.Columns[1].TableLabel, Is.EqualTo("test"), "Matching Column Table Label");
+      Assert.That(result2.Columns[1].ColumnName, Is.EqualTo("b"), "Matching Column Name");
+      Assert.That(result2.Columns[1].ColumnLabel, Is.EqualTo("b"), "Matching Column Label");
+      Assert.That(result2.Columns[1].Type.ToString(), Is.EqualTo("String"), "Matching Column Type");
+      Assert.That(result2.Columns[1].Length, Is.EqualTo(1020u), "Matching Column Length");
+      Assert.That(result2.Columns[1].FractionalDigits, Is.EqualTo(0u), "Matching Column FD");
+      Assert.That(result2.Columns[1].IsNumberSigned, Is.EqualTo(false), "Matching Column Is Signed");
+      Assert.That(result2.Columns[1].CharacterSetName, Is.EqualTo(defaultCharset), "Matching Character Set Name");
+      Assert.That(result2.Columns[1].CollationName, Does.Contain(defaultCharset), "Matching Collation Name");
+      Assert.That(result2.Columns[1].IsPadded, Is.EqualTo(false), "Matching Column Padded");
 
       session.SQL("create table test1(c1 int,c2 double GENERATED ALWAYS AS (c1*101/102) Stored COMMENT 'First Gen Col',c3 Json GENERATED ALWAYS AS (concat('{\"F1\":',c1,'}')) VIRTUAL COMMENT 'Second Gen /**/Col', c4 bigint GENERATED ALWAYS as (c1*10000) VIRTUAL UNIQUE KEY Comment '3rd Col' NOT NULL)").Execute();
       session.SQL("insert into test1(c1) values(1000)").Execute();
       result2 = session.GetSchema(schemaName).GetTable("test1").Select("c1").Execute();
 
-      Assert.AreEqual(schemaName, result2.Columns[0].SchemaName, "Matching Column Schema Name");
-      Assert.AreEqual("test1", result2.Columns[0].TableName, "Matching Column Table Name");
-      Assert.AreEqual("test1", result2.Columns[0].TableLabel, "Matching Column Table Label");
-      Assert.AreEqual("c1", result2.Columns[0].ColumnName, "Matching Column Name");
-      Assert.AreEqual("c1", result2.Columns[0].ColumnLabel, "Matching Column Label");
-      Assert.AreEqual("Int", result2.Columns[0].Type.ToString(), "Matching Column Type");
-      Assert.AreEqual(11, result2.Columns[0].Length, "Matching Column Length");
-      Assert.AreEqual(0u, result2.Columns[0].FractionalDigits, "Matching Column FD");
-      Assert.AreEqual(true, result2.Columns[0].IsNumberSigned, "Matching Column Is Signed");
-      Assert.AreEqual(null, result2.Columns[0].CharacterSetName, "Matching Character Set Name");
-      Assert.AreEqual(null, result2.Columns[0].CollationName, "Matching Collation Name");
-      Assert.AreEqual(false, result2.Columns[0].IsPadded, "Matching Column Padded");
+      Assert.That(result2.Columns[0].SchemaName, Is.EqualTo(schemaName), "Matching Column Schema Name");
+      Assert.That(result2.Columns[0].TableName, Is.EqualTo("test1"), "Matching Column Table Name");
+      Assert.That(result2.Columns[0].TableLabel, Is.EqualTo("test1"), "Matching Column Table Label");
+      Assert.That(result2.Columns[0].ColumnName, Is.EqualTo("c1"), "Matching Column Name");
+      Assert.That(result2.Columns[0].ColumnLabel, Is.EqualTo("c1"), "Matching Column Label");
+      Assert.That(result2.Columns[0].Type.ToString(), Is.EqualTo("Int"), "Matching Column Type");
+      Assert.That(result2.Columns[0].Length, Is.EqualTo(11), "Matching Column Length");
+      Assert.That(result2.Columns[0].FractionalDigits, Is.EqualTo(0u), "Matching Column FD");
+      Assert.That(result2.Columns[0].IsNumberSigned, Is.EqualTo(true), "Matching Column Is Signed");
+      Assert.That(result2.Columns[0].CharacterSetName, Is.EqualTo(null), "Matching Character Set Name");
+      Assert.That(result2.Columns[0].CollationName, Is.EqualTo(null), "Matching Collation Name");
+      Assert.That(result2.Columns[0].IsPadded, Is.EqualTo(false), "Matching Column Padded");
 
       result2 = session.GetSchema(schemaName).GetTable("test1").Select("c2").Execute();
 
-      Assert.AreEqual(schemaName, result2.Columns[0].SchemaName, "Matching Column Schema Name");
-      Assert.AreEqual("test1", result2.Columns[0].TableName, "Matching Column Table Name");
-      Assert.AreEqual("test1", result2.Columns[0].TableLabel, "Matching Column Table Label");
-      Assert.AreEqual("c2", result2.Columns[0].ColumnName, "Matching Column Name");
-      Assert.AreEqual("c2", result2.Columns[0].ColumnLabel, "Matching Column Label");
-      Assert.AreEqual("Double", result2.Columns[0].Type.ToString(), "Matching Column Type");
-      Assert.AreEqual(22, result2.Columns[0].Length, "Matching Column Length");
-      Assert.AreEqual(31, result2.Columns[0].FractionalDigits, "Matching Column FD");
-      Assert.AreEqual(false, result2.Columns[0].IsNumberSigned, "Matching Column Is Signed");
-      Assert.AreEqual(null, result2.Columns[0].CharacterSetName, "Matching Character Set Name");
-      Assert.AreEqual(null, result2.Columns[0].CollationName, "Matching Collation Name");
-      Assert.AreEqual(false, result2.Columns[0].IsPadded, "Matching Column Padded");
+      Assert.That(result2.Columns[0].SchemaName, Is.EqualTo(schemaName), "Matching Column Schema Name");
+      Assert.That(result2.Columns[0].TableName, Is.EqualTo("test1"), "Matching Column Table Name");
+      Assert.That(result2.Columns[0].TableLabel, Is.EqualTo("test1"), "Matching Column Table Label");
+      Assert.That(result2.Columns[0].ColumnName, Is.EqualTo("c2"), "Matching Column Name");
+      Assert.That(result2.Columns[0].ColumnLabel, Is.EqualTo("c2"), "Matching Column Label");
+      Assert.That(result2.Columns[0].Type.ToString(), Is.EqualTo("Double"), "Matching Column Type");
+      Assert.That(result2.Columns[0].Length, Is.EqualTo(22), "Matching Column Length");
+      Assert.That(result2.Columns[0].FractionalDigits, Is.EqualTo(31), "Matching Column FD");
+      Assert.That(result2.Columns[0].IsNumberSigned, Is.EqualTo(false), "Matching Column Is Signed");
+      Assert.That(result2.Columns[0].CharacterSetName, Is.EqualTo(null), "Matching Character Set Name");
+      Assert.That(result2.Columns[0].CollationName, Is.EqualTo(null), "Matching Collation Name");
+      Assert.That(result2.Columns[0].IsPadded, Is.EqualTo(false), "Matching Column Padded");
 
       result2 = session.GetSchema(schemaName).GetTable("test1").Select("c3").Execute();
 
-      Assert.AreEqual(schemaName, result2.Columns[0].SchemaName, "Matching Column Schema Name");
-      Assert.AreEqual("test1", result2.Columns[0].TableName, "Matching Column Table Name");
-      Assert.AreEqual("test1", result2.Columns[0].TableLabel, "Matching Column Table Label");
-      Assert.AreEqual("c3", result2.Columns[0].ColumnName, "Matching Column Name");
-      Assert.AreEqual("c3", result2.Columns[0].ColumnLabel, "Matching Column Label");
-      Assert.AreEqual("Json", result2.Columns[0].Type.ToString(), "Matching Column Type");
-      Assert.AreEqual(4294967295, result2.Columns[0].Length, "Matching Column Length");
-      Assert.AreEqual(0u, result2.Columns[0].FractionalDigits, "Matching Column FD");
-      Assert.AreEqual(false, result2.Columns[0].IsNumberSigned, "Matching Column Is Signed");
-      Assert.AreEqual("binary", result2.Columns[0].CharacterSetName, "Matching Character Set Name");
-      Assert.AreEqual("binary", result2.Columns[0].CollationName, "Matching Collation Name");
-      Assert.AreEqual(false, result2.Columns[0].IsPadded, "Matching Column Padded");
+      Assert.That(result2.Columns[0].SchemaName, Is.EqualTo(schemaName), "Matching Column Schema Name");
+      Assert.That(result2.Columns[0].TableName, Is.EqualTo("test1"), "Matching Column Table Name");
+      Assert.That(result2.Columns[0].TableLabel, Is.EqualTo("test1"), "Matching Column Table Label");
+      Assert.That(result2.Columns[0].ColumnName, Is.EqualTo("c3"), "Matching Column Name");
+      Assert.That(result2.Columns[0].ColumnLabel, Is.EqualTo("c3"), "Matching Column Label");
+      Assert.That(result2.Columns[0].Type.ToString(), Is.EqualTo("Json"), "Matching Column Type");
+      Assert.That(result2.Columns[0].Length, Is.EqualTo(4294967295), "Matching Column Length");
+      Assert.That(result2.Columns[0].FractionalDigits, Is.EqualTo(0u), "Matching Column FD");
+      Assert.That(result2.Columns[0].IsNumberSigned, Is.EqualTo(false), "Matching Column Is Signed");
+      Assert.That(result2.Columns[0].CharacterSetName, Is.EqualTo("binary"), "Matching Character Set Name");
+      Assert.That(result2.Columns[0].CollationName, Is.EqualTo("binary"), "Matching Collation Name");
+      Assert.That(result2.Columns[0].IsPadded, Is.EqualTo(false), "Matching Column Padded");
 
       result2 = session.GetSchema(schemaName).GetTable("test1").Select("c4").Execute();
 
-      Assert.AreEqual(schemaName, result2.Columns[0].SchemaName, "Matching Column Schema Name");
-      Assert.AreEqual("test1", result2.Columns[0].TableName, "Matching Column Table Name");
-      Assert.AreEqual("test1", result2.Columns[0].TableLabel, "Matching Column Table Label");
-      Assert.AreEqual("c4", result2.Columns[0].ColumnName, "Matching Column Name");
-      Assert.AreEqual("c4", result2.Columns[0].ColumnLabel, "Matching Column Label");
-      Assert.AreEqual("Bigint", result2.Columns[0].Type.ToString(), "Matching Column Type");
-      Assert.AreEqual(20, result2.Columns[0].Length, "Matching Column Length");
-      Assert.AreEqual(0u, result2.Columns[0].FractionalDigits, "Matching Column FD");
-      Assert.AreEqual(true, result2.Columns[0].IsNumberSigned, "Matching Column Is Signed");
-      Assert.AreEqual(null, result2.Columns[0].CharacterSetName, "Matching Character Set Name");
-      Assert.AreEqual(null, result2.Columns[0].CollationName, "Matching Collation Name");
-      Assert.AreEqual(false, result2.Columns[0].IsPadded, "Matching Column Padded");
+      Assert.That(result2.Columns[0].SchemaName, Is.EqualTo(schemaName), "Matching Column Schema Name");
+      Assert.That(result2.Columns[0].TableName, Is.EqualTo("test1"), "Matching Column Table Name");
+      Assert.That(result2.Columns[0].TableLabel, Is.EqualTo("test1"), "Matching Column Table Label");
+      Assert.That(result2.Columns[0].ColumnName, Is.EqualTo("c4"), "Matching Column Name");
+      Assert.That(result2.Columns[0].ColumnLabel, Is.EqualTo("c4"), "Matching Column Label");
+      Assert.That(result2.Columns[0].Type.ToString(), Is.EqualTo("Bigint"), "Matching Column Type");
+      Assert.That(result2.Columns[0].Length, Is.EqualTo(20), "Matching Column Length");
+      Assert.That(result2.Columns[0].FractionalDigits, Is.EqualTo(0u), "Matching Column FD");
+      Assert.That(result2.Columns[0].IsNumberSigned, Is.EqualTo(true), "Matching Column Is Signed");
+      Assert.That(result2.Columns[0].CharacterSetName, Is.EqualTo(null), "Matching Character Set Name");
+      Assert.That(result2.Columns[0].CollationName, Is.EqualTo(null), "Matching Collation Name");
+      Assert.That(result2.Columns[0].IsPadded, Is.EqualTo(false), "Matching Column Padded");
 
       session.SQL("DROP TABLE if exists test").Execute();
       session.SQL("DROP TABLE if exists test1").Execute();
@@ -684,33 +684,33 @@ namespace MySqlX.Data.Tests
       for (int i = 0; i < columns.Length; i++)
       {
         string tableLabel = result.Columns[i].TableLabel;
-        Assert.AreEqual("address", tableLabel, "Matching the table label");
+        Assert.That(tableLabel, Is.EqualTo("address"), "Matching the table label");
         string columnName = result.Columns[i].ColumnName;
-        Assert.AreEqual(columns[i].ToString(), columnName, "Matching the Column Name");
+        Assert.That(columnName, Is.EqualTo(columns[i].ToString()), "Matching the Column Name");
         string columnLabel = result.Columns[i].ColumnLabel;
-        Assert.AreEqual(columns[i].ToString(), columnLabel, "Matching the Column Label");
+        Assert.That(columnLabel, Is.EqualTo(columns[i].ToString()), "Matching the Column Label");
         uint columnLength = result.Columns[i].Length;
-        Assert.AreEqual(columnLength, columnLength, "Matching the Column Length");
+        Assert.That(columnLength, Is.EqualTo(columnLength), "Matching the Column Length");
         var columnType = result.Columns[i].Type;
-        Assert.AreEqual(columnTypeMatch[i], columnType.ToString(), "Matching the Column Type");
+        Assert.That(columnType.ToString(), Is.EqualTo(columnTypeMatch[i]), "Matching the Column Type");
         var columnFD = result.Columns[i].FractionalDigits;
-        Assert.AreEqual(FDLength[i], columnFD, "Matching the Column FD");
+        Assert.That(columnFD, Is.EqualTo(FDLength[i]), "Matching the Column FD");
         var columnIsSigned = result.Columns[i].IsNumberSigned;
-        Assert.AreEqual(columnIsSignedMatch[i], columnIsSigned.ToString(), "Matching whether column is signed or not");
+        Assert.That(columnIsSigned.ToString(), Is.EqualTo(columnIsSignedMatch[i]), "Matching whether column is signed or not");
         string columnCollation = result.Columns[i].CollationName;
         if (i == 1 || i == 2 || i == 3 || i == 4 || i == 5)
-          Assert.AreEqual(columnCollation, columnCollation, "Matching the Collation Name for default characters");
+          Assert.That(columnCollation, Is.EqualTo(columnCollation), "Matching the Collation Name for default characters");
         else
-          Assert.AreEqual(null, columnCollation, "Matching the Collation Name as null for data types other than characters");
+          Assert.That(columnCollation, Is.EqualTo(null), "Matching the Collation Name as null for data types other than characters");
         string columnCharacterSet = result.Columns[i].CharacterSetName;
         if (i == 1 || i == 2 || i == 3 || i == 4 || i == 5)
-          Assert.AreEqual(columnCharacterSet, columnCharacterSet, "Matching the CharacterSet Name for default characters");
+          Assert.That(columnCharacterSet, Is.EqualTo(columnCharacterSet), "Matching the CharacterSet Name for default characters");
         else
-          Assert.AreEqual(null, columnCharacterSet, "Matching the Collation Name as null for data types other than characters");
+          Assert.That(columnCharacterSet, Is.EqualTo(null), "Matching the Collation Name as null for data types other than characters");
         var columnIsPadded = result.Columns[i].IsPadded;
-        Assert.AreEqual(columnIsPaddedMatch[i], columnIsPadded.ToString(), "Matching whether column is padded or not");
+        Assert.That(columnIsPadded.ToString(), Is.EqualTo(columnIsPaddedMatch[i]), "Matching whether column is padded or not");
         var columnClrType = result.Columns[i].ClrType;
-        Assert.AreEqual(clrTypeMatch[i], columnClrType.ToString(), "Matching whether column CLR Type");
+        Assert.That(columnClrType.ToString(), Is.EqualTo(clrTypeMatch[i]), "Matching whether column CLR Type");
       }
       session.SQL("DROP TABLE if exists address").Execute();
     }
@@ -747,33 +747,33 @@ namespace MySqlX.Data.Tests
       for (int i = 0; i < columns.Length; i++)
       {
         string tableLabel = result.Columns[i].TableLabel;
-        Assert.AreEqual("address", tableLabel, "Matching the table label");
+        Assert.That(tableLabel, Is.EqualTo("address"), "Matching the table label");
         string columnName = result.Columns[i].ColumnName;
-        Assert.AreEqual(columns[i].ToString(), columnName, "Matching the Column Name");
+        Assert.That(columnName, Is.EqualTo(columns[i].ToString()), "Matching the Column Name");
         string columnLabel = result.Columns[i].ColumnLabel;
-        Assert.AreEqual(columns[i].ToString(), columnLabel, "Matching the Column Label");
+        Assert.That(columnLabel, Is.EqualTo(columns[i].ToString()), "Matching the Column Label");
         uint columnLength = result.Columns[i].Length;
-        Assert.AreEqual(Length[i], columnLength, "Matching the Column Length");
+        Assert.That(columnLength, Is.EqualTo(Length[i]), "Matching the Column Length");
         var columnType = result.Columns[i].Type;
-        Assert.AreEqual(columnTypeMatch[i], columnType.ToString(), "Matching the Column Type");
+        Assert.That(columnType.ToString(), Is.EqualTo(columnTypeMatch[i]), "Matching the Column Type");
         var columnFD = result.Columns[i].FractionalDigits;
-        Assert.AreEqual(FDLength[i], columnFD, "Matching the Column FD");
+        Assert.That(columnFD, Is.EqualTo(FDLength[i]), "Matching the Column FD");
         var columnIsSigned = result.Columns[i].IsNumberSigned;
-        Assert.AreEqual(columnIsSignedMatch[i], columnIsSigned.ToString(), "Matching whether column is signed or not");
+        Assert.That(columnIsSigned.ToString(), Is.EqualTo(columnIsSignedMatch[i]), "Matching whether column is signed or not");
         string columnCollation = result.Columns[i].CollationName;
         if (i == 1 || i == 2 || i == 3 || i == 4 || i == 5)
-          StringAssert.Contains(defaultCharset, columnCollation, "Matching the Collation Name for big5_chinese_ci characters");
+          Assert.That(columnCollation, Does.Contain(defaultCharset), "Matching the Collation Name for big5_chinese_ci characters");
         else
-          Assert.AreEqual(null, columnCollation, "Matching the Collation Name as null for data types other than characters");
+          Assert.That(columnCollation, Is.EqualTo(null), "Matching the Collation Name as null for data types other than characters");
         string columnCharacterSet = result.Columns[i].CharacterSetName;
         if (i == 1 || i == 2 || i == 3 || i == 4 || i == 5)
-          StringAssert.AreEqualIgnoringCase(defaultCharset, columnCharacterSet, "Matching the CharacterSet Name for big5 characters");
+          Assert.That(columnCharacterSet, Is.EqualTo(defaultCharset).IgnoreCase, "Matching the CharacterSet Name for big5 characters");
         else
-          Assert.AreEqual(null, columnCharacterSet, "Matching the Collation Name as null for data types other than characters");
+          Assert.That(columnCharacterSet, Is.EqualTo(null), "Matching the Collation Name as null for data types other than characters");
         var columnIsPadded = result.Columns[i].IsPadded;
-        Assert.AreEqual(columnIsPaddedMatch[i], columnIsPadded.ToString(), "Matching whether column is padded or not");
+        Assert.That(columnIsPadded.ToString(), Is.EqualTo(columnIsPaddedMatch[i]), "Matching whether column is padded or not");
         var columnClrType = result.Columns[i].ClrType;
-        Assert.AreEqual(clrTypeMatch[i], columnClrType.ToString(), "Matching whether column CLR Type");
+        Assert.That(columnClrType.ToString(), Is.EqualTo(clrTypeMatch[i]), "Matching whether column CLR Type");
       }
       session.SQL("Drop table if exists address").Execute();
     }
@@ -790,29 +790,29 @@ namespace MySqlX.Data.Tests
       for (int i = 0; i < columns.Length; i++)
       {
         string tableName = result.Columns[i].TableName;
-        Assert.AreEqual("geotest", tableName, "Matching the table name");
+        Assert.That(tableName, Is.EqualTo("geotest"), "Matching the table name");
         string tableLabel = result.Columns[i].TableLabel;
-        Assert.AreEqual("geotest", tableLabel, "Matching the table label");
+        Assert.That(tableLabel, Is.EqualTo("geotest"), "Matching the table label");
         string columnName = result.Columns[i].ColumnName;
-        Assert.AreEqual(columns[i].ToString(), columnName, "Matching the Column Name");
+        Assert.That(columnName, Is.EqualTo(columns[i].ToString()), "Matching the Column Name");
         string columnLabel = result.Columns[i].ColumnLabel;
-        Assert.AreEqual(columns[i].ToString(), columnLabel, "Matching the Column Label");
+        Assert.That(columnLabel, Is.EqualTo(columns[i].ToString()), "Matching the Column Label");
         uint columnLength = result.Columns[i].Length;
-        Assert.AreEqual(0, columnLength, "Matching the Column Length");
+        Assert.That(columnLength, Is.EqualTo(0), "Matching the Column Length");
         var columnType = result.Columns[i].Type;
-        Assert.AreEqual("Geometry", columnType.ToString(), "Matching the Column Type");
+        Assert.That(columnType.ToString(), Is.EqualTo("Geometry"), "Matching the Column Type");
         var columnFD = result.Columns[i].FractionalDigits;
-        Assert.AreEqual(0, columnFD, "Matching the Column FD");
+        Assert.That(columnFD, Is.EqualTo(0), "Matching the Column FD");
         var columnIsSigned = result.Columns[i].IsNumberSigned;
-        Assert.AreEqual(false, columnIsSigned, "Matching whether column is signed or not");
+        Assert.That(columnIsSigned, Is.EqualTo(false), "Matching whether column is signed or not");
         string columnCollation = result.Columns[i].CollationName;
-        Assert.AreEqual(null, columnCollation, "Matching the Collation Name for default characters");
+        Assert.That(columnCollation, Is.EqualTo(null), "Matching the Collation Name for default characters");
         string columnCharacterSet = result.Columns[i].CharacterSetName;
-        Assert.AreEqual(null, columnCharacterSet, "Matching the Collation Name as null for data types other than characters");
+        Assert.That(columnCharacterSet, Is.EqualTo(null), "Matching the Collation Name as null for data types other than characters");
         var columnIsPadded = result.Columns[i].IsPadded;
-        Assert.AreEqual(false, columnIsPadded, "Matching whether column is padded or not");
+        Assert.That(columnIsPadded, Is.EqualTo(false), "Matching whether column is padded or not");
         var columnClrType = result.Columns[i].ClrType;
-        Assert.AreEqual("System.Byte[]", columnClrType.ToString(), "Matching whether column CLR Type");
+        Assert.That(columnClrType.ToString(), Is.EqualTo("System.Byte[]"), "Matching whether column CLR Type");
       }
     }
 
@@ -832,30 +832,30 @@ namespace MySqlX.Data.Tests
       for (int i = 0; i < columns.Length; i++)
       {
         string tableName = result.Columns[i].TableName;
-        Assert.AreEqual("geotest", tableName, "Matching the table name");
+        Assert.That(tableName, Is.EqualTo("geotest"), "Matching the table name");
         string tableLabel = result.Columns[i].TableLabel;
-        Assert.AreEqual("geotest", tableLabel, "Matching the table label");
+        Assert.That(tableLabel, Is.EqualTo("geotest"), "Matching the table label");
         string columnName = result.Columns[i].ColumnName;
-        Assert.AreEqual(columns[i].ToString(), columnName, "Matching the Column Name");
+        Assert.That(columnName, Is.EqualTo(columns[i].ToString()), "Matching the Column Name");
         string columnLabel = result.Columns[i].ColumnLabel;
-        Assert.AreEqual(columns[i].ToString(), columnLabel, "Matching the Column Label");
+        Assert.That(columnLabel, Is.EqualTo(columns[i].ToString()), "Matching the Column Label");
         uint columnLength = result.Columns[i].Length;
-        Assert.AreEqual(ColumnLength[i], columnLength, "Matching the Column Length");
+        Assert.That(columnLength, Is.EqualTo(ColumnLength[i]), "Matching the Column Length");
         var columnType = result.Columns[i].Type;
-        Assert.AreEqual(columnTypeMatch[i], columnType.ToString(), "Matching the Column Type");
+        Assert.That(columnType.ToString(), Is.EqualTo(columnTypeMatch[i]), "Matching the Column Type");
         var columnFD = result.Columns[i].FractionalDigits;
-        Assert.AreEqual(0, columnFD, "Matching the Column FD");
+        Assert.That(columnFD, Is.EqualTo(0), "Matching the Column FD");
         var columnIsSigned = result.Columns[i].IsNumberSigned;
-        Assert.AreEqual("False", columnIsSigned.ToString(), "Matching whether column is signed or not");
+        Assert.That(columnIsSigned.ToString(), Is.EqualTo("False"), "Matching whether column is signed or not");
         string columnCollation = result.Columns[i].CollationName;
-        Assert.AreEqual("binary", columnCollation, "Matching the Collation Name for default characters");
+        Assert.That(columnCollation, Is.EqualTo("binary"), "Matching the Collation Name for default characters");
         string columnCharacterSet = result.Columns[i].CharacterSetName;
         //Character name returns binary for blob
-        Assert.AreEqual("binary", columnCharacterSet, "Matching the Collation Name as null for data types other than characters");
+        Assert.That(columnCharacterSet, Is.EqualTo("binary"), "Matching the Collation Name as null for data types other than characters");
         var columnIsPadded = result.Columns[i].IsPadded;
-        Assert.AreEqual("False", columnIsPadded.ToString(), "Matching whether column is padded or not");
+        Assert.That(columnIsPadded.ToString(), Is.EqualTo("False"), "Matching whether column is padded or not");
         var columnClrType = result.Columns[i].ClrType;
-        Assert.AreEqual("System.Byte[]", columnClrType.ToString(), "Matching whether column CLR Type");
+        Assert.That(columnClrType.ToString(), Is.EqualTo("System.Byte[]"), "Matching whether column CLR Type");
       }
     }
 
@@ -876,7 +876,7 @@ namespace MySqlX.Data.Tests
       var database_name = "collation_test";
       session.DropSchema(database_name);
       var CommandText1 = "SHOW VARIABLES LIKE 'collation_%';";
-      Assert.AreEqual(charset, session.Settings.CharacterSet, "Matching the character set of the session");
+      Assert.That(session.Settings.CharacterSet, Is.EqualTo(charset), "Matching the character set of the session");
 
       for (var i = 0; i < collationname.Length; i++)
       {
@@ -886,18 +886,18 @@ namespace MySqlX.Data.Tests
         session.SQL("USE " + database_name).Execute();
         session.SQL("create table x(id int,name char(25));").Execute();
         var res = session.SQL("insert into x values(10,'AXTREF');").Execute();
-        Assert.AreEqual(1, res.AffectedItemsCount);
+        Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
         session.SQL("insert into x values(20,'Trädgårdsvägen');").Execute();
-        Assert.AreEqual(1, res.AffectedItemsCount);
+        Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
         session.SQL("insert into x values(30,'foo𝌆bar');").Execute();
-        Assert.AreEqual(1, res.AffectedItemsCount);
+        Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
         session.SQL("insert into x values(40,'Dolphin:🐬');").Execute();
-        Assert.AreEqual(1, res.AffectedItemsCount);
+        Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
 
         var dbCharset = session.SQL("select @@character_set_database;").Execute().FirstOrDefault();
         var dbCollation = session.SQL("select @@collation_database").Execute().FirstOrDefault();
-        Assert.AreEqual(dbCharset[0], charset);
-        Assert.AreEqual(dbCollation[0], collationname[i]);
+        Assert.That(charset, Is.EqualTo(dbCharset[0]));
+        Assert.That(collationname[i], Is.EqualTo(dbCollation[0]));
         session.DropSchema(database_name);
       }
     }
@@ -926,7 +926,7 @@ namespace MySqlX.Data.Tests
 
       var database_name = "collation_test";
       session.DropSchema(database_name);
-      Assert.AreEqual(charset, sessionX.Settings.CharacterSet, "Matching the character set of the session");
+      Assert.That(sessionX.Settings.CharacterSet, Is.EqualTo(charset), "Matching the character set of the session");
 
       for (var i = 0; i < collationname.Length; i++)
       {
@@ -935,18 +935,18 @@ namespace MySqlX.Data.Tests
         sessionX.SQL("USE " + database_name).Execute();
         sessionX.SQL("CREATE TABLE x(id int,name char(25));").Execute();
         var res = sessionX.SQL("insert into x values(10,'AXTREF');").Execute();
-        Assert.AreEqual(1, res.AffectedItemsCount);
+        Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
         sessionX.SQL("insert into x values(20,'Trädgårdsvägen');").Execute();
-        Assert.AreEqual(1, res.AffectedItemsCount);
+        Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
         sessionX.SQL("insert into x values(30,'foo𝌆bar');").Execute();
-        Assert.AreEqual(1, res.AffectedItemsCount);
+        Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
         sessionX.SQL("insert into x values(40,'Dolphin:🐬');").Execute();
-        Assert.AreEqual(1, res.AffectedItemsCount);
+        Assert.That(res.AffectedItemsCount, Is.EqualTo(1));
 
         var dbCharset = sessionX.SQL("select @@character_set_database;").Execute().FirstOrDefault();
         var dbCollation = sessionX.SQL("select @@collation_database").Execute().FirstOrDefault();
-        Assert.AreEqual(dbCharset[0], charset);
-        Assert.AreEqual(dbCollation[0], collationname[i]);
+        Assert.That(charset, Is.EqualTo(dbCharset[0]));
+        Assert.That(collationname[i], Is.EqualTo(dbCollation[0]));
         sessionX.DropSchema(database_name);
       }
     }
@@ -962,7 +962,7 @@ namespace MySqlX.Data.Tests
       var charset = "latin1";
       var collationname = "latin1_danish_ci";
       var defaultCharset = "utf8mb4";
-      Assert.AreEqual(defaultCharset, session.Settings.CharacterSet, "Matching the character set of the session");
+      Assert.That(session.Settings.CharacterSet, Is.EqualTo(defaultCharset), "Matching the character set of the session");
       session.DropSchema(database_name);
       var CommandText1 = $"CREATE DATABASE {database_name} CHARACTER SET {charset} COLLATE {collationname}";
       session.SQL(CommandText1).Execute();
@@ -970,11 +970,11 @@ namespace MySqlX.Data.Tests
       session.SQL("create table x(id int,name char(25));").Execute();
       session.SQL("insert into x values(10,'AXTREF');").Execute();
       RowResult result1 = session.GetSchema(database_name).GetTable("x").Select("id").Execute();
-      Assert.AreEqual(null, result1.Columns[0].CharacterSetName, "id-charset");
-      Assert.AreEqual(null, result1.Columns[0].CollationName, "id-collation");
+      Assert.That(result1.Columns[0].CharacterSetName, Is.EqualTo(null), "id-charset");
+      Assert.That(result1.Columns[0].CollationName, Is.EqualTo(null), "id-collation");
       result1 = session.GetSchema(database_name).GetTable("x").Select("name").Execute();
-      StringAssert.AreEqualIgnoringCase(defaultCharset, result1.Columns[0].CharacterSetName, "name-charset");
-      StringAssert.Contains(defaultCharset, result1.Columns[0].CollationName, "name-collation");
+      Assert.That(result1.Columns[0].CharacterSetName, Is.EqualTo(defaultCharset).IgnoreCase, "name-charset");
+      Assert.That(result1.Columns[0].CollationName, Does.Contain(defaultCharset), "name-collation");
       session.DropSchema(database_name);
     }
 
@@ -997,7 +997,7 @@ namespace MySqlX.Data.Tests
 
       var database_name = "collation_test";
 
-      Assert.AreEqual(charset, session.Settings.CharacterSet, "Matching the character set of the session");
+      Assert.That(session.Settings.CharacterSet, Is.EqualTo(charset), "Matching the character set of the session");
       session.DropSchema(database_name);
       CommandText1 = "CREATE DATABASE " + database_name;
       var sqlRes = session.SQL(CommandText1).Execute();
@@ -1006,13 +1006,13 @@ namespace MySqlX.Data.Tests
       Table t = session.GetSchema(database_name).GetTable("t");
       t.Insert().Values(foo).Execute();
       Row r = t.Select().Limit(1).Execute().FetchOne();
-      Assert.AreEqual(foo, r[0].ToString(), "Compare extracted string");
+      Assert.That(r[0].ToString(), Is.EqualTo(foo), "Compare extracted string");
 
       session.DropSchema(database_name);
       CommandText1 = "SHOW VARIABLES LIKE 'collation_%';";
       sqlRes = session.SQL(CommandText1).Execute();
       while (sqlRes.Next()) ;
-      Assert.AreEqual(collation, sqlRes.Rows.ToArray()[0][1].ToString(), "Matching the collation");
+      Assert.That(sqlRes.Rows.ToArray()[0][1].ToString(), Is.EqualTo(collation), "Matching the collation");
 
       for (var i = 0; i < collationname.Count; i++)
       {
@@ -1026,15 +1026,15 @@ namespace MySqlX.Data.Tests
         session.SQL("insert into x values(40,'Dolphin:🐬');").Execute();
         t = session.GetSchema(database_name).GetTable("x");
         var res = t.Select().Execute().FetchAll();
-        Assert.AreEqual("AXTREF", res[0][1].ToString(), "Matching the data");
-        Assert.AreEqual("Trädgårdsvägen", res[1][1].ToString(), "Matching the data");
-        Assert.AreEqual("foo𝌆bar", res[2][1].ToString(), "Matching the data");
-        Assert.AreEqual("Dolphin:🐬", res[3][1].ToString(), "Matching the data");
+        Assert.That(res[0][1].ToString(), Is.EqualTo("AXTREF"), "Matching the data");
+        Assert.That(res[1][1].ToString(), Is.EqualTo("Trädgårdsvägen"), "Matching the data");
+        Assert.That(res[2][1].ToString(), Is.EqualTo("foo𝌆bar"), "Matching the data");
+        Assert.That(res[3][1].ToString(), Is.EqualTo("Dolphin:🐬"), "Matching the data");
         RowResult result_collation = t.Select("name").Execute();
         var collationName = result_collation.Columns[0].CollationName;
-        Assert.AreEqual(collationname[i], collationName, "Matching the collation");
+        Assert.That(collationName, Is.EqualTo(collationname[i]), "Matching the collation");
         var characterName = result_collation.Columns[0].CharacterSetName;
-        Assert.AreEqual(charset, characterName, "Matching the charset");
+        Assert.That(characterName, Is.EqualTo(charset), "Matching the charset");
         session.DropSchema(database_name);
       }
 
@@ -1050,15 +1050,15 @@ namespace MySqlX.Data.Tests
         session.SQL("insert into x values(40,'Dolphin:🐬');").Execute();
         t = session.GetSchema(database_name).GetTable("x");
         var res = t.Select().Execute().FetchAll();
-        Assert.AreEqual("AXTREF", res[0][1].ToString(), "Matching the data");
-        Assert.AreEqual("Trädgårdsvägen", res[1][1].ToString(), "Matching the data");
-        Assert.AreEqual("foo𝌆bar", res[2][1].ToString(), "Matching the data");
-        Assert.AreEqual("Dolphin:🐬", res[3][1].ToString(), "Matching the data");
+        Assert.That(res[0][1].ToString(), Is.EqualTo("AXTREF"), "Matching the data");
+        Assert.That(res[1][1].ToString(), Is.EqualTo("Trädgårdsvägen"), "Matching the data");
+        Assert.That(res[2][1].ToString(), Is.EqualTo("foo𝌆bar"), "Matching the data");
+        Assert.That(res[3][1].ToString(), Is.EqualTo("Dolphin:🐬"), "Matching the data");
         RowResult result_collation = t.Select("name").Execute();
         var collationName = result_collation.Columns[0].CollationName;
-        Assert.AreEqual(collationname[i], collationName, "Matching the collation");
+        Assert.That(collationName, Is.EqualTo(collationname[i]), "Matching the collation");
         var characterName = result_collation.Columns[0].CharacterSetName;
-        Assert.AreEqual(charset, characterName, "Matching the charset");
+        Assert.That(characterName, Is.EqualTo(charset), "Matching the charset");
         session.DropSchema(database_name);
         //ALTER
         CommandText1 = "CREATE DATABASE " + database_name;
@@ -1072,15 +1072,15 @@ namespace MySqlX.Data.Tests
         session.SQL("insert into x values(40,'Dolphin:🐬');").Execute();
         t = session.GetSchema(database_name).GetTable("x");
         res = t.Select().Execute().FetchAll();
-        Assert.AreEqual("AXTREF", res[0][1].ToString(), "Matching the data");
-        Assert.AreEqual("Trädgårdsvägen", res[1][1].ToString(), "Matching the data");
-        Assert.AreEqual("foo𝌆bar", res[2][1].ToString(), "Matching the data");
-        Assert.AreEqual("Dolphin:🐬", res[3][1].ToString(), "Matching the data");
+        Assert.That(res[0][1].ToString(), Is.EqualTo("AXTREF"), "Matching the data");
+        Assert.That(res[1][1].ToString(), Is.EqualTo("Trädgårdsvägen"), "Matching the data");
+        Assert.That(res[2][1].ToString(), Is.EqualTo("foo𝌆bar"), "Matching the data");
+        Assert.That(res[3][1].ToString(), Is.EqualTo("Dolphin:🐬"), "Matching the data");
         result_collation = t.Select("name").Execute();
         collationName = result_collation.Columns[0].CollationName;
-        Assert.AreEqual(collationname[i], collationName, "Matching the collation");
+        Assert.That(collationName, Is.EqualTo(collationname[i]), "Matching the collation");
         characterName = result_collation.Columns[0].CharacterSetName;
-        Assert.AreEqual(charset, characterName, "Matching the charset");
+        Assert.That(characterName, Is.EqualTo(charset), "Matching the charset");
         session.DropSchema(database_name);
       }
 
@@ -1098,7 +1098,7 @@ namespace MySqlX.Data.Tests
           session.SQL($"insert into x values({k},'{t_char}')").Execute();
           t = session.GetSchema(database_name).GetTable("x");
           r = t.Select().Limit(1).Execute().FetchOne();
-          Assert.AreEqual(t_char.ToString(), r[1].ToString(), "Compare extracted string");
+          Assert.That(r[1].ToString(), Is.EqualTo(t_char.ToString()), "Compare extracted string");
         }
         session.DropSchema(database_name);
 
@@ -1112,7 +1112,7 @@ namespace MySqlX.Data.Tests
           session.SQL($"insert into x values({k},'{t_char}')").Execute();
           t = session.GetSchema(database_name).GetTable("x");
           r = t.Select().Limit(1).Execute().FetchOne();
-          Assert.AreEqual(t_char.ToString(), r[1].ToString(), "Compare extracted string");
+          Assert.That(r[1].ToString(), Is.EqualTo(t_char.ToString()), "Compare extracted string");
         }
         session.DropSchema(database_name);
       }
@@ -1136,7 +1136,7 @@ namespace MySqlX.Data.Tests
 
       using (var sessiontest = MySQLX.GetSession(mysqlx0.ConnectionString))
       {
-        Assert.AreEqual(charset, sessiontest.Settings.CharacterSet, "Matching the character set of the session");
+        Assert.That(sessiontest.Settings.CharacterSet, Is.EqualTo(charset), "Matching the character set of the session");
         sessiontest.DropSchema(database_name);
         CommandText1 = "CREATE DATABASE " + database_name;
         sqlRes = sessiontest.SQL(CommandText1).Execute();
@@ -1145,7 +1145,7 @@ namespace MySqlX.Data.Tests
         t = sessiontest.GetSchema(database_name).GetTable("t");
         t.Insert().Values(foo).Execute();
         r = t.Select().Limit(1).Execute().FetchOne();
-        Assert.AreEqual(foo, r[0].ToString(), "Compare extracted string");
+        Assert.That(r[0].ToString(), Is.EqualTo(foo), "Compare extracted string");
         sessiontest.DropSchema(database_name);
       }
     }

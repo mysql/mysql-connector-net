@@ -58,14 +58,14 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
 
-          Assert.True(reader.GetValue(1) is MySqlDateTime);
-          Assert.True(reader.GetValue(2) is MySqlDateTime);
+          Assert.That(reader.GetValue(1) is MySqlDateTime);
+          Assert.That(reader.GetValue(2) is MySqlDateTime);
 
-          Assert.False(reader.GetMySqlDateTime(1).IsValidDateTime);
-          Assert.False(reader.GetMySqlDateTime(2).IsValidDateTime);
+          Assert.That(!reader.GetMySqlDateTime(1).IsValidDateTime);
+          Assert.That(!reader.GetMySqlDateTime(2).IsValidDateTime);
 
           Exception ex = Assert.Throws<MySqlConversionException>(() =>reader.GetDateTime(1));
-          Assert.AreEqual("Unable to convert MySQL date/time value to System.DateTime", ex.Message);
+          Assert.That(ex.Message, Is.EqualTo("Unable to convert MySQL date/time value to System.DateTime"));
         }
 
         DataTable dt = new DataTable();
@@ -83,11 +83,11 @@ namespace MySql.Data.MySqlClient.Tests
 
         dt.Clear();
         da.Fill(dt);
-        Assert.AreEqual(2, dt.Rows.Count);
+        Assert.That(dt.Rows.Count, Is.EqualTo(2));
         MySqlDateTime date = (MySqlDateTime)dt.Rows[1]["d"];
-        Assert.AreEqual(2003, date.Year);
-        Assert.AreEqual(9, date.Month);
-        Assert.AreEqual(24, date.Day);
+        Assert.That(date.Year, Is.EqualTo(2003));
+        Assert.That(date.Month, Is.EqualTo(9));
+        Assert.That(date.Day, Is.EqualTo(24));
         cb.Dispose();
       }
     }   
@@ -118,10 +118,10 @@ namespace MySql.Data.MySqlClient.Tests
         DataView dv = dt.DefaultView;
         dv.Sort = "dt ASC";
 
-        Assert.AreEqual(new DateTime(2004, 10, 1).Date, Convert.ToDateTime(dv[0]["dt"]).Date);
-        Assert.AreEqual(new DateTime(2004, 10, 2).Date, Convert.ToDateTime(dv[1]["dt"]).Date);
-        Assert.AreEqual(new DateTime(2004, 11, 1).Date, Convert.ToDateTime(dv[2]["dt"]).Date);
-        Assert.AreEqual(new DateTime(2004, 11, 2).Date, Convert.ToDateTime(dv[3]["dt"]).Date);
+        Assert.That(Convert.ToDateTime(dv[0]["dt"]).Date, Is.EqualTo(new DateTime(2004, 10, 1).Date));
+        Assert.That(Convert.ToDateTime(dv[1]["dt"]).Date, Is.EqualTo(new DateTime(2004, 10, 2).Date));
+        Assert.That(Convert.ToDateTime(dv[2]["dt"]).Date, Is.EqualTo(new DateTime(2004, 11, 1).Date));
+        Assert.That(Convert.ToDateTime(dv[3]["dt"]).Date, Is.EqualTo(new DateTime(2004, 11, 2).Date));
 
         Thread.CurrentThread.CurrentCulture = curCulture;
         Thread.CurrentThread.CurrentUICulture = curUICulture;
@@ -158,8 +158,8 @@ namespace MySql.Data.MySqlClient.Tests
         da.Fill(dt);
         cb.Dispose();
 
-        Assert.AreEqual(1, dt.Rows.Count);
-        Assert.AreEqual(now.Date, ((DateTime)dt.Rows[0]["dt"]).Date);
+        Assert.That(dt.Rows.Count, Is.EqualTo(1));
+        Assert.That(((DateTime)dt.Rows[0]["dt"]).Date, Is.EqualTo(now.Date));
       }
     }   
 
@@ -192,7 +192,7 @@ namespace MySql.Data.MySqlClient.Tests
 
         dt.Rows.Clear();
         da.Fill(dt);
-        Assert.AreEqual(2, dt.Rows.Count);
+        Assert.That(dt.Rows.Count, Is.EqualTo(2));
         cb.Dispose();
       }
     }     

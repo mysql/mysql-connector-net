@@ -58,14 +58,14 @@ namespace MySql.Data.MySqlClient.Tests
       row["multi word"] = 2;
       dt.Rows.Add(row);
       da.Update(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual(2, dt.Rows[0]["multi word"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["multi word"], Is.EqualTo(2));
 
       dt.Rows[0]["multi word"] = 3;
       da.Update(dt);
       cb.Dispose();
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual(3, dt.Rows[0]["multi word"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["multi word"], Is.EqualTo(3));
     }
 
     [Test]
@@ -80,17 +80,17 @@ namespace MySql.Data.MySqlClient.Tests
       cb.ConflictOption = ConflictOption.OverwriteChanges;
       DataTable dt = new DataTable();
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
 
       ExecuteSQL("UPDATE Test SET name='Test2' WHERE id=1");
 
       dt.Rows[0]["name"] = "Test3";
-      Assert.AreEqual(1, da.Update(dt));
+      Assert.That(da.Update(dt), Is.EqualTo(1));
 
       dt.Rows.Clear();
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("Test3", dt.Rows[0]["name"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("Test3"));
     }
 
     [Test]
@@ -104,18 +104,18 @@ namespace MySql.Data.MySqlClient.Tests
       cb.ConflictOption = ConflictOption.CompareAllSearchableValues;
       DataTable dt = new DataTable();
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
 
       ExecuteSQL("UPDATE Test SET name='Test2' WHERE id=1");
       dt.Rows[0]["name"] = "Test3";
       void Update() { da.Update(dt); }
       Exception ex = Assert.Throws<DBConcurrencyException>(() => Update());
-      Assert.AreEqual("Concurrency violation: the UpdateCommand affected 0 of the expected 1 records.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("Concurrency violation: the UpdateCommand affected 0 of the expected 1 records."));
 
       dt.Rows.Clear();
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("Test2", dt.Rows[0]["name"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("Test2"));
     }
 
     /// <summary>
@@ -141,9 +141,9 @@ namespace MySql.Data.MySqlClient.Tests
       da.SelectCommand.CommandText = "SELECT id, name, CONCAT(name, '  boo') as newname from Test where id=4";
       dt.Clear();
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("test1", dt.Rows[0]["name"]);
-      Assert.AreEqual("test1  boo", dt.Rows[0]["newname"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("test1"));
+      Assert.That(dt.Rows[0]["newname"], Is.EqualTo("test1  boo"));
 
       dt.Rows[0]["id"] = 5;
       da.Update(dt);
@@ -151,8 +151,8 @@ namespace MySql.Data.MySqlClient.Tests
       dt.Clear();
       da.SelectCommand.CommandText = "SELECT * FROM Test WHERE id=5";
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual("test1", dt.Rows[0]["name"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("test1"));
 
       da.SelectCommand.CommandText = "SELECT *, now() as stime FROM Test WHERE id<4";
       cb = new MySqlCommandBuilder(da);
@@ -235,8 +235,8 @@ namespace MySql.Data.MySqlClient.Tests
       dt.Clear();
       da.Fill(dt);
       cb.Dispose();
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual(2, dt.Rows[0]["id"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["id"], Is.EqualTo(2));
     }
 
     /// <summary>
@@ -257,7 +257,7 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = new DataTable();
       da.Fill(dt);
       dt.Columns[0].AutoIncrement = true;
-      Assert.True(dt.Columns[0].AutoIncrement);
+      Assert.That(dt.Columns[0].AutoIncrement);
       dt.Columns[0].AutoIncrementSeed = -1;
       dt.Columns[0].AutoIncrementStep = -1;
       DataRow row = dt.NewRow();
@@ -268,9 +268,9 @@ namespace MySql.Data.MySqlClient.Tests
 
       dt.Clear();
       da.Fill(dt);
-      Assert.AreEqual(1, dt.Rows.Count);
-      Assert.AreEqual(1, dt.Rows[0]["id"]);
-      Assert.AreEqual("Test", dt.Rows[0]["name"]);
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["id"], Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("Test"));
       cb.Dispose();
     }
 
@@ -298,17 +298,17 @@ namespace MySql.Data.MySqlClient.Tests
       row["name"] = "Test";
       dt.Rows.Add(row);
       da.Update(dt);
-      Assert.AreEqual(1, Convert.ToInt32(dt.Rows[0]["id"]));
-      Assert.AreEqual("Test", dt.Rows[0]["name"]);
+      Assert.That(Convert.ToInt32(dt.Rows[0]["id"]), Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["name"], Is.EqualTo("Test"));
 
       row = dt.NewRow();
       row["name"] = "Test2";
       dt.Rows.Add(row);
       da.Update(dt);
-      Assert.AreEqual(2, Convert.ToInt32(dt.Rows[1]["id"]));
-      Assert.AreEqual("Test2", dt.Rows[1]["name"]);
+      Assert.That(Convert.ToInt32(dt.Rows[1]["id"]), Is.EqualTo(2));
+      Assert.That(dt.Rows[1]["name"], Is.EqualTo("Test2"));
 
-      Assert.AreEqual(1, Convert.ToInt32(dt.Rows[0]["id"]));
+      Assert.That(Convert.ToInt32(dt.Rows[0]["id"]), Is.EqualTo(1));
     }
 
     [Test]
@@ -369,7 +369,7 @@ namespace MySql.Data.MySqlClient.Tests
       dt.Clear();
       da.SelectCommand.CommandText = "SELECT * FROM Test WHERE cod=6";
       da.Fill(dt);
-      Assert.AreEqual(6, dt.Rows[0]["cod"]);
+      Assert.That(dt.Rows[0]["cod"], Is.EqualTo(6));
     }
 
     /// <summary>
@@ -379,14 +379,14 @@ namespace MySql.Data.MySqlClient.Tests
     public void QuoteAndUnquoteIdentifiers()
     {
       MySqlCommandBuilder cb = new MySqlCommandBuilder();
-      Assert.AreEqual("`boo`", cb.QuoteIdentifier("boo"));
-      Assert.AreEqual("`bo``o`", cb.QuoteIdentifier("bo`o"));
-      Assert.AreEqual("`boo`", cb.QuoteIdentifier("`boo`"));
+      Assert.That(cb.QuoteIdentifier("boo"), Is.EqualTo("`boo`"));
+      Assert.That(cb.QuoteIdentifier("bo`o"), Is.EqualTo("`bo``o`"));
+      Assert.That(cb.QuoteIdentifier("`boo`"), Is.EqualTo("`boo`"));
 
       // now do the unquoting
-      Assert.AreEqual("boo", cb.UnquoteIdentifier("`boo`"));
-      Assert.AreEqual("`boo", cb.UnquoteIdentifier("`boo"));
-      Assert.AreEqual("bo`o", cb.UnquoteIdentifier("`bo``o`"));
+      Assert.That(cb.UnquoteIdentifier("`boo`"), Is.EqualTo("boo"));
+      Assert.That(cb.UnquoteIdentifier("`boo"), Is.EqualTo("`boo"));
+      Assert.That(cb.UnquoteIdentifier("`bo``o`"), Is.EqualTo("bo`o"));
     }
 
     /// <summary>
@@ -403,8 +403,7 @@ namespace MySql.Data.MySqlClient.Tests
       var commandBuilder = new MySqlCommandBuilder(adapter);
       var myCommand = commandBuilder.GetUpdateCommand();
 
-      StringAssert.AreEqualIgnoringCase($"UPDATE `test` SET `field1` = @p1 WHERE ((`id` = @p2) AND (`field1` = @p3))",
-        myCommand.CommandText);
+      Assert.That(myCommand.CommandText, Is.EqualTo($"UPDATE `test` SET `field1` = @p1 WHERE ((`id` = @p2) AND (`field1` = @p3))").IgnoreCase);
     }
   }
 }

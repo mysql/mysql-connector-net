@@ -44,21 +44,21 @@ namespace MySqlX.Data.Tests
 
       DbDoc document = new DbDoc(@"{ ""_id"": 1, ""isDocument"": true }");
       Result result = ExecuteAddStatement(collection.Add(document));
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
 
       document = collection.GetOne(1);
-      Assert.True(document.values.ContainsKey("isDocument"));
-      Assert.True((bool) document.values["isDocument"]);
+      Assert.That(document.values.ContainsKey("isDocument"));
+      Assert.That((bool) document.values["isDocument"]);
 
       document = new DbDoc(new { _id=2, isDocument=false });
       result = ExecuteAddStatement(collection.Add(document));
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
 
       document = collection.GetOne(2);
-      Assert.True(document.values.ContainsKey("isDocument"));
-      Assert.False((bool) document.values["isDocument"]);
+      Assert.That(document.values.ContainsKey("isDocument"));
+      Assert.That((bool) document.values["isDocument"], Is.False);
 
-      Assert.True(ExecuteFindStatement(collection.Find("isDocument = false")).FetchAll().Count > 0);
+      Assert.That(ExecuteFindStatement(collection.Find("isDocument = false")).FetchAll().Count > 0);
     }
 
     [Test]
@@ -68,11 +68,11 @@ namespace MySqlX.Data.Tests
 
       DbDoc document = new DbDoc(@"{ ""isDocument"": null }");
       Result result = ExecuteAddStatement(collection.Add(document));
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
 
       document = ExecuteFindStatement(collection.Find()).FetchOne();
-      Assert.True(document.values.ContainsKey("isDocument"));
-      Assert.Null(document.values["isDocument"]);
+      Assert.That(document.values.ContainsKey("isDocument"));
+      Assert.That(document.values["isDocument"], Is.Null);
     }
 
     [Test]
@@ -82,11 +82,11 @@ namespace MySqlX.Data.Tests
 
       DbDoc document = new DbDoc(@"{ ""id"": 1, ""list"": [1,2,3] }");
       Result result = ExecuteAddStatement(collection.Add(document));
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
 
       document = ExecuteFindStatement(collection.Find()).FetchOne();
-      Assert.True(document.values.ContainsKey("list"));
-      Assert.AreEqual(new object[] { 1, 2, 3 }, document.values["list"]);
+      Assert.That(document.values.ContainsKey("list"));
+      Assert.That(document.values["list"], Is.EqualTo(new object[] { 1, 2, 3 }));
     }
 
     [Test]
@@ -97,11 +97,11 @@ namespace MySqlX.Data.Tests
       DbDoc document = new DbDoc(@"{ ""id"": 1, ""list"": [1,""a""] }");
       //DbDoc document = new DbDoc(@"{ ""id"": 1, ""list"": [1,""a"",true,null] }");
       Result result = ExecuteAddStatement(collection.Add(document));
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
 
       document = ExecuteFindStatement(collection.Find()).FetchOne();
-      Assert.True(document.values.ContainsKey("list"));
-      Assert.AreEqual(new object[] { 1, "a" }, document.values["list"]);
+      Assert.That(document.values.ContainsKey("list"));
+      Assert.That(document.values["list"], Is.EqualTo(new object[] { 1, "a" }));
       //Assert.AreEqual(new object[] { 1, "a", true, null }, document.values["list"]);
     }
 
@@ -112,13 +112,13 @@ namespace MySqlX.Data.Tests
       //DbDoc document = new DbDoc(@"{ ""id"": 1, ""list"": [1,""a"",true,null] }");
       Collection collection = CreateCollection("test");
       Result result = ExecuteAddStatement(collection.Add(document));
-      Assert.AreEqual(1, result.AffectedItemsCount);
+      Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
 
       document = ExecuteFindStatement(collection.Find()).FetchOne();
-      Assert.True(document.values.ContainsKey("list"));
+      Assert.That(document.values.ContainsKey("list"));
       var dictionary = new Dictionary<string,object>();
       dictionary.Add("b",1);
-      Assert.AreEqual(new object[] { 1, "a", dictionary }, document.values["list"]);
+      Assert.That(document.values["list"], Is.EqualTo(new object[] { 1, "a", dictionary }));
       //Assert.AreEqual(new object[] { 1, "a", true, null, dictionary }, document.values["list"]);
     }
 
@@ -140,19 +140,19 @@ namespace MySqlX.Data.Tests
 
       var document = collection.GetOne("123");
       var innerEmail = ((document["email"] as object[])[1]) as Dictionary<string, object>;
-      Assert.AreEqual("[\\\"ALICE@ORA.COM\\\"]", innerEmail["email"]);
+      Assert.That(innerEmail["email"], Is.EqualTo("[\\\"ALICE@ORA.COM\\\"]"));
       innerEmail = ((document["email"] as object[])[2]) as Dictionary<string, object>;
-      Assert.AreEqual("ALICE@ORA.COM", innerEmail["email"]);
+      Assert.That(innerEmail["email"], Is.EqualTo("ALICE@ORA.COM"));
 
       ExecuteAddStatement(collection.Add("{ \"_id\": \"124\", \"email\": \"\\\"\"  }"));
       document = collection.GetOne("124");
-      Assert.AreEqual("\\\"", document["email"]);
+      Assert.That(document["email"], Is.EqualTo("\\\""));
 
       var ex = Assert.Throws<Exception>(() => ExecuteAddStatement(collection.Add("{ \"_id\": \"124\", \"email\": \"\"\"  }")));
-      Assert.AreEqual("The value provided is not a valid JSON document. Expected token ','", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("The value provided is not a valid JSON document. Expected token ','"));
 
       ex = Assert.Throws<Exception>(() => ExecuteAddStatement(collection.Add("{ \"_id\": \"124\", \"email\": \"\\\"  }")));
-      Assert.AreEqual("The value provided is not a valid JSON document. Failed to find ending '\"' while reading stream.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("The value provided is not a valid JSON document. Failed to find ending '\"' while reading stream."));
     }
   }
 }

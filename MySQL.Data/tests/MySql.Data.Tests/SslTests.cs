@@ -64,8 +64,8 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", Connection);
       using (MySqlDataReader reader = command.ExecuteReader())
       {
-        Assert.True(reader.Read());
-        StringAssert.StartsWith("TLSv1", reader.GetString(1));
+        Assert.That(reader.Read());
+        Assert.That(reader.GetString(1), Does.StartWith("TLSv1"));
       }
     }
 
@@ -83,8 +83,8 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          Assert.AreEqual(string.Empty, reader.GetString(1));
+          Assert.That(reader.Read());
+          Assert.That(reader.GetString(1), Is.EqualTo(string.Empty));
         }
       }
     }
@@ -98,42 +98,42 @@ namespace MySql.Data.MySqlClient.Tests
       var builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslCa = _sslCa;
       var conn = new MySqlConnection($"{builder.ConnectionString};sslca={repeatedOption}");
-      Assert.AreEqual(repeatedOption, conn.Settings.SslCa);
+      Assert.That(conn.Settings.SslCa, Is.EqualTo(repeatedOption));
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.CertificateFile = _sslCa;
       conn = new MySqlConnection($"{builder.ConnectionString};certificatefile={repeatedOption}");
-      Assert.AreEqual(repeatedOption, conn.Settings.CertificateFile);
+      Assert.That(conn.Settings.CertificateFile, Is.EqualTo(repeatedOption));
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslCa = _sslCa;
       conn = new MySqlConnection($"{builder.ConnectionString};certificatefile={repeatedOption}");
-      Assert.AreEqual(repeatedOption, conn.Settings.CertificateFile);
+      Assert.That(conn.Settings.CertificateFile, Is.EqualTo(repeatedOption));
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.CertificateFile = _sslCa;
       conn = new MySqlConnection($"{builder.ConnectionString};sslca={repeatedOption}");
-      Assert.AreEqual(repeatedOption, conn.Settings.SslCa);
+      Assert.That(conn.Settings.SslCa, Is.EqualTo(repeatedOption));
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslCa = _sslCa;
       conn = new MySqlConnection($"{builder.ConnectionString};sslcert={_sslCert};sslkey={_sslKey};sslca={repeatedOption}");
-      Assert.AreEqual(repeatedOption, conn.Settings.SslCa);
+      Assert.That(conn.Settings.SslCa, Is.EqualTo(repeatedOption));
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.CertificatePassword = "pass";
       conn = new MySqlConnection($"{builder.ConnectionString};certificatepassword={repeatedOption}");
-      Assert.AreEqual(repeatedOption, conn.Settings.CertificatePassword);
+      Assert.That(conn.Settings.CertificatePassword, Is.EqualTo(repeatedOption));
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslCert = _sslCert;
       conn = new MySqlConnection($"{builder.ConnectionString};sslcert={repeatedOption}");
-      Assert.AreEqual(repeatedOption, conn.Settings.SslCert);
+      Assert.That(conn.Settings.SslCert, Is.EqualTo(repeatedOption));
 
       builder = new MySqlConnectionStringBuilder(Settings.ConnectionString);
       builder.SslKey = _sslKey;
       conn = new MySqlConnection($"{builder.ConnectionString};sslkey={repeatedOption}");
-      Assert.AreEqual(repeatedOption, conn.Settings.SslKey);
+      Assert.That(conn.Settings.SslKey, Is.EqualTo(repeatedOption));
     }
 
     [Test]
@@ -173,8 +173,8 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", Connection);
       using (MySqlDataReader reader = command.ExecuteReader())
       {
-        Assert.True(reader.Read());
-        StringAssert.StartsWith("TLSv1", reader.GetString(1));
+        Assert.That(reader.Read());
+        Assert.That(reader.GetString(1), Does.StartWith("TLSv1"));
       }
     }
 
@@ -192,8 +192,8 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", connection);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          Assert.AreEqual(string.Empty, reader.GetString(1));
+          Assert.That(reader.Read());
+          Assert.That(reader.GetString(1), Is.EqualTo(string.Empty));
         }
       }
     }
@@ -226,15 +226,15 @@ namespace MySql.Data.MySqlClient.Tests
       {
         case 1:
           ex = Assert.Throws<ArgumentException>(SetTlsVersion).Message;
-          StringAssert.AreEqualIgnoringCase(Resources.TlsVersionsEmpty, ex);
+          Assert.That(ex, Is.EqualTo(Resources.TlsVersionsEmpty).IgnoreCase);
           break;
         case 2:
           ex = Assert.Throws<ArgumentException>(SetTlsVersion).Message;
-          StringAssert.AreEqualIgnoringCase(Resources.TlsUnsupportedVersions, ex);
+          Assert.That(ex, Is.EqualTo(Resources.TlsUnsupportedVersions).IgnoreCase);
           break;
         case 3:
           ex = Assert.Throws<ArgumentException>(SetTlsVersion).Message;
-          StringAssert.AreEqualIgnoringCase(Resources.TlsNonValidProtocols, ex);
+          Assert.That(ex, Is.EqualTo(Resources.TlsNonValidProtocols).IgnoreCase);
           break;
         default:
           SetTlsVersion();
@@ -243,17 +243,17 @@ namespace MySql.Data.MySqlClient.Tests
           using (conn)
           {
             conn.Open();
-            Assert.AreEqual(ConnectionState.Open, conn.State);
+            Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
 
             MySqlCommand cmd = conn.CreateCommand();
             cmd.CommandText = "SHOW SESSION STATUS LIKE 'ssl_version'";
 
             using MySqlDataReader dr = cmd.ExecuteReader();
-            Assert.True(dr.Read());
+            Assert.That(dr.Read());
             if (error==4)
-              StringAssert.AreEqualIgnoringCase(tlsVersion, dr[1].ToString());
+              Assert.That(dr[1].ToString(), Is.EqualTo(tlsVersion).IgnoreCase);
             else
-              StringAssert.AreEqualIgnoringCase(tlsdefault, dr[1].ToString());
+              Assert.That(dr[1].ToString(), Is.EqualTo(tlsdefault).IgnoreCase);
           }
           break;
       }
@@ -275,14 +275,14 @@ namespace MySql.Data.MySqlClient.Tests
       using (var conn = new MySqlConnection(builder.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.State);
+        Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
 
         MySqlCommand cmd = conn.CreateCommand();
         cmd.CommandText = "SHOW SESSION STATUS LIKE 'ssl_version'";
 
         using MySqlDataReader dr = cmd.ExecuteReader();
-        Assert.True(dr.Read());
-        Assert.IsEmpty(dr[1].ToString());
+        Assert.That(dr.Read());
+        Assert.That(dr[1].ToString(), Is.Empty);
       }
     }
     #endregion
@@ -306,12 +306,12 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection c = new MySqlConnection(connstr))
       {
         c.Open();
-        Assert.AreEqual(ConnectionState.Open, c.State);
+        Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
         MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", c);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          StringAssert.StartsWith("TLSv1", reader.GetString(1));
+          Assert.That(reader.Read());
+          Assert.That(reader.GetString(1), Does.StartWith("TLSv1"));
         }
       }
     }
@@ -325,19 +325,19 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection c = new MySqlConnection(connstr))
       {
         c.Open();
-        Assert.AreEqual(ConnectionState.Open, c.State);
+        Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
         MySqlCommand command = new MySqlCommand("SHOW SESSION STATUS LIKE 'Ssl_version';", c);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          StringAssert.StartsWith("TLSv1", reader.GetString(1));
+          Assert.That(reader.Read());
+          Assert.That(reader.GetString(1), Does.StartWith("TLSv1"));
         }
 
         command = new MySqlCommand("show variables like 'tls_version'", c);
         using (MySqlDataReader reader = command.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          StringAssert.Contains("TLS", reader.GetString(1));
+          Assert.That(reader.Read());
+          Assert.That(reader.GetString(1), Does.Contain("TLS"));
         }
       }
 
@@ -386,7 +386,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var conn = new MySqlConnection(csb.ConnectionString))
       {
         conn.Open();
-        Assert.AreEqual(ConnectionState.Open, conn.connectionState);
+        Assert.That(conn.connectionState, Is.EqualTo(ConnectionState.Open));
       }
     }
 
@@ -401,20 +401,20 @@ namespace MySql.Data.MySqlClient.Tests
       var builder = new MySqlConnectionStringBuilder();
 
       // Options exist.
-      Assert.True(builder.values.ContainsKey("sslca"));
-      Assert.True(builder.values.ContainsKey("sslcert"));
-      Assert.True(builder.values.ContainsKey("sslkey"));
+      Assert.That(builder.values.ContainsKey("sslca"));
+      Assert.That(builder.values.ContainsKey("sslcert"));
+      Assert.That(builder.values.ContainsKey("sslkey"));
 
       // Options default to null.
-      Assert.Null(builder["sslca"]);
-      Assert.Null(builder["sslcert"]);
-      Assert.Null(builder["sslkey"]);
-      Assert.Null(builder["ssl-ca"]);
-      Assert.Null(builder["ssl-cert"]);
-      Assert.Null(builder["ssl-key"]);
-      Assert.Null(builder.SslCa);
-      Assert.Null(builder.SslCert);
-      Assert.Null(builder.SslKey);
+      Assert.That(builder["sslca"], Is.Null);
+      Assert.That(builder["sslcert"], Is.Null);
+      Assert.That(builder["sslkey"], Is.Null);
+      Assert.That(builder["ssl-ca"], Is.Null);
+      Assert.That(builder["ssl-cert"], Is.Null);
+      Assert.That(builder["ssl-key"], Is.Null);
+      Assert.That(builder.SslCa, Is.Null);
+      Assert.That(builder.SslCert, Is.Null);
+      Assert.That(builder.SslKey, Is.Null);
 
       // Null or whitespace options are ignored.
       var connectionString = $"host={Settings.Server};user={Settings.UserID};port={Settings.Port};password={Settings.Password};";
@@ -424,9 +424,9 @@ namespace MySql.Data.MySqlClient.Tests
       builder.SslKey = "  ";
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
-        Assert.Null(connection.Settings.SslCa);
-        Assert.Null(connection.Settings.SslCert);
-        Assert.AreEqual("  ", connection.Settings.SslKey);
+        Assert.That(connection.Settings.SslCa, Is.Null);
+        Assert.That(connection.Settings.SslCert, Is.Null);
+        Assert.That(connection.Settings.SslKey, Is.EqualTo("  "));
         connection.Open();
         connection.Close();
       }
@@ -435,9 +435,9 @@ namespace MySql.Data.MySqlClient.Tests
       connectionString = $"{connectionString}sslca=;sslcert=;sslkey=";
       using (var connection = new MySqlConnection(connectionString))
       {
-        Assert.Null(connection.Settings.SslCa);
-        Assert.Null(connection.Settings.SslCert);
-        Assert.Null(connection.Settings.SslKey);
+        Assert.That(connection.Settings.SslCa, Is.Null);
+        Assert.That(connection.Settings.SslCert, Is.Null);
+        Assert.That(connection.Settings.SslKey, Is.Null);
         connection.Open();
         connection.Close();
       }
@@ -452,16 +452,16 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(string.Format(Resources.FilePathNotSet, nameof(Settings.SslCa)), exception.InnerException.Message);
+        Assert.That(exception.Message, Is.EqualTo(Resources.SslConnectionError));
+        Assert.That(exception.InnerException.Message, Is.EqualTo(string.Format(Resources.FilePathNotSet, nameof(Settings.SslCa))));
       }
 
       builder.SslMode = MySqlSslMode.VerifyFull;
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(string.Format(Resources.FilePathNotSet, nameof(Settings.SslCa)), exception.InnerException.Message);
+        Assert.That(exception.Message, Is.EqualTo(Resources.SslConnectionError));
+        Assert.That(exception.InnerException.Message, Is.EqualTo(string.Format(Resources.FilePathNotSet, nameof(Settings.SslCa))));
       }
     }
 
@@ -476,8 +476,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(string.Format(Resources.FilePathNotSet, nameof(Settings.SslCert)), exception.InnerException.Message);
+        Assert.That(exception.Message, Is.EqualTo(Resources.SslConnectionError));
+        Assert.That(exception.InnerException.Message, Is.EqualTo(string.Format(Resources.FilePathNotSet, nameof(Settings.SslCert))));
       }
     }
 
@@ -493,8 +493,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(string.Format(Resources.FilePathNotSet, nameof(Settings.SslKey)), exception.InnerException.Message);
+        Assert.That(exception.Message, Is.EqualTo(Resources.SslConnectionError));
+        Assert.That(exception.InnerException.Message, Is.EqualTo(string.Format(Resources.FilePathNotSet, nameof(Settings.SslKey))));
       }
     }
 
@@ -508,8 +508,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(Resources.FileNotFound, exception.InnerException.Message);
+        Assert.That(exception.Message, Is.EqualTo(Resources.SslConnectionError));
+        Assert.That(exception.InnerException.Message, Is.EqualTo(Resources.FileNotFound));
       }
     }
 
@@ -524,8 +524,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(Resources.FileNotFound, exception.InnerException.Message);
+        Assert.That(exception.Message, Is.EqualTo(Resources.SslConnectionError));
+        Assert.That(exception.InnerException.Message, Is.EqualTo(Resources.FileNotFound));
       }
     }
 
@@ -541,8 +541,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(Resources.FileNotFound, exception.InnerException.Message);
+        Assert.That(exception.Message, Is.EqualTo(Resources.SslConnectionError));
+        Assert.That(exception.InnerException.Message, Is.EqualTo(Resources.FileNotFound));
       }
     }
 
@@ -582,7 +582,7 @@ namespace MySql.Data.MySqlClient.Tests
         try { connection.Open(); }
         catch (Exception ex)
         {
-          Assert.True(ex is MySqlException ||
+          Assert.That(ex is MySqlException ||
           ex is AuthenticationException ||
           ex is FormatException, ex.Message);
         }
@@ -633,8 +633,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(Resources.FileIsNotACertificate, exception.InnerException.Message, $"Cert. path: {_sslCa}");
+        Assert.That(exception.Message, Is.EqualTo(Resources.SslConnectionError));
+        Assert.That(exception.InnerException.Message, Is.EqualTo(Resources.FileIsNotACertificate), $"Cert. path: {_sslCa}");
       }
 
       builder.SslCa = _sslCa;
@@ -643,8 +643,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(Resources.FileIsNotACertificate, exception.InnerException.Message);
+        Assert.That(exception.Message, Is.EqualTo(Resources.SslConnectionError));
+        Assert.That(exception.InnerException.Message, Is.EqualTo(Resources.FileIsNotACertificate));
       }
 
       builder.SslCa = _sslCa;
@@ -654,8 +654,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(Resources.FileIsNotAKey, exception.InnerException.Message);
+        Assert.That(exception.Message, Is.EqualTo(Resources.SslConnectionError));
+        Assert.That(exception.InnerException.Message, Is.EqualTo(Resources.FileIsNotAKey));
       }
     }
 
@@ -669,8 +669,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(Resources.SslCertificateIsNotCA, exception.InnerException.Message);
+        Assert.That(exception.Message, Is.EqualTo(Resources.SslConnectionError));
+        Assert.That(exception.InnerException.Message, Is.EqualTo(Resources.SslCertificateIsNotCA));
       }
 
       builder.SslCa = _sslKey;
@@ -678,8 +678,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(Resources.FileIsNotACertificate, exception.InnerException.Message);
+        Assert.That(exception.Message, Is.EqualTo(Resources.SslConnectionError));
+        Assert.That(exception.InnerException.Message, Is.EqualTo(Resources.FileIsNotACertificate));
       }
 
       builder.SslCa = _sslCa;
@@ -688,8 +688,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(Resources.InvalidSslCertificate, exception.InnerException.Message);
+        Assert.That(exception.Message, Is.EqualTo(Resources.SslConnectionError));
+        Assert.That(exception.InnerException.Message, Is.EqualTo(Resources.InvalidSslCertificate));
       }
 
       builder.SslCert = _sslCert;
@@ -698,8 +698,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (var connection = new MySqlConnection(builder.ConnectionString))
       {
         var exception = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.AreEqual(Resources.SslConnectionError, exception.Message);
-        Assert.AreEqual(Resources.FileIsNotAKey, exception.InnerException.Message);
+        Assert.That(exception.Message, Is.EqualTo(Resources.SslConnectionError));
+        Assert.That(exception.InnerException.Message, Is.EqualTo(Resources.FileIsNotAKey));
       }
     }
 
@@ -722,7 +722,7 @@ namespace MySql.Data.MySqlClient.Tests
           connectionList.Add(c1);
         }
         Exception ex = Assert.Throws<MySqlException>(() => conn.Open());
-        StringAssert.Contains("Too many connections", ex.Message);
+        Assert.That(ex.Message, Does.Contain("Too many connections"));
       }
       foreach (var item in connectionList)
       {
@@ -742,7 +742,7 @@ namespace MySql.Data.MySqlClient.Tests
           connectionList.Add(c1);
         }
         Exception ex = Assert.Throws<MySqlException>(() => conn.Open());
-        StringAssert.Contains("Too many connections", ex.Message);
+        Assert.That(ex.Message, Does.Contain("Too many connections"));
       }
       foreach (var item in connectionList)
       {
@@ -760,7 +760,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var dbConn = new MySqlConnection(Settings.ConnectionString))
       {
         dbConn.Open();//Manually verify in server log that show variables is not present
-        Assert.AreEqual(ConnectionState.Open, dbConn.State);
+        Assert.That(dbConn.State, Is.EqualTo(ConnectionState.Open));
       }
     }
 
@@ -779,22 +779,22 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand cmd = new MySqlCommand("show variables like '%tls_version%'", connection);
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          StringAssert.Contains("TLSv1", reader.GetString(1));
+          Assert.That(reader.Read());
+          Assert.That(reader.GetString(1), Does.Contain("TLSv1"));
         }
 
         cmd = new MySqlCommand("show status like 'Ssl_cipher'", connection);
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          Assert.True(reader.GetString(1).ToString().Length > 0);
+          Assert.That(reader.Read());
+          Assert.That(reader.GetString(1).ToString().Length > 0);
         }
 
         cmd = new MySqlCommand("show status like 'Ssl_version'", connection);
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          StringAssert.AreEqualIgnoringCase("TLSv1.2", reader.GetString(1));
+          Assert.That(reader.Read());
+          Assert.That(reader.GetString(1), Is.EqualTo("TLSv1.2").IgnoreCase);
         }
       }
     }
@@ -821,7 +821,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (var c = new MySqlConnection(connClassic.ConnectionString))
         {
           c.Open();
-          Assert.AreEqual(ConnectionState.Open, c.State);
+          Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
         }
 
         connClassic = new MySqlConnectionStringBuilder();
@@ -835,7 +835,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (var c = new MySqlConnection(connClassic.ConnectionString))
         {
           c.Open();
-          Assert.AreEqual(ConnectionState.Open, c.State);
+          Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
         }
 
         connClassic = new MySqlConnectionStringBuilder();
@@ -850,7 +850,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (var c = new MySqlConnection(connClassic.ConnectionString))
         {
           c.Open();
-          Assert.AreEqual(ConnectionState.Open, c.State);
+          Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
         }
 
         var conn = new MySqlXConnectionStringBuilder();
@@ -865,7 +865,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (var c = new MySqlConnection(connClassic.ConnectionString))
         {
           c.Open();
-          Assert.AreEqual(ConnectionState.Open, c.State);
+          Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
         }
 
         conn = new MySqlXConnectionStringBuilder();
@@ -879,7 +879,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (var c = new MySqlConnection(connClassic.ConnectionString))
         {
           c.Open();
-          Assert.AreEqual(ConnectionState.Open, c.State);
+          Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
         }
       }
     }
@@ -899,7 +899,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var c = new MySqlConnection(connClassic.ConnectionString))
       {
         c.Open();
-        Assert.AreEqual(ConnectionState.Open, c.State);
+        Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
       }
 
       connClassic = new MySqlConnectionStringBuilder();
@@ -911,7 +911,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var c = new MySqlConnection(connClassic.ConnectionString))
       {
         c.Open();
-        Assert.AreEqual(ConnectionState.Open, c.State);
+        Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
       }
 
       connClassic = new MySqlConnectionStringBuilder();
@@ -924,7 +924,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var c = new MySqlConnection(connClassic.ConnectionString))
       {
         c.Open();
-        Assert.AreEqual(ConnectionState.Open, c.State);
+        Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
       }
 
       connClassic = new MySqlConnectionStringBuilder();
@@ -937,7 +937,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var c = new MySqlConnection(connClassic.ConnectionString))
       {
         c.Open();
-        Assert.AreEqual(ConnectionState.Open, c.State);
+        Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
       }
 
       var conn = new MySqlXConnectionStringBuilder();
@@ -950,7 +950,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var c = new MySqlConnection(conn.ConnectionString))
       {
         c.Open();
-        Assert.AreEqual(ConnectionState.Open, c.State);
+        Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
       }
 
       conn = new MySqlXConnectionStringBuilder();
@@ -962,7 +962,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (var c = new MySqlConnection(conn.ConnectionString))
       {
         c.Open();
-        Assert.AreEqual(ConnectionState.Open, c.State);
+        Assert.That(c.State, Is.EqualTo(ConnectionState.Open));
       }
     }
 
@@ -987,7 +987,7 @@ namespace MySql.Data.MySqlClient.Tests
             conn.Open();
             MySqlCommand cmd = new MySqlCommand("SELECT variable_value FROM performance_schema.session_status WHERE VARIABLE_NAME='Ssl_version'", conn);
             object result = cmd.ExecuteScalar();
-            Assert.AreEqual(tlsVersion, result);
+            Assert.That(result, Is.EqualTo(tlsVersion));
           }
         }
 
@@ -998,10 +998,10 @@ namespace MySql.Data.MySqlClient.Tests
           {
             // TLSv1.0 and TLSv1.1 has been deprecated in Ubuntu 20.04 so an exception is thrown
             try { conn.Open(); }
-            catch (Exception ex) { Assert.True(ex is AuthenticationException); return; }
+            catch (Exception ex) { Assert.That(ex is AuthenticationException); return; }
             MySqlCommand cmd = new MySqlCommand("SELECT variable_value FROM performance_schema.session_status WHERE VARIABLE_NAME='Ssl_version'", conn);
             object result = cmd.ExecuteScalar();
-            Assert.True(result.ToString().StartsWith("TLSv1"));
+            Assert.That(result.ToString().StartsWith("TLSv1"));
           }
         }
       }
@@ -1023,7 +1023,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       // Not supported protocols
       var ex = Assert.Throws<ArgumentException>(() => conn = new MySqlConnection(conStr + $";ssl-mode={MySqlSslMode.Required};tls-version=[TLSv1];tls-version=[TLSv1]"));
-      StringAssert.AreEqualIgnoringCase("TLS protocols TLSv1 and TLSv1.1 are no longer supported. Accepted values are TLSv1.2 and TLSv1.3", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("TLS protocols TLSv1 and TLSv1.1 are no longer supported. Accepted values are TLSv1.2 and TLSv1.3").IgnoreCase);
 
       // Repeated options are allowed
       Assert.DoesNotThrow(() => conn = new MySqlConnection(conStr + $";ssl-mode={MySqlSslMode.Required};tls-version=[TLSv1.1,TLSv1.2];tls-version=[TLSv1.2]"));
@@ -1043,7 +1043,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
         var rdr1 = cmd.ExecuteReader();
         while (rdr1.Read())
-          Assert.True(rdr1.GetValue(1).ToString().Trim() == "");
+          Assert.That(rdr1.GetValue(1).ToString().Trim() == "");
       }
 
       connstr = $"server={Host};user={Settings.UserID};port={Port};password=;sslmode={MySqlSslMode.Disabled}";
@@ -1070,7 +1070,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           while (rdr.Read())
           {
-            Assert.True(rdr.GetValue(1).ToString().Trim().Contains("TLSv1"));
+            Assert.That(rdr.GetValue(1).ToString().Trim().Contains("TLSv1"));
           }
         }
 
@@ -1079,7 +1079,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           while (rdr.Read())
           {
-            Assert.True(rdr.GetValue(1).ToString().Trim().Length > 0);
+            Assert.That(rdr.GetValue(1).ToString().Trim().Length > 0);
           }
         }
 
@@ -1088,7 +1088,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           while (rdr.Read())
           {
-            Assert.True(rdr.GetValue(1).ToString().StartsWith("TLSv1"));
+            Assert.That(rdr.GetValue(1).ToString().StartsWith("TLSv1"));
           }
         }
       }
@@ -1103,7 +1103,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           while (rdr.Read())
           {
-            Assert.True(rdr.GetValue(1).ToString().Trim().Contains("TLSv1"));
+            Assert.That(rdr.GetValue(1).ToString().Trim().Contains("TLSv1"));
           }
         }
 
@@ -1113,7 +1113,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           while (rdr.Read())
           {
-            Assert.True(rdr.GetValue(1).ToString().Trim().Length > 0);
+            Assert.That(rdr.GetValue(1).ToString().Trim().Length > 0);
           }
         }
         cmd.Connection = c;
@@ -1122,7 +1122,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           while (rdr.Read())
           {
-            Assert.True(rdr.GetValue(1).ToString().StartsWith("TLSv1"));
+            Assert.That(rdr.GetValue(1).ToString().StartsWith("TLSv1"));
           }
         }
       }
@@ -1149,8 +1149,8 @@ namespace MySql.Data.MySqlClient.Tests
       reader.Read();
       string encryption = reader.GetString(1);
 
-      Assert.IsEmpty(encryption);
-      Assert.AreEqual(ConnectionState.Open, conn.State);
+      Assert.That(encryption, Is.Empty);
+      Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
     }
 
     [Test]
@@ -1165,8 +1165,8 @@ namespace MySql.Data.MySqlClient.Tests
       reader.Read();
       string encryption = reader.GetString(1);
 
-      Assert.IsNotEmpty(encryption);
-      Assert.AreEqual(ConnectionState.Open, conn.State);
+      Assert.That(encryption, Is.Not.Empty);
+      Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
     }
 
     /// <summary>
@@ -1194,7 +1194,7 @@ namespace MySql.Data.MySqlClient.Tests
       using var conn = new MySqlConnection(stringBuilder.ConnectionString);
       conn.Open();
 
-      Assert.IsTrue(conn.State == ConnectionState.Open);
+      Assert.That(conn.State == ConnectionState.Open);
     }
 
     #region Methods

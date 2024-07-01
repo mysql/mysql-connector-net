@@ -48,7 +48,7 @@ namespace MySql.Data.MySqlClient.Tests
       DataTable dt = Utils.FillTable("SHOW CREATE TABLE Test", Connection);
 
       Assert.That(dt.Rows, Has.One.Items);
-      Assert.AreEqual(2, dt.Columns.Count);
+      Assert.That(dt.Columns.Count, Is.EqualTo(2));
     }
 
     [Test]
@@ -72,10 +72,10 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.CommandText = "SELECT * FROM Test";
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
-          Assert.True(reader.Read());
-          Assert.AreEqual(1, reader.GetInt32(0));
-          Assert.AreEqual("This is my;test ? string–’‘’“”…", reader.GetString(1));
-          Assert.AreEqual("My MT string: ?", reader.GetString(2));
+          Assert.That(reader.Read());
+          Assert.That(reader.GetInt32(0), Is.EqualTo(1));
+          Assert.That(reader.GetString(1), Is.EqualTo("This is my;test ? string–’‘’“”…"));
+          Assert.That(reader.GetString(2), Is.EqualTo("My MT string: ?"));
         }
       }
     }
@@ -96,10 +96,10 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.CommandText = "SELECT * FROM Test";
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.True(reader.Read());
-        Assert.AreEqual(1, reader.GetInt32(0));
-        Assert.AreEqual("This is my;test ? string-'''\"\".", reader.GetString(1));
-        Assert.AreEqual("My MT string: ?", reader.GetString(2));
+        Assert.That(reader.Read());
+        Assert.That(reader.GetInt32(0), Is.EqualTo(1));
+        Assert.That(reader.GetString(1), Is.EqualTo("This is my;test ? string-'''\"\"."));
+        Assert.That(reader.GetString(2), Is.EqualTo("My MT string: ?"));
       }
     }
 
@@ -136,11 +136,11 @@ namespace MySql.Data.MySqlClient.Tests
 
         object cnt = 0;
         cnt = cmd.ExecuteNonQuery();
-        Assert.AreEqual(200000, Convert.ToInt32(cnt));
+        Assert.That(Convert.ToInt32(cnt), Is.EqualTo(200000));
 
         cmd.CommandText = "SELECT COUNT(*) FROM Test";
         cnt = cmd.ExecuteScalar();
-        Assert.AreEqual(200000, Convert.ToInt32(cnt));
+        Assert.That(Convert.ToInt32(cnt), Is.EqualTo(200000));
       }
     }
 
@@ -196,7 +196,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         object o = reader[0];
-        Assert.AreEqual(1, Convert.ToInt32(o));
+        Assert.That(Convert.ToInt32(o), Is.EqualTo(1));
       }
     }
 
@@ -213,8 +213,8 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual(1, reader.GetInt32(0));
-        Assert.AreEqual(110, reader.GetDouble(1));
+        Assert.That(reader.GetInt32(0), Is.EqualTo(1));
+        Assert.That(reader.GetDouble(1), Is.EqualTo(110));
       }
     }
 
@@ -239,11 +239,11 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlCommand cmd = new MySqlCommand("SELECT name FROM Test WHERE id=1", Connection);
       object name = cmd.ExecuteScalar();
-      Assert.AreEqual("One", name);
+      Assert.That(name, Is.EqualTo("One"));
 
       cmd.CommandText = "SELECT name FROM Test WHERE id=3";
       name = cmd.ExecuteScalar();
-      Assert.AreEqual("Two", name);
+      Assert.That(name, Is.EqualTo("Two"));
       Assert.Throws<MySqlException>(() => ExecuteSQL("INSERT INTO Test (id, name2) values (5, 'Three')"));
     }
 
@@ -262,7 +262,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.ExecuteNonQuery();
       cmd.CommandText = "SELECT FOUND_ROWS()";
       object cnt = cmd.ExecuteScalar();
-      Assert.AreEqual(1000, Convert.ToInt32(cnt));
+      Assert.That(Convert.ToInt32(cnt), Is.EqualTo(1000));
     }
 
     [Test]
@@ -277,7 +277,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         int ident = Int32.Parse(reader.GetValue(0).ToString());
-        Assert.AreEqual(1, ident);
+        Assert.That(ident, Is.EqualTo(1));
       }
     }
 
@@ -312,7 +312,7 @@ namespace MySql.Data.MySqlClient.Tests
       catch (MySqlException ex)
       {
         string s = ex.Message;
-        Assert.False(s.StartsWith("#", StringComparison.Ordinal));
+        Assert.That(s.StartsWith("#", StringComparison.Ordinal), Is.False);
       }
     }
 
@@ -326,12 +326,12 @@ namespace MySql.Data.MySqlClient.Tests
       var reader = ExecuteReader("DESCRIBE Test");
       using (reader)
       {
-        Assert.True(reader.GetFieldType(0) == typeof(string));
-        Assert.True(reader.GetFieldType(1) == typeof(string));
-        Assert.True(reader.GetFieldType(2) == typeof(string));
-        Assert.True(reader.GetFieldType(3) == typeof(string));
-        Assert.True(reader.GetFieldType(4) == typeof(string));
-        Assert.True(reader.GetFieldType(5) == typeof(string));
+        Assert.That(reader.GetFieldType(0) == typeof(string));
+        Assert.That(reader.GetFieldType(1) == typeof(string));
+        Assert.That(reader.GetFieldType(2) == typeof(string));
+        Assert.That(reader.GetFieldType(3) == typeof(string));
+        Assert.That(reader.GetFieldType(4) == typeof(string));
+        Assert.That(reader.GetFieldType(5) == typeof(string));
       }
     }
 
@@ -343,7 +343,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (reader)
       {
         reader.Read();
-        Assert.True(reader[0].GetType() == typeof(string));
+        Assert.That(reader[0].GetType() == typeof(string));
       }
     }
 
@@ -355,9 +355,9 @@ namespace MySql.Data.MySqlClient.Tests
     {
       DataTable dt = Utils.FillTable(@"SELECT 'localhost' as SERVER_NAME,
         null as CATALOG_NAME, database() as SCHEMA_NAME", Connection);
-      Assert.True(dt.Rows[0][0].GetType() == typeof(string));
-      Assert.AreEqual(DBNull.Value, dt.Rows[0][1]);
-      Assert.True(dt.Rows[0][2].GetType() == typeof(string));
+      Assert.That(dt.Rows[0][0].GetType() == typeof(string));
+      Assert.That(dt.Rows[0][1], Is.EqualTo(DBNull.Value));
+      Assert.That(dt.Rows[0][2].GetType() == typeof(string));
     }
 
     [Test]
@@ -396,9 +396,9 @@ namespace MySql.Data.MySqlClient.Tests
         }
         DataRow row = dt.Rows[0];
 
-        Assert.True(row["User"].GetType().Name == "String");
-        Assert.True(row["Host"].GetType().Name == "String");
-        Assert.True(row["Command"].GetType().Name == "String");
+        Assert.That(row["User"].GetType().Name == "String");
+        Assert.That(row["Host"].GetType().Name == "String");
+        Assert.That(row["Command"].GetType().Name == "String");
       }
     }
 
@@ -407,7 +407,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       using (MySqlCommand cmd = new MySqlCommand(";;SELECT 1;;;", Connection))
       {
-        Assert.AreEqual(1, Convert.ToInt32(cmd.ExecuteScalar()));
+        Assert.That(Convert.ToInt32(cmd.ExecuteScalar()), Is.EqualTo(1));
       }
     }
 
@@ -421,23 +421,23 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual("ABC", reader.GetString(0));
-        Assert.AreEqual(0, reader.GetInt32(1));
+        Assert.That(reader.GetString(0), Is.EqualTo("ABC"));
+        Assert.That(reader.GetInt32(1), Is.EqualTo(0));
       }
 
       cmd.CommandText = "SELECT 'ABC', (0-`QOH`) from (SELECT 1 as `QOH`) `d1`";
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual("ABC", reader.GetString(0));
-        Assert.AreEqual(-1, reader.GetInt32(1));
+        Assert.That(reader.GetString(0), Is.EqualTo("ABC"));
+        Assert.That(reader.GetInt32(1), Is.EqualTo(-1));
       }
 
       cmd.CommandText = "SELECT 'test 2010-03-04 @ 10:14'";
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual("test 2010-03-04 @ 10:14", reader.GetString(0));
+        Assert.That(reader.GetString(0), Is.EqualTo("test 2010-03-04 @ 10:14"));
       }
 
     }

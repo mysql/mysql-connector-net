@@ -49,13 +49,13 @@ namespace MySqlX.Data.Tests.CrudTests
         new {  _id = 4, title = "Book 4", pages = 50 },
       };
       Result r = ExecuteAddStatement(test.Add(docs));
-      Assert.AreEqual(r.Warnings.Count, r.WarningsCount);
+      Assert.That(r.WarningsCount, Is.EqualTo(r.Warnings.Count));
 
       var docResult = ExecuteFindStatement(test.Find());
       foreach (var doc in docResult)
       {
         var result = ExecuteAddStatement(test2.Add(doc));
-        Assert.AreEqual(1, result.AffectedItemsCount);
+        Assert.That(result.AffectedItemsCount, Is.EqualTo(1));
       }
     }
   }

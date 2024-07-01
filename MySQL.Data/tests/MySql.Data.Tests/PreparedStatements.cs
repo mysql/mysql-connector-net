@@ -55,11 +55,11 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Prepare();
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.True(reader.Read());
-        Assert.AreEqual(1, reader.GetInt32(0));
-        Assert.AreEqual((decimal)345.12, reader.GetDecimal(1));
-        Assert.AreEqual("abcd", reader.GetString(2));
-        Assert.AreEqual(2019, reader.GetInt16(3));
+        Assert.That(reader.Read());
+        Assert.That(reader.GetInt32(0), Is.EqualTo(1));
+        Assert.That(reader.GetDecimal(1), Is.EqualTo((decimal)345.12));
+        Assert.That(reader.GetString(2), Is.EqualTo("abcd"));
+        Assert.That(reader.GetInt16(3), Is.EqualTo(2019));
       }
     }
 
@@ -89,8 +89,8 @@ namespace MySql.Data.MySqlClient.Tests
       {
         // Fetch the first record
         reader.Read();
-        Assert.AreEqual(1, reader.GetInt32(0));
-        Assert.AreEqual(2, reader.GetInt32(1));
+        Assert.That(reader.GetInt32(0), Is.EqualTo(1));
+        Assert.That(reader.GetInt32(1), Is.EqualTo(2));
       }
     }
 
@@ -120,7 +120,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?tm", timeSp);
       cmd.Prepare();
       int count = cmd.ExecuteNonQuery();
-      Assert.True(count == 1, "Records affected by insert");
+      Assert.That(count == 1, "Records affected by insert");
 
       cmd.CommandText = "SELECT * FROM Test";
       cmd.Prepare();
@@ -128,21 +128,21 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.True(reader.GetInt32(0) == 1, "Id column");
-        Assert.True(dt.Date == reader.GetDateTime(1).Date, "Date column");
+        Assert.That(reader.GetInt32(0) == 1, "Id column");
+        Assert.That(dt.Date == reader.GetDateTime(1).Date, "Date column");
 
         DateTime dt2 = reader.GetDateTime(2);
-        Assert.AreEqual(dt.Date, dt2.Date);
-        Assert.AreEqual(dt.Hour, dt2.Hour);
-        Assert.AreEqual(dt.Minute, dt2.Minute);
-        Assert.AreEqual(dt.Second, dt2.Second);
+        Assert.That(dt2.Date, Is.EqualTo(dt.Date));
+        Assert.That(dt2.Hour, Is.EqualTo(dt.Hour));
+        Assert.That(dt2.Minute, Is.EqualTo(dt.Minute));
+        Assert.That(dt2.Second, Is.EqualTo(dt.Second));
 
         TimeSpan ts2 = reader.GetTimeSpan(3);
-        Assert.AreEqual(timeSp.Days, ts2.Days);
-        Assert.AreEqual(timeSp.Hours, ts2.Hours);
-        Assert.AreEqual(timeSp.Minutes, ts2.Minutes);
-        Assert.AreEqual(timeSp.Seconds, ts2.Seconds);
-        Assert.True(dt.Date == reader.GetDateTime(4).Date, "Timestamp column");
+        Assert.That(ts2.Days, Is.EqualTo(timeSp.Days));
+        Assert.That(ts2.Hours, Is.EqualTo(timeSp.Hours));
+        Assert.That(ts2.Minutes, Is.EqualTo(timeSp.Minutes));
+        Assert.That(ts2.Seconds, Is.EqualTo(timeSp.Seconds));
+        Assert.That(dt.Date == reader.GetDateTime(4).Date, "Timestamp column");
       }
     }
 
@@ -155,12 +155,12 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("SELECT id FROM Test", Connection);
       cmd.Prepare();
       object o = cmd.ExecuteScalar();
-      Assert.AreEqual(1, o);
+      Assert.That(o, Is.EqualTo(1));
 
       cmd.CommandText = "SELECT name FROM Test";
       cmd.Prepare();
       o = cmd.ExecuteScalar();
-      Assert.AreEqual("Test", o);
+      Assert.That(o, Is.EqualTo("Test"));
 
     }
 
@@ -199,7 +199,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add(name);
       cmd.Parameters.Add(id3);
       cmd.Prepare();
-      Assert.AreEqual(1, cmd.ExecuteNonQuery());
+      Assert.That(cmd.ExecuteNonQuery(), Is.EqualTo(1));
 
       cmd.Parameters.Clear();
 
@@ -211,13 +211,13 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add(name);
 
       cmd.Prepare();
-      Assert.AreEqual(1, cmd.ExecuteNonQuery());
+      Assert.That(cmd.ExecuteNonQuery(), Is.EqualTo(1));
 
       cmd.CommandText = "SELECT id3 FROM Test WHERE id=1";
-      Assert.AreEqual(3, cmd.ExecuteScalar());
+      Assert.That(cmd.ExecuteScalar(), Is.EqualTo(3));
 
       cmd.CommandText = "SELECT name FROM Test WHERE id=2";
-      Assert.AreEqual(DBNull.Value, cmd.ExecuteScalar());
+      Assert.That(cmd.ExecuteScalar(), Is.EqualTo(DBNull.Value));
     }
 
     [Test]
@@ -235,20 +235,20 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?text1", inStr);
       cmd.Prepare();
       int count = cmd.ExecuteNonQuery();
-      Assert.AreEqual(1, count);
+      Assert.That(count, Is.EqualTo(1));
 
       cmd.CommandText = "SELECT * FROM Test";
       cmd.Prepare();
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.True(reader.Read());
-        Assert.AreEqual(1, reader.GetInt32(0));
-        Assert.AreEqual(bytes.Length, reader.GetBytes(1, 0, null, 0, 0));
+        Assert.That(reader.Read());
+        Assert.That(reader.GetInt32(0), Is.EqualTo(1));
+        Assert.That(reader.GetBytes(1, 0, null, 0, 0), Is.EqualTo(bytes.Length));
         byte[] outBytes = new byte[bytes.Length];
         reader.GetBytes(1, 0, outBytes, 0, bytes.Length);
         for (int x = 0; x < bytes.Length; x++)
-          Assert.AreEqual(bytes[x], outBytes[x]);
-        Assert.AreEqual(inStr, reader.GetString(2));
+          Assert.That(outBytes[x], Is.EqualTo(bytes[x]));
+        Assert.That(reader.GetString(2), Is.EqualTo(inStr));
       }
     }
 
@@ -268,13 +268,13 @@ namespace MySql.Data.MySqlClient.Tests
         // Fetch the first record
         reader.Read();
 
-        Assert.AreEqual(1, reader.GetInt32(0));
-        Assert.AreEqual(2, reader.GetInt32(1));
-        Assert.AreEqual(3, reader.GetInt32(2));
-        Assert.AreEqual(4, reader.GetInt32(3));
-        Assert.AreEqual(5, reader.GetInt32(4));
-        Assert.AreEqual(6, reader.GetInt32(5));
-        Assert.AreEqual(7, reader.GetInt32(6));
+        Assert.That(reader.GetInt32(0), Is.EqualTo(1));
+        Assert.That(reader.GetInt32(1), Is.EqualTo(2));
+        Assert.That(reader.GetInt32(2), Is.EqualTo(3));
+        Assert.That(reader.GetInt32(3), Is.EqualTo(4));
+        Assert.That(reader.GetInt32(4), Is.EqualTo(5));
+        Assert.That(reader.GetInt32(5), Is.EqualTo(6));
+        Assert.That(reader.GetInt32(6), Is.EqualTo(7));
       }
     }
 
@@ -314,23 +314,23 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?dt", dt);
       cmd.Prepare();
       int count = cmd.ExecuteNonQuery();
-      Assert.AreEqual(1, count);
+      Assert.That(count, Is.EqualTo(1));
 
       cmd.CommandText = "SELECT * FROM Test2";
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
-        Assert.True(reader.Read());
-        Assert.AreEqual("Ceci est un nom", reader.GetString(1));
-        Assert.AreEqual(dt.ToString("G"), reader.GetDateTime(4).ToString("G"));
-        Assert.AreEqual("Ceci est une description facile à plantouiller", reader.GetString(2));
+        Assert.That(reader.Read());
+        Assert.That(reader.GetString(1), Is.EqualTo("Ceci est un nom"));
+        Assert.That(reader.GetDateTime(4).ToString("G"), Is.EqualTo(dt.ToString("G")));
+        Assert.That(reader.GetString(2), Is.EqualTo("Ceci est une description facile à plantouiller"));
 
         long len = reader.GetBytes(3, 0, null, 0, 0);
-        Assert.AreEqual(xpDOSG_Avatar.Length, len);
+        Assert.That(len, Is.EqualTo(xpDOSG_Avatar.Length));
         byte[] outBytes = new byte[len];
         reader.GetBytes(3, 0, outBytes, 0, (int)len);
 
         for (int x = 0; x < xpDOSG_Avatar.Length; x++)
-          Assert.AreEqual(xpDOSG_Avatar[x], outBytes[x]);
+          Assert.That(outBytes[x], Is.EqualTo(xpDOSG_Avatar[x]));
       }
     }
 
@@ -387,8 +387,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.ExecuteNonQuery();
 
         MySqlCommand cmd2 = new MySqlCommand("SELECT input FROM Test", conn2);
-        Assert.AreEqual("irache martínez@yahoo.es aol.com",
-          cmd2.ExecuteScalar());
+        Assert.That(cmd2.ExecuteScalar(), Is.EqualTo("irache martínez@yahoo.es aol.com"));
       }
     }
 
@@ -413,17 +412,17 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters["?st"].Value = 1;
       cmd.Parameters["?sc"].Value = 42;
       int result = cmd.ExecuteNonQuery();
-      Assert.AreEqual(1, result);
+      Assert.That(result, Is.EqualTo(1));
 
       MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM Test", Connection);
       using (var reader = cmd2.ExecuteReader())
       {
-        Assert.True(reader.Read());
-        Assert.AreEqual("test", reader.GetString("input"));
-        Assert.AreEqual(1, reader.GetValue(reader.GetOrdinal("state")));
-        Assert.AreEqual(42, reader.GetValue(reader.GetOrdinal("score")));
+        Assert.That(reader.Read());
+        Assert.That(reader.GetString("input"), Is.EqualTo("test"));
+        Assert.That(reader.GetValue(reader.GetOrdinal("state")), Is.EqualTo(1));
+        Assert.That(reader.GetValue(reader.GetOrdinal("score")), Is.EqualTo(42));
 
-        Assert.False(reader.Read());
+        Assert.That(reader.Read(), Is.False);
       }
     }
 
@@ -470,7 +469,7 @@ namespace MySql.Data.MySqlClient.Tests
 
       cmd.Prepare();
       int cnt = cmd.ExecuteNonQuery();
-      Assert.AreEqual(1, cnt);
+      Assert.That(cnt, Is.EqualTo(1));
     }
 
     /// <summary>
@@ -494,11 +493,11 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM Test", Connection);
       using (var reader = cmd2.ExecuteReader())
       {
-        Assert.True(reader.Read());
-        Assert.AreEqual(1, reader.GetValue(reader.GetOrdinal("id")));
-        Assert.AreEqual("short string", reader.GetString("name"));
+        Assert.That(reader.Read());
+        Assert.That(reader.GetValue(reader.GetOrdinal("id")), Is.EqualTo(1));
+        Assert.That(reader.GetString("name"), Is.EqualTo("short string"));
 
-        Assert.False(reader.Read());
+        Assert.That(reader.Read(), Is.False);
       }
     }
 
@@ -525,22 +524,22 @@ namespace MySql.Data.MySqlClient.Tests
       command.Parameters.AddWithValue("?id", (byte)127);
       command.Prepare();
       int count = Convert.ToInt32(command.ExecuteScalar());
-      Assert.AreEqual(1, count);
+      Assert.That(count, Is.EqualTo(1));
 
       command.Parameters.Clear();
       command.Parameters.AddWithValue("?id", (byte)128);
       count = Convert.ToInt32(command.ExecuteScalar());
-      Assert.AreEqual(1, count);
+      Assert.That(count, Is.EqualTo(1));
 
       command.Parameters.Clear();
       command.Parameters.AddWithValue("?id", (byte)255);
       count = Convert.ToInt32(command.ExecuteScalar());
-      Assert.AreEqual(1, count);
+      Assert.That(count, Is.EqualTo(1));
 
       command.Parameters.Clear();
       command.Parameters.AddWithValue("?id", "255");
       count = Convert.ToInt32(command.ExecuteScalar());
-      Assert.AreEqual(1, count);
+      Assert.That(count, Is.EqualTo(1));
     }
 
     /// <summary>
@@ -563,16 +562,16 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters[1].Value = UInt32.MaxValue;
       cmd.Parameters[2].Value = 16777215;
       cmd.Parameters[3].Value = UInt16.MaxValue;
-      Assert.AreEqual(1, cmd.ExecuteNonQuery());
+      Assert.That(cmd.ExecuteNonQuery(), Is.EqualTo(1));
       cmd.CommandText = "SELECT * FROM Test";
       cmd.CommandType = CommandType.Text;
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         reader.Read();
-        Assert.AreEqual(UInt64.MaxValue, reader.GetUInt64(0));
-        Assert.AreEqual(UInt32.MaxValue, reader.GetUInt32(1));
-        Assert.AreEqual(16777215, Convert.ToInt32(reader.GetUInt32(2)));
-        Assert.AreEqual(UInt16.MaxValue, reader.GetUInt16(3));
+        Assert.That(reader.GetUInt64(0), Is.EqualTo(UInt64.MaxValue));
+        Assert.That(reader.GetUInt32(1), Is.EqualTo(UInt32.MaxValue));
+        Assert.That(Convert.ToInt32(reader.GetUInt32(2)), Is.EqualTo(16777215));
+        Assert.That(reader.GetUInt16(3), Is.EqualTo(UInt16.MaxValue));
       }
     }
 
@@ -608,7 +607,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters.AddWithValue("@One", "test").MySqlDbType = MySqlDbType.VarChar;
         cmd.Prepare();
         var result = cmd.ExecuteNonQuery();
-        Assert.AreEqual(1, result);
+        Assert.That(result, Is.EqualTo(1));
       }
     }
 
@@ -621,7 +620,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("", Connection);
       cmd.Prepare();
       Exception ex = Assert.Throws<InvalidOperationException>(() => cmd.ExecuteNonQuery());
-      Assert.AreEqual("The CommandText property has not been properly initialized.", ex.Message);
+      Assert.That(ex.Message, Is.EqualTo("The CommandText property has not been properly initialized."));
     }
 
     /// <summary>
@@ -640,7 +639,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("?t1", MySqlDbType.Int32);
       cmd.Parameters.Add("?t2", MySqlDbType.Int32);
       Exception ex = Assert.Throws<MySqlException>(() => cmd.Prepare());
-      StringAssert.Contains("You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version", ex.Message);
+      Assert.That(ex.Message, Does.Contain("You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version"));
     }
 
     [Test]
@@ -693,7 +692,7 @@ namespace MySql.Data.MySqlClient.Tests
           }
         }
         c.Ping();
-        Assert.AreEqual(initialCount, GetPreparedStatementCount());
+        Assert.That(GetPreparedStatementCount(), Is.EqualTo(initialCount));
       }
     }
 
@@ -723,13 +722,13 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd2 = new MySqlCommand("SELECT * FROM Test", Connection);
       using (var reader = cmd2.ExecuteReader())
       {
-        Assert.True(reader.Read());
-        Assert.AreEqual(127, Convert.ToInt32(reader.GetValue(0)));
-        Assert.AreEqual(1, Convert.ToInt32(reader.GetValue(1)));
-        Assert.AreEqual(2, Convert.ToInt32(reader.GetValue(2)));
-        Assert.AreEqual(3, Convert.ToInt32(reader.GetValue(3)));
+        Assert.That(reader.Read());
+        Assert.That(Convert.ToInt32(reader.GetValue(0)), Is.EqualTo(127));
+        Assert.That(Convert.ToInt32(reader.GetValue(1)), Is.EqualTo(1));
+        Assert.That(Convert.ToInt32(reader.GetValue(2)), Is.EqualTo(2));
+        Assert.That(Convert.ToInt32(reader.GetValue(3)), Is.EqualTo(3));
 
-        Assert.False(reader.Read());
+        Assert.That(reader.Read(), Is.False);
       }
     }
 
@@ -784,7 +783,7 @@ namespace MySql.Data.MySqlClient.Tests
         {
           reader.Read();
           TimeSpan t = reader.GetTimeSpan(1);
-          Assert.AreEqual(ts, t);
+          Assert.That(t, Is.EqualTo(ts));
         }
       }
     }
@@ -802,9 +801,9 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         TimeSpan ts = reader.GetTimeSpan(1);
-        Assert.AreEqual(0, ts.Hours);
-        Assert.AreEqual(-10, ts.Minutes);
-        Assert.AreEqual(0, ts.Seconds);
+        Assert.That(ts.Hours, Is.EqualTo(0));
+        Assert.That(ts.Minutes, Is.EqualTo(-10));
+        Assert.That(ts.Seconds, Is.EqualTo(0));
       }
     }
 
@@ -825,12 +824,12 @@ namespace MySql.Data.MySqlClient.Tests
       {
         reader.Read();
         var t = reader.GetValue(0);
-        Assert.AreEqual("00:00:00", t.ToString());
+        Assert.That(t.ToString(), Is.EqualTo("00:00:00"));
 
         TimeSpan timeSpan = reader.GetTimeSpan(0);
-        Assert.AreEqual(0, timeSpan.Hours);
-        Assert.AreEqual(0, timeSpan.Minutes);
-        Assert.AreEqual(0, timeSpan.Seconds);
+        Assert.That(timeSpan.Hours, Is.EqualTo(0));
+        Assert.That(timeSpan.Minutes, Is.EqualTo(0));
+        Assert.That(timeSpan.Seconds, Is.EqualTo(0));
       }
     }
 
@@ -847,17 +846,17 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Prepare();
 
       cmd.Parameters[0].Value = 20;
-      Assert.AreEqual(0, cmd.ExecuteNonQuery());
-      Assert.AreEqual(20, cmd.Parameters[1].Value);
+      Assert.That(cmd.ExecuteNonQuery(), Is.EqualTo(0));
+      Assert.That(cmd.Parameters[1].Value, Is.EqualTo(20));
 
       ExecuteSQL("DROP PROCEDURE IF EXISTS spOutTest");
       ExecuteSQL("CREATE PROCEDURE spOutTest(id INT, OUT age INT) BEGIN SET age=age*2; END");
 
       cmd.Parameters[0].Value = 1;
       cmd.Parameters[1].Value = 20;
-      Assert.AreEqual(0, cmd.ExecuteNonQuery());
+      Assert.That(cmd.ExecuteNonQuery(), Is.EqualTo(0));
 
-      Assert.IsInstanceOf<DBNull>(cmd.Parameters[1].Value);
+      Assert.That(cmd.Parameters[1].Value, Is.InstanceOf<DBNull>());
     }
 
 
@@ -874,8 +873,8 @@ namespace MySql.Data.MySqlClient.Tests
 
       cmd.Parameters[0].Value = 1;
       cmd.Parameters[1].Value = 20;
-      Assert.AreEqual(0, cmd.ExecuteNonQuery());
-      Assert.AreEqual(40, cmd.Parameters[1].Value);
+      Assert.That(cmd.ExecuteNonQuery(), Is.EqualTo(0));
+      Assert.That(cmd.Parameters[1].Value, Is.EqualTo(40));
     }
 
     /// <summary>
@@ -898,7 +897,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         rdr.Read();
         UInt64 v = rdr.GetUInt64(0);
-        Assert.AreEqual(3000000000, v);
+        Assert.That(v, Is.EqualTo(3000000000));
       }
     }
 
@@ -924,7 +923,7 @@ namespace MySql.Data.MySqlClient.Tests
         int rows = 0;
         while (result.Read())
           rows += 1;
-        Assert.AreEqual(3, rows);
+        Assert.That(rows, Is.EqualTo(3));
       }
     }
 
@@ -953,7 +952,7 @@ namespace MySql.Data.MySqlClient.Tests
       command.CommandText = "SELECT * FROM Test";
       using var reader = command.ExecuteReader();
       while (reader.Read())
-        Assert.True(dataEnum.Contains(reader.GetString(0)));
+        Assert.That(dataEnum.Contains(reader.GetString(0)));
     }
   }
 }

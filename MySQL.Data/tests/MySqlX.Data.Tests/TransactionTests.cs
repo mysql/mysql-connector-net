@@ -61,17 +61,17 @@ namespace MySqlX.Data.Tests
       coll.Session.StartTransaction();
 
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       // now roll it back
       coll.Session.Commit();
 
       var foundDocs = ExecuteFindStatement(coll.Find());
-      Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Next());
-      Assert.True(foundDocs.Next());
-      Assert.False(foundDocs.Next());
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Next());
+      Assert.That(foundDocs.Next(), Is.False);
     }
 
     [Test]
@@ -90,13 +90,13 @@ namespace MySqlX.Data.Tests
       coll.Session.StartTransaction();
 
       Result r = ExecuteAddStatement(coll.Add(docs));
-      Assert.AreEqual(4, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(4));
 
       // now roll it back
       coll.Session.Rollback();
 
       var foundDocs = ExecuteFindStatement(coll.Find());
-      Assert.False(foundDocs.Next());
+      Assert.That(foundDocs.Next(), Is.False);
     }
 
     #region Savepoints
@@ -109,7 +109,7 @@ namespace MySqlX.Data.Tests
         session.StartTransaction();
 
         string spName = session.SetSavepoint();
-        Assert.False(string.IsNullOrWhiteSpace(spName));
+        Assert.That(string.IsNullOrWhiteSpace(spName), Is.False);
 
         session.Rollback();
       }
@@ -129,7 +129,7 @@ namespace MySqlX.Data.Tests
         ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         var sp = session.SetSavepoint();
         ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
-        Assert.AreEqual(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.That(ExecuteFindStatement(coll.Find()).FetchAll().Count, Is.EqualTo(2));
         session.RollbackTo(sp);
         Assert.That(ExecuteFindStatement(coll.Find()).FetchAll(), Has.One.Items);
 
@@ -147,9 +147,9 @@ namespace MySqlX.Data.Tests
         ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         var sp = sessionTest.SetSavepoint();
         ExecuteAddStatement(coll.Add("{ \"test2\": \"test2\" }"));
-        Assert.AreEqual(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.That(ExecuteFindStatement(coll.Find()).FetchAll().Count, Is.EqualTo(2));
         sessionTest.ReleaseSavepoint(sp);
-        Assert.AreEqual(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.That(ExecuteFindStatement(coll.Find()).FetchAll().Count, Is.EqualTo(2));
         sessionTest.Rollback();
       }
     }
@@ -162,7 +162,7 @@ namespace MySqlX.Data.Tests
         session.StartTransaction();
 
         string spName = session.SetSavepoint("mySavedPoint");
-        Assert.False(string.IsNullOrWhiteSpace(spName));
+        Assert.That(string.IsNullOrWhiteSpace(spName), Is.False);
 
         session.Rollback();
       }
@@ -180,7 +180,7 @@ namespace MySqlX.Data.Tests
         ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         var sp = session.SetSavepoint("mySavedPoint");
         ExecuteAddStatement(coll.Add("{ \"test2\": \"test2\" }"));
-        Assert.AreEqual(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.That(ExecuteFindStatement(coll.Find()).FetchAll().Count, Is.EqualTo(2));
         session.RollbackTo(sp);
         Assert.That(ExecuteFindStatement(coll.Find()).FetchAll(), Has.One.Items);
         session.Rollback();
@@ -199,9 +199,9 @@ namespace MySqlX.Data.Tests
         ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         var sp = session.SetSavepoint("mySavedPoint");
         ExecuteAddStatement(coll.Add("{ \"test2\": \"test2\" }"));
-        Assert.AreEqual(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.That(ExecuteFindStatement(coll.Find()).FetchAll().Count, Is.EqualTo(2));
         session.ReleaseSavepoint(sp);
-        Assert.AreEqual(2, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.That(ExecuteFindStatement(coll.Find()).FetchAll().Count, Is.EqualTo(2));
         session.Rollback();
       }
     }
@@ -214,10 +214,10 @@ namespace MySqlX.Data.Tests
         session.StartTransaction();
 
         Exception exception = Assert.Throws<MySqlException>(() => session.RollbackTo("nonExistentSavePoint"));
-        Assert.AreEqual("SAVEPOINT nonExistentSavePoint does not exist", exception.Message);
+        Assert.That(exception.Message, Is.EqualTo("SAVEPOINT nonExistentSavePoint does not exist"));
 
         exception = Assert.Throws<MySqlException>(() => session.ReleaseSavepoint("nonExistentSavePoint"));
-        Assert.AreEqual("SAVEPOINT nonExistentSavePoint does not exist", exception.Message);
+        Assert.That(exception.Message, Is.EqualTo("SAVEPOINT nonExistentSavePoint does not exist"));
 
         session.Rollback();
       }
@@ -232,17 +232,17 @@ namespace MySqlX.Data.Tests
         session.StartTransaction();
 
         Exception ex = Assert.Throws<MySqlException>(() => session.SetSavepoint(""));
-        StringAssert.StartsWith(errorMessage, ex.Message);
+        Assert.That(ex.Message, Does.StartWith(errorMessage));
         ex = Assert.Throws<MySqlException>(() => session.SetSavepoint(" "));
-        StringAssert.StartsWith(errorMessage, ex.Message);
+        Assert.That(ex.Message, Does.StartWith(errorMessage));
         ex = Assert.Throws<MySqlException>(() => session.SetSavepoint(null));
-        StringAssert.StartsWith(errorMessage, ex.Message);
+        Assert.That(ex.Message, Does.StartWith(errorMessage));
         ex = Assert.Throws<MySqlException>(() => session.SetSavepoint("-"));
-        StringAssert.StartsWith(errorMessage, ex.Message);
+        Assert.That(ex.Message, Does.StartWith(errorMessage));
         ex = Assert.Throws<MySqlException>(() => session.SetSavepoint("mysp+"));
-        StringAssert.StartsWith(errorMessage, ex.Message);
+        Assert.That(ex.Message, Does.StartWith(errorMessage));
         ex = Assert.Throws<MySqlException>(() => session.SetSavepoint("3306"));
-        StringAssert.StartsWith(errorMessage, ex.Message);
+        Assert.That(ex.Message, Does.StartWith(errorMessage));
 
         var sp = session.SetSavepoint("_");
         session.RollbackTo(sp);
@@ -272,7 +272,7 @@ namespace MySqlX.Data.Tests
         ExecuteAddStatement(coll.Add("{ \"test4\": \"test4\" }"));
         sp = session.SetSavepoint("mySP");
         session.RollbackTo(sp);
-        Assert.AreEqual(4, ExecuteFindStatement(coll.Find()).FetchAll().Count);
+        Assert.That(ExecuteFindStatement(coll.Find()).FetchAll().Count, Is.EqualTo(4));
 
         session.Rollback();
       }
@@ -288,7 +288,7 @@ namespace MySqlX.Data.Tests
         var sp = session.SetSavepoint("mySP");
         session.ReleaseSavepoint(sp);
         Exception exception = Assert.Throws<MySqlException>(() => session.ReleaseSavepoint(sp));
-        Assert.AreEqual(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+        Assert.That(exception.Message, Is.EqualTo(string.Format("SAVEPOINT {0} does not exist", sp)));
 
         session.Rollback();
       }
@@ -305,9 +305,9 @@ namespace MySqlX.Data.Tests
         ExecuteAddStatement(coll.Add("{ \"test\": \"test\" }"));
         sessionTest.Commit();
         Exception exception = Assert.Throws<MySqlException>(() => sessionTest.RollbackTo(sp));
-        Assert.AreEqual(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+        Assert.That(exception.Message, Is.EqualTo(string.Format("SAVEPOINT {0} does not exist", sp)));
         exception = Assert.Throws<MySqlException>(() => sessionTest.ReleaseSavepoint(sp));
-        Assert.AreEqual(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+        Assert.That(exception.Message, Is.EqualTo(string.Format("SAVEPOINT {0} does not exist", sp)));
       }
     }
 
@@ -325,10 +325,10 @@ namespace MySqlX.Data.Tests
         sessionTest.Rollback();
 
         Exception exception = Assert.Throws<MySqlException>(() => sessionTest.RollbackTo(sp));
-        Assert.AreEqual(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+        Assert.That(exception.Message, Is.EqualTo(string.Format("SAVEPOINT {0} does not exist", sp)));
 
         exception = Assert.Throws<MySqlException>(() => sessionTest.ReleaseSavepoint(sp));
-        Assert.AreEqual(string.Format("SAVEPOINT {0} does not exist", sp), exception.Message);
+        Assert.That(exception.Message, Is.EqualTo(string.Format("SAVEPOINT {0} does not exist", sp)));
       }
     }
 
@@ -369,7 +369,7 @@ namespace MySqlX.Data.Tests
         sessionPlain.StartTransaction();
         table.Insert().Values(5).Execute();
         sessionPlain.Commit();
-        Assert.AreEqual(1, table.Count());
+        Assert.That(table.Count(), Is.EqualTo(1));
       }
     }
 
@@ -388,9 +388,9 @@ namespace MySqlX.Data.Tests
         sessionPlain.StartTransaction();
         Assert.Throws<MySqlException>(() => sessionPlain.GetSchema("test").GetTable("temp").Insert().Values("abcdef").Execute());
         sessionPlain.Commit();
-        Assert.AreEqual(0, table.Count());
+        Assert.That(table.Count(), Is.EqualTo(0));
         var warnings = sessionPlain.SQL("DROP TABLE IF EXISTS temp1").Execute().Warnings;
-        Assert.IsTrue(warnings.Count > 0);
+        Assert.That(warnings.Count > 0);
         sessionPlain.Commit();
       }
     }
@@ -409,8 +409,8 @@ namespace MySqlX.Data.Tests
         sessionPlain.StartTransaction();
         var res = table.Insert().Values(5).Execute();
         sessionPlain.Rollback();
-        Assert.AreEqual(0, table.Count());
-        Assert.AreEqual(0, res.Warnings.Count);
+        Assert.That(table.Count(), Is.EqualTo(0));
+        Assert.That(res.Warnings.Count, Is.EqualTo(0));
       }
     }
 
@@ -430,9 +430,9 @@ namespace MySqlX.Data.Tests
         sessionPlain.StartTransaction();
         Assert.Throws<MySqlException>(() => sessionPlain.GetSchema("test").GetTable("temp").Insert().Values("abcdef").Execute());
         sessionPlain.Rollback();
-        Assert.AreEqual(0, table.Count());
+        Assert.That(table.Count(), Is.EqualTo(0));
         var res = sessionPlain.SQL("DROP TABLE IF EXISTS temp1").Execute();
-        Assert.IsTrue(res.Warnings.Count > 0);
+        Assert.That(res.Warnings.Count > 0);
       }
     }
 
@@ -467,21 +467,21 @@ namespace MySqlX.Data.Tests
       coll.Session.StartTransaction();
 
       Result r = coll.Add(docs1).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2));
 
       r = coll.Add(docs2).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount);
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2));
 
       r = coll.Add(docs3).Execute();
       Assert.Throws<MySqlException>(() => coll.Add(docs3).Execute());
       coll.Session.Commit();
-      Assert.AreEqual(6, coll.Count());
+      Assert.That(coll.Count(), Is.EqualTo(6));
       // now Rollback
       coll.Session.Rollback();
-      Assert.AreEqual(6, coll.Count());
+      Assert.That(coll.Count(), Is.EqualTo(6));
 
       var foundDocs = coll.Find().Execute();
-      Assert.IsNotNull(foundDocs);
+      Assert.That(foundDocs, Is.Not.Null);
     }
 
     [Test, Description("MySQLX plugin Warnings")]
@@ -494,12 +494,12 @@ namespace MySqlX.Data.Tests
         Collection coll = CreateCollection("test");
 
         Result r = coll.Add("{ \"foo\": 1 }").Execute();
-        Assert.AreEqual(1, r.AffectedItemsCount);
-        Assert.AreEqual(1, coll.Count());
+        Assert.That(r.AffectedItemsCount, Is.EqualTo(1));
+        Assert.That(coll.Count(), Is.EqualTo(1));
         r = coll.Add("{ \"fool\": 2 }").Execute();
-        Assert.AreEqual(0, r.Warnings.Count);
+        Assert.That(r.Warnings.Count, Is.EqualTo(0));
         r = coll.Add("{ \"fool\": 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 }").Execute();
-        Assert.AreEqual(0, r.Warnings.Count);
+        Assert.That(r.Warnings.Count, Is.EqualTo(0));
 
         sessionTest.SQL("use test").Execute();
         sessionTest.SQL("CREATE TABLE nontrac(id INT primary key) ENGINE=MyISAM;").Execute();
@@ -511,19 +511,19 @@ namespace MySqlX.Data.Tests
         sessionTest.StartTransaction();
 
         var res = sessionTest.SQL("drop table if exists t1, t2").Execute();
-        Assert.AreEqual(2, res.Warnings.Count);
-        Assert.AreEqual(1051, res.Warnings[0].Code);
+        Assert.That(res.Warnings.Count, Is.EqualTo(2));
+        Assert.That(res.Warnings[0].Code, Is.EqualTo(1051));
 
-        Assert.AreEqual(1051, res.Warnings[1].Code);
+        Assert.That(res.Warnings[1].Code, Is.EqualTo(1051));
 
         res = sessionTest.SQL("create table t1 (a int) engine=innodb").Execute();
-        Assert.AreEqual(0, res.Warnings.Count);
+        Assert.That(res.Warnings.Count, Is.EqualTo(0));
         res = sessionTest.SQL("create table t2 (a int) engine=myisam").Execute();
-        Assert.AreEqual(0, res.Warnings.Count);
+        Assert.That(res.Warnings.Count, Is.EqualTo(0));
         res = sessionTest.SQL("insert into t1 values(1)").Execute();
-        Assert.AreEqual(0, res.Warnings.Count);
+        Assert.That(res.Warnings.Count, Is.EqualTo(0));
         res = sessionTest.SQL("insert into t2 select * from t1").Execute();
-        Assert.AreEqual(1, res.Warnings.Count);
+        Assert.That(res.Warnings.Count, Is.EqualTo(1));
         sessionTest.Commit();
 
       }
@@ -562,7 +562,7 @@ namespace MySqlX.Data.Tests
       session.RollbackTo(sp);
       var doc = col.Find().Execute();
       var docs = doc.FetchAll().Count();
-      Assert.AreEqual(2, docs);
+      Assert.That(docs, Is.EqualTo(2));
     }
 
 
@@ -624,7 +624,7 @@ namespace MySqlX.Data.Tests
       session.RollbackTo(sp);
       var doc = col.Find().Execute();
       var docs = doc.FetchAll().Count();
-      Assert.AreEqual(2, docs);
+      Assert.That(docs, Is.EqualTo(2));
     }
 
     [Test, Description("Test creating a savepoint without starting a transaction")]
@@ -676,7 +676,7 @@ namespace MySqlX.Data.Tests
 
       var doc = col.Find().Execute();
       var docs = doc.FetchAll().Count();
-      Assert.AreEqual(4, docs);
+      Assert.That(docs, Is.EqualTo(4));
 
     }
 
@@ -706,7 +706,7 @@ namespace MySqlX.Data.Tests
       session.Rollback();
       var doc = col.Find().Execute();
       var docs = doc.FetchAll().Count();
-      Assert.AreEqual(2, docs);
+      Assert.That(docs, Is.EqualTo(2));
     }
 
     [Test, Description("Test the behaviour of Savepoints created immediately after one another")]
@@ -726,7 +726,7 @@ namespace MySqlX.Data.Tests
       session.RollbackTo(sp);
       var doc = col.Find().Execute();
       var docs = doc.FetchAll().Count();
-      Assert.AreEqual(2, docs);
+      Assert.That(docs, Is.EqualTo(2));
     }
 
     [Test, Description("Test MySQLX plugin Commit After Commit")]
@@ -762,33 +762,33 @@ namespace MySqlX.Data.Tests
       coll.Session.StartTransaction();
 
       Result r = coll.Add(docs1).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
 
       r = coll.Add(docs2).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
 
       r = coll.Add(docs3).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
 
       // now Commit
       coll.Session.Commit();
       // start the transaction
       coll.Session.StartTransaction();
       r = coll.Add(docs4).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
       // now Commit Again
       coll.Session.Commit();
 
       var foundDocs = coll.Find().Execute();
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(false, foundDocs.Next(), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(false), "Matching");
 
     }
 
@@ -819,19 +819,19 @@ namespace MySqlX.Data.Tests
       coll.Session.StartTransaction();
 
       Result r = coll.Add(docs1).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
 
       r = coll.Add(docs2).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
 
       r = coll.Add(docs3).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
 
       // now Rollback
       coll.Session.Rollback();
 
       var foundDocs = coll.Find().Execute();
-      Assert.AreEqual(false, foundDocs.Next(), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(false), "Matching");
 
     }
 
@@ -869,13 +869,13 @@ namespace MySqlX.Data.Tests
 
       Result r = coll.Add(docs1).Execute();
       //WL11843-Core API v1 alignment Changes
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
 
       r = coll.Add(docs2).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
 
       r = coll.Add(docs3).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
 
       // now Rollback
       coll.Session.Rollback();
@@ -884,13 +884,13 @@ namespace MySqlX.Data.Tests
       coll.Session.StartTransaction();
 
       r = coll.Add(docs4).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
 
       // now Rollback Again
       coll.Session.Rollback();
 
       var foundDocs = coll.Find().Execute();
-      Assert.AreEqual(false, foundDocs.Next(), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(false), "Matching");
 
     }
 
@@ -922,13 +922,13 @@ namespace MySqlX.Data.Tests
 
       Result r = coll.Add(docs1).Execute();
       //WL11843-Core API v1 alignment Changes
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
 
       r = coll.Add(docs2).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
 
       r = coll.Add(docs3).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
 
       //now Commit
       coll.Session.Commit();
@@ -936,13 +936,13 @@ namespace MySqlX.Data.Tests
       coll.Session.Rollback();
 
       var foundDocs = coll.Find().Execute();
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(false, foundDocs.Next(), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(false), "Matching");
 
     }
 
@@ -972,22 +972,22 @@ namespace MySqlX.Data.Tests
       // start the transaction
       coll.Session.StartTransaction();
       Result r = coll.Add(docs1).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
 
       // now Rollback
       coll.Session.Rollback();
       r = coll.Add(docs2).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
       r = coll.Add(docs3).Execute();
-      Assert.AreEqual(2, r.AffectedItemsCount, "Matching");
+      Assert.That(r.AffectedItemsCount, Is.EqualTo(2), "Matching");
       //now Commit
       coll.Session.Commit();
       var foundDocs = coll.Find().Execute();
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(true, foundDocs.Next(), "Matching");
-      Assert.AreEqual(false, foundDocs.Next(), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(true), "Matching");
+      Assert.That(foundDocs.Next(), Is.EqualTo(false), "Matching");
 
     }
 

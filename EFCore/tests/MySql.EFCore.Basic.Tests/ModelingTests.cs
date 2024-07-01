@@ -124,10 +124,10 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
       using (SakilaLiteContext context = new SakilaLiteContext())
       {
         var query = context.Actor.Where(c => EF.Functions.Like(c.LastName!, "A%")).ToList();
-        Assert.IsNotEmpty(query);
+        Assert.That(query, Is.Not.Empty);
         foreach (Actor actor in query)
         {
-          StringAssert.StartsWith("A", actor.LastName);
+          Assert.That(actor.LastName, Does.StartWith("A"));
         }
       }
     }
@@ -158,8 +158,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           context.SaveChanges();
 
           var customer = context.Customer.Where(p => p.Address!.AddressId == 1).First();
-          Assert.AreEqual(1, customer.CustomerId);
-          Assert.AreEqual("47 MySakila Drive", customer.Address!.Address);
+          Assert.That(customer.CustomerId, Is.EqualTo(1));
+          Assert.That(customer.Address!.Address, Is.EqualTo("47 MySakila Drive"));
         }
         finally
         {
@@ -173,8 +173,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     {
       using (SakilaLiteContext context = new SakilaLiteContext())
       {
-        Assert.AreEqual(584, context.Customer.Count());
-        Assert.AreEqual(599, context.Customer.IgnoreQueryFilters().Count());
+        Assert.That(context.Customer.Count(), Is.EqualTo(584));
+        Assert.That(context.Customer.IgnoreQueryFilters().Count(), Is.EqualTo(599));
       }
     }
 
@@ -194,7 +194,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           Text = b.FirstName,
         }).ToList();
 
-        Assert.IsNotEmpty(ls);
+        Assert.That(ls, Is.Not.Empty);
       }
     }
   }

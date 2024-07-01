@@ -125,7 +125,7 @@ namespace MySql.Data.MySqlClient.Tests
       t.Abort();
       t.Join();
 
-      Assert.NotNull(lastException);
+      Assert.That(lastException, Is.Not.Null);
 
       if (lastException is MySqlException)
       {
@@ -134,7 +134,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       //Assert.InstanceOf(typeof(ThreadAbortException), lastException);
-      Assert.IsInstanceOf<ThreadAbortException>(lastException);
+      Assert.That(lastException, Is.InstanceOf<ThreadAbortException>());
     }
   }
 }

@@ -58,11 +58,11 @@ namespace MySql.Data.EntityFramework.Tests
       {
         if (ctx.Database.Exists())
           ctx.Database.Delete();
-        Assert.False(ctx.Database.Exists());
+        Assert.That(!ctx.Database.Exists());
         ctx.Database.Create();
-        Assert.True(ctx.Database.Exists());
+        Assert.That(ctx.Database.Exists());
         ctx.Database.Delete();
-        Assert.False(ctx.Database.Exists());
+        Assert.That(!ctx.Database.Exists());
       }
       NeedSetup = true;
     }
@@ -73,7 +73,7 @@ namespace MySql.Data.EntityFramework.Tests
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
         DataTable dt = Connection.GetSchema("DATABASES", new string[] { Connection.Database });
-        Assert.AreEqual(1, dt.Rows.Count);
+        Assert.That(dt.Rows.Count, Is.EqualTo(1));
         ctx.Database.Delete();
       }
       NeedSetup = true;
@@ -97,7 +97,7 @@ namespace MySql.Data.EntityFramework.Tests
       {
         MySqlProviderServices providerServices = new MySqlProviderServices();
         var token = providerServices.GetProviderManifestToken(connection);
-        Assert.NotNull(token);
+        Assert.That(token, Is.Not.Null);
       }
     }
 
@@ -109,7 +109,7 @@ namespace MySql.Data.EntityFramework.Tests
         conn.Open();
         MySqlProviderServices providerServices = new MySqlProviderServices();
         var token = providerServices.GetProviderManifestToken(conn);
-        Assert.NotNull(token);
+        Assert.That(token, Is.Not.Null);
       }
     }
   }

@@ -74,7 +74,7 @@ namespace MySql.Web.Tests
     public void CheckIfRoleNotExists()
     {
       var roleExists = _simpleRoleProvider.RoleExists("roleName");
-      Assert.False(roleExists);
+      Assert.That(!roleExists);
     }
 
     [Test]
@@ -84,7 +84,7 @@ namespace MySql.Web.Tests
       {
         _simpleRoleProvider.CreateRole("Administrator");
         var roleExists = _simpleRoleProvider.RoleExists("Administrator");
-        Assert.True(roleExists);
+        Assert.That(roleExists);
       }
     }
 
@@ -92,12 +92,12 @@ namespace MySql.Web.Tests
     public void CreateUserAndAccountTest()
     {
       MySqlWebSecurity.CreateUserAndAccount(_userName, _pass);
-      Assert.True(MySqlWebSecurity.UserExists(_userName));
+      Assert.That(MySqlWebSecurity.UserExists(_userName));
       var user = MySqlHelper.ExecuteDataRow(ConnectionString, string.Format("select * from {0} where {1} = '{2}'", _userTable, _userNameColumn, _userName));
-      Assert.IsNotNull(user);
-      Assert.AreEqual(_userName, user[_userNameColumn]);
+      Assert.That(user, Is.Not.Null);
+      Assert.That(user[_userNameColumn], Is.EqualTo(_userName));
 
-      Assert.True(_simpleProvider.ValidateUser(_userName, _pass));
+      Assert.That(_simpleProvider.ValidateUser(_userName, _pass));
       //We need to mock the login because in that method there is a call to "FormsAuthentication.SetAuthCookie" which causes an "Object reference not set to an instance of an object" exception, because the test doesn't run on web application context
       //Assert.True(MySqlWebSecurity.Login(_userName, _pass));
     }
@@ -108,16 +108,16 @@ namespace MySql.Web.Tests
     {
       string newPass = "newpassword";
       MySqlWebSecurity.CreateUserAndAccount(_userName, _pass);
-      Assert.True(MySqlWebSecurity.UserExists(_userName));
+      Assert.That(MySqlWebSecurity.UserExists(_userName));
 
       //We need to mock the login because in that method there is a call to "FormsAuthentication.SetAuthCookie" which causes an "Object reference not set to an instance of an object" exception, because the test doesn't run on web application context
 
-      Assert.True(_simpleProvider.ValidateUser(_userName, _pass));
+      Assert.That(_simpleProvider.ValidateUser(_userName, _pass));
       //Assert.True(MySqlWebSecurity.Login(_userName, _pass));
 
-      Assert.True(MySqlWebSecurity.ChangePassword(_userName, _pass, newPass));
+      Assert.That(MySqlWebSecurity.ChangePassword(_userName, _pass, newPass));
 
-      Assert.True(_simpleProvider.ValidateUser(_userName, newPass));
+      Assert.That(_simpleProvider.ValidateUser(_userName, newPass));
       //Assert.True(MySqlWebSecurity.Login(_userName, newPass));
     }
 
@@ -125,16 +125,16 @@ namespace MySql.Web.Tests
     public void ConfirmAccountWithTokenTest()
     {
       var token = MySqlWebSecurity.CreateUserAndAccount(_userName, _pass, null, true);
-      Assert.True(MySqlWebSecurity.UserExists(_userName));
-      Assert.True(MySqlWebSecurity.ConfirmAccount(token));
+      Assert.That(MySqlWebSecurity.UserExists(_userName));
+      Assert.That(MySqlWebSecurity.ConfirmAccount(token));
     }
 
     [Test]
     public void ConfirmAccountWithUserAndTokenTest()
     {
       var token = MySqlWebSecurity.CreateUserAndAccount(_userName, _pass, null, true);
-      Assert.True(MySqlWebSecurity.UserExists(_userName));
-      Assert.True(MySqlWebSecurity.ConfirmAccount(_userName, token));
+      Assert.That(MySqlWebSecurity.UserExists(_userName));
+      Assert.That(MySqlWebSecurity.ConfirmAccount(_userName, token));
     }
 
     [Test]
@@ -142,8 +142,8 @@ namespace MySql.Web.Tests
     {
       var token = "falsetoken";
       MySqlWebSecurity.CreateUserAndAccount(_userName, _pass);
-      Assert.True(MySqlWebSecurity.UserExists(_userName));
-      Assert.False(MySqlWebSecurity.ConfirmAccount(token));
+      Assert.That(MySqlWebSecurity.UserExists(_userName));
+      Assert.That(!MySqlWebSecurity.ConfirmAccount(token));
     }
 
     [Test]
@@ -152,39 +152,39 @@ namespace MySql.Web.Tests
       execSQL(@"delete from userprofile;
                 delete from webpages_membership;");
       MySqlWebSecurity.CreateUserAndAccount(_userName, _pass);
-      Assert.AreNotEqual(DateTime.MinValue, MySqlWebSecurity.GetCreateDate(_userName));
+      Assert.That(MySqlWebSecurity.GetCreateDate(_userName), Is.Not.EqualTo(DateTime.MinValue));
     }
 
     [Test]
     public void DeleteTest()
     {
       _simpleProvider.CreateUserAndAccount(_userName, _pass, false, null);
-      Assert.True(_simpleProvider.DeleteAccount(_userName));
+      Assert.That(_simpleProvider.DeleteAccount(_userName));
       _simpleProvider.CreateAccount(_userName, _pass, false);
-      Assert.True(_simpleProvider.DeleteUser(_userName, true));
+      Assert.That(_simpleProvider.DeleteUser(_userName, true));
     }
 
     [Test]
     public void UserIsConfirmedTest()
     {
       MySqlWebSecurity.CreateUserAndAccount(_userName, _pass, null, true);
-      Assert.False(MySqlWebSecurity.IsConfirmed(_userName));
+      Assert.That(!MySqlWebSecurity.IsConfirmed(_userName));
     }
 
     [Test]
     public void UserIsLockedOutTest()
     {
       MySqlWebSecurity.CreateUserAndAccount(_userName, _pass, null, true);
-      Assert.False(MySqlWebSecurity.IsAccountLockedOut(_userName, 5, 60));
+      Assert.That(!MySqlWebSecurity.IsAccountLockedOut(_userName, 5, 60));
     }
 
     [Test]
     public void PasswordTest()
     {
       MySqlWebSecurity.CreateUserAndAccount(_userName, _pass);
-      Assert.AreEqual(DateTime.MinValue, MySqlWebSecurity.GetLastPasswordFailureDate(_userName));
-      Assert.AreNotEqual(DateTime.MinValue, MySqlWebSecurity.GetPasswordChangedDate(_userName));
-      Assert.AreEqual(0, MySqlWebSecurity.GetPasswordFailuresSinceLastSuccess(_userName));
+      Assert.That(MySqlWebSecurity.GetLastPasswordFailureDate(_userName), Is.EqualTo(DateTime.MinValue));
+      Assert.That(MySqlWebSecurity.GetPasswordChangedDate(_userName), Is.Not.EqualTo(DateTime.MinValue));
+      Assert.That(MySqlWebSecurity.GetPasswordFailuresSinceLastSuccess(_userName), Is.EqualTo(0));
     }
 
     //Password reset token must be assigned to the user but that field is not added in any part of the code, so maybe that field must be handled manually by the user
@@ -194,10 +194,10 @@ namespace MySql.Web.Tests
     {
       var token = MySqlWebSecurity.CreateUserAndAccount(_userName, _pass, null, true);
       int userID = MySqlWebSecurity.GetUserId(_userName);
-      Assert.True(MySqlWebSecurity.ConfirmAccount(token));
+      Assert.That(MySqlWebSecurity.ConfirmAccount(token));
       var newToken = MySqlWebSecurity.GeneratePasswordResetToken(_userName, 1440);
-      Assert.AreNotEqual(null, newToken);
-      Assert.AreEqual(MySqlWebSecurity.GetUserIdFromPasswordResetToken(newToken), userID);
+      Assert.That(newToken, Is.Not.EqualTo(null));
+      Assert.That(userID, Is.EqualTo(MySqlWebSecurity.GetUserIdFromPasswordResetToken(newToken)));
     }
 
     #region WL14389 
@@ -218,10 +218,10 @@ namespace MySql.Web.Tests
           break;
       }
 
-      Assert.True(MySqlWebSecurity.UserExists(userN));
+      Assert.That(MySqlWebSecurity.UserExists(userN));
       var user = MySqlHelper.ExecuteDataRow(ConnectionString, string.Format("select * from {0} where {1} = '{2}'", _userTable, _userNameColumn, userN));
-      Assert.IsNotNull(user);
-      Assert.AreEqual(userN, user[_userNameColumn]);
+      Assert.That(user, Is.Not.Null);
+      Assert.That(user[_userNameColumn], Is.EqualTo(userN));
     }
     #endregion
 

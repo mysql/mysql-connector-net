@@ -65,8 +65,8 @@ namespace MySql.EntityFrameworkCore.Design.Tests
       var annotation = key?.FindAnnotation(mySQLAnnotation);
       var result = MySQLAnnotationCodeGenerator.GenFluentApi((Microsoft.EntityFrameworkCore.Metadata.IProperty)key!, annotation!);
 
-      Assert.AreEqual(mySQLAnnotation == MySQLAnnotationNames.Charset ? "ForMySQLHasCharset" : "ForMySQLHasCollation", result?.Method);
-      Assert.AreEqual(1, result?.Arguments.Count);
+      Assert.That(result?.Method, Is.EqualTo(mySQLAnnotation == MySQLAnnotationNames.Charset ? "ForMySQLHasCharset" : "ForMySQLHasCollation"));
+      Assert.That(result?.Arguments.Count, Is.EqualTo(1));
     }
   }
 }
