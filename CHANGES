@@ -2,6 +2,7 @@
 - Updated test suite to use constraint-based assertions (WL16397).
 - Changed testsuite to use assummptions instead of Assert.Ignore (WL16402).
 - Added support for .NET 9 and EFCore 9 preview versions (WL16308).
+- Added OpenTelemetry.Api NuGet package reference (WL16453).
 
 
 9.0.0
