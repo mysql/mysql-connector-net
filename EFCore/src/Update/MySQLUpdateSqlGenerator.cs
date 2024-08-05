@@ -355,7 +355,7 @@ namespace MySql.EntityFrameworkCore
         return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations);
       }
 
-      return readOperations.Count > 0 ? ResultSetMapping.LastInResultSet : ResultSetMapping.NoResults;
+      return ResultSetMapping.NoResults;
     }
 
     protected virtual void AppendInsertCommand(
@@ -399,7 +399,7 @@ namespace MySql.EntityFrameworkCore
         return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations);
       }
 
-      return ResultSetMapping.NoResults;
+      return AppendSelectModificationCommand(commandStringBuilder, name);
     }
 
     public override ResultSetMapping AppendDeleteOperation(
@@ -408,8 +408,6 @@ namespace MySql.EntityFrameworkCore
       int commandPosition,
       out bool requiresTransaction)
     {
-      // The default implementation adds RETURNING 1 to do concurrency check (was the row actually deleted), but in PostgreSQL we check
-      // the per-statement row-affected value exposed by Npgsql in the batch; so no need for RETURNING 1.
       var name = command.TableName;
       var schema = command.Schema;
       var conditionOperations = command.ColumnModifications.Where(o => o.IsCondition).ToList();
@@ -418,7 +416,7 @@ namespace MySql.EntityFrameworkCore
 
       AppendDeleteCommand(commandStringBuilder, name, schema, Array.Empty<IColumnModification>(), conditionOperations);
 
-      return ResultSetMapping.NoResults;
+      return AppendSelectModificationCommand(commandStringBuilder, name);
     }
 
     protected override void AppendValues(
@@ -433,6 +431,28 @@ namespace MySql.EntityFrameworkCore
       {
         commandStringBuilder.Append("()");
       }
+    }
+    
+    /// <summary>
+    /// Appends a SQL command for selecting affected data.
+    /// </summary>
+    /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
+    /// <param name="name">The name of the table.</param>
+    /// <returns>The <see cref="ResultSetMapping" /> for this command.</returns>
+    
+    private ResultSetMapping AppendSelectModificationCommand(
+      StringBuilder commandStringBuilder,
+      string name)
+    {
+      Check.NotNull(commandStringBuilder, "commandStringBuilder");
+      Check.NotEmpty(name, "name");
+
+      commandStringBuilder
+        .Append("SELECT ROW_COUNT()")
+        .Append(SqlGenerationHelper.StatementTerminator).AppendLine()
+        .AppendLine();
+
+      return ResultSetMapping.ResultSetWithRowsAffectedOnly;
     }
 
     /// <summary>

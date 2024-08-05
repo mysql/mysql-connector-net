@@ -39,7 +39,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
   public class ConcurrencyTests
   {
     [Test]
-    public void CanHandleConcurrencyConflicts()
+    public void CanHandleDeleteConcurrencyConflicts()
     {
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
@@ -52,7 +52,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
-        context.People.Add(new Person { Name = "Mike Redman", SocialSecurityNumber = "SSS1229932", PhoneNumber = "565665656" });
+        context.People.Add(new Person
+          { Name = "Mike Redman", SocialSecurityNumber = "SSS1229932", PhoneNumber = "565665656" });
         context.SaveChanges();
 
         var person = context.People.Single(p => p.PersonId == 1);
@@ -72,7 +73,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
             {
               // Using a NoTracking query means we get the entity but it is not tracked by the context
               // and will not be merged with existing entities in the context.
-              var databaseEntity = context.People.AsNoTracking().Single(p => p.PersonId == ((Person)entry.Entity).PersonId);
+              var databaseEntity = context.People.AsNoTracking()
+                .Single(p => p.PersonId == ((Person)entry.Entity).PersonId);
               var databaseEntry = context.Entry(databaseEntity);
 
               foreach (var property in entry.Metadata.GetProperties())
@@ -89,7 +91,8 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
             }
             else
             {
-              throw new NotSupportedException("Don't know how to handle concurrency conflicts for " + entry.Metadata.Name);
+              throw new NotSupportedException("Don't know how to handle concurrency conflicts for " +
+                                              entry.Metadata.Name);
             }
           }
 
@@ -100,6 +103,42 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         {
           context.Database.EnsureDeleted();
         }
+      }
+    }
+
+    [Test]
+    public void CanHandleUpdateConcurrencyConflicts()
+    {
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddEntityFrameworkMySQL()
+        .AddDbContext<ConcurrencyTestsContext>();
+
+      var serviceProvider = serviceCollection.BuildServiceProvider();
+
+      using (var context = serviceProvider.GetRequiredService<ConcurrencyTestsContext>())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+
+        context.People.Add(new Person
+          { Name = "Mike Redman", SocialSecurityNumber = "SSS1229932", PhoneNumber = "565665656" });
+        context.SaveChanges();
+
+        var updatePerson1 = context.People.Single(p => p.PersonId == 1);
+        var updatePerson2 = context.People.Single(p => p.PersonId == 1);
+
+        updatePerson1.SocialSecurityNumber = "SS15555";
+        updatePerson1.PhoneNumber = "555555555";
+
+        context.SaveChanges();
+
+        var item = context.ChangeTracker.Entries().First(x => Object.ReferenceEquals(x.Entity, updatePerson2));
+        item.OriginalValues["SocialSecurityNumber"] = "SSS1229932";
+        updatePerson2.SocialSecurityNumber = "SS16666";
+        updatePerson2.PhoneNumber = "666666666";
+
+        TestDelegate action = () => context.SaveChanges();
+        Assert.Throws<DbUpdateConcurrencyException>(action);
       }
     }
   }
