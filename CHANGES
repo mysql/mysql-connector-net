@@ -4,6 +4,7 @@
 - Added support for .NET 9 and EFCore 9 preview versions (WL16308).
 - Added OpenTelemetry.Api NuGet package reference (WL16453).
 - Fixed Code coverage (WL16309).
+- Added support for OpenID Connect client authentication (WL16491).
 
 
 9.0.0

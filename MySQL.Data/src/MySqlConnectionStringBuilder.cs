@@ -144,7 +144,7 @@ namespace MySql.Data.MySqlClient
             msb.SetValue("kerberosauthmode", value);
         },
         (msb, sender) => msb.KerberosAuthMode));
-
+      Options.Add(new MySqlConnectionStringOption("openididentitytoken", null, typeof(string), string.Empty, false));
       #endregion
 
       #region OtherProperties
@@ -534,6 +534,21 @@ namespace MySql.Data.MySqlClient
     {
       get { return (KerberosAuthMode)values["kerberosauthmode"]; }
       set { SetValue("kerberosauthmode", value); }
+    }
+
+    /// <summary>
+    /// Gets or sets the Identity Token to be used in OpenID Connect authentication.
+    /// </summary>
+    /// <remarks>
+    /// If <see cref="OpenIdIdentityToken"/> is set the value will be used to try to log in using OpenID Connect authentication.
+    /// </remarks>
+    [Category("Authentication")]
+    [DisplayName("OpenIdIdentityToken")]
+    [Description("Specifies the Identity Token to use during OpenID Connect authentication.")]
+    public string OpenIdIdentityToken
+    {
+      get { return (string)values["openididentitytoken"]; }
+      set { SetValue("openididentitytoken", value); }
     }
 
     #endregion

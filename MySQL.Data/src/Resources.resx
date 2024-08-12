@@ -690,4 +690,10 @@
   <data name="WebAuthnTimeout" xml:space="preserve">
     <value>The timeout of 15 seconds for user interaction with FIDO device has been exceeded</value>
   </data>
+  <data name="OpenIdIdentityTokenIsEmpty" xml:space="preserve">
+    <value>The OpenID Connect Identity Token is empty</value>
+  </data>
+  <data name="OpenIdIdentityTokenTooBig" xml:space="preserve">
+    <value>The OpenID Connect Identity Token is invalid</value>
+  </data>
 </root>

@@ -49,6 +49,7 @@ namespace MySql.Data.MySqlClient.Authentication
       Plugins["authentication_kerberos_client"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.KerberosAuthenticationPlugin");
       Plugins["authentication_oci_client"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.OciAuthenticationPlugin");
       Plugins["authentication_webauthn_client"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.WebAuthnAuthenticationPlugin");
+      Plugins["authentication_openid_connect_client"] = new PluginInfo("MySql.Data.MySqlClient.Authentication.OpenIdConnectClientAuthentication");
 
       AuthenticationManagerCtorConfiguration();
     }

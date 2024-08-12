@@ -925,7 +925,25 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The option &apos;{0}&apos; is not currently supported.
+        ///   Looks up a localized string similar to The OpenID Connect Identity Token is empty.
+        /// </summary>
+        internal static string OpenIdIdentityTokenIsEmpty {
+            get {
+                return ResourceManager.GetString("OpenIdIdentityTokenIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The OpenID Connect Identity Token is invalid.
+        /// </summary>
+        internal static string OpenIdIdentityTokenTooBig {
+            get {
+                return ResourceManager.GetString("OpenIdIdentityTokenTooBig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The option &apos;{0}&apos; is not currently supported..
         /// </summary>
         internal static string OptionNotCurrentlySupported {
             get {

@@ -34,6 +34,7 @@ using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -1815,6 +1816,101 @@ namespace MySql.Data.MySqlClient.Tests
     private static void Conn_WebAuthnActionRequested()
     {
       Console.WriteLine("Please insert FIDO device and perform gesture action for authentication to complete.");
+    }
+    #endregion
+
+    #region OpenID Connect client
+    /// <summary>
+    /// WL16491 - OpenID Connect authentication support
+    /// </summary>
+
+    private static string IdentityToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJteXN1YmoiLCJpc3MiOiJodHRw" +
+    "czovL215aXNzdWVyLmNvbSIsImV4cCI6MjEzNTE5ODEwNX0.kXjtDjcSYhpNP0IgSbQjPuOsd-nBDVulQKgZAq4HkgMPCNINh-EIMbuqvYKkE5a" +
+    "B6zicm6PHNvxDrS63NjQH7Nh7s29eN50DSK33zQsvdYr8O5eUTL2SrNRqpWgMQ0xlU9Hr4HCw10YmIcwjskANHJxXSgyUCKveeRCR-L-DoNFZDy" +
+    "UYyd3pu7M1zO-12LjebktMklCQBfiCAcqSNDZDE2s6OkxuoF7VOtK91Wsw17xOZVQDjCZkUDtUrRZs8uxJfbjBonQ7LVQQhg227z8lrUeXewVhx" +
+    "NKPrf-YUrdMmEfMBjwD9v1AU5onKlkHuW0DtvZmt707Kyd-ve-HgQj1xX-W6BfEPo-28FCcDvLGlXZ8cyB1wPODogKhtc7bq3TPuTkDkegO7AG1" +
+    "NaYXcbSNEpQQ5zdfbzS_spV2zzJawPK1awNUeT_UA7t4swY4JcrOFkPkXUTqWT9QWvXuxCE9gZUAWIa3FHdeWjzLTZEKB8-ZhPYmyPphkzds9sm" +
+    "TJi4gawmNtb8WvEpXZUUXIZzIRcunXEdIayr18E9XfFCOCQo8JQOSxY3HQGgzqYk4S0AMeR0BiBIKe9VySsykdAuhLvL51AZDXvKQ9fQDu4lAtk" +
+    "cXrKCZwA_2RXjLzOM7dkySQu66t-GIIZXxqCdcWf1";
+
+    private static string OpenId_server_config = "JSON://{\"myissuer\":\"{\\\\\"kty\\\\\": \\\\\"RSA\\\\\",\\\\\"n\\\\\":" +
+    " \\\\\"zpnGGekMZHmWtpcsBmJdUODRApNHU7_bijsn4E0MWhthfkyK1LilQp5-aemc6Id5yL978CMfn10LXsjGchZKIGAgk52nW7kI3Zt973npwzB2M" +
+    "YJ4FFqsHQSAM9kvd3iUz2aQG-nVVl9Ia8Yimcssav8sEjOlEqZ1n_JLXavWwI9z-_lkTcZBgsM9jke_tWa1yLjYce009yBmf-sJMDrXZ-3TALrNUDzGt" +
+    "9mQwDxjE0UGnQIQE7vXJ2O5-k1qXMKPTew32zvRD7Bxcsxe71LRaerEPmgnricajk5LJVsbonavecrvHDCGDvOgzueZrr15kUhXZxZbXmtx6dUYqJ-0A" +
+    "qbZ0Km3elrYnDFysJR5pJsjmDnH2wzHDQ_gZeC_Up_4d78pzLyXHhiOmyDTLyogmeN7xYunvgzu-B4tepSC9XCSu-WZDmJASFaxRzOJhQBKLX2Ly0XmS" +
+    "LMXEP-vOupwvEi-SpBOVw2WzxT9dJrK-vI6cBGewB-zHrwsLFBvt1OZVNV5YGpQ1kqFfFoWrtkINFwJc39UnboDqalhvim9K-ITRe6xYk_Dlf9f-BA5b" +
+    "sry8n3GBBXEjkirM_QFb_DcbBXj1OJX_B0BZAK0bupYgOpxDG_su1a8N3CqOOWJguVzuydl7uW_uicDkCua3cVWd-n8QtXDaM6qZLRTB7q0_ek\\\\\"" +
+    ",\\\\\"e\\\\\": \\\\\"AQAB\\\\\",\\\\\"alg\\\\\": \\\\\"RS256\\\\\",\\\\\"use\\\\\": \\\\\"sig\\\\\",\\\\\"name" +
+    "\\\\\": \\\\\"https://myissuer.com\\\\\"}\"}";
+
+    [Test]
+    [Ignore("This test requires a server version 9.1.0 or higher configured to use OpenID Connect authentication")]
+    public void OpenIdConnectClient()
+    {
+      Assume.That(Version >= new Version("9.1.0"), "This test is for MySQL 9.1.0 or higher");
+      Assume.That(Check_Plugin_Enabled("authentication_openid_connect"), "authentication_openid_connect plugin must be enabled on the server to run this test");
+
+      ExecuteSQL("SET GLOBAL authentication_openid_connect_configuration = '" + OpenId_server_config + "'", true);
+
+      ExecuteSQL("CREATE USER IF NOT EXISTS 'openid-testuser'@'%' IDENTIFIED WITH 'authentication_openid_connect' AS '{\"identity_provider\" : \"myissuer\", \"user\" : \"mysubj\"}'", true);
+
+      var connStringBuilder1 = new MySqlConnectionStringBuilder()
+      {
+        UserID = "openid-testuser",
+        Server = Settings.Server,
+        Port = Settings.Port,
+        OpenIdIdentityToken = IdentityToken
+      };
+      using (MySqlConnection conn = new MySqlConnection(connStringBuilder1.ConnectionString))
+      {
+        conn.Open();
+        Assert.That(conn.connectionState, Is.EqualTo(ConnectionState.Open));
+      }
+
+      var connStringBuilder2 = new MySqlConnectionStringBuilder()
+      {
+        UserID = "openid-testuser",
+        Server = Settings.Server,
+        Port = Settings.Port,
+        OpenIdIdentityToken = IdentityToken,
+        DefaultAuthenticationPlugin = "authentication_openid_connect_client"
+      };
+      using (MySqlConnection conn = new MySqlConnection(connStringBuilder2.ConnectionString))
+      {
+        conn.Open();
+        Assert.That(conn.connectionState, Is.EqualTo(ConnectionState.Open));
+      }
+
+      var connStringBuilder3 = new MySqlConnectionStringBuilder()
+      {
+        UserID = "openid-testuser",
+        Server = Settings.Server,
+        Port = Settings.Port,
+        OpenIdIdentityToken = "",
+        DefaultAuthenticationPlugin = "authentication_openid_connect_client"
+      };
+      using (MySqlConnection conn = new MySqlConnection(connStringBuilder3.ConnectionString))
+      {
+        Assert.Throws<MySqlException>(() => conn.Open());
+      }
+
+      char[] reversedIdentityToken = IdentityToken.ToCharArray();
+      Array.Reverse(reversedIdentityToken);
+
+      var connStringBuilder4 = new MySqlConnectionStringBuilder()
+      {
+        UserID = "openid-testuser",
+        Server = Settings.Server,
+        Port = Settings.Port,
+        OpenIdIdentityToken = new string(reversedIdentityToken),
+        DefaultAuthenticationPlugin = "authentication_openid_connect_client"
+      };
+      using (MySqlConnection conn = new MySqlConnection(connStringBuilder4.ConnectionString))
+      {
+        Assert.Throws<MySqlException>(() => conn.Open());
+      }
+
+      ExecuteSQL("DROP USER IF EXISTS 'openid-testuser'@'%'", true);
     }
     #endregion
 
