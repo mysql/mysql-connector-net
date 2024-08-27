@@ -61,7 +61,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Appdata path is not defined..
+        ///   Looks up a localized string similar to Appdata path is not defined.
         /// </summary>
         internal static string AppdataNotDefined {
             get {
@@ -70,7 +70,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Authentication failed using MYSQL41 and SHA256_MEMORY. Check the user name and password or try using a secure connection..
+        ///   Looks up a localized string similar to Authentication failed using MYSQL41 and SHA256_MEMORY. Check the user name and password or try using a secure connection.
         /// </summary>
         internal static string AuthenticationFailed {
             get {
@@ -79,7 +79,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You can&apos;t get more sessions because Client is closed..
+        ///   Looks up a localized string similar to You can&apos;t get more sessions because Client is closed.
         /// </summary>
         internal static string ClientIsClosed {
             get {
@@ -88,7 +88,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Client option &apos;{0}&apos; does not support value &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Client option &apos;{0}&apos; does not support value &apos;{1}&apos;.
         /// </summary>
         internal static string ClientOptionInvalidValue {
             get {
@@ -97,7 +97,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Client option &apos;{0}&apos; is not recognized as valid..
+        ///   Looks up a localized string similar to Client option &apos;{0}&apos; is not recognized as valid.
         /// </summary>
         internal static string ClientOptionNotValid {
             get {
@@ -106,7 +106,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} &apos;{1}&apos; does not exist in schema &apos;{2}&apos;..
+        ///   Looks up a localized string similar to {0} &apos;{1}&apos; does not exist in schema &apos;{2}&apos;.
         /// </summary>
         internal static string CollectionTableDoesNotExist {
             get {
@@ -115,7 +115,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Compression requested but the compression algorithm negotiation failed..
+        ///   Looks up a localized string similar to Compression requested but the compression algorithm negotiation failed.
         /// </summary>
         internal static string CompressionAlgorithmNegotiationFailed {
             get {
@@ -124,7 +124,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Compression using {0} is not supported..
+        ///   Looks up a localized string similar to Compression using {0} is not supported.
         /// </summary>
         internal static string CompressionAlgorithmNotSupported {
             get {
@@ -133,7 +133,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Compression using {0} is not supported in .NET Framework..
+        ///   Looks up a localized string similar to Compression using {0} is not supported in .NET Framework.
         /// </summary>
         internal static string CompressionForSpecificAlgorithmNotSupportedInNetFramework {
             get {
@@ -142,7 +142,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The connection property &apos;compression&apos; acceptable values are: &apos;preferred&apos;, &apos;required&apos; or &apos;disabled&apos;. The value &apos;{0}&apos; is not acceptable..
+        ///   Looks up a localized string similar to The connection property &apos;compression&apos; acceptable values are: &apos;preferred&apos;, &apos;required&apos; or &apos;disabled&apos;. The value &apos;{0}&apos; is not acceptable.
         /// </summary>
         internal static string CompressionInvalidValue {
             get {
@@ -151,7 +151,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Compression is not enabled..
+        ///   Looks up a localized string similar to Compression is not enabled.
         /// </summary>
         internal static string CompressionNotEnabled {
             get {
@@ -160,7 +160,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Compression requested but the server does not support it..
+        ///   Looks up a localized string similar to Compression requested but the server does not support it.
         /// </summary>
         internal static string CompressionNotSupportedByServer {
             get {
@@ -169,7 +169,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There are still decompressed messages pending to be processed..
+        ///   Looks up a localized string similar to There are still decompressed messages pending to be processed.
         /// </summary>
         internal static string CompressionPendingMessagesToProcess {
             get {
@@ -178,7 +178,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Custom type mapping is only supported from .NET Core 3.1 and later..
+        ///   Looks up a localized string similar to Custom type mapping is only supported from .NET Core 3.1 and later.
         /// </summary>
         internal static string CustomTypeNotSupported {
             get {
@@ -187,7 +187,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; cannot be set to false with DNS SRV lookup enabled..
+        ///   Looks up a localized string similar to &apos;{0}&apos; cannot be set to false with DNS SRV lookup enabled.
         /// </summary>
         internal static string DnsSrvConflictingOptions {
             get {
@@ -196,7 +196,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Scheme &apos;{0}&apos; is not valid..
+        ///   Looks up a localized string similar to Scheme &apos;{0}&apos; is not valid.
         /// </summary>
         internal static string DnsSrvInvalidScheme {
             get {
@@ -205,7 +205,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The document path cannot be null or an empty string..
+        ///   Looks up a localized string similar to The document path cannot be null or an empty string.
         /// </summary>
         internal static string DocPathNullOrEmpty {
             get {
@@ -214,7 +214,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Duplicate key &apos;{0}&apos; used in &quot;connection-attributes&quot;..
+        ///   Looks up a localized string similar to Duplicate key &apos;{0}&apos; used in &quot;connection-attributes&quot;.
         /// </summary>
         internal static string DuplicateUserDefinedAttribute {
             get {
@@ -223,7 +223,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Key name in connection attribute cannot be an empty string..
+        ///   Looks up a localized string similar to Key name in connection attribute cannot be an empty string.
         /// </summary>
         internal static string EmptyKeyConnectionAttribute {
             get {
@@ -232,7 +232,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to At least one option must be specified..
+        ///   Looks up a localized string similar to At least one option must be specified.
         /// </summary>
         internal static string EmptyOptions {
             get {
@@ -241,7 +241,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This feature is currently not supported..
+        ///   Looks up a localized string similar to This feature is currently not supported.
         /// </summary>
         internal static string FeatureNotSupported {
             get {
@@ -250,7 +250,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This functionality is only supported in MySQL {0} and higher..
+        ///   Looks up a localized string similar to This functionality is only supported in MySQL {0} and higher.
         /// </summary>
         internal static string FunctionalityNotSupported {
             get {
@@ -259,7 +259,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Collation with id &apos;{0}&apos; not found..
+        ///   Looks up a localized string similar to Collation with id &apos;{0}&apos; not found.
         /// </summary>
         internal static string InvalidCollationId {
             get {
@@ -268,7 +268,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The value of &quot;connection-attributes&quot; must be either a boolean or a list of key-value pairs..
+        ///   Looks up a localized string similar to The value of &quot;connection-attributes&quot; must be either a boolean or a list of key-value pairs.
         /// </summary>
         internal static string InvalidConnectionAttributes {
             get {
@@ -277,7 +277,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Connection Data is incorrect..
+        ///   Looks up a localized string similar to Connection Data is incorrect.
         /// </summary>
         internal static string InvalidConnectionData {
             get {
@@ -286,7 +286,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The connection string is invalid..
+        ///   Looks up a localized string similar to The connection string is invalid.
         /// </summary>
         internal static string InvalidConnectionString {
             get {
@@ -295,7 +295,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; is not a valid connection string attribute..
+        ///   Looks up a localized string similar to &apos;{0}&apos; is not a valid connection string attribute.
         /// </summary>
         internal static string InvalidConnectionStringAttribute {
             get {
@@ -304,7 +304,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The connection timeout value must be a positive integer (including 0)..
+        ///   Looks up a localized string similar to The connection timeout value must be a positive integer (including 0).
         /// </summary>
         internal static string InvalidConnectionTimeoutValue {
             get {
@@ -313,7 +313,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Decimal (BCD) format is invalid..
+        ///   Looks up a localized string similar to Decimal (BCD) format is invalid.
         /// </summary>
         internal static string InvalidDecimalFormat {
             get {
@@ -322,7 +322,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Field type with name &apos;{0}&apos; not found..
+        ///   Looks up a localized string similar to Field type with name &apos;{0}&apos; not found.
         /// </summary>
         internal static string InvalidFieldType {
             get {
@@ -331,7 +331,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Index type with name &apos;{0}&apos; not found..
+        ///   Looks up a localized string similar to Index type with name &apos;{0}&apos; not found.
         /// </summary>
         internal static string InvalidIndexType {
             get {
@@ -349,7 +349,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} is not a valid column name in the row..
+        ///   Looks up a localized string similar to {0} is not a valid column name in the row.
         /// </summary>
         internal static string InvalidNameIndex {
             get {
@@ -358,7 +358,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} is not a valid index for the row..
+        ///   Looks up a localized string similar to {0} is not a valid index for the row.
         /// </summary>
         internal static string InvalidRowIndex {
             get {
@@ -367,7 +367,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Session state is not valid..
+        ///   Looks up a localized string similar to Session state is not valid.
         /// </summary>
         internal static string InvalidSession {
             get {
@@ -394,7 +394,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Key names in &quot;connection-attributes&quot; cannot start with &quot;_&quot;..
+        ///   Looks up a localized string similar to Key names in &quot;connection-attributes&quot; cannot start with &quot;_&quot;.
         /// </summary>
         internal static string InvalidUserDefinedAttribute {
             get {
@@ -403,7 +403,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Json configuration must contain &apos;uri&apos; or &apos;host&apos; but not both..
+        ///   Looks up a localized string similar to Json configuration must contain &apos;uri&apos; or &apos;host&apos; but not both.
         /// </summary>
         internal static string JsonUriOrHost {
             get {
@@ -412,7 +412,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Keyword &apos;{0}&apos; not found..
+        ///   Looks up a localized string similar to Keyword &apos;{0}&apos; not found.
         /// </summary>
         internal static string KeywordNotFound {
             get {
@@ -421,7 +421,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Keyword not supported..
+        ///   Looks up a localized string similar to Keyword not supported.
         /// </summary>
         internal static string KeywordNotSupported {
             get {
@@ -430,7 +430,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Field &apos;{0}&apos; is mandatory..
+        ///   Looks up a localized string similar to Field &apos;{0}&apos; is mandatory.
         /// </summary>
         internal static string MandatoryFieldNotFound {
             get {
@@ -439,7 +439,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missed required schema option..
+        ///   Looks up a localized string similar to Missed required schema option.
         /// </summary>
         internal static string MissingSchemaOption {
             get {
@@ -448,7 +448,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to More than one document id was generated.  Please use the DocumentIds property instead..
+        ///   Looks up a localized string similar to More than one document id was generated.  Please use the DocumentIds property instead.
         /// </summary>
         internal static string MoreThanOneDocumentId {
             get {
@@ -466,7 +466,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No &apos;host&apos; has been specified..
+        ///   Looks up a localized string similar to No &apos;host&apos; has been specified.
         /// </summary>
         internal static string NoHost {
             get {
@@ -475,7 +475,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No more data in resultset..
+        ///   Looks up a localized string similar to No more data in resultset.
         /// </summary>
         internal static string NoMoreData {
             get {
@@ -493,7 +493,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No placeholders..
+        ///   Looks up a localized string similar to No placeholders.
         /// </summary>
         internal static string NoPlaceholders {
             get {
@@ -529,7 +529,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} must be a value greater than 0..
+        ///   Looks up a localized string similar to {0} must be a value greater than 0.
         /// </summary>
         internal static string NumberNotGreaterThanZero {
             get {
@@ -538,7 +538,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Path not found &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Path not found &apos;{0}&apos;.
         /// </summary>
         internal static string PathNotFound {
             get {
@@ -547,7 +547,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Queue timeout expired. The timeout period elapsed prior to getting a session from the pool..
+        ///   Looks up a localized string similar to Queue timeout expired. The timeout period elapsed prior to getting a session from the pool.
         /// </summary>
         internal static string PoolingQueueTimeout {
             get {
@@ -556,7 +556,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Providing a port number as part of the host address isn&apos;t supported when using connection strings in basic format or anonymous objects. Use URI format instead..
+        ///   Looks up a localized string similar to Providing a port number as part of the host address isn&apos;t supported when using connection strings in basic format or anonymous objects. Use URI format instead.
         /// </summary>
         internal static string PortNotSupported {
             get {
@@ -565,7 +565,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You must either assign no priority to any of the hosts or give a priority for every host..
+        ///   Looks up a localized string similar to You must either assign no priority to any of the hosts or give a priority for every host.
         /// </summary>
         internal static string PriorityForAllOrNoHosts {
             get {
@@ -574,7 +574,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The priority must be between 0 and 100..
+        ///   Looks up a localized string similar to The priority must be between 0 and 100.
         /// </summary>
         internal static string PriorityOutOfLimits {
             get {
@@ -583,7 +583,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ProgramData path is not defined..
+        ///   Looks up a localized string similar to ProgramData path is not defined.
         /// </summary>
         internal static string ProgramDataNotDefined {
             get {
@@ -593,7 +593,7 @@ namespace MySql.Data {
         
         /// <summary>
         ///   Looks up a localized string similar to Replacement document has an &apos;_id&apos; that is
-        ///different from the matched document..
+        ///different from the matched document.
         /// </summary>
         internal static string ReplaceWithNoMatchingId {
             get {
@@ -602,7 +602,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The server doesn&apos;t support the requested operation. Please update the MySQL Server, client library, or both..
+        ///   Looks up a localized string similar to The server doesn&apos;t support the requested operation. Please update the MySQL Server, client library, or both.
         /// </summary>
         internal static string SchemaCreateCollectionMsg {
             get {
@@ -611,7 +611,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The process of closing the resultset and resulted in results being lost..
+        ///   Looks up a localized string similar to The process of closing the resultset and resulted in results being lost.
         /// </summary>
         internal static string ThrowingAwayResults {
             get {
@@ -620,7 +620,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to All server connection attempts were aborted. Timeout of {0} milliseconds was exceeded for each selected server..
+        ///   Looks up a localized string similar to All server connection attempts were aborted. Timeout of {0} milliseconds was exceeded for each selected server.
         /// </summary>
         internal static string TimeOutMultipleHost {
             get {
@@ -629,7 +629,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to All server connection attempts were aborted. Timeout was exceeded for each selected server..
+        ///   Looks up a localized string similar to All server connection attempts were aborted. Timeout was exceeded for each selected server.
         /// </summary>
         internal static string TimeOutMultipleHost0ms {
             get {
@@ -638,7 +638,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Connection attempt to the server was aborted. Timeout of {0} milliseconds was exceeded..
+        ///   Looks up a localized string similar to Connection attempt to the server was aborted. Timeout of {0} milliseconds was exceeded.
         /// </summary>
         internal static string TimeOutSingleHost {
             get {
@@ -647,7 +647,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Connection attempt to the server was aborted. Timeout was exceeded..
+        ///   Looks up a localized string similar to Connection attempt to the server was aborted. Timeout was exceeded.
         /// </summary>
         internal static string TimeOutSingleHost0ms {
             get {
@@ -656,7 +656,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to connect to any specified host..
+        ///   Looks up a localized string similar to Unable to connect to any specified host.
         /// </summary>
         internal static string UnableToConnect {
             get {
@@ -665,7 +665,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to read or decode data value..
+        ///   Looks up a localized string similar to Unable to read or decode data value.
         /// </summary>
         internal static string UnableToDecodeDataValue {
             get {
@@ -674,7 +674,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to open a session..
+        ///   Looks up a localized string similar to Unable to open a session.
         /// </summary>
         internal static string UnableToOpenSession {
             get {
@@ -692,7 +692,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Field name &apos;{0}&apos; is not allowed..
+        ///   Looks up a localized string similar to Field name &apos;{0}&apos; is not allowed.
         /// </summary>
         internal static string UnexpectedField {
             get {
@@ -710,7 +710,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Value &apos;{0}&apos; is not of the correct type..
+        ///   Looks up a localized string similar to Value &apos;{0}&apos; is not of the correct type.
         /// </summary>
         internal static string ValueNotCorrectType {
             get {
