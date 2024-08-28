@@ -467,7 +467,7 @@ namespace MySqlX.Data.Tests
       builder.UserID = RootUser;
       builder.ConnectionAttributes = ";";
       ex = Assert.Throws<MySqlException>(() => MySQLX.GetClient(builder.ConnectionString, "{ \"pooling\": { \"enabled\": true } }"));
-      Assert.That(ex.Message, Is.EqualTo("The requested value ';' is invalid for the given keyword 'connection-attributes'."));
+      Assert.That(ex.Message, Is.EqualTo("The requested value ';' is invalid for the given keyword 'connection-attributes'"));
     }
 
     private void TestConnectionAttributes(string connString, Dictionary<string, object> userAttrs = null)
@@ -1479,7 +1479,7 @@ namespace MySqlX.Data.Tests
       , "{ \"pooling\": { \"enabled\": true } }"))
       {
         Exception ex = Assert.Throws<MySqlException>(() => client.GetSession());
-        Assert.That(ex.Message, Is.EqualTo("The requested value '=' is invalid for the given keyword 'connection-attributes'."));
+        Assert.That(ex.Message, Is.EqualTo("The requested value '=' is invalid for the given keyword 'connection-attributes'"));
       }
     }
 
@@ -1743,7 +1743,7 @@ namespace MySqlX.Data.Tests
     {
       Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       object[] invalid = new object[] { "var1", "1", "2", "(var1)", "{var1}", "[_testValue = test123, emptyValue]" };
-      var errorMsgs = new string[] { @"The value of ""connection-attributes"" must be either a boolean or a list of key-value pairs.", @"Key names in ""connection-attributes"" cannot start with ""_""." };
+      var errorMsgs = new string[] { @"The value of ""connection-attributes"" must be either a boolean or a list of key-value pairs", @"Key names in ""connection-attributes"" cannot start with ""_""" };
       for (int i = 0; i < invalid.Length; i++)
       {
         //Connection String
@@ -1992,7 +1992,7 @@ namespace MySqlX.Data.Tests
       Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
       Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
-      var expectedMsg = @"Key names in ""connection-attributes"" cannot start with ""_"".";
+      var expectedMsg = @"Key names in ""connection-attributes"" cannot start with ""_""";
       //Connection string
       using (Client client = MySQLX.GetClient(ConnectionString + ";connection-attributes=[_foo32=bar,quua=qux,key]", "{ \"pooling\": { \"enabled\": true } }"))
       {
@@ -2061,7 +2061,7 @@ namespace MySqlX.Data.Tests
       Assume.That(Platform.IsWindows(), "This test is for Windows OS only.");
       Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
-      var expectedMsg = "Key name in connection attribute cannot be an empty string.";
+      var expectedMsg = "Key name in connection attribute cannot be an empty string";
       //Connection String
       using (Client client = MySQLX.GetClient(ConnectionString + ";connection-attributes=[=bar,quua=qux,key]", "{ \"pooling\": { \"enabled\": true } }"))
       {

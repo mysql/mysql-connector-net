@@ -126,7 +126,7 @@ namespace MySql.Data.MySqlClient.Tests
       // now attempting to open a connection should fail
       MySqlConnection c2 = new MySqlConnection(connStr);
       Exception ex = Assert.Throws<MySqlException>(() => c2.Open());
-      Assert.That(ex.Message, Does.Contain("error connecting: Timeout expired.  The timeout period elapsed prior to obtaining a connection from the pool."));
+      Assert.That(ex.Message, Does.Contain("error connecting: Timeout expired.  The timeout period elapsed prior to obtaining a connection from the pool"));
 
       // we now kill the first connection to simulate a server stoppage
       KillConnection(c);
@@ -134,7 +134,7 @@ namespace MySql.Data.MySqlClient.Tests
       // now we do something on the first connection
 
       ex = Assert.Throws<InvalidOperationException>(() => c.ChangeDatabase("mysql"));
-      Assert.That(ex.Message, Does.Contain("The connection is not open."));
+      Assert.That(ex.Message, Does.Contain("The connection is not open"));
 
       // Opening a connection now should work
       MySqlConnection connection = new MySqlConnection(connStr);

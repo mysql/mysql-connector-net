@@ -75,12 +75,12 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.That(listener.Strings[0], Does.Contain("Query Opened: SELECT * FROM Test; SELECT * FROM Test WHERE id > 2"));
       Assert.That(listener.Strings[1], Does.Contain("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1"));
       Assert.That(listener.Strings[2], Does.Contain("Usage Advisor Warning: Query does not use an index"));
-      Assert.That(listener.Strings[3], Does.Contain("Usage Advisor Warning: Skipped 2 rows. Consider a more focused query."));
+      Assert.That(listener.Strings[3], Does.Contain("Usage Advisor Warning: Skipped 2 rows. Consider a more focused query"));
       Assert.That(listener.Strings[4], Does.Contain("Usage Advisor Warning: The following columns were not accessed: name"));
       Assert.That(listener.Strings[5], Does.Contain("Resultset Closed. Total rows=4, skipped rows=2, size (bytes)=32"));
       Assert.That(listener.Strings[6], Does.Contain("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1"));
       Assert.That(listener.Strings[7], Does.Contain("Usage Advisor Warning: Query does not use an index"));
-      Assert.That(listener.Strings[8], Does.Contain("Usage Advisor Warning: Skipped 1 rows. Consider a more focused query."));
+      Assert.That(listener.Strings[8], Does.Contain("Usage Advisor Warning: Skipped 1 rows. Consider a more focused query"));
       Assert.That(listener.Strings[9], Does.Contain("Usage Advisor Warning: The following columns were not accessed: id"));
       Assert.That(listener.Strings[10], Does.Contain("Resultset Closed. Total rows=2, skipped rows=1, size (bytes)=16"));
       Assert.That(listener.Strings[11], Does.Contain("Query Closed"));
@@ -115,7 +115,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.That(listener.Strings[0], Does.Contain("Query Opened: SELECT * FROM Test; SELECT * FROM Test WHERE id > 2"));
       Assert.That(listener.Strings[1], Does.Contain("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1"));
       Assert.That(listener.Strings[2], Does.Contain("Usage Advisor Warning: Query does not use an index"));
-      Assert.That(listener.Strings[3], Does.Contain("Usage Advisor Warning: Skipped 2 rows. Consider a more focused query."));
+      Assert.That(listener.Strings[3], Does.Contain("Usage Advisor Warning: Skipped 2 rows. Consider a more focused query"));
       Assert.That(listener.Strings[4], Does.Contain("Usage Advisor Warning: The following columns were not accessed: id,name"));
       Assert.That(listener.Strings[5], Does.Contain("Resultset Closed. Total rows=4, skipped rows=2, size (bytes)=32"));
       Assert.That(listener.Strings[6], Does.Contain("Resultset Opened: field(s) = 2, affected rows = -1, inserted id = -1"));

@@ -48,19 +48,19 @@ namespace MySqlX.Data.Tests
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"type\": \"INDEX\" }"));
-      Assert.That(ex.Message, Is.EqualTo("Field 'fields' is mandatory."));
+      Assert.That(ex.Message, Is.EqualTo("Field 'fields' is mandatory"));
 
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\" } ], \"unexpectedField\" : false }"));
-      Assert.That(ex.Message, Is.EqualTo("Field name 'unexpectedField' is not allowed."));
+      Assert.That(ex.Message, Is.EqualTo("Field name 'unexpectedField' is not allowed"));
 
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"fields\":$.myField, \"types\":\"TEXT\" } ] }"));
-      Assert.That(ex.Message, Is.EqualTo("Field 'field' is mandatory."));
+      Assert.That(ex.Message, Is.EqualTo("Field 'field' is mandatory"));
 
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"types\":\"TEXT\" } ] }"));
-      Assert.That(ex.Message, Is.EqualTo("Field 'type' is mandatory."));
+      Assert.That(ex.Message, Is.EqualTo("Field 'type' is mandatory"));
 
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"TEXT\", \"unexpectedField\" : false } ] }"));
-      Assert.That(ex.Message, Is.EqualTo("Field name 'unexpectedField' is not allowed."));
+      Assert.That(ex.Message, Is.EqualTo("Field name 'unexpectedField' is not allowed"));
 
       Assume.That(session.Version.isAtLeast(8, 0, 11), "This test is for MySql 8.0.11 or higher");
       collection = CreateCollection("test");
@@ -251,13 +251,13 @@ namespace MySqlX.Data.Tests
       var collection = CreateCollection("test");
 
       Exception ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"type\":\"INT\", \"myCustomField\":\"myCustomValue\" } ] }"));
-      Assert.That(ex.Message, Is.EqualTo("Field name 'myCustomField' is not allowed."));
+      Assert.That(ex.Message, Is.EqualTo("Field name 'myCustomField' is not allowed"));
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.myField, \"mytype\":\"INT\" } ] }"));
-      Assert.That(ex.Message, Is.EqualTo("Field 'type' is mandatory."));
+      Assert.That(ex.Message, Is.EqualTo("Field 'type' is mandatory"));
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"myfield\":$.myField, \"type\":\"INT\" } ] }"));
-      Assert.That(ex.Message, Is.EqualTo("Field 'field' is mandatory."));
+      Assert.That(ex.Message, Is.EqualTo("Field 'field' is mandatory"));
       ex = Assert.Throws<FormatException>(() => collection.CreateIndex("myIndex", "{\"fields\": [ { \"field\":$.name, \"type\":\"TEXT\" , \"myCustomField\":\"myCustomValue\"} ] }"));
-      Assert.That(ex.Message, Is.EqualTo("Field name 'myCustomField' is not allowed."));
+      Assert.That(ex.Message, Is.EqualTo("Field name 'myCustomField' is not allowed"));
       ex = Assert.Throws<Exception>(() => collection.CreateIndex("myIndex", ""));
       Assert.That(ex.Message, Is.EqualTo("The value provided is not a valid JSON document. Index was outside the bounds of the array."));
     }

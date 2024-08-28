@@ -82,11 +82,11 @@ namespace MySqlX.Data.Tests
 
       // Multiple hosts. All attempts fail.
       Exception ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession($"server= 10.10.10.10, 20.20.20.20 ;port={XPort};uid=test;password=test;connecttimeout={connectionTimeout}"));
-      Assert.That(ex.Message, Is.EqualTo("Unable to connect to any of the specified MySQL hosts."));
+      Assert.That(ex.Message, Is.EqualTo("Unable to connect to any of the specified MySQL hosts"));
 
       // Providing port number as part of the host name.
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server= 10.10.10.10:33050, 20.20.20.20:33060, {Host}:{XPort} ;port={XPort};uid=test;password=test;connecttimeout={connectionTimeout}"));
-      Assert.That(ex.Message, Is.EqualTo("Providing a port number as part of the host address isn't supported when using connection strings in basic format or anonymous objects. Use URI format instead."));
+      Assert.That(ex.Message, Is.EqualTo("Providing a port number as part of the host address isn't supported when using connection strings in basic format or anonymous objects. Use URI format instead"));
     }
 
     [Test]
@@ -167,11 +167,11 @@ namespace MySqlX.Data.Tests
 
       // Multiple hosts. All attempts fail.
       Exception ex = Assert.Throws<MySqlException>(() => MySQLX.GetSession(new { server = "10.10.10.10, 20.20.20.20", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }));
-      Assert.That(ex.Message, Is.EqualTo("Unable to connect to any of the specified MySQL hosts."));
+      Assert.That(ex.Message, Is.EqualTo("Unable to connect to any of the specified MySQL hosts"));
 
       // Providing port number as part of the host name.
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = "10.10.10.10:33060, 20.20.20.20:33060", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }));
-      Assert.That(ex.Message, Is.EqualTo("Providing a port number as part of the host address isn't supported when using connection strings in basic format or anonymous objects. Use URI format instead."));
+      Assert.That(ex.Message, Is.EqualTo("Providing a port number as part of the host address isn't supported when using connection strings in basic format or anonymous objects. Use URI format instead"));
     }
 
     [Test]
@@ -242,18 +242,18 @@ namespace MySqlX.Data.Tests
 
       // Priority outside the 0-100 allowed range.
       Exception ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server=(address=server.example,priority=-20),(address={Host},priority=100);port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout));
-      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100."));
+      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100"));
 
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server=(address=server.example,priority=-50),(address={Host},priority=101);port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout));
-      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100."));
+      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100"));
 
       // Set priority for a subset of the hosts.
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server=(address=server.example),(address={Host},priority=100);port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout));
-      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host"));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server=(address=server.example,priority=50),(address={Host});port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout));
-      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host"));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server=(address=server.example,priority=50),(address={Host},priority=100),(address=server.example);port=" + XPort + ";uid=test;password=test;connecttimeout=" + connectionTimeout));
-      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host"));
 
       // Automatically set priority if no priority is given.
       string hostList = string.Empty;
@@ -324,18 +324,18 @@ namespace MySqlX.Data.Tests
 
       // Priority outside the 0-100 allowed range.
       Exception ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"mysqlx://test:test@[(address=server.example,priority=-20),(address={Host}:{XPort},priority=100)]?connecttimeout=" + connectionTimeout));
-      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100."));
+      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100"));
 
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"mysqlx://test:test@[(address=server.example,priority=50),(address={Host}:{XPort},priority=101)]?connecttimeout=" + connectionTimeout));
-      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100."));
+      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100"));
 
       // Set priority for a subset of the hosts.
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"mysqlx://test:test@[(address=server.example),(address={Host}:{XPort},priority=100)]?connecttimeout=" + connectionTimeout));
-      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host"));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"mysqlx://test:test@[(address=server.example,priority=100),(address={Host}:{XPort})]?connecttimeout=" + connectionTimeout));
-      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host"));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"mysqlx://test:test@[(address=server.example),(address={Host}:{XPort}),(address=server2.example,priority=100)]?connecttimeout=" + connectionTimeout));
-      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host"));
 
       // Automatically set priority if no priority is given.
       string hostList = string.Empty;
@@ -414,18 +414,18 @@ namespace MySqlX.Data.Tests
 
       // Priority outside the 0-100 allowed range.
       Exception ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = $"(address=server.example,priority=-20),(address={Host},priority=100)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }));
-      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100."));
+      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100"));
 
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = $"(address=server.example,priority=-50),(address={Host},priority=101)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }));
-      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100."));
+      Assert.That(ex.Message, Is.EqualTo("The priority must be between 0 and 100"));
 
       // Set priority for a subset of the hosts.
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = $"(address=server.example),(address={Host},priority=100)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }));
-      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host"));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = $"(address=server.example,priority=50),(address={Host})", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }));
-      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host"));
       ex = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(new { server = $"(address=server.example,priority=50),(address={Host},priority=100),(address=server.example)", port = XPort, uid = uid, password = password, connecttimeout = connectionTimeout }));
-      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host."));
+      Assert.That(ex.Message, Is.EqualTo("You must either assign no priority to any of the hosts or give a priority for every host"));
 
       // Automatically set priority if no priority is given.
       string hostList = string.Empty;

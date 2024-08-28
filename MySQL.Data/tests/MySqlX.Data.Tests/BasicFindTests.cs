@@ -211,10 +211,10 @@ namespace MySqlX.Data.Tests
       Collection coll = CreateCollection("test");
 
       Exception ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll.Find().LockShared()));
-      Assert.That(ex.Message, Is.EqualTo("This functionality is only supported from server version 8.0.3 onwards."));
+      Assert.That(ex.Message, Is.EqualTo("This functionality is only supported from server version 8.0.3 onwards"));
 
       ex = Assert.Throws<MySqlException>(() => ExecuteFindStatement(coll.Find().LockExclusive()));
-      Assert.That(ex.Message, Is.EqualTo("This functionality is only supported from server version 8.0.3 onwards."));
+      Assert.That(ex.Message, Is.EqualTo("This functionality is only supported from server version 8.0.3 onwards"));
     }
 
     [Test]

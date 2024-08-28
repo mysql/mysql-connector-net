@@ -486,7 +486,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.That(cmd.Parameters.IndexOf("@id"), Is.EqualTo(-1));
       cmd.Parameters.AddWithValue("name", "test");
       Exception ex = Assert.Throws<MySqlException>(() => cmd.Parameters.AddWithValue("?id", 2));
-      Assert.That(ex.Message, Is.EqualTo("Parameter '?id' has already been defined."));
+      Assert.That(ex.Message, Is.EqualTo("Parameter '?id' has already been defined"));
     }
 
     /// <summary>
@@ -696,7 +696,7 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.AddWithValue("?Id", 1);
       cmd.Parameters.AddWithValue("?name", "test");
       Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
-      Assert.That(ex.Message, Is.EqualTo("Fatal error encountered during command execution."));
+      Assert.That(ex.Message, Is.EqualTo("Fatal error encountered during command execution"));
     }
 
     /// <summary>

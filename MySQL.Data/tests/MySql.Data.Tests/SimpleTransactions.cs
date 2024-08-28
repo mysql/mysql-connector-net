@@ -81,7 +81,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlTransaction t1 = Connection.BeginTransaction();
 
       Exception ex = Assert.Throws<InvalidOperationException>(() => { Connection.BeginTransaction(); });
-      Assert.That(ex.Message, Is.EqualTo("Nested transactions are not supported."));
+      Assert.That(ex.Message, Is.EqualTo("Nested transactions are not supported"));
 
       t1.Rollback();
     }
@@ -99,7 +99,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
       catch (Exception ex)
       {
-        Assert.That(ex.Message, Is.EqualTo("The connection is not open."));
+        Assert.That(ex.Message, Is.EqualTo("The connection is not open"));
       }
     }
 

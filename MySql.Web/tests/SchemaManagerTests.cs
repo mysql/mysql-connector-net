@@ -314,7 +314,7 @@ namespace MySql.Web.Tests
       config.Add("connectionString", badConnectionString);
 
       Exception ex = Assert.Throws<ArgumentException>(() => provider.Initialize(null, config));
-      Assert.That(ex.Message, Is.EqualTo("Option not supported.\r\nParameter name: fookey"));
+      Assert.That(ex.Message, Is.EqualTo("Option not supported\r\nParameter name: fookey"));
     }
   }
 }

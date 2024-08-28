@@ -166,9 +166,9 @@ namespace MySqlX.Data.Tests
       // Condition can't be null or empty.
       string errorMessage = string.Empty;
 #if !NETFRAMEWORK
-      errorMessage = "Parameter can't be null or empty. (Parameter 'condition')";
+      errorMessage = "Parameter can't be null or empty (Parameter 'condition')";
 #else
-      errorMessage = "Parameter can't be null or empty.\r\nParameter name: condition";
+      errorMessage = "Parameter can't be null or empty\r\nParameter name: condition";
 #endif
       Exception ex = Assert.Throws<ArgumentNullException>(() => ExecuteModifyStatement(collection.Modify(string.Empty)));
       Assert.That(errorMessage, Is.EqualTo(ex.Message));
@@ -350,9 +350,9 @@ namespace MySqlX.Data.Tests
 
       // Insert an empty string fails.
       var ex = Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(collection.Modify("true").ArrayInsert("x[0]", "")));
-      Assert.That(ex.Message, Does.Contain("String can't be empty."));
+      Assert.That(ex.Message, Does.Contain("String can't be empty"));
       ex = Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(collection.Modify("true").ArrayInsert("x[0]", string.Empty)));
-      Assert.That(ex.Message, Does.Contain("String can't be empty."));
+      Assert.That(ex.Message, Does.Contain("String can't be empty"));
 
       // Not specifying an index raises an error.
       var ex2 = Assert.Throws<MySqlException>(() => ExecuteModifyStatement(collection.Modify("true").ArrayInsert("dates", "5/1/2018")));
@@ -457,9 +457,9 @@ namespace MySqlX.Data.Tests
       Assert.That(document.values.ContainsKey("y"), Is.False);
 
       var ex = Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(collection.Modify("true").ArrayAppend("x", "")));
-      Assert.That(ex.Message, Does.Contain("String can't be empty."));
+      Assert.That(ex.Message, Does.Contain("String can't be empty"));
       ex = Assert.Throws<ArgumentException>(() => ExecuteModifyStatement(collection.Modify("true").ArrayAppend("x", string.Empty)));
-      Assert.That(ex.Message, Does.Contain("String can't be empty."));
+      Assert.That(ex.Message, Does.Contain("String can't be empty"));
 
       var col = CreateCollection("my_collection");
       var t1 = "{\"_id\": \"1001\", \"ARR\":[1,2,3], \"ARR1\":[\"name1\",\"name2\", \"name3\"]}";

@@ -187,9 +187,9 @@ namespace MySqlX.Data.Tests
 
       // Collection/Table does not exist
       var ex = Assert.Throws<MySqlException>(() => schema.GetCollection("testCount_").Count());
-      Assert.That(ex.Message, Is.EqualTo("Collection 'testCount_' does not exist in schema 'test'."));
+      Assert.That(ex.Message, Is.EqualTo("Collection 'testCount_' does not exist in schema 'test'"));
       ex = Assert.Throws<MySqlException>(() => schema.GetTable("testCount_").Count());
-      Assert.That(ex.Message, Is.EqualTo("Table 'testCount_' does not exist in schema 'test'."));
+      Assert.That(ex.Message, Is.EqualTo("Table 'testCount_' does not exist in schema 'test'"));
     }
 
     [Test]

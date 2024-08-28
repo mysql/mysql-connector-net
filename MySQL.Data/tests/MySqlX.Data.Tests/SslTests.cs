@@ -126,7 +126,7 @@ namespace MySqlX.Data.Tests
 #if NET8_0_OR_GREATER
       prefered = "Preferred";
 #endif
-      var expectedErrorMessage = "Value '{0}' is not of the correct type.";
+      var expectedErrorMessage = "Value '{0}' is not of the correct type";
 
       // In connection string.
       var exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionStringUri + "?ssl-mode=Preferred"));

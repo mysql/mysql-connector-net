@@ -344,7 +344,7 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void CreateSessionWithUnsupportedOptions()
     {
-      var errorMessage = "Option not supported.";
+      var errorMessage = "Option not supported";
       var connectionUri = string.Format("{0}?", ConnectionStringUri);
 
       // Use a connection URI.
@@ -438,7 +438,7 @@ namespace MySqlX.Data.Tests
     [Property("Category", "Security")]
     public void CreateBuilderWithUnsupportedOptions()
     {
-      var errorMessage = "Option not supported.";
+      var errorMessage = "Option not supported";
       var ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder("pipe=MYSQL"));
       Assert.That(ex.Message, Does.StartWith(errorMessage));
       ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder("allow batch=false"));

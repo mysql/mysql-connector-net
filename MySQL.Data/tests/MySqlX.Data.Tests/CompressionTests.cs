@@ -175,10 +175,10 @@ namespace MySqlX.Data.Tests
       foreach (var invalidValue in invalidValues)
       {
         var exception = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder($"server={Host};port={XPort};compression={invalidValue}"));
-        Assert.That(exception.Message, Is.EqualTo($"The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value '{invalidValue}' is not acceptable."));
+        Assert.That(exception.Message, Is.EqualTo($"The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value '{invalidValue}' is not acceptable"));
 
         exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession($"server={Host};port={XPort};user=root;compression={invalidValue}"));
-        Assert.That(exception.Message, Is.EqualTo($"The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value '{invalidValue}' is not acceptable."));
+        Assert.That(exception.Message, Is.EqualTo($"The connection property 'compression' acceptable values are: 'preferred', 'required' or 'disabled'. The value '{invalidValue}' is not acceptable"));
       }
     }
 
@@ -460,7 +460,7 @@ namespace MySqlX.Data.Tests
       // The connection should terminate with an error when compression option is set to required.
 
       Exception ex = Assert.Throws<System.NotSupportedException>(() => MySQLX.GetSession(ConnectionString + ";compression=required;compression-algorithms=NotSupported,SomethingElse;"));
-      Assert.That(ex.Message, Is.EqualTo("Compression requested but the compression algorithm negotiation failed."));
+      Assert.That(ex.Message, Is.EqualTo("Compression requested but the compression algorithm negotiation failed"));
 
       // FR4_4 Start server with specific compression algorithm and create session with option 
       // compression-algorithms.Set the option with multiple compression algorithms.

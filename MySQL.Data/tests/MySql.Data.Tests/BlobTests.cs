@@ -297,7 +297,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmd.Parameters.AddWithValue("?image", image);
 
         Exception ex = Assert.Throws<MySqlException>(() => cmd.ExecuteNonQuery());
-        Assert.That(ex.Message, Is.EqualTo("Packets larger than max_allowed_packet are not allowed."));
+        Assert.That(ex.Message, Is.EqualTo(Resources.QueryTooLarge));
       }
     }
 

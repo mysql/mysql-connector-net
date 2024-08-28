@@ -463,7 +463,7 @@ namespace MySql.Data.MySqlClient.Tests
         if (serverCompiledUsingOpenSsl)
         {
           Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
-          Assert.That(ex.Message, Is.EqualTo("Retrieval of the RSA public key is not enabled for insecure connections."));
+          Assert.That(ex.Message, Is.EqualTo(Resources.RSAPublicKeyRetrievalNotEnabled));
         }
         else Assert.Throws<MySqlException>(() => connection.Open());
       }
@@ -541,7 +541,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Exception ex = Assert.Throws<MySqlException>(() => connection.Open()); ;
         if (serverCompiledUsingOpenSsl)
-          Assert.That(ex.Message, Is.EqualTo("Retrieval of the RSA public key is not enabled for insecure connections."));
+          Assert.That(ex.Message, Is.EqualTo(Resources.RSAPublicKeyRetrievalNotEnabled));
         else
           Assert.That(ex.Message, Does.StartWith("Authentication to host"));
       }
@@ -694,7 +694,7 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlConnection connection = new MySqlConnection(builder.ConnectionString))
         {
           ex = Assert.Throws<MySqlException>(() => connection.Open());
-          Assert.That(ex.Message, Is.EqualTo("Retrieval of the RSA public key is not enabled for insecure connections."));
+          Assert.That(ex.Message, Is.EqualTo(Resources.RSAPublicKeyRetrievalNotEnabled));
         }
 
         builder.AllowPublicKeyRetrieval = true;
@@ -762,7 +762,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
         if (serverCompiledUsingOpenSsl)
-          Assert.That(ex.Message, Is.EqualTo("Retrieval of the RSA public key is not enabled for insecure connections."));
+          Assert.That(ex.Message, Is.EqualTo(Resources.RSAPublicKeyRetrievalNotEnabled));
         else
           Assert.That(ex.Message, Does.StartWith("Authentication to host"));
       }
@@ -833,7 +833,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         ex = Assert.Throws<MySqlException>(() => connection.Open());
         if (serverCompiledUsingOpenSsl)
-          Assert.That(ex.Message, Is.EqualTo("Retrieval of the RSA public key is not enabled for insecure connections."));
+          Assert.That(ex.Message, Is.EqualTo(Resources.RSAPublicKeyRetrievalNotEnabled));
         else
           Assert.That(ex.Message, Does.StartWith("Authentication to host"));
       }
@@ -1009,7 +1009,7 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
         Exception ex = Assert.Throws<MySqlException>(() => connection.Open());
-        Assert.That(ex.Message, Does.Contain("Clear-password authentication is not supported over insecure channels"));
+        Assert.That(ex.Message, Is.EqualTo(Resources.ClearPasswordNotSupported));
       }
 
       // Test connection for VALID user in LDAP server with different SSLMode values, expected result pass

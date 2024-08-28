@@ -62,7 +62,7 @@ namespace MySql.Data.MySqlClient.Tests
       if (!shouldPass)
       {
         Exception ex = Assert.Throws<MySqlException>(() => TryConnection(Settings.ConnectionString));
-        Assert.That(ex.Message, Is.EqualTo("Unable to connect to any of the specified MySQL hosts."));
+        Assert.That(ex.Message, Is.EqualTo(Resources.UnableToConnectToHost));
       }
       else
         Assert.That(TryConnection(Settings.ConnectionString), Is.EqualTo(ConnectionState.Open));
@@ -133,11 +133,11 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
-    [TestCase("(address=server.example,priority=-20),(address=127.0.0.1,priority=100)", "The priority must be between 0 and 100.", "argument")] // Priority outside the 0-100 allowed range
-    [TestCase("(address=server.example,priority=-50),(address=127.0.0.1,priority=101)", "The priority must be between 0 and 100.", "argument")] // Priority outside the 0-100 allowed range
-    [TestCase("(address=server.example),(address=127.0.0.1,priority=100)", "You must either assign no priority to any of the hosts or give a priority for every host.", "argument")] // Set priority for a subset of the hosts.
-    [TestCase("(address=server.example,priority=50),(address=127.0.0.1,priority=100),(address=server.example)", "You must either assign no priority to any of the hosts or give a priority for every host.", "argument")] // Set priority for a subset of the hosts.
-    [TestCase("(address=server.example,priority=100),(address=10.10.10.10,priority=25),(address=192.0.10.56,priority=75)", "Unable to connect to any of the specified MySQL hosts.", "mysql")] // Multiple hosts. All attempts fail.
+    [TestCase("(address=server.example,priority=-20),(address=127.0.0.1,priority=100)", "The priority must be between 0 and 100", "argument")] // Priority outside the 0-100 allowed range
+    [TestCase("(address=server.example,priority=-50),(address=127.0.0.1,priority=101)", "The priority must be between 0 and 100", "argument")] // Priority outside the 0-100 allowed range
+    [TestCase("(address=server.example),(address=127.0.0.1,priority=100)", "You must either assign no priority to any of the hosts or give a priority for every host", "argument")] // Set priority for a subset of the hosts.
+    [TestCase("(address=server.example,priority=50),(address=127.0.0.1,priority=100),(address=server.example)", "You must either assign no priority to any of the hosts or give a priority for every host", "argument")] // Set priority for a subset of the hosts.
+    [TestCase("(address=server.example,priority=100),(address=10.10.10.10,priority=25),(address=192.0.10.56,priority=75)", "Unable to connect to any of the specified MySQL hosts", "mysql")] // Multiple hosts. All attempts fail.
     public void PriorityMethodConnectionFail(string server, string exceptionMessage, string exceptionType)
     {
       Settings.Server = server.Replace("127.0.0.1", Host);

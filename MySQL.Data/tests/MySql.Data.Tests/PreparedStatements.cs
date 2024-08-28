@@ -620,7 +620,7 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("", Connection);
       cmd.Prepare();
       Exception ex = Assert.Throws<InvalidOperationException>(() => cmd.ExecuteNonQuery());
-      Assert.That(ex.Message, Is.EqualTo("The CommandText property has not been properly initialized."));
+      Assert.That(ex.Message, Is.EqualTo("The CommandText property has not been properly initialized"));
     }
 
     /// <summary>

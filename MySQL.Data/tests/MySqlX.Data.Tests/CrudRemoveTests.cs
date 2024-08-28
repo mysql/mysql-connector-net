@@ -59,9 +59,9 @@ namespace MySqlX.Data.Tests
 
       var ex = Assert.Throws<ArgumentNullException>(() => coll.Remove(""));
 #if !NETFRAMEWORK
-      Assert.That(ex.Message, Is.EqualTo("Parameter can't be null or empty. (Parameter 'condition')"));
+      Assert.That(ex.Message, Is.EqualTo("Parameter can't be null or empty (Parameter 'condition')"));
 #else
-      Assert.That(ex.Message, Is.EqualTo("Parameter can't be null or empty.\r\nParameter name: condition"));
+      Assert.That(ex.Message, Is.EqualTo("Parameter can't be null or empty\r\nParameter name: condition"));
 #endif
     }
 
@@ -176,9 +176,9 @@ namespace MySqlX.Data.Tests
       // Condition can't be null or empty.
       string errorMessage = string.Empty;
 #if !NETFRAMEWORK
-      errorMessage = "Parameter can't be null or empty. (Parameter 'condition')";
+      errorMessage = "Parameter can't be null or empty (Parameter 'condition')";
 #else
-      errorMessage = "Parameter can't be null or empty.\r\nParameter name: condition";
+      errorMessage = "Parameter can't be null or empty\r\nParameter name: condition";
 #endif
       Exception ex = Assert.Throws<ArgumentNullException>(() => ExecuteRemoveStatement(collection.Remove(string.Empty)));
       Assert.That(ex.Message, Is.EqualTo(errorMessage));

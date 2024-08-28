@@ -154,7 +154,7 @@ namespace MySqlX.Data.Tests
       foreach (var value in values)
       {
         Exception ex = Assert.Throws<ArgumentException>(() => new MySqlXConnectionStringBuilder(String.Format("server=localhost;aUth={0}", value)));
-        Assert.That(ex.Message, Is.EqualTo(String.Format("Value '{0}' is not of the correct type.", value)));
+        Assert.That(ex.Message, Is.EqualTo(String.Format("Value '{0}' is not of the correct type", value)));
       }
     }
 

@@ -65,9 +65,9 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.That(Convert.ToInt32(sb.Keepalive), Is.EqualTo(1));
       Exception ex = Assert.Throws<ArgumentException>(() => sb.ConnectionString = "server=localhost;badkey=badvalue");
 #if NETFRAMEWORK
-      Assert.That(ex.Message, Is.EqualTo($"Option not supported.{Environment.NewLine}Parameter name: badkey"));
+      Assert.That(ex.Message, Is.EqualTo($"Option not supported{Environment.NewLine}Parameter name: badkey"));
 #else
-      Assert.That(ex.Message, Is.EqualTo("Option not supported. (Parameter 'badkey')"));
+      Assert.That(ex.Message, Is.EqualTo("Option not supported (Parameter 'badkey')"));
 #endif
       sb.Clear();
       Assert.That(Convert.ToInt32(sb.ConnectionTimeout), Is.EqualTo(15));
@@ -151,9 +151,9 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlConnectionStringBuilder s = new MySqlConnectionStringBuilder();
       Exception ex = Assert.Throws<ArgumentException>(() => s[invalidKey] = "foo");
 #if NETFRAMEWORK
-      Assert.That(ex.Message, Is.EqualTo($"Option not supported.{Environment.NewLine}Parameter name: {invalidKey}"));
+      Assert.That(ex.Message, Is.EqualTo($"Option not supported{Environment.NewLine}Parameter name: {invalidKey}"));
 #else
-      Assert.That(ex.Message, Is.EqualTo($"Option not supported. (Parameter '{invalidKey}')"));
+      Assert.That(ex.Message, Is.EqualTo($"Option not supported (Parameter '{invalidKey}')"));
 #endif
     }
 

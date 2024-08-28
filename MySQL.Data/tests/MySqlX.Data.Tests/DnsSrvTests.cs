@@ -39,13 +39,13 @@ namespace MySqlX.Data.Tests
   /// </summary>
   public class DnsSrvTests : BaseTest
   {
-    [TestCase("server=localhost;port=33060;dns-srv=true;", "Specifying a port number with DNS SRV lookup is not permitted.")]
-    [TestCase("server=localhost,10.10.10.10;dns-srv=true;", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
-    [TestCase("host=localhost,10.10.10.10;dns-srv=TRUE;", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
-    [TestCase("server=(address=localhost,priority=100), (address=10.10.10.10,priority=90);dns-srv=true;", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
-    [TestCase("server=localhost;protocol=unix;Dns-Srv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted.")]
-    [TestCase("server=localhost;protocol=unixSocket;dns-srv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted.")]
-    [TestCase("server=localhost;connectionprotocol=unix;DnsSrv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted.")]
+    [TestCase("server=localhost;port=33060;dns-srv=true;", "Specifying a port number with DNS SRV lookup is not permitted")]
+    [TestCase("server=localhost,10.10.10.10;dns-srv=true;", "Specifying multiple host names with DNS SRV lookup is not permitted")]
+    [TestCase("host=localhost,10.10.10.10;dns-srv=TRUE;", "Specifying multiple host names with DNS SRV lookup is not permitted")]
+    [TestCase("server=(address=localhost,priority=100), (address=10.10.10.10,priority=90);dns-srv=true;", "Specifying multiple host names with DNS SRV lookup is not permitted")]
+    [TestCase("server=localhost;protocol=unix;Dns-Srv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted")]
+    [TestCase("server=localhost;protocol=unixSocket;dns-srv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted")]
+    [TestCase("server=localhost;connectionprotocol=unix;DnsSrv=true;", "Using Unix domain sockets with DNS SRV lookup is not permitted")]
     public void DnsSrvConnectionStringInvalidConfiguration(string connString, string exceptionMessage)
     {
       connString = connString.Replace("localhost", Host).Replace("33060", XPort);
@@ -104,12 +104,12 @@ namespace MySqlX.Data.Tests
       Assert.That(exception.Message, Is.EqualTo(MySql.Data.Resources.DnsSrvInvalidConnOptionUnixSocket));
     }
 
-    [TestCase("mysqlx+srv://test:test@localhost:33060", "Specifying a port number with DNS SRV lookup is not permitted.")]
-    [TestCase("mysqlx+srv://test:test@[192.1.10.10,localhost]", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
-    [TestCase("mysqlx+srv://test:test@[192.1.10.10,localhost:33060]/test", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
-    [TestCase("mysqlx+srv://test:test@[(address = server.example, priority = 50),(address = localhost:33060,priority=100)]", "Specifying multiple host names with DNS SRV lookup is not permitted.")]
-    [TestCase("mysqlx+srv://test:test@./tmp/mysql.sock?protocol=unix", "Using Unix domain sockets with DNS SRV lookup is not permitted.")]
-    [TestCase("mysqlx+srv://test:test@localhost?dns-srv=false;", "'dns-srv' cannot be set to false with DNS SRV lookup enabled.")]
+    [TestCase("mysqlx+srv://test:test@localhost:33060", "Specifying a port number with DNS SRV lookup is not permitted")]
+    [TestCase("mysqlx+srv://test:test@[192.1.10.10,localhost]", "Specifying multiple host names with DNS SRV lookup is not permitted")]
+    [TestCase("mysqlx+srv://test:test@[192.1.10.10,localhost:33060]/test", "Specifying multiple host names with DNS SRV lookup is not permitted")]
+    [TestCase("mysqlx+srv://test:test@[(address = server.example, priority = 50),(address = localhost:33060,priority=100)]", "Specifying multiple host names with DNS SRV lookup is not permitted")]
+    [TestCase("mysqlx+srv://test:test@./tmp/mysql.sock?protocol=unix", "Using Unix domain sockets with DNS SRV lookup is not permitted")]
+    [TestCase("mysqlx+srv://test:test@localhost?dns-srv=false;", "'dns-srv' cannot be set to false with DNS SRV lookup enabled")]
     public void DnsSrvConnectionStringUriInvalidConfiguration(string connStringUri, string exceptionMessage)
     {
       connStringUri = connStringUri.Replace("localhost", Host).Replace("33060", XPort);
