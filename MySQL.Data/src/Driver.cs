@@ -299,8 +299,13 @@ namespace MySql.Data.MySqlClient
     {
       // load server properties
       Dictionary<string, string> hash = new Dictionary<string, string>();
-      MySqlCommand cmd = new MySqlCommand(@"SELECT @@max_allowed_packet, @@character_set_client, 
-        @@character_set_connection, @@license, @@sql_mode, @@lower_case_table_names, @@autocommit;", connection);
+      MySqlCommand cmd = new MySqlCommand(@"SELECT @@max_allowed_packet AS max_allowed_packet,
+        @@character_set_client AS character_set_client,
+        @@character_set_connection AS character_set_connection,
+        @@license AS license,
+        @@sql_mode AS sql_mode,
+        @@lower_case_table_names AS lower_case_table_names,
+        @@autocommit AS autocommit;", connection);
       try
       {
         using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
@@ -309,7 +314,7 @@ namespace MySql.Data.MySqlClient
           {
             for (int i = 0; i <= reader.FieldCount - 1; i++)
             {
-              string key = reader.GetName(i).Remove(0, 2);
+              string key = reader.GetName(i);
               string value = reader[i].ToString();
               hash[key] = value;
             }
