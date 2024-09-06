@@ -117,7 +117,57 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
 
   }
   }
+  public class Car4 : Vehicle4
+  {
+    public string CarProperty { get; set; }
+  }
 
+  public class Bike4 : Vehicle4
+  {
+    public string BikeProperty { get; set; }
+  }
+  public class Manufacturer4
+  {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public Guid ManufacturerId { get; set; }
+    public string Name { get; set; }
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public Guid GroupIdentifier { get; set; }
+    public virtual ICollection<Vehicle4> Vehicles { get; set; }
+  }
+  public class Vehicle4
+  {
+    public int Id { get; set; }
+    public int Year { get; set; }
+
+    [MaxLength(1024)]
+    public string Name { get; set; }
+    public Guid ManufacturerId { get; set; }
+    [ForeignKey(nameof(ManufacturerId))]
+    public virtual Manufacturer4 Manufacturer { get; set; }
+  }
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
+  public class VehicleDbContext4 : DbContext
+  {
+    public DbSet<Vehicle4> Vehicles { get; set; }
+    public DbSet<Manufacturer4> Manufacturers { get; set; }
+
+    public VehicleDbContext4() : base(CodeFirstFixture.GetEFConnectionString<VehicleDbContext4>())
+    {
+      Database.SetInitializer<VehicleDbContext4>(new VehicleDBInitializer4());
+
+    }
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+      modelBuilder.Entity<Vehicle4>().ToTable("Vehicles");
+      modelBuilder.Entity<Car4>().ToTable("Cars");
+      modelBuilder.Entity<Bike4>().ToTable("Bikes");
+    }
+  }
+  public class VehicleDBInitializer4 : DropCreateDatabaseReallyAlways<VehicleDbContext4>
+  {
+  }
   public class Accessory
   {
     [Key]

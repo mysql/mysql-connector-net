@@ -192,6 +192,46 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     }
 
     /// <summary>
+    /// Tests for fix of http://bugs.mysql.com/bug.php?id=116028
+    /// Incorrect discriminator generated column values when it's used code-first, inheritance and in a join statement
+    /// </summary>
+    [Test]
+    public void Bug116028_Test1()
+    {
+    #if DEBUG
+      Debug.WriteLine(new StackTrace().GetFrame(0).GetMethod().Name);
+    #endif
+      List<Vehicle4> vehicles;
+      using (VehicleDbContext4 context = new VehicleDbContext4())
+      {
+        context.Database.Delete();
+        context.Database.Initialize(true);
+        var manuf = context.Manufacturers.Add(new Manufacturer4 { Name = "ACME" });
+        context.Vehicles.Add(new Car4 { Id = 1, Name = "Mustang", Year = 2012, CarProperty = "Car", Manufacturer = manuf });
+        context.Vehicles.Add(new Bike4 { Id = 101, Name = "Mountain", Year = 2011, BikeProperty = "Bike", Manufacturer = manuf });
+        context.SaveChanges();
+
+        vehicles = context.Manufacturers.SelectMany(v => v.Vehicles).ToList();
+
+        int records = -1;
+        using (MySqlConnection conn = new MySqlConnection(context.Database.Connection.ConnectionString))
+        {
+          conn.Open();
+          MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Vehicles", conn);
+          records = Convert.ToInt32(cmd.ExecuteScalar());
+        }
+
+        Assert.AreEqual(context.Vehicles.Count(), records);
+      }
+      using (VehicleDbContext4 context = new VehicleDbContext4())
+      {
+        var vehiclesfromdb = context.Manufacturers.SelectMany(v => v.Vehicles).ToList();
+        Assert.AreEqual(vehicles.OfType<Car4>().Single().CarProperty, vehiclesfromdb.OfType<Car4>().Single().CarProperty);
+        Assert.AreEqual(vehicles.OfType<Bike4>().Single().BikeProperty, vehiclesfromdb.OfType<Bike4>().Single().BikeProperty);
+      }
+    }
+
+    /// <summary>
     /// Tests for fix of http://bugs.mysql.com/bug.php?id=63920
     /// Maxlength error when it's used code-first and inheritance (discriminator generated column)
     /// </summary>
