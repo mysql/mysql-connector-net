@@ -1,10 +1,10 @@
-Connector/NET 9.0 Release Notes
+Connector/NET 9.1 Release Notes
 ------------------------------------
-Welcome to the release notes for Connector/NET 9.0
+Welcome to the release notes for Connector/NET 9.1
 
-What's new in 9.0
+What's new in 9.1
 --------------------
 
-Connector/NET now uses NUnit 4.1 in the testsuite.
-Connector/NET updated 3rd party dependencies.
-Connector/NET removes support for .NET 7 and EF Core 7.
+Connector/NET adds support for .NET 9 and EF Core 9 preview versions.
+Connector/NET adds support for OpenID Connect authentication.
+Connector/NET now uses constraint model in testsuite.

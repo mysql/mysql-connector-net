@@ -18,6 +18,8 @@ From MySQL Connector/NET 8.4, the driver adds support for TLS1.3 and removes sup
 
 From MySQL Connector/NET 9.0, the driver removes support for .NET 7 and EF Core 7.
 
+From MySQL Connector/NET 9.1, the driver adds support for .NET 9 and EF Core 9 preview versions.
+
 For detailed information please visit the official [MySQL Connector/NET documentation.](https://dev.mysql.com/doc/connector-net/en/)
 
 ## Licensing
