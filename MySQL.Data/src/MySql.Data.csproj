@@ -42,7 +42,7 @@
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <TargetFrameworks>net462;net48;$(TargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <None Include="..\..\Nuget\Images\logo-mysql-170x115.png" Pack="true" PackagePath="\" />
   </ItemGroup>

@@ -49,7 +49,9 @@ namespace MySql.Data.MySqlClient
     private readonly AutoResetEvent _autoEvent;
     private int _available;
     // Object used to lock the list of host obtained from DNS SRV lookup.
-    private readonly object _dnsSrvLock = new object();
+    private readonly SemaphoreSlim inUsePoolSemaphore = new SemaphoreSlim(1, 1);
+    private readonly SemaphoreSlim idlePoolSemaphore = new SemaphoreSlim(1, 1);
+    private readonly SemaphoreSlim dnsSrvSemaphore = new SemaphoreSlim(1, 1);
 
     private void EnqueueIdle(Driver driver)
     {
@@ -121,13 +123,22 @@ namespace MySql.Data.MySqlClient
 
       // if we don't have an idle connection but we have room for a new
       // one, then create it here.
-      lock ((_idlePool as ICollection).SyncRoot)
+      if (execAsync)
+        await idlePoolSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+      else
+        idlePoolSemaphore.Wait(cancellationToken);
+
+      try
       {
         if (HasIdleConnections)
         {
           driver = _idlePool.Last.Value;
           _idlePool.RemoveLast();
         }
+      }
+      finally
+      {
+        idlePoolSemaphore.Release();
       }
 
       // Obey the connection timeout
@@ -164,10 +175,20 @@ namespace MySql.Data.MySqlClient
         driver = await CreateNewPooledConnectionAsync(execAsync, cancellationToken).ConfigureAwait(false);
 
       Debug.Assert(driver != null);
-      lock ((_inUsePool as ICollection).SyncRoot)
+      if (execAsync)
+        await inUsePoolSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+      else
+        inUsePoolSemaphore.Wait(cancellationToken);
+
+      try
       {
         _inUsePool.Add(driver);
       }
+      finally
+      {
+        inUsePoolSemaphore.Release();
+      }
+
       return driver;
     }
 
@@ -185,10 +206,19 @@ namespace MySql.Data.MySqlClient
 
     public async Task ReleaseConnectionAsync(Driver driver, bool execAsync)
     {
-      lock ((_inUsePool as ICollection).SyncRoot)
+      if (execAsync)
+        await inUsePoolSemaphore.WaitAsync().ConfigureAwait(false);
+      else
+        inUsePoolSemaphore.Wait();
+
+      try
       {
         if (_inUsePool.Contains(driver))
           _inUsePool.Remove(driver);
+      }
+      finally
+      {
+        inUsePoolSemaphore.Release();
       }
 
       if (driver.ConnectionLifetimeExpired() || BeingCleared)
@@ -198,32 +228,48 @@ namespace MySql.Data.MySqlClient
       }
       else
       {
-        lock ((_idlePool as ICollection).SyncRoot)
+        if (execAsync)
+          await idlePoolSemaphore.WaitAsync().ConfigureAwait(false);
+        else
+          idlePoolSemaphore.Wait();
+
+        try
         {
           EnqueueIdle(driver);
         }
-      }
-
-      SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
-      semaphoreSlim.Wait();
-
-      if (driver.Settings.DnsSrv)
-      {
-        var dnsSrvRecords = DnsSrv.GetDnsSrvRecords(DnsSrv.ServiceName);
-        FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
-          FailoverMethod.Sequential);
-
-        foreach (var idleConnection in _idlePool)
+        finally
         {
-          string idleServer = idleConnection.Settings.Server;
-          if (!FailoverManager.FailoverGroup.Hosts.Exists(h => h.Host == idleServer) && !idleConnection.IsInActiveUse)
-          {
-            await idleConnection.CloseAsync(execAsync).ConfigureAwait(false);
-          }
+          idlePoolSemaphore.Release();
         }
       }
 
-      semaphoreSlim.Release();
+      if (execAsync)
+        await dnsSrvSemaphore.WaitAsync().ConfigureAwait(false);
+      else
+        dnsSrvSemaphore.Wait();
+
+      try
+      {
+        if (driver.Settings.DnsSrv)
+        {
+          var dnsSrvRecords = DnsSrv.GetDnsSrvRecords(DnsSrv.ServiceName);
+          FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
+            FailoverMethod.Sequential);
+
+          foreach (var idleConnection in _idlePool)
+          {
+            string idleServer = idleConnection.Settings.Server;
+            if (!FailoverManager.FailoverGroup.Hosts.Exists(h => h.Host == idleServer) && !idleConnection.IsInActiveUse)
+            {
+              await idleConnection.CloseAsync(execAsync).ConfigureAwait(false);
+            }
+          }
+        }
+      }
+      finally
+      {
+        dnsSrvSemaphore.Release();
+      }
 
       Interlocked.Increment(ref _available);
       _autoEvent.Set();
@@ -238,7 +284,8 @@ namespace MySql.Data.MySqlClient
     /// <param name="driver"></param>
     public void RemoveConnection(Driver driver)
     {
-      lock ((_inUsePool as ICollection).SyncRoot)
+      inUsePoolSemaphore.Wait();
+      try
       {
         if (_inUsePool.Contains(driver))
         {
@@ -246,6 +293,10 @@ namespace MySql.Data.MySqlClient
           Interlocked.Increment(ref _available);
           _autoEvent.Set();
         }
+      }
+      finally
+      {
+        inUsePoolSemaphore.Release();
       }
 
       // if we are being cleared and we are out of connections then have
@@ -301,21 +352,28 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     internal async Task ClearAsync(bool execAsync)
     {
-      SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
-      semaphoreSlim.Wait();
+      if (execAsync)
+        await idlePoolSemaphore.WaitAsync().ConfigureAwait(false);
+      else
+        idlePoolSemaphore.Wait();
 
-      // first, mark ourselves as being cleared
-      BeingCleared = true;
-
-      // then we remove all connections sitting in the idle pool
-      while (_idlePool.Count > 0)
+      try
       {
-        Driver d = _idlePool.Last.Value;
-        await d.CloseAsync(execAsync).ConfigureAwait(false);
-        _idlePool.RemoveLast();
-      }
+        // first, mark ourselves as being cleared
+        BeingCleared = true;
 
-      semaphoreSlim.Release();
+        // then we remove all connections sitting in the idle pool
+        while (_idlePool.Count > 0)
+        {
+          Driver d = _idlePool.Last.Value;
+          await d.CloseAsync(execAsync).ConfigureAwait(false);
+          _idlePool.RemoveLast();
+        }
+      }
+      finally
+      {
+        idlePoolSemaphore.Release();
+      }
       // there is nothing left to do here.  Now we just wait for all
       // in use connections to be returned to the pool.  When they are
       // they will be closed.  When the last one is closed, the pool will
@@ -338,22 +396,28 @@ namespace MySql.Data.MySqlClient
       var connectionsToClose = new List<Driver>();
       DateTime now = DateTime.Now;
 
-      lock ((_idlePool as ICollection).SyncRoot)
+      idlePoolSemaphore.Wait();
+
+      try
       {
         while (_idlePool.Count > _minSize)
         {
-          var iddleConnection = _idlePool.First.Value;
-          DateTime expirationTime = iddleConnection.IdleSince.Add(
+          var idleConnection = _idlePool.First.Value;
+          DateTime expirationTime = idleConnection.IdleSince.Add(
             new TimeSpan(0, 0, MySqlPoolManager.maxConnectionIdleTime));
 
           if (expirationTime.CompareTo(now) < 0)
           {
-            connectionsToClose.Add(iddleConnection);
+            connectionsToClose.Add(idleConnection);
             _idlePool.RemoveFirst();
           }
           else
             break;
         }
+      }
+      finally
+      {
+        idlePoolSemaphore.Release();
       }
       return connectionsToClose;
     }

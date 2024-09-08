@@ -69,7 +69,7 @@ namespace MySql.Data.Common
     private static SslProtocols[] tlsProtocols = new SslProtocols[] { SslProtocols.Tls12};
     private static Dictionary<string, SslProtocols> tlsConnectionRef = new Dictionary<string, SslProtocols>();
     private static Dictionary<string, int> tlsRetry = new Dictionary<string, int>();
-    private static Object thisLock = new Object();
+    private static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
 
     #endregion
 
@@ -232,24 +232,39 @@ namespace MySql.Data.Common
         tlsProtocols = listProtocols.ToArray();
       }
 
-      if (tlsConnectionRef.ContainsKey(connectionId))
-      {
-        tlsProtocol = tlsConnectionRef[connectionId];
-      }
+      if (execAsync)
+        await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
       else
+        semaphoreSlim.Wait(cancellationToken);
+
+
+      try
       {
-        if (!tlsRetry.ContainsKey(connectionId))
+        if (tlsConnectionRef.TryGetValue(connectionId, out var protocol))
         {
-          lock (tlsRetry)
+          tlsProtocol = protocol;
+        }
+        else
+        {
+          if (!tlsRetry.ContainsKey(connectionId))
           {
-            tlsRetry[connectionId] = 0;
+            lock (tlsRetry)
+            {
+              tlsRetry[connectionId] = 0;
+            }
+          }
+          for (int i = tlsRetry[connectionId]; i < tlsProtocols.Length; i++)
+          {
+            tlsProtocol |= tlsProtocols[i];
           }
         }
-        for (int i = tlsRetry[connectionId]; i < tlsProtocols.Length; i++)
-        {
-          tlsProtocol |= tlsProtocols[i];
-        }
       }
+      finally
+      {
+        semaphoreSlim.Release();
+      }
+
+
       try
       {
         tlsProtocol = (tlsProtocol == SslProtocols.None) ? SslProtocols.Tls12 : tlsProtocol;

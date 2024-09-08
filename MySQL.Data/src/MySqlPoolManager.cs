@@ -49,7 +49,7 @@ namespace MySql.Data.MySqlClient
     private static readonly Dictionary<string, MySqlPool> Pools = new Dictionary<string, MySqlPool>();
     private static readonly List<MySqlPool> ClearingPools = new List<MySqlPool>();
     internal const int DEMOTED_TIMEOUT = 120000;
-    private static SemaphoreSlim waitHandle = new(1);
+    private static SemaphoreSlim waitHandle = new(1, 1);
 
     #region Properties
     /// <summary>
@@ -157,10 +157,6 @@ namespace MySql.Data.MySqlClient
           pool.Settings = settings;
 
         return pool;
-      }
-      catch (Exception ex)
-      {
-        throw;
       }
       finally
       {

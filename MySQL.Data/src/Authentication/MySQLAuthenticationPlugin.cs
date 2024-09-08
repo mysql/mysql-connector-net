@@ -171,7 +171,7 @@ namespace MySql.Data.MySqlClient.Authentication
         await packet.WriteStringAsync(PluginName, execAsync).ConfigureAwait(false);
 
       await _driver.SetConnectAttrsAsync(execAsync).ConfigureAwait(false);
-      await _driver.SendPacketAsync(packet, execAsync);
+      await _driver.SendPacketAsync(packet, execAsync).ConfigureAwait(false);
 
       // Read server response.
       packet = await ReadPacketAsync(execAsync).ConfigureAwait(false);
