@@ -113,7 +113,7 @@ namespace MySql.Data.MySqlClient.Authentication
             }
             else return null;
 
-            int modulusSize = BitConverter.ToInt32(new byte[] { lowByte, highByte, 0x00, 0x00 }, 0);
+            int modulusSize = highByte << 8 | lowByte;
             byte firstByte = reader.ReadByte();
             reader.BaseStream.Seek(-1, SeekOrigin.Current);
 

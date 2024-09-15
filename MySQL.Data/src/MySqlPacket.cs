@@ -222,9 +222,9 @@ namespace MySql.Data.MySqlClient
 
       switch (numbytes)
       {
-        case 2: return BitConverter.ToUInt16(bits, pos);
-        case 4: return BitConverter.ToUInt32(bits, pos);
-        case 8: return BitConverter.ToInt64(bits, pos);
+        case 2: return PacketBitConverter.ToUInt16(bits, pos);
+        case 4: return PacketBitConverter.ToUInt32(bits, pos);
+        case 8: return PacketBitConverter.ToInt64(bits, pos);
       }
       throw new NotSupportedException("Only byte lengths of 2, 4, or 8 are supported");
     }
@@ -240,9 +240,9 @@ namespace MySql.Data.MySqlClient
 
       switch (numbytes)
       {
-        case 2: return BitConverter.ToUInt16(bits, pos);
-        case 4: return BitConverter.ToUInt32(bits, pos);
-        case 8: return BitConverter.ToUInt64(bits, pos);
+        case 2: return PacketBitConverter.ToUInt16(bits, pos);
+        case 4: return PacketBitConverter.ToUInt32(bits, pos);
+        case 8: return PacketBitConverter.ToUInt64(bits, pos);
       }
       throw new NotSupportedException("Only byte lengths of 2, 4, or 8 are supported");
     }

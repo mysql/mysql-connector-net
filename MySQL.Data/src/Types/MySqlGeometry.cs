@@ -109,7 +109,7 @@ namespace MySql.Data.Types
       this._srid = srid;
       this.Value = new byte[GEOMETRY_LENGTH];
 
-      byte[] sridBinary = BitConverter.GetBytes(srid);
+      byte[] sridBinary = PacketBitConverter.GetBytes(srid);
 
       for (int i = 0; i < sridBinary.Length; i++)
         Value[i] = sridBinary[i];
@@ -148,9 +148,9 @@ namespace MySql.Data.Types
       var yIndex = val.Length == GEOMETRY_LENGTH ? 17 : 13;
 
       Value = buffValue;
-      _xValue = val.Length >= xIndex + 8 ? BitConverter.ToDouble(val, xIndex) : 0;
-      _yValue = val.Length >= yIndex + 8 ? BitConverter.ToDouble(val, yIndex) : 0;
-      this._srid = val.Length == GEOMETRY_LENGTH ? BitConverter.ToInt32(val, 0) : 0;
+      _xValue = val.Length >= xIndex + 8 ? PacketBitConverter.ToDouble(val, xIndex) : 0;
+      _yValue = val.Length >= yIndex + 8 ? PacketBitConverter.ToDouble(val, yIndex) : 0;
+      this._srid = val.Length == GEOMETRY_LENGTH ? PacketBitConverter.ToInt32(val, 0) : 0;
       this.IsNull = false;
       this._type = type;
     }

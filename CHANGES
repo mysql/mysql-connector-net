@@ -7,6 +7,7 @@
 - Added support for OpenID Connect client authentication (WL16491).
 - Fixed bug 8.0.33 Removes Important Locks (MySQL Bug #111759, Oracle Bug #35937318). Thanks to Stuart Lang for the contribution.
 - Fixed bug EntityFramework SQL generation of TPT pseudo discriminator column incorrect (MySQL Bug #116028, Oracle Bug #37032982). Thanks to Kristoffer Sjöberg for the contribution.
+- Fixed bug Connector does crashes when retrieving data from the database (MySQL Bug #111630, Oracle Bug #35937293). Thanks to Sidraya Jayagond for the contribution.
 
 
 9.0.0
