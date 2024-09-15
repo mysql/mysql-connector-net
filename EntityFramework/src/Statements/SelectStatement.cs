@@ -232,7 +232,7 @@ namespace MySql.Data.EntityFramework
           if (generator.GetTopOp() == OpType.Join)
           {
             newColumn.ColumnAlias = cf.ColumnAlias;
-            newColumn.PushInput(cf.ColumnName);
+            newColumn.PushInput(cf.ActualColumnName);
             if (cf.TableName != null)
               newColumn.PushInput(cf.TableName);
           }
