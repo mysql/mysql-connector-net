@@ -14,7 +14,7 @@
 - Remove MySqlX.Data.Performance.Console.Tests project (WL16387).
 - Updated third party dependencies (WL16291).
 - Remove .NET 7 and EF Core 7 (WL16386).
-- Fixed bug SQL Keyword "RETURNING" not handled properly when updating data (Oracle Bug #36116171).
+- Fixed bug SQL Keyword "RETURNING" not handled properly when updating data (Oracle Bug #36116171). Thanks to Wang Shiyao for the contribution.
 - Fixed bug IIS Website is crashing after upgrading MySQL.Data package to 8.3.0 (Oracle Bug #36483069).
 - Updated Wix Toolset to 4.0.5 (Oracle Bug #36627858).
 - Fixed bug disabling of mysql_native_password in server causes errors in testsuite (Oracle Bug #36529814).
@@ -32,7 +32,7 @@
 - Fixed bug Minpoolsize different than 0 causes connector to hang after first connection (Oracle Bug #36319784).
 - Fixed bug Tests failing due to removal of 'HAVE_SSL' variable from server (Oracle Bug #36374702).
 - Added support for Vector data type (WL16175).
-- Fixed bug Fix deadlock in mysql poolmanager attempt (Oracle Bug #36380976)
+- Fixed bug Fix deadlock in mysql poolmanager attempt (Oracle Bug #36380976). Thanks to Marek Matys for the contribution.
 - Fixed bug Test failing due to removal of 'default_authentication_plugin' server variable (Oracle Bug #36405198).
 
 
