@@ -126,6 +126,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       DeleteContext<VehicleDbContext>();
       DeleteContext<VehicleDbContext2>();
       DeleteContext<VehicleDbContext3>();
+      DeleteContext<VehicleDbContext4>();
       DeleteContext<ProductsDbContext>();
       DeleteContext<ShortDbContext>();
       DeleteContext<UsingUnionContext>();
