@@ -7,7 +7,7 @@
     <PackageTags>MySql;.NET Connector;MySql Entity Framework Core;netcore;.Net Core;MySql Conector/Net Entity Framework Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageIconUrl>http://www.mysql.com/common/logos/logo-mysql-170x115.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/mysql/mysql-connector-net</PackageProjectUrl>
-    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-2.0-only WITH Universal-FOSS-exception-1.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <LangVersion>10.0</LangVersion>
     <TargetFrameworks>net6.0;net8.0;</TargetFrameworks>
@@ -29,7 +29,7 @@
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
   </PropertyGroup>
-
+  
   <PropertyGroup Condition="'$(allow_prerelease)'=='true'">
     <TargetFrameworks>net9.0;$(TargetFrameworks)</TargetFrameworks>
   </PropertyGroup>

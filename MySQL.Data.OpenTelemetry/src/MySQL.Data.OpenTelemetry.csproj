@@ -13,7 +13,7 @@
     <PackageIcon>logo-mysql-170x115.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://dev.mysql.com/downloads/</PackageProjectUrl>
-    <PackageLicenseExpression>GPL-2.0-only</PackageLicenseExpression>
+    <PackageLicenseExpression>GPL-2.0-only WITH Universal-FOSS-exception-1.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>    
     <SignAssembly>True</SignAssembly>
     <DelaySign>True</DelaySign>
@@ -37,6 +37,11 @@
 
   <ItemGroup>
     <None Include="..\..\Nuget\Readme\MySQL.Data.OpenTelemetry\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="..\..\README" Pack="true" PackagePath="\" />
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\" />
   </ItemGroup>
   
   <ItemGroup>
