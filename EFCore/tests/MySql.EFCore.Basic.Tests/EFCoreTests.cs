@@ -31,7 +31,6 @@ using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 using NUnit.Framework;
-using NUnit.Framework.Legacy;
 using System;
 using System.Linq;
 using System.Transactions;
@@ -199,6 +198,90 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         Assert.That(test.Count, Is.EqualTo(0));
         test = context.Bugs.Where(x => x.CreatedDate.Date == DateTime.Today).ToList();
         Assert.That(test.Count, Is.EqualTo(1));
+      }
+    }
+
+    /// <summary>
+    /// Bug#35392218 [bugfix schema name (specially usefull when use multiple schema..]
+    /// </summary>
+    [Test]
+    public void MultipleSchemaContext()
+    {
+      using (Bug35392218Context context = new Bug35392218Context())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+
+        using (MySqlConnection connection = new MySqlConnection(MySQLTestStore.BaseConnectionString))
+        {
+          connection.Open();
+
+          MySqlCommand command = connection.CreateCommand();
+          command.CommandText = "SHOW DATABASES LIKE '%bug35392218%';";
+
+          MySqlDataReader reader = command.ExecuteReader();
+          int rowCount = 0;
+          while (reader.Read())
+          {
+            rowCount++;
+          }
+
+          //Checking if 2 databases related to the bug number are created in the server;
+          Assert.That(rowCount, Is.EqualTo(2));
+          reader.Close();
+        }
+
+        context.Add(new Bug35392218_1 { Id = 1, Name = "John Doe" });
+        context.Add(new Bug35392218_2 { Id = 1, Name = "John Doe" });
+        context.SaveChanges();
+
+        using (MySqlConnection connection = new MySqlConnection(MySQLTestStore.BaseConnectionString + "database=schemaBug35392218_1;"))
+        {
+          connection.Open();
+
+          MySqlCommand command = connection.CreateCommand();
+          command.CommandText = "SELECT * FROM Bug35392218_table1";
+
+          MySqlDataReader reader = command.ExecuteReader();
+          int rowCount = 0;
+          while (reader.Read())
+          {
+            rowCount++;
+          }
+
+          //Checking if the data is available in 'schemaBug35392218_1' as its the default database definded in the context configuration.
+          Assert.That(rowCount, Is.EqualTo(1));
+          Assert.That(reader.GetString(1), Is.EqualTo("John Doe"));
+
+          reader.Close();
+
+          command.CommandText = "DROP DATABASE IF EXISTS schemaBug35392218_1;";
+          command.ExecuteNonQuery();
+        }
+
+        using (MySqlConnection connection = new MySqlConnection(MySQLTestStore.BaseConnectionString + "database=schemaBug35392218_2;"))
+        {
+          connection.Open();
+
+          MySqlCommand command = connection.CreateCommand();
+          command.CommandText = "SELECT * FROM Bug35392218_table2";
+
+          MySqlDataReader reader = command.ExecuteReader();
+          int rowCount = 0;
+          while (reader.Read())
+          {
+            rowCount++;
+          }
+
+          //Checking if the same data is also inserted into 'schemaBug35392218_2' which is the other database defined in model creation.
+          Assert.That(rowCount, Is.EqualTo(1));
+          Assert.That(reader.GetString(1), Is.EqualTo("John Doe"));
+
+          reader.Close();
+
+          command.CommandText = "DROP DATABASE IF EXISTS schemaBug35392218_2;";
+          command.ExecuteNonQuery();
+        }
       }
     }
   }

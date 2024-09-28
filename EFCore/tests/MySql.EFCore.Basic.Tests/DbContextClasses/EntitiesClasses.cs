@@ -171,6 +171,20 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
     public string? Name { get; set; }
   }
 
+  public class Bug35392218_1
+  {
+    public int Id { get; set; }
+
+    public string? Name { get; set; }
+  }
+
+  public class Bug35392218_2
+  {
+    public int Id { get; set; }
+
+    public string? Name { get; set; }
+  }
+
   public class Guest
   {
     [Key]

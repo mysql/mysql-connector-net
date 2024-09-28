@@ -57,6 +57,53 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
     }
   }
 
+  public class Bug35392218Context : DbContext
+  {
+    public Bug35392218Context() : base()
+    {
+    }
+
+    public Bug35392218Context(DbContextOptions options) : base(options)
+    {
+    }
+
+    public virtual DbSet<Bug35392218_1> NameList { get; set; }
+
+    private string schemaName = "schemaBug35392218_1";
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+
+      modelBuilder.Entity<Bug35392218_1>(entity =>
+      {
+        entity.ToTable("Bug35392218_table1", "schemaBug35392218_1");
+
+        entity.HasKey(e => e.Id).HasName("id");
+
+        entity.Property(e => e.Name)
+            .HasColumnType("varchar(40)")
+            .HasColumnName("name");
+      });
+
+      modelBuilder.Entity<Bug35392218_2>(entity =>
+      {
+        entity.ToTable("Bug35392218_table2", "schemaBug35392218_2");
+
+        entity.HasKey(e => e.Id).HasName("id");
+
+        entity.Property(e => e.Name)
+            .HasColumnType("varchar(40)")
+            .HasColumnName("name");
+      });
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+      optionsBuilder.UseMySQL(MySQLTestStore.GetContextConnectionStringWithName(schemaName));
+    }
+  }
+
   public class NoConfigurationContext : DbContext
   {
     public DbSet<Blog> Blogs { get; set; }

@@ -89,6 +89,11 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
       return MySQLTestStore.RootConnectionString + $";database={name};";
     }
 
+    internal static string GetContextConnectionStringWithName(string name)
+    {
+      return MySQLTestStore.RootConnectionString + $";database={name};";
+    }
+
     public static string Port()
     {
       var port = Environment.GetEnvironmentVariable("MYSQL_PORT");
