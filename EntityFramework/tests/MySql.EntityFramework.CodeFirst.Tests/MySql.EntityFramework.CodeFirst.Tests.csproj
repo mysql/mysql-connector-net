@@ -4,7 +4,7 @@
     <Description>MySql.Data.EntityFramework.CodeFirst.Tests</Description>
     <Copyright>Copyright © 2016, 2025, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>9.3.0</Version>
+    <Version>9.4.0</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net462;net48;</TargetFrameworks>
     <AssemblyName>MySql.EntityFramework.CodeFirst.Tests</AssemblyName>

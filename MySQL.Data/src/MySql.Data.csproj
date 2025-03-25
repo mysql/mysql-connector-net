@@ -5,7 +5,7 @@
     <Description>MySql.Data.MySqlClient .Net Core Class Library</Description>
     <Copyright>Copyright © 2004, 2025, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>9.3.0</Version>
+    <Version>9.4.0</Version>
     <Authors>Oracle Corporation</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net9.0;net8.0;</TargetFrameworks>
@@ -27,7 +27,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(allow_prerelease)'=='true'">
-    <!--<TargetFrameworks>net9.0;$(TargetFrameworks)</TargetFrameworks>-->
+    
   </PropertyGroup>
   
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">

@@ -4,7 +4,7 @@
     <Title>MySql.Data.Tests</Title>
     <Description>MySql.Data.Tests Class Library</Description>
     <Copyright>Copyright © 2016, 2025, Oracle and/or its affiliates.</Copyright>
-    <Version>9.3.0</Version>
+    <Version>9.4.0</Version>
     <Authors>Oracle</Authors>
     <Company>Oracle</Company>
     <Product>MySql.Data.Tests</Product>
@@ -29,7 +29,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(allow_prerelease)'=='true'">
-    <!--<TargetFrameworks>net9.0;$(TargetFrameworks)</TargetFrameworks>-->
+    
   </PropertyGroup>
   
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
