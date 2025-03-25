@@ -1,4 +1,5 @@
 9.4.0
+- Fixed bug OpenAsync throws unhandled exception from thread pool (MySQL Bug #110789, Oracle Bug #35474099).
 
 
 9.3.0

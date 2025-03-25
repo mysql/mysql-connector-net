@@ -172,6 +172,19 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    /// <summary>
+    /// Bug#35474099 OpenAsync throws unhandled exception from thread pool.
+    /// </summary>
+    [Test]
+    public async Task OpenAsyncCatchException()
+    {
+      MockServer mockServer = new MockServer(false);
+      mockServer.StartServer();
+      using var connection = new MySqlConnection($"server={mockServer.Address};port={mockServer.Port};user={Settings.UserID};connectiontimeout = 1");
+      Assert.ThrowsAsync<MySqlException>(async () => await connection.OpenAsync());
+      mockServer.StopServer();
+    }
+
     [Test]
     public void ConnectingAsUTF8()
     {

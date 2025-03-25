@@ -33,6 +33,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -108,11 +109,26 @@ namespace MySql.Data.Common
       TcpClient tcpClient = new TcpClient(addr.AddressFamily);
 
       if (execAsync)
-        using (cancellationToken.Register(() => throw new MySqlException(Resources.Timeout, new TimeoutException())))
-          await tcpClient.ConnectAsync(settings.Server, (int)settings.Port).ConfigureAwait(false);
+      {
+        try
+        {
+          using (cancellationToken.Register(() => tcpClient.Dispose()))
+          {
+#if NETFRAMEWORK || NETSTANDARD2_1 || NETSTANDARD2_0
+            await tcpClient.ConnectAsync(settings.Server, (int)settings.Port).ConfigureAwait(false);
+#else
+            await tcpClient.ConnectAsync(settings.Server, (int)settings.Port, cancellationToken).ConfigureAwait(false);
+#endif
+          }
+        }
+        catch (Exception ex) when (ex is SocketException or ObjectDisposedException && cancellationToken.IsCancellationRequested)
+        {
+          throw new MySqlException(Resources.Timeout, new TimeoutException());
+        }
+      }
       else
         if (!tcpClient.ConnectAsync(settings.Server, (int)settings.Port).Wait((int)settings.ConnectionTimeout * 1000))
-        throw new MySqlException(Resources.Timeout, new TimeoutException());
+          throw new MySqlException(Resources.Timeout, new TimeoutException());
 
       if (settings.Keepalive > 0)
         SetKeepAlive(tcpClient.Client, settings.Keepalive);
