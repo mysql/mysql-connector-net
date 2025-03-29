@@ -45,11 +45,11 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     private readonly string _charset;
     private readonly string _collation;
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     private static ConstructorInfo? _quotingConstructor;
 #endif
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     public MySQLCollateExpression(SqlExpression operand, string collation)
     : base(operand.Type, operand.TypeMapping)
     {
@@ -81,7 +81,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     /// </summary>
     public virtual string Charset => _charset;
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     /// <summary>
     ///   The expression on which collation is applied.
     /// </summary>
@@ -126,7 +126,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
 
     }
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     public virtual MySQLCollateExpression Update(SqlExpression operand)
         => operand != Operand
             ? new MySQLCollateExpression(operand, Collation)

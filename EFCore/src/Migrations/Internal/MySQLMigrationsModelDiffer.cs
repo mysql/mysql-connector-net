@@ -79,7 +79,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
       return base.Add(target, diffContext, inline);
     }
 
-#elif NET9_0
+#elif NET9_0_OR_GREATER
     public MySQLMigrationsModelDiffer(
   [NotNull] IRelationalTypeMappingSource typeMappingSource,
   [NotNull] IMigrationsAnnotationProvider migrationsAnnotations,

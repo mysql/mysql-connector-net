@@ -42,7 +42,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
       _options = options;
     }
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     public RelationalParameterBasedSqlProcessor Create(RelationalParameterBasedSqlProcessorParameters parameters)
       => new MySQLParameterBasedSqlProcessor(_dependencies, parameters, _options);
 #else

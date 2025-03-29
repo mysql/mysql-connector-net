@@ -29,7 +29,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(allow_prerelease)'=='true'">
-    
+    <TargetFrameworks>$(TargetFrameworks);net10.0</TargetFrameworks>
   </PropertyGroup>
   
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">

@@ -47,7 +47,7 @@ using System.Transactions;
 
 namespace MySql.EntityFrameworkCore.Migrations.Internal
 {
-#if NET9_0
+#if NET9_0_OR_GREATER
   public class MySQLMigrator : IMigrator
   {
     private readonly IMigrationsAssembly _migrationsAssembly;

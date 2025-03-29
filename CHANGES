@@ -2,6 +2,7 @@
 - Fixed bug OpenAsync throws unhandled exception from thread pool (MySQL Bug #110789, Oracle Bug #35474099).
 - Fixed Entity Framework 6 from NET9 is deprecated due to Nunit4 Upgrade (MySQL Bug #117976, Oracle Bug #37837374).
 - Added support for GSSAPI/Kerberos authentication on Windows using authentication_ldap_sasl_client plug-in (WL15984).
+- Added support for .NET 10 and EF Core 10 preview versions (WL16900).
 
 
 9.3.0

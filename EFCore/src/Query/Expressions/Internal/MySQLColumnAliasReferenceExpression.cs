@@ -40,7 +40,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
   /// </summary>
   internal class MySQLColumnAliasReferenceExpression : SqlExpression, IEquatable<MySQLColumnAliasReferenceExpression>
   {
-#if NET9_0
+#if NET9_0_OR_GREATER
     private static ConstructorInfo? _quotingConstructor;
 #endif
 
@@ -72,7 +72,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     ? this
     : new MySQLColumnAliasReferenceExpression(alias, expression, Type, TypeMapping!);
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     public override Expression Quote() => New(
     _quotingConstructor ??= typeof(MySQLColumnAliasReferenceExpression).GetConstructor([typeof(SqlExpression), typeof(string)])!,
     Constant(Alias),

@@ -53,7 +53,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
       : base(dependencies)
     {
     }
-#if NET9_0
+#if NET9_0_OR_GREATER
     public override LockReleaseBehavior LockReleaseBehavior => LockReleaseBehavior.Connection;
 
     public override IMigrationsDatabaseLock AcquireDatabaseLock()

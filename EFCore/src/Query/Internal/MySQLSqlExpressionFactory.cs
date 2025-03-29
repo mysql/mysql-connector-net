@@ -141,7 +141,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
       string charset,
       string collation)
       => (MySQLCollateExpression)ApplyDefaultTypeMapping(
-#if NET9_0
+#if NET9_0_OR_GREATER
         new MySQLCollateExpression(
           valueExpression,
           collation)
@@ -294,7 +294,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
       var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(collateExpression.ValueExpression)
         ?? _typeMappingSource.FindMapping(collateExpression.ValueExpression.Type);
 
-#if NET9_0
+#if NET9_0_OR_GREATER
       return new MySQLCollateExpression(collateExpression.ValueExpression, collateExpression.Collation);
 #else
       return new MySQLCollateExpression(

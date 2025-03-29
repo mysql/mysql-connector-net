@@ -226,7 +226,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
       => builder.UseMySQL(GetContextConnectionString<MyTestContext>());
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     public virtual void Clean(DbContext context)
       => context.Database.EnsureDeleted();
 #else
@@ -236,7 +236,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
 
 
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     private MySQLTestStore(string name, DbConnection connection)
         : base(name, true, connection)
     {
@@ -272,7 +272,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.Utils
     {
     }
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     public override TestStore Create(string storeName)
         => MySQLTestStore.Create(storeName, new MySqlConnection(MySQLTestStore.RootConnectionString));
 

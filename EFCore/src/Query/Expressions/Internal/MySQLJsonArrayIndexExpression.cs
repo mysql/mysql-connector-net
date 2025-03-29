@@ -41,7 +41,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
   internal class MySQLJsonArrayIndexExpression : SqlExpression, IEquatable<MySQLJsonArrayIndexExpression>
   {
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     private static ConstructorInfo? _quotingConstructor;
 #endif
 
@@ -60,7 +60,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     protected override Expression VisitChildren(ExpressionVisitor visitor)
       => Update((SqlExpression)visitor.Visit(Expression));
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     public override Expression Quote() => New(
     _quotingConstructor ??= typeof(MySQLJsonArrayIndexExpression).GetConstructor([typeof(SqlExpression), typeof(string)])!,
     Expression.Quote(),

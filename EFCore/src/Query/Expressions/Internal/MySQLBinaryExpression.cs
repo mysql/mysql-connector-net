@@ -61,7 +61,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
       Right = right;
     }
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     private static ConstructorInfo? _quotingConstructor;
 #endif
     public virtual MySQLBinaryExpressionOperatorType OperatorType { get; }
@@ -81,7 +81,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
       return Update(left, right);
     }
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     /// <inheritdoc />
     public override Expression Quote() => New(
       _quotingConstructor ??= typeof(MySQLBinaryExpression).GetConstructor(

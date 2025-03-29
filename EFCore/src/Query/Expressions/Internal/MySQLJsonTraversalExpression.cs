@@ -44,7 +44,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
   internal class MySQLJsonTraversalExpression : SqlExpression, IEquatable<MySQLJsonTraversalExpression>
   {
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     private static ConstructorInfo? _quotingConstructor;
 #endif
     /// <summary>
@@ -96,7 +96,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     => Update((SqlExpression)visitor.Visit(Expression),
       Path.Select(p => (SqlExpression)visitor.Visit(p)).ToArray());
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     public override Expression Quote() => New(
     _quotingConstructor ??= typeof(MySQLJsonTraversalExpression).GetConstructor([typeof(SqlExpression), typeof(string)])!,
     Expression.Quote(),

@@ -85,7 +85,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
               TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
               new MySQLOptions()))));
     }
-#elif NET8_0_OR_GREATER
+#elif NET8_0 || NET9_0
     public static RelationalConnectionDependencies CreateDependencies(DbContextOptions? options = null)
     {
       options ??= new DbContextOptionsBuilder()
@@ -115,6 +115,38 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
               TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
               TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
               new MySQLOptions()), new ExceptionDetector())));
+    }
+#elif NET10_0_OR_GREATER
+    public static RelationalConnectionDependencies CreateDependencies(DbContextOptions? options = null)
+    {
+      options ??= new DbContextOptionsBuilder()
+          .UseMySQL(MySQLTestStore.BaseConnectionString + "database=test;")
+          .Options;
+
+      return new RelationalConnectionDependencies(
+          options,
+          new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
+              new LoggerFactory(),
+              new LoggingOptions(),
+              new DiagnosticListener("FakeDiagnosticListener"),
+              new MySQLLoggingDefinitions(), new NullDbContextLogger()),
+          new RelationalConnectionDiagnosticsLogger(
+                        new LoggerFactory(),
+                        new LoggingOptions(),
+                        new DiagnosticListener("FakeDiagnosticListener"),
+                        new TestRelationalLoggingDefinitions(),
+                        new NullDbContextLogger(),
+                        CreateOptions()),
+          new NamedConnectionStringResolver(options),
+          new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies(
+            new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()))),
+          new CurrentDbContext(new FakeDbContext()),
+          new RelationalCommandBuilderFactory(new RelationalCommandBuilderDependencies(
+            new MySQLTypeMappingSource(
+              TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+              TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+              new MySQLOptions()), new ExceptionDetector(), new LoggingOptions())),
+              new ExceptionDetector());
     }
 #endif
 

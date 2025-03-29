@@ -100,7 +100,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
         typeof(string))
             },
             nullable: true,
-#if !NET9_0
+#if !NET9_0_OR_GREATER
             argumentsPropagateNullability: TrueArrays[1],
 #else
             argumentsPropagateNullability: new[] { true, false },

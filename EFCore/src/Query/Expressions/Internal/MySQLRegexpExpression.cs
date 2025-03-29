@@ -38,7 +38,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
   internal class MySQLRegexpExpression : SqlExpression
   {
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     private static ConstructorInfo? _quotingConstructor;
 #endif
 
@@ -75,7 +75,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
       return Update(match, pattern);
     }
 
-#if NET9_0
+#if NET9_0_OR_GREATER
     public override Expression Quote() => New(
     _quotingConstructor ??= typeof(MySQLMatchExpression).GetConstructor([typeof(SqlExpression), typeof(string)])!,
     Match.Quote(),

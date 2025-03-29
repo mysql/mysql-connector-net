@@ -33,7 +33,7 @@ using System.Threading.Tasks;
 
 namespace MySql.EntityFrameworkCore.Migrations.Internal
 {
-#if NET9_0
+#if NET9_0_OR_GREATER
   internal class MySQLMigrationDatabaseLock(
    IRelationalCommand releaseLockCommand,
     RelationalCommandParameterObject relationalCommandParameters,

@@ -38,7 +38,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
 
-#if !NET9_0
+#if !NET9_0_OR_GREATER
     /// <summary>
     /// Creates a new instance of the <see cref="MySQLSqlNullabilityProcessor" />.
     /// </summary>
