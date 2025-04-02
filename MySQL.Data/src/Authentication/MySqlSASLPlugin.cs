@@ -49,7 +49,6 @@ namespace MySql.Data.MySqlClient.Authentication
     protected override void SetAuthData(byte[] data)
     {
       _mechanismName = Encoding.UTF8.GetString(data);
-
       switch (_mechanismName)
       {
         case "SCRAM-SHA-1":
@@ -59,8 +58,6 @@ namespace MySql.Data.MySqlClient.Authentication
           scramMechanism = new ScramSha256Mechanism(GetUsername(), GetMFAPassword(), Settings.Server);
           break;
         case "GSSAPI":
-          if (Platform.IsWindows())
-            throw new PlatformNotSupportedException(string.Format(Resources.AuthenticationPluginNotSupported, "GSSAPI/Kerberos"));
           gssapiMechanism = new GssapiMechanism(GetUsername(), GetMFAPassword());
           break;
       }

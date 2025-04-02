@@ -1167,9 +1167,9 @@ namespace MySql.Data.MySqlClient.Tests
     /// It uses preconfigured LDAP servers present in the labs.
     /// For configuration of the server, theres a quick guide in Resources/KerberosConfig.txt to setup the environment.
     /// </summary>
-    [TestCase("test1@MYSQL.LOCAL", "Testpw1", "authentication_ldap_sasl", true)]
-    [TestCase("invalidUser@MYSQL.LOCAL", "Testpw1", "authentication_ldap_sasl", false)]
-    [TestCase("test1@MYSQL.LOCAL", "wrongPassword", "authentication_ldap_sasl", false)]
+    [TestCase("test1@MTR.LOCAL", "Testpw1", "authentication_ldap_sasl", true)]
+    [TestCase("invalidUser@MTR.LOCAL", "Testpw1", "authentication_ldap_sasl", false)]
+    [TestCase("test1@MTR.LOCAL", "wrongPassword", "authentication_ldap_sasl", false)]
     [Ignore("This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini")]
     [Property("Category", "Security")]
     public void ConnectUsingMySqlSASLPluginGSSAPI(string userName, string password, string pluginName, bool shouldPass)
@@ -1182,7 +1182,7 @@ namespace MySql.Data.MySqlClient.Tests
         SslMode = MySqlSslMode.Disabled
       };
 
-      ExecuteSQL("CREATE USER 'test1@MYSQL.LOCAL' IDENTIFIED WITH authentication_ldap_sasl; GRANT ALL ON *.* to 'test1@MYSQL.LOCAL';", true);
+      ExecuteSQL("CREATE USER 'test1@MTR.LOCAL' IDENTIFIED WITH authentication_ldap_sasl; GRANT ALL ON *.* to 'test1@MTR.LOCAL';", true);
 
       using (MySqlConnection connection = new MySqlConnection(settings.ConnectionString))
       {
@@ -1370,7 +1370,7 @@ namespace MySql.Data.MySqlClient.Tests
 
     private void TestKerberosConnection(bool shouldPass, string username, MySqlConnectionStringBuilder settings, KerberosAuthMode mode)
     {
-      ExecuteSQL("CREATE USER IF NOT EXISTS 'test1'@'%' IDENTIFIED WITH authentication_kerberos BY 'MYSQL.LOCAL'; " +
+      ExecuteSQL("CREATE USER IF NOT EXISTS 'test1'@'%' IDENTIFIED WITH authentication_kerberos BY 'MTR.LOCAL'; " +
         "GRANT ALL ON *.* to 'test1'@'%';", true);
 
       using (MySqlConnection conn = new MySqlConnection(settings.ConnectionString))
