@@ -16,6 +16,7 @@
     <PackageProjectUrl>https://dev.mysql.com/downloads/</PackageProjectUrl>
     <PackageLicenseExpression>GPL-2.0-only WITH Universal-FOSS-exception-1.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <RepositoryUrl>https://github.com/mysql/mysql-connector-net</RepositoryUrl>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
