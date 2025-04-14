@@ -6,7 +6,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>9.4.0</Version>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>net462;net48;</TargetFrameworks>
+    <TargetFrameworks>net462;net48;net9.0</TargetFrameworks>
     <AssemblyName>MySql.EntityFramework.CodeFirst.Tests</AssemblyName>
     <PackageId>MySql.EntityFramework.CodeFirst.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET</PackageTags>
