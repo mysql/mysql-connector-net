@@ -95,10 +95,10 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
       Dependencies.MigrationsLogger.AcquiringMigrationLock();
 
       var dbLock = CreateMigrationDatabaseLock();
-      int result;
+      Int64 result;
       try
       {
-        result = (int)(await CreateGetLockCommand().ExecuteScalarAsync(CreateRelationalCommandParameters(), cancellationToken)
+        result = (Int64)(await CreateGetLockCommand().ExecuteScalarAsync(CreateRelationalCommandParameters(), cancellationToken)
             .ConfigureAwait(false))!;
       }
       catch

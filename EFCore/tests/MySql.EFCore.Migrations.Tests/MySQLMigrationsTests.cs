@@ -31,7 +31,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
+using MySql.EntityFrameworkCore.Migrations.Tests.TestData;
 using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests
 {
@@ -68,6 +70,18 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
         Assert.That(mytestContext.Database.CanConnect(), Is.True);
         mytestContext.Database.EnsureDeleted();
       }
+    }
+
+    //Bug#37462099 MySql.EntityFrameworkCore 8.0.8 rename bug
+    [Test]
+    public async Task MigrationFailsWIthRenameColumn()
+    {
+      Bug37462099Context context = new Bug37462099Context();
+      
+      context.Database.EnsureCreated();
+      context.Database.EnsureDeleted();
+      await context.Database.MigrateAsync();
+      context.Database.EnsureDeleted();
     }
   }
 }

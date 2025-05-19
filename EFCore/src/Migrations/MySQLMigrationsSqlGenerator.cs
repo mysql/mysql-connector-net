@@ -128,7 +128,7 @@ namespace MySql.EntityFrameworkCore.Migrations
 
       var typeMapping = column.PropertyMappings.FirstOrDefault()?.TypeMapping;
       var converter = typeMapping?.Converter;
-      var clrType = (converter!.ProviderClrType ?? typeMapping!.ClrType).UnwrapNullableType();
+      var clrType = (converter?.ProviderClrType ?? typeMapping!.ClrType).UnwrapNullableType();
       var columnType = (string)(operation[RelationalAnnotationNames.ColumnType]
                   ?? column[RelationalAnnotationNames.ColumnType])!;
       var isNullable = column.IsNullable;
