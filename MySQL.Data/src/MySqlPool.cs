@@ -132,8 +132,8 @@ namespace MySql.Data.MySqlClient
       {
         if (HasIdleConnections)
         {
-          driver = _idlePool.Last.Value;
-          _idlePool.RemoveLast();
+          driver = _idlePool.First.Value;
+          _idlePool.RemoveFirst();
         }
       }
       finally

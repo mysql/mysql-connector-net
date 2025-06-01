@@ -35,6 +35,7 @@ using System.Data;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient.Tests
 {
@@ -609,6 +610,86 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlCommand cmd = new MySqlCommand("INSERT INTO test VALUES(NULL, ?image)", c1);
         cmd.Parameters.AddWithValue("?image", image);
         cmd.ExecuteNonQuery();
+      }
+    }
+
+    /// <summary>
+    /// Bug #37462116
+    /// Connector/Net Not honouring MinPoolSize Configuration
+    /// </summary>
+    [Test]
+    public async Task MinPoolSizeNotCorrect()
+    {
+      int minPoolSize = 5;
+      var connectionString = $"server={Host};user={Settings.UserID};password={Settings.Password};port={Port};Max Pool Size=10;Min Pool Size={minPoolSize};sslmode=none;";
+
+      try
+      {
+        //change wait_timeout to force idle connections to close faster
+        using (var connection = new MySqlConnection(connectionString))
+        {
+          connection.Open();
+          using (var command = new MySqlCommand("SET GLOBAL wait_timeout = 10;", connection))
+          {
+            command.ExecuteNonQuery();
+          }
+        }
+
+        //create connection pool using Min Pool Size of 5
+        for (int i = 0; i < minPoolSize; i++) // Match MinPoolSize
+        {
+          using (var connection = new MySqlConnection(connectionString))
+          {
+            connection.Open();
+            using (var command = new MySqlCommand("SELECT CONNECTION_ID();", connection))
+            {
+              command.ExecuteNonQuery();
+            }
+          }
+        }
+
+        //check that connection pool maintains the Min Pool Size
+        int cycleCounter = 0;
+        while (cycleCounter < minPoolSize * 2)
+        {
+          using (var connection = new MySqlConnection(connectionString))
+          {
+            await connection.OpenAsync();
+
+            // Query all active connections
+            using (var command = new MySqlCommand("SHOW PROCESSLIST;", connection))
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+              int connectionCount = 0;
+
+              while (await reader.ReadAsync())
+              {
+                //count the connections tied to the test user
+                string user = reader["User"].ToString();
+                if (user == Settings.UserID)
+                {
+                  connectionCount++;
+                }
+              }
+              // check that the ConnectionCount is equal or greater than the Min Pool Size
+              Assert.That(connectionCount, Is.GreaterThanOrEqualTo(minPoolSize));
+            }
+          }
+          cycleCounter++;
+          await Task.Delay(2000);
+        }
+      }
+      finally
+      {
+        //change wait_timeout to default value;
+        using (var connection = new MySqlConnection(connectionString))
+        {
+          connection.Open();
+          using (var command = new MySqlCommand("SET GLOBAL wait_timeout = 28800;", connection))
+          {
+            command.ExecuteNonQuery();
+          }
+        }
       }
     }
 
