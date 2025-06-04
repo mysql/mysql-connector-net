@@ -8,6 +8,7 @@
 - Fixed MySqlHelper.ExecuteReaderAsync causes stack overflow (MySQL Bug #114006, Oracle Bug #36303124).
 - Fixed bug Connector/Net Not honouring MinPoolSize Configuration (MySQL Bug #117020, Oracle Bug #37462116).
 - Fixed bug bugfix schema name (specially usefull when use multiple schema) (MySQL Bug #111030, Oracle Bug #35392218). Thanks to Stéphane Graziano for the contribution.
+- Fixed bug reorganize test suite (Oracle Bug #38029691).
 
 
 9.3.0
