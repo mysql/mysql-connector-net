@@ -263,7 +263,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="commandText">Command text to use.</param>
     /// <param name="commandParameters">An array of <see cref="MySqlParameter"/> objects to use with the command.</param>
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command.</returns>
-    public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteReaderAsync(connectionString, commandText, commandParameters: commandParameters);
+    public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteReaderAsync(true, connectionString, commandText, commandParameters: commandParameters);
 
     public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters) => ExecuteReaderAsync(true, connectionString, commandText, cancellationToken, commandParameters);
 

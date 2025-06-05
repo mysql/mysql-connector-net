@@ -5,6 +5,7 @@
 - Added support for .NET 10 and EF Core 10 preview versions (WL16900).
 - Fixed MySql.EntityFrameworkCore 8.0.8 rename bug (MySQL Bug #116704, Oracle Bug #37462099).
 - Fixed Invalid cast exception (MySQL Bug #118282, Oracle Bug #38001821). Thanks to Dev Nullinside for the contribution.
+- Fixed MySqlHelper.ExecuteReaderAsync causes stack overflow (MySQL Bug #114006, Oracle Bug #36303124).
 
 
 9.3.0
