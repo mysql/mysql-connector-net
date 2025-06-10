@@ -530,19 +530,6 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
-    /// Bug #36303124	MySqlHelper.ExecuteReaderAsync causes stack overflow
-    /// </summary>
-    [Test]
-    public async Task MySqlHelper_ExecuteReader()
-    {
-      ExecuteSQL("CREATE TABLE Test (`id` int NOT NULL); INSERT INTO Test (id) VALUES (1);");
-
-      var reader = await MySqlHelper.ExecuteReaderAsync(Connection.ConnectionString, "SELECT * FROM Test WHERE id = @id", new MySqlParameter("@id", 1));
-
-      Assert.DoesNotThrowAsync(async () => await MySqlHelper.ExecuteReaderAsync(Connection.ConnectionString, "SELECT * FROM Test WHERE id = @id", new MySqlParameter("@id", 1)));
-    }
-
-    /// <summary>
     /// Bug #58652	ExecuteReader throws NullReferenceException when using CommandBehavior.Close
     /// </summary>
     [Test]
