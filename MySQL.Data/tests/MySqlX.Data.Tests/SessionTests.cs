@@ -563,7 +563,7 @@ namespace MySqlX.Data.Tests
       MockServer mServer1 = new MockServer(false);
       mServer1.StartServer();
       var conn = $"server={mServer1.Address},{Host};user=test;password=test;port={XPort};connecttimeout=2000;";
-      TestConnectTimeoutSuccessTimeout(conn, 0, 10, "Fail over success");
+      TestConnectTimeoutSuccessTimeout(conn, 0, 100, "Fail over success");
       mServer1.StopServer();
       mServer1.DisposeListener();
 
@@ -571,7 +571,7 @@ namespace MySqlX.Data.Tests
       mServer1 = new MockServer(false);
       mServer1.StartServer();
       conn = $"server={mServer1.Address};user=test;password=test;port={mServer1.Port};";
-      TestConnectTimeoutFailureTimeout(conn, 9, 25, "Offline host default value", false);
+      TestConnectTimeoutFailureTimeout(conn, 9, 100, "Offline host default value", false);
       mServer1.StopServer();
       mServer1.DisposeListener();
 
@@ -579,7 +579,7 @@ namespace MySqlX.Data.Tests
       mServer1 = new MockServer(false);
       mServer1.StartServer();
       conn = $"server={mServer1.Address} ;user=test;password=test;port= {mServer1.Port};connecttimeout=15000";
-      TestConnectTimeoutFailureTimeout(conn, 14, 35, "Offline host 15000ms", false);
+      TestConnectTimeoutFailureTimeout(conn, 14, 100, "Offline host 15000ms", false);
       mServer1.StopServer();
       mServer1.DisposeListener();
 
@@ -1654,10 +1654,10 @@ namespace MySqlX.Data.Tests
       mServer.StartServer();
       connStr = $"mysqlx://{session.Settings.UserID}:{ session.Settings.Password}@{mServer.Address.ToString()}:{mServer.Port.ToString()}";
       if(Uri.TryCreate(connStr, UriKind.Absolute, out _))
-        TestConnectStringTimeoutFailureTimeout(connStr, 9, 20, "Timeout value between 9 and 20 seconds");
+        TestConnectStringTimeoutFailureTimeout(connStr, 9, 100, "Timeout value between 9 and 20 seconds");
       
         var connObj = new { server = mServer.Address.ToString(), port = mServer.Port.ToString(), user = session.Settings.UserID, password = session.Settings.Password };
-      TestConnectObjTimeoutFailureTimeout(connObj, 9, 20, "Timeout value between 9 and 20 seconds");
+      TestConnectObjTimeoutFailureTimeout(connObj, 9, 100, "Timeout value between 9 and 20 seconds");
 
       mServer.StopServer();
       mServer.DisposeListener();

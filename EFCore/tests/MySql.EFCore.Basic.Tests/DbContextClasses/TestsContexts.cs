@@ -69,7 +69,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
 
     public virtual DbSet<Bug35392218_1> NameList { get; set; }
 
-    private string schemaName = "schemaBug35392218_1";
+    private string schemaName = "schema_bug35392218_1";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -77,7 +77,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
 
       modelBuilder.Entity<Bug35392218_1>(entity =>
       {
-        entity.ToTable("Bug35392218_table1", "schemaBug35392218_1");
+        entity.ToTable("bug35392218_table1", "schema_bug35392218_1");
 
         entity.HasKey(e => e.Id).HasName("id");
 
@@ -88,7 +88,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses
 
       modelBuilder.Entity<Bug35392218_2>(entity =>
       {
-        entity.ToTable("Bug35392218_table2", "schemaBug35392218_2");
+        entity.ToTable("bug35392218_table2", "schema_bug35392218_2");
 
         entity.HasKey(e => e.Id).HasName("id");
 

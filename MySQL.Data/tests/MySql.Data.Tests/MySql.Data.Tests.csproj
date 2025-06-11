@@ -36,7 +36,7 @@
     <TargetFrameworks>net462;net48;$(TargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='net6.0' or '$(TargetFramework)'=='net8.0' or '$(TargetFramework)'=='net9.0'">
+  <ItemGroup Condition="'$(TargetFramework)'=='net6.0' or '$(TargetFramework)'=='net8.0' or '$(TargetFramework)'=='net9.0' or '$(TargetFramework)'=='net10.0'">
     <Compile Remove="Framework\netstandard2_0\PartialTrustSandbox.cs" />
     <Compile Remove="Framework\netstandard2_0\CmdTestsPipe.cs;Framework\netstandard2_0\CmdTestsPipeCompressed.cs;Framework\netstandard2_0\CmdTestsSharedmemCompressed.cs;Framework\netstandard2_0\CmdTestsSharedMem.cs;" />
     <Compile Remove="Framework\netstandard2_0\PSPipeCompressed.cs;Framework\netstandard2_0\PSPipe.cs;Framework\netstandard2_0\PSSharedMemory.cs;Framework\netstandard2_0\PSSharedMemoryCompressed.cs;" />
