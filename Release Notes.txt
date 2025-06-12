@@ -1,9 +1,10 @@
-Connector/NET 9.3 Release Notes
+Connector/NET 9.4 Release Notes
 ------------------------------------
-Welcome to the release notes for Connector/NET 9.1
+Welcome to the release notes for Connector/NET 9.4
 
-What's new in 9.3
+What's new in 9.4
 --------------------
 
-Connector/NET now supports the newest version of EFCore 8 and EFCore 9.
+Connector/NET now supports the preview version of .NET 10 and EF Core 10.
+Connector/NET now supports GSSAPI/Kerberos authentication on windows through authentication_ldap_sasl_client plug-in. 
 Connector/NET added fixes to testsuite.
