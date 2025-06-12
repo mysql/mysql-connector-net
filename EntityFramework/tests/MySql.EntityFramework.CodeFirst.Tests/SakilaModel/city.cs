@@ -33,12 +33,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-  [Table("city")]
-  public partial class city
+  [Table("City")]
+  public partial class City
   {
-    public city()
+    public City()
     {
-      addresses = new HashSet<address>();
+      addresses = new HashSet<Address>();
     }
 
     [Key]
@@ -56,8 +56,8 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     [Column(TypeName = "timestamp")]
     public DateTime last_update { get; set; }
 
-    public virtual ICollection<address> addresses { get; set; }
+    public virtual ICollection<Address> addresses { get; set; }
 
-    public virtual country country { get; set; }
+    public virtual Country country { get; set; }
   }
 }

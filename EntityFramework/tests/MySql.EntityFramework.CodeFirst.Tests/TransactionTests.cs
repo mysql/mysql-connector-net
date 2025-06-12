@@ -60,7 +60,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     {
       using (SakilaDb context = new SakilaDb())
       {
-        var store = new store
+        var store = new Store
         {
           manager_staff_id = 1
         };

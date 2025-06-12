@@ -64,8 +64,6 @@ namespace MySql.EntityFrameworkCore.Query.Internal
         default:
           return base.VisitExtension(extensionExpression);
       }
-
-      return base.VisitExtension(extensionExpression);
     }
 
     protected virtual Expression VisitRowNumber(RowNumberExpression rowNumberExpression)

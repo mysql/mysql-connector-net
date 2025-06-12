@@ -2169,8 +2169,11 @@ namespace MySqlX.Data.Tests
       var result1 = collection.Add(docs).Execute();
       Assert.That(result1.AffectedItemsCount, Is.EqualTo(4));
 
+      #pragma warning disable
       //Deprecated Find().Where() in 8.0.17
       var result2 = collection.Find("$._id = 1").Where("true").Execute().FetchAll();
+      #pragma warning restore
+
       Assert.That(result2.Count, Is.EqualTo(4));
     }
 

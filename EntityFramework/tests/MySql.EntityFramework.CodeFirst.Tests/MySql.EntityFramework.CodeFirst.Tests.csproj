@@ -6,7 +6,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>9.5.0</Version>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>net462;net48;net9.0</TargetFrameworks>
+    <TargetFrameworks>net462;net48;net9.0;</TargetFrameworks>
     <AssemblyName>MySql.EntityFramework.CodeFirst.Tests</AssemblyName>
     <PackageId>MySql.EntityFramework.CodeFirst.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET</PackageTags>
@@ -49,19 +49,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="System.Data" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
     <PackageReference Include="EntityFramework" Version="6.5.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="NUnit" Version="4.1.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
   </ItemGroup>

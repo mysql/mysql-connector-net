@@ -39,7 +39,7 @@ namespace MySql.Data.EntityFramework.Tests
       LoadData();
     }
 
-    void LoadData()
+    public override void LoadData()
     {
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {

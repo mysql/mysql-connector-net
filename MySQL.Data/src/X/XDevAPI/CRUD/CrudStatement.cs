@@ -28,9 +28,6 @@
 
 using System;
 using System.Collections.Generic;
-#if !NETFRAMEWORK
-using System.Text.Json;
-#endif
 using MySqlX.XDevAPI.Common;
 
 namespace MySqlX.XDevAPI.CRUD

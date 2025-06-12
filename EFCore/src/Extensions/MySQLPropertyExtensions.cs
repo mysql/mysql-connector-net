@@ -242,13 +242,13 @@ namespace MySql.EntityFrameworkCore.Extensions
         if (value == MySQLValueGenerationStrategy.IdentityColumn && !IsCompatibleIdentityColumn(property))
         {
           throw new ArgumentException(string.Format(MySQLStrings.WrongIdentityType,
-          property.DeclaringEntityType.DisplayName(), property.Name, propertyType.ShortDisplayName()));
+          property.DeclaringType.DisplayName(), property.Name, propertyType.ShortDisplayName()));
         }
 
         if (value == MySQLValueGenerationStrategy.ComputedColumn && !IsCompatibleComputedColumn(property))
         {
           throw new ArgumentException(string.Format(MySQLStrings.WrongComputedType,
-          property.DeclaringEntityType.DisplayName(), property.Name, propertyType.ShortDisplayName()));
+          property.DeclaringType.DisplayName(), property.Name, propertyType.ShortDisplayName()));
         }
       }
     }

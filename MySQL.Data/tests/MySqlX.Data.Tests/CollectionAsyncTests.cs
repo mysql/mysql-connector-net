@@ -99,13 +99,13 @@ namespace MySqlX.Data.Tests
         coll.CreateIndex("myIndex", "{\"fields\": [{\"field\": $.myField, \"type\":\"DATE\", \"array\": true}]}");
         return;
       }
-      int v1 = await IndexArrayMultiThreading_T1();
-      int v2 = await IndexArrayMultiThreading_T2();
+      int v1 = await Task.Run(() => IndexArrayMultiThreading_T1());
+      int v2 = await Task.Run(() => IndexArrayMultiThreading_T2());
 
       Assert.That(v1 + v2, Is.EqualTo(2));
     }
 
-    private async Task<int> IndexArrayMultiThreading_T1()
+    private int IndexArrayMultiThreading_T1()
     {
       Schema test = session.GetSchema(schemaName);
       var coll = test.GetCollection("test");
@@ -119,7 +119,7 @@ namespace MySqlX.Data.Tests
       return 1;
     }
 
-    private async Task<int> IndexArrayMultiThreading_T2()
+    private int IndexArrayMultiThreading_T2()
     {
       Schema test = session.GetSchema(schemaName);
       var coll = test.GetCollection("test");

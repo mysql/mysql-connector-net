@@ -175,7 +175,7 @@ namespace MySqlX.Data.Tests
 
     protected void ExecuteSqlAsRoot(string sql)
     {
-      using (var conn = new MySqlConnection(ConnectionStringRoot + ";ssl mode=none"))
+      using (var conn = new MySqlConnection(ConnectionStringRoot + ";ssl mode=disabled"))
       {
         conn.Open();
         MySqlScript s = new(conn, sql);

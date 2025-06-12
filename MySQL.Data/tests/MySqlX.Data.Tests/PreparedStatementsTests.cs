@@ -160,7 +160,9 @@ namespace MySqlX.Data.Tests
 
       for (int i = 1; i <= _docs.Length; i++)
       {
+        #pragma warning disable
         var foundDoc2 = ExecuteFindStatement(findStmt.Where($"_id = {i}"));
+        #pragma warning restore
         Assert.That(foundDoc2.FetchAll()[0]["title"].ToString(), Is.EqualTo($"Book {i}"));
         Assert.That(findStmt._isPrepared, Is.False);
       }
@@ -391,7 +393,9 @@ namespace MySqlX.Data.Tests
 
       for (int i = 3; i <= _docs.Length; i++)
       {
+        #pragma warning disable
         result = ExecuteRemoveStatement(removeStmt.Where($"_id = {i}"));
+        #pragma warning restore
         Assert.That(result.AffectedItemsCount, Is.EqualTo(1ul));
         Assert.That(removeStmt._isPrepared, Is.False);
       }

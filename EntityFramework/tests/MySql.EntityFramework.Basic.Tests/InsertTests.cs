@@ -102,7 +102,7 @@ namespace MySql.Data.EntityFramework.Tests
     }
 
     [Test]
-    public async Task PrepareAsyncAwait()
+    public Task PrepareAsyncAwait()
     {
       ExecSQL("CREATE TABLE PrepareAsyncAwaitTest (val1 varchar(20), numbercol int, numbername varchar(50));");
       EFMySqlCommand cmd = new EFMySqlCommand() { CommandText = "INSERT INTO PrepareAsyncAwaitTest VALUES(NULL, @number, @text)", Connection = Connection };
@@ -118,6 +118,8 @@ namespace MySql.Data.EntityFramework.Tests
         cmd.Parameters["@text"].Value = "A string value";
         cmd.ExecuteNonQuery();
       }
+
+      return Task.CompletedTask;
     }
 
     ///// <summary>

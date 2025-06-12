@@ -864,7 +864,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("MySQL Reserved Word used")]
     public void ReservedWordUse()
     {
-      var connStr = $"server={Host};user={Settings.UserID};database={Settings.Database};port={Port};password={Settings.Password};logging=true;sslmode=none";
+      var connStr = $"server={Host};user={Settings.UserID};database={Settings.Database};port={Port};password={Settings.Password};logging=true;sslmode=disabled";
       using (var conn = new MySqlConnection(connStr))
       {
         var cmd = new MySqlCommand();

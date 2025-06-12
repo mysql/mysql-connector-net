@@ -539,8 +539,6 @@ namespace MySql.Web.SessionState
       byte[] serializedItems = null;
       // True if a record is found in the database.
       bool foundRecord = false;
-      // True if the returned session item is expired and needs to be deleted.
-      bool deleteData = false;
       // Timeout value from the data store.
       int timeout = 0;
 
@@ -596,8 +594,6 @@ namespace MySql.Web.SessionState
               {
                 //The record was expired. Mark it as not locked.
                 locked = false;
-                // The session was expired. Mark the data for deletion.
-                deleteData = true;
               }
               else
               {

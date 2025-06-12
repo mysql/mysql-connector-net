@@ -379,6 +379,11 @@ namespace MySql.Data.EntityFramework
       return true;
     }
 
+    public override int GetHashCode()
+    {
+      return base.GetHashCode();
+    }
+
     internal override void Accept(SqlFragmentVisitor visitor)
     {
       if (Literal != null) Literal.Accept(visitor);
@@ -585,6 +590,11 @@ namespace MySql.Data.EntityFramework
         if (++cnt == 2) break;
       }
       return true;
+    }
+
+    public override int GetHashCode()
+    {
+      return base.GetHashCode();
     }
 
     public PropertyFragment Clone()

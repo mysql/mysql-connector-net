@@ -294,7 +294,7 @@ namespace MySql.EntityFrameworkCore
     /// </summary>
     /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
     /// <param name="operations">The operations representing the data to be read.</param>
-    private void AppendSelectCommandHeader(
+    new private void AppendSelectCommandHeader(
       StringBuilder commandStringBuilder,
       IReadOnlyList<IColumnModification> operations)
     {
@@ -315,7 +315,7 @@ namespace MySql.EntityFrameworkCore
     /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
     /// <param name="name">The name of the table.</param>
     /// <param name="schema">The table schema, or <see langword="null" /> to use the default schema.</param>
-    private void AppendFromClause(
+    new private void AppendFromClause(
       StringBuilder commandStringBuilder,
       string name,
       string? schema)
@@ -335,7 +335,7 @@ namespace MySql.EntityFrameworkCore
     /// </summary>
     /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
     /// <param name="operations">The operations from which to build the conditions.</param>
-    protected virtual void AppendWhereAffectedClause(
+    protected override void AppendWhereAffectedClause(
       StringBuilder commandStringBuilder,
       IReadOnlyList<IColumnModification> operations)
     {
@@ -400,7 +400,7 @@ namespace MySql.EntityFrameworkCore
     /// </summary>
     /// <param name="modification">The column modification.</param>
     /// <returns><see langword="true" /> if the given modification represents an auto-incrementing column.</returns>
-    protected virtual bool IsIdentityOperation(IColumnModification modification)
+    protected override bool IsIdentityOperation(IColumnModification modification)
       => modification.IsKey && modification.IsRead;
 
     protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, IColumnModification columnModification)

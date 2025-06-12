@@ -797,10 +797,10 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       using (SiteDbContext ctx = new SiteDbContext())
       {
         ctx.Database.Initialize(true);
-        visitante v1 = new visitante() { nCdSite = 1, nCdVisitante = 1, sDsIp = "x1" };
-        visitante v2 = new visitante() { nCdSite = 1, nCdVisitante = 2, sDsIp = "x2" };
-        site s1 = new site() { nCdSite = 1, sDsTitulo = "MyNewsPage" };
-        site s2 = new site() { nCdSite = 2, sDsTitulo = "MySearchPage" };
+        Visitante v1 = new Visitante() { nCdSite = 1, nCdVisitante = 1, sDsIp = "x1" };
+        Visitante v2 = new Visitante() { nCdSite = 1, nCdVisitante = 2, sDsIp = "x2" };
+        Site s1 = new Site() { nCdSite = 1, sDsTitulo = "MyNewsPage" };
+        Site s2 = new Site() { nCdSite = 2, sDsTitulo = "MySearchPage" };
         ctx.Visitante.Add(v1);
         ctx.Visitante.Add(v2);
         ctx.Site.Add(s1);
@@ -809,14 +809,14 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
 
         var q = (from vis in ctx.Visitante.Include("site")
                  group vis by vis.nCdSite into g
-                 select new retorno
+                 select new Retorno
                  {
                    Key = g.Key,
                    Online = g.Select(e => e.sDsIp).Distinct().Count()
                  });
         string sql = q.ToString();
         CheckSql(sql, SQLSyntax.CountGroupBy);
-        var q2 = q.ToList<retorno>();
+        var q2 = q.ToList<Retorno>();
         foreach (var row in q2)
         {
         }
@@ -835,11 +835,11 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       using (SiteDbContext ctx = new SiteDbContext())
       {
         ctx.Database.Initialize(true);
-        visitante v1 = new visitante() { nCdSite = 1, nCdVisitante = 1, sDsIp = "x1" };
-        visitante v2 = new visitante() { nCdSite = 1, nCdVisitante = 2, sDsIp = "x2" };
-        site s1 = new site() { nCdSite = 1, sDsTitulo = "MyNewsPage" };
-        site s2 = new site() { nCdSite = 2, sDsTitulo = "MySearchPage" };
-        pagina p1 = new pagina() { nCdPagina = 1, nCdVisitante = 1, sDsTitulo = "index.html" };
+        Visitante v1 = new Visitante() { nCdSite = 1, nCdVisitante = 1, sDsIp = "x1" };
+        Visitante v2 = new Visitante() { nCdSite = 1, nCdVisitante = 2, sDsIp = "x2" };
+        Site s1 = new Site() { nCdSite = 1, sDsTitulo = "MyNewsPage" };
+        Site s2 = new Site() { nCdSite = 2, sDsTitulo = "MySearchPage" };
+        Pagina p1 = new Pagina() { nCdPagina = 1, nCdVisitante = 1, sDsTitulo = "index.html" };
         ctx.Visitante.Add(v1);
         ctx.Visitante.Add(v2);
         ctx.Site.Add(s1);
@@ -849,14 +849,14 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
 
         var q = (from pag in ctx.Pagina.Include("visitante").Include("site")
                  group pag by pag.visitante.nCdSite into g
-                 select new retorno
+                 select new Retorno
                  {
                    Key = g.Key,
                    Online = g.Select(e => e.visitante.sDsIp).Distinct().Count()
                  });
         string sql = q.ToString();
         CheckSql(sql, SQLSyntax.CountGroupBy2);
-        var q2 = q.ToList<retorno>();
+        var q2 = q.ToList<Retorno>();
         foreach (var row in q2)
         {
         }
@@ -1475,9 +1475,9 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         file = new System.IO.FileStream(logName, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write);
         writer = new System.IO.StreamWriter(file);
       }
-      catch (Exception e)
+      catch (Exception)
       {
-        throw e;
+        throw;
       }
       Console.SetOut(writer);
 
@@ -1512,7 +1512,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
               new Student()
               {
                 Name = "Pakorasu Pakolas",
-                Address = new Address() { City = "Mazatlan", Street = "Tierra de Venados 440" },
+                Address = new Location() { City = "Mazatlan", Street = "Tierra de Venados 440" },
                 Schedule = new List<SchoolSchedule>() { new SchoolSchedule() { TeacherName = "Pako", Subject = SchoolSubject.History } }
               });
         dbContext.SaveChanges();

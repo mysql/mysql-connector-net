@@ -32,6 +32,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using MySql.EntityFrameworkCore.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -78,7 +79,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     [NotNull] IReadOnlyList<SqlExpression> path,
     bool returnsText,
     [NotNull] Type type,
-    [CanBeNull] RelationalTypeMapping typeMapping)
+    [AllowNull] RelationalTypeMapping typeMapping)
     : base(type, typeMapping)
     {
       if (returnsText && !TypeReturnsText(type))

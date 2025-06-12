@@ -685,14 +685,21 @@ namespace MySql.Data.MySqlClient
             ProcedureCache = new ProcedureCache((int)Settings.ProcedureCacheSize);
         }
       }
+#if NET5_0_OR_GREATER
       catch (Exception ex)
       {
-#if NET5_0_OR_GREATER              
         MySQLActivitySource.SetException(currentActivity, ex);
-#endif
         SetState(ConnectionState.Closed, true);
         throw;
       }
+#else
+      catch (Exception)
+      {
+        SetState(ConnectionState.Closed, true);
+        throw;
+      }
+#endif
+
 
       SetState(ConnectionState.Open, false);
       await driver.ConfigureAsync(this, execAsync, cancellationToken).ConfigureAwait(false);
@@ -809,7 +816,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     internal async Task CloseAsync(bool execAsync)
     {
-#if NET5_0_OR_GREATER              
+#if NET5_0_OR_GREATER
       MySQLActivitySource.CloseConnection(currentActivity);
 #endif
 

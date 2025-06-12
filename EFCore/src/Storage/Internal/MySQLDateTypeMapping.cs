@@ -42,7 +42,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
   /// </summary>
   internal class MySQLDateTypeMapping : RelationalTypeMapping
   {
-    private readonly bool _isDefaultValueCompatible;
+    private readonly bool _isDefaultValueCompatible = false;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

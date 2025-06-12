@@ -49,8 +49,8 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     [Column(TypeName = "timestamp")]
     public DateTime last_update { get; set; }
 
-    public virtual actor actor { get; set; }
+    public virtual Actor actor { get; set; }
 
-    public virtual film film { get; set; }
+    public virtual Film film { get; set; }
   }
 }

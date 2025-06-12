@@ -122,7 +122,6 @@ namespace MySql.Data.MySqlClient.Tests
       t.Name = "Execute Query";
       t.Start();
       Thread.Sleep(500);
-      t.Abort();
       t.Join();
 
       Assert.That(lastException, Is.Not.Null);

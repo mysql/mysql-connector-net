@@ -6,7 +6,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>9.5.0</Version>
     <Authors>Oracle</Authors>
-    <TargetFrameworks>net462;net48;net9.0</TargetFrameworks>
+    <TargetFrameworks>net462;net48;net9.0;</TargetFrameworks>
     <AssemblyName>MySql.EntityFramework.Migrations.Tests</AssemblyName>
     <PackageId>MySql.EntityFramework.Migrations.Tests</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET</PackageTags>
@@ -35,7 +35,7 @@
 
   <ItemGroup>
     <PackageReference Include="EntityFramework" Version="6.5.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="NUnit" Version="4.1.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
   </ItemGroup>

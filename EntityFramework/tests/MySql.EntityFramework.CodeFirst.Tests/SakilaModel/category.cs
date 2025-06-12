@@ -33,10 +33,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-  [Table("category")]
-  public partial class category
+  [Table("Category")]
+  public partial class Category
   {
-    public category()
+    public Category()
     {
       film_category = new HashSet<film_category>();
     }

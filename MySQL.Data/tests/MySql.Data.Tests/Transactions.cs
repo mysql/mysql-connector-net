@@ -798,7 +798,7 @@ namespace MySql.Data.MySqlClient.Tests
         var sql = $"insert into `keyvalue` values ({id}, md5(rand() * 1000000), md5(rand() * 1000000), md5(rand() * 1000000), md5(rand() * 1000000));";
         ExecuteSQL(sql);
       }
-      var cs = $"server={Host};port={Port};Database={Connection.Settings.Database};Uid={Connection.Settings.UserID};password={Connection.Settings.Password};ssl-mode=none; ";
+      var cs = $"server={Host};port={Port};Database={Connection.Settings.Database};Uid={Connection.Settings.UserID};password={Connection.Settings.Password};ssl-mode=disabled; ";
       PerformQueriesAtIntervals(TimeSpan.FromMilliseconds(70),
       connectionString: cs, tableName: "keyvalue")
       .GetAwaiter().GetResult();
@@ -834,7 +834,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       for (int i = 0; i < 151; i++)
       {
-        Task.Run(() => PerformQuery(connectionString, tableName));
+        await Task.Run(() => PerformQuery(connectionString, tableName));
         await Task.Delay(interval);
       }
     }

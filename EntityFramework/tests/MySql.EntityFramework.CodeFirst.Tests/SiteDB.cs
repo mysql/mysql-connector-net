@@ -37,8 +37,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-    [Table("pagina")]
-    public class pagina
+    [Table("Pagina")]
+    public class Pagina
     {
         [Key]
         public long nCdPagina { get; set; }
@@ -48,18 +48,18 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
         public string sDsTitulo { get; set; }
 
         [ForeignKey("nCdVisitante")]
-        public visitante visitante { get; set; }
+        public Visitante visitante { get; set; }
     }
 
-    public class retorno
+    public class Retorno
     {
         //[Key]
         public long Key { get; set; }
         public int Online { get; set; }
     }
 
-    [Table("site")]
-    public class site
+    [Table("Site")]
+    public class Site
     {
         [Key]
         public long nCdSite { get; set; }
@@ -68,8 +68,8 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
         public DateTime tDtCadastro { get; set; }
     }
 
-    [Table("visitante")]
-    public class visitante
+    [Table("Visitante")]
+    public class Visitante
     {
         [Key]
         public long nCdVisitante { get; set; }
@@ -79,16 +79,16 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
         public DateTime tDtAtualizacao { get; set; }
 
         [ForeignKey("nCdSite")]
-        public site site { get; set; }
+        public Site site { get; set; }
     }
 
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
     public class SiteDbContext : DbContext
     {
-        public DbSet<visitante> Visitante { get; set; }
-        public DbSet<site> Site { get; set; }
+        public DbSet<Visitante> Visitante { get; set; }
+        public DbSet<Site> Site { get; set; }
         //public DbSet<retorno> Retorno { get; set; }
-        public DbSet<pagina> Pagina { get; set; }
+        public DbSet<Pagina> Pagina { get; set; }
 
     public SiteDbContext() : base(CodeFirstFixture.GetEFConnectionString<SiteDbContext>())
         {

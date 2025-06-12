@@ -517,7 +517,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
         }
 
 
-        return _sqlExpressionFactory.Like(target, _sqlExpressionFactory.Constant(null, stringTypeMapping));
+        return _sqlExpressionFactory.Like(target, _sqlExpressionFactory.Constant("", stringTypeMapping));
       }
 
 

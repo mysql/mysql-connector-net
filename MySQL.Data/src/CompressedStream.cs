@@ -98,7 +98,12 @@ namespace MySql.Data.MySqlClient
     {
       try
       {
+#if NET9_0_OR_GREATER
+        ReadExactly(localByte, 0, 1);
+#else
         Read(localByte, 0, 1);
+#endif
+
         return localByte[0];
       }
       catch (EndOfStreamException)

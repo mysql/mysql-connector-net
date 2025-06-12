@@ -251,7 +251,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
   #endregion
 
   #region ComplexTypeSupport
-  public class Address
+  public class Location
   {
     public string City { get; set; }
     public string Street { get; set; }
@@ -260,7 +260,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
   {
     public int Id { get; set; }
     public string Name { get; set; }
-    public Address Address { get; set; }
+    public Location Address { get; set; }
     public List<SchoolSchedule> Schedule { get; set; }
   }
 

@@ -48,8 +48,8 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     [Column(TypeName = "timestamp")]
     public DateTime last_update { get; set; }
 
-    public virtual category category { get; set; }
+    public virtual Category category { get; set; }
 
-    public virtual film film { get; set; }
+    public virtual Film film { get; set; }
   }
 }

@@ -53,7 +53,12 @@ namespace MySqlX.Common
         using (var stream = executingAssembly.GetManifestResourceStream(resource))
         {
           byteArray = new byte[(int)stream.Length];
+#if NET9_0_OR_GREATER
+          stream.ReadExactly(byteArray, 0, (int)stream.Length);
+#else
           stream.Read(byteArray, 0, (int)stream.Length);
+#endif
+
         }
 
         var tempFile = $"{Path.GetTempPath()}{libraryName}";

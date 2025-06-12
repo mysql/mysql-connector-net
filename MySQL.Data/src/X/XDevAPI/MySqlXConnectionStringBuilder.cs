@@ -289,6 +289,11 @@ namespace MySqlX.XDevAPI
       return true;
     }
 
+    public override int GetHashCode()
+    {
+      return base.GetHashCode();
+    }
+
     internal override MySqlConnectionStringOption GetOption(string key)
     {
       MySqlConnectionStringOption option = Options.Get(key);

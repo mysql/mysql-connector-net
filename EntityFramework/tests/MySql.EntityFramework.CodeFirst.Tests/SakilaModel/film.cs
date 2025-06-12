@@ -33,14 +33,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-  [Table("film")]
-  public partial class film
+  [Table("Film")]
+  public partial class Film
   {
-    public film()
+    public Film()
     {
       film_actor = new HashSet<film_actor>();
       film_category = new HashSet<film_category>();
-      inventories = new HashSet<inventory>();
+      inventories = new HashSet<Inventory>();
     }
 
     [Key]
@@ -86,10 +86,10 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
 
     public virtual ICollection<film_category> film_category { get; set; }
 
-    public virtual language language { get; set; }
+    public virtual Language language { get; set; }
 
-    public virtual language language1 { get; set; }
+    public virtual Language language1 { get; set; }
 
-    public virtual ICollection<inventory> inventories { get; set; }
+    public virtual ICollection<Inventory> inventories { get; set; }
   }
 }

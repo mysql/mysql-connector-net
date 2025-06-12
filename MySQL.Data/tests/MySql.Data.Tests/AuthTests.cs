@@ -57,6 +57,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void TestIntegratedSecurityNoPoolingWithoutUser()
     {
+      Assume.That(Platform.IsWindows);
       TestIntegratedSecurityWithUser(null, false);
     }
 
@@ -64,6 +65,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void TestIntegratedSecurityPoolingWithoutUser()
     {
+      Assume.That(Platform.IsWindows);
       TestIntegratedSecurityWithUser(null, true);
     }
 
@@ -71,6 +73,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void TestIntegratedSecurityNoPoolingWithUser()
     {
+      Assume.That(Platform.IsWindows);
       TestIntegratedSecurityWithUser("myuser1", false);
     }
 
@@ -78,6 +81,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void TestIntegratedSecurityPoolingWithUser()
     {
+      Assume.That(Platform.IsWindows);
       TestIntegratedSecurityWithUser("myuser1", true);
     }
 
@@ -85,6 +89,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void TestWinAuthWithoutProxyNoUserNoPooling()
     {
+      Assume.That(Platform.IsWindows);
       TestIntegratedSecurityWithoutProxy(null, false);
     }
 
@@ -92,6 +97,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void TestWinAuthWithoutProxyNoUserPooling()
     {
+      Assume.That(Platform.IsWindows);
       TestIntegratedSecurityWithoutProxy("myuser1", true);
     }
 
@@ -99,6 +105,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void TestWinAuthWithoutProxyAndUser()
     {
+      Assume.That(Platform.IsWindows);
       TestIntegratedSecurityWithoutProxy("myuser1", false);
     }
 
@@ -106,6 +113,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Property("Category", "Security")]
     public void TestWinAuthWithoutProxyAndUserPooling()
     {
+      Assume.That(Platform.IsWindows);
       TestIntegratedSecurityWithoutProxy("myuser1", true);
     }
 
@@ -157,7 +165,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       // Create mapping for current Windows user=>foo_user
+#pragma warning disable CS1702, CA1416
       String windowsUser = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+#pragma warning restore CS1702, CA1416
       windowsUser = windowsUser.Replace("\\", "\\\\");
       string userMapping = "fergs, Administrators";
 
@@ -280,9 +290,9 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       // Create mapping for current Windows user=>foo_user
-#pragma warning disable CS1702 // Assuming assembly reference matches identity
+#pragma warning disable CS1702, CA1416 // Assuming assembly reference matches identity
       String windowsUser = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
-#pragma warning restore CS1702 // Assuming assembly reference matches identity
+#pragma warning restore CS1702, CA1416  // Assuming assembly reference matches identity
       windowsUser = windowsUser.Replace("\\", "\\\\");
       string userMapping = windowsUser + "=foo_user";
 
@@ -963,7 +973,7 @@ namespace MySql.Data.MySqlClient.Tests
           Assert.That(conn.State, Is.EqualTo(ConnectionState.Open));
         }
 
-        using (MySqlConnection connection = new MySqlConnection(unixConnectionString + "sslmode=none"))
+        using (MySqlConnection connection = new MySqlConnection(unixConnectionString + "sslmode=disabled"))
         {
           connection.Open();
           Assert.That(connection.State, Is.EqualTo(ConnectionState.Open));

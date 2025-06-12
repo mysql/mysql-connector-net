@@ -108,7 +108,13 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     {
       Check.NotNull(collateExpression, nameof(collateExpression));
 
+#if NET9_0_OR_GREATER
+      var valueExpression = Visit(collateExpression.Operand, allowOptimizedExpansion, out nullable);
+#else
       var valueExpression = Visit(collateExpression.ValueExpression, allowOptimizedExpansion, out nullable);
+#endif
+
+
 
       return collateExpression.Update(valueExpression);
     }

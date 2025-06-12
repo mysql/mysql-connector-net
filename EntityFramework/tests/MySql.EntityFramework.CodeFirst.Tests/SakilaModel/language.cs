@@ -33,13 +33,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-  [Table("language")]
-  public partial class language
+  [Table("Language")]
+  public partial class Language
   {
-    public language()
+    public Language()
     {
-      films = new HashSet<film>();
-      films1 = new HashSet<film>();
+      films = new HashSet<Film>();
+      films1 = new HashSet<Film>();
     }
 
     [Key]
@@ -54,8 +54,8 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     [Column(TypeName = "timestamp")]
     public DateTime last_update { get; set; }
 
-    public virtual ICollection<film> films { get; set; }
+    public virtual ICollection<Film> films { get; set; }
 
-    public virtual ICollection<film> films1 { get; set; }
+    public virtual ICollection<Film> films1 { get; set; }
   }
 }

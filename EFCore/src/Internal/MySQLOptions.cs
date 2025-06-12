@@ -35,7 +35,7 @@ namespace MySql.EntityFrameworkCore.Internal
 {
   internal class MySQLOptions : IMySQLOptions
   {
-    public virtual CharacterSet? CharSet { get; private set; }
+    public virtual CharacterSet CharSet { get; private set; }
     public virtual MySqlConnectionStringBuilder ConnectionSettings { get; private set; }
     public virtual MySQLSchemaNameTranslator? SchemaNameTranslator { get; private set; }
 

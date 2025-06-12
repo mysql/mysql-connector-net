@@ -74,11 +74,10 @@ namespace MySql.Data.MySqlClient
     private bool resetSqlSelect;
     CommandTimer commandTimer;
     private bool useDefaultTimeout;
-    private static List<string> keywords = null;
     private bool disposed = false;
     internal const string ParameterPrefix = "_cnet_param_";
 #if NET5_0_OR_GREATER
-    Activity? CurrentActivity;
+    Activity CurrentActivity;
 #endif
 
     /// <summary>

@@ -88,7 +88,7 @@ namespace MySql.Data.MySqlClient
       connVersion = driver.Version;
       MaxLength = 1;
       binaryOk = true;
-#if !NETFRAMEWORK
+#if NET8_0_OR_GREATER
       Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
     }

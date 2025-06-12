@@ -44,7 +44,7 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="fullText"> The value to set. </param>
     /// <param name="parser"> An optional argument (for example, "ngram"), that will be used in an `WITH PARSER` clause. </param>
     /// <returns> The index builder. </returns>
-    public static IndexBuilder IsFullText([NotNull] this IndexBuilder indexBuilder, bool fullText = true, string parser = null)
+    public static IndexBuilder IsFullText([NotNull] this IndexBuilder indexBuilder, bool fullText = true, string parser = "")
     {
       Check.NotNull(indexBuilder, nameof(indexBuilder));
 
@@ -61,7 +61,7 @@ namespace MySql.EntityFrameworkCore.Extensions
     /// <param name="fullText"> The value to set. </param>
     /// <param name="parser"> An optional argument (for example, "ngram") that will be used in an `WITH PARSER` clause. </param>
     /// <returns> The index builder. </returns>
-    public static IndexBuilder<TEntity> IsFullText<TEntity>([NotNull] this IndexBuilder<TEntity> indexBuilder, bool fullText = true, string parser = null)
+    public static IndexBuilder<TEntity> IsFullText<TEntity>([NotNull] this IndexBuilder<TEntity> indexBuilder, bool fullText = true, string parser = "")
       => (IndexBuilder<TEntity>)((IndexBuilder)indexBuilder).IsFullText(fullText, parser);
 
     #endregion FullText

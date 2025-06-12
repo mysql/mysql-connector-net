@@ -87,11 +87,11 @@ namespace MySql.EntityFrameworkCore.Metadata.Conventions
     /// <returns> The store value generation strategy to set for the given property. </returns>
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
     {
-      var tableName = property.DeclaringEntityType.GetTableName();
+      var tableName = property.DeclaringType.GetTableName();
       if (tableName == null)
         return null;
 
-      return GetValueGenerated(property, StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()));
+      return GetValueGenerated(property, StoreObjectIdentifier.Table(tableName, property.DeclaringType.GetSchema()));
     }
 
     /// <summary>

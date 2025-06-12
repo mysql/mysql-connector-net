@@ -72,7 +72,7 @@ namespace MySql.Data.EntityFramework
       return statement.ToString();
     }
 
-    protected virtual SelectStatement GenerateReturningSql(DbModificationCommandTree tree, DbExpression returning)
+    protected override SelectStatement GenerateReturningSql(DbModificationCommandTree tree, DbExpression returning)
     {      
       SelectStatement select = base.GenerateReturningSql(tree, returning);      
 

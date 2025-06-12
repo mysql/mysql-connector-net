@@ -737,7 +737,12 @@ namespace MySql.Data.MySqlClient.Tests
       var fs = new FileStream(imageFile, FileMode.Open, FileAccess.Read);
       long fileSize = fs.Length;
       byte[] rawData = new byte[fs.Length];
+#if NET9_0_OR_GREATER
+      fs.ReadExactly(rawData, 0, (int)fs.Length);
+#else
       fs.Read(rawData, 0, (int)fs.Length);
+#endif
+
       fs.Close();
 
       using (var conn = new MySqlConnection(Connection.ConnectionString))

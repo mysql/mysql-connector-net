@@ -621,7 +621,7 @@ namespace MySql.Data.MySqlClient.Tests
     public async Task MinPoolSizeNotCorrect()
     {
       int minPoolSize = 5;
-      var connectionString = $"server={Host};user={Settings.UserID};password={Settings.Password};port={Port};Max Pool Size=10;Min Pool Size={minPoolSize};sslmode=none;";
+      var connectionString = $"server={Host};user={Settings.UserID};password={Settings.Password};port={Port};Max Pool Size=10;Min Pool Size={minPoolSize};sslmode=disabled;";
 
       try
       {
@@ -698,7 +698,7 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Check Pooling Connection works correctly")]
     public void MultipleConnectionWithPooling()
     {
-      var connectionString = $"server={Host};user={Settings.UserID};password={Settings.Password};port={Port};Max Pool Size=4;Min Pool Size=0;sslmode=none;connectiontimeout=5;";
+      var connectionString = $"server={Host};user={Settings.UserID};password={Settings.Password};port={Port};Max Pool Size=4;Min Pool Size=0;sslmode=disabled;connectiontimeout=5;";
       var myConnection1 = new MySqlConnection(connectionString);
       var myConnection2 = new MySqlConnection(connectionString);
       var myConnection3 = new MySqlConnection(connectionString);
@@ -742,7 +742,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       Assume.That(Platform.IsWindows(), "This test is only for Windows OS");
       var poolSize = 5;
-      var connectionString = $"server={Host};user={Settings.UserID};database={Settings.Database};port={Port};password={Settings.Password};Pooling=true;Max Pool Size={poolSize};SSL Mode=None;ConnectionTimeout=5";
+      var connectionString = $"server={Host};user={Settings.UserID};database={Settings.Database};port={Port};password={Settings.Password};Pooling=true;Max Pool Size={poolSize};SSL Mode=disabled;ConnectionTimeout=5";
       List<MySqlConnection> connectionList = new();
       using (var con = new MySqlConnection(connectionString))
       {

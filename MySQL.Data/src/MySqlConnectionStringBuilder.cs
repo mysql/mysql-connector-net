@@ -1111,6 +1111,11 @@ namespace MySql.Data.MySqlClient
       return true;
     }
 
+    public override int GetHashCode()
+    {
+      return base.GetHashCode();
+    }
+
     internal Regex GetBlobAsUTF8IncludeRegex()
     {
       if (String.IsNullOrEmpty(BlobAsUTF8IncludePattern)) return null;

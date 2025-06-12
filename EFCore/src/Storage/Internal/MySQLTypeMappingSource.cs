@@ -320,17 +320,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
       return null;
     }
 
-#if !NET8_0_OR_GREATER
-    protected override string ParseStoreTypeName(string? storeTypeName, out bool? unicode, out int? size, out int? precision, out int? scale)
-    {
-      var storeTypeBaseName = base.ParseStoreTypeName(storeTypeName, out unicode, out size, out precision, out scale);
-
-      return (storeTypeName?.IndexOf("unsigned", StringComparison.OrdinalIgnoreCase) ?? -1) >= 0
-        ? storeTypeBaseName + " unsigned"
-        : storeTypeBaseName!;
-    }
-#else
-    protected string ParseStoreTypeName(string? storeTypeName, ref bool? unicode, ref int? size, ref int? precision, ref int? scale)
+    protected override string ParseStoreTypeName(string? storeTypeName, ref bool? unicode, ref int? size, ref int? precision, ref int? scale)
     {
       var storeTypeBaseName = base.ParseStoreTypeName(storeTypeName, ref unicode, ref size, ref precision, ref scale);
 
@@ -338,6 +328,5 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         ? storeTypeBaseName + " unsigned"
         : storeTypeBaseName!;
     }
-#endif
   }
 }

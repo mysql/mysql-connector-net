@@ -193,16 +193,16 @@ namespace MySql.Data.MySqlClient.Authentication
             throw new MySqlException(Resources.OciSecurityTokenFileExceeds10KB);
 
           securityToken = new byte[reader.Length];
-          reader.Read(securityToken, 0, securityToken.Length);
+          _ = reader.Read(securityToken, 0, securityToken.Length);
         }
       }
       catch (FileNotFoundException ex)
       {
         throw new MySqlException(Resources.OciSecurityTokenDoesNotExists, ex);
       }
-      catch (MySqlException ex)
+      catch (MySqlException)
       {
-        throw ex;
+        throw;
       }
 
       return Encoding.UTF8.GetString(securityToken);

@@ -254,11 +254,7 @@ namespace MySqlX.Data.Tests
       CheckConnectionData("mysqlx://myuser:password@[(address=[fe80::bd41:e449:45ee:2e1a%17]:3305,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 3305);
       Assert.Throws<UriFormatException>(() => CheckConnectionData("mysqlx://myuser:password@[(address=fe80::bd41:e449:45ee:2e1a%17,priority=100)]", "myuser", "password", "[fe80::bd41:e449:45ee:2e1a]", 33060));
       CheckConnectionData("mysqlx://myuser@localhost/test", "myuser", "", "localhost", 33060, "database", schemaName);
-#if NET8_0_OR_GREATER
-      CheckConnectionData("mysqlx://myuser@localhost/test?ssl%20mode=disabled&connecttimeout=10", "myuser", "", "localhost", 33060, "database", schemaName, "ssl mode", "None", "connecttimeout", "10");
-#else
       CheckConnectionData("mysqlx://myuser@localhost/test?ssl%20mode=disabled&connecttimeout=10", "myuser", "", "localhost", 33060, "database", schemaName, "ssl mode", "Disabled", "connecttimeout", "10");
-#endif
       CheckConnectionData("mysqlx://_%21%22%23%24s%26%2F%3D-%25r@localhost", "_!\"#$s&/=-%r", "", "localhost", 33060);
       CheckConnectionData("mysql://myuser@localhost", "", "", "", 33060);
       CheckConnectionData("myuser@localhost", "", "", "", 33060);
@@ -1775,7 +1771,6 @@ namespace MySqlX.Data.Tests
         {
           Assert.That(conn.Uri, Is.Not.Null);
         }
-        break;
       }
 
       for (int i = 1; i < 20; i++)
@@ -1800,7 +1795,6 @@ namespace MySqlX.Data.Tests
         {
           Assert.That(conn.Uri, Is.Not.Null);
         }
-        break;
       }
     }
 

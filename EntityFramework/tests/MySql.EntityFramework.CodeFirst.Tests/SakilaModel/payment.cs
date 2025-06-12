@@ -32,8 +32,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-  [Table("payment")]
-  public partial class payment
+  [Table("Payment")]
+  public partial class Payment
   {
     [Key]
     [Column(TypeName = "usmallint")]
@@ -53,10 +53,10 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     [Column(TypeName = "timestamp")]
     public DateTime last_update { get; set; }
 
-    public virtual customer customer { get; set; }
+    public virtual Customer customer { get; set; }
 
-    public virtual rental rental { get; set; }
+    public virtual Rental rental { get; set; }
 
-    public virtual staff staff { get; set; }
+    public virtual Staff staff { get; set; }
   }
 }

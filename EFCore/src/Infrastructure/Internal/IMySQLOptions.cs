@@ -40,7 +40,7 @@ namespace MySql.EntityFrameworkCore.Infrastructure.Internal
     /// The <see cref="CharacterSet"/> to be used by the connection.
     /// </summary>
     /// <value>The character set.</value>
-    CharacterSet? CharSet { get; }
+    CharacterSet CharSet { get; }
     /// <summary>
     /// The connection settings.
     /// </summary>

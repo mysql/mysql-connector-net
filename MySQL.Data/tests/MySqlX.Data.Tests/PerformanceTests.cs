@@ -236,7 +236,7 @@ namespace MySqlX.Data.Tests
 
     public void SessionSSLModeNone()
     {
-      var session = new Session($"mysqlx://{USER}:@{HOST}:{X_DEVAPI_PORT}?auth=SHA256_MEMORY&sslmode=none");
+      var session = new Session($"mysqlx://{USER}:@{HOST}:{X_DEVAPI_PORT}?auth=SHA256_MEMORY&sslmode=disabled");
       session.Close();
     }
   }

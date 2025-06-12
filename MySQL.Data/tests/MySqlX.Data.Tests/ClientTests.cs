@@ -46,8 +46,6 @@ namespace MySqlX.Data.Tests
 {
   public class ClientTests : BaseTest
   {
-    private static string localServerIpv4 = "localServerIpv4";
-
     public struct ClientOptions
     {
       public object ConnectionOptions { get; set; }

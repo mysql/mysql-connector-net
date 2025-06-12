@@ -94,11 +94,6 @@ namespace MySql.Data.MySqlClient
       SqlState = sqlState;
     }
 
-    private MySqlException(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
-
     /// <summary>
     /// Gets a number that identifies the type of error.
     /// </summary>
@@ -112,10 +107,17 @@ namespace MySql.Data.MySqlClient
     internal bool IsQueryAborted => (Number == (int)MySqlErrorCode.QueryInterrupted ||
                                      Number == (int)MySqlErrorCode.FileSortAborted);
 
+#if NET8_0_OR_GREATER
+    /// <summary>
+    /// Gets the SQL state.
+    /// </summary>
+    public override string SqlState { get; }
+#else
     /// <summary>
     /// Gets the SQL state.
     /// </summary>
     public string SqlState { get; private set; }
+#endif
 
     /// <summary>
     /// Gets an integer that representes the MySQL error code.

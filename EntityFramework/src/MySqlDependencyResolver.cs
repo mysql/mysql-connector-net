@@ -172,7 +172,7 @@ namespace MySql.Data.EntityFramework
     /// <param name="other">The cached model key to compare to the current cached model key.</param>
     /// <returns><c>true</c> if the current cached model key is equal to the specified cached model key;
     /// otherwise, <c>false</c>.</returns>
-    public bool Equals(object other)
+    public override bool Equals(object other)
     {
       if (ReferenceEquals(this, other))
         return true;
@@ -185,7 +185,7 @@ namespace MySql.Data.EntityFramework
     /// Returns the hash function for this cached model key.
     /// </summary>
     /// <returns>The hash function for this cached model key.</returns>
-    public int GetHashCode()
+    public override int GetHashCode()
     {
       unchecked
       {

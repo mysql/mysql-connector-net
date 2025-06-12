@@ -32,7 +32,7 @@ using Mysqlx.Crud;
 using MySqlX.XDevAPI.Common;
 using System;
 using System.Collections.Generic;
-#if !NETFRAMEWORK
+#if NET8_0_OR_GREATER
 using System.Text.Json;
 #endif
 
@@ -117,7 +117,7 @@ namespace MySqlX.XDevAPI.CRUD
 
       if (dbDocument.values.Count == 0)
       {
-#if !NETFRAMEWORK
+#if NET8_0_OR_GREATER
         var customObject = JsonSerializer.Serialize(document);
         Updates.Add(new UpdateSpec(UpdateOperation.Types.UpdateType.MergePatch, string.Empty).SetValue(customObject));
 #else

@@ -43,6 +43,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Utilities.IO.Pem;
+using Org.BouncyCastle.Asn1.X509;
+using System.Runtime.ConstrainedExecution;
 
 namespace MySql.Data.Common
 {
@@ -106,9 +108,15 @@ namespace MySql.Data.Common
     /// </summary>
     private X509Certificate2 GetCertificateFromPEM(string certificatePath, string certificatePassword)
     {
+#if NET9_0_OR_GREATER
+      var certParser = new Org.BouncyCastle.X509.X509CertificateParser();
+      var certBytes = certParser.ReadCertificate(File.ReadAllBytes(certificatePath));
+      return X509CertificateLoader.LoadCertificate(certBytes.GetEncoded());
+#else
       var certParser = new Org.BouncyCastle.X509.X509CertificateParser();
       var cert = certParser.ReadCertificate(File.ReadAllBytes(certificatePath));
       return new X509Certificate2(cert.GetEncoded(), certificatePassword);
+#endif
     }
 
 
@@ -131,8 +139,13 @@ namespace MySql.Data.Common
         }
         else
         {
+#if NET9_0_OR_GREATER
+          X509Certificate2 clientCert = X509CertificateLoader.LoadPkcs12FromFile(_settings.CertificateFile, _settings.CertificatePassword);
+#else
           X509Certificate2 clientCert = new X509Certificate2(_settings.CertificateFile,
             _settings.CertificatePassword);
+#endif
+
           certs.Add(clientCert);
           return certs;
         }

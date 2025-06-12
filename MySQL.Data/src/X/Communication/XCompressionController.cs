@@ -89,7 +89,8 @@ namespace MySqlX.Communication
     /// </summary>
     private MemoryStream _buffer;
 
-    /// <summary>
+#if !NETFRAMEWORK
+       /// <summary>
     /// Deflate stream used for compressing data.
     /// </summary>
     private DeflateStream _deflateCompressStream;
@@ -98,6 +99,7 @@ namespace MySqlX.Communication
     /// Deflate stream used for decompressing data.
     /// </summary>
     private DeflateStream _deflateDecompressStream;
+#endif
 
     /// <summary>
     /// Flag indicating if the initialization is for compression or decompression.
@@ -344,6 +346,7 @@ namespace MySqlX.Communication
       }
     }
 
+#if !NETFRAMEWORK
     /// <summary>
     /// Decompresses data using the deflate_stream compression algorithm.
     /// </summary>
@@ -371,6 +374,7 @@ namespace MySqlX.Communication
 
       return decompressedData;
     }
+#endif
 
     /// <summary>
     /// Decompresses data using the lz4_message compression algorithm.
@@ -420,8 +424,10 @@ namespace MySqlX.Communication
     /// </summary>
     internal void Close()
     {
+#if !NETFRAMEWORK
       _deflateCompressStream?.Dispose();
       _deflateDecompressStream?.Dispose();
+#endif
       _multipleMessagesStream?.Dispose();
       _zstdDecompressStream?.Dispose();
     }

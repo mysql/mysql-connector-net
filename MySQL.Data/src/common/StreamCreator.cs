@@ -175,7 +175,15 @@ namespace MySql.Data.Common
         else
           socket.Connect(endPoint);
 #else
-        socket.Connect(endPoint);
+        if (execAsync)
+        {
+          SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+          args.RemoteEndPoint = endPoint;
+          socket.ConnectAsync(args);
+          await Task.Run(() => socket.ConnectAsync(args));
+        }
+        else
+          socket.Connect(endPoint);
 #endif
         return socket;
       }

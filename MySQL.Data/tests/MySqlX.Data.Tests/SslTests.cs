@@ -101,7 +101,7 @@ namespace MySqlX.Data.Tests
       }
 
       // Duplicate SSL connection options do not send error message.
-      Assert.DoesNotThrow(() => MySQLX.GetSession(connectionUri + "?sslmode=Required&ssl mode=None"));
+      Assert.DoesNotThrow(() => MySQLX.GetSession(connectionUri + "?sslmode=Required&ssl mode=disabled"));
       Assert.DoesNotThrow(() => MySQLX.GetSession(connectionUri + "?ssl-ca-pwd=pass&ssl-ca-pwd=pass"));
       Assert.DoesNotThrow(() => MySQLX.GetSession(connectionUri + "?certificatepassword=pass&certificatepassword=pass"));
       Assert.DoesNotThrow(() => MySQLX.GetSession(connectionUri + "?certificatepassword=pass&ssl-ca-pwd=pass"));

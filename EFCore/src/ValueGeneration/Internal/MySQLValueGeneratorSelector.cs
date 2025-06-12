@@ -52,24 +52,24 @@ namespace MySql.EntityFrameworkCore.ValueGeneration.Internal
     }
 
 
-    #if NET8_0_OR_GREATER
+    #if NET9_0_OR_GREATER
     /// <inheritdoc/>
-    public ValueGenerator Create(IProperty property, IEntityType entityType)
+    public ValueGenerator? Create(IProperty property, IEntityType entityType)
     {
       Check.NotNull(property, nameof(property));
       Check.NotNull(entityType, nameof(entityType));
 
+      ValueGenerator? valueGenerator;
       var ret = property.ClrType.UnwrapNullableType() == typeof(Guid)
         ? property.ValueGenerated == ValueGenerated.Never
         || property.GetDefaultValueSql() != null
           ? (ValueGenerator)new TemporaryGuidValueGenerator()
           : new SequentialGuidValueGenerator()
-        : base.Create(property, entityType);
+        : base.TryCreate(property, entityType, out valueGenerator) ? valueGenerator : null ;
       return ret;
     }
 #else
-     /// <inheritdoc/>
-    public override ValueGenerator Create(IProperty property, IEntityType entityType)
+    public ValueGenerator Create(IProperty property, IEntityType entityType)
     {
       Check.NotNull(property, nameof(property));
       Check.NotNull(entityType, nameof(entityType));

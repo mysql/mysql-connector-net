@@ -333,11 +333,11 @@ namespace MySql.Data.MySqlClient.Tests
             currentException = currentException.InnerException;
           }
 
-          throw e;
+          throw;
         }
 
         // IT is relatively hard to predict where
-        Console.WriteLine("Warning: all reads completed!");
+        Console.WriteLine("NetWriteTimeoutExpiring: all reads completed!");
         Assert.That(i, Is.EqualTo(rows));
       }
     }

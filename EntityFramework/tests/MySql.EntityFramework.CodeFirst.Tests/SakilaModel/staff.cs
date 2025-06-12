@@ -33,14 +33,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MySql.Data.EntityFramework.CodeFirst.Tests
 {
-  [Table("staff")]
-  public partial class staff
+  [Table("Staff")]
+  public partial class Staff
   {
-    public staff()
+    public Staff()
     {
-      payments = new HashSet<payment>();
-      rentals = new HashSet<rental>();
-      stores = new HashSet<store>();
+      payments = new HashSet<Payment>();
+      rentals = new HashSet<Rental>();
+      stores = new HashSet<Store>();
     }
 
     [Key]
@@ -78,14 +78,14 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     [Column(TypeName = "timestamp")]
     public DateTime last_update { get; set; }
 
-    public virtual address address { get; set; }
+    public virtual Address address { get; set; }
 
-    public virtual ICollection<payment> payments { get; set; }
+    public virtual ICollection<Payment> payments { get; set; }
 
-    public virtual ICollection<rental> rentals { get; set; }
+    public virtual ICollection<Rental> rentals { get; set; }
 
-    public virtual store store { get; set; }
+    public virtual Store store { get; set; }
 
-    public virtual ICollection<store> stores { get; set; }
+    public virtual ICollection<Store> stores { get; set; }
   }
 }

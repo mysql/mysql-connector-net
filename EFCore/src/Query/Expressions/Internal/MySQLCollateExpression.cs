@@ -50,11 +50,12 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
 #endif
 
 #if NET9_0_OR_GREATER
-    public MySQLCollateExpression(SqlExpression operand, string collation)
+    public MySQLCollateExpression(SqlExpression operand, string charset, string collation)
     : base(operand.Type, operand.TypeMapping)
     {
-      Operand = operand;
-      Collation = collation;
+      _valueExpression = operand;
+      _charset = charset;
+      _collation = collation;
     }
 #else
     public MySQLCollateExpression(
@@ -70,12 +71,6 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     }
 #endif
 
-
-    /// <summary>
-    ///   The expression for which a collation is being specified.
-    /// </summary>
-    public virtual SqlExpression ValueExpression => _valueExpression;
-
     /// <summary>
     ///   The character set that the string is being converted to.
     /// </summary>
@@ -85,17 +80,19 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
     /// <summary>
     ///   The expression on which collation is applied.
     /// </summary>
-    public virtual SqlExpression Operand { get; }
+    public virtual SqlExpression Operand => _valueExpression;
 
-    public virtual string Collation { get; }
 #else
+    /// <summary>
+    ///   The expression for which a collation is being specified.
+    /// </summary>
+    public virtual SqlExpression ValueExpression => _valueExpression;
+#endif
+
     /// <summary>
     ///   The collation that the string is being converted to.
     /// </summary>
     public virtual string Collation => _collation;
-#endif
-
-
 
     /// <summary>
     ///   Dispatches to the specific visit method for this node type.
@@ -129,7 +126,7 @@ namespace MySql.EntityFrameworkCore.Query.Expressions.Internal
 #if NET9_0_OR_GREATER
     public virtual MySQLCollateExpression Update(SqlExpression operand)
         => operand != Operand
-            ? new MySQLCollateExpression(operand, Collation)
+            ? new MySQLCollateExpression(operand, Charset, Collation)
             : this;
     /// <inheritdoc />
     public override Expression Quote() => New(

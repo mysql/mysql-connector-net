@@ -31,10 +31,10 @@ using System.Diagnostics;
 using MySqlX.XDevAPI.Common;
 using MySqlX.Sessions;
 using System;
-using MySql.Data.MySqlClient;
-#if !NETFRAMEWORK
+#if NET8_0_OR_GREATER
 using System.Text.Json;
 #endif
+using MySql.Data.MySqlClient;
 
 namespace MySqlX.XDevAPI.CRUD
 {
@@ -63,7 +63,7 @@ namespace MySqlX.XDevAPI.CRUD
         return (T)Convert.ChangeType(new DbDoc(_encoding.GetString(values[0]).TrimEnd('\0')), typeof(T));
       else
       {
-#if !NETFRAMEWORK
+#if NET8_0_OR_GREATER
         return JsonSerializer.Deserialize<T>(_encoding.GetString(values[0]).TrimEnd('\0'));
 #else
         throw new MySqlException("Custom type mapping is only supported from .NET Core 3.1.");

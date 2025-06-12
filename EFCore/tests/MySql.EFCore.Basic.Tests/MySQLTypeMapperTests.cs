@@ -166,9 +166,9 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 
         var data = context.AllBlobTypes.First();
 
-        Assert.That(data.Example1.Length, Is.EqualTo(data1.Length));
-        Assert.That(data.Example2.Length, Is.EqualTo(data2.Length));
-        Assert.That(data.Example3.Length, Is.EqualTo(data3.Length));
+        Assert.That(data.Example1?.Length, Is.EqualTo(data1.Length));
+        Assert.That(data.Example2?.Length, Is.EqualTo(data2.Length));
+        Assert.That(data.Example3?.Length, Is.EqualTo(data3.Length));
       }
     }
 

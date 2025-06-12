@@ -45,22 +45,22 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     {
     }
 
-    public virtual DbSet<actor> actors { get; set; }
-    public virtual DbSet<address> addresses { get; set; }
-    public virtual DbSet<category> categories { get; set; }
-    public virtual DbSet<city> cities { get; set; }
-    public virtual DbSet<country> countries { get; set; }
-    public virtual DbSet<customer> customers { get; set; }
-    public virtual DbSet<film> films { get; set; }
+    public virtual DbSet<Actor> actors { get; set; }
+    public virtual DbSet<Address> addresses { get; set; }
+    public virtual DbSet<Category> categories { get; set; }
+    public virtual DbSet<City> cities { get; set; }
+    public virtual DbSet<Country> countries { get; set; }
+    public virtual DbSet<Customer> customers { get; set; }
+    public virtual DbSet<Film> films { get; set; }
     public virtual DbSet<film_actor> film_actor { get; set; }
     public virtual DbSet<film_category> film_category { get; set; }
     public virtual DbSet<film_text> film_text { get; set; }
-    public virtual DbSet<inventory> inventories { get; set; }
-    public virtual DbSet<language> languages { get; set; }
-    public virtual DbSet<payment> payments { get; set; }
-    public virtual DbSet<rental> rentals { get; set; }
-    public virtual DbSet<staff> staffs { get; set; }
-    public virtual DbSet<store> stores { get; set; }
+    public virtual DbSet<Inventory> inventories { get; set; }
+    public virtual DbSet<Language> languages { get; set; }
+    public virtual DbSet<Payment> payments { get; set; }
+    public virtual DbSet<Rental> rentals { get; set; }
+    public virtual DbSet<Staff> staffs { get; set; }
+    public virtual DbSet<Store> stores { get; set; }
     public virtual DbSet<actor_info> actor_info { get; set; }
     public virtual DbSet<customer_list> customer_list { get; set; }
     public virtual DbSet<film_list> film_list { get; set; }
@@ -71,130 +71,130 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
-      modelBuilder.Entity<actor>()
+      modelBuilder.Entity<Actor>()
           .Property(e => e.first_name)
           .IsUnicode(false);
 
-      modelBuilder.Entity<actor>()
+      modelBuilder.Entity<Actor>()
           .Property(e => e.last_name)
           .IsUnicode(false);
 
-      modelBuilder.Entity<actor>()
+      modelBuilder.Entity<Actor>()
           .HasMany(e => e.film_actor)
           .WithRequired(e => e.actor)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<address>()
+      modelBuilder.Entity<Address>()
           .Property(e => e.address1)
           .IsUnicode(false);
 
-      modelBuilder.Entity<address>()
+      modelBuilder.Entity<Address>()
           .Property(e => e.address2)
           .IsUnicode(false);
 
-      modelBuilder.Entity<address>()
+      modelBuilder.Entity<Address>()
           .Property(e => e.district)
           .IsUnicode(false);
 
-      modelBuilder.Entity<address>()
+      modelBuilder.Entity<Address>()
           .Property(e => e.postal_code)
           .IsUnicode(false);
 
-      modelBuilder.Entity<address>()
+      modelBuilder.Entity<Address>()
           .Property(e => e.phone)
           .IsUnicode(false);
 
-      modelBuilder.Entity<address>()
+      modelBuilder.Entity<Address>()
           .HasMany(e => e.customers)
           .WithRequired(e => e.address)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<address>()
+      modelBuilder.Entity<Address>()
           .HasMany(e => e.staffs)
           .WithRequired(e => e.address)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<address>()
+      modelBuilder.Entity<Address>()
           .HasMany(e => e.stores)
           .WithRequired(e => e.address)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<category>()
+      modelBuilder.Entity<Category>()
           .Property(e => e.name)
           .IsUnicode(false);
 
-      modelBuilder.Entity<category>()
+      modelBuilder.Entity<Category>()
           .HasMany(e => e.film_category)
           .WithRequired(e => e.category)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<city>()
+      modelBuilder.Entity<City>()
           .Property(e => e.city1)
           .IsUnicode(false);
 
-      modelBuilder.Entity<city>()
+      modelBuilder.Entity<City>()
           .HasMany(e => e.addresses)
           .WithRequired(e => e.city)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<country>()
+      modelBuilder.Entity<Country>()
           .Property(e => e.country1)
           .IsUnicode(false);
 
-      modelBuilder.Entity<country>()
+      modelBuilder.Entity<Country>()
           .HasMany(e => e.cities)
           .WithRequired(e => e.country)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<customer>()
+      modelBuilder.Entity<Customer>()
           .Property(e => e.first_name)
           .IsUnicode(false);
 
-      modelBuilder.Entity<customer>()
+      modelBuilder.Entity<Customer>()
           .Property(e => e.last_name)
           .IsUnicode(false);
 
-      modelBuilder.Entity<customer>()
+      modelBuilder.Entity<Customer>()
           .Property(e => e.email)
           .IsUnicode(false);
 
-      modelBuilder.Entity<customer>()
+      modelBuilder.Entity<Customer>()
           .HasMany(e => e.payments)
           .WithRequired(e => e.customer)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<customer>()
+      modelBuilder.Entity<Customer>()
           .HasMany(e => e.rentals)
           .WithRequired(e => e.customer)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<film>()
+      modelBuilder.Entity<Film>()
           .Property(e => e.title)
           .IsUnicode(false);
 
-      modelBuilder.Entity<film>()
+      modelBuilder.Entity<Film>()
           .Property(e => e.description)
           .IsUnicode(false);
 
-      modelBuilder.Entity<film>()
+      modelBuilder.Entity<Film>()
           .Property(e => e.rating)
           .IsUnicode(false);
 
-      modelBuilder.Entity<film>()
+      modelBuilder.Entity<Film>()
           .Property(e => e.special_features)
           .IsUnicode(false);
 
-      modelBuilder.Entity<film>()
+      modelBuilder.Entity<Film>()
           .HasMany(e => e.film_actor)
           .WithRequired(e => e.film)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<film>()
+      modelBuilder.Entity<Film>()
           .HasMany(e => e.film_category)
           .WithRequired(e => e.film)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<film>()
+      modelBuilder.Entity<Film>()
           .HasMany(e => e.inventories)
           .WithRequired(e => e.film)
           .WillCascadeOnDelete(false);
@@ -207,73 +207,73 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
           .Property(e => e.description)
           .IsUnicode(false);
 
-      modelBuilder.Entity<inventory>()
+      modelBuilder.Entity<Inventory>()
           .HasMany(e => e.rentals)
           .WithRequired(e => e.inventory)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<language>()
+      modelBuilder.Entity<Language>()
           .Property(e => e.name)
           .IsUnicode(false);
 
-      modelBuilder.Entity<language>()
+      modelBuilder.Entity<Language>()
           .HasMany(e => e.films)
           .WithRequired(e => e.language)
           .HasForeignKey(e => e.language_id)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<language>()
+      modelBuilder.Entity<Language>()
           .HasMany(e => e.films1)
           .WithOptional(e => e.language1)
           .HasForeignKey(e => e.original_language_id);
 
-      modelBuilder.Entity<staff>()
+      modelBuilder.Entity<Staff>()
           .Property(e => e.first_name)
           .IsUnicode(false);
 
-      modelBuilder.Entity<staff>()
+      modelBuilder.Entity<Staff>()
           .Property(e => e.last_name)
           .IsUnicode(false);
 
-      modelBuilder.Entity<staff>()
+      modelBuilder.Entity<Staff>()
           .Property(e => e.email)
           .IsUnicode(false);
 
-      modelBuilder.Entity<staff>()
+      modelBuilder.Entity<Staff>()
           .Property(e => e.username)
           .IsUnicode(false);
 
-      modelBuilder.Entity<staff>()
+      modelBuilder.Entity<Staff>()
           .Property(e => e.password)
           .IsUnicode(false);
 
-      modelBuilder.Entity<staff>()
+      modelBuilder.Entity<Staff>()
           .HasMany(e => e.payments)
           .WithRequired(e => e.staff)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<staff>()
+      modelBuilder.Entity<Staff>()
           .HasMany(e => e.rentals)
           .WithRequired(e => e.staff)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<staff>()
+      modelBuilder.Entity<Staff>()
           .HasMany(e => e.stores)
           .WithRequired(e => e.staff)
           .HasForeignKey(e => e.manager_staff_id)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<store>()
+      modelBuilder.Entity<Store>()
           .HasMany(e => e.customers)
           .WithRequired(e => e.store)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<store>()
+      modelBuilder.Entity<Store>()
           .HasMany(e => e.inventories)
           .WithRequired(e => e.store)
           .WillCascadeOnDelete(false);
 
-      modelBuilder.Entity<store>()
+      modelBuilder.Entity<Store>()
           .HasMany(e => e.staffs)
           .WithRequired(e => e.store)
           .HasForeignKey(e => e.store_id)

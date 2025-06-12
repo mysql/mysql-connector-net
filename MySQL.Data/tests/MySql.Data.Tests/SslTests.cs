@@ -370,7 +370,12 @@ namespace MySql.Data.MySqlClient.Tests
       string assemblyPath = TestContext.CurrentContext.TestDirectory;
       var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
       store.Open(OpenFlags.ReadWrite);
+#if NET9_0_OR_GREATER
+      var certificate = X509CertificateLoader.LoadPkcs12FromFile(assemblyPath + "\\client.pfx", "pass");
+#else
       var certificate = new X509Certificate2(assemblyPath + "\\client.pfx", "pass");
+#endif
+
       store.Add(certificate);
 
       MySqlConnectionStringBuilder csb = new MySqlConnectionStringBuilder(Settings.ConnectionString);

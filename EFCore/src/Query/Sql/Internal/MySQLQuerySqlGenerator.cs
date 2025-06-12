@@ -388,7 +388,12 @@ namespace MySql.EntityFrameworkCore.Query
 
       Sql.Append("CONVERT(");
 
+#if NET9_0_OR_GREATER
+      Visit(mySqlCollateExpression.Operand);
+#else
       Visit(mySqlCollateExpression.ValueExpression);
+#endif
+
 
       Sql.Append($" USING {mySqlCollateExpression.Charset}) COLLATE {mySqlCollateExpression.Collation}");
 

@@ -51,7 +51,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-#if !NETFRAMEWORK
+#if NET8_0_OR_GREATER
 using System.Text.Json;
 #endif
 using static Mysqlx.Datatypes.Object.Types;
@@ -603,7 +603,7 @@ namespace MySqlX.Protocol
               typedRow.Field.Add(ExprUtil.BuildLiteralScalar(Convert.ToString(field)));
             else
             {
-#if !NETFRAMEWORK
+#if NET8_0_OR_GREATER
               string jsonString = JsonSerializer.Serialize(field);
               typedRow.Field.Add(ExprUtil.BuildLiteralScalar(jsonString));
 #else

@@ -410,12 +410,7 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// Do not use SSL.
     /// </summary>
-    [Obsolete("Use 'MySqlSslMode.Disabled' instead.")]
-    None,
-    /// <summary>
-    /// Do not use SSL.
-    /// </summary>
-    Disabled = None,
+    Disabled,
     /// <summary>
     /// Use SSL, if server supports it. This option is only available for the classic protocol.
     /// </summary>

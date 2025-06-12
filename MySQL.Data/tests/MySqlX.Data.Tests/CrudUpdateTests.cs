@@ -222,13 +222,13 @@ namespace MySqlX.Data.Tests
       Assert.That(result.AffectedItemsCount, Is.EqualTo(3));
 
       Assert.That(ExecuteModifyStatement(collection.Modify("a IN (1,2)").Set("a", 3)).AffectedItemsCount, Is.EqualTo(3));
-      Assert.That(ExecuteFindStatement(collection.Find().Where("a = 3")).FetchAll().Count, Is.EqualTo(3));
+      Assert.That(collection.Find("a = 3").Execute().FetchAll().Count, Is.EqualTo(3));
 
       Assert.That(ExecuteModifyStatement(collection.Modify("a IN [3]").Set("a", 1)).AffectedItemsCount, Is.EqualTo(3));
-      Assert.That(ExecuteFindStatement(collection.Find().Where("a = 1")).FetchAll().Count, Is.EqualTo(3));
-
+      Assert.That(collection.Find("a = 1").Execute().FetchAll().Count, Is.EqualTo(3));
+      
       Assert.That(ExecuteModifyStatement(collection.Modify("1 IN c.e").Set("c.e", "newValue")).AffectedItemsCount, Is.EqualTo(2));
-      Assert.That(ExecuteFindStatement(collection.Find().Where("c.e = \"newValue\"")).FetchAll().Count, Is.EqualTo(2));
+      Assert.That(collection.Find("c.e = \"newValue\"").Execute().FetchAll().Count, Is.EqualTo(2));
     }
 
     [Test]
@@ -964,6 +964,7 @@ namespace MySqlX.Data.Tests
       Assert.That(result.AffectedItemsCount, Is.EqualTo(4));
 
       // Sending an expression that evaluates to true applies changes on all documents.
+      #pragma warning disable
       //Deprecated Modify().Where() in 8.0.17
       result = collection.Modify("true").Where("false").Set("pages", "10").Execute();
       Assert.That(result.AffectedItemsCount, Is.EqualTo(0));
@@ -974,10 +975,12 @@ namespace MySqlX.Data.Tests
       Assert.That(result.AffectedItemsCount, Is.EqualTo(4));
       result = collection.Modify("false").Where("false").Set("pages", "40").Execute();
       Assert.That(result.AffectedItemsCount, Is.EqualTo(0));
+      #pragma warning restore
 
       // Condition can't be null or empty.
       Assert.Throws<ArgumentNullException>(() => ExecuteModifyStatement(collection.Modify(" ")));
     }
+
 
     [Test, Description("Test valid modify.patch to change element at Depth n for multiple arrays#Bug))")]
     public void ModifyPatchNDepth()

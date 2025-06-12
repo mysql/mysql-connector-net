@@ -399,7 +399,7 @@ namespace MySql.Web.Security
     /// <summary>
     /// Gets the name of the table storing user information.
     /// </summary>
-    public string UserTableName
+    public new string UserTableName
     {
       get
       {
@@ -417,7 +417,7 @@ namespace MySql.Web.Security
     /// <summary>
     /// Gets the name of the column storing the user ids.
     /// </summary>
-    public string UserIdColumn
+    public new string UserIdColumn
     {
       get
       {
@@ -435,7 +435,7 @@ namespace MySql.Web.Security
     /// <summary>
     /// Gets the name of the column storing the user names.
     /// </summary>
-    public string UserNameColumn
+    public new string UserNameColumn
     {
       get
       {

@@ -176,7 +176,7 @@ namespace MySql.Data.MySqlClient.Tests
     /// Bug#35474099 OpenAsync throws unhandled exception from thread pool.
     /// </summary>
     [Test]
-    public async Task OpenAsyncCatchException()
+    public void OpenAsyncCatchException()
     {
       MockServer mockServer = new MockServer(false);
       mockServer.StartServer();
@@ -1218,7 +1218,7 @@ namespace MySql.Data.MySqlClient.Tests
       }
 
       string fullQuery = string.Format(query, sb.ToString(0, sb.Length - 2));
-      var res = MySqlHelper.ExecuteNonQuery(Connection.ConnectionString + ";ssl-mode=none", fullQuery, mySqlParameters.ToArray());
+      var res = MySqlHelper.ExecuteNonQuery(Connection.ConnectionString + ";ssl-mode=disabled", fullQuery, mySqlParameters.ToArray());
       Assert.That(40000, Is.EqualTo(res));
 
       ExecuteSQL("SET GLOBAL max_allowed_packet=1024000");

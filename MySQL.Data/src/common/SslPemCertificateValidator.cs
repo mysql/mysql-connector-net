@@ -34,6 +34,7 @@ using Org.BouncyCastle.Security.Certificates;
 using System;
 using System.IO;
 using System.Net.Security;
+using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography.X509Certificates;
 
 namespace MySql.Data.common
@@ -268,7 +269,11 @@ namespace MySql.Data.common
     /// <param name="serverCertificate">The server certificate.</param>
     private static void VerifyIssuer(Org.BouncyCastle.X509.X509Certificate CACertificate, X509Certificate serverCertificate)
     {
+#if NET9_0_OR_GREATER
+      var certificate = X509CertificateLoader.LoadCertificate(CACertificate.GetEncoded());
+#else
       var certificate = new X509Certificate(CACertificate.GetEncoded());
+#endif
 
       if (certificate.Issuer != serverCertificate.Issuer)
         throw new MySqlException(Resources.SslConnectionError, new Exception(Resources.SslCertificateCAMismatch));
