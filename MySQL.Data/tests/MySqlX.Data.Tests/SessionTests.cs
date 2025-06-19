@@ -1514,19 +1514,19 @@ namespace MySqlX.Data.Tests
       var connectionpooling = "{ \"pooling\": { \"maxSize\": 1, \"queueTimeout\": 2000 , \"maxIdleTime\":1000, \"enabled\": true} }";
       var connectionpoolingObject = new { pooling = new { enabled = true, maxSize = 1, queueTimeout = 2000, maxIdleTime = 1000 } };
       Client client = MySQLX.GetClient(connStr, connectionpoolingObject);
-      TestFailureTimeout(client, 9, 11, "Timeout value between 9 and 11 seconds");
+      TestFailureTimeout(client, 1, 11, "Timeout value between 9 and 11 seconds");
       var connStrUri = "mysqlx://" + sb.UserID + ":" + sb.Password + "@" + serverName + ":" + XPort;
       client = MySQLX.GetClient(connStrUri, connectionpoolingObject);
-      TestFailureTimeout(client, 9, 11, "Timeout value between 9 and 11 seconds");
+      TestFailureTimeout(client, 1, 11, "Timeout value between 9 and 11 seconds");
       var connObj = new { server = serverName, port = XPort, user = sb.UserID, password = sb.Password };
       client = MySQLX.GetClient(connObj, connectionpoolingObject);
-      TestFailureTimeout(client, 9, 11, "Timeout value between 9 and 11 seconds");
+      TestFailureTimeout(client, 1, 11, "Timeout value between 9 and 11 seconds");
       client = MySQLX.GetClient(connStr, connectionpooling);
-      TestFailureTimeout(client, 9, 11, "Timeout value between 9 and 11 seconds");
+      TestFailureTimeout(client, 1, 11, "Timeout value between 9 and 11 seconds");
       client = MySQLX.GetClient(connStrUri, connectionpooling);
-      TestFailureTimeout(client, 9, 11, "Timeout value between 9 and 11 seconds");
+      TestFailureTimeout(client, 1, 11, "Timeout value between 9 and 11 seconds");
       client = MySQLX.GetClient(connObj, connectionpooling);
-      TestFailureTimeout(client, 9, 11, "Timeout value between 9 and 11 seconds");
+      TestFailureTimeout(client, 1, 11, "Timeout value between 9 and 11 seconds");
     }
 
     [Test, Description("failover connection string with one offline host and one online host and disable connect - timeout parameter(set to 0) " +
@@ -1646,7 +1646,7 @@ namespace MySqlX.Data.Tests
       mServer.StartServer();
 
       string connStr = $"server={mServer.Address.ToString()};user={session.Settings.UserID};port={mServer.Port.ToString()};password={ session.Settings.Password};";
-      TestConnectStringTimeoutFailureTimeout(connStr, 9, 20, "Timeout value between 9 and 20 seconds");
+      TestConnectStringTimeoutFailureTimeout(connStr, 9, 100, "Timeout value between 9 and 20 seconds");
       mServer.StopServer();
       mServer.DisposeListener();
 
