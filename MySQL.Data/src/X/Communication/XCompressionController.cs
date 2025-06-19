@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using ZstdSharp;
+using System.Buffers.Binary;
 
 namespace MySqlX.Communication
 {
@@ -329,7 +330,7 @@ namespace MySqlX.Communication
 
       var messageSizeBytes = new byte[4];
       Buffer.BlockCopy(decompressedData, 0, messageSizeBytes, 0, messageSizeBytes.Length);
-      var firstMessageSize = BitConverter.ToInt32(messageSizeBytes, 0) + 4;
+      var firstMessageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes.AsSpan().Slice(0)) + 4;
       LastMessageContainsMultipleMessages = firstMessageSize < decompressedData.Length;
       if (!LastMessageContainsMultipleMessages
           || (_multipleMessagesStream != null
@@ -440,7 +441,7 @@ namespace MySqlX.Communication
       var messageSizeBytes = new byte[4];
       _multipleMessagesStream.Read(messageSizeBytes, 0, messageSizeBytes.Length);
       byte messageType = (byte)_multipleMessagesStream.ReadByte();
-      var messageSize = BitConverter.ToInt32(messageSizeBytes, 0);
+      var messageSize = BinaryPrimitives.ReadInt32LittleEndian(messageSizeBytes.AsSpan().Slice(0));
       var data = new byte[messageSize - 1];
       _multipleMessagesStream.Read(data, 0, data.Length);
       _lastCommunicationPacket = new CommunicationPacket(messageType, messageSize - 1, data);

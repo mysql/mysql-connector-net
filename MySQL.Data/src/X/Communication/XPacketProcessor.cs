@@ -37,6 +37,7 @@ using MySqlX.XDevAPI.Common;
 using System.Linq;
 using System.Net.Sockets;
 using System.Collections.Generic;
+using System.Buffers.Binary;
 
 namespace MySql.Data.X.Communication
 {
@@ -153,7 +154,7 @@ namespace MySql.Data.X.Communication
 
       byte[] header = new byte[HEADER_SIZE];
       ReadFully(header, 0, HEADER_SIZE);
-      int length = BitConverter.ToInt32(header, 0);
+      int length = BinaryPrimitives.ReadInt32LittleEndian(header.AsSpan().Slice(0));
       byte[] data = new byte[length - 1];
       ReadFully(data, 0, length - 1);
       // If compression is enabled and message is of type compression.
@@ -168,7 +169,7 @@ namespace MySql.Data.X.Communication
         {
           data[i] = decompressedPayload[i + HEADER_SIZE];
         }
-        returnPacket = new CommunicationPacket(decompressedPayload[MESSAGE_TYPE], BitConverter.ToInt32(decompressedPayload, 0) - 1, data);
+        returnPacket = new CommunicationPacket(decompressedPayload[MESSAGE_TYPE], BinaryPrimitives.ReadInt32LittleEndian(decompressedPayload.AsSpan().Slice(0)) - 1, data);
         IdentifyPacket(returnPacket);
         return returnPacket;
       }

@@ -34,6 +34,7 @@ using Mysqlx.Connection;
 using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Buffers.Binary;
 
 namespace MySqlX.Communication
 {
@@ -96,7 +97,8 @@ namespace MySqlX.Communication
         var messageHeader = new byte[5];
         var messageBytes = message.ToByteArray();
         byte[] payload = new byte[messageHeader.Length + messageBytes.Length];
-        var sizeArray = BitConverter.GetBytes(messageSize + 1);
+        byte[] sizeArray = new byte[4];
+        BinaryPrimitives.WriteInt32LittleEndian(sizeArray,(messageSize + 1));
         Buffer.BlockCopy(sizeArray, 0, messageHeader, 0, sizeArray.Length);
         messageHeader[4] = (byte)id;
         Buffer.BlockCopy(messageHeader, 0, payload, 0, messageHeader.Length);
@@ -108,7 +110,9 @@ namespace MySqlX.Communication
         compression.Payload = ByteString.CopyFrom(CompressionWriteController.Compress(payload));
 
         // Build the X Protocol frame.
-        _stream.Write(BitConverter.GetBytes(compression.CalculateSize() + 1), 0, 4);
+        byte[] bytesToWrite = new byte[4];
+        BinaryPrimitives.WriteInt32LittleEndian(bytesToWrite,(compression.CalculateSize() + 1));
+        _stream.Write(bytesToWrite, 0, 4);
         _stream.WriteByte((byte)(ClientMessageId.COMPRESSION));
         if (messageSize > 0)
         {
@@ -117,7 +121,9 @@ namespace MySqlX.Communication
       }
       else
       {
-        _stream.Write(BitConverter.GetBytes(messageSize + 1), 0, 4);
+        byte[] bytesToWrite = new byte[4];
+        BinaryPrimitives.WriteInt32LittleEndian(bytesToWrite,messageSize + 1);
+        _stream.Write(bytesToWrite, 0, 4);
         _stream.WriteByte((byte)id);
         if (messageSize > 0)
         {
