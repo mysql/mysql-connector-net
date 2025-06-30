@@ -1,3 +1,6 @@
+9.5.0
+
+
 9.4.0
 - Fixed bug OpenAsync throws unhandled exception from thread pool (MySQL Bug #110789, Oracle Bug #35474099).
 - Fixed Entity Framework 6 from NET9 is deprecated due to Nunit4 Upgrade (MySQL Bug #117976, Oracle Bug #37837374).
