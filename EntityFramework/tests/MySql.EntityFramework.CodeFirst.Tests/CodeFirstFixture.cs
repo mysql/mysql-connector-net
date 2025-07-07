@@ -136,6 +136,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       DeleteContext<ContextForLongFk>();
       DeleteContext<ContextForTinyPk>();
       DeleteContext<ContextForBigIntPk>();
+      DeleteContext<Bug38142312_DbContext>();
     }
 
     public static string GetEFConnectionString<T>(string database = null) where T : DbContext

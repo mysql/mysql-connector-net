@@ -233,7 +233,7 @@ namespace MySql.Data.EntityFramework
           {
             newColumn.ColumnAlias = cf.ColumnAlias;
             newColumn.PushInput(cf.ActualColumnName);
-            if (cf.TableName != null)
+            if (cf.TableName != null && !select.From.Scoped)
               newColumn.PushInput(cf.TableName);
           }
           else

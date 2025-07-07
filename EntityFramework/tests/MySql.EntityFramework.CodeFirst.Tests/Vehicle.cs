@@ -127,6 +127,25 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
   {
     public string BikeProperty { get; set; }
   }
+
+  public class Car_Bug38142312 : Vehicle4
+  {
+    public string CarProperty { get; set; }
+    public string Status { get; set; }
+  }
+
+  public class Bike_Bug38142312 : Vehicle4
+  {
+    public string BikeProperty { get; set; }
+    public string Status { get; set; }
+  }
+
+  public class Plane_Bug38142312 : Vehicle4
+  {
+    public string PlaneProperty { get; set; }
+    public string Status { get; set; }
+  }
+
   public class Manufacturer4
   {
     [Key]
@@ -148,6 +167,7 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
     [ForeignKey(nameof(ManufacturerId))]
     public virtual Manufacturer4 Manufacturer { get; set; }
   }
+
   [DbConfigurationType(typeof(MySqlEFConfiguration))]
   public class VehicleDbContext4 : DbContext
   {
@@ -166,7 +186,32 @@ namespace MySql.Data.EntityFramework.CodeFirst.Tests
       modelBuilder.Entity<Bike4>().ToTable("Bikes");
     }
   }
+
   public class VehicleDBInitializer4 : DropCreateDatabaseReallyAlways<VehicleDbContext4>
+  {
+  }
+
+  [DbConfigurationType(typeof(MySqlEFConfiguration))]
+  public class Bug38142312_DbContext : DbContext
+  {
+    public DbSet<Vehicle4> Vehicles { get; set; }
+    public DbSet<Manufacturer4> Manufacturers { get; set; }
+
+    public Bug38142312_DbContext() : base(CodeFirstFixture.GetEFConnectionString<Bug38142312_DbContext>())
+    {
+      Database.SetInitializer<Bug38142312_DbContext>(new Bug38142312_DbContextInitializer());
+
+    }
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+      modelBuilder.Entity<Vehicle4>().ToTable("Vehicles");
+      modelBuilder.Entity<Car_Bug38142312>().ToTable("Cars");
+      modelBuilder.Entity<Bike_Bug38142312>().ToTable("Bikes");
+      modelBuilder.Entity<Plane_Bug38142312>().ToTable("Planes");
+    }
+  }
+
+  public class Bug38142312_DbContextInitializer : DropCreateDatabaseReallyAlways<Bug38142312_DbContext>
   {
   }
 

@@ -2288,5 +2288,37 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
         Assert.That(list.Count(), Is.EqualTo(0));
       }
     }
+
+
+    /// <summary>
+    /// Bug #38142312 [Incorrect column alias used in CASE-WHEN when querying Table-Per-Type inheritance with subclass column name clash]
+    /// </summary>
+    [Test]
+    public void Bug38142312_Test()
+    {
+      using (Bug38142312_DbContext context = new Bug38142312_DbContext())
+      {
+        context.Database.Delete();
+        context.Database.Initialize(true);
+        var manuf = context.Manufacturers.Add(new Manufacturer4 { Name = "ACME" });
+        context.Vehicles.Add(new Car_Bug38142312 { Id = 1, Name = "Mustang", Year = 2012, Status = "stCar", CarProperty = "Car", Manufacturer = manuf });
+        context.Vehicles.Add(new Bike_Bug38142312 { Id = 101, Name = "Mountain", Year = 2011, Status = "stBike", BikeProperty = "Bike", Manufacturer = manuf });
+        context.Vehicles.Add(new Plane_Bug38142312 { Id = 1001, Name = "Air", Year = 2011, Status = "stPlane", PlaneProperty = "Plane", Manufacturer = manuf });
+        context.SaveChanges();
+
+        var vehiclesfromdb = context.Manufacturers.SelectMany(v => v.Vehicles).ToList();
+
+        Assert.That(vehiclesfromdb.Count, Is.EqualTo(3));
+        Assert.That(vehiclesfromdb.OfType<Car_Bug38142312>().Single().Name, Is.EqualTo("Mustang"));
+        Assert.That(vehiclesfromdb.OfType<Car_Bug38142312>().Single().CarProperty, Is.EqualTo("Car"));
+        Assert.That(vehiclesfromdb.OfType<Car_Bug38142312>().Single().Status, Is.EqualTo("stCar"));
+        Assert.That(vehiclesfromdb.OfType<Bike_Bug38142312>().Single().Name, Is.EqualTo("Mountain"));
+        Assert.That(vehiclesfromdb.OfType<Bike_Bug38142312>().Single().BikeProperty, Is.EqualTo("Bike"));
+        Assert.That(vehiclesfromdb.OfType<Bike_Bug38142312>().Single().Status, Is.EqualTo("stBike"));
+        Assert.That(vehiclesfromdb.OfType<Plane_Bug38142312>().Single().Name, Is.EqualTo("Air"));
+        Assert.That(vehiclesfromdb.OfType<Plane_Bug38142312>().Single().PlaneProperty, Is.EqualTo("Plane"));
+        Assert.That(vehiclesfromdb.OfType<Plane_Bug38142312>().Single().Status, Is.EqualTo("stPlane"));
+      }
+    }
   }
 }
