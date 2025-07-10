@@ -268,7 +268,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="isAnalyzed">Flag that indicates if the connection string has been analyzed.</param>
     public MySqlConnectionStringBuilder(string connectionString, bool isAnalyzed = false) : this()
     {
-      AnalyzeConnectionString(connectionString, false, isAnalyzed: isAnalyzed);
+      AnalyzeConnectionString(connectionString, false, isDefaultPort: false, isAnalyzed: isAnalyzed);
       lock (this)
       {
         ConnectionString = connectionString;

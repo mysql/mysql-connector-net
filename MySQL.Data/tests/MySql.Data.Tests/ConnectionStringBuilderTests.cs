@@ -464,5 +464,88 @@ namespace MySql.Data.MySqlClient.Tests
       connString = "kerberosauthmode=INVALID";
       Assert.Throws<ArgumentException>(() => conn = new MySqlConnection(connString));
     }
+
+    /// <summary>
+    /// Bug#36043278 - Certain sequence of special characters can break connection string validation.
+    /// </summary>
+    [TestCase("foo;=bar,baz", "", false, false)]
+    [TestCase("foo=bar=baz=qux", "", false, false)]
+    [TestCase(";dnssrv=true;port=123;", "", false, false)]
+    [TestCase("foopass", "(address=myhost),(address=yourhost)", false, false)]
+    [TestCase("foopass", "(address=myhost),(address=yourhost)", true, true)]
+    [TestCase("foopass", "myhost,", false, false)]
+    [TestCase("foopass", "myhost", true, true)]
+    [TestCase("foopass", "(address=myhost,priority=10)", false, false)]
+    [TestCase("foopass", "(address=myhost,priority=10)", true, true)]
+    public void Bug36043278_stringBuilder(string pass, string server, bool dns, bool throws)
+    {
+      var builder = new MySqlConnectionStringBuilder
+      {
+        Server = server != "" ? server : Settings.Server,
+        UserID = Settings.UserID,
+        Password = pass,
+        Port = Settings.Port,
+        DnsSrv = dns
+      };
+
+      if (throws)
+      {
+        Assert.Throws<ArgumentException>(() =>
+        {
+          MySqlConnection conn = new MySqlConnection(builder.GetConnectionString(true));
+        });
+      }
+      else
+      {
+        Assert.DoesNotThrow(() =>
+        {
+          MySqlConnection conn = new MySqlConnection(builder.GetConnectionString(true));
+        });
+      }
+
+      Assert.That(builder.Password, Is.EqualTo(pass));
+      Assert.That(builder.DnsSrv, Is.EqualTo(dns));
+      Assert.That(builder.Port, Is.EqualTo(Settings.Port));
+    }
+
+    [TestCase("server=localhost;uid=dummyuser;port=4823;password=\"';'@dnssrv=true;\"\"port=123;\"", false,  false)]
+    [TestCase("server=localhost;uid=dummyuser;port=4823;dns-srv=foobar;password=\"';'@dnssrv=true;\"\"port=123;\"", false, true)]
+    [TestCase("server=localhost;uid=dummyuser;port=4823;dns-srv=\"foobar;port=12345\";password=\"';'@dnssrv=true;\"\"port=123;\"", false, true)]
+    [TestCase("server=localhost;uid=dummyuser;port=4823;dns-srv=true;password=\"';'@dnssrv=true;\"\"port=123;\"", true, true)]
+    [TestCase("server=localhost;uid=dummyuser;dns-srv=tRue;password=\"';'@dnssrv=true;\"\"port=123;\"", true, false)]
+    [TestCase("server=(address=myhost),(address=yourhost);uid=dummyuser;dns-srv=true;password=\"';'@dnssrv=true;\"\"port=123;\"", true, true)]
+    [TestCase("server=localhost;protocol=uNiX;uid=dummyuser;dns-srv=tRue;password=\"';'@dnssrv=true;\"\"port=123;\"", true, true)]
+    public void Bug36043278_connString(string connString,  bool dns, bool throws)
+    {
+      if (throws)
+      {
+        Assert.Throws<ArgumentException>(() =>
+        {
+          MySqlConnection conn = new MySqlConnection(connString);
+        });
+
+        Assert.Throws<ArgumentException>(() =>
+        {
+          MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(connString);
+        });
+      }
+      else
+      {
+        Assert.DoesNotThrow(() =>
+        {
+          MySqlConnection conn = new MySqlConnection(connString);
+        });
+
+        MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(connString);
+
+        Assert.DoesNotThrow(() =>
+        {
+          MySqlConnection conn = new MySqlConnection(builder.GetConnectionString(true));
+        });
+
+        Assert.That(builder.Password, Is.EqualTo("';'@dnssrv=true;\"port=123;"));
+        Assert.That(builder.DnsSrv, Is.EqualTo(dns));
+      }
+    }
   }
 }

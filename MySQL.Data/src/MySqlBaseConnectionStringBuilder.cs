@@ -27,8 +27,11 @@
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 using MySql.Data.Common;
+using MySql.Data.Failover;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Common;
 using System.Globalization;
@@ -439,6 +442,14 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
+    private string GetOptionValue(MySqlConnectionStringOption option, DbConnectionStringBuilder connStrBuilder)
+    {
+      return connStrBuilder
+        .Cast<KeyValuePair<string, object>>()
+        .FirstOrDefault(kvp => option.Keyword == kvp.Key || option.Synonyms.Contains(kvp.Key))
+        .Value?.ToString();
+    }
+
     /// <summary>
     /// Analyzes the connection string for potential duplicated or invalid connection options.
     /// </summary>
@@ -450,39 +461,35 @@ namespace MySql.Data.MySqlClient
     {
       if (!isAnalyzed && !string.IsNullOrWhiteSpace(connectionString))
       {
-        string[] queries = connectionString.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+        DbConnectionStringBuilder connStrBuilder = new DbConnectionStringBuilder();
+        connStrBuilder.ConnectionString = connectionString;
+
+        string dnsSrvValue;
         bool isDnsSrv = false;
+        if ((dnsSrvValue = GetOptionValue(Options["dns-srv"], connStrBuilder)) != null && !bool.TryParse(dnsSrvValue, out isDnsSrv))
+          throw new ArgumentException(string.Format(Resources.InvalidConnectionStringValue, dnsSrvValue, "dns-srv"));
 
-        if (queries.FirstOrDefault(q => q.ToLowerInvariant().Contains("dns-srv=true")) != null
-              || queries.FirstOrDefault(q => q.ToLowerInvariant().Contains("dnssrv=true")) != null)
-          isDnsSrv = true;
-
-        foreach (string query in queries)
+        // DNS SRV option can't be used if Port, Unix Socket or Multihost are specified
+        if (isDnsSrv)
         {
-          string[] keyValue = query.Split('=');
-          if (keyValue.Length % 2 != 0)
-            continue;
+          if (connStrBuilder.ContainsKey("port")  && !isDefaultPort)
+            throw new ArgumentException(Resources.DnsSrvInvalidConnOptionPort);
 
-          var keyword = keyValue[0].ToLowerInvariant().Trim();
-          var value = query.Contains(",") ? query.Replace(keyword, "") : keyValue[1].ToLowerInvariant();
-          MySqlConnectionStringOption option = Options.Options.Where(o => o.Keyword == keyword || (o.Synonyms != null && o.Synonyms.Contains(keyword))).FirstOrDefault();
+          string serverOptionValue = GetOptionValue( Options["server"], connStrBuilder);
+          if (FailoverManager.ParseHostList(serverOptionValue, false, false) > 1)
+            throw new ArgumentException(Resources.DnsSrvInvalidConnOptionMultihost);
 
-          // DNS SRV option can't be used if Port, Unix Socket or Multihost are specified
-          if (isDnsSrv)
-          {
-            if (option.Keyword == "port" && !isDefaultPort)
-              throw new ArgumentException(Resources.DnsSrvInvalidConnOptionPort);
-            if (option.Keyword == "server" && ((value.Contains("address") && value.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Length > 2) || value.Contains(",")))
-              throw new ArgumentException(Resources.DnsSrvInvalidConnOptionMultihost);
-            if (option.Keyword == "protocol" && (value.ToLowerInvariant().Contains("unix") || value.ToLowerInvariant().Contains("unixsocket")))
-              throw new ArgumentException(Resources.DnsSrvInvalidConnOptionUnixSocket);
-          }
+          MySqlConnectionProtocol protocolOptionValue;
+          if (Enum.TryParse(GetOptionValue(Options["protocol"], connStrBuilder), true, out protocolOptionValue) && (protocolOptionValue == MySqlConnectionProtocol.Unix || protocolOptionValue == MySqlConnectionProtocol.UnixSocket))
+            throw new ArgumentException(Resources.DnsSrvInvalidConnOptionUnixSocket);
+        }
 
-          if (option == null) continue;
-
+        if (isXProtocol)
+        {
           // Preferred is not allowed for the X Protocol.
-          if (isXProtocol && option.Keyword == "sslmode" && (value == "preferred" || value == "prefered"))
-            throw new ArgumentException(string.Format(Resources.InvalidSslMode, keyValue[1]));
+          MySqlSslMode sslModeOptionValue;
+          if (Enum.TryParse(GetOptionValue(Options["sslmode"], connStrBuilder), true, out sslModeOptionValue) && (sslModeOptionValue == MySqlSslMode.Preferred || sslModeOptionValue == MySqlSslMode.Prefered))
+            throw new ArgumentException(string.Format(Resources.InvalidSslMode, sslModeOptionValue));
         }
       }
     }
