@@ -105,11 +105,11 @@ namespace MySqlX.Data.Tests
     }
 
 #if !NET452
-    [TestCase(MySqlSslMode.Prefered, "TlSv1.2, tLsV11, TLS13, tls1.0", "Tls12, Tls13")]
+    [TestCase(MySqlSslMode.Preferred, "TlSv1.2, tLsV11, TLS13, tls1.0", "Tls12, Tls13")]
     [TestCase(MySqlSslMode.Disabled, "TlSv1.2, tLsV11, TLS13, tls1.0", "TLS12, TLS13")]
     [TestCase(null, "TlSv1.2, tLsV11, TLS13, tls1.0", "Tls12, Tls13")]
 #endif
-    [TestCase(MySqlSslMode.Prefered, "TlSv1.2, tLsV11, tls1.0", "Tls12")]
+    [TestCase(MySqlSslMode.Preferred, "TlSv1.2, tLsV11, tls1.0", "Tls12")]
     [TestCase(MySqlSslMode.Disabled, "TlSv1.2, tLsV11, tls1.0", "Tls12")]
     [TestCase(null, "TlSv1.2, tLsV11, tls1.0", "Tls12")]
     public void ValidateTlsVersionOptionAndSslMode(MySqlSslMode? sslMode1, string options, string result)

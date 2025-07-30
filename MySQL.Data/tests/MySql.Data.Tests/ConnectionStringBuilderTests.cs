@@ -547,5 +547,23 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.That(builder.DnsSrv, Is.EqualTo(dns));
       }
     }
+
+    /// <summary>
+    /// WL17115 - Remove 'Prefered' option from MySqlSslMode
+    /// </summary>
+    [Test]
+    public void WL17115()
+    {
+      string connString = "server=localhost;uid=dummyuser;port=4823;ssl-mode=prefered";
+      Assert.Throws<ArgumentException>(() =>
+      {
+        MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(connString);
+      });
+
+      Assert.Throws<ArgumentException>(() =>
+      {
+        MySqlConnection conn = new MySqlConnection(connString);
+      });
+    }
   }
 }

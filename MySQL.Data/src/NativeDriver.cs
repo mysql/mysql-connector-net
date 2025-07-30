@@ -275,13 +275,13 @@ namespace MySql.Data.MySqlClient
       // Server doesn't support SSL connections
       if ((serverCaps & ClientFlags.SSL) == 0)
       {
-        if (Settings.SslMode != MySqlSslMode.Disabled && Settings.SslMode != MySqlSslMode.Prefered)
+        if (Settings.SslMode != MySqlSslMode.Disabled && Settings.SslMode != MySqlSslMode.Preferred)
           throw new MySqlException(string.Format(Resources.NoServerSSLSupport, Settings.Server));
       }
       // Current connection doesn't support SSL connections
       else if ((connectionFlags & ClientFlags.SSL) == 0)
       {
-        if (Settings.SslMode != MySqlSslMode.Disabled && Settings.SslMode != MySqlSslMode.Prefered)
+        if (Settings.SslMode != MySqlSslMode.Disabled && Settings.SslMode != MySqlSslMode.Preferred)
           throw new MySqlException(string.Format(Resources.SslNotAllowedForConnectionProtocol, Settings.ConnectionProtocol));
       }
       // Server and connection supports SSL connections and Client are requisting a secure connection

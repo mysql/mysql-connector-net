@@ -122,17 +122,11 @@ namespace MySqlX.Data.Tests
     [Test]
     public void SslPreferredIsInvalid()
     {
-      string prefered = "Prefered";
-#if NET8_0_OR_GREATER
-      prefered = "Preferred";
-#endif
       var expectedErrorMessage = "Value '{0}' is not of the correct type";
 
       // In connection string.
       var exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionStringUri + "?ssl-mode=Preferred"));
       Assert.That(exception.Message, Is.EqualTo(string.Format(expectedErrorMessage, "Preferred")));
-      exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(ConnectionStringUri + "?ssl-mode=Prefered"));
-      Assert.That(exception.Message, Is.EqualTo(string.Format(expectedErrorMessage, "Prefered")));
 
       // In anonymous object.
       var builder = new MySqlXConnectionStringBuilder(ConnectionString);
@@ -142,21 +136,16 @@ namespace MySqlX.Data.Tests
         port = builder.Port,
         user = builder.UserID,
         password = builder.Password,
-        sslmode = MySqlSslMode.Prefered
+        sslmode = MySqlSslMode.Preferred
       };
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionObject));
-      Assert.That(exception.Message, Is.EqualTo(string.Format(expectedErrorMessage, prefered)));
+      Assert.That(exception.Message, Is.EqualTo(string.Format(expectedErrorMessage, "Preferred")));
 
       // In MySqlXConnectionStringBuilder.
       builder = new MySqlXConnectionStringBuilder(ConnectionString);
-      builder.SslMode = MySqlSslMode.Prefered;
-      exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionObject));
-      Assert.That(exception.Message, Is.EqualTo(string.Format(expectedErrorMessage, prefered)));
-
-      builder = new MySqlXConnectionStringBuilder(ConnectionString);
       builder.SslMode = MySqlSslMode.Preferred;
       exception = Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connectionObject));
-      Assert.That(exception.Message, Is.EqualTo(string.Format(expectedErrorMessage, prefered)));
+      Assert.That(exception.Message, Is.EqualTo(string.Format(expectedErrorMessage, "Preferred")));
     }
 
     [Test]
@@ -766,9 +755,9 @@ namespace MySqlX.Data.Tests
       string CommandText2 = "show  status like '%Ssl_version%';";
       string connStr = null;
 
-      string[] sslmodes = { "Disabled", "Prefered", "Preferred", "Required", "VerifyCA" };
+      string[] sslmodes = { "Disabled", "Preferred", "Required", "VerifyCA" };
       MySqlSslMode[] sslmode =
-          { MySqlSslMode.Disabled,MySqlSslMode.Prefered,MySqlSslMode.Preferred,MySqlSslMode.Required,MySqlSslMode.VerifyCA };
+          { MySqlSslMode.Disabled,MySqlSslMode.Preferred,MySqlSslMode.Required,MySqlSslMode.VerifyCA };
       string tls = "TLSv1.2";
 
       for (int i = 0; i < sslmodes.Length; i++)
@@ -785,11 +774,7 @@ namespace MySqlX.Data.Tests
         else
         {
           string sslcompare = sslmodes[i];
-          if (i == 2)
-          {
-            sslcompare = "Preferred";
-          }
-          if (i == 1 || i == 2)
+          if (i == 1)
           {
             Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connStr));
           }
@@ -816,13 +801,9 @@ namespace MySqlX.Data.Tests
         }
         else
         {
-          if (i == 1 || i == 2)
+          if (i == 1)
           {
             string sslcompare = sslmodes[i];
-            if (i == 2)
-            {
-              sslcompare = "Preferred";
-            }
             Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connStr));
           }
           else
@@ -861,11 +842,7 @@ namespace MySqlX.Data.Tests
         else
         {
           string sslcompare = sslmodes[i];
-          if (i == 2)
-          {
-            sslcompare = "Prefered";
-          }
-          if (i == 1 | i == 2)
+          if (i == 1)
           {
             Assert.Throws<ArgumentException>(() => MySQLX.GetSession(connObject));
           }
@@ -888,13 +865,9 @@ namespace MySqlX.Data.Tests
         conn.SslCa = sslCa;
         conn.SslMode = sslmode[i];
 
-        if (i == 1 || i == 2)
+        if (i == 1)
         {
           string sslcompare = sslmodes[i];
-          if (i == 2)
-          {
-            sslcompare = "Prefered";
-          }
           Assert.Throws<ArgumentException>(() => MySQLX.GetSession(conn.ConnectionString));
         }
         else if (i != 0)

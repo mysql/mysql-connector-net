@@ -850,7 +850,7 @@ namespace MySql.Data.MySqlClient.Tests
         connClassic.SslCert = sslcertlist[i];
         connClassic.SslKey = sslkeylist[i];
         connClassic.SslCa = _sslCa;
-        connClassic.SslMode = MySqlSslMode.Prefered;
+        connClassic.SslMode = MySqlSslMode.Preferred;
         using (var c = new MySqlConnection(connClassic.ConnectionString))
         {
           c.Open();
@@ -924,7 +924,7 @@ namespace MySql.Data.MySqlClient.Tests
       connClassic.UserID = Settings.UserID;
       connClassic.Password = Settings.Password;
       connClassic.SslCa = _sslCa;
-      connClassic.SslMode = MySqlSslMode.Prefered;
+      connClassic.SslMode = MySqlSslMode.Preferred;
       using (var c = new MySqlConnection(connClassic.ConnectionString))
       {
         c.Open();

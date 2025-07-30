@@ -488,7 +488,7 @@ namespace MySql.Data.MySqlClient
         {
           // Preferred is not allowed for the X Protocol.
           MySqlSslMode sslModeOptionValue;
-          if (Enum.TryParse(GetOptionValue(Options["sslmode"], connStrBuilder), true, out sslModeOptionValue) && (sslModeOptionValue == MySqlSslMode.Preferred || sslModeOptionValue == MySqlSslMode.Prefered))
+          if (Enum.TryParse(GetOptionValue(Options["sslmode"], connStrBuilder), true, out sslModeOptionValue) && sslModeOptionValue == MySqlSslMode.Preferred)
             throw new ArgumentException(string.Format(Resources.InvalidSslMode, sslModeOptionValue));
         }
       }
