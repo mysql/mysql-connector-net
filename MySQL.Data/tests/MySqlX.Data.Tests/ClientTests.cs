@@ -1473,12 +1473,10 @@ namespace MySqlX.Data.Tests
     {
       Assume.That(session.Version.isAtLeast(8, 0, 16), "This test is for MySql 8.0.16 or higher");
       MySqlXConnectionStringBuilder sb = new MySqlXConnectionStringBuilder(ConnectionString);
-      using (Client client = MySQLX.GetClient(new { server = sb.Server, port = XPort, user = sb.UserID, password = sb.Password, ConnectionAttributes = "=" }
-      , "{ \"pooling\": { \"enabled\": true } }"))
-      {
-        Exception ex = Assert.Throws<MySqlException>(() => client.GetSession());
-        Assert.That(ex.Message, Is.EqualTo("The requested value '=' is invalid for the given keyword 'connection-attributes'"));
-      }
+
+      Exception ex = Assert.Throws<MySqlException>(() => 
+      MySQLX.GetClient(new { server = sb.Server, port = XPort, user = sb.UserID, password = sb.Password, ConnectionAttributes = "=" }, "{ \"pooling\": { \"enabled\": true } }"));
+      Assert.That(ex.Message, Is.EqualTo("Incorrect value in Connection String near 'connection-attributes'."));
     }
 
     [Test, Description("Connection Attributes with arrays")]

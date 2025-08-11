@@ -450,6 +450,24 @@ namespace MySql.Data.MySqlClient
         .Value?.ToString();
     }
 
+    private bool ParseArgumentException(string exMessage,string connString, out string newExMessage)
+    {
+      string idx = "index";
+      int startIndex = 0;
+      string indexValue = "";
+      if ((startIndex = exMessage.IndexOf(idx)) != -1)
+      {
+        indexValue = exMessage.Substring(startIndex + idx.Length + 1).Trim().Replace(".","");
+        newExMessage = string.Format("Incorrect value in Connection String near '{0}'.", connString.Substring(Int32.Parse(indexValue)).Split('=')[0]);
+        return true;
+      }
+      else
+      {
+        newExMessage = "";
+        return false;
+      }
+    }
+
     /// <summary>
     /// Analyzes the connection string for potential duplicated or invalid connection options.
     /// </summary>
@@ -462,8 +480,23 @@ namespace MySql.Data.MySqlClient
       if (!isAnalyzed && !string.IsNullOrWhiteSpace(connectionString))
       {
         DbConnectionStringBuilder connStrBuilder = new DbConnectionStringBuilder();
-        connStrBuilder.ConnectionString = connectionString;
-
+        try
+        {
+          connStrBuilder.ConnectionString = connectionString;
+        }
+        catch (ArgumentException argEx)
+        {
+          string exMessage = "";
+          if(ParseArgumentException(argEx.Message, connectionString, out exMessage))
+          {
+            throw new MySqlException(exMessage);
+          }
+          else
+          {
+            throw;
+          }
+        }
+        
         string dnsSrvValue;
         bool isDnsSrv = false;
         if ((dnsSrvValue = GetOptionValue(Options["dns-srv"], connStrBuilder)) != null && !bool.TryParse(dnsSrvValue, out isDnsSrv))
