@@ -565,5 +565,19 @@ namespace MySql.Data.MySqlClient.Tests
         MySqlConnection conn = new MySqlConnection(connString);
       });
     }
+
+    /// <summary>
+    /// Bug#37651419 - Connectionstrings crafted with `dns-srv=true` and (at least) POOLING set break MySqlConnectionStringBuilder.
+    /// </summary>
+    [TestCase("SERVER=localhost; DATABASE=test; UID=test; dns-srv=True; PASSWORD=test; POOLING=true;")]
+    [TestCase("SERVER=localhost; DATABASE=test; UID=test; dns-srv=True; PASSWORD=test; POOLING=true; SSL-MODE=preferred;")]
+    [TestCase("SERVER=localhost; DATABASE=test; UID=test; dns-srv=True; PASSWORD=test; POOLING=true; COMPRESS=true;")]
+    public void Bug37651419(string connString)
+    {
+      Assert.DoesNotThrow(() =>
+      {
+        MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder(connString);
+      });
+    }
   }
 }
