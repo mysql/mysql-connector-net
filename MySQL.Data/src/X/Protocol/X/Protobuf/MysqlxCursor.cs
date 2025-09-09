@@ -37,23 +37,19 @@ using pb = global::Google.Protobuf;
 using pbc = global::Google.Protobuf.Collections;
 using pbr = global::Google.Protobuf.Reflection;
 using scg = global::System.Collections.Generic;
-namespace Mysqlx.Cursor
-{
+namespace Mysqlx.Cursor {
 
   /// <summary>Holder for reflection information generated from mysqlx_cursor.proto</summary>
-  public static partial class MysqlxCursorReflection
-  {
+  public static partial class MysqlxCursorReflection {
 
     #region Descriptor
     /// <summary>File descriptor for mysqlx_cursor.proto</summary>
-    public static pbr::FileDescriptor Descriptor
-    {
+    public static pbr::FileDescriptor Descriptor {
       get { return descriptor; }
     }
     private static pbr::FileDescriptor descriptor;
 
-    static MysqlxCursorReflection()
-    {
+    static MysqlxCursorReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChNteXNxbHhfY3Vyc29yLnByb3RvEg1NeXNxbHguQ3Vyc29yGgxteXNxbHgu",
@@ -96,9 +92,9 @@ namespace Mysqlx.Cursor
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class Open : pb::IMessage<Open>
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
-#endif
+  #endif
   {
     private static readonly pb::MessageParser<Open> _parser = new pb::MessageParser<Open>(() => new Open());
     private pb::UnknownFieldSet _unknownFields;
@@ -109,22 +105,19 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor
-    {
+    public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Cursor.MysqlxCursorReflection.Descriptor.MessageTypes[0]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor
-    {
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Open()
-    {
+    public Open() {
       OnConstruction();
     }
 
@@ -132,8 +125,7 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Open(Open other) : this()
-    {
+    public Open(Open other) : this() {
       _hasBits0 = other._hasBits0;
       cursorId_ = other.cursorId_;
       stmt_ = other.stmt_ != null ? other.stmt_.Clone() : null;
@@ -143,8 +135,7 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Open Clone()
-    {
+    public Open Clone() {
       return new Open(this);
     }
 
@@ -159,11 +150,9 @@ namespace Mysqlx.Cursor
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint CursorId
-    {
+    public uint CursorId {
       get { if ((_hasBits0 & 1) != 0) { return cursorId_; } else { return CursorIdDefaultValue; } }
-      set
-      {
+      set {
         _hasBits0 |= 1;
         cursorId_ = value;
       }
@@ -171,15 +160,13 @@ namespace Mysqlx.Cursor
     /// <summary>Gets whether the "cursor_id" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasCursorId
-    {
+    public bool HasCursorId {
       get { return (_hasBits0 & 1) != 0; }
     }
     /// <summary>Clears the value of the "cursor_id" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearCursorId()
-    {
+    public void ClearCursorId() {
       _hasBits0 &= ~1;
     }
 
@@ -191,11 +178,9 @@ namespace Mysqlx.Cursor
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Mysqlx.Cursor.Open.Types.OneOfMessage Stmt
-    {
+    public global::Mysqlx.Cursor.Open.Types.OneOfMessage Stmt {
       get { return stmt_; }
-      set
-      {
+      set {
         stmt_ = value;
       }
     }
@@ -210,11 +195,9 @@ namespace Mysqlx.Cursor
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong FetchRows
-    {
+    public ulong FetchRows {
       get { if ((_hasBits0 & 2) != 0) { return fetchRows_; } else { return FetchRowsDefaultValue; } }
-      set
-      {
+      set {
         _hasBits0 |= 2;
         fetchRows_ = value;
       }
@@ -222,35 +205,29 @@ namespace Mysqlx.Cursor
     /// <summary>Gets whether the "fetch_rows" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasFetchRows
-    {
+    public bool HasFetchRows {
       get { return (_hasBits0 & 2) != 0; }
     }
     /// <summary>Clears the value of the "fetch_rows" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearFetchRows()
-    {
+    public void ClearFetchRows() {
       _hasBits0 &= ~2;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other)
-    {
+    public override bool Equals(object other) {
       return Equals(other as Open);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(Open other)
-    {
-      if (ReferenceEquals(other, null))
-      {
+    public bool Equals(Open other) {
+      if (ReferenceEquals(other, null)) {
         return false;
       }
-      if (ReferenceEquals(other, this))
-      {
+      if (ReferenceEquals(other, this)) {
         return true;
       }
       if (CursorId != other.CursorId) return false;
@@ -261,14 +238,12 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() {
       int hash = 1;
       if (HasCursorId) hash ^= CursorId.GetHashCode();
       if (stmt_ != null) hash ^= Stmt.GetHashCode();
       if (HasFetchRows) hash ^= FetchRows.GetHashCode();
-      if (_unknownFields != null)
-      {
+      if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
       return hash;
@@ -276,18 +251,16 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString()
-    {
+    public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output)
-    {
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
-#else
+    #else
       if (HasCursorId) {
         output.WriteRawTag(8);
         output.WriteUInt32(CursorId);
@@ -303,55 +276,45 @@ namespace Mysqlx.Cursor
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
-#endif
+    #endif
     }
 
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output)
-    {
-      if (HasCursorId)
-      {
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (HasCursorId) {
         output.WriteRawTag(8);
         output.WriteUInt32(CursorId);
       }
-      if (stmt_ != null)
-      {
+      if (stmt_ != null) {
         output.WriteRawTag(34);
         output.WriteMessage(Stmt);
       }
-      if (HasFetchRows)
-      {
+      if (HasFetchRows) {
         output.WriteRawTag(40);
         output.WriteUInt64(FetchRows);
       }
-      if (_unknownFields != null)
-      {
+      if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
     }
-#endif
+    #endif
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize()
-    {
+    public int CalculateSize() {
       int size = 0;
-      if (HasCursorId)
-      {
+      if (HasCursorId) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(CursorId);
       }
-      if (stmt_ != null)
-      {
+      if (stmt_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Stmt);
       }
-      if (HasFetchRows)
-      {
+      if (HasFetchRows) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(FetchRows);
       }
-      if (_unknownFields != null)
-      {
+      if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
       return size;
@@ -359,26 +322,20 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(Open other)
-    {
-      if (other == null)
-      {
+    public void MergeFrom(Open other) {
+      if (other == null) {
         return;
       }
-      if (other.HasCursorId)
-      {
+      if (other.HasCursorId) {
         CursorId = other.CursorId;
       }
-      if (other.stmt_ != null)
-      {
-        if (stmt_ == null)
-        {
+      if (other.stmt_ != null) {
+        if (stmt_ == null) {
           Stmt = new global::Mysqlx.Cursor.Open.Types.OneOfMessage();
         }
         Stmt.MergeFrom(other.Stmt);
       }
-      if (other.HasFetchRows)
-      {
+      if (other.HasFetchRows) {
         FetchRows = other.FetchRows;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -386,11 +343,10 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input)
-    {
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
-#else
+    #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
       if ((tag & 7) == 4) {
@@ -418,62 +374,53 @@ namespace Mysqlx.Cursor
           }
         }
       }
-#endif
+    #endif
     }
 
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input)
-    {
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
-      while ((tag = input.ReadTag()) != 0)
-      {
-        if ((tag & 7) == 4)
-        {
-          // Abort on any end group tag.
-          return;
-        }
-        switch (tag)
-        {
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8:
-            {
-              CursorId = input.ReadUInt32();
-              break;
+          case 8: {
+            CursorId = input.ReadUInt32();
+            break;
+          }
+          case 34: {
+            if (stmt_ == null) {
+              Stmt = new global::Mysqlx.Cursor.Open.Types.OneOfMessage();
             }
-          case 34:
-            {
-              if (stmt_ == null)
-              {
-                Stmt = new global::Mysqlx.Cursor.Open.Types.OneOfMessage();
-              }
-              input.ReadMessage(Stmt);
-              break;
-            }
-          case 40:
-            {
-              FetchRows = input.ReadUInt64();
-              break;
-            }
+            input.ReadMessage(Stmt);
+            break;
+          }
+          case 40: {
+            FetchRows = input.ReadUInt64();
+            break;
+          }
         }
       }
     }
-#endif
+    #endif
 
     #region Nested types
     /// <summary>Container for nested types declared in the Open message type.</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static partial class Types
-    {
+    public static partial class Types {
       [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
       public sealed partial class OneOfMessage : pb::IMessage<OneOfMessage>
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
           , pb::IBufferMessage
-#endif
+      #endif
       {
         private static readonly pb::MessageParser<OneOfMessage> _parser = new pb::MessageParser<OneOfMessage>(() => new OneOfMessage());
         private pb::UnknownFieldSet _unknownFields;
@@ -484,22 +431,19 @@ namespace Mysqlx.Cursor
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public static pbr::MessageDescriptor Descriptor
-        {
+        public static pbr::MessageDescriptor Descriptor {
           get { return global::Mysqlx.Cursor.Open.Descriptor.NestedTypes[0]; }
         }
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        pbr::MessageDescriptor pb::IMessage.Descriptor
-        {
+        pbr::MessageDescriptor pb::IMessage.Descriptor {
           get { return Descriptor; }
         }
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public OneOfMessage()
-        {
+        public OneOfMessage() {
           OnConstruction();
         }
 
@@ -507,8 +451,7 @@ namespace Mysqlx.Cursor
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public OneOfMessage(OneOfMessage other) : this()
-        {
+        public OneOfMessage(OneOfMessage other) : this() {
           _hasBits0 = other._hasBits0;
           type_ = other.type_;
           prepareExecute_ = other.prepareExecute_ != null ? other.prepareExecute_.Clone() : null;
@@ -517,8 +460,7 @@ namespace Mysqlx.Cursor
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public OneOfMessage Clone()
-        {
+        public OneOfMessage Clone() {
           return new OneOfMessage(this);
         }
 
@@ -529,11 +471,9 @@ namespace Mysqlx.Cursor
         private global::Mysqlx.Cursor.Open.Types.OneOfMessage.Types.Type type_;
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public global::Mysqlx.Cursor.Open.Types.OneOfMessage.Types.Type Type
-        {
+        public global::Mysqlx.Cursor.Open.Types.OneOfMessage.Types.Type Type {
           get { if ((_hasBits0 & 1) != 0) { return type_; } else { return TypeDefaultValue; } }
-          set
-          {
+          set {
             _hasBits0 |= 1;
             type_ = value;
           }
@@ -541,15 +481,13 @@ namespace Mysqlx.Cursor
         /// <summary>Gets whether the "type" field is set</summary>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public bool HasType
-        {
+        public bool HasType {
           get { return (_hasBits0 & 1) != 0; }
         }
         /// <summary>Clears the value of the "type" field</summary>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public void ClearType()
-        {
+        public void ClearType() {
           _hasBits0 &= ~1;
         }
 
@@ -558,32 +496,26 @@ namespace Mysqlx.Cursor
         private global::Mysqlx.Prepare.Execute prepareExecute_;
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public global::Mysqlx.Prepare.Execute PrepareExecute
-        {
+        public global::Mysqlx.Prepare.Execute PrepareExecute {
           get { return prepareExecute_; }
-          set
-          {
+          set {
             prepareExecute_ = value;
           }
         }
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public override bool Equals(object other)
-        {
+        public override bool Equals(object other) {
           return Equals(other as OneOfMessage);
         }
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public bool Equals(OneOfMessage other)
-        {
-          if (ReferenceEquals(other, null))
-          {
+        public bool Equals(OneOfMessage other) {
+          if (ReferenceEquals(other, null)) {
             return false;
           }
-          if (ReferenceEquals(other, this))
-          {
+          if (ReferenceEquals(other, this)) {
             return true;
           }
           if (Type != other.Type) return false;
@@ -593,13 +525,11 @@ namespace Mysqlx.Cursor
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
           int hash = 1;
           if (HasType) hash ^= Type.GetHashCode();
           if (prepareExecute_ != null) hash ^= PrepareExecute.GetHashCode();
-          if (_unknownFields != null)
-          {
+          if (_unknownFields != null) {
             hash ^= _unknownFields.GetHashCode();
           }
           return hash;
@@ -607,18 +537,16 @@ namespace Mysqlx.Cursor
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public override string ToString()
-        {
+        public override string ToString() {
           return pb::JsonFormatter.ToDiagnosticString(this);
         }
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public void WriteTo(pb::CodedOutputStream output)
-        {
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        public void WriteTo(pb::CodedOutputStream output) {
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
           output.WriteRawMessage(this);
-#else
+        #else
           if (HasType) {
             output.WriteRawTag(8);
             output.WriteEnum((int) Type);
@@ -630,46 +558,38 @@ namespace Mysqlx.Cursor
           if (_unknownFields != null) {
             _unknownFields.WriteTo(output);
           }
-#endif
+        #endif
         }
 
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output)
-        {
-          if (HasType)
-          {
+        void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+          if (HasType) {
             output.WriteRawTag(8);
-            output.WriteEnum((int)Type);
+            output.WriteEnum((int) Type);
           }
-          if (prepareExecute_ != null)
-          {
+          if (prepareExecute_ != null) {
             output.WriteRawTag(18);
             output.WriteMessage(PrepareExecute);
           }
-          if (_unknownFields != null)
-          {
+          if (_unknownFields != null) {
             _unknownFields.WriteTo(ref output);
           }
         }
-#endif
+        #endif
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public int CalculateSize()
-        {
+        public int CalculateSize() {
           int size = 0;
-          if (HasType)
-          {
-            size += 1 + pb::CodedOutputStream.ComputeEnumSize((int)Type);
+          if (HasType) {
+            size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Type);
           }
-          if (prepareExecute_ != null)
-          {
+          if (prepareExecute_ != null) {
             size += 1 + pb::CodedOutputStream.ComputeMessageSize(PrepareExecute);
           }
-          if (_unknownFields != null)
-          {
+          if (_unknownFields != null) {
             size += _unknownFields.CalculateSize();
           }
           return size;
@@ -677,20 +597,15 @@ namespace Mysqlx.Cursor
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public void MergeFrom(OneOfMessage other)
-        {
-          if (other == null)
-          {
+        public void MergeFrom(OneOfMessage other) {
+          if (other == null) {
             return;
           }
-          if (other.HasType)
-          {
+          if (other.HasType) {
             Type = other.Type;
           }
-          if (other.prepareExecute_ != null)
-          {
-            if (prepareExecute_ == null)
-            {
+          if (other.prepareExecute_ != null) {
+            if (prepareExecute_ == null) {
               PrepareExecute = new global::Mysqlx.Prepare.Execute();
             }
             PrepareExecute.MergeFrom(other.PrepareExecute);
@@ -700,11 +615,10 @@ namespace Mysqlx.Cursor
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public void MergeFrom(pb::CodedInputStream input)
-        {
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        public void MergeFrom(pb::CodedInputStream input) {
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
           input.ReadRawMessage(this);
-#else
+        #else
           uint tag;
           while ((tag = input.ReadTag()) != 0) {
           if ((tag & 7) == 4) {
@@ -728,54 +642,45 @@ namespace Mysqlx.Cursor
               }
             }
           }
-#endif
+        #endif
         }
 
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input)
-        {
+        void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
           uint tag;
-          while ((tag = input.ReadTag()) != 0)
-          {
-            if ((tag & 7) == 4)
-            {
-              // Abort on any end group tag.
-              return;
-            }
-            switch (tag)
-            {
+          while ((tag = input.ReadTag()) != 0) {
+          if ((tag & 7) == 4) {
+            // Abort on any end group tag.
+            return;
+          }
+          switch(tag) {
               default:
                 _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
                 break;
-              case 8:
-                {
-                  Type = (global::Mysqlx.Cursor.Open.Types.OneOfMessage.Types.Type)input.ReadEnum();
-                  break;
+              case 8: {
+                Type = (global::Mysqlx.Cursor.Open.Types.OneOfMessage.Types.Type) input.ReadEnum();
+                break;
+              }
+              case 18: {
+                if (prepareExecute_ == null) {
+                  PrepareExecute = new global::Mysqlx.Prepare.Execute();
                 }
-              case 18:
-                {
-                  if (prepareExecute_ == null)
-                  {
-                    PrepareExecute = new global::Mysqlx.Prepare.Execute();
-                  }
-                  input.ReadMessage(PrepareExecute);
-                  break;
-                }
+                input.ReadMessage(PrepareExecute);
+                break;
+              }
             }
           }
         }
-#endif
+        #endif
 
         #region Nested types
         /// <summary>Container for nested types declared in the OneOfMessage message type.</summary>
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-        public static partial class Types
-        {
-          public enum Type
-          {
+        public static partial class Types {
+          public enum Type {
             [pbr::OriginalName("PREPARE_EXECUTE")] PrepareExecute = 0,
           }
 
@@ -805,9 +710,9 @@ namespace Mysqlx.Cursor
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class Fetch : pb::IMessage<Fetch>
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
-#endif
+  #endif
   {
     private static readonly pb::MessageParser<Fetch> _parser = new pb::MessageParser<Fetch>(() => new Fetch());
     private pb::UnknownFieldSet _unknownFields;
@@ -818,22 +723,19 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor
-    {
+    public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Cursor.MysqlxCursorReflection.Descriptor.MessageTypes[1]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor
-    {
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Fetch()
-    {
+    public Fetch() {
       OnConstruction();
     }
 
@@ -841,8 +743,7 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Fetch(Fetch other) : this()
-    {
+    public Fetch(Fetch other) : this() {
       _hasBits0 = other._hasBits0;
       cursorId_ = other.cursorId_;
       fetchRows_ = other.fetchRows_;
@@ -851,8 +752,7 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Fetch Clone()
-    {
+    public Fetch Clone() {
       return new Fetch(this);
     }
 
@@ -866,11 +766,9 @@ namespace Mysqlx.Cursor
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint CursorId
-    {
+    public uint CursorId {
       get { if ((_hasBits0 & 1) != 0) { return cursorId_; } else { return CursorIdDefaultValue; } }
-      set
-      {
+      set {
         _hasBits0 |= 1;
         cursorId_ = value;
       }
@@ -878,15 +776,13 @@ namespace Mysqlx.Cursor
     /// <summary>Gets whether the "cursor_id" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasCursorId
-    {
+    public bool HasCursorId {
       get { return (_hasBits0 & 1) != 0; }
     }
     /// <summary>Clears the value of the "cursor_id" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearCursorId()
-    {
+    public void ClearCursorId() {
       _hasBits0 &= ~1;
     }
 
@@ -900,11 +796,9 @@ namespace Mysqlx.Cursor
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public ulong FetchRows
-    {
+    public ulong FetchRows {
       get { if ((_hasBits0 & 2) != 0) { return fetchRows_; } else { return FetchRowsDefaultValue; } }
-      set
-      {
+      set {
         _hasBits0 |= 2;
         fetchRows_ = value;
       }
@@ -912,35 +806,29 @@ namespace Mysqlx.Cursor
     /// <summary>Gets whether the "fetch_rows" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasFetchRows
-    {
+    public bool HasFetchRows {
       get { return (_hasBits0 & 2) != 0; }
     }
     /// <summary>Clears the value of the "fetch_rows" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearFetchRows()
-    {
+    public void ClearFetchRows() {
       _hasBits0 &= ~2;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other)
-    {
+    public override bool Equals(object other) {
       return Equals(other as Fetch);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(Fetch other)
-    {
-      if (ReferenceEquals(other, null))
-      {
+    public bool Equals(Fetch other) {
+      if (ReferenceEquals(other, null)) {
         return false;
       }
-      if (ReferenceEquals(other, this))
-      {
+      if (ReferenceEquals(other, this)) {
         return true;
       }
       if (CursorId != other.CursorId) return false;
@@ -950,13 +838,11 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() {
       int hash = 1;
       if (HasCursorId) hash ^= CursorId.GetHashCode();
       if (HasFetchRows) hash ^= FetchRows.GetHashCode();
-      if (_unknownFields != null)
-      {
+      if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
       return hash;
@@ -964,18 +850,16 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString()
-    {
+    public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output)
-    {
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
-#else
+    #else
       if (HasCursorId) {
         output.WriteRawTag(8);
         output.WriteUInt32(CursorId);
@@ -987,46 +871,38 @@ namespace Mysqlx.Cursor
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
-#endif
+    #endif
     }
 
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output)
-    {
-      if (HasCursorId)
-      {
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (HasCursorId) {
         output.WriteRawTag(8);
         output.WriteUInt32(CursorId);
       }
-      if (HasFetchRows)
-      {
+      if (HasFetchRows) {
         output.WriteRawTag(40);
         output.WriteUInt64(FetchRows);
       }
-      if (_unknownFields != null)
-      {
+      if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
     }
-#endif
+    #endif
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize()
-    {
+    public int CalculateSize() {
       int size = 0;
-      if (HasCursorId)
-      {
+      if (HasCursorId) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(CursorId);
       }
-      if (HasFetchRows)
-      {
+      if (HasFetchRows) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(FetchRows);
       }
-      if (_unknownFields != null)
-      {
+      if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
       return size;
@@ -1034,18 +910,14 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(Fetch other)
-    {
-      if (other == null)
-      {
+    public void MergeFrom(Fetch other) {
+      if (other == null) {
         return;
       }
-      if (other.HasCursorId)
-      {
+      if (other.HasCursorId) {
         CursorId = other.CursorId;
       }
-      if (other.HasFetchRows)
-      {
+      if (other.HasFetchRows) {
         FetchRows = other.FetchRows;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -1053,11 +925,10 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input)
-    {
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
-#else
+    #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
       if ((tag & 7) == 4) {
@@ -1078,41 +949,35 @@ namespace Mysqlx.Cursor
           }
         }
       }
-#endif
+    #endif
     }
 
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input)
-    {
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
-      while ((tag = input.ReadTag()) != 0)
-      {
-        if ((tag & 7) == 4)
-        {
-          // Abort on any end group tag.
-          return;
-        }
-        switch (tag)
-        {
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8:
-            {
-              CursorId = input.ReadUInt32();
-              break;
-            }
-          case 40:
-            {
-              FetchRows = input.ReadUInt64();
-              break;
-            }
+          case 8: {
+            CursorId = input.ReadUInt32();
+            break;
+          }
+          case 40: {
+            FetchRows = input.ReadUInt64();
+            break;
+          }
         }
       }
     }
-#endif
+    #endif
 
   }
 
@@ -1133,9 +998,9 @@ namespace Mysqlx.Cursor
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class Close : pb::IMessage<Close>
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
-#endif
+  #endif
   {
     private static readonly pb::MessageParser<Close> _parser = new pb::MessageParser<Close>(() => new Close());
     private pb::UnknownFieldSet _unknownFields;
@@ -1146,22 +1011,19 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor
-    {
+    public static pbr::MessageDescriptor Descriptor {
       get { return global::Mysqlx.Cursor.MysqlxCursorReflection.Descriptor.MessageTypes[2]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor
-    {
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
       get { return Descriptor; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Close()
-    {
+    public Close() {
       OnConstruction();
     }
 
@@ -1169,8 +1031,7 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Close(Close other) : this()
-    {
+    public Close(Close other) : this() {
       _hasBits0 = other._hasBits0;
       cursorId_ = other.cursorId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -1178,8 +1039,7 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Close Clone()
-    {
+    public Close Clone() {
       return new Close(this);
     }
 
@@ -1193,11 +1053,9 @@ namespace Mysqlx.Cursor
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public uint CursorId
-    {
+    public uint CursorId {
       get { if ((_hasBits0 & 1) != 0) { return cursorId_; } else { return CursorIdDefaultValue; } }
-      set
-      {
+      set {
         _hasBits0 |= 1;
         cursorId_ = value;
       }
@@ -1205,35 +1063,29 @@ namespace Mysqlx.Cursor
     /// <summary>Gets whether the "cursor_id" field is set</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasCursorId
-    {
+    public bool HasCursorId {
       get { return (_hasBits0 & 1) != 0; }
     }
     /// <summary>Clears the value of the "cursor_id" field</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearCursorId()
-    {
+    public void ClearCursorId() {
       _hasBits0 &= ~1;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other)
-    {
+    public override bool Equals(object other) {
       return Equals(other as Close);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(Close other)
-    {
-      if (ReferenceEquals(other, null))
-      {
+    public bool Equals(Close other) {
+      if (ReferenceEquals(other, null)) {
         return false;
       }
-      if (ReferenceEquals(other, this))
-      {
+      if (ReferenceEquals(other, this)) {
         return true;
       }
       if (CursorId != other.CursorId) return false;
@@ -1242,12 +1094,10 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() {
       int hash = 1;
       if (HasCursorId) hash ^= CursorId.GetHashCode();
-      if (_unknownFields != null)
-      {
+      if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
       return hash;
@@ -1255,18 +1105,16 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString()
-    {
+    public override string ToString() {
       return pb::JsonFormatter.ToDiagnosticString(this);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output)
-    {
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
-#else
+    #else
       if (HasCursorId) {
         output.WriteRawTag(8);
         output.WriteUInt32(CursorId);
@@ -1274,37 +1122,31 @@ namespace Mysqlx.Cursor
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
-#endif
+    #endif
     }
 
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output)
-    {
-      if (HasCursorId)
-      {
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (HasCursorId) {
         output.WriteRawTag(8);
         output.WriteUInt32(CursorId);
       }
-      if (_unknownFields != null)
-      {
+      if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
     }
-#endif
+    #endif
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize()
-    {
+    public int CalculateSize() {
       int size = 0;
-      if (HasCursorId)
-      {
+      if (HasCursorId) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(CursorId);
       }
-      if (_unknownFields != null)
-      {
+      if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
       return size;
@@ -1312,14 +1154,11 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(Close other)
-    {
-      if (other == null)
-      {
+    public void MergeFrom(Close other) {
+      if (other == null) {
         return;
       }
-      if (other.HasCursorId)
-      {
+      if (other.HasCursorId) {
         CursorId = other.CursorId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -1327,11 +1166,10 @@ namespace Mysqlx.Cursor
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input)
-    {
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       input.ReadRawMessage(this);
-#else
+    #else
       uint tag;
       while ((tag = input.ReadTag()) != 0) {
       if ((tag & 7) == 4) {
@@ -1348,36 +1186,31 @@ namespace Mysqlx.Cursor
           }
         }
       }
-#endif
+    #endif
     }
 
-#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input)
-    {
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
       uint tag;
-      while ((tag = input.ReadTag()) != 0)
-      {
-        if ((tag & 7) == 4)
-        {
-          // Abort on any end group tag.
-          return;
-        }
-        switch (tag)
-        {
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8:
-            {
-              CursorId = input.ReadUInt32();
-              break;
-            }
+          case 8: {
+            CursorId = input.ReadUInt32();
+            break;
+          }
         }
       }
     }
-#endif
+    #endif
 
   }
 
@@ -1386,4 +1219,3 @@ namespace Mysqlx.Cursor
 }
 
 #endregion Designer generated code
-

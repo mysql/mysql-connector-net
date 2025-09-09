@@ -4,6 +4,7 @@
 - Fixed bug Certain sequence of special characters can break connection string validation (MySQL Bug #111797, Oracle Bug #36043278).
 - Removed `Prefered' option from MySqlSslMode (WL17115).
 - Fixed bug Connectionstrings crafted with `dns-srv=true` and (at least) POOLING set break MySqlConnectionStringBuilder (MySQL Bug #117603, Oracle Bug #37651419).
+- Updated third party dependencies (WL17138).
 
 
 9.4.0
