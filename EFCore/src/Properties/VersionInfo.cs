@@ -42,17 +42,17 @@ using System.Resources;
 
 #if NET8_0
 [assembly: AssemblyVersion("9.5.0")]
-[assembly: AssemblyInformationalVersion("8.0.11.0+MySQL9.5.0")]
+[assembly: AssemblyInformationalVersion("8.0.20.0+MySQL9.5.0")]
 [assembly: AssemblyFileVersion("9.5.0.0")]
 [assembly: NeutralResourcesLanguage("en-US")]
 #elif NET9_0
 [assembly: AssemblyVersion("9.5.0")]
-[assembly: AssemblyInformationalVersion("9.0.3.0+MySQL9.5.0")]
+[assembly: AssemblyInformationalVersion("9.0.6.0+MySQL9.5.0")]
 [assembly: AssemblyFileVersion("9.5.0.0")]
 [assembly: NeutralResourcesLanguage("en-US")]
 #elif NET10_0
 [assembly: AssemblyVersion("9.5.0")]
-[assembly: AssemblyInformationalVersion("10.0.0.0-preview+MySQL9.5.0")]
+[assembly: AssemblyInformationalVersion("10.0.0.0-rc+MySQL9.5.0")]
 [assembly: AssemblyFileVersion("9.5.0.0")]
 [assembly: NeutralResourcesLanguage("en-US")]
 #endif
