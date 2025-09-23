@@ -69,7 +69,7 @@ namespace MySql.EntityFrameworkCore.Query.Internal
 
       return new MySQLSqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(selectExpression, parametersValues, out canCache);
     }
-#elif NET9_0_OR_GREATER
+#elif NET9_0
     protected override Expression ProcessSqlNullability(
       Expression selectExpression, IReadOnlyDictionary<string, object?> parametersValues, out bool canCache)
     {
@@ -77,6 +77,15 @@ namespace MySql.EntityFrameworkCore.Query.Internal
       Check.NotNull(parametersValues, nameof(parametersValues));
 
       return new MySQLSqlNullabilityProcessor(Dependencies, Parameters).Process(selectExpression, parametersValues, out canCache);
+    }
+#elif NET10_0_OR_GREATER
+    protected override Expression ProcessSqlNullability(
+      Expression selectExpression, ParametersCacheDecorator parametersDecorator)
+    {
+      Check.NotNull(selectExpression, nameof(selectExpression));
+      Check.NotNull(parametersDecorator, nameof(parametersDecorator));
+
+      return new MySQLSqlNullabilityProcessor(Dependencies, Parameters).Process(selectExpression, parametersDecorator);
     }
 #endif
   }
