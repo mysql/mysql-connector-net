@@ -315,6 +315,10 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
                 size: size,
                 fixedLength: isFixedLength);
         }
+        else if (clrType == typeof(Guid[]))
+        {
+          return _clrTypeMappings.FirstOrDefault(t => t.Value.GetType() == typeof(MySQLGuidTypeMapping)).Value;
+        }
       }
 
       return null;
