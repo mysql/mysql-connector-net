@@ -350,8 +350,9 @@ namespace MySql.Data.MySqlClient
                 FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc
                 LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu ON 
                 kcu.constraint_catalog <=> rc.constraint_catalog AND
-                kcu.constraint_schema <=> rc.constraint_schema AND 
-                kcu.constraint_name <=> rc.constraint_name 
+                kcu.constraint_schema <=> rc.constraint_schema AND
+                kcu.table_name <=> rc.table_name AND
+                kcu.constraint_name <=> rc.constraint_name
                 WHERE 1=1 AND kcu.ORDINAL_POSITION=1";
 
       StringBuilder where = new StringBuilder();
