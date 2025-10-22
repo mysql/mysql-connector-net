@@ -1,3 +1,5 @@
+9.6.0
+
 9.5.0
 - Cleaned up build warnings (WL17046).
 - Fixed bug Incorrect column alias used in CASE-WHEN when querying Table-Per-Type inheritance with subclass column name clash (MySQL Bug #118572, Oracle Bug #38142312). Thanks to Kristoffer Sjöberg for the contribution.

@@ -4,7 +4,7 @@
     <Description>MySql.Data.EntityFramework.CodeFirTests</Description>
     <Copyright>Copyright © 2016, 2025, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Version>9.5.0</Version>
+    <Version>9.6.0</Version>
     <Authors>Oracle</Authors>
     <TargetFrameworks>net462;net48;net9.0;</TargetFrameworks>
     <AssemblyName>MySql.EntityFramework.Basic.Tests</AssemblyName>
