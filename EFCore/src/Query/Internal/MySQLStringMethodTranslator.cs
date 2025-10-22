@@ -179,8 +179,9 @@ namespace MySql.EntityFrameworkCore.Query.Internal
 
       if (_startsWithMethodInfo.Equals(method))
       {
+        var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance!, arguments[0]);
         return new MySQLStringComparisonMethodTranslator(_sqlExpressionFactory)
-          .MakeStartsWithExpression(instance!, arguments[0], _sqlExpressionFactory.Constant(StringComparison.CurrentCulture));
+          .MakeStartsWithExpression(instance!, _sqlExpressionFactory.ApplyTypeMapping(arguments[0], stringTypeMapping), _sqlExpressionFactory.Constant(StringComparison.CurrentCulture));
       }
 
       if (_endsWithMethodInfo.Equals(method))
