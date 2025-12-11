@@ -39,7 +39,7 @@ using System.Security;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("MySQL Connector/NET")]
-[assembly: AssemblyCopyright("Copyright © 2023, 2025, Oracle and/or its affiliates.")]
+[assembly: AssemblyCopyright("Copyright © 2023, 2026, Oracle and/or its affiliates.")]
 [assembly: AssemblyTrademark("Oracle®, Java, MySQL, and NetSuite are registered trademarks of Oracle and/or its affiliates.")]
 [assembly: AssemblyCulture("")]
 [assembly: SecurityRules(SecurityRuleSet.Level1)]

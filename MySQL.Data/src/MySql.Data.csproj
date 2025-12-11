@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Description>MySql.Data.MySqlClient .Net Core Class Library</Description>
-    <Copyright>Copyright © 2004, 2025, Oracle and/or its affiliates.</Copyright>
+    <Copyright>Copyright © 2004, 2026, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>9.6.0</Version>
     <Authors>Oracle Corporation</Authors>

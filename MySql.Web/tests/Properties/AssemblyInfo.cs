@@ -38,7 +38,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Oracle")]
 [assembly: AssemblyProduct("MySql.Web.Tests")]
-[assembly: AssemblyCopyright("Copyright © 2004, 2025, Oracle and/or its affiliates.")]
+[assembly: AssemblyCopyright("Copyright © 2004, 2026, Oracle and/or its affiliates.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NonParallelizable]

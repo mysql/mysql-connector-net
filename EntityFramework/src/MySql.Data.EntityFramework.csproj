@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>MySql.Data.EntityFramework</Description>
-    <Copyright>Copyright © 2008, 2025, Oracle and/or its affiliates.</Copyright>
+    <Copyright>Copyright © 2008, 2026, Oracle and/or its affiliates.</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Version>9.6.0</Version>
     <Authors>Oracle Corporation</Authors>
