@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Design.Tests Class Library</Description>
-    <TargetFrameworks>net9.0;net8.0;</TargetFrameworks>
+    <TargetFrameworks>net10.0;net9.0;net8.0;</TargetFrameworks>
     <AssemblyName>MySql.EntityFrameworkCore.Design.Tests</AssemblyName>
     <PackageId>MySql.EntityFrameworkCore.Design.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -13,10 +13,6 @@
     <NoWarn>$(NoWarn);CS1591,EF1001</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(allow_prerelease)'=='true'">
-    <TargetFrameworks>$(TargetFrameworks);net10.0</TargetFrameworks>
-  </PropertyGroup>
-  
   <ItemGroup>
     <None Remove="Properties\sakiladb-schema.sql" />
     <None Remove="Properties\world.sql" />
@@ -38,11 +34,11 @@
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)'=='net9.0'">
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.11" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net10.0'">
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0-rc.1.25451.107" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.1" />
   </ItemGroup>
 
   <ItemGroup>

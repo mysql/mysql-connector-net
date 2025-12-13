@@ -8,7 +8,7 @@
     <Version>9.6.0</Version>
     <Authors>Oracle Corporation</Authors>
     <AssemblyName>MySql.Data</AssemblyName>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net9.0;net8.0;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net10.0;net9.0;net8.0;</TargetFrameworks>
     <PackageId>MySql.Data</PackageId>
     <PackageTags>MySql;.NET Connector;MySql Connector/NET;netcore;.Net Core;MySql Conector/Net Core;coreclr;C/NET;C/Net Core</PackageTags>
     <PackageReleaseNotes>Review ReleaseNotes.txt for details.</PackageReleaseNotes>
@@ -26,10 +26,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(allow_prerelease)'=='true'">
-    <TargetFrameworks>$(TargetFrameworks);net10.0</TargetFrameworks>
-  </PropertyGroup>
-  
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <TargetFrameworks>net462;net48;$(TargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
