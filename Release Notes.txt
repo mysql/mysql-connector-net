@@ -1,10 +1,8 @@
-Connector/NET 9.5 Release Notes
+Connector/NET 9.6 Release Notes
 ------------------------------------
-Welcome to the release notes for Connector/NET 9.5
+Welcome to the release notes for Connector/NET 9.6
 
-What's new in 9.5
+What's new in 9.6
 --------------------
 
-Connector/NET now supports the rc version of .NET 10 and EF Core 10.
-Connector/NET has updated the list of supported SSL modes by removing "Prefered" and keeping "Preferred" as the expected option.
-Connector/NET now supports the latest GA versions of the OpenTelemtry.Api(1.12.0), BouncyCastle.Cryptography(2.6.2), Google.Protobuf(3.32.0) and ZstdSharp.Port(0.8.6) NuGet packages.
+Connector/NET now supports the GA version of .NET 10 and EF Core 10.
