@@ -206,7 +206,7 @@ namespace MySql.Data.MySqlClient.Authentication
         trimmedArray.Add(array[i]);
       }
 
-      return trimmedArray.ToArray().Reverse().ToArray();
+      return trimmedArray.Reverse<byte>().ToArray();
     }
 
     private static bool StartsWith(byte[] array, byte[] containedArray)

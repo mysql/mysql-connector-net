@@ -32,6 +32,7 @@ using NUnit.Framework;
 using System.Data.Common;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
+using System.Collections.Generic;
 
 namespace MySql.Data.EntityFramework.Tests
 {
@@ -291,7 +292,7 @@ namespace MySql.Data.EntityFramework.Tests
     {
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
-        int[] Ages = new int[] { 8, 9, 10 };
+        var Ages = new List<int> { 8, 9, 10 };
         var q = from e in ctx.Products
                 where Ages.Contains(e.MinAge)
                 orderby e.Name
@@ -309,7 +310,7 @@ namespace MySql.Data.EntityFramework.Tests
     {
       using (DefaultContext ctx = new DefaultContext(ConnectionString))
       {
-        int[] Ages = new int[] { 8, 9, 10 };
+        var Ages = new List<int> { 8, 9, 10 };
         var q = from e in ctx.Products
                 where (Ages.Contains(e.MinAge) && e.Name.Contains("Hoop")) ||
                        !Ages.Contains(e.MinAge)

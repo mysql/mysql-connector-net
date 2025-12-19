@@ -1673,7 +1673,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       {
         db.Database.Initialize(true);
 
-        long[] longs = new long[] { 1, 2, 3 };
+        var longs = new List<long> { 1, 2, 3 };
         var q = db.Movies.Where(p => longs.Contains((long)p.ID));
         string sql = q.ToString();
         CheckSql(sql, SQLSyntax.TestContainsListWithCast);
@@ -1721,7 +1721,7 @@ where table_schema = '{Connection.Database}' and table_name = 'movies' and colum
       {
         db.Database.Initialize(true);
 
-        long[] longs = new long[] { 1, 2, 3 };
+        var longs = new List<long> { 1, 2, 3 };
         int myNum = 1;
         var q = db.Movies.Where(p => longs.Contains(myNum));
         string sql = q.ToString();
