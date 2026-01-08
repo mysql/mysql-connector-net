@@ -1,7 +1,7 @@
 -- Sakila Sample Database Schema
 -- Version 1.0
 
--- Copyright © 2006, 2025, Oracle and/or its affiliates.
+-- Copyright © 2006, 2026, Oracle and/or its affiliates.
 
 -- Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 

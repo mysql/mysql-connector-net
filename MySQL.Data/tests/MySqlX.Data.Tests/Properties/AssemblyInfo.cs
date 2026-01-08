@@ -1,4 +1,4 @@
-// Copyright © 2015, 2025, Oracle and/or its affiliates.
+// Copyright © 2015, 2026, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -38,7 +38,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MySQL Connector/NET")]
-[assembly: AssemblyCopyright("Copyright © 2016, 2025, Oracle and/or its affiliates.")]
+[assembly: AssemblyCopyright("Copyright © 2016, 2026, Oracle and/or its affiliates.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
