@@ -1,4 +1,4 @@
-// Copyright © 2024, 2025, Oracle and/or its affiliates.
+// Copyright © 2024, 2026, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -40,8 +40,8 @@ using System.Resources;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("9.6.0")]
-[assembly: AssemblyInformationalVersion("9.6.0.0")]
-[assembly: AssemblyFileVersion("9.6.0.0")]
+[assembly: AssemblyVersion("9.7.0")]
+[assembly: AssemblyInformationalVersion("9.7.0.0")]
+[assembly: AssemblyFileVersion("9.7.0.0")]
 [assembly: NeutralResourcesLanguage("en-US")]
 

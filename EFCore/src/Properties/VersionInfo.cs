@@ -1,4 +1,4 @@
-﻿// Copyright © 2024, 2025, Oracle and/or its affiliates.
+﻿// Copyright © 2024, 2026, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -41,18 +41,18 @@ using System.Resources;
 // by using the '*' as shown below:
 
 #if NET8_0
-[assembly: AssemblyVersion("9.6.0")]
-[assembly: AssemblyInformationalVersion("8.0.22.0+MySQL9.6.0")]
-[assembly: AssemblyFileVersion("9.6.0.0")]
+[assembly: AssemblyVersion("9.7.0")]
+[assembly: AssemblyInformationalVersion("8.0.22.0+MySQL9.7.0")]
+[assembly: AssemblyFileVersion("9.7.0.0")]
 [assembly: NeutralResourcesLanguage("en-US")]
 #elif NET9_0
-[assembly: AssemblyVersion("9.6.0")]
-[assembly: AssemblyInformationalVersion("9.0.11.0+MySQL9.6.0")]
-[assembly: AssemblyFileVersion("9.6.0.0")]
+[assembly: AssemblyVersion("9.7.0")]
+[assembly: AssemblyInformationalVersion("9.0.11.0+MySQL9.7.0")]
+[assembly: AssemblyFileVersion("9.7.0.0")]
 [assembly: NeutralResourcesLanguage("en-US")]
 #elif NET10_0
-[assembly: AssemblyVersion("9.6.0")]
-[assembly: AssemblyInformationalVersion("10.0.1.0+MySQL9.6.0")]
-[assembly: AssemblyFileVersion("9.6.0.0")]
+[assembly: AssemblyVersion("9.7.0")]
+[assembly: AssemblyInformationalVersion("10.0.1.0+MySQL9.7.0")]
+[assembly: AssemblyFileVersion("9.7.0.0")]
 [assembly: NeutralResourcesLanguage("en-US")]
 #endif
