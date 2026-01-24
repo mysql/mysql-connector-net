@@ -26,9 +26,8 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
-using System;
 using NUnit.Framework;
-using NUnit.Framework.Legacy;
+using System;
 using System.Data;
 using System.Reflection;
 
@@ -174,11 +173,11 @@ namespace MySql.Data.MySqlClient.Tests
     [Test, Description("Transaction Scope")]
     public void TransactionScope()
     {
-      using (var myConn = new MySqlConnection(Connection.ConnectionString))
+      using (var connection = new MySqlConnection(Connection.ConnectionString))
       {
-        myConn.Open();
-        var cmdtoexec = myConn.CreateCommand();
-        var myTransaction = myConn.BeginTransaction();
+        connection.Open();
+        var cmdtoexec = connection.CreateCommand();
+        var myTransaction = connection.BeginTransaction();
         cmdtoexec.Transaction = myTransaction;
 
         cmdtoexec.CommandText = "SET autocommit = 0";
@@ -192,7 +191,7 @@ namespace MySql.Data.MySqlClient.Tests
         cmdtoexec.ExecuteNonQuery();
 
         for (var i = 0; i < 50; i++)
-          MySqlHelper.ExecuteNonQuery(myConn, string.Format("INSERT INTO transactiontable VALUES({0})", i));
+          MySqlHelper.ExecuteNonQuery(connection, string.Format("INSERT INTO transactiontable VALUES({0})", i));
 
         myTransaction.Rollback(); // to rollback actions
         cmdtoexec.CommandText = "select count(*) from transactiontable";
@@ -203,5 +202,189 @@ namespace MySql.Data.MySqlClient.Tests
 
     #endregion WL14389
 
+    /// <summary>
+    /// Default isolation level at Connector/NET level is READ COMMITED.
+    /// </summary>
+    [Test]
+    public void DefaultIsolationLevelAtConnectorNetLevel()
+    {
+      using (var connection = new MySqlConnection(Connection.ConnectionString))
+      {
+        connection.Open();
+        using (var transaction = connection.BeginTransaction())
+        {
+          Assert.That(transaction.IsolationLevel, Is.EqualTo(IsolationLevel.ReadCommitted));
+        }
+      }
+    }
+
+    /// <summary>
+    /// Default isolation level on database continues to be REPEATABLE READ when queried.
+    /// </summary>
+    /// <remarks>The SET ISOLATION LEVEL command executed by BeginTransaction only affects the current transaction and querying
+    /// @@session.transaction_isolation will still return the default isolation level. To get the isolation level other methods
+    /// such as querying the general log must be used. See test IsolationLevelSetForTransaction for this approach.</remarks>
+    [Test]
+    public void DefaultIsolationLevelFromDatabaseIsNotModified()
+    {
+      using (var connection = new MySqlConnection(Connection.ConnectionString))
+      {
+        connection.Open();
+
+        // Validate default database isolation level.
+        var initialIsolationLevel = GetSessionIsolationLevel(connection);
+        Assert.That(initialIsolationLevel, Is.EqualTo("REPEATABLE-READ"));
+
+        // Validate the session isolation level is not modified by the default isolation level assigned to the transaction.
+        using (var transaction = connection.BeginTransaction())
+        {
+          Assert.That(transaction.IsolationLevel, Is.EqualTo(IsolationLevel.ReadCommitted));
+          Assert.That(GetSessionIsolationLevel(connection), Is.EqualTo("REPEATABLE-READ"));
+          transaction.Rollback();
+        }
+
+        var isolationLevel = GetSessionIsolationLevel(connection);
+        Assert.That(isolationLevel, Is.EqualTo(initialIsolationLevel), "Isolation level was changed by the transaction.");
+      }
+    }
+
+    /// <summary>
+    /// Custom session isolation level is persisted during a call to BeginTransaction.
+    /// </summary>
+    [Test]
+    public void CustomSessionIsolationLevelFromDatabaseIsNotModified()
+    {
+      using (var connection = new MySqlConnection(Connection.ConnectionString))
+      {
+        connection.Open();
+
+        // Validate default isolation level.
+        Assert.That(GetSessionIsolationLevel(connection), Is.EqualTo("REPEATABLE-READ"));
+
+        // Set a non database default isolation level.
+        using (var cmd = new MySqlCommand($"SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE", connection))
+        {
+          cmd.ExecuteNonQuery();
+        }
+
+        // Validate selected isolation level persists.
+        string initialIsolationLevel = GetSessionIsolationLevel(connection);
+        Assert.That(initialIsolationLevel, Is.EqualTo("SERIALIZABLE"));
+
+        using (var transaction = connection.BeginTransaction())
+        {
+          Assert.That(transaction.IsolationLevel, Is.EqualTo(IsolationLevel.ReadCommitted));
+          Assert.That(GetSessionIsolationLevel(connection), Is.EqualTo("SERIALIZABLE"));
+          transaction.Rollback();
+        }
+
+        string isolationLevel = GetSessionIsolationLevel(connection);
+        Assert.That(isolationLevel, Is.EqualTo(initialIsolationLevel), "Isolation level was changed by the transaction.");
+      }
+    }
+
+    /// <summary>
+    /// The isolation level specified when calling BeginTransaction() is set for the current transaction.
+    /// </summary>
+    [Test]
+    public void IsolationLevelSetForTransaction()
+    {
+      using (var connection = new MySqlConnection(Connection.ConnectionString))
+      {
+        connection.Open();
+        Assume.That(PerformanceSchemaExistsAndIsEnabled(connection), Is.EqualTo(true), "This test requires that the Performance Schema exists and is enabled.");
+
+        using (var transaction = connection.BeginTransaction(IsolationLevel.ReadUncommitted))
+        {
+          // Get the isolation level of the latest active transaction since we've already called BeginTransaction().
+          const string query = @"
+            SELECT isolation_level
+            FROM performance_schema.events_transactions_current AS etc, performance_schema.threads AS t
+            WHERE etc.thread_id = t.thread_id AND etc.state = 'ACTIVE' AND t.processlist_id = connection_id();";
+          using (var command = new MySqlCommand(query, connection))
+          {
+            var isolationLevel = command.ExecuteScalar().ToString();
+            Assert.That(isolationLevel, Is.EqualTo("READ UNCOMMITTED"));
+            transaction.Rollback();
+          }
+        }
+      }
+    }
+
+    /// <summary>
+    /// Session isolation level is set during a call to BeginTransaction when specyfing a SESSION scope.
+    /// </summary>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <param name="isolationLevelString">The string representation of the isolation level.</param>
+    [Test]
+    [TestCase(IsolationLevel.ReadUncommitted, "READ-UNCOMMITTED")]
+    [TestCase(IsolationLevel.ReadCommitted, "READ-COMMITTED")]
+    [TestCase(IsolationLevel.RepeatableRead, "REPEATABLE-READ")]
+    [TestCase(IsolationLevel.Serializable, "SERIALIZABLE")]
+    public void SessionIsolationLevelSetForTransaction(IsolationLevel isolationLevel, string isolationLevelString)
+    {
+      using (var connection = new MySqlConnection(Connection.ConnectionString))
+      {
+        connection.Open();
+        using (var transaction = connection.BeginTransaction(isolationLevel, "SESSION"))
+        {
+          Assert.That(isolationLevel, Is.EqualTo(transaction.IsolationLevel));
+
+          var sessionIsolationLevel = GetSessionIsolationLevel(connection);
+          Assert.That(sessionIsolationLevel, Is.EqualTo(isolationLevelString));
+        }
+      }
+    }
+
+    /// <summary>
+    /// Unsupported isolation level.
+    /// </summary>
+    [Test]
+    public void UnsupportedIsolationLevel()
+    {
+      using (var connection = new MySqlConnection(Connection.ConnectionString))
+      {
+        connection.Open();
+        Assert.Throws<NotSupportedException>(
+            () => connection.BeginTransaction(IsolationLevel.Snapshot),
+            "Expected starting a transaction with an unsupported isolation level to throw ArgumentException."
+        );
+      }
+    }
+
+    /// <summary>
+    /// Gets the isolation level for the current session.
+    /// </summary>
+    /// <param name="connection">The connection object.</param>
+    /// <returns>The isolation level associated to the current session.</returns>
+    private string GetSessionIsolationLevel(MySqlConnection connection)
+    {
+      using (var command = new MySqlCommand("SELECT @@session.transaction_isolation;", connection))
+      {
+        return command.ExecuteScalar().ToString();
+      }
+    }
+
+    /// <summary>
+    /// Checks if the performance schema exists and is enabled.
+    /// </summary>
+    /// <param name="connection">The connection object.</param>
+    /// <returns><c>true</c> if the peformance schema exists and is enabled; otherwise, <c>false</c>.</returns>
+    private bool PerformanceSchemaExistsAndIsEnabled(MySqlConnection connection)
+    {
+      using (var command = new MySqlCommand("SHOW GLOBAL VARIABLES LIKE 'performance_schema';", connection))
+      {
+        using (var reader = command.ExecuteReader())
+        {
+          if (reader.Read())
+          {
+            var value = reader["Value"]?.ToString();
+            return string.Equals(value, "ON", StringComparison.OrdinalIgnoreCase);
+          }
+
+          return false;
+        }
+      }
+    }
   }
 }

@@ -682,6 +682,15 @@ namespace MySql.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; isolation level is not supported..
+        /// </summary>
+        internal static string IsolationLevelNotSupported {
+            get {
+                return ResourceManager.GetString("IsolationLevelNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Keyword does not allow null values.
         /// </summary>
         internal static string KeywordNoNull {
@@ -943,7 +952,7 @@ namespace MySql.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The option &apos;{0}&apos; is not currently supported..
+        ///   Looks up a localized string similar to The option &apos;{0}&apos; is not currently supported.
         /// </summary>
         internal static string OptionNotCurrentlySupported {
             get {

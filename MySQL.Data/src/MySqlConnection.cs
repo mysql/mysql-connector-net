@@ -390,7 +390,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <returns>A <see cref="MySqlTransaction"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
-    public new MySqlTransaction BeginTransaction() => BeginTransactionAsync(false, IsolationLevel.RepeatableRead, CancellationToken.None).GetAwaiter().GetResult();
+    public new MySqlTransaction BeginTransaction() => BeginTransactionAsync(false, IsolationLevel.ReadCommitted, CancellationToken.None).GetAwaiter().GetResult();
 
     /// <summary>
     /// Starts a database transaction.
@@ -406,7 +406,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <returns>A <see cref="MySqlTransaction"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
-    public ValueTask<MySqlTransaction> BeginTransactionAsync() => BeginTransactionAsync(true, IsolationLevel.RepeatableRead, CancellationToken.None);
+    public ValueTask<MySqlTransaction> BeginTransactionAsync() => BeginTransactionAsync(true, IsolationLevel.ReadCommitted, CancellationToken.None);
 
 #if NETSTANDARD2_0 || NETFRAMEWORK
     /// <summary>
@@ -415,7 +415,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A <see cref="MySqlTransaction"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
-    public ValueTask<MySqlTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => BeginTransactionAsync(true, IsolationLevel.RepeatableRead, cancellationToken);
+        public ValueTask<MySqlTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => BeginTransactionAsync(true, IsolationLevel.ReadCommitted, cancellationToken);
 
     /// <summary>
     /// Asynchronous version of <see cref="BeginDbTransaction(IsolationLevel)"/>.
@@ -432,7 +432,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A <see cref="MySqlTransaction"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
-    public new ValueTask<MySqlTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => BeginTransactionAsync(true, IsolationLevel.RepeatableRead, cancellationToken);
+    public new ValueTask<MySqlTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => BeginTransactionAsync(true, IsolationLevel.ReadCommitted, cancellationToken);
 
     /// <summary>
     /// Asynchronous version of <see cref="BeginDbTransaction(IsolationLevel)"/>.
@@ -469,10 +469,7 @@ namespace MySql.Data.MySqlClient
       if (driver.HasStatus(ServerStatusFlags.InTransaction))
         Throw(new InvalidOperationException(Resources.NoNestedTransactions));
 
-      MySqlCommand cmd = new MySqlCommand("", this);
-
-      cmd.CommandText = $"SET {scope} TRANSACTION ISOLATION LEVEL ";
-
+      MySqlCommand cmd = new MySqlCommand($"SET{(string.IsNullOrEmpty(scope) ? string.Empty : $" {scope}")} TRANSACTION ISOLATION LEVEL ", this);
       switch (isolationLevel)
       {
         case IsolationLevel.ReadCommitted:

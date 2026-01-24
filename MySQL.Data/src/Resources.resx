@@ -696,4 +696,7 @@
   <data name="OpenIdIdentityTokenTooBig" xml:space="preserve">
     <value>The OpenID Connect Identity Token is invalid</value>
   </data>
+  <data name="IsolationLevelNotSupported" xml:space="preserve">
+    <value>'{0}' isolation level is not supported.</value>
+  </data>
 </root>
