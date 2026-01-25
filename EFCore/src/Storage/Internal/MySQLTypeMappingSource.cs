@@ -284,7 +284,7 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
 
           return mapping;
         }
-        else if (clrType == typeof(string))
+        else if (clrType == typeof(string) || clrType == typeof(string[]))
         {
           var isAnsi = mappingInfo.IsUnicode == false;
           var isFixedLength = mappingInfo.IsFixedLength == true;
