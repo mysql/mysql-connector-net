@@ -64,14 +64,17 @@ namespace MySql.Data.MySqlClient
 
     #endregion
 
-    public async Task PrepareAsync(bool execAsync)
+    /// <summary>
+    /// Prepares the statement for execution on the server.
+    /// </summary>
+    public void Prepare()
     {
       // strip out names from parameter markers
       string text;
       List<string> parameterNames = PrepareCommandText(out text);
 
       // ask our connection to send the prepare command
-      var result = await Driver.PrepareStatementAsync(text, execAsync).ConfigureAwait(false);
+      var result = Driver.PrepareStatement(text);
       StatementId = result.Item1;
       MySqlField[] paramList = result.Item2;
 
@@ -95,11 +98,11 @@ namespace MySql.Data.MySqlClient
 
       // write out some values that do not change run to run
       _packet.WriteByte(0);
-      await _packet.WriteIntegerAsync(StatementId, 4, execAsync).ConfigureAwait(false);
+      _packet.WriteInteger(StatementId, 4);
       // flags; if server supports query attributes, then set PARAMETER_COUNT_AVAILABLE (0x08) in the flags block
       int flags = Driver.SupportsQueryAttributes && Driver.Version.isAtLeast(8, 0, 26) ? PARAMETER_COUNT_AVAILABLE : 0;
-      await _packet.WriteIntegerAsync(flags, 1, execAsync).ConfigureAwait(false);
-      await _packet.WriteIntegerAsync(1, 4, execAsync).ConfigureAwait(false); // iteration count; 1 for 4.1
+      _packet.WriteInteger(flags, 1);
+      _packet.WriteInteger(1, 4); // iteration count; 1 for 4.1
       int num_params = paramList != null ? paramList.Length : 0;
       // we don't send QA with PS when MySQL Server is not at least 8.0.26
       if (!Driver.Version.isAtLeast(8, 0, 26) && Attributes.Count > 0)
@@ -116,7 +119,7 @@ namespace MySql.Data.MySqlClient
         if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
         {
           paramCount += Attributes.Count;
-          await _packet.WriteLengthAsync(paramCount, execAsync).ConfigureAwait(false);
+          _packet.WriteLength(paramCount);
         }
 
         if (paramCount > 0)
@@ -132,22 +135,22 @@ namespace MySql.Data.MySqlClient
           foreach (MySqlParameter p in _parametersToSend)
           {
             // parameter type
-            await _packet.WriteIntegerAsync(p.GetPSType(), 2, execAsync).ConfigureAwait(false);
+            _packet.WriteInteger(p.GetPSType(), 2);
 
             // parameter name
             if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
-              await _packet.WriteLenStringAsync(String.Empty, execAsync).ConfigureAwait(false);
+              _packet.WriteLenString(String.Empty);
           }
 
           // write out the attributes types and names
           foreach (MySqlAttribute a in Attributes)
           {
             // attribute type
-            await _packet.WriteIntegerAsync(a.GetPSType(), 2, execAsync).ConfigureAwait(false);
+            _packet.WriteInteger(a.GetPSType(), 2);
 
             // attribute name
             if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
-              await _packet.WriteLenStringAsync(a.AttributeName, execAsync).ConfigureAwait(false);
+              _packet.WriteLenString(a.AttributeName);
           }
         }
       }
@@ -155,12 +158,110 @@ namespace MySql.Data.MySqlClient
       _dataPosition = _packet.Position;
     }
 
-    public override async Task ExecuteAsync(bool execAsync)
+    /// <summary>
+    /// Asynchronously prepares the statement for execution on the server.
+    /// </summary>
+    /// <returns>A task representing the asynchronous prepare operation.</returns>
+    public async Task PrepareAsync()
+    {
+      // strip out names from parameter markers
+      string text;
+      List<string> parameterNames = PrepareCommandText(out text);
+
+      // ask our connection to send the prepare command
+      var result = await Driver.PrepareStatementAsync(text).ConfigureAwait(false);
+      StatementId = result.Item1;
+      MySqlField[] paramList = result.Item2;
+
+      // now we need to assign our field names since we stripped them out
+      // for the prepare
+      for (int i = 0; i < parameterNames.Count; i++)
+      {
+        string parameterName = (string)parameterNames[i];
+        MySqlParameter p = Parameters.GetParameterFlexible(parameterName, false);
+        if (p == null)
+          throw new InvalidOperationException(
+              String.Format(Resources.ParameterNotFoundDuringPrepare, parameterName));
+        p.Encoding = paramList[i].Encoding;
+        _parametersToSend.Add(p);
+      }
+
+      if (Attributes.Count > 0 && !Driver.SupportsQueryAttributes)
+        MySqlTrace.LogWarning(Connection.ServerThread, string.Format(Resources.QueryAttributesNotSupported, Driver.Version));
+
+      _packet = new MySqlPacket(Driver.Encoding);
+
+      // write out some values that do not change run to run
+      _packet.WriteByte(0);
+      await _packet.WriteIntegerAsync(StatementId, 4).ConfigureAwait(false);
+      // flags; if server supports query attributes, then set PARAMETER_COUNT_AVAILABLE (0x08) in the flags block
+      int flags = Driver.SupportsQueryAttributes && Driver.Version.isAtLeast(8, 0, 26) ? PARAMETER_COUNT_AVAILABLE : 0;
+      await _packet.WriteIntegerAsync(flags, 1).ConfigureAwait(false);
+      await _packet.WriteIntegerAsync(1, 4).ConfigureAwait(false); // iteration count; 1 for 4.1
+      int num_params = paramList != null ? paramList.Length : 0;
+      // we don't send QA with PS when MySQL Server is not at least 8.0.26
+      if (!Driver.Version.isAtLeast(8, 0, 26) && Attributes.Count > 0)
+      {
+        MySqlTrace.LogWarning(Connection.ServerThread, Resources.QueryAttributesNotSupportedByCnet);
+        Attributes.Clear();
+      }
+
+      if (num_params > 0 ||
+        (Driver.SupportsQueryAttributes && flags == PARAMETER_COUNT_AVAILABLE)) // if num_params > 0 
+      {
+        int paramCount = num_params;
+
+        if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
+        {
+          paramCount += Attributes.Count;
+          await _packet.WriteLengthAsync(paramCount).ConfigureAwait(false);
+        }
+
+        if (paramCount > 0)
+        {
+          // now prepare our null map
+          _nullMap = new BitArray(paramCount);
+          int numNullBytes = (_nullMap.Length + 7) / 8;
+          _nullMapPosition = _packet.Position;
+          _packet.Position += numNullBytes;  // leave room for our null map
+          _packet.WriteByte(1); // new_params_bind_flag
+
+          // write out the parameter types and names
+          foreach (MySqlParameter p in _parametersToSend)
+          {
+            // parameter type
+            await _packet.WriteIntegerAsync(p.GetPSType(), 2).ConfigureAwait(false);
+
+            // parameter name
+            if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
+              await _packet.WriteLenStringAsync(String.Empty).ConfigureAwait(false);
+          }
+
+          // write out the attributes types and names
+          foreach (MySqlAttribute a in Attributes)
+          {
+            // attribute type
+            await _packet.WriteIntegerAsync(a.GetPSType(), 2).ConfigureAwait(false);
+
+            // attribute name
+            if (Driver.SupportsQueryAttributes) // if CLIENT_QUERY_ATTRIBUTES is on
+              await _packet.WriteLenStringAsync(a.AttributeName).ConfigureAwait(false);
+          }
+        }
+      }
+
+      _dataPosition = _packet.Position;
+    }
+
+    /// <summary>
+    /// Executes the prepared statement synchronously.
+    /// </summary>
+    public override void Execute()
     {
       // if we are not prepared, then call down to our base
       if (!IsPrepared)
       {
-        await base.ExecuteAsync(execAsync).ConfigureAwait(false);
+        base.Execute();
         return;
       }
 
@@ -175,7 +276,7 @@ namespace MySql.Data.MySqlClient
             p.Direction == ParameterDirection.Output;
         if (_nullMap[i]) continue;
         _packet.Encoding = p.Encoding;
-        await p.SerializeAsync(_packet, true, Connection.Settings, execAsync).ConfigureAwait(false);
+        p.Serialize(_packet, true, Connection.Settings);
       }
 
       // // set value for each attribute
@@ -184,7 +285,7 @@ namespace MySql.Data.MySqlClient
         MySqlAttribute attr = Attributes[i];
         _nullMap[i] = (attr.Value == DBNull.Value || attr.Value == null);
         if (_nullMap[i]) continue;
-        await attr.SerializeAsync(_packet, true, Connection.Settings, execAsync).ConfigureAwait(false);
+        attr.Serialize(_packet, true, Connection.Settings);
       }
 
       if (_nullMap != null)
@@ -197,13 +298,77 @@ namespace MySql.Data.MySqlClient
 
       ExecutionCount++;
 
-      await Driver.ExecuteStatementAsync(_packet, execAsync).ConfigureAwait(false);
+      Driver.ExecuteStatement(_packet);
     }
 
-    public override async Task<bool> ExecuteNextAsync(bool execAsync)
+    /// <summary>
+    /// Asynchronously executes the prepared statement.
+    /// </summary>
+    /// <returns>A task representing the asynchronous execute operation.</returns>
+    public override async Task ExecuteAsync()
+    {
+      // if we are not prepared, then call down to our base
+      if (!IsPrepared)
+      {
+        await base.ExecuteAsync().ConfigureAwait(false);
+        return;
+      }
+
+      // now write out all non-null values
+      _packet.Position = _dataPosition;
+
+      // set value for each parameter
+      for (int i = 0; i < _parametersToSend.Count; i++)
+      {
+        MySqlParameter p = _parametersToSend[i];
+        _nullMap[i] = (p.Value == DBNull.Value || p.Value == null) ||
+            p.Direction == ParameterDirection.Output;
+        if (_nullMap[i]) continue;
+        _packet.Encoding = p.Encoding;
+        await p.SerializeAsync(_packet, true, Connection.Settings).ConfigureAwait(false);
+      }
+
+      // // set value for each attribute
+      for (int i = 0; i < Attributes.Count; i++)
+      {
+        MySqlAttribute attr = Attributes[i];
+        _nullMap[i] = (attr.Value == DBNull.Value || attr.Value == null);
+        if (_nullMap[i]) continue;
+        await attr.SerializeAsync(_packet, true, Connection.Settings).ConfigureAwait(false);
+      }
+
+      if (_nullMap != null)
+      {
+        byte[] tempByteArray = new byte[(_nullMap.Length + 7) >> 3];
+        _nullMap.CopyTo(tempByteArray, 0);
+
+        Array.Copy(tempByteArray, 0, _packet.Buffer, _nullMapPosition, tempByteArray.Length);
+      }
+
+      ExecutionCount++;
+
+      await Driver.ExecuteStatementAsync(_packet).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Executes the next result set for the prepared statement. For prepared statements, this always returns false.
+    /// </summary>
+    /// <returns>False for prepared statements.</returns>
+    public override bool ExecuteNext()
     {
       if (!IsPrepared)
-        return await base.ExecuteNextAsync(execAsync).ConfigureAwait(false);
+        return base.ExecuteNext();
+      return false;
+    }
+
+    /// <summary>
+    /// Asynchronously executes the next result set for the prepared statement. For prepared statements, this always returns false.
+    /// </summary>
+    /// <returns>A task that resolves to false for prepared statements.</returns>
+    public override async Task<bool> ExecuteNextAsync()
+    {
+      if (!IsPrepared)
+        return await base.ExecuteNextAsync().ConfigureAwait(false);
       return false;
     }
 
@@ -247,11 +412,26 @@ namespace MySql.Data.MySqlClient
       return parameterMap;
     }
 
-    public virtual async Task CloseStatementAsync(bool execAsync)
+    /// <summary>
+    /// Closes the prepared statement on the server.
+    /// </summary>
+    public virtual void CloseStatement()
     {
       if (!IsPrepared) return;
 
-      await Driver.CloseStatementAsync(StatementId, execAsync).ConfigureAwait(false);
+      Driver.CloseStatement(StatementId);
+      StatementId = 0;
+    }
+
+    /// <summary>
+    /// Asynchronously closes the prepared statement on the server.
+    /// </summary>
+    /// <returns>A task representing the asynchronous close operation.</returns>
+    public virtual async Task CloseStatementAsync()
+    {
+      if (!IsPrepared) return;
+
+      await Driver.CloseStatementAsync(StatementId).ConfigureAwait(false);
       StatementId = 0;
     }
   }

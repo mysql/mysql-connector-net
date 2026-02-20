@@ -59,16 +59,50 @@ namespace MySql.Data.Types
 
     string IMySqlValue.MySqlTypeName => "BIT";
 
-    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object value, int length, bool execAsync)
+    /// <summary>
+    /// Writes the BIT value to the MySQL packet.
+    /// Converts the input value to ulong. In binary mode, writes as 8-byte integer. In text mode, writes as string representation.
+    /// </summary>
+    /// <param name="packet">The MySQL packet stream to write into.</param>
+    /// <param name="binary">True for binary protocol (8-byte fixed length), false for text protocol (string).</param>
+    /// <param name="value">The value to write, convertible to ulong.</param>
+    /// <param name="length">Not used for BIT type.</param>
+    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object value, int length)
     {
       ulong v = value as ulong? ?? Convert.ToUInt64(value);
       if (binary)
-        await packet.WriteIntegerAsync((long)v, 8, execAsync).ConfigureAwait(false);
+        packet.WriteInteger((long)v, 8);
       else
-        await packet.WriteStringNoNullAsync(v.ToString(CultureInfo.InvariantCulture), execAsync).ConfigureAwait(false);
+        packet.WriteStringNoNull(v.ToString(CultureInfo.InvariantCulture));
     }
 
-    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool isNull, bool execAsync)
+    /// <summary>
+    /// Asynchronously writes the BIT value to the MySQL packet.
+    /// Converts the input value to ulong. In binary mode, writes as 8-byte integer. In text mode, writes as string representation.
+    /// </summary>
+    /// <param name="packet">The MySQL packet stream to write into.</param>
+    /// <param name="binary">True for binary protocol (8-byte fixed length), false for text protocol (string).</param>
+    /// <param name="value">The value to write, convertible to ulong.</param>
+    /// <param name="length">Not used for BIT type.</param>
+    /// <returns>A task representing the asynchronous write operation.</returns>
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object value, int length)
+    {
+      ulong v = value as ulong? ?? Convert.ToUInt64(value);
+      if (binary)
+        await packet.WriteIntegerAsync((long)v, 8).ConfigureAwait(false);
+      else
+        await packet.WriteStringNoNullAsync(v.ToString(CultureInfo.InvariantCulture)).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Reads the BIT value from the MySQL packet.
+    /// Sets IsNull if indicated. If ReadAsString is true, parses the string representation as ulong; otherwise, reads as bit value.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the field; -1 means read length from packet.</param>
+    /// <param name="isNull">Indicates if the value is null.</param>
+    /// <returns>The MySqlBit instance with the read value.</returns>
+    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool isNull)
     {
       this.IsNull = isNull;
       if (isNull)
@@ -78,7 +112,31 @@ namespace MySql.Data.Types
         length = packet.ReadFieldLength();
 
       if (ReadAsString)
-        _value = UInt64.Parse(await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false), CultureInfo.InvariantCulture);
+        _value = UInt64.Parse(packet.ReadString(length), CultureInfo.InvariantCulture);
+      else
+        _value = (UInt64)packet.ReadBitValue((int)length);
+      return this;
+    }
+
+    /// <summary>
+    /// Asynchronously reads the BIT value from the MySQL packet.
+    /// Sets IsNull if indicated. If ReadAsString is true, parses the string representation as ulong; otherwise, reads as bit value.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the field; -1 means read length from packet.</param>
+    /// <param name="isNull">Indicates if the value is null.</param>
+    /// <returns>A task that returns the MySqlBit instance with the read value.</returns>
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool isNull)
+    {
+      this.IsNull = isNull;
+      if (isNull)
+        return this;
+
+      if (length == -1)
+        length = packet.ReadFieldLength();
+
+      if (ReadAsString)
+        _value = UInt64.Parse(await packet.ReadStringAsync(length).ConfigureAwait(false), CultureInfo.InvariantCulture);
       else
         _value = (UInt64)packet.ReadBitValue((int)length);
       return this;

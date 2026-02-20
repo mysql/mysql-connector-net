@@ -33,23 +33,45 @@ namespace MySql.Data.MySqlClient.Authentication
   /// <summary>
   /// Allows connections to a user account set with the mysql_clear_password authentication plugin.
   /// </summary>
-  public class MySqlClearPasswordPlugin : MySqlAuthenticationPlugin
-  {
-    private byte[] passBytes;
-    public override string PluginName => "mysql_clear_password";
-    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
+    public class MySqlClearPasswordPlugin : MySqlAuthenticationPlugin
     {
-      if ((Settings.SslMode != MySqlSslMode.Disabled &&
-      Settings.ConnectionProtocol != MySqlConnectionProtocol.UnixSocket) ||
-      (Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket))
+      public override string PluginName => "mysql_clear_password";
+
+      /// <summary>
+      /// Processes additional data during the mysql_clear_password authentication handshake.
+      /// This method sends the password in clear text over secure connections (SSL or Unix socket).
+      /// </summary>
+      /// <param name="data">The byte array received from the server.</param>
+      /// <returns>A byte array containing the clear text password to send to the server.</returns>
+      /// <exception cref="MySqlException">Thrown if the connection is not secure.</exception>
+      protected override byte[] MoreData(byte[] data) => GetClearPasswordBytes();
+
+      /// <summary>
+      /// Asynchronously processes additional data during the mysql_clear_password authentication handshake.
+      /// This method sends the password in clear text over secure connections (SSL or Unix socket).
+      /// </summary>
+      /// <param name="data">The byte array received from the server.</param>
+      /// <returns>A task representing the asynchronous operation, containing the clear text password to send to the server.</returns>
+      /// <exception cref="MySqlException">Thrown if the connection is not secure.</exception>
+      protected override Task<byte[]> MoreDataAsync(byte[] data) => Task.FromResult(GetClearPasswordBytes());
+
+      /// <summary>
+      /// Gets the clear text password bytes if the connection is secure, otherwise throws MySqlException.
+      /// </summary>
+      /// <returns>The UTF8-encoded password bytes.</returns>
+      /// <exception cref="MySqlException">Thrown if the connection is not secure (no SSL or Unix socket).</exception>
+      private byte[] GetClearPasswordBytes()
       {
-        passBytes = System.Text.Encoding.UTF8.GetBytes(GetMFAPassword());
-        return Task.FromResult<byte[]>(passBytes);
+        if ((Settings.SslMode != MySqlSslMode.Disabled &&
+        Settings.ConnectionProtocol != MySqlConnectionProtocol.UnixSocket) ||
+        (Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket))
+        {
+          return System.Text.Encoding.UTF8.GetBytes(GetMFAPassword());
+        }
+        else
+        {
+          throw new MySqlException(Resources.ClearPasswordNotSupported);
+        }
       }
-      else
-      {
-        throw new MySqlException(Resources.ClearPasswordNotSupported);
-      }
-    }
   }
 }

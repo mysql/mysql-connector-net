@@ -63,12 +63,33 @@ namespace MySql.Data.MySqlClient.Authentication
       }
     }
 
-    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
+    /// <summary>
+    /// Processes additional data during the SASL authentication handshake.
+    /// This method delegates the challenge-response to the appropriate SCRAM or GSSAPI mechanism.
+    /// </summary>
+    /// <param name="data">The byte array received from the server, representing the challenge.</param>
+    /// <returns>A byte array containing the response to send to the server.</returns>
+    protected override byte[] MoreData(byte[] data) => HandleMoreData(data);
+
+    /// <summary>
+    /// Asynchronously processes additional data during the SASL authentication handshake.
+    /// This method delegates the challenge-response to the appropriate SCRAM or GSSAPI mechanism.
+    /// </summary>
+    /// <param name="data">The byte array received from the server, representing the challenge.</param>
+    /// <returns>A task representing the asynchronous operation, containing the response to send to the server.</returns>
+    protected override Task<byte[]> MoreDataAsync(byte[] data) => Task.FromResult(HandleMoreData(data));
+
+    /// <summary>
+    /// Handles the processing of additional data for SASL authentication by delegating the challenge-response to the appropriate mechanism (SCRAM or GSSAPI) based on the configured mechanism name.
+    /// </summary>
+    /// <param name="data">The byte array received from the server, representing the challenge.</param>
+    /// <returns>A byte array containing the response to send to the server.</returns>
+    private byte[] HandleMoreData(byte[] data)
     {
       if (_mechanismName == "GSSAPI")
-        return Task.FromResult<byte[]>(gssapiMechanism.Challenge(data));
+        return gssapiMechanism.Challenge(data);
       else
-        return Task.FromResult<byte[]>(scramMechanism.Challenge(data));
+        return scramMechanism.Challenge(data);
     }
 
     /// <summary>

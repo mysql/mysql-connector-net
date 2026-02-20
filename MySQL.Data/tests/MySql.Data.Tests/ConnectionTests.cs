@@ -678,7 +678,7 @@ namespace MySql.Data.MySqlClient.Tests
       connection.Open();
       Assert.That(connection.State, Is.EqualTo(ConnectionState.Open));
 
-      connection.AbortAsync(false).GetAwaiter().GetResult();
+      connection.Abort();
       Assert.That(connection.State, Is.EqualTo(ConnectionState.Closed));
 
       connection.Open();
@@ -871,7 +871,6 @@ namespace MySql.Data.MySqlClient.Tests
     /// MySQL Server needs to be running as a Windows Service.
     /// </summary>    
     [Test]
-    [Ignore("To be able to connect using Named Pipes, it requires to start the server supporting the protocol")]
     public void ConnectUsingNamedPipes()
     {
       Assume.That(Platform.IsWindows(), "Named Pipes is only supported on Windows.");
@@ -882,6 +881,7 @@ namespace MySql.Data.MySqlClient.Tests
         Pooling = false,
         UserID = RootUser,
         ConnectionProtocol = MySqlConnectionProtocol.NamedPipe,
+        PipeName = "MySQLSocket",
         SslMode = MySqlSslMode.Required
       };
 

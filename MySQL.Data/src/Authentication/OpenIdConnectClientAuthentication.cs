@@ -45,7 +45,7 @@ namespace MySql.Data.MySqlClient.Authentication
 
     private static int IdentityToken_sizelimit = 10 * 1024;
 
-    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
+    protected override Task<byte[]> MoreDataAsync(byte[] data)
     {
       byte[] IdToken = Encoding.GetBytes(Settings.OpenIdIdentityToken);
       int responseLength = 10;//1 Byte for capability flag. the rest is for Bytes lenenc.

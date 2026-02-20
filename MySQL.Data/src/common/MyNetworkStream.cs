@@ -124,11 +124,11 @@ namespace MySql.Data.Common
       throw (e);
     }
 
-    public override int Read(byte[] buffer, int offset, int count) => ReadAsync(buffer, offset, count, CancellationToken.None, false).GetAwaiter().GetResult();
+    public override int Read(byte[] buffer, int offset, int count) => ReadInternal(buffer, offset, count, CancellationToken.None);
 
-    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => ReadAsync(buffer, offset, count, cancellationToken, true);
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => ReadInternalAsync(buffer, offset, count, cancellationToken);
 
-    private async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken, bool execAsync)
+    private int ReadInternal(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
       int retry = 0;
       Exception exception = null;
@@ -136,23 +136,35 @@ namespace MySql.Data.Common
       {
         try
         {
-          //if (execAsync)
-          //  return await base.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
-          //else
-          //  return base.Read(buffer, offset, count);
+          int read = base.Read(buffer, offset, count);
+          _socket.ReceiveTimeout = 0;
+          return read;
+        }
+        catch (Exception e)
+        {
+          exception = e;
+          HandleOrRethrowException(e);
+        }
 
-          if (execAsync)
-          {
-            int readasync= await base.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
-            _socket.ReceiveTimeout = 0;
-            return readasync;
-          }
-          else
-          {
-            int read = base.Read(buffer, offset, count);
-            _socket.ReceiveTimeout = 0;
-            return read;
-          }
+      }
+      while (++retry < MaxRetryCount);
+      if (exception.GetBaseException() is SocketException
+        && IsTimeoutException((SocketException)exception.GetBaseException()))
+        throw new TimeoutException(exception.Message, exception);
+      throw exception;
+    }
+
+    private async Task<int> ReadInternalAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
+      int retry = 0;
+      Exception exception = null;
+      do
+      {
+        try
+        {
+          int readasync = await base.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
+          _socket.ReceiveTimeout = 0;
+          return readasync;
         }
         catch (Exception e)
         {
@@ -188,11 +200,11 @@ namespace MySql.Data.Common
       throw exception;
     }
 
-    public override void Write(byte[] buffer, int offset, int count) => WriteAsync(buffer, offset, count, CancellationToken.None, false).GetAwaiter().GetResult();
+    public override void Write(byte[] buffer, int offset, int count) => WriteInternal(buffer, offset, count, CancellationToken.None);
 
-    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => WriteAsync(buffer, offset, count, cancellationToken, true);
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => WriteInternalAsync(buffer, offset, count, cancellationToken);
 
-    public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken, bool execAsync)
+    public void WriteInternal(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
       int retry = 0;
       Exception exception = null;
@@ -200,10 +212,7 @@ namespace MySql.Data.Common
       {
         try
         {
-          if (execAsync)
-            await base.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
-          else
-            base.Write(buffer, offset, count);
+          base.Write(buffer, offset, count);
           return;
         }
         catch (Exception e)
@@ -216,11 +225,7 @@ namespace MySql.Data.Common
       throw exception;
     }
 
-    public override void Flush() => FlushAsync(CancellationToken.None, false).GetAwaiter().GetResult();
-
-    public override Task FlushAsync(CancellationToken cancellationToken) => FlushAsync(cancellationToken, true);
-
-    private async Task FlushAsync(CancellationToken cancellationToken, bool execAsync)
+    public async Task WriteInternalAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
       int retry = 0;
       Exception exception = null;
@@ -228,10 +233,53 @@ namespace MySql.Data.Common
       {
         try
         {
-          if (execAsync)
-            await base.FlushAsync(cancellationToken).ConfigureAwait(false);
-          else
-            base.Flush();
+          await base.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
+          return;
+        }
+        catch (Exception e)
+        {
+          exception = e;
+          HandleOrRethrowException(e);
+        }
+      }
+      while (++retry < MaxRetryCount);
+      throw exception;
+    }
+
+    public override void Flush() => FlushInternal(CancellationToken.None);
+
+    public override Task FlushAsync(CancellationToken cancellationToken) => FlushInternalAsync(cancellationToken);
+
+    private void FlushInternal(CancellationToken cancellationToken)
+    {
+      int retry = 0;
+      Exception exception = null;
+      do
+      {
+        try
+        {
+          base.Flush();
+          return;
+        }
+        catch (Exception e)
+        {
+          exception = e;
+          HandleOrRethrowException(e);
+        }
+      }
+      while (++retry < MaxRetryCount);
+      throw exception;
+    }
+
+    private async Task FlushInternalAsync(CancellationToken cancellationToken)
+    {
+      int retry = 0;
+      Exception exception = null;
+      do
+      {
+        try
+        {
+          await base.FlushAsync(cancellationToken).ConfigureAwait(false);
           return;
         }
         catch (Exception e)
@@ -246,9 +294,59 @@ namespace MySql.Data.Common
 
     #region Create Code
 
-    public static async Task<MyNetworkStream> CreateStreamAsync(string server, uint connectionTimeout, uint keepAlive, uint port, bool unix, bool execAsync)
+    /// <summary>
+    /// Creates a new <see cref="MyNetworkStream"/> instance connected to the specified MySQL server using TCP/IP or Unix socket.
+    /// </summary>
+    /// <param name="server">The server hostname or IP address.</param>
+    /// <param name="connectionTimeout">The connection timeout in milliseconds (0 for infinite).</param>
+    /// <param name="keepAlive">The keep-alive interval in seconds (0 to disable).</param>
+    /// <param name="port">The port number to connect to (default 3306).</param>
+    /// <param name="unix"><c>true</c> to use Unix socket; <c>false</c> for TCP/IP.</param>
+    /// <returns>A new connected <see cref="MyNetworkStream"/> instance.</returns>
+    public static MyNetworkStream CreateStream(string server, uint connectionTimeout, uint keepAlive, uint port, bool unix)
     {
-      if (unix) return new MyNetworkStream(await StreamCreator.GetUnixSocketAsync(server, connectionTimeout, keepAlive, CancellationToken.None, execAsync).ConfigureAwait(false), true);
+      if (unix) return new MyNetworkStream(StreamCreator.GetUnixSocket(server, connectionTimeout, keepAlive, CancellationToken.None), true);
+
+      MyNetworkStream stream = null;
+      IPHostEntry ipHE = GetHostEntry(server);
+
+      foreach (IPAddress address in ipHE.AddressList)
+      {
+        try
+        {
+          stream = CreateSocketStream(port, keepAlive, connectionTimeout, address, unix);
+          if (stream != null) break;
+        }
+        catch (Exception ex)
+        {
+          string exTimeOutMessage = connectionTimeout == 0 ? ResourcesX.TimeOutSingleHost0ms : String.Format(ResourcesX.TimeOutSingleHost, connectionTimeout);
+
+          if (ex is TimeoutException) throw new TimeoutException(exTimeOutMessage);
+
+          SocketException socketException = ex as SocketException;
+
+          // if the exception is a ConnectionRefused then we eat it as we may have other address
+          // to attempt
+          if (socketException == null) throw;
+          if (socketException.SocketErrorCode == SocketError.TimedOut) throw new TimeoutException(exTimeOutMessage);
+          if (socketException.SocketErrorCode != SocketError.ConnectionRefused) throw;
+        }
+      }
+      return stream;
+    }
+
+    /// <summary>
+    /// Asynchronously creates a new <see cref="MyNetworkStream"/> instance connected to the specified MySQL server using TCP/IP or Unix socket.
+    /// </summary>
+    /// <param name="server">The server hostname or IP address.</param>
+    /// <param name="connectionTimeout">The connection timeout in milliseconds (0 for infinite).</param>
+    /// <param name="keepAlive">The keep-alive interval in seconds (0 to disable).</param>
+    /// <param name="port">The port number to connect to (default 3306).</param>
+    /// <param name="unix"><c>true</c> to use Unix socket; <c>false</c> for TCP/IP.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the new connected <see cref="MyNetworkStream"/> instance.</returns>
+    public static async Task<MyNetworkStream> CreateStreamAsync(string server, uint connectionTimeout, uint keepAlive, uint port, bool unix)
+    {
+      if (unix) return new MyNetworkStream(await StreamCreator.GetUnixSocketAsync(server, connectionTimeout, keepAlive, CancellationToken.None).ConfigureAwait(false), true);
 
       MyNetworkStream stream = null;
       IPHostEntry ipHE = GetHostEntry(server);

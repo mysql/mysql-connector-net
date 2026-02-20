@@ -619,16 +619,16 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.That(schemaCollection.Rows[0]["TABLE_NAME"], Is.EqualTo("parent"));
       Assert.That(schemaCollection.Rows[0]["COLUMN_NAME"], Is.EqualTo("id"));
 
-      schemaCollection = schema.GetForeignKeysAsync(restrictions, false).GetAwaiter().GetResult();
+      schemaCollection = schema.GetForeignKeys(restrictions);
       Assert.That(schemaCollection.AsDataTable().Columns.Contains("REFERENCED_TABLE_NAME"));
 
-      schemaCollection = schema.GetForeignKeyColumnsAsync(restrictions, false).GetAwaiter().GetResult();
+      schemaCollection = schema.GetForeignKeyColumns(restrictions);
       Assert.That(schemaCollection.AsDataTable().Columns.Contains("REFERENCED_COLUMN_NAME"));
 
-      schemaCollection = schema.GetUDFAsync(restrictions, false).GetAwaiter().GetResult();
+      schemaCollection = schema.GetUDF(restrictions);
       Assert.That(schemaCollection.AsDataTable().Columns.Contains("RETURN_TYPE"));
 
-      schemaCollection = schema.GetUsersAsync(restrictions, false).GetAwaiter().GetResult();
+      schemaCollection = schema.GetUsers(restrictions);
       Assert.That(schemaCollection.AsDataTable().Columns.Contains("USERNAME"));
 
       using (var conn = new MySqlConnection(Connection.ConnectionString))

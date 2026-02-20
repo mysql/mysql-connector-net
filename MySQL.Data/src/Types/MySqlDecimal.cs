@@ -99,24 +99,74 @@ namespace MySql.Data.Types
 
     string IMySqlValue.MySqlTypeName => "DECIMAL";
 
-    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
+    /// <summary>
+    /// Writes the decimal value to the MySQL packet, either in binary or text format.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write the value in binary (<c>true</c>) or text (<c>false</c>) format.</param>
+    /// <param name="val">The decimal value to write.</param>
+    /// <param name="length">The length of the value.</param>
+    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
+    {
+      decimal v = val as decimal? ?? Convert.ToDecimal(val);
+      string valStr = v.ToString(CultureInfo.InvariantCulture);
+      if (binary)
+        packet.WriteLenString(valStr);
+      else
+        packet.WriteStringNoNull(valStr);
+    }
+
+    /// <summary>
+    /// Asynchronously writes the decimal value to the MySQL packet, either in binary or text format.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write the value in binary (<c>true</c>) or text (<c>false</c>) format.</param>
+    /// <param name="val">The decimal value to write.</param>
+    /// <param name="length">The length of the value.</param>
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length)
     {
       decimal v = val as decimal? ?? Convert.ToDecimal(val);
       string valStr = v.ToString(CultureInfo.InvariantCulture);
 
       if (binary)
-        await packet.WriteLenStringAsync(valStr, execAsync).ConfigureAwait(false);
+        await packet.WriteLenStringAsync(valStr).ConfigureAwait(false);
       else
-        await packet.WriteStringNoNullAsync(valStr, execAsync).ConfigureAwait(false);
+        await packet.WriteStringNoNullAsync(valStr).ConfigureAwait(false);
     }
 
-    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
+    /// <summary>
+    /// Reads the decimal value from the MySQL packet.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates a length-prefixed string.</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlDecimal"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>.</returns>
+    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
     {
       if (nullVal)
         return new MySqlDecimal(true);
 
-      string s = String.Empty;
-      s = length == -1 ? await packet.ReadLenStringAsync(execAsync).ConfigureAwait(false) : await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false);
+      string s = length == -1
+          ? packet.ReadLenString()
+          : packet.ReadString(length);
+      return new MySqlDecimal(s);
+    }
+
+    /// <summary>
+    /// Asynchronously reads the decimal value from the MySQL packet.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates a length-prefixed string.</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlDecimal"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>.</returns>
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal)
+    {
+      if (nullVal)
+        return new MySqlDecimal(true);
+
+      string s = length == -1
+        ? await packet.ReadLenStringAsync().ConfigureAwait(false)
+        : await packet.ReadStringAsync(length).ConfigureAwait(false);
       return new MySqlDecimal(s);
     }
 

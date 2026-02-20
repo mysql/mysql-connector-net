@@ -132,26 +132,67 @@ namespace MySql.Data.MySqlClient
         return String.Empty;
       }
     }
-
-    public virtual async Task ExecuteAsync(bool execAsync)
+    /// <summary>
+    /// Executes the SQL statement by binding parameters and sending the query packets to the server.
+    /// This method handles both single statements and batched commands.
+    /// </summary>
+    public virtual void Execute()
     {
       // we keep a reference to this until we are done
-      await BindParametersAsync(execAsync).ConfigureAwait(false);
-      await ExecuteNextAsync(execAsync).ConfigureAwait(false);
+      BindParameters();
+      ExecuteNext();
     }
 
-    public virtual async Task<bool> ExecuteNextAsync(bool execAsync)
+    /// <summary>
+    /// Asynchronously executes the SQL statement by binding parameters and sending the query packets to the server.
+    /// This method handles both single statements and batched commands.
+    /// </summary>
+    public virtual async Task ExecuteAsync()
+    {
+      // we keep a reference to this until we are done
+      await BindParametersAsync().ConfigureAwait(false);
+      await ExecuteNextAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Executes the next query packet from the buffer.
+    /// </summary>
+    /// <returns>
+    /// <c>true</c> if a packet was executed successfully; otherwise, <c>false</c> if no packets remain in the buffer.
+    /// </returns>
+    public virtual bool ExecuteNext()
     {
       if (_buffers.Count == 0)
         return false;
 
       MySqlPacket packet = _buffers[0];
-      await Driver.SendQueryAsync(packet, paramsPosition, execAsync).ConfigureAwait(false);
+      Driver.SendQuery(packet, paramsPosition);
       _buffers.RemoveAt(0);
       return true;
     }
 
-    protected async Task BindParametersAsync(bool execAsync)
+    /// <summary>
+    /// Asynchronously executes the next query packet from the buffer.
+    /// </summary>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result is <c>true</c> if a packet was executed successfully; otherwise, <c>false</c> if no packets remain in the buffer.
+    /// </returns>
+    public virtual async Task<bool> ExecuteNextAsync()
+    {
+      if (_buffers.Count == 0)
+        return false;
+
+      MySqlPacket packet = _buffers[0];
+      await Driver.SendQueryAsync(packet, paramsPosition).ConfigureAwait(false);
+      _buffers.RemoveAt(0);
+      return true;
+    }
+
+    /// <summary>
+    /// Binds the command parameters and attributes to the query packets, supporting batch execution.
+    /// This method constructs packets for query attributes and SQL statements, handling multiple batched commands if present.
+    /// </summary>
+    protected void BindParameters()
     {
       MySqlParameterCollection parameters = command.Parameters;
       MySqlAttributeCollection attributes = command.Attributes;
@@ -159,8 +200,8 @@ namespace MySql.Data.MySqlClient
 
       while (true)
       {
-        MySqlPacket packet = await BuildQueryAttributesPacketAsync(attributes, execAsync).ConfigureAwait(false);
-        await InternalBindParametersAsync(ResolvedCommandText, parameters, packet, execAsync).ConfigureAwait(false);
+        MySqlPacket packet = BuildQueryAttributesPacket(attributes);
+        InternalBindParameters(ResolvedCommandText, parameters, packet);
 
         // if we are not batching, then we are done.  This is only really relevant the
         // first time through
@@ -188,11 +229,11 @@ namespace MySql.Data.MySqlClient
             text = ResolvedCommandText;
 
           if (text.StartsWith("(", StringComparison.Ordinal))
-            await packet.WriteStringNoNullAsync(", ", execAsync).ConfigureAwait(false);
+            packet.WriteStringNoNull(", ");
           else
-            await packet.WriteStringNoNullAsync("; ", execAsync).ConfigureAwait(false);
+            packet.WriteStringNoNull("; ");
 
-          await InternalBindParametersAsync(text, batchedCmd.Parameters, packet, execAsync).ConfigureAwait(false);
+          InternalBindParameters(text, batchedCmd.Parameters, packet);
           if ((packet.Length - 4) > Connection.driver.MaxPacketSize)
           {
             //TODO
@@ -207,12 +248,70 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Builds the initial part of the COM_QUERY packet
+    /// Asynchronously binds the command parameters and attributes to the query packets, supporting batch execution.
+    /// This method constructs packets for query attributes and SQL statements, handling multiple batched commands if present.
     /// </summary>
-    /// <param name="attributes">Collection of attributes</param>
-    /// <returns>A <see cref="MySqlPacket"/></returns>
-    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
-    private async Task<MySqlPacket> BuildQueryAttributesPacketAsync(MySqlAttributeCollection attributes, bool execAsync)
+    protected async Task BindParametersAsync()
+    {
+      MySqlParameterCollection parameters = command.Parameters;
+      MySqlAttributeCollection attributes = command.Attributes;
+      int index = 0;
+
+      while (true)
+      {
+        MySqlPacket packet = await BuildQueryAttributesPacketAsync(attributes).ConfigureAwait(false);
+        await InternalBindParametersAsync(ResolvedCommandText, parameters, packet).ConfigureAwait(false);
+
+        // if we are not batching, then we are done.  This is only really relevant the
+        // first time through
+        if (command.Batch == null) return;
+        while (index < command.Batch.Count)
+        {
+          MySqlCommand batchedCmd = command.Batch[index++];
+          packet = (MySqlPacket)_buffers[_buffers.Count - 1];
+
+          // now we make a guess if this statement will fit in our current stream
+          long estimatedCmdSize = batchedCmd.EstimatedSize();
+          if (((packet.Length - 4) + estimatedCmdSize) > Connection.driver.MaxPacketSize)
+            // it won't, so we raise an exception to avoid a partial batch 
+            throw new MySqlException(Resources.QueryTooLarge, (int)MySqlErrorCode.PacketTooLarge);
+
+          // looks like we might have room for it so we remember the current end of the stream
+          _buffers.RemoveAt(_buffers.Count - 1);
+          //long originalLength = packet.Length - 4;
+
+          // and attempt to stream the next command
+          string text = "";
+          if (Connection.driver.Settings.RewriteBatchedStatements)
+            text = batchedCmd.BatchableCommandText;
+          else
+            text = ResolvedCommandText;
+
+          if (text.StartsWith("(", StringComparison.Ordinal))
+            await packet.WriteStringNoNullAsync(", ").ConfigureAwait(false);
+          else
+            await packet.WriteStringNoNullAsync("; ").ConfigureAwait(false);
+
+          await InternalBindParametersAsync(text, batchedCmd.Parameters, packet).ConfigureAwait(false);
+          if ((packet.Length - 4) > Connection.driver.MaxPacketSize)
+          {
+            //TODO
+            //stream.InternalBuffer.SetLength(originalLength);
+            parameters = batchedCmd.Parameters;
+            break;
+          }
+        }
+        if (index == command.Batch.Count)
+          return;
+      }
+    }
+
+    /// <summary>
+    /// Builds the initial part of the COM_QUERY packet, including query attributes if supported by the server.
+    /// </summary>
+    /// <param name="attributes">The collection of query attributes to include in the packet.</param>
+    /// <returns>A <see cref="MySqlPacket"/> containing the query attributes and prepared for SQL statement insertion.</returns>
+    private MySqlPacket BuildQueryAttributesPacket(MySqlAttributeCollection attributes)
     {
       MySqlPacket packet;
       packet = new MySqlPacket(Driver.Encoding) { Version = Driver.Version };
@@ -223,7 +322,7 @@ namespace MySql.Data.MySqlClient
       else if (Driver.SupportsQueryAttributes)
       {
         int paramCount = attributes.Count;
-        await packet.WriteLengthAsync(paramCount, execAsync).ConfigureAwait(false); // int<lenenc> parameter_count - Number of parameters
+        packet.WriteLength(paramCount); // int<lenenc> parameter_count - Number of parameters
         packet.WriteByte(1); // int<lenenc> parameter_set_count - Number of parameter sets. Currently always 1
 
         if (paramCount > 0)
@@ -238,8 +337,8 @@ namespace MySql.Data.MySqlClient
           // set type and name for each attribute
           foreach (MySqlAttribute attribute in attributes)
           {
-            await packet.WriteIntegerAsync(attribute.GetPSType(), 2, execAsync).ConfigureAwait(false);
-            await packet.WriteLenStringAsync(attribute.AttributeName, execAsync).ConfigureAwait(false);
+            packet.WriteInteger(attribute.GetPSType(), 2);
+            packet.WriteLenString(attribute.AttributeName);
           }
 
           // set value for each attribute
@@ -248,7 +347,7 @@ namespace MySql.Data.MySqlClient
             MySqlAttribute attr = attributes[i];
             _nullMap[i] = (attr.Value == DBNull.Value || attr.Value == null);
             if (_nullMap[i]) continue;
-            await attr.SerializeAsync(packet, true, Connection.Settings, execAsync).ConfigureAwait(false);
+            attr.Serialize(packet, true, Connection.Settings);
           }
 
           byte[] tempByteArray = new byte[(_nullMap.Length + 7) >> 3];
@@ -262,7 +361,69 @@ namespace MySql.Data.MySqlClient
       return packet;
     }
 
-    private async Task InternalBindParametersAsync(string sql, MySqlParameterCollection parameters, MySqlPacket packet, bool execAsync)
+    /// <summary>
+    /// Asynchronously builds the initial part of the COM_QUERY packet, including query attributes if supported by the server.
+    /// </summary>
+    /// <param name="attributes">The collection of query attributes to include in the packet.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result is a <see cref="MySqlPacket"/> containing the query attributes and prepared for SQL statement insertion.</returns>
+    private async Task<MySqlPacket> BuildQueryAttributesPacketAsync(MySqlAttributeCollection attributes)
+    {
+      MySqlPacket packet;
+      packet = new MySqlPacket(Driver.Encoding) { Version = Driver.Version };
+      packet.WriteByte(0);
+
+      if (attributes.Count > 0 && !Driver.SupportsQueryAttributes)
+        MySqlTrace.LogWarning(Connection.ServerThread, string.Format(Resources.QueryAttributesNotSupported, Driver.Version));
+      else if (Driver.SupportsQueryAttributes)
+      {
+        int paramCount = attributes.Count;
+        await packet.WriteLengthAsync(paramCount).ConfigureAwait(false); // int<lenenc> parameter_count - Number of parameters
+        packet.WriteByte(1); // int<lenenc> parameter_set_count - Number of parameter sets. Currently always 1
+
+        if (paramCount > 0)
+        {
+          // now prepare our null map
+          BitArray _nullMap = new BitArray(paramCount);
+          int numNullBytes = (_nullMap.Length + 7) / 8;
+          int _nullMapPosition = packet.Position;
+          packet.Position += numNullBytes;  // leave room for our null map
+          packet.WriteByte((byte)1); // new_params_bind_flag - Always 1. Malformed packet error if not 1
+
+          // set type and name for each attribute
+          foreach (MySqlAttribute attribute in attributes)
+          {
+            await packet.WriteIntegerAsync(attribute.GetPSType(), 2).ConfigureAwait(false);
+            await packet.WriteLenStringAsync(attribute.AttributeName).ConfigureAwait(false);
+          }
+
+          // set value for each attribute
+          for (int i = 0; i < attributes.Count; i++)
+          {
+            MySqlAttribute attr = attributes[i];
+            _nullMap[i] = (attr.Value == DBNull.Value || attr.Value == null);
+            if (_nullMap[i]) continue;
+            await attr.SerializeAsync(packet, true, Connection.Settings).ConfigureAwait(false);
+          }
+
+          byte[] tempByteArray = new byte[(_nullMap.Length + 7) >> 3];
+          _nullMap.CopyTo(tempByteArray, 0);
+
+          Array.Copy(tempByteArray, 0, packet.Buffer, _nullMapPosition, tempByteArray.Length);
+        }
+      }
+
+      paramsPosition = packet.Position;
+      return packet;
+    }
+
+    /// <summary>
+    /// Binds parameters to the SQL statement by tokenizing the SQL and serializing parameters into the packet.
+    /// Handles parameter replacement and SQL Server mode adjustments.
+    /// </summary>
+    /// <param name="sql">The SQL command text to process.</param>
+    /// <param name="parameters">The collection of parameters to bind.</param>
+    /// <param name="packet">The packet to write the bound SQL and parameters to.</param>
+    private void InternalBindParameters(string sql, MySqlParameterCollection parameters, MySqlPacket packet)
     {
       bool sqlServerMode = command.Connection.Settings.SqlServerMode;
 
@@ -278,7 +439,7 @@ namespace MySql.Data.MySqlClient
       while (token != null)
       {
         // serialize everything that came before the token (i.e. whitespace)
-        await packet.WriteStringNoNullAsync(sql.Substring(pos, tokenizer.StartIndex - pos), execAsync).ConfigureAwait(false);
+        packet.WriteStringNoNull(sql.Substring(pos, tokenizer.StartIndex - pos));
         pos = tokenizer.StopIndex;
 
         if (MySqlTokenizer.IsParameter(token))
@@ -287,7 +448,7 @@ namespace MySql.Data.MySqlClient
             throw new MySqlException(Resources.MixedParameterNamingNotAllowed);
 
           parameters.containsUnnamedParameters = token.Length == 1;
-          if (await SerializeParameterAsync(parameters, packet, token, parameterCount, execAsync).ConfigureAwait(false))
+          if (SerializeParameter(parameters, packet, token, parameterCount))
             token = null;
           parameterCount++;
         }
@@ -297,7 +458,57 @@ namespace MySql.Data.MySqlClient
           if (sqlServerMode && tokenizer.Quoted && token.StartsWith("[", StringComparison.Ordinal))
             token = String.Format("`{0}`", token.Substring(1, token.Length - 2));
 
-          await packet.WriteStringNoNullAsync(token, execAsync).ConfigureAwait(false);
+          packet.WriteStringNoNull(token);
+        }
+        token = tokenizer.NextToken();
+      }
+      _buffers.Add(packet);
+    }
+
+    /// <summary>
+    /// Asynchronously binds parameters to the SQL statement by tokenizing the SQL and serializing parameters into the packet.
+    /// Handles parameter replacement and SQL Server mode adjustments.
+    /// </summary>
+    /// <param name="sql">The SQL command text to process.</param>
+    /// <param name="parameters">The collection of parameters to bind.</param>
+    /// <param name="packet">The packet to write the bound SQL and parameters to.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    private async Task InternalBindParametersAsync(string sql, MySqlParameterCollection parameters, MySqlPacket packet)
+    {
+      bool sqlServerMode = command.Connection.Settings.SqlServerMode;
+
+      MySqlTokenizer tokenizer = new MySqlTokenizer(sql)
+      {
+        ReturnComments = true,
+        SqlServerMode = sqlServerMode
+      };
+
+      int pos = 0;
+      string token = tokenizer.NextToken();
+      int parameterCount = 0;
+      while (token != null)
+      {
+        // serialize everything that came before the token (i.e. whitespace)
+        await packet.WriteStringNoNullAsync(sql.Substring(pos, tokenizer.StartIndex - pos)).ConfigureAwait(false);
+        pos = tokenizer.StopIndex;
+
+        if (MySqlTokenizer.IsParameter(token))
+        {
+          if ((!parameters.containsUnnamedParameters && token.Length == 1 && parameterCount > 0) || parameters.containsUnnamedParameters && token.Length > 1)
+            throw new MySqlException(Resources.MixedParameterNamingNotAllowed);
+
+          parameters.containsUnnamedParameters = token.Length == 1;
+          if (await SerializeParameterAsync(parameters, packet, token, parameterCount).ConfigureAwait(false))
+            token = null;
+          parameterCount++;
+        }
+
+        if (token != null)
+        {
+          if (sqlServerMode && tokenizer.Quoted && token.StartsWith("[", StringComparison.Ordinal))
+            token = String.Format("`{0}`", token.Substring(1, token.Length - 2));
+
+          await packet.WriteStringNoNullAsync(token).ConfigureAwait(false);
         }
         token = tokenizer.NextToken();
       }
@@ -317,15 +528,14 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Serializes the given parameter to the given memory stream
+    /// Retrieves the MySqlParameter from the collection, returning null if the parameter is ignorable (e.g., user variable).
     /// </summary>
-    /// <remarks>
-    /// <para>This method is called by PrepareSqlBuffers to convert the given
-    /// parameter to bytes and write those bytes to the given memory stream.
-    /// </para>
-    /// </remarks>
-    /// <returns>True if the parameter was successfully serialized, false otherwise.</returns>
-    private async Task<bool> SerializeParameterAsync(MySqlParameterCollection parameters, MySqlPacket packet, string parmName, int parameterIndex, bool execAsync)
+    /// <param name="parameters">The parameter collection.</param>
+    /// <param name="parmName">The parameter name.</param>
+    /// <param name="parameterIndex">The parameter index for unnamed parameters.</param>
+    /// <returns>The parameter or null if ignorable or not found (but throws if required and not found).</returns>
+    /// <exception cref="MySqlException">If unnamed parameter index is invalid or required parameter is missing.</exception>
+    private MySqlParameter GetParameter(MySqlParameterCollection parameters, string parmName, int parameterIndex)
     {
       MySqlParameter parameter = null;
 
@@ -339,17 +549,62 @@ namespace MySql.Data.MySqlClient
           throw new MySqlException(Resources.ParameterIndexNotFound);
       }
 
-      if (parameter == null)
-      {
-        // if we are allowing user variables and the parameter name starts with @
-        // then we can't throw an exception
-        if (parmName.StartsWith("@", StringComparison.Ordinal) && ShouldIgnoreMissingParameter(parmName))
-          return false;
-        throw new MySqlException(
-            String.Format(Resources.ParameterMustBeDefined, parmName));
-      }
+      if (parameter == null && parmName.StartsWith("@", StringComparison.Ordinal) && ShouldIgnoreMissingParameter(parmName))
+        return null;
 
-      await parameter.SerializeAsync(packet, false, Connection.Settings, execAsync).ConfigureAwait(false);
+      if (parameter == null)
+        throw new MySqlException(String.Format(Resources.ParameterMustBeDefined, parmName));
+
+      return parameter;
+    }
+
+    /// <summary>
+    /// Serializes the specified parameter into the packet, replacing the parameter placeholder in the SQL.
+    /// </summary>
+    /// <param name="parameters">The collection containing the parameter.</param>
+    /// <param name="packet">The packet to serialize the parameter into.</param>
+    /// <param name="parmName">The name of the parameter placeholder.</param>
+    /// <param name="parameterIndex">The index of the parameter for unnamed parameters.</param>
+    /// <returns>
+    /// <c>true</c> if the parameter was found and serialized successfully; <c>false</c> if the parameter is a user variable or missing but ignorable.
+    /// </returns>
+    /// <remarks>
+    /// This method is called by <see cref="InternalBindParameters"/> to convert the parameter to bytes and write them to the packet.
+    /// Throws <see cref="MySqlException"/> if the parameter is required but not found.
+    /// </remarks>
+    private bool SerializeParameter(MySqlParameterCollection parameters, MySqlPacket packet, string parmName, int parameterIndex)
+    {
+      MySqlParameter parameter = GetParameter(parameters, parmName, parameterIndex);
+
+      if (parameter == null)
+        return false;
+
+      parameter.Serialize(packet, false, Connection.Settings);
+      return true;
+    }
+
+    /// <summary>
+    /// Asynchronously serializes the specified parameter into the packet, replacing the parameter placeholder in the SQL.
+    /// </summary>
+    /// <param name="parameters">The collection containing the parameter.</param>
+    /// <param name="packet">The packet to serialize the parameter into.</param>
+    /// <param name="parmName">The name of the parameter placeholder.</param>
+    /// <param name="parameterIndex">The index of the parameter for unnamed parameters.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result is <c>true</c> if the parameter was found and serialized successfully; <c>false</c> if the parameter is a user variable or missing but ignorable.
+    /// </returns>
+    /// <remarks>
+    /// This method is called by <see cref="InternalBindParametersAsync"/> to convert the parameter to bytes and write them to the packet.
+    /// Throws <see cref="MySqlException"/> if the parameter is required but not found.
+    /// </remarks>
+    private async Task<bool> SerializeParameterAsync(MySqlParameterCollection parameters, MySqlPacket packet, string parmName, int parameterIndex)
+    {
+      MySqlParameter parameter = GetParameter(parameters, parmName, parameterIndex);
+
+      if (parameter == null)
+        return false;
+
+      await parameter.SerializeAsync(packet, false, Connection.Settings).ConfigureAwait(false);
       return true;
     }
   }

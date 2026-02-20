@@ -64,16 +64,46 @@ namespace MySql.Data.Types
       get { return "FLOAT"; }
     }
 
-    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
+    /// <summary>
+    /// Writes the single-precision floating-point value to the MySQL packet, either in binary or text format.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write the value in binary (<c>true</c>, 4 bytes) or text (<c>false</c>, round-trip "R" string) format.</param>
+    /// <param name="val">The floating-point value to write.</param>
+    /// <param name="length">The length of the value.</param>
+    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
       Single v = val as Single? ?? Convert.ToSingle(val);
       if (binary)
-        await packet.WriteAsync(PacketBitConverter.GetBytes(v), execAsync).ConfigureAwait(false);
+        packet.Write(PacketBitConverter.GetBytes(v));
       else
-        await packet.WriteStringNoNullAsync(v.ToString("R", CultureInfo.InvariantCulture), execAsync).ConfigureAwait(false);
+        packet.WriteStringNoNull(v.ToString("R", CultureInfo.InvariantCulture));
     }
 
-    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
+    /// <summary>
+    /// Asynchronously writes the single-precision floating-point value to the MySQL packet, either in binary or text format.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write the value in binary (<c>true</c>, 4 bytes) or text (<c>false</c>, round-trip "R" string) format.</param>
+    /// <param name="val">The floating-point value to write.</param>
+    /// <param name="length">The length of the value.</param>
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length)
+    {
+      Single v = val as Single? ?? Convert.ToSingle(val);
+      if (binary)
+        await packet.WriteAsync(PacketBitConverter.GetBytes(v)).ConfigureAwait(false);
+      else
+        await packet.WriteStringNoNullAsync(v.ToString("R", CultureInfo.InvariantCulture)).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Asynchronously reads the single-precision floating-point value from the MySQL packet.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates binary format (4 bytes).</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlSingle"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>.</returns>
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal)
     {
       if (nullVal)
         return new MySqlSingle(true);
@@ -81,12 +111,34 @@ namespace MySql.Data.Types
       if (length == -1)
       {
         byte[] b = new byte[4];
-        await packet.ReadAsync(b, 0, 4, execAsync).ConfigureAwait(false);
+        await packet.ReadAsync(b, 0, 4).ConfigureAwait(false);
         return new MySqlSingle(PacketBitConverter.ToSingle(b, 0));
       }
 
-      return new MySqlSingle(Single.Parse(await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false),
+      return new MySqlSingle(Single.Parse(await packet.ReadStringAsync(length).ConfigureAwait(false),
      CultureInfo.InvariantCulture));
+    }
+
+    /// <summary>
+    /// Reads the single-precision floating-point value from the MySQL packet.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates binary format (4 bytes).</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlSingle"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>.</returns>
+    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
+    {
+      if (nullVal)
+        return new MySqlSingle(true);
+
+      if (length == -1)
+      {
+        byte[] b = new byte[4];
+        packet.Read(b, 0, 4);
+        return new MySqlSingle(PacketBitConverter.ToSingle(b, 0));
+      }
+      return new MySqlSingle(
+          Single.Parse(packet.ReadString(length), CultureInfo.InvariantCulture));
     }
 
     void IMySqlValue.SkipValue(MySqlPacket packet)

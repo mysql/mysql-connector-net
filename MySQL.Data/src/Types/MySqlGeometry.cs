@@ -179,28 +179,50 @@ namespace MySql.Data.Types
 
     string IMySqlValue.MySqlTypeName => "GEOMETRY";
 
-    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
+    /// <summary>
+    /// Writes the geometry value to the MySQL packet.
+    /// For text mode, prefixes with "_binary " and writes an escaped hexadecimal representation of the geometry bytes. For binary mode, writes the string representation (WKT) of the value with a length prefix.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write in binary mode (<c>true</c>) or text mode (<c>false</c>).</param>
+    /// <param name="val">The geometry value to write, which can be a MySqlGeometry, byte array, or string (WKT).</param>
+    /// <param name="length">The length of the value.</param>
+    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
-      byte[] buffToWrite = null;
-
-      try
-      {
-        buffToWrite = ((MySqlGeometry)val).Value;
-      }
-      catch
-      {
-        buffToWrite = val as Byte[];
-      }
-
-      if (buffToWrite == null)
-      {
-        MySqlGeometry v = new MySqlGeometry(0, 0);
-        MySqlGeometry.TryParse(val.ToString(), out v);
-        buffToWrite = v.Value;
-      }
-
+      byte[] buffToWrite = GetOrCreateBufferToWrite(val);
       byte[] result = new byte[GEOMETRY_LENGTH];
+      for (int i = 0; i < buffToWrite.Length; i++)
+      {
+        if (buffToWrite.Length < GEOMETRY_LENGTH)
+          result[i + 4] = buffToWrite[i];
+        else
+          result[i] = buffToWrite[i];
+      }
+      if (!binary)
+      {
+        packet.WriteStringNoNull("_binary ");
+        packet.WriteByte((byte)'\'');
+        EscapeByteArray(result, GEOMETRY_LENGTH, packet);
+        packet.WriteByte((byte)'\'');
+      }
+      else
+      {
+        packet.WriteLenString(val.ToString());
+      }
+    }
 
+    /// <summary>
+    /// Asynchronously writes the geometry value to the MySQL packet.
+    /// For text mode, prefixes with "_binary " and writes an escaped hexadecimal representation of the geometry bytes. For binary mode, writes the string representation (WKT) of the value with a length prefix.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write in binary mode (<c>true</c>) or text mode (<c>false</c>).</param>
+    /// <param name="val">The geometry value to write, which can be a MySqlGeometry, byte array, or string (WKT).</param>
+    /// <param name="length">The length of the value.</param>
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length)
+    {
+      byte[] buffToWrite = GetOrCreateBufferToWrite(val);
+      byte[] result = new byte[GEOMETRY_LENGTH];
       for (int i = 0; i < buffToWrite.Length; i++)
       {
         if (buffToWrite.Length < GEOMETRY_LENGTH)
@@ -211,13 +233,13 @@ namespace MySql.Data.Types
 
       if (!binary)
       {
-        await packet.WriteStringNoNullAsync("_binary ", execAsync).ConfigureAwait(false);
+        await packet.WriteStringNoNullAsync("_binary ").ConfigureAwait(false);
         packet.WriteByte((byte)'\'');
         EscapeByteArray(result, GEOMETRY_LENGTH, packet);
         packet.WriteByte((byte)'\'');
       }
       else
-        await packet.WriteLenStringAsync(val.ToString(), execAsync).ConfigureAwait(false);
+        await packet.WriteLenStringAsync(val.ToString()).ConfigureAwait(false);
     }
 
     private static void EscapeByteArray(byte[] bytes, int length, MySqlPacket packet)
@@ -241,21 +263,49 @@ namespace MySql.Data.Types
       }
     }
 
-    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
+    /// <summary>
+    /// Reads the geometry value from the MySQL packet as a byte array and constructs a MySqlGeometry instance.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates the length is prefixed in the packet.</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlGeometry"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>.</returns>
+    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
     {
-      MySqlGeometry g;
       if (nullVal)
-        g = new MySqlGeometry(_type, true);
-      else
-      {
-        if (length == -1)
-          length = (long)packet.ReadFieldLength();
+        return new MySqlGeometry(_type, true);
 
-        byte[] newBuff = new byte[length];
-        await packet.ReadAsync(newBuff, 0, (int)length, execAsync).ConfigureAwait(false);
-        g = new MySqlGeometry(_type, newBuff);
-      }
-      return g;
+      if (length == -1)
+        length = (long)packet.ReadFieldLength();
+
+      byte[] newBuff = new byte[length];
+      packet.Read(newBuff, 0, (int)length);
+      return new MySqlGeometry(_type, newBuff);
+    }
+
+    /// <summary>
+    /// Asynchronously reads the geometry value from the MySQL packet as a byte array and constructs a MySqlGeometry instance.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates the length is prefixed in the packet.</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlGeometry"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>.</returns>
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal)
+    {
+      if (nullVal)
+        return new MySqlGeometry(_type, true);
+
+      if (length == -1)
+        length = (long)packet.ReadFieldLength();
+
+      byte[] newBuff = new byte[length];
+      await packet.ReadAsync(newBuff, 0, (int)length).ConfigureAwait(false);
+      return new MySqlGeometry(_type, newBuff);
+    }
+
+    private MySqlGeometry CreateFromBuffer(byte[] newBuff)
+    {
+      return new MySqlGeometry(_type, newBuff);
     }
 
     void IMySqlValue.SkipValue(MySqlPacket packet)
@@ -390,6 +440,34 @@ namespace MySql.Data.Types
         return string.Format(CultureInfo.InvariantCulture.NumberFormat, "POINT({0} {1})", _xValue, _yValue);
 
       return String.Empty;
+    }
+
+    /// <summary>
+    /// Retrieves or creates the byte buffer for the geometry value to write, handling MySqlGeometry, byte array, or WKT string inputs.
+    /// </summary>
+    /// <param name="val">The input value, which can be MySqlGeometry, byte[], or string (WKT).</param>
+    /// <returns>The byte buffer representing the geometry.</returns>
+    /// <exception cref="MySqlException">Thrown if the value cannot be parsed as geometry.</exception>
+    private byte[] GetOrCreateBufferToWrite(object val)
+    {
+      byte[] bufferToWrite = null;
+      try
+      {
+        bufferToWrite = ((MySqlGeometry)val).Value;
+      }
+      catch
+      {
+        bufferToWrite = val as Byte[];
+      }
+
+      if (bufferToWrite == null)
+      {
+        MySqlGeometry v = new MySqlGeometry(0, 0);
+        MySqlGeometry.TryParse(val.ToString(), out v);
+        bufferToWrite = v.Value;
+      }
+
+      return bufferToWrite;
     }
   }
 }

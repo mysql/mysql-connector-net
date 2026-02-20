@@ -190,12 +190,15 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Serialize the value of the query attribute.
+    /// Serializes the value of the query attribute to the specified packet, handling null values and special types like Guid and Geometry.
     /// </summary>
-    internal async Task SerializeAsync(MySqlPacket packet, bool binary, MySqlConnectionStringBuilder settings, bool execAsync)
+    /// <param name="packet">The MySqlPacket instance to write the serialized value to.</param>
+    /// <param name="binary">If true, serializes in binary protocol format; otherwise, uses text format.</param>
+    /// <param name="settings">The MySqlConnectionStringBuilder containing relevant connection settings, such as OldGuids.</param>
+    internal void Serialize(MySqlPacket packet, bool binary, MySqlConnectionStringBuilder settings)
     {
       if (!binary && (_attributeValue == null || _attributeValue == DBNull.Value))
-        await packet.WriteStringNoNullAsync("NULL", execAsync).ConfigureAwait(false);
+        packet.WriteStringNoNull("NULL");
       else
       {
         if (ValueObject.MySqlDbType == MySqlDbType.Guid)
@@ -213,7 +216,38 @@ namespace MySql.Data.MySqlClient
           }
           ValueObject = v;
         }
-        await ValueObject.WriteValueAsync(packet, binary, _attributeValue, _size, execAsync).ConfigureAwait(false);
+        ValueObject.WriteValue(packet, binary, _attributeValue, _size);
+      }
+    }
+
+    /// <summary>
+    /// Asynchronously serializes the value of the query attribute to the specified packet, handling null values and special types like Guid and Geometry.
+    /// </summary>
+    /// <param name="packet">The MySqlPacket instance to write the serialized value to.</param>
+    /// <param name="binary">If true, serializes in binary protocol format; otherwise, uses text format.</param>
+    /// <param name="settings">The MySqlConnectionStringBuilder containing relevant connection settings, such as OldGuids.</param>
+    internal async Task SerializeAsync(MySqlPacket packet, bool binary, MySqlConnectionStringBuilder settings)
+    {
+      if (!binary && (_attributeValue == null || _attributeValue == DBNull.Value))
+        await packet.WriteStringNoNullAsync("NULL").ConfigureAwait(false);
+      else
+      {
+        if (ValueObject.MySqlDbType == MySqlDbType.Guid)
+        {
+          MySqlGuid g = (MySqlGuid)ValueObject;
+          g.OldGuids = settings.OldGuids;
+          ValueObject = g;
+        }
+        if (ValueObject.MySqlDbType == MySqlDbType.Geometry)
+        {
+          MySqlGeometry v = (MySqlGeometry)ValueObject;
+          if (v.IsNull && Value != null)
+          {
+            MySqlGeometry.TryParse(Value.ToString(), out v);
+          }
+          ValueObject = v;
+        }
+        await ValueObject.WriteValueAsync(packet, binary, _attributeValue, _size).ConfigureAwait(false);
       }
     }
 

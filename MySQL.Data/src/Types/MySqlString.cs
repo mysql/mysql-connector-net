@@ -64,7 +64,14 @@ namespace MySql.Data.Types
 
     string IMySqlValue.MySqlTypeName => _type == MySqlDbType.Set ? "SET" : _type == MySqlDbType.Enum ? "ENUM" : "VARCHAR";
 
-    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
+    /// <summary>
+    /// Writes the string value to the MySQL packet, either in binary or text format. Truncates the string if a non-zero length is specified.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write the value in binary (<c>true</c>, length-prefixed string) or text (<c>false</c>, escaped quoted string) format.</param>
+    /// <param name="val">The string value to write.</param>
+    /// <param name="length">The maximum length to write; if greater than 0, truncates the string accordingly.</param>
+    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
       string v = val.ToString();
       if (length > 0)
@@ -74,23 +81,73 @@ namespace MySql.Data.Types
       }
 
       if (binary)
-        await packet.WriteLenStringAsync(v, execAsync).ConfigureAwait(false);
+        packet.WriteLenString(v);
       else
-        await packet.WriteStringNoNullAsync("'" + MySqlHelper.EscapeString(v) + "'", execAsync).ConfigureAwait(false);
+        packet.WriteStringNoNull("'" + MySqlHelper.EscapeString(v) + "'");
     }
 
-    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
+    /// <summary>
+    /// Asynchronously writes the string value to the MySQL packet, either in binary or text format. Truncates the string if a non-zero length is specified.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write the value in binary (<c>true</c>, length-prefixed string) or text (<c>false</c>, escaped quoted string) format.</param>
+    /// <param name="val">The string value to write.</param>
+    /// <param name="length">The maximum length to write; if greater than 0, truncates the string accordingly.</param>
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length)
+    {
+      string v = val.ToString();
+      if (length > 0)
+      {
+        length = Math.Min(length, v.Length);
+        v = v.Substring(0, length);
+      }
+
+      if (binary)
+        await packet.WriteLenStringAsync(v).ConfigureAwait(false);
+      else
+        await packet.WriteStringNoNullAsync("'" + MySqlHelper.EscapeString(v) + "'").ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Reads the string value from the MySQL packet.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates length-prefixed string.</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlString"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>.</returns>
+    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
     {
       if (nullVal)
         return new MySqlString(_type, true);
 
-      string s = String.Empty;
+      string s = string.Empty;
       if (length == -1)
-        s = await packet.ReadLenStringAsync(execAsync).ConfigureAwait(false);
+        s = packet.ReadLenString();
       else
-        s = await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false);
-      MySqlString str = new MySqlString(_type, s);
-      return str;
+        s = packet.ReadString(length);
+
+      return new MySqlString(_type, s);
+    }
+
+    /// <summary>
+    /// Asynchronously reads the string value from the MySQL packet.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates length-prefixed string.</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlString"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>.</returns>
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal)
+    {
+      if (nullVal)
+        return new MySqlString(_type, true);
+
+      string s = string.Empty;
+      if (length == -1)
+        s = await packet.ReadLenStringAsync().ConfigureAwait(false);
+      else
+        s = await packet.ReadStringAsync(length).ConfigureAwait(false);
+       
+      return new MySqlString(_type, s);
     }
 
     void IMySqlValue.SkipValue(MySqlPacket packet)

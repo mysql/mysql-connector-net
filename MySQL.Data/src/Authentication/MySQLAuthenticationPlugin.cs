@@ -56,19 +56,43 @@ namespace MySql.Data.MySqlClient.Authentication
     protected byte[] AuthenticationData;
 
     /// <summary>
+    /// This is a factory method that is used only internally.  It creates an auth plugin based on the method type.
+    /// </summary>
+    /// <param name="method">Authentication method.</param>
+    /// <param name="driver">The driver.</param>
+    /// <param name="authData">The authentication data.</param>
+    /// <param name="mfaIteration">MultiFactorAuthentication iteration.</param>
+    /// <returns></returns>
+    internal static MySqlAuthenticationPlugin GetPlugin(string method, NativeDriver driver, byte[] authData, int mfaIteration = 1)
+    {
+      if (method == "mysql_old_password")
+      {
+        driver.Close(true);
+        throw new MySqlException(Resources.OldPasswordsNotSupported);
+      }
+      MySqlAuthenticationPlugin plugin = AuthenticationPluginManager.GetPlugin(method);
+      if (plugin == null)
+        throw new MySqlException(String.Format(Resources.UnknownAuthenticationMethod, method));
+
+      plugin._driver = driver;
+      plugin._mfaIteration = mfaIteration;
+      plugin.SetAuthData(authData);
+      return plugin;
+    }
+
+    /// <summary>
     /// This is a factory method that is used only internally.  It creates an auth plugin based on the method type
     /// </summary>
     /// <param name="method">Authentication method.</param>
     /// <param name="driver">The driver.</param>
     /// <param name="authData">The authentication data.</param>
-    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
     /// <param name="mfaIteration">MultiFactorAuthentication iteration.</param>
     /// <returns></returns>
-    internal static async Task<MySqlAuthenticationPlugin> GetPluginAsync(string method, NativeDriver driver, byte[] authData, bool execAsync, int mfaIteration = 1)
+    internal static async Task<MySqlAuthenticationPlugin> GetPluginAsync(string method, NativeDriver driver, byte[] authData, int mfaIteration = 1)
     {
       if (method == "mysql_old_password")
       {
-        await driver.CloseAsync(true, execAsync).ConfigureAwait(false);
+        await driver.CloseAsync(true).ConfigureAwait(false);
         throw new MySqlException(Resources.OldPasswordsNotSupported);
       }
       MySqlAuthenticationPlugin plugin = AuthenticationPluginManager.GetPlugin(method);
@@ -135,52 +159,69 @@ namespace MySql.Data.MySqlClient.Authentication
     }
 
     /// <summary>
-    /// Defines the behavior when more data is required from the server.
+    /// Defines the base behavior when more data is required from the server during authentication.
+    /// Derived classes should override this method to provide specific authentication logic.
+    /// The base implementation returns null, indicating no response data.
     /// </summary>
-    /// <param name="data">The data returned by the server.</param>
-    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
-    /// <returns>The data to return to the server.</returns>
-    /// <remarks>This method is intended to be overriden.</remarks>
-    protected virtual Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
+    /// <param name="data">The byte array received from the server.</param>
+    /// <returns>A byte array containing the response to send to the server, or null if no further data is needed.</returns>
+    protected virtual byte[] MoreData(byte[] data)
+    {
+      return null;
+    }
+
+    /// <summary>
+    /// Defines the base asynchronous behavior when more data is required from the server during authentication.
+    /// Derived classes should override this method to provide specific authentication logic.
+    /// The base implementation returns a task that completes with null, indicating no response data.
+    /// </summary>
+    /// <param name="data">The byte array received from the server.</param>
+    /// <returns>A task representing the asynchronous operation, containing a byte array response to send to the server, or null if no further data is needed.</returns>
+    protected virtual Task<byte[]> MoreDataAsync(byte[] data)
     {
       return Task.FromResult<byte[]>(null);
     }
 
-    internal async Task AuthenticateAsync(bool reset, bool execAsync)
+    /// <summary>
+    /// Performs the authentication handshake with the server, including sending credentials,
+    /// handling auth switch requests, multi-factor authentication iterations, and reading server responses.
+    /// </summary>
+    /// <param name="reset">Indicates if the authentication is part of a connection reset.</param>
+    internal void Authenticate(bool reset)
     {
       CheckConstraints();
 
       MySqlPacket packet = _driver.Packet;
 
       // send auth response
-      await packet.WriteStringAsync(GetUsername(), execAsync).ConfigureAwait(false);
+      packet.WriteString(GetUsername());
 
       // now write the password
-      await WritePasswordAsync(packet, execAsync).ConfigureAwait(false);
+      WritePassword(packet);
 
       if ((Flags & ClientFlags.CONNECT_WITH_DB) != 0 || reset)
       {
         if (!String.IsNullOrEmpty(Settings.Database))
-          await packet.WriteStringAsync(Settings.Database, execAsync).ConfigureAwait(false);
+          packet.WriteString(Settings.Database);
       }
 
       if (reset)
-        await packet.WriteIntegerAsync(8, 2, execAsync).ConfigureAwait(false);
+        packet.WriteInteger(8, 2);
 
       if ((Flags & ClientFlags.PLUGIN_AUTH) != 0)
-        await packet.WriteStringAsync(PluginName, execAsync).ConfigureAwait(false);
+        packet.WriteString(PluginName);
 
-      await _driver.SetConnectAttrsAsync(execAsync).ConfigureAwait(false);
-      await _driver.SendPacketAsync(packet, execAsync).ConfigureAwait(false);
+      _driver.SetConnectAttrs();
+      _driver.SendPacket(packet);
 
       // Read server response.
-      packet = await ReadPacketAsync(execAsync).ConfigureAwait(false);
+      packet = ReadPacket();
       byte[] b = packet.Buffer;
 
       if (PluginName == "caching_sha2_password" && b[0] == 0x01)
       {
         // React to the authentication type set by server: FAST, FULL.
-        await ContinueAuthenticationAsync(execAsync, new byte[] { b[1] }).ConfigureAwait(false);
+        ContinueAuthentication(new byte[] { b[1] });
       }
 
       // Auth switch request Protocol::AuthSwitchRequest.
@@ -188,12 +229,12 @@ namespace MySql.Data.MySqlClient.Authentication
       {
         if (packet.IsLastPacket)
         {
-          await _driver.CloseAsync(true, execAsync).ConfigureAwait(false);
+          _driver.Close(true);
           throw new MySqlException(Resources.OldPasswordsNotSupported);
         }
         else
         {
-          await HandleAuthChangeAsync(packet, execAsync).ConfigureAwait(false);
+          HandleAuthChange(packet);
         }
       }
 
@@ -201,37 +242,133 @@ namespace MySql.Data.MySqlClient.Authentication
       while (packet.Buffer[0] == 0x02)
       {
         ++_mfaIteration;
-        await HandleMFAAsync(packet, execAsync).ConfigureAwait(false);
+        HandleMFA(packet);
       }
 
-      await _driver.ReadOkAsync(false, execAsync).ConfigureAwait(false);
+      _driver.ReadOk(false);
 
       AuthenticationSuccessful();
     }
 
-    private async Task WritePasswordAsync(MySqlPacket packet, bool execAsync)
+    /// <summary>
+    /// Performs the asynchronous authentication handshake with the server, including sending credentials,
+    /// handling auth switch requests, multi-factor authentication iterations, and reading server responses.
+    /// </summary>
+    /// <param name="reset">Indicates if the authentication is part of a connection reset.</param>
+    internal async Task AuthenticateAsync(bool reset)
+    {
+      CheckConstraints();
+
+      MySqlPacket packet = _driver.Packet;
+
+      // send auth response
+      await packet.WriteStringAsync(GetUsername()).ConfigureAwait(false);
+
+      // now write the password
+      await WritePasswordAsync(packet).ConfigureAwait(false);
+
+      if ((Flags & ClientFlags.CONNECT_WITH_DB) != 0 || reset)
+      {
+        if (!String.IsNullOrEmpty(Settings.Database))
+          await packet.WriteStringAsync(Settings.Database).ConfigureAwait(false);
+      }
+
+      if (reset)
+        await packet.WriteIntegerAsync(8, 2).ConfigureAwait(false);
+
+      if ((Flags & ClientFlags.PLUGIN_AUTH) != 0)
+        await packet.WriteStringAsync(PluginName).ConfigureAwait(false);
+
+      await _driver.SetConnectAttrsAsync().ConfigureAwait(false);
+      await _driver.SendPacketAsync(packet).ConfigureAwait(false);
+
+      // Read server response.
+      packet = await ReadPacketAsync().ConfigureAwait(false);
+      byte[] b = packet.Buffer;
+
+      if (PluginName == "caching_sha2_password" && b[0] == 0x01)
+      {
+        // React to the authentication type set by server: FAST, FULL.
+        await ContinueAuthenticationAsync(new byte[] { b[1] }).ConfigureAwait(false);
+      }
+
+      // Auth switch request Protocol::AuthSwitchRequest.
+      if (b[0] == 0xfe)
+      {
+        if (packet.IsLastPacket)
+        {
+          await _driver.CloseAsync(true).ConfigureAwait(false);
+          throw new MySqlException(Resources.OldPasswordsNotSupported);
+        }
+        else
+        {
+          await HandleAuthChangeAsync(packet).ConfigureAwait(false);
+        }
+      }
+
+      // Auth request Protocol::AuthNextFactor.
+      while (packet.Buffer[0] == 0x02)
+      {
+        ++_mfaIteration;
+        await HandleMFAAsync(packet).ConfigureAwait(false);
+      }
+
+      await _driver.ReadOkAsync(false).ConfigureAwait(false);
+
+      AuthenticationSuccessful();
+    }
+
+    private void WritePassword(MySqlPacket packet)
     {
       bool secure = (Flags & ClientFlags.SECURE_CONNECTION) != 0;
       object password = GetPassword();
       if (password is string)
       {
         if (secure)
-          await packet.WriteLenStringAsync((string)password, execAsync).ConfigureAwait(false);
+          packet.WriteLenString((string)password);
         else
-          await packet.WriteStringAsync((string)password, execAsync).ConfigureAwait(false);
+          packet.WriteString((string)password);
       }
       else if (password == null)
         packet.WriteByte(0);
       else if (password is byte[])
-        await packet.WriteAsync(password as byte[], execAsync).ConfigureAwait(false);
+        packet.Write(password as byte[]);
       else throw new MySqlException("Unexpected password format: " + password.GetType());
     }
 
-    internal async Task<MySqlPacket> ReadPacketAsync(bool execAsync)
+    private async Task WritePasswordAsync(MySqlPacket packet)
+    {
+      bool secure = (Flags & ClientFlags.SECURE_CONNECTION) != 0;
+      object password = GetPassword();
+      if (password is string)
+      {
+        if (secure)
+          await packet.WriteLenStringAsync((string)password).ConfigureAwait(false);
+        else
+          await packet.WriteStringAsync((string)password).ConfigureAwait(false);
+      }
+      else if (password == null)
+        packet.WriteByte(0);
+      else if (password is byte[])
+        await packet.WriteAsync(password as byte[]).ConfigureAwait(false);
+      else throw new MySqlException("Unexpected password format: " + password.GetType());
+    }
+
+    /// <summary>
+    /// Reads the next packet from the server during authentication.
+    /// This method handles exceptions by invoking the authentication failed logic if necessary.
+    /// </summary>
+    /// <returns>The MySqlPacket read from the server.</returns>
+    /// <summary>
+    /// Reads the next packet from the server during authentication.
+    /// This method handles exceptions by invoking the authentication failed logic if necessary.
+    /// </summary>
+    /// <returns>The MySqlPacket read from the server.</returns>
+    internal MySqlPacket ReadPacket()
     {
       try
       {
-        MySqlPacket p = await _driver.ReadPacketAsync(execAsync).ConfigureAwait(false);
+        MySqlPacket p = _driver.ReadPacket();
         return p;
       }
       catch (MySqlException ex)
@@ -242,61 +379,188 @@ namespace MySql.Data.MySqlClient.Authentication
       }
     }
 
-    private async Task HandleMFAAsync(MySqlPacket packet, bool execAsync)
+    /// <summary>
+    /// Asynchronously reads the next packet from the server during authentication.
+    /// This method handles exceptions by invoking the authentication failed logic if necessary.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation, containing the MySqlPacket read from the server.</returns>
+    /// <summary>
+    /// Asynchronously reads the next packet from the server during authentication.
+    /// This method handles exceptions by invoking the authentication failed logic if necessary.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation, containing the MySqlPacket read from the server.</returns>
+    internal async Task<MySqlPacket> ReadPacketAsync()
+    {
+      try
+      {
+        MySqlPacket p = await _driver.ReadPacketAsync().ConfigureAwait(false);
+        return p;
+      }
+      catch (MySqlException ex)
+      {
+        // Make sure this is an auth failed ex
+        AuthenticationFailed(ex);
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// Handles multi-factor authentication (MFA) requests from the server.
+    /// This method creates the next authentication plugin for the MFA iteration and continues the authentication process.
+    /// </summary>
+    /// <param name="packet">The packet containing the MFA request.</param>
+    private void HandleMFA(MySqlPacket packet)
     {
       byte b = packet.ReadByte();
       Debug.Assert(b == 0x02);
 
-      var nextPlugin = await NextPluginAsync(packet, execAsync).ConfigureAwait(false);
+      var nextPlugin = NextPlugin(packet);
       nextPlugin.CheckConstraints();
-      await nextPlugin.ContinueAuthenticationAsync(execAsync).ConfigureAwait(false);
+      nextPlugin.ContinueAuthentication();
     }
 
-    private async Task HandleAuthChangeAsync(MySqlPacket packet, bool execAsync)
+    /// <summary>
+    /// Asynchronously handles multi-factor authentication (MFA) requests from the server.
+    /// This method creates the next authentication plugin for the MFA iteration and continues the authentication process.
+    /// </summary>
+    /// <param name="packet">The packet containing the MFA request.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task HandleMFAAsync(MySqlPacket packet)
+    {
+      byte b = packet.ReadByte();
+      Debug.Assert(b == 0x02);
+
+      var nextPlugin = await NextPluginAsync(packet).ConfigureAwait(false);
+      nextPlugin.CheckConstraints();
+      await nextPlugin.ContinueAuthenticationAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Handles authentication switch requests from the server.
+    /// This method creates the next authentication plugin for the switched method and continues the authentication process.
+    /// </summary>
+    /// <param name="packet">The packet containing the auth switch request.</param>
+    private void HandleAuthChange(MySqlPacket packet)
     {
       byte b = packet.ReadByte();
       Debug.Assert(b == 0xfe);
 
-      var nextPlugin = await NextPluginAsync(packet, execAsync).ConfigureAwait(false);
+      var nextPlugin = NextPlugin(packet);
       nextPlugin.CheckConstraints();
-      await nextPlugin.ContinueAuthenticationAsync(execAsync).ConfigureAwait(false);
+      nextPlugin.ContinueAuthentication();
     }
 
-    private async Task<MySqlAuthenticationPlugin> NextPluginAsync(MySqlPacket packet, bool execAsync)
+    /// <summary>
+    /// Asynchronously handles authentication switch requests from the server.
+    /// This method creates the next authentication plugin for the switched method and continues the authentication process.
+    /// </summary>
+    /// <param name="packet">The packet containing the auth switch request.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task HandleAuthChangeAsync(MySqlPacket packet)
+    {
+      byte b = packet.ReadByte();
+      Debug.Assert(b == 0xfe);
+
+      var nextPlugin = await NextPluginAsync(packet).ConfigureAwait(false);
+      nextPlugin.CheckConstraints();
+      await nextPlugin.ContinueAuthenticationAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Creates the next authentication plugin based on the method specified in the packet.
+    /// This method extracts the authentication method and data from the packet and instantiates the appropriate plugin.
+    /// </summary>
+    /// <param name="packet">The packet containing the plugin method and data.</param>
+    /// <returns>The next authentication plugin instance.</returns>
+    private MySqlAuthenticationPlugin NextPlugin(MySqlPacket packet)
     {
       string method = packet.ReadString();
       SwitchedPlugin = method;
       byte[] authData = new byte[packet.Length - packet.Position];
       Array.Copy(packet.Buffer, packet.Position, authData, 0, authData.Length);
 
-      MySqlAuthenticationPlugin plugin = await GetPluginAsync(method, _driver, authData, execAsync, _mfaIteration).ConfigureAwait(false);
+      MySqlAuthenticationPlugin plugin = GetPlugin(method, _driver, authData, _mfaIteration);
       return plugin;
     }
 
-    private async Task ContinueAuthenticationAsync(bool execAsync, byte[] data = null)
+    /// <summary>
+    /// Asynchronously creates the next authentication plugin based on the method specified in the packet.
+    /// This method extracts the authentication method and data from the packet and instantiates the appropriate plugin.
+    /// </summary>
+    /// <param name="packet">The packet containing the plugin method and data.</param>
+    /// <returns>A task representing the asynchronous operation, containing the next authentication plugin instance.</returns>
+    private async Task<MySqlAuthenticationPlugin> NextPluginAsync(MySqlPacket packet)
+    {
+      string method = packet.ReadString();
+      SwitchedPlugin = method;
+      byte[] authData = new byte[packet.Length - packet.Position];
+      Array.Copy(packet.Buffer, packet.Position, authData, 0, authData.Length);
+
+      MySqlAuthenticationPlugin plugin = await GetPluginAsync(method, _driver, authData, _mfaIteration).ConfigureAwait(false);
+      return plugin;
+    }
+
+    /// <summary>
+    /// Continues the authentication process by handling additional data exchanges with the server until completion.
+    /// This method sends responses using MoreData and reads server packets, handling more data requests.
+    /// </summary>
+    /// <param name="data">Initial data to process, if any.</param>
+    private void ContinueAuthentication(byte[] data = null)
     {
       MySqlPacket packet = _driver.Packet;
       packet.Clear();
 
-      byte[] moreData = await MoreDataAsync(data, execAsync).ConfigureAwait(false);
+      byte[] moreData = MoreData(data);
 
       while (moreData != null)
       {
         packet.Clear();
-        await packet.WriteAsync(moreData, execAsync).ConfigureAwait(false);
-        await _driver.SendPacketAsync(packet, execAsync).ConfigureAwait(false);
+        packet.Write(moreData);
+        _driver.SendPacket(packet);
 
-        packet = await ReadPacketAsync(execAsync).ConfigureAwait(false);
+        packet = ReadPacket();
         byte prefixByte = packet.Buffer[0];
         if (prefixByte != 1) return;
 
         // A prefix of 0x01 means need more auth data.
         byte[] responseData = new byte[packet.Length - 1];
         Array.Copy(packet.Buffer, 1, responseData, 0, responseData.Length);
-        moreData = await MoreDataAsync(responseData, execAsync).ConfigureAwait(false);
+        moreData = MoreData(responseData);
       }
       // We get here if MoreData returned null but the last packet read was a more data packet.
-      await ReadPacketAsync(execAsync).ConfigureAwait(false);
+      ReadPacket();
+    }
+
+    /// <summary>
+    /// Asynchronously continues the authentication process by handling additional data exchanges with the server until completion.
+    /// This method sends responses using MoreDataAsync and reads server packets, handling more data requests.
+    /// </summary>
+    /// <param name="data">Initial data to process, if any.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task ContinueAuthenticationAsync(byte[] data = null)
+    {
+      MySqlPacket packet = _driver.Packet;
+      packet.Clear();
+
+      byte[] moreData = await MoreDataAsync(data).ConfigureAwait(false);
+
+      while (moreData != null)
+      {
+        packet.Clear();
+        await packet.WriteAsync(moreData).ConfigureAwait(false);
+        await _driver.SendPacketAsync(packet).ConfigureAwait(false);
+
+        packet = await ReadPacketAsync().ConfigureAwait(false);
+        byte prefixByte = packet.Buffer[0];
+        if (prefixByte != 1) return;
+
+        // A prefix of 0x01 means need more auth data.
+        byte[] responseData = new byte[packet.Length - 1];
+        Array.Copy(packet.Buffer, 1, responseData, 0, responseData.Length);
+        moreData = await MoreDataAsync(responseData).ConfigureAwait(false);
+      }
+      // We get here if MoreData returned null but the last packet read was a more data packet.
+      await ReadPacketAsync().ConfigureAwait(false);
     }
 
     /// <summary>

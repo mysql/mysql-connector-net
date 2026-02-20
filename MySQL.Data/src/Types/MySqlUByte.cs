@@ -61,16 +61,46 @@ namespace MySql.Data.Types
 
     string IMySqlValue.MySqlTypeName => "TINYINT";
 
-    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
+    /// <summary>
+    /// Writes the unsigned byte value to the MySQL packet, either in binary or text format.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write the value in binary (<c>true</c>, 1 byte) or text (<c>false</c>, string) format.</param>
+    /// <param name="val">The byte value to write.</param>
+    /// <param name="length">The length of the value.</param>
+    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
       byte v = val as byte? ?? Convert.ToByte(val);
       if (binary)
         packet.WriteByte(v);
       else
-        await packet.WriteStringNoNullAsync(v.ToString(CultureInfo.InvariantCulture), execAsync).ConfigureAwait(false);
+        packet.WriteStringNoNull(v.ToString(CultureInfo.InvariantCulture));
     }
 
-    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
+    /// <summary>
+    /// Asynchronously writes the unsigned byte value to the MySQL packet, either in binary or text format.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write the value in binary (<c>true</c>, 1 byte) or text (<c>false</c>, string) format.</param>
+    /// <param name="val">The byte value to write.</param>
+    /// <param name="length">The length of the value.</param>
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length)
+    {
+      byte v = val as byte? ?? Convert.ToByte(val);
+      if (binary)
+        packet.WriteByte(v);
+      else
+        await packet.WriteStringNoNullAsync(v.ToString(CultureInfo.InvariantCulture)).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Asynchronously reads the unsigned byte value from the MySQL packet.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates binary format (1 byte).</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlUByte"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>.</returns>
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal)
     {
       if (nullVal)
         return new MySqlUByte(true);
@@ -78,7 +108,24 @@ namespace MySql.Data.Types
       if (length == -1)
         return new MySqlUByte((byte)packet.ReadByte());
       else
-        return new MySqlUByte(Byte.Parse(await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false), CultureInfo.InvariantCulture));
+        return new MySqlUByte(Byte.Parse(await packet.ReadStringAsync(length).ConfigureAwait(false), CultureInfo.InvariantCulture));
+    }
+
+    /// <summary>
+    /// Reads the unsigned byte value from the MySQL packet.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates binary format (1 byte).</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlUByte"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>.</returns>
+    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
+    {
+      if (nullVal)
+        return new MySqlUByte(true);
+      if (length == -1)
+        return new MySqlUByte((byte)packet.ReadByte());
+      else
+        return new MySqlUByte(Byte.Parse(packet.ReadString(length), CultureInfo.InvariantCulture));
     }
 
     void IMySqlValue.SkipValue(MySqlPacket packet)

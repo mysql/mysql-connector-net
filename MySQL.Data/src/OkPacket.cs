@@ -48,23 +48,37 @@ namespace MySql.Data.MySqlClient
     /// Creates an instance of the OKPacket object with all of its metadata
     /// </summary>
     /// <param name="packet">The packet to parse</param>
-    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
-    public static async Task<OkPacket> CreateAsync(MySqlPacket packet, bool execAsync)
+    public static OkPacket Create(MySqlPacket packet)
     {
       OkPacket okPacket = new OkPacket();
-      await okPacket.InitializeAsync(packet, execAsync).ConfigureAwait(false);
+      okPacket.Initialize(packet);
+      return okPacket;
+    }
+
+    /// <summary>
+    /// Creates an instance of the OKPacket object with all of its metadata
+    /// </summary>
+    /// <param name="packet">The packet to parse</param>
+    public static async Task<OkPacket> CreateAsync(MySqlPacket packet)
+    {
+      OkPacket okPacket = new OkPacket();
+      await okPacket.InitializeAsync(packet).ConfigureAwait(false);
       return okPacket;
     }
 
     private OkPacket() { }
 
-    private async Task InitializeAsync(MySqlPacket packet, bool execAsync)
+    /// <summary>
+    /// Initializes the OK packet by parsing the provided MySqlPacket synchronously.
+    /// </summary>
+    /// <param name="packet">The MySqlPacket to parse.</param>
+    private void Initialize(MySqlPacket packet)
     {
       AffectedRows = packet.ReadFieldLength(); // affected rows
       LastInsertId = packet.ReadFieldLength(); // last insert-id
       ServerStatusFlags = (ServerStatusFlags)packet.ReadInteger(2); // status flags
       WarningCount = packet.ReadInteger(2); // warning count
-      Info = await packet.ReadLenStringAsync(execAsync).ConfigureAwait(false); // info
+      Info = packet.ReadLenString(); // info
       SessionTrackers = new List<SessionTracker>();
 
       if ((ServerStatusFlags & ServerStatusFlags.SessionStateChanged) != 0)
@@ -83,19 +97,75 @@ namespace MySql.Data.MySqlClient
           switch (type)
           {
             case SessionTrackType.SystemVariables:
-              name = await packet.ReadStringAsync(packet.ReadByte(), execAsync).ConfigureAwait(false);
-              value = await packet.ReadStringAsync(packet.ReadByte(), execAsync).ConfigureAwait(false);
+              name = packet.ReadString(packet.ReadByte());
+              value = packet.ReadString(packet.ReadByte());
               AddTracker(type, name, value);
               break;
             case SessionTrackType.GTIDS:
               packet.ReadByte(); // skip the byte reserved for the encoding specification, see WL#6128 
-              name = await packet.ReadStringAsync(packet.ReadByte(), execAsync).ConfigureAwait(false);
+              name = packet.ReadString(packet.ReadByte());
               AddTracker(type, name, null);
               break;
             case SessionTrackType.Schema:
             case SessionTrackType.TransactionCharacteristics:
             case SessionTrackType.TransactionState:
-              name = await packet.ReadStringAsync(packet.ReadByte(), execAsync).ConfigureAwait(false);
+              name = packet.ReadString(packet.ReadByte());
+              AddTracker(type, name, null);
+              break;
+            case SessionTrackType.StateChange:
+            default:
+              AddTracker(type, packet.ReadString(), null);
+              break;
+          }
+
+          start = packet.Position;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Initializes the OK packet by parsing the provided MySqlPacket asynchronously.
+    /// </summary>
+    /// <param name="packet">The MySqlPacket to parse.</param>
+    /// <returns>A task representing the asynchronous initialization operation.</returns>
+    private async Task InitializeAsync(MySqlPacket packet)
+    {
+      AffectedRows = packet.ReadFieldLength(); // affected rows
+      LastInsertId = packet.ReadFieldLength(); // last insert-id
+      ServerStatusFlags = (ServerStatusFlags)packet.ReadInteger(2); // status flags
+      WarningCount = packet.ReadInteger(2); // warning count
+      Info = await packet.ReadLenStringAsync().ConfigureAwait(false); // info
+      SessionTrackers = new List<SessionTracker>();
+
+      if ((ServerStatusFlags & ServerStatusFlags.SessionStateChanged) != 0)
+      {
+        int totalLen = packet.ReadPackedInteger();
+        int start = packet.Position;
+        int end = start + totalLen;
+
+        while (totalLen > 0 && end > start)
+        {
+          SessionTrackType type = (SessionTrackType)packet.ReadByte();
+          int dataLength = (int)packet.ReadByte();
+          string name, value;
+
+          // for specification of the packet structure, see WL#4797
+          switch (type)
+          {
+            case SessionTrackType.SystemVariables:
+              name = await packet.ReadStringAsync(packet.ReadByte()).ConfigureAwait(false);
+              value = await packet.ReadStringAsync(packet.ReadByte()).ConfigureAwait(false);
+              AddTracker(type, name, value);
+              break;
+            case SessionTrackType.GTIDS:
+              packet.ReadByte(); // skip the byte reserved for the encoding specification, see WL#6128 
+              name = await packet.ReadStringAsync(packet.ReadByte()).ConfigureAwait(false);
+              AddTracker(type, name, null);
+              break;
+            case SessionTrackType.Schema:
+            case SessionTrackType.TransactionCharacteristics:
+            case SessionTrackType.TransactionState:
+              name = await packet.ReadStringAsync(packet.ReadByte()).ConfigureAwait(false);
               AddTracker(type, name, null);
               break;
             case SessionTrackType.StateChange:

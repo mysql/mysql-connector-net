@@ -1075,6 +1075,10 @@ namespace MySql.Data.MySqlClient.Tests
     /// This test require to start MySQL Commercial Server with the configuration specified in file Resources/my.ini
     /// It uses preconfigured LDAP servers present in the labs.
     /// </summary>
+    /// <param name="userName">The user name.</param>
+    /// <param name="password">The user password.</param>
+    /// <param name="proxyUser">The proxy user name.</param>
+    /// <param name="shouldPass">Flag indicating if the connection is expected to be successful.</param>
     /// <param name="mechanism">Should be 'SCRAM-SHA-1' or 'SCRAM-SHA-256' according to server's configuration.</param>
     [TestCase("sadmin", "perola", "common", true, "SCRAM-SHA-256")]
     [TestCase("wrongUser", "perola", "common", false)]
@@ -1403,7 +1407,7 @@ namespace MySql.Data.MySqlClient.Tests
     {
       OciAuthenticationPlugin plugin = new OciAuthenticationPlugin();
 
-      string exMsg = Assert.Throws<MySqlException>(() => plugin.AuthenticateAsync(false, false).GetAwaiter().GetResult()).Message;
+      string exMsg = Assert.Throws<MySqlException>(() => plugin.Authenticate(false)).Message;
       Assert.That(exMsg, Is.EqualTo(Resources.OciSDKNotFound).IgnoreCase);
     }
 

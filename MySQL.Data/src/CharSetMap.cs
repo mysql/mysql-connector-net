@@ -162,15 +162,19 @@ namespace MySql.Data.MySqlClient
       _mapping.Add("gb18030", new CharacterSet("gb18030", 4));
     }
 
-    internal static async Task InitCollectionsAsync(MySqlConnection connection, bool execAsync, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Initializes the collections for default collations and max lengths by querying the database character sets.
+    /// </summary>
+    /// <param name="connection">The MySqlConnection to use for querying.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    internal static void InitCollections(MySqlConnection connection, CancellationToken cancellationToken = default)
     {
       _defaultCollations = new Dictionary<string, string>();
       _maxLengths = new Dictionary<string, int>();
-
       MySqlCommand cmd = new MySqlCommand("SHOW CHARSET", connection);
-      using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false))
+      using (MySqlDataReader reader = cmd.ExecuteReader(default, cancellationToken))
       {
-        while (await reader.ReadAsync(execAsync, cancellationToken).ConfigureAwait(false))
+        while (reader.Read(cancellationToken))
         {
           _defaultCollations.Add(reader.GetString(0), reader.GetString(2));
           _maxLengths.Add(reader.GetString(0), Convert.ToInt32(reader.GetValue(3)));
@@ -178,17 +182,41 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    internal static async Task<string> GetDefaultCollationAsync(string charset, MySqlConnection connection, bool execAsync, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Asynchronously initializes the collections for default collations and max lengths by querying the database character sets.
+    /// </summary>
+    /// <param name="connection">The MySqlConnection to use for querying.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    internal static async Task InitCollectionsAsync(MySqlConnection connection, CancellationToken cancellationToken = default)
     {
-      if (execAsync)
-        await semaphoreSlim.WaitAsync(cancellationToken);
-      else
-        semaphoreSlim.Wait(cancellationToken);
+      _defaultCollations = new Dictionary<string, string>();
+      _maxLengths = new Dictionary<string, int>();
+      MySqlCommand cmd = new MySqlCommand("SHOW CHARSET", connection);
+      using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, cancellationToken).ConfigureAwait(false))
+      {
+        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        {
+          _defaultCollations.Add(reader.GetString(0), reader.GetString(2));
+          _maxLengths.Add(reader.GetString(0), Convert.ToInt32(reader.GetValue(3)));
+        }
+      }
+    }
 
+    /// <summary>
+    /// Gets the default collation for the given character set.
+    /// </summary>
+    /// <param name="charset">The character set name.</param>
+    /// <param name="connection">The MySqlConnection if initialization is needed.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>The default collation name, or null if not found.</returns>
+    internal static string GetDefaultCollation(string charset, MySqlConnection connection, CancellationToken cancellationToken = default)
+    {
+      semaphoreSlim.Wait(cancellationToken);
       try
       {
         if (_defaultCollations == null)
-          await InitCollectionsAsync(connection, execAsync, cancellationToken).ConfigureAwait(false);
+          InitCollections(connection, cancellationToken);
       }
       finally
       {
@@ -198,17 +226,66 @@ namespace MySql.Data.MySqlClient
       return !_defaultCollations.TryGetValue(charset, out string collation) ? null : collation;
     }
 
-    internal static async Task<int> GetMaxLengthAsync(string charset, MySqlConnection connection, bool execAsync, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Asynchronously gets the default collation for the given character set.
+    /// </summary>
+    /// <param name="charset">The character set name.</param>
+    /// <param name="connection">The MySqlConnection if initialization is needed.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the default collation name, or null if not found.</returns>
+    internal static async Task<string> GetDefaultCollationAsync(string charset, MySqlConnection connection, CancellationToken cancellationToken = default)
     {
-      if (execAsync)
-        await semaphoreSlim.WaitAsync(cancellationToken);
-      else
-        semaphoreSlim.Wait(cancellationToken);
+      await semaphoreSlim.WaitAsync(cancellationToken);
+      try
+      {
+        if (_defaultCollations == null)
+          await InitCollectionsAsync(connection, cancellationToken).ConfigureAwait(false);
+      }
+      finally
+      {
+        semaphoreSlim.Release();
+      }
 
+      return !_defaultCollations.TryGetValue(charset, out string collation) ? null : collation;
+    }
+
+    /// <summary>
+    /// Gets the maximum length in bytes for the given character set.
+    /// </summary>
+    /// <param name="charset">The character set name.</param>
+    /// <param name="connection">The MySqlConnection if initialization is needed.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>The maximum length in bytes, or 1 if not found.</returns>
+    internal static int GetMaxLength(string charset, MySqlConnection connection, CancellationToken cancellationToken = default)
+    {
+      semaphoreSlim.Wait(cancellationToken);
       try
       {
         if (_maxLengths == null)
-          await InitCollectionsAsync(connection, execAsync, cancellationToken).ConfigureAwait(false);
+          InitCollections(connection, cancellationToken);
+      }
+      finally
+      {
+        semaphoreSlim.Release();
+      }
+
+      return !_maxLengths.TryGetValue(charset, out int maxLength) ? 1 : maxLength;
+    }
+
+    /// <summary>
+    /// Asynchronously gets the maximum length in bytes for the given character set.
+    /// </summary>
+    /// <param name="charset">The character set name.</param>
+    /// <param name="connection">The MySqlConnection if initialization is needed.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the maximum length in bytes, or 1 if not found.</returns>
+    internal static async Task<int> GetMaxLengthAsync(string charset, MySqlConnection connection, CancellationToken cancellationToken = default)
+    {
+      await semaphoreSlim.WaitAsync(cancellationToken);
+      try
+      {
+        if (_maxLengths == null)
+          await InitCollectionsAsync(connection, cancellationToken).ConfigureAwait(false);
       }
       finally
       {

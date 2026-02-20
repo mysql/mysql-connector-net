@@ -69,7 +69,26 @@ namespace MySql.Data.MySqlClient.Authentication
       get { return "authentication_windows_client"; }
     }
 
-    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
+    /// <summary>
+    /// Processes additional data during the Windows authentication handshake using SSPI.
+    /// </summary>
+    /// <param name="data">The byte array received from the server, representing the security context or challenge.</param>
+    /// <returns>A byte array containing the client security blob to send to the server, or null if complete.</returns>
+    protected override byte[] MoreData(byte[] data) => HandleMoreData(data);
+
+    /// <summary>
+    /// Asynchronously processes additional data during the Windows authentication handshake using SSPI.
+    /// </summary>
+    /// <param name="data">The byte array received from the server, representing the security context or challenge.</param>
+    /// <returns>A task representing the asynchronous operation, containing the client security blob to send to the server.</returns>
+    protected override Task<byte[]> MoreDataAsync(byte[] data) => Task.FromResult(HandleMoreData(data));
+
+    /// <summary>
+    /// Handles the processing of additional data during the Windows authentication handshake by initializing the SSPI security context if needed, processing the challenge, and disposing if accepted.
+    /// </summary>
+    /// <param name="data">The byte array received from the server, representing the security context or challenge.</param>
+    /// <returns>A byte array containing the client security blob to send to the server, or null if complete.</returns>
+    private byte[] HandleMoreData(byte[] data)
     {
       if (data == null)
         securityContext = new SspiSecurityContext(new SspiCredentials("Negotiate"));
@@ -79,7 +98,7 @@ namespace MySql.Data.MySqlClient.Authentication
       if (status == ContextStatus.Accepted)
         securityContext.Dispose();
 
-      return Task.FromResult<byte[]>(clientBlob);
+      return clientBlob;
     }
   }
 }

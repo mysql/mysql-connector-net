@@ -147,19 +147,37 @@ namespace MySql.Data.MySqlClient
 
     public override bool CanWrite => _baseStream.CanWrite;
 
-    public override void Flush() => FlushAsync(false).GetAwaiter().GetResult();
+    public override void Flush() => FlushInternal();
 
-    public override Task FlushAsync(CancellationToken cancellationToken = default) => FlushAsync(true);
+    public override Task FlushAsync(CancellationToken cancellationToken = default) => FlushInternalAsync();
 
-    private async Task FlushAsync(bool execAsync)
+    /// <summary>
+    /// Performs the synchronous flush operation on the underlying stream with timeout support.
+    /// </summary>
+    private void FlushInternal()
     {
       try
       {
         StartTimer(IOKind.Write);
-        if (execAsync)
-          await _baseStream.FlushAsync(CancellationToken.None).ConfigureAwait(false);
-        else
-          _baseStream.Flush();
+        _baseStream.Flush();
+        StopTimer();
+      }
+      catch (Exception e)
+      {
+        HandleException(e);
+        throw;
+      }
+    }
+
+    /// <summary>
+    /// Performs the asynchronous flush operation on the underlying stream with timeout support.
+    /// </summary>
+    private async Task FlushInternalAsync()
+    {
+      try
+      {
+        StartTimer(IOKind.Write);
+        await _baseStream.FlushAsync(CancellationToken.None).ConfigureAwait(false);
         StopTimer();
       }
       catch (Exception e)
@@ -183,18 +201,46 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public override int Read(byte[] buffer, int offset, int count) => ReadAsync(buffer, offset, count, false).GetAwaiter().GetResult();
+    public override int Read(byte[] buffer, int offset, int count) => ReadInternal(buffer, offset, count);
 
-    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => ReadAsync(buffer, offset, count, true);
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => ReadInternalAsync(buffer, offset, count);
 
-    private async Task<int> ReadAsync(byte[] buffer, int offset, int count, bool execAsync)
+    /// <summary>
+    /// Reads from the underlying stream with timeout support.
+    /// </summary>
+    /// <param name="buffer">The buffer to read data into.</param>
+    /// <param name="offset">The offset in the buffer to start reading into.</param>
+    /// <param name="count">The maximum number of bytes to read.</param>
+    /// <returns>The total number of bytes read into the buffer.</returns>
+    private int ReadInternal(byte[] buffer, int offset, int count)
     {
       try
       {
         StartTimer(IOKind.Read);
-        int retval = execAsync
-          ? await _baseStream.ReadAsync(buffer, offset, count).ConfigureAwait(false)
-          : _baseStream.Read(buffer, offset, count);
+        int retval = _baseStream.Read(buffer, offset, count);
+        StopTimer();
+        return retval;
+      }
+      catch (Exception e)
+      {
+        HandleException(e);
+        throw;
+      }
+    }
+
+    /// <summary>
+    /// Asynchronously reads from the underlying stream with timeout support.
+    /// </summary>
+    /// <param name="buffer">The buffer to read data into.</param>
+    /// <param name="offset">The offset in the buffer to start reading into.</param>
+    /// <param name="count">The maximum number of bytes to read.</param>
+    /// <returns>A task that represents the asynchronous read operation, containing the total number of bytes read.</returns>
+    private async Task<int> ReadInternalAsync(byte[] buffer, int offset, int count)
+    {
+      try
+      {
+        StartTimer(IOKind.Read);
+        int retval = await _baseStream.ReadAsync(buffer, offset, count).ConfigureAwait(false);
         StopTimer();
         return retval;
       }
@@ -231,19 +277,44 @@ namespace MySql.Data.MySqlClient
       _baseStream.SetLength(value);
     }
 
-    public override void Write(byte[] buffer, int offset, int count) => WriteAsync(buffer, offset, count, false).GetAwaiter().GetResult();
+    public override void Write(byte[] buffer, int offset, int count) => WriteInternal(buffer, offset, count);
 
-    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => WriteAsync(buffer, offset, count, true);
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => WriteInternalAsync(buffer, offset, count);
 
-    private async Task WriteAsync(byte[] buffer, int offset, int count, bool execAsync)
+    /// <summary>
+    /// Writes to the underlying stream with timeout support.
+    /// </summary>
+    /// <param name="buffer">The buffer containing data to write.</param>
+    /// <param name="offset">The offset in the buffer to start writing from.</param>
+    /// <param name="count">The maximum number of bytes to write.</param>
+    private void WriteInternal(byte[] buffer, int offset, int count)
     {
       try
       {
         StartTimer(IOKind.Write);
-        if (execAsync)
-          await _baseStream.WriteAsync(buffer, offset, count).ConfigureAwait(false);
-        else
-          _baseStream.Write(buffer, offset, count);
+        _baseStream.Write(buffer, offset, count);
+        StopTimer();
+      }
+      catch (Exception e)
+      {
+        HandleException(e);
+        throw;
+      }
+    }
+
+    /// <summary>
+    /// Asynchronously writes to the underlying stream with timeout support.
+    /// </summary>
+    /// <param name="buffer">The buffer containing data to write.</param>
+    /// <param name="offset">The offset in the buffer to start writing from.</param>
+    /// <param name="count">The maximum number of bytes to write.</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
+    private async Task WriteInternalAsync(byte[] buffer, int offset, int count)
+    {
+      try
+      {
+        StartTimer(IOKind.Write);
+        await _baseStream.WriteAsync(buffer, offset, count).ConfigureAwait(false);
         StopTimer();
       }
       catch (Exception e)

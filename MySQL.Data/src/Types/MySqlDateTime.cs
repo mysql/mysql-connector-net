@@ -225,7 +225,7 @@ namespace MySql.Data.Types
       }
     }
 
-    private async Task SerializeTextAsync(MySqlPacket packet, MySqlDateTime value, bool execAsync)
+    private void SerializeText(MySqlPacket packet, MySqlDateTime value)
     {
       var val = String.Format("{0:0000}-{1:00}-{2:00}",
         value.Year, value.Month, value.Day);
@@ -236,10 +236,99 @@ namespace MySql.Data.Types
           : $"{val} {value.Hour:00}:{value.Minute:00}:{value.Second:00}";
       }
 
-      await packet.WriteStringNoNullAsync("timestamp('" + val + "')", execAsync).ConfigureAwait(false);
+      packet.WriteStringNoNull("timestamp('" + val + "')");
     }
 
-    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object value, int length, bool execAsync)
+    private async Task SerializeTextAsync(MySqlPacket packet, MySqlDateTime value)
+    {
+      var val = String.Format("{0:0000}-{1:00}-{2:00}",
+        value.Year, value.Month, value.Day);
+      if (_type != MySqlDbType.Date)
+      {
+        val = value.Microsecond > 0 ?
+          $"{val} {value.Hour:00}:{value.Minute:00}:{value.Second:00}.{value.Microsecond:000000}"
+          : $"{val} {value.Hour:00}:{value.Minute:00}:{value.Second:00}";
+      }
+
+      await packet.WriteStringNoNullAsync("timestamp('" + val + "')").ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Writes the date/time value to the MySQL packet in binary or text format.
+    /// Converts input (DateTime, string, MySqlDateTime, DateTimeOffset, DateOnly) to MySqlDateTime. Throws MySqlException for unsupported types.
+    /// Text: timestamp literal via SerializeText. Binary: structured with length (7/11 bytes), year (2 bytes), month/day/hour/minute/second (1 byte each), microseconds (4 bytes if present).
+    /// For DATE type, sets time components to 0 in binary.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write to.</param>
+    /// <param name="binary">True for binary protocol, false for text protocol.</param>
+    /// <param name="value">The date/time value to serialize.</param>
+    /// <param name="length">Ignored for date/time types.</param>
+    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object value, int length)
+    {
+      MySqlDateTime dtValue;
+      string valueAsString = value as string;
+      if (value is DateTime)
+        dtValue = new MySqlDateTime(_type, (DateTime)value);
+      else if (valueAsString != null)
+        dtValue = Parse(valueAsString);
+      else if (value is MySqlDateTime)
+        dtValue = (MySqlDateTime)value;
+      else if (value is DateTimeOffset)
+        dtValue = new MySqlDateTime(((DateTimeOffset)value).UtcDateTime);
+#if NET6_0_OR_GREATER
+    else if (value is DateOnly)
+        dtValue = Parse(String.Format("{0:yyyy-MM-dd}", value));
+#endif
+      else
+        throw new MySqlException("Unable to serialize date/time value.");
+
+      if (!binary)
+      {
+        SerializeText(packet, dtValue); // Synchronous version of SerializeTextAsync
+        return;
+      }
+      if (dtValue.Microsecond > 0)
+        packet.WriteByte(11);
+      else
+        packet.WriteByte(7);
+      packet.WriteInteger(dtValue.Year, 2);
+      packet.WriteByte((byte)dtValue.Month);
+      packet.WriteByte((byte)dtValue.Day);
+      if (_type == MySqlDbType.Date)
+      {
+        packet.WriteByte(0);
+        packet.WriteByte(0);
+        packet.WriteByte(0);
+      }
+      else
+      {
+        packet.WriteByte((byte)dtValue.Hour);
+        packet.WriteByte((byte)dtValue.Minute);
+        packet.WriteByte((byte)dtValue.Second);
+      }
+      if (dtValue.Microsecond > 0)
+      {
+        long val = dtValue.Microsecond;
+        for (int x = 0; x < 4; x++)
+        {
+          packet.WriteByte((byte)(val & 0xff));
+          val >>= 8;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Asynchronously writes the date/time value to the MySQL packet in binary or text format.
+    /// Converts input (DateTime, string, MySqlDateTime, DateTimeOffset, DateOnly) to MySqlDateTime. Throws MySqlException for unsupported types.
+    /// Text: timestamp literal via SerializeTextAsync. Binary: structured with length (7/11 bytes), year (2 bytes), month/day/hour/minute/second (1 byte each), microseconds (4 bytes if present).
+    /// For DATE type, sets time components to 0 in binary.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write to.</param>
+    /// <param name="binary">True for binary protocol, false for text protocol.</param>
+    /// <param name="value">The date/time value to serialize.</param>
+    /// <param name="length">Ignored for date/time types.</param>
+    /// <returns>A task representing the asynchronous write operation.</returns>
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object value, int length)
     {
       MySqlDateTime dtValue;
 
@@ -262,7 +351,7 @@ namespace MySql.Data.Types
 
       if (!binary)
       {
-        await SerializeTextAsync(packet, dtValue, execAsync).ConfigureAwait(false);
+        await SerializeTextAsync(packet, dtValue).ConfigureAwait(false);
         return;
       }
 
@@ -271,7 +360,7 @@ namespace MySql.Data.Types
       else
         packet.WriteByte(7);
 
-      await packet.WriteIntegerAsync(dtValue.Year, 2, execAsync).ConfigureAwait(false);
+      await packet.WriteIntegerAsync(dtValue.Year, 2).ConfigureAwait(false);
       packet.WriteByte((byte)dtValue.Month);
       packet.WriteByte((byte)dtValue.Day);
 
@@ -335,13 +424,60 @@ namespace MySql.Data.Types
       return new MySqlDateTime(_type, year, month, day, hour, minute, second, microsecond);
     }
 
-    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
+    /// <summary>
+    /// Reads the date/time value from the MySQL packet in text or binary format.
+    /// If nullVal, returns null instance. For text (length >=0), reads and parses string via ParseMySql. For binary (length <0), reads buffer length, then year (2 bytes), month/day (1 byte each), optional hour/minute/second (1 byte each), microseconds (3 bytes + 1 byte padding if present).
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">Field length; >=0 for text, <0 for binary.</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A MySqlDateTime instance with the read value.</returns>
+    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
+    {
+      if (nullVal) return new MySqlDateTime(_type, true);
+      if (length >= 0)
+      {
+        string value = packet.ReadString(length);
+        return ParseMySql(value);
+      }
+      long bufLength = packet.ReadByte();
+      int year = 0, month = 0, day = 0;
+      int hour = 0, minute = 0, second = 0, microsecond = 0;
+      if (bufLength >= 4)
+      {
+        year = packet.ReadInteger(2);
+        month = packet.ReadByte();
+        day = packet.ReadByte();
+      }
+      if (bufLength > 4)
+      {
+        hour = packet.ReadByte();
+        minute = packet.ReadByte();
+        second = packet.ReadByte();
+      }
+      if (bufLength > 7)
+      {
+        microsecond = packet.Read3ByteInt();
+        packet.ReadByte();
+      }
+      return new MySqlDateTime(_type, year, month, day, hour, minute, second, microsecond);
+    }
+
+    /// <summary>
+    /// Asynchronously reads the date/time value from the MySQL packet in text or binary format.
+    /// If nullVal, returns null instance. For text (length >=0), asynchronously reads and parses string via ParseMySql. For binary (length <0), reads buffer length, then year (2 bytes), month/day (1 byte each), optional hour/minute/second (1 byte each), microseconds (3 bytes + 1 byte padding if present).
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">Field length; >=0 for text, <0 for binary.</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A task that returns a MySqlDateTime instance with the read value.</returns>
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal)
     {
       if (nullVal) return new MySqlDateTime(_type, true);
 
       if (length >= 0)
       {
-        string value = await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false);
+        string value = await packet.ReadStringAsync(length).ConfigureAwait(false);
         return ParseMySql(value);
       }
 

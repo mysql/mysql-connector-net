@@ -201,10 +201,9 @@ namespace MySql.Data.Common
     /// <param name="baseStream">The base stream.</param>
     /// <param name="encoding">The encoding used in the SSL connection.</param>
     /// <param name="connectionString">The connection string used to establish the connection.</param>
-    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A <see cref="MySqlStream"/> instance ready to initiate an SSL connection.</returns>
-    public async Task<Tuple<MySqlStream, Stream>> StartSSLAsync(Stream baseStream, Encoding encoding, string connectionString, CancellationToken cancellationToken, bool execAsync)
+    public Tuple<MySqlStream, Stream> StartSSL(Stream baseStream, Encoding encoding, string connectionString, CancellationToken cancellationToken)
     {
       // If SslCa connection option was provided, check for the file extension as it can also be set as a PFX file.
       if (_settings.SslCa != null)
@@ -245,10 +244,7 @@ namespace MySql.Data.Common
         tlsProtocols = listProtocols.ToArray();
       }
 
-      if (execAsync)
-        await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
-      else
-        semaphoreSlim.Wait(cancellationToken);
+      semaphoreSlim.Wait(cancellationToken);
 
 
       try
@@ -282,16 +278,120 @@ namespace MySql.Data.Common
       {
         tlsProtocol = (tlsProtocol == SslProtocols.None) ? SslProtocols.Tls12 : tlsProtocol;
 
-        if (execAsync)
+        using (cancellationToken.Register(() => throw new AggregateException($"Authentication to host '{_settings.Server}' failed.", new IOException())))
+          sslStream.AuthenticateAsClient(_settings.Server, certs, tlsProtocol, false);
+
+        lock (tlsConnectionRef)
         {
-          using (cancellationToken.Register(() => throw new AggregateException($"Authentication to host '{_settings.Server}' failed.", new IOException())))
-            await sslStream.AuthenticateAsClientAsync(_settings.Server, certs, tlsProtocol, false).ConfigureAwait(false);
+          tlsConnectionRef[connectionId] = tlsProtocol;
+        }
+        tlsRetry.Remove(connectionId);
+      }
+      catch (AggregateException ex)
+      {
+        if (ex.GetBaseException() is IOException)
+        {
+          tlsConnectionRef.Remove(connectionId);
+          if (tlsRetry.ContainsKey(connectionId))
+          {
+            if (tlsRetry[connectionId] > tlsProtocols.Length)
+              throw new MySqlException(Resources.SslConnectionError, ex);
+            tlsRetry[connectionId] += 1;
+          }
+        }
+        throw ex.GetBaseException();
+      }
+
+      baseStream = sslStream;
+      MySqlStream stream = new MySqlStream(sslStream, encoding, false);
+      stream.SequenceByte = 2;
+
+      return new Tuple<MySqlStream, Stream>(stream, baseStream);
+    }
+
+    /// <summary>
+    /// Initiates the SSL connection.
+    /// </summary>
+    /// <param name="baseStream">The base stream.</param>
+    /// <param name="encoding">The encoding used in the SSL connection.</param>
+    /// <param name="connectionString">The connection string used to establish the connection.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A <see cref="MySqlStream"/> instance ready to initiate an SSL connection.</returns>
+    public async Task<Tuple<MySqlStream, Stream>> StartSSLAsync(Stream baseStream, Encoding encoding, string connectionString, CancellationToken cancellationToken)
+    {
+      // If SslCa connection option was provided, check for the file extension as it can also be set as a PFX file.
+      if (_settings.SslCa != null)
+      {
+        var fileExtension = GetCertificateFileExtension(_settings.SslCa, true);
+
+        if (fileExtension != null)
+          _treatCertificatesAsPemFormat = fileExtension != "pfx";
+      }
+
+      RemoteCertificateValidationCallback sslValidateCallback = new RemoteCertificateValidationCallback(ServerCheckValidation);
+      SslStream sslStream = new SslStream(baseStream, false, sslValidateCallback, null);
+      X509CertificateCollection certs = (_treatCertificatesAsPemFormat &&
+        _settings.CertificateStoreLocation == MySqlCertificateStoreLocation.None)
+        ? new X509CertificateCollection()
+        : GetPFXClientCertificates();
+
+      string connectionId = connectionString.GetHashCode().ToString();
+      SslProtocols tlsProtocol = SslProtocols.None;
+
+      if (_settings.TlsVersion != null)
+      {
+        SslProtocols sslProtocolsToUse = (SslProtocols)Enum.Parse(typeof(SslProtocols), _settings.TlsVersion);
+        List<SslProtocols> listProtocols = new List<SslProtocols>();
+
+#if NET5_0_OR_GREATER
+        if (sslProtocolsToUse.HasFlag(SslProtocols.Tls13))
+          listProtocols.Add(SslProtocols.Tls13);
+#else
+        // 12288 represents the numerical value of SslProtocols.Tls13 enum option.
+        if (sslProtocolsToUse.HasFlag((SslProtocols)12288))
+          listProtocols.Add((SslProtocols)12288);
+#endif
+
+        if (sslProtocolsToUse.HasFlag(SslProtocols.Tls12))
+          listProtocols.Add(SslProtocols.Tls12);
+
+        tlsProtocols = listProtocols.ToArray();
+      }
+
+      await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+      try
+      {
+        if (tlsConnectionRef.TryGetValue(connectionId, out var protocol))
+        {
+          tlsProtocol = protocol;
         }
         else
         {
-          using (cancellationToken.Register(() => throw new AggregateException($"Authentication to host '{_settings.Server}' failed.", new IOException())))
-            sslStream.AuthenticateAsClientAsync(_settings.Server, certs, tlsProtocol, false).GetAwaiter().GetResult();
+          if (!tlsRetry.ContainsKey(connectionId))
+          {
+            lock (tlsRetry)
+            {
+              tlsRetry[connectionId] = 0;
+            }
+          }
+          for (int i = tlsRetry[connectionId]; i < tlsProtocols.Length; i++)
+          {
+            tlsProtocol |= tlsProtocols[i];
+          }
         }
+      }
+      finally
+      {
+        semaphoreSlim.Release();
+      }
+
+
+      try
+      {
+        tlsProtocol = (tlsProtocol == SslProtocols.None) ? SslProtocols.Tls12 : tlsProtocol;
+
+        using (cancellationToken.Register(() => throw new AggregateException($"Authentication to host '{_settings.Server}' failed.", new IOException())))
+          await sslStream.AuthenticateAsClientAsync(_settings.Server, certs, tlsProtocol, false).ConfigureAwait(false);
 
         lock (tlsConnectionRef)
         {

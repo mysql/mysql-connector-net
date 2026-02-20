@@ -125,40 +125,74 @@ namespace MySql.Data.MySqlClient
       return (byte)_buffer.ReadByte();
     }
 
-    public async Task<int> ReadAsync(byte[] byteBuffer, int offset, int count, bool execAsync)
-    {
-      return execAsync
-        ? await _buffer.ReadAsync(byteBuffer, offset, count).ConfigureAwait(false)
-        : _buffer.Read(byteBuffer, offset, count);
-    }
+  /// <summary>
+  /// Reads a specified number of bytes from the packet buffer into the provided byte array.
+  /// </summary>
+  /// <param name="byteBuffer">The byte array to read data into.</param>
+  /// <param name="offset">The zero-based offset in the byte array at which to begin reading.</param>
+  /// <param name="count">The maximum number of bytes to read.</param>
+  /// <returns>The total number of bytes read into the buffer.</returns>
+  public int Read(byte[] byteBuffer, int offset, int count)
+  {
+    return _buffer.Read(byteBuffer, offset, count);
+  }
+
+  /// <summary>
+  /// Asynchronously reads a specified number of bytes from the packet buffer into the provided byte array.
+  /// </summary>
+  /// <param name="byteBuffer">The byte array to read data into.</param>
+  /// <param name="offset">The zero-based offset in the byte array at which to begin reading.</param>
+  /// <param name="count">The maximum number of bytes to read.</param>
+  /// <returns>A task representing the asynchronous operation, containing the total number of bytes read.</returns>
+  public async Task<int> ReadAsync(byte[] byteBuffer, int offset, int count)
+  {
+    return await _buffer.ReadAsync(byteBuffer, offset, count).ConfigureAwait(false);
+  }
 
     public void WriteByte(byte b)
     {
       _buffer.WriteByte(b);
     }
 
-    public void Write(byte[] bytes)
-    {
-      _buffer.Write(bytes, 0, bytes.Length);
-    }
+  /// <summary>
+  /// Writes a complete byte array to the packet buffer.
+  /// </summary>
+  /// <param name="bytes">The byte array to write.</param>
+  public void Write(byte[] bytes)
+  {
+    _buffer.Write(bytes, 0, bytes.Length);
+  }
 
-    public void Write(byte[] bytes, int offset, int countToWrite)
-    {
-      _buffer.Write(bytes, offset, countToWrite);
-    }
+  /// <summary>
+  /// Writes a portion of a byte array to the packet buffer.
+  /// </summary>
+  /// <param name="bytes">The byte array containing the data to write.</param>
+  /// <param name="offset">The zero-based offset in the array at which to begin writing.</param>
+  /// <param name="countToWrite">The number of bytes to write.</param>
+  public void Write(byte[] bytes, int offset, int countToWrite)
+  {
+    _buffer.Write(bytes, offset, countToWrite);
+  }
 
-    public async Task WriteAsync(byte[] bytesToWrite, bool execAsync)
-    {
-      await WriteAsync(bytesToWrite, 0, bytesToWrite.Length, execAsync).ConfigureAwait(false);
-    }
+  /// <summary>
+  /// Asynchronously writes a complete byte array to the packet buffer.
+  /// </summary>
+  /// <param name="bytesToWrite">The byte array to write.</param>
+  public async Task WriteAsync(byte[] bytesToWrite)
+  {
+    await WriteAsync(bytesToWrite, 0, bytesToWrite.Length).ConfigureAwait(false);
+  }
 
-    public async Task WriteAsync(byte[] bytesToWrite, int offset, int countToWrite, bool execAsync)
-    {
-      if (execAsync)
-        await _buffer.WriteAsync(bytesToWrite, offset, countToWrite).ConfigureAwait(false);
-      else
-        _buffer.Write(bytesToWrite, offset, countToWrite);
-    }
+  /// <summary>
+  /// Asynchronously writes a portion of a byte array to the packet buffer.
+  /// </summary>
+  /// <param name="bytesToWrite">The byte array containing the data to write.</param>
+  /// <param name="offset">The zero-based offset in the array at which to begin writing.</param>
+  /// <param name="countToWrite">The number of bytes to write.</param>
+  public async Task WriteAsync(byte[] bytesToWrite, int offset, int countToWrite)
+  {
+    await _buffer.WriteAsync(bytesToWrite, offset, countToWrite).ConfigureAwait(false);
+  }
 
     public int ReadNBytes()
     {
@@ -277,8 +311,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <param name="v"></param>
     /// <param name="numbytes"></param>
-    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
-    public async Task WriteIntegerAsync(long v, int numbytes, bool execAsync)
+    public async Task WriteIntegerAsync(long v, int numbytes)
     {
       long val = v;
 
@@ -290,7 +323,7 @@ namespace MySql.Data.MySqlClient
         val >>= 8;
       }
 
-      await WriteAsync(_tempBuffer, 0, numbytes, execAsync).ConfigureAwait(false);
+      await WriteAsync(_tempBuffer, 0, numbytes).ConfigureAwait(false);
     }
 
     public void WriteInteger(long v, int numbytes)
@@ -343,24 +376,24 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public async Task WriteLengthAsync(long length, bool execAsync)
+    public async Task WriteLengthAsync(long length)
     {
       if (length < 251)
         WriteByte((byte)length);
       else if (length < 65536L)
       {
         WriteByte(252);
-        await WriteIntegerAsync(length, 2, execAsync).ConfigureAwait(false);
+        await WriteIntegerAsync(length, 2).ConfigureAwait(false);
       }
       else if (length < 16777216L)
       {
         WriteByte(253);
-        await WriteIntegerAsync(length, 3, execAsync).ConfigureAwait(false);
+        await WriteIntegerAsync(length, 3).ConfigureAwait(false);
       }
       else
       {
         WriteByte(254);
-        await WriteIntegerAsync(length, 8, execAsync).ConfigureAwait(false);
+        await WriteIntegerAsync(length, 8).ConfigureAwait(false);
       }
     }
 
@@ -368,45 +401,117 @@ namespace MySql.Data.MySqlClient
 
     #region String methods
 
-    public async Task WriteLenStringAsync(string s, bool execAsync)
+  /// <summary>
+  /// Writes a length-prefixed string to the packet buffer using packed integer length encoding.
+  /// </summary>
+  /// <param name="s">The string to write.</param>
+  public void WriteLenString(string s)
+  {
+    byte[] bytes = _encoding.GetBytes(s);
+
+    WriteLength(bytes.Length);
+    Write(bytes, 0, bytes.Length);
+  }
+
+  /// <summary>
+  /// Asynchronously writes a length-prefixed string to the packet buffer using packed integer length encoding.
+  /// </summary>
+  /// <param name="s">The string to write.</param>
+  public async Task WriteLenStringAsync(string s)
+  {
+    byte[] bytes = _encoding.GetBytes(s);
+
+    await WriteLengthAsync(bytes.Length).ConfigureAwait(false);
+    await WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
+  }
+
+  /// <summary>
+  /// Writes a string to the packet buffer without a null terminator, using the current encoding.
+  /// </summary>
+  /// <param name="v">The string to write.</param>
+  public void WriteStringNoNull(string v)
+  {
+    byte[] bytes = _encoding.GetBytes(v);
+
+    Write(bytes, 0, bytes.Length);
+  }
+
+  /// <summary>
+  /// Asynchronously writes a string to the packet buffer without a null terminator, using the current encoding.
+  /// </summary>
+  /// <param name="v">The string to write.</param>
+  public async Task WriteStringNoNullAsync(string v)
+  {
+    byte[] bytes = _encoding.GetBytes(v);
+
+    await WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
+  }
+
+    public void WriteString(string v)
     {
-      byte[] bytes = _encoding.GetBytes(s);
-
-      await WriteLengthAsync(bytes.Length, execAsync).ConfigureAwait(false);
-      await WriteAsync(bytes, 0, bytes.Length, execAsync).ConfigureAwait(false);
-    }
-
-    public async Task WriteStringNoNullAsync(string v, bool execAsync)
-    {
-      byte[] bytes = _encoding.GetBytes(v);
-
-      await WriteAsync(bytes, 0, bytes.Length, execAsync).ConfigureAwait(false);
-    }
-
-    public async Task WriteStringAsync(string v, bool execAsync)
-    {
-      await WriteStringNoNullAsync(v, execAsync).ConfigureAwait(false);
+      WriteStringNoNull(v);
 
       WriteByte(0);
     }
 
-    public async Task<string> ReadLenStringAsync(bool execAsync)
+    public async Task WriteStringAsync(string v)
     {
-      long len = ReadPackedInteger();
-      return await ReadStringAsync(len, execAsync).ConfigureAwait(false);
+      await WriteStringNoNullAsync(v).ConfigureAwait(false);
+
+      WriteByte(0);
     }
 
-    public async Task<string> ReadAsciiStringAsync(long length, bool execAsync)
-    {
-      if (length == 0)
-        return String.Empty;
+  /// <summary>
+  /// Reads a length-prefixed string from the packet buffer, where the length is encoded as a packed integer.
+  /// </summary>
+  /// <returns>The string read from the buffer.</returns>
+  public string ReadLenString()
+  {
+    long len = ReadPackedInteger();
+    return ReadString(len);
+  }
 
-      await ReadAsync(_tempBuffer, 0, (int)length, execAsync).ConfigureAwait(false);
+  /// <summary>
+  /// Asynchronously reads a length-prefixed string from the packet buffer, where the length is encoded as a packed integer.
+  /// </summary>
+  /// <returns>A task containing the string read from the buffer.</returns>
+  public async Task<string> ReadLenStringAsync()
+  {
+    long len = ReadPackedInteger();
+    return await ReadStringAsync(len).ConfigureAwait(false);
+  }
 
-      return Encoding.GetEncoding("us-ascii").GetString(_tempBuffer, 0, (int)length);
-    }
+  /// <summary>
+  /// Reads a fixed-length ASCII string from the packet buffer.
+  /// </summary>
+  /// <param name="length">The number of bytes to read for the ASCII string.</param>
+  /// <returns>The ASCII string read from the buffer.</returns>
+  public string ReadAsciiString(long length)
+  {
+    if (length == 0)
+      return String.Empty;
 
-    public async Task<string> ReadStringAsync(long length, bool execAsync)
+    Read(_tempBuffer, 0, (int)length);
+
+    return Encoding.GetEncoding("us-ascii").GetString(_tempBuffer, 0, (int)length);
+  }
+
+  /// <summary>
+  /// Asynchronously reads a fixed-length ASCII string from the packet buffer.
+  /// </summary>
+  /// <param name="length">The number of bytes to read for the ASCII string.</param>
+  /// <returns>A task containing the ASCII string read from the buffer.</returns>
+  public async Task<string> ReadAsciiStringAsync(long length)
+  {
+    if (length == 0)
+      return String.Empty;
+
+    await ReadAsync(_tempBuffer, 0, (int)length).ConfigureAwait(false);
+
+    return Encoding.GetEncoding("us-ascii").GetString(_tempBuffer, 0, (int)length);
+  }
+
+    public string ReadString(long length)
     {
       if (length == 0)
         return String.Empty;
@@ -414,7 +519,20 @@ namespace MySql.Data.MySqlClient
       if (_tempBuffer == null || length > _tempBuffer.Length)
         _tempBuffer = new byte[length];
 
-      await ReadAsync(_tempBuffer, 0, (int)length, execAsync).ConfigureAwait(false);
+      Read(_tempBuffer, 0, (int)length);
+
+      return _encoding.GetString(_tempBuffer, 0, (int)length);
+    }
+
+    public async Task<string> ReadStringAsync(long length)
+    {
+      if (length == 0)
+        return String.Empty;
+
+      if (_tempBuffer == null || length > _tempBuffer.Length)
+        _tempBuffer = new byte[length];
+
+      await ReadAsync(_tempBuffer, 0, (int)length).ConfigureAwait(false);
 
       return _encoding.GetString(_tempBuffer, 0, (int)length);
     }

@@ -2518,8 +2518,10 @@ namespace MySqlX.Data.Tests
     /// <summary>
     ///  Compare ConnectionIDs with close of session with maxTimeout introduced as a sleep
     /// </summary>
-    /// <param name="client1"></param>
-    /// <param name="maxTimeout"></param>
+    /// <param name="client1">The X DevAPI client.</param>
+    /// <param name="maxTimeout">The milliseconds to wait before attempting to create a new session.</param>
+    /// <param name="maxTimeoutGreater">Flag to indicate if it should be validated that connection IDs do not match.</param>
+    /// <param name="sleepTimeout">The milliseconds to sleep before timing out.</param>
     public void CompareConnectionIDs(Client client1, int maxTimeout, bool maxTimeoutGreater, int sleepTimeout)
     {
       string connectionID1 = null, connectionID2 = null;

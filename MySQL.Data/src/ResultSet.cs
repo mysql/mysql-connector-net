@@ -55,10 +55,31 @@ namespace MySql.Data.MySqlClient
       _readDone = true;
     }
 
-    public static async Task<ResultSet> CreateResultSetAsync(Driver d, int statementId, int numCols, bool execAsync)
+    /// <summary>
+    /// Creates and initializes a new ResultSet synchronously.
+    /// </summary>
+    /// <param name="d">The Driver instance.</param>
+    /// <param name="statementId">The ID of the statement.</param>
+    /// <param name="numCols">The number of columns in the result set.</param>
+    /// <returns>The created and initialized ResultSet.</returns>
+    public static ResultSet CreateResultSet(Driver d, int statementId, int numCols)
     {
       ResultSet resultSet = new ResultSet(d, statementId);
-      await resultSet.InitializeAsync(numCols, execAsync).ConfigureAwait(false);
+      resultSet.Initialize(numCols);
+      return resultSet;
+    }
+
+    /// <summary>
+    /// Asynchronously creates and initializes a new ResultSet.
+    /// </summary>
+    /// <param name="d">The Driver instance.</param>
+    /// <param name="statementId">The ID of the statement.</param>
+    /// <param name="numCols">The number of columns in the result set.</param>
+    /// <returns>A task that resolves to the created and initialized ResultSet.</returns>
+    public static async Task<ResultSet> CreateResultSetAsync(Driver d, int statementId, int numCols)
+    {
+      ResultSet resultSet = new ResultSet(d, statementId);
+      await resultSet.InitializeAsync(numCols).ConfigureAwait(false);
       return resultSet;
     }
 
@@ -71,11 +92,28 @@ namespace MySql.Data.MySqlClient
       _rowIndex = -1;
     }
 
-    private async Task InitializeAsync(int numCols, bool execAsync)
+    /// <summary>
+    /// Initializes the ResultSet synchronously with the given number of columns.
+    /// </summary>
+    /// <param name="numCols">The number of columns in the result set.</param>
+    private void Initialize(int numCols)
     {
-      await LoadColumnsAsync(numCols, execAsync).ConfigureAwait(false);
+      LoadColumns(numCols);
       IsOutputParameters = IsOutputParameterResultSet();
-      HasRows = await GetNextRowAsync(execAsync).ConfigureAwait(false);
+      HasRows = GetNextRow();
+      _readDone = !HasRows;
+    }
+
+    /// <summary>
+    /// Asynchronously initializes the ResultSet with the given number of columns.
+    /// </summary>
+    /// <param name="numCols">The number of columns in the result set.</param>
+    /// <returns>A task representing the asynchronous initialization.</returns>
+    private async Task InitializeAsync(int numCols)
+    {
+      await LoadColumnsAsync(numCols).ConfigureAwait(false);
+      IsOutputParameters = IsOutputParameterResultSet();
+      HasRows = await GetNextRowAsync().ConfigureAwait(false);
       _readDone = !HasRows;
     }
 
@@ -151,7 +189,7 @@ namespace MySql.Data.MySqlClient
             throw new MySqlException(Resources.ReadingPriorColumnUsingSeqAccess);
           while (_seqIndex < (index - 1))
             _driver.SkipColumnValue(Values[++_seqIndex]);
-          Values[index] = _driver.ReadColumnValueAsync(index, Fields[index], Values[index], false).GetAwaiter().GetResult();
+          Values[index] = _driver.ReadColumnValue(index, Fields[index], Values[index]);
           _seqIndex = index;
         }
 
@@ -159,9 +197,13 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private async Task<bool> GetNextRowAsync(bool execAsync)
+    /// <summary>
+    /// Fetches the next data row synchronously.
+    /// </summary>
+    /// <returns>True if a row was fetched; otherwise, false.</returns>
+    private bool GetNextRow()
     {
-      bool fetched = await _driver.FetchDataRowAsync(_statementId, Size, execAsync).ConfigureAwait(false);
+      bool fetched = _driver.FetchDataRow(_statementId, Size);
 
       if (fetched)
         TotalRows++;
@@ -169,7 +211,26 @@ namespace MySql.Data.MySqlClient
       return fetched;
     }
 
-    public async Task<bool> NextRowAsync(CommandBehavior behavior, bool execAsync)
+    /// <summary>
+    /// Asynchronously fetches the next data row.
+    /// </summary>
+    /// <returns>A task that resolves to true if a row was fetched; otherwise, false.</returns>
+    private async Task<bool> GetNextRowAsync()
+    {
+      bool fetched = await _driver.FetchDataRowAsync(_statementId, Size).ConfigureAwait(false);
+
+      if (fetched)
+        TotalRows++;
+
+      return fetched;
+    }
+
+    /// <summary>
+    /// Advances to the next row in the result set synchronously, considering the specified command behavior.
+    /// </summary>
+    /// <param name="behavior">The CommandBehavior flags that affect row reading behavior.</param>
+    /// <returns>True if there is a next row; otherwise, false.</returns>
+    public bool NextRow(CommandBehavior behavior)
     {
       if (_readDone)
       {
@@ -189,7 +250,7 @@ namespace MySql.Data.MySqlClient
         bool fetched;
         try
         {
-          fetched = await GetNextRowAsync(execAsync).ConfigureAwait(false);
+          fetched = GetNextRow();
         }
         catch (MySqlException ex)
         {
@@ -209,7 +270,58 @@ namespace MySql.Data.MySqlClient
       }
 
       if (!_isSequential)
-        await ReadColumnDataAsync(false, execAsync).ConfigureAwait(false);
+        ReadColumnData(false);
+
+      _rowIndex++;
+      return true;
+    }
+
+    /// <summary>
+    /// Asynchronously advances to the next row in the result set, considering the specified command behavior.
+    /// </summary>
+    /// <param name="behavior">The CommandBehavior flags that affect row reading behavior.</param>
+    /// <returns>A task that resolves to true if there is a next row; otherwise, false.</returns>
+    public async Task<bool> NextRowAsync(CommandBehavior behavior)
+    {
+      if (_readDone)
+      {
+        if (Cached) return CachedNextRow(behavior);
+        return false;
+      }
+
+      if ((behavior & CommandBehavior.SingleRow) != 0 && _rowIndex == 0)
+        return false;
+
+      _isSequential = (behavior & CommandBehavior.SequentialAccess) != 0;
+      _seqIndex = -1;
+
+      // if we are at row index >= 0 then we need to fetch the data row and load it
+      if (_rowIndex >= 0)
+      {
+        bool fetched;
+        try
+        {
+          fetched = await GetNextRowAsync().ConfigureAwait(false);
+        }
+        catch (MySqlException ex)
+        {
+          if (ex.IsQueryAborted)
+          {
+            // avoid hanging on Close()
+            _readDone = true;
+          }
+          throw;
+        }
+
+        if (!fetched)
+        {
+          _readDone = true;
+          return false;
+        }
+      }
+
+      if (!_isSequential)
+        await ReadColumnDataAsync(false).ConfigureAwait(false);
 
       _rowIndex++;
       return true;
@@ -226,9 +338,9 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Closes the current resultset, dumping any data still on the wire
+    /// Closes the current result set synchronously, dumping any remaining data on the wire and resetting the state.
     /// </summary>
-    public async Task CloseAsync(bool execAsync)
+    public void Close()
     {
       if (!_readDone)
       {
@@ -238,7 +350,41 @@ namespace MySql.Data.MySqlClient
           SkippedRows++;
         try
         {
-          while (_driver.IsOpen && await _driver.SkipDataRowAsync(execAsync).ConfigureAwait(false))
+          while (_driver.IsOpen && _driver.SkipDataRow())
+          {
+            TotalRows++;
+            SkippedRows++;
+          }
+        }
+        catch (System.IO.IOException)
+        {
+          // it is ok to eat IO exceptions here, we just want to 
+          // close the result set
+        }
+        _readDone = true;
+      }
+      else if (_driver == null)
+        CacheClose();
+
+      _driver = null;
+      if (Cached) CacheReset();
+    }
+
+    /// <summary>
+    /// Asynchronously closes the current result set, dumping any remaining data on the wire and resetting the state.
+    /// </summary>
+    /// <returns>A task representing the asynchronous close operation.</returns>
+    public async Task CloseAsync()
+    {
+      if (!_readDone)
+      {
+
+        // if we have rows but the user didn't read the first one then mark it as skipped
+        if (HasRows && _rowIndex == -1)
+          SkippedRows++;
+        try
+        {
+          while (_driver.IsOpen && await _driver.SkipDataRowAsync().ConfigureAwait(false))
           {
             TotalRows++;
             SkippedRows++;
@@ -297,17 +443,16 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Loads the column metadata for the current resultset
+    /// Initializes the field arrays and hash after loading the Fields.
     /// </summary>
-    private async Task LoadColumnsAsync(int numCols, bool execAsync)
+    private void InitializeFieldArrays()
     {
-      Fields = await _driver.GetColumnsAsync(numCols, execAsync).ConfigureAwait(false);
-
+      int numCols = Fields.Length;
       Values = new IMySqlValue[numCols];
       _uaFieldsUsed = new bool[numCols];
       _fieldHashCi = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-      for (int i = 0; i < Fields.Length; i++)
+      for (int i = 0; i < numCols; i++)
       {
         string columnName = Fields[i].ColumnName;
         if (!_fieldHashCi.ContainsKey(columnName))
@@ -316,10 +461,35 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    private async Task ReadColumnDataAsync(bool outputParms, bool execAsync)
+    /// <summary>
+    /// Loads the column metadata for the current result set synchronously.
+    /// </summary>
+    /// <param name="numCols">The number of columns to load.</param>
+    private void LoadColumns(int numCols)
+    {
+      Fields = _driver.GetColumns(numCols);
+      InitializeFieldArrays();
+    }
+
+    /// <summary>
+    /// Asynchronously loads the column metadata for the current result set.
+    /// </summary>
+    /// <param name="numCols">The number of columns to load.</param>
+    /// <returns>A task representing the asynchronous load operation.</returns>
+    private async Task LoadColumnsAsync(int numCols)
+    {
+      Fields = await _driver.GetColumnsAsync(numCols).ConfigureAwait(false);
+      InitializeFieldArrays();
+    }
+
+    /// <summary>
+    /// Reads the column data for the current row synchronously, handling caching and output parameters.
+    /// </summary>
+    /// <param name="outputParms">Indicates if output parameters are present.</param>
+    private void ReadColumnData(bool outputParms)
     {
       for (int i = 0; i < Size; i++)
-        Values[i] = await _driver.ReadColumnValueAsync(i, Fields[i], Values[i], execAsync).ConfigureAwait(false);
+        Values[i] = _driver.ReadColumnValue(i, Fields[i], Values[i]);
 
       // if we are caching then we need to save a copy of this row of data values
       if (Cached)
@@ -329,7 +499,32 @@ namespace MySql.Data.MySqlClient
       // params with TableDirect commands
       if (!outputParms) return;
 
-      bool rowExists = await _driver.FetchDataRowAsync(_statementId, Fields.Length, execAsync).ConfigureAwait(false);
+      bool rowExists = _driver.FetchDataRow(_statementId, Fields.Length);
+      _rowIndex = 0;
+
+      if (rowExists)
+        throw new MySqlException(Resources.MoreThanOneOPRow);
+    }
+
+    /// <summary>
+    /// Asynchronously reads the column data for the current row, handling caching and output parameters.
+    /// </summary>
+    /// <param name="outputParms">Indicates if output parameters are present.</param>
+    /// <returns>A task representing the asynchronous read operation.</returns>
+    private async Task ReadColumnDataAsync(bool outputParms)
+    {
+      for (int i = 0; i < Size; i++)
+        Values[i] = await _driver.ReadColumnValueAsync(i, Fields[i], Values[i]).ConfigureAwait(false);
+
+      // if we are caching then we need to save a copy of this row of data values
+      if (Cached)
+        _cachedValues.Add((IMySqlValue[])Values.Clone());
+
+      // we don't need to worry about caching the following since you won't have output
+      // params with TableDirect commands
+      if (!outputParms) return;
+
+      bool rowExists = await _driver.FetchDataRowAsync(_statementId, Fields.Length).ConfigureAwait(false);
       _rowIndex = 0;
 
       if (rowExists)

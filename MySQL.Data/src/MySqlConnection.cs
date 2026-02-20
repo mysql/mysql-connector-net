@@ -213,7 +213,7 @@ namespace MySql.Data.MySqlClient
     ///  <para>
     ///    The <see cref="Database"/> property does not update dynamically.
     ///    If you change the current database using a SQL statement, then this property
-    ///    may reflect the wrong value. If you change the current database using the <see cref="ChangeDatabase"/>
+    ///    may reflect the wrong value. If you change the current database using the <see cref="ChangeDatabase()"/>
     ///    method, this property is updated to reflect the new database.
     ///  </para>
     /// </remarks>
@@ -383,14 +383,14 @@ namespace MySql.Data.MySqlClient
     /// <param name="isolationLevel">Specifies the <see cref="IsolationLevel"/> for the transaction.</param>
     /// <returns>A <see cref="MySqlTransaction"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
-    protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel) => BeginTransactionAsync(false, isolationLevel, CancellationToken.None).GetAwaiter().GetResult();
+    protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel) => BeginTransactionInternal(isolationLevel, CancellationToken.None);
 
     /// <summary>
     /// Begins a database transaction.
     /// </summary>
     /// <returns>A <see cref="MySqlTransaction"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
-    public new MySqlTransaction BeginTransaction() => BeginTransactionAsync(false, IsolationLevel.ReadCommitted, CancellationToken.None).GetAwaiter().GetResult();
+    public new MySqlTransaction BeginTransaction() => BeginTransactionInternal(IsolationLevel.ReadCommitted, CancellationToken.None);
 
     /// <summary>
     /// Starts a database transaction.
@@ -399,14 +399,14 @@ namespace MySql.Data.MySqlClient
     /// <param name="scope">The scope of the transaction.</param>
     /// <returns>A <see cref="MySqlTransaction"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
-    public MySqlTransaction BeginTransaction(IsolationLevel isolationLevel, string scope = "") => BeginTransactionAsync(false, isolationLevel, CancellationToken.None, scope).GetAwaiter().GetResult();
+    public MySqlTransaction BeginTransaction(IsolationLevel isolationLevel, string scope = "") => BeginTransactionInternal(isolationLevel, CancellationToken.None, scope);
 
     /// <summary>
     /// Asynchronous version of <see cref="BeginTransaction()"/>.
     /// </summary>
     /// <returns>A <see cref="MySqlTransaction"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
-    public ValueTask<MySqlTransaction> BeginTransactionAsync() => BeginTransactionAsync(true, IsolationLevel.ReadCommitted, CancellationToken.None);
+    public ValueTask<MySqlTransaction> BeginTransactionAsync() => BeginTransactionInternalAsync(IsolationLevel.ReadCommitted, CancellationToken.None);
 
 #if NETSTANDARD2_0 || NETFRAMEWORK
     /// <summary>
@@ -415,7 +415,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A <see cref="MySqlTransaction"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
-        public ValueTask<MySqlTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => BeginTransactionAsync(true, IsolationLevel.ReadCommitted, cancellationToken);
+    public ValueTask<MySqlTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => BeginTransactionInternalAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
     /// <summary>
     /// Asynchronous version of <see cref="BeginDbTransaction(IsolationLevel)"/>.
@@ -424,7 +424,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A <see cref="ValueTask{MySqlTransaction}"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
-    public ValueTask<MySqlTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => BeginTransactionAsync(true, isolationLevel, cancellationToken);
+    public ValueTask<MySqlTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => BeginTransactionInternalAsync(isolationLevel, cancellationToken);
 #else
     /// <summary>
     /// Asynchronous version of <see cref="BeginTransaction()"/>.
@@ -432,7 +432,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A <see cref="MySqlTransaction"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
-    public new ValueTask<MySqlTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => BeginTransactionAsync(true, IsolationLevel.ReadCommitted, cancellationToken);
+    public new ValueTask<MySqlTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => BeginTransactionInternalAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
     /// <summary>
     /// Asynchronous version of <see cref="BeginDbTransaction(IsolationLevel)"/>.
@@ -440,7 +440,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="isolationLevel">Specifies the <see cref="IsolationLevel"/> for the transaction.</param>
     /// <returns>A <see cref="ValueTask{MySqlTransaction}"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
-    public ValueTask<MySqlTransaction> BeginTransactionAsync(IsolationLevel isolationLevel) => BeginTransactionAsync(true, isolationLevel, CancellationToken.None);
+    public ValueTask<MySqlTransaction> BeginTransactionAsync(IsolationLevel isolationLevel) => BeginTransactionInternalAsync(isolationLevel, CancellationToken.None);
 
     /// <summary>
     /// Asynchronous version of <see cref="BeginDbTransaction(IsolationLevel)"/>.
@@ -449,7 +449,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A <see cref="ValueTask{MySqlTransaction}"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
-    public new ValueTask<MySqlTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => BeginTransactionAsync(true, isolationLevel, cancellationToken);
+    public new ValueTask<MySqlTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => BeginTransactionInternalAsync(isolationLevel, cancellationToken);
 
     /// <summary>
     /// Asynchronous version of <see cref="BeginDbTransaction(IsolationLevel)"/>.
@@ -458,33 +458,22 @@ namespace MySql.Data.MySqlClient
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>A <see cref="ValueTask{DbTransaction}"/> representing the new transaction.</returns>
     /// <exception cref="InvalidOperationException">Parallel transactions are not supported.</exception>
-    protected override async ValueTask<DbTransaction> BeginDbTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => await BeginTransactionAsync(true, isolationLevel, cancellationToken).ConfigureAwait(false);
+    protected override async ValueTask<DbTransaction> BeginDbTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => await BeginTransactionInternalAsync(isolationLevel, cancellationToken).ConfigureAwait(false);
 #endif
 
-    private async ValueTask<MySqlTransaction> BeginTransactionAsync(bool execAsync, IsolationLevel isolationLevel, CancellationToken cancellationToken, string scope = "")
+    private string GetIsolationLevelCommandText(IsolationLevel isolationLevel)
     {
-      if (State != ConnectionState.Open)
-        Throw(new InvalidOperationException(Resources.ConnectionNotOpen));
-      // First check to see if we are in a current transaction
-      if (driver.HasStatus(ServerStatusFlags.InTransaction))
-        Throw(new InvalidOperationException(Resources.NoNestedTransactions));
-
-      MySqlCommand cmd = new MySqlCommand($"SET{(string.IsNullOrEmpty(scope) ? string.Empty : $" {scope}")} TRANSACTION ISOLATION LEVEL ", this);
       switch (isolationLevel)
       {
         case IsolationLevel.ReadCommitted:
-          cmd.CommandText += "READ COMMITTED";
-          break;
+          return "READ COMMITTED";
         case IsolationLevel.ReadUncommitted:
-          cmd.CommandText += "READ UNCOMMITTED";
-          break;
+          return "READ UNCOMMITTED";
         case IsolationLevel.Unspecified:
         case IsolationLevel.RepeatableRead:
-          cmd.CommandText += "REPEATABLE READ";
-          break;
+          return "REPEATABLE READ";
         case IsolationLevel.Serializable:
-          cmd.CommandText += "SERIALIZABLE";
-          break;
+          return "SERIALIZABLE";
         case IsolationLevel.Chaos:
           Throw(new NotSupportedException(Resources.ChaosNotSupported));
           break;
@@ -493,10 +482,57 @@ namespace MySql.Data.MySqlClient
           break;
       }
 
-      await cmd.ExecuteNonQueryAsync(execAsync, cancellationToken).ConfigureAwait(false);
+      return null;
+    }
+
+    /// <summary>
+    /// Initiates a transaction.
+    /// </summary>
+    /// <param name="isolationLevel">The transaction isolation level.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="scope">The scope of the transaction.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private MySqlTransaction BeginTransactionInternal(IsolationLevel isolationLevel, CancellationToken cancellationToken, string scope = "")
+    {
+      if (State != ConnectionState.Open)
+        Throw(new InvalidOperationException(Resources.ConnectionNotOpen));
+      // First check to see if we are in a current transaction
+
+      if (driver.HasStatus(ServerStatusFlags.InTransaction))
+        Throw(new InvalidOperationException(Resources.NoNestedTransactions));
+
+      MySqlCommand cmd = new MySqlCommand($"SET{(string.IsNullOrEmpty(scope) ? string.Empty : $" {scope}")} TRANSACTION ISOLATION LEVEL ", this);
+      cmd.CommandText += GetIsolationLevelCommandText(isolationLevel);
+      cmd.ExecuteNonQuery(cancellationToken);
       cmd.CommandText = "BEGIN";
       cmd.CommandType = CommandType.Text;
-      await cmd.ExecuteNonQueryAsync(execAsync, cancellationToken).ConfigureAwait(false);
+      cmd.ExecuteNonQuery(cancellationToken);
+
+      MySqlTransaction t = new MySqlTransaction(this, isolationLevel);
+      return t;
+    }
+
+    /// <summary>
+    /// Initiates a transaction.
+    /// </summary>
+    /// /// <param name="isolationLevel">The transaction isolation level.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="scope">The scope of the transaction.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async ValueTask<MySqlTransaction> BeginTransactionInternalAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken, string scope = "")
+    {
+      if (State != ConnectionState.Open)
+        Throw(new InvalidOperationException(Resources.ConnectionNotOpen));
+      // First check to see if we are in a current transaction
+      if (driver.HasStatus(ServerStatusFlags.InTransaction))
+        Throw(new InvalidOperationException(Resources.NoNestedTransactions));
+
+      MySqlCommand cmd = new MySqlCommand($"SET{(string.IsNullOrEmpty(scope) ? string.Empty : $" {scope}")} TRANSACTION ISOLATION LEVEL ", this);
+      cmd.CommandText += GetIsolationLevelCommandText(isolationLevel);
+      await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+      cmd.CommandText = "BEGIN";
+      cmd.CommandType = CommandType.Text;
+      await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
 
       MySqlTransaction t = new MySqlTransaction(this, isolationLevel);
       return t;
@@ -522,7 +558,7 @@ namespace MySql.Data.MySqlClient
     /// <exception cref="ArgumentException">The database name is not valid.</exception>
     /// <exception cref="InvalidOperationException">The connection is not open.</exception>
     /// <exception cref="MySqlException">Cannot change the database.</exception>
-    public override void ChangeDatabase(string databaseName) => ChangeDatabaseAsync(databaseName, false, CancellationToken.None).GetAwaiter().GetResult();
+    public override void ChangeDatabase(string databaseName) => ChangeDatabase(databaseName, CancellationToken.None);
 
     /// <summary>
     /// Asynchronous version of the <see cref="ChangeDatabase(string)"/> method.
@@ -531,12 +567,12 @@ namespace MySql.Data.MySqlClient
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
 #if NETFRAMEWORK || NETSTANDARD2_0
-    public Task ChangeDatabaseAsync(string databaseName, CancellationToken cancellationToken = default) => ChangeDatabaseAsync(databaseName, true, cancellationToken);
+    public Task ChangeDatabaseAsync(string databaseName, CancellationToken cancellationToken = default) => ChangeDatabaseInternalAsync(databaseName, cancellationToken);
 #else
-    public override Task ChangeDatabaseAsync(string databaseName, CancellationToken cancellationToken = default) => ChangeDatabaseAsync(databaseName, true, cancellationToken);
+    public override Task ChangeDatabaseAsync(string databaseName, CancellationToken cancellationToken = default) => ChangeDatabaseInternalAsync(databaseName, cancellationToken);
 #endif
 
-    internal async Task ChangeDatabaseAsync(string databaseName, bool execAsync, CancellationToken cancellationToken)
+    internal void ChangeDatabase(string databaseName, CancellationToken cancellationToken)
     {
       if (databaseName == null || databaseName.Trim().Length == 0)
         Throw(new ArgumentException(Resources.ParameterIsInvalid, "databaseName"));
@@ -551,7 +587,29 @@ namespace MySql.Data.MySqlClient
       semaphoreSlim.Wait();
       // We use default command timeout for SetDatabase
       using (new CommandTimer(this, (int)Settings.DefaultCommandTimeout))
-        await driver.SetDatabaseAsync(databaseName, execAsync).ConfigureAwait(false);
+        driver.SetDatabase(databaseName);
+
+      semaphoreSlim.Release();
+
+      _database = databaseName;
+    }
+
+    internal async Task ChangeDatabaseInternalAsync(string databaseName, CancellationToken cancellationToken)
+    {
+      if (databaseName == null || databaseName.Trim().Length == 0)
+        Throw(new ArgumentException(Resources.ParameterIsInvalid, "databaseName"));
+
+      if (State != ConnectionState.Open)
+        Throw(new InvalidOperationException(Resources.ConnectionNotOpen));
+
+      // This semaphore prevents promotable transaction rollback to run
+      // in parallel
+      SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
+
+      await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+      // We use default command timeout for SetDatabase
+      using (new CommandTimer(this, (int)Settings.DefaultCommandTimeout))
+        await driver.SetDatabaseAsync(databaseName).ConfigureAwait(false);
 
       semaphoreSlim.Release();
 
@@ -562,19 +620,30 @@ namespace MySql.Data.MySqlClient
     /// Pings the server.
     /// </summary>
     /// <returns><c>true</c> if the ping was successful; otherwise, <c>false</c>.</returns>
-    public bool Ping() => PingAsync(false).GetAwaiter().GetResult();
+    public bool Ping() => PingInternal();
 
     /// <summary>
     /// Pings the server.
     /// </summary>
     /// <returns><c>true</c> if the ping was successful; otherwise, <c>false</c>.</returns>
-    public Task<bool> PingAsync() => PingAsync(true);
+    public Task<bool> PingAsync() => PingInternalAsync();
 
-    private async Task<bool> PingAsync(bool execAsync)
+    private bool PingInternal()
     {
       if (Reader != null)
         Throw(new MySqlException(Resources.DataReaderOpen));
-      if (driver != null && await driver.PingAsync(execAsync).ConfigureAwait(false))
+      if (driver != null && driver.Ping())
+        return true;
+      driver = null;
+      SetState(ConnectionState.Closed, true);
+      return false;
+    }
+
+    private async Task<bool> PingInternalAsync()
+    {
+      if (Reader != null)
+        Throw(new MySqlException(Resources.DataReaderOpen));
+      if (driver != null && await driver.PingAsync().ConfigureAwait(false))
         return true;
       driver = null;
       SetState(ConnectionState.Closed, true);
@@ -590,11 +659,22 @@ namespace MySql.Data.MySqlClient
     ///    Otherwise, it establishes a new connection to an instance of MySQL.
     ///  </para>
     /// </remarks>
-    public override void Open() =>  OpenAsync(false, CancellationToken.None).GetAwaiter().GetResult();
+    public override void Open() =>  Open(CancellationToken.None);
 
-    public override Task OpenAsync(CancellationToken cancellationToken) => OpenAsync(true, cancellationToken);
+    /// <summary>
+    /// Asynchronously opens the connection to the MySQL server using the settings from ConnectionString.
+    /// Handles pooling, failover, replication, and initializes interceptors/schema provider.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A task representing the asynchronous open operation.</returns>
+    public override Task OpenAsync(CancellationToken cancellationToken) => OpenInternalAsync(cancellationToken);
 
-    internal async Task OpenAsync(bool execAsync, CancellationToken cancellationToken)
+    /// <summary>
+    /// Opens the connection to the MySQL server using the settings from ConnectionString.
+    /// Handles pooling, failover, replication, and initializes interceptors/schema provider.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    internal void Open(CancellationToken cancellationToken)
     {
       if (State != ConnectionState.Closed)
         Throw(new InvalidOperationException(Resources.ConnectionAlreadyOpen));
@@ -643,14 +723,14 @@ namespace MySql.Data.MySqlClient
         {
           if (driver == null)
           {
-            await ReplicationManager.GetNewConnectionAsync(Settings.Server, false, this, execAsync, cancellationToken).ConfigureAwait(false);
+            ReplicationManager.GetNewConnection(Settings.Server, false, this, cancellationToken);
           }
           else
             currentSettings = driver.Settings;
         }
         else if (FailoverManager.FailoverGroup != null && !Settings.Pooling)
         {
-          string connectionString = await FailoverManager.AttemptConnectionAsync(this, Settings.ConnectionString, execAsync, cancellationToken);
+          string connectionString = FailoverManager.AttemptConnection(this, Settings.ConnectionString, cancellationToken);
           currentSettings.ConnectionString = connectionString;
         }
 
@@ -658,15 +738,144 @@ namespace MySql.Data.MySqlClient
         {
           if (FailoverManager.FailoverGroup != null)
           {
-            string connectionString = await FailoverManager.AttemptConnectionAsync(this, Settings.ConnectionString, execAsync, cancellationToken, true);
+            string connectionString = FailoverManager.AttemptConnection(this, Settings.ConnectionString, cancellationToken, true);
             currentSettings.ConnectionString = connectionString;
           }
 #if NET5_0_OR_GREATER              
           currentActivity = MySQLActivitySource.OpenPooledConnection(currentSettings);
 #endif
-          MySqlPool pool = await MySqlPoolManager.GetPoolAsync(currentSettings, execAsync, cancellationToken).ConfigureAwait(false);
+          MySqlPool pool = MySqlPoolManager.GetPool(currentSettings, cancellationToken);
           if (driver == null || !driver.IsOpen)
-            driver = await pool.GetConnectionAsync(execAsync, cancellationToken).ConfigureAwait(false);
+            driver = pool.GetConnection(cancellationToken);
+          ProcedureCache = pool.ProcedureCache;
+        }
+        else
+        {
+          if (driver == null || !driver.IsOpen)
+          {
+#if NET5_0_OR_GREATER
+                currentActivity = MySQLActivitySource.OpenConnection(currentSettings);
+#endif
+            driver = Driver.Create(currentSettings, cancellationToken);
+          }
+
+          ProcedureCache = new ProcedureCache((int)Settings.ProcedureCacheSize);
+        }
+      }
+#if NET5_0_OR_GREATER
+      catch (Exception ex)
+      {
+        MySQLActivitySource.SetException(currentActivity, ex);
+        SetState(ConnectionState.Closed, true);
+        throw;
+      }
+#else
+      catch (Exception)
+      {
+        SetState(ConnectionState.Closed, true);
+        throw;
+      }
+#endif
+
+
+      SetState(ConnectionState.Open, false);
+      driver.Configure(this, cancellationToken);
+
+      if (driver.IsPasswordExpired && Settings.Pooling)
+        MySqlPoolManager.ClearPool(currentSettings);
+
+      if (!(driver.SupportsPasswordExpiration && driver.IsPasswordExpired))
+      {
+        if (!string.IsNullOrEmpty(Settings.Database))
+          ChangeDatabase(Settings.Database, cancellationToken);
+      }
+
+      // setup our schema provider
+      _schemaProvider = new ISSchemaProvider(this);
+      PerfMonitor = new PerformanceMonitor(this);
+
+      // if we are opening up inside a current transaction, then autoenlist
+      // TODO: control this with a connection string option
+      if (Transaction.Current != null && Settings.AutoEnlist)
+        EnlistTransaction(Transaction.Current);
+
+      hasBeenOpen = true;
+      SetState(ConnectionState.Open, true);
+    }
+
+    internal async Task OpenInternalAsync(CancellationToken cancellationToken)
+    {
+      if (State != ConnectionState.Closed)
+        Throw(new InvalidOperationException(Resources.ConnectionAlreadyOpen));
+
+      if (hasBeenDisposed)
+        Throw(new InvalidOperationException("The connection had been disposed."));
+
+      // start up our interceptors
+      _exceptionInterceptor = new ExceptionInterceptor(this);
+      commandInterceptor = new CommandInterceptor(this);
+
+      SetState(ConnectionState.Connecting, true);
+      AssertPermissions();
+
+      Settings.WebAuthnActionRequested = WebAuthnActionRequested;
+
+      //TODO: SUPPORT FOR 452 AND 46X
+      // if we are auto enlisting in a current transaction, then we will be
+      // treating the connection as pooled
+      if (Settings.AutoEnlist && Transaction.Current != null)
+      {
+        driver = DriverTransactionManager.GetDriverInTransaction(Transaction.Current);
+        if (driver != null && (driver.IsInActiveUse || !driver.Settings.EquivalentTo(this.Settings)))
+          Throw(new NotSupportedException(Resources.MultipleConnectionsInTransactionNotSupported));
+      }
+
+      MySqlConnectionStringBuilder currentSettings = Settings;
+      try
+      {
+        if (!Settings.Pooling || MySqlPoolManager.Hosts == null)
+        {
+          FailoverManager.Reset();
+
+          if (Settings.DnsSrv)
+          {
+            var dnsSrvRecords = DnsSrv.GetDnsSrvRecords(Settings.Server);
+            FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
+              FailoverMethod.Sequential);
+          }
+          else
+            FailoverManager.ParseHostList(Settings.Server, false);
+        }
+
+        // Load balancing && Failover
+        if (ReplicationManager.IsReplicationGroup(Settings.Server))
+        {
+          if (driver == null)
+          {
+            await ReplicationManager.GetNewConnectionAsync(Settings.Server, false, this, cancellationToken).ConfigureAwait(false);
+          }
+          else
+            currentSettings = driver.Settings;
+        }
+        else if (FailoverManager.FailoverGroup != null && !Settings.Pooling)
+        {
+          string connectionString = await FailoverManager.AttemptConnectionAsync(this, Settings.ConnectionString, cancellationToken);
+          currentSettings.ConnectionString = connectionString;
+        }
+
+        if (Settings.Pooling)
+        {
+          if (FailoverManager.FailoverGroup != null)
+          {
+            string connectionString = await FailoverManager.AttemptConnectionAsync(this, Settings.ConnectionString, cancellationToken, true);
+            currentSettings.ConnectionString = connectionString;
+          }
+#if NET5_0_OR_GREATER              
+          currentActivity = MySQLActivitySource.OpenPooledConnection(currentSettings);
+#endif
+          MySqlPool pool = await MySqlPoolManager.GetPoolAsync(currentSettings, cancellationToken).ConfigureAwait(false);
+          if (driver == null || !driver.IsOpen)
+            driver = await pool.GetConnectionAsync(cancellationToken).ConfigureAwait(false);
           ProcedureCache = pool.ProcedureCache;
         }
         else
@@ -676,7 +885,7 @@ namespace MySql.Data.MySqlClient
 #if NET5_0_OR_GREATER              
                 currentActivity = MySQLActivitySource.OpenConnection(currentSettings);
 #endif
-                driver = await Driver.CreateAsync(currentSettings, execAsync, cancellationToken).ConfigureAwait(false);
+                driver = await Driver.CreateAsync(currentSettings, cancellationToken).ConfigureAwait(false);
             }
 
             ProcedureCache = new ProcedureCache((int)Settings.ProcedureCacheSize);
@@ -699,15 +908,15 @@ namespace MySql.Data.MySqlClient
 
 
       SetState(ConnectionState.Open, false);
-      await driver.ConfigureAsync(this, execAsync, cancellationToken).ConfigureAwait(false);
+      await driver.ConfigureAsync(this, cancellationToken).ConfigureAwait(false);
 
       if (driver.IsPasswordExpired && Settings.Pooling)
-        await MySqlPoolManager.ClearPoolAsync(currentSettings, execAsync).ConfigureAwait(false);
+        await MySqlPoolManager.ClearPoolAsync(currentSettings).ConfigureAwait(false);
 
       if (!(driver.SupportsPasswordExpiration && driver.IsPasswordExpired))
       {
         if (!string.IsNullOrEmpty(Settings.Database))
-          await ChangeDatabaseAsync(Settings.Database, execAsync, cancellationToken).ConfigureAwait(false);
+          await ChangeDatabaseAsync(Settings.Database, cancellationToken).ConfigureAwait(false);
       }
 
       // setup our schema provider
@@ -735,7 +944,12 @@ namespace MySql.Data.MySqlClient
       return c;
     }
 
-    internal async Task AbortAsync(bool execAsync, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Aborts the current connection, closing it forcefully and handling any active transaction by transferring it to a new connection if necessary.
+    /// This is typically used in timeout or cancellation scenarios.
+    /// </summary>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default is none.</param>
+    internal void Abort(CancellationToken cancellationToken = default)
     {
       try
       {
@@ -743,7 +957,7 @@ namespace MySql.Data.MySqlClient
         {
           MySqlConnection newConn = (MySqlConnection)this.Clone();
           Driver newDriver =
-            await Driver.CreateAsync(new MySqlConnectionStringBuilder(newConn.ConnectionString), execAsync, cancellationToken).ConfigureAwait(false);
+            Driver.Create(new MySqlConnectionStringBuilder(newConn.ConnectionString), cancellationToken);
 
           lock (newDriver)
           {
@@ -759,13 +973,53 @@ namespace MySql.Data.MySqlClient
       }
       finally
       {
-        await driver.CloseAsync(execAsync).ConfigureAwait(false);
+        driver.Close();
         this.IsInUse = false;
       }
       SetState(ConnectionState.Closed, true);
     }
 
-    internal async Task CloseFullyAsync(bool execAsync)
+    /// <summary>
+    /// Asynchronously aborts the current connection, closing it forcefully and handling any active transaction by transferring it to a new connection if necessary.
+    /// This is typically used in timeout or cancellation scenarios.
+    /// </summary>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default is none.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    internal async Task AbortAsync(CancellationToken cancellationToken = default)
+    {
+      try
+      {
+        if (driver.HasStatus(ServerStatusFlags.InTransaction))
+        {
+          MySqlConnection newConn = (MySqlConnection)this.Clone();
+          Driver newDriver =
+            await Driver.CreateAsync(new MySqlConnectionStringBuilder(newConn.ConnectionString), cancellationToken).ConfigureAwait(false);
+
+          lock (newDriver)
+          {
+            newConn.driver = newDriver;
+            newDriver.currentTransaction = driver.currentTransaction;
+            driver.currentTransaction.Connection = newConn;
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        MySqlTrace.LogWarning(ServerThread, String.Concat("Error occurred aborting the connection. Exception was: ", ex.Message));
+      }
+      finally
+      {
+        await driver.CloseAsync().ConfigureAwait(false);
+        this.IsInUse = false;
+      }
+      SetState(ConnectionState.Closed, true);
+    }
+
+    /// <summary>
+    /// Fully closes the connection, returning it to the pool if pooling is enabled (after rolling back any transaction), or closing it permanently otherwise.
+    /// This method is internal and used by connection management logic.
+    /// </summary>
+    internal void CloseFully()
     {
       if (Settings.Pooling && driver.IsOpen)
       {
@@ -777,10 +1031,35 @@ namespace MySql.Data.MySqlClient
           t.Rollback();
         }
 
-        await MySqlPoolManager.ReleaseConnectionAsync(driver, execAsync).ConfigureAwait(false);
+        MySqlPoolManager.ReleaseConnection(driver);
       }
       else
-        await driver.CloseAsync(execAsync).ConfigureAwait(false);
+        driver.Close();
+
+      driver = null;
+    }
+
+    /// <summary>
+    /// Asynchronously fully closes the connection, returning it to the pool if pooling is enabled (after rolling back any transaction), or closing it permanently otherwise.
+    /// This method is internal and used by connection management logic.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    internal async Task CloseFullyAsync()
+    {
+      if (Settings.Pooling && driver.IsOpen)
+      {
+        //TODO: SUPPORT FOR 452 AND 46X
+        //// if we are in a transaction, roll it back
+        if (driver.HasStatus(ServerStatusFlags.InTransaction))
+        {
+          MySqlTransaction t = new MySqlTransaction(this, IsolationLevel.Unspecified);
+          t.Rollback();
+        }
+
+        await MySqlPoolManager.ReleaseConnectionAsync(driver).ConfigureAwait(false);
+      }
+      else
+        await driver.CloseAsync().ConfigureAwait(false);
 
       driver = null;
     }
@@ -797,21 +1076,21 @@ namespace MySql.Data.MySqlClient
     ///    generated.
     ///  </para>
     /// </remarks>
-    public override void Close() => CloseAsync(false).GetAwaiter().GetResult();
+    public override void Close() => CloseInternal();
 
     /// <summary>
     /// Asynchronous version of the <see cref="Close"/> method.
     /// </summary>
 #if NETSTANDARD2_0 || NETFRAMEWORK
-    public Task CloseAsync() => CloseAsync(true);
+    public Task CloseAsync() => CloseInternalAsync();
 #else
-    public override Task CloseAsync() => CloseAsync(true);
+    public override Task CloseAsync() => CloseInternalAsync();
 #endif
 
     /// <summary>
-    /// Asynchronous version of the <see cref="Close"/> method.
+    /// Synchronous version of the <see cref="Close"/> method.
     /// </summary>
-    internal async Task CloseAsync(bool execAsync)
+    internal void CloseInternal()
     {
 #if NET5_0_OR_GREATER
       MySQLActivitySource.CloseConnection(currentActivity);
@@ -831,7 +1110,43 @@ namespace MySql.Data.MySqlClient
       {
         //TODO: Add support for 452 and 46X
         if (driver.currentTransaction == null)
-          await CloseFullyAsync(execAsync).ConfigureAwait(false);
+          CloseFully();
+        //TODO: Add support for 452 and 46X
+        else
+          driver.IsInActiveUse = false;
+      }
+
+      FailoverManager.Reset();
+      MySqlPoolManager.Hosts = null;
+
+      SetState(ConnectionState.Closed, true);
+    }
+
+    /// <summary>
+    /// Asynchronous version of the <see cref="Close"/> method.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    internal async Task CloseInternalAsync()
+    {
+#if NET5_0_OR_GREATER
+      MySQLActivitySource.CloseConnection(currentActivity);
+#endif
+
+      if (driver != null)
+        driver.IsPasswordExpired = false;
+
+      if (State == ConnectionState.Closed) return;
+
+      if (Reader != null)
+        Reader.Close();
+
+      // if the reader was opened with CloseConnection then driver
+      // will be null on the second time through
+      if (driver != null)
+      {
+        //TODO: Add support for 452 and 46X
+        if (driver.currentTransaction == null)
+          await CloseFullyAsync().ConfigureAwait(false);
         //TODO: Add support for 452 and 46X
         else
           driver.IsInActiveUse = false;
@@ -851,7 +1166,13 @@ namespace MySql.Data.MySqlClient
       return cmd.ExecuteScalar().ToString();
     }
 
-    internal async Task HandleTimeoutOrThreadAbortAsync(Exception ex, bool execAsync, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Handles timeout or thread abort exceptions by attempting to cancel the current query using a fast cancel mechanism and aborting the connection if the cancel fails.
+    /// This method is internal and used for error handling during operations.
+    /// </summary>
+    /// <param name="ex">The exception that occurred (typically a TimeoutException or ThreadAbortException).</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default is none.</param>
+    internal void HandleTimeoutOrThreadAbort(Exception ex, CancellationToken cancellationToken = default)
     {
       bool isFatal = false;
 
@@ -859,7 +1180,7 @@ namespace MySql.Data.MySqlClient
       {
         // Special connection started to cancel a query.
         // Abort will prevent recursive connection spawning
-        await AbortAsync(execAsync, cancellationToken).ConfigureAwait(false);
+        Abort(cancellationToken);
         if (ex is TimeoutException)
         {
           Throw(new MySqlException(Resources.Timeout, true, ex));
@@ -878,19 +1199,12 @@ namespace MySql.Data.MySqlClient
         // Microsoft's SqlClient seems to be using 5 seconds timeouts 
         // here as well.
         // Read the  error packet with "interrupted" message.
-        if (execAsync)
-          await CancelQueryAsync(5, cancellationToken).ConfigureAwait(false);
-        else
-          CancelQuery(5);
+        CancelQuery(5);
 
         driver.ResetTimeout(5000);
         if (Reader != null)
         {
-          if (execAsync)
-            await Reader.CloseAsync(execAsync).ConfigureAwait(false);
-          else
-            Reader.Close();
-
+          Reader.Close();
           Reader = null;
         }
       }
@@ -898,7 +1212,62 @@ namespace MySql.Data.MySqlClient
       {
         MySqlTrace.LogWarning(ServerThread, "Could not kill query, " +
           " aborting connection. Exception was " + ex2.Message);
-        await AbortAsync(execAsync, cancellationToken).ConfigureAwait(false);
+        Abort(cancellationToken);
+        isFatal = true;
+      }
+      if (ex is TimeoutException)
+      {
+        Throw(new MySqlException(Resources.Timeout, isFatal, ex));
+      }
+    }
+
+    /// <summary>
+    /// Asynchronously handles timeout or thread abort exceptions by attempting to cancel the current query using a fast cancel mechanism and aborting the connection if the cancel fails.
+    /// This method is internal and used for error handling during operations.
+    /// </summary>
+    /// <param name="ex">The exception that occurred (typically a TimeoutException or ThreadAbortException).</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default is none.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    internal async Task HandleTimeoutOrThreadAbortAsync(Exception ex, CancellationToken cancellationToken = default)
+    {
+      bool isFatal = false;
+
+      if (_isKillQueryConnection)
+      {
+        // Special connection started to cancel a query.
+        // Abort will prevent recursive connection spawning
+        await AbortAsync(cancellationToken).ConfigureAwait(false);
+        if (ex is TimeoutException)
+        {
+          Throw(new MySqlException(Resources.Timeout, true, ex));
+        }
+        else
+        {
+          return;
+        }
+      }
+
+      try
+      {
+        // Do a fast cancel.The reason behind small values for connection
+        // and command timeout is that we do not want user to wait longer
+        // after command has already expired.
+        // Microsoft's SqlClient seems to be using 5 seconds timeouts 
+        // here as well.
+        // Read the  error packet with "interrupted" message.
+        await CancelQueryAsync(5, cancellationToken).ConfigureAwait(false);
+        driver.ResetTimeout(5000);
+        if (Reader != null)
+        {
+          await Reader.CloseInternalAsync().ConfigureAwait(false);
+          Reader = null;
+        }
+      }
+      catch (Exception ex2)
+      {
+        MySqlTrace.LogWarning(ServerThread, "Could not kill query, " +
+          " aborting connection. Exception was " + ex2.Message);
+        await AbortAsync(cancellationToken).ConfigureAwait(false);
         isFatal = true;
       }
       if (ex is TimeoutException)
@@ -911,16 +1280,19 @@ namespace MySql.Data.MySqlClient
     /// Cancels the query after the specified time interval.
     /// </summary>
     /// <param name="timeout">The length of time (in seconds) to wait for the cancellation of the command execution.</param>
-    public void CancelQuery(int timeout) => CancelQueryAsync(timeout, false, CancellationToken.None).GetAwaiter().GetResult();
+    /// <exception cref="MySqlException">An error occurred while attempting to cancel the query.</exception>
+    public void CancelQuery(int timeout) => CancelQuery(timeout, CancellationToken.None);
 
     /// <summary>
     /// Asynchronous version of the <see cref="CancelQuery(int)"/> method.
     /// </summary>
     /// <param name="timeout">The length of time (in seconds) to wait for the cancellation of the command execution.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    public Task CancelQueryAsync(int timeout, CancellationToken cancellationToken) => CancelQueryAsync(timeout, true, cancellationToken);
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="MySqlException">An error occurred while attempting to cancel the query.</exception>
+    public Task CancelQueryAsync(int timeout, CancellationToken cancellationToken) => CancelQueryInternalAsync(timeout, cancellationToken);
 
-    private async Task CancelQueryAsync(int timeout, bool execAsync, CancellationToken cancellationToken)
+    private void CancelQuery(int timeout, CancellationToken cancellationToken)
     {
       var cb = new MySqlConnectionStringBuilder(Settings.ConnectionString, IsConnectionStringAnalyzed);
       cb.Pooling = false;
@@ -930,7 +1302,30 @@ namespace MySql.Data.MySqlClient
       using (MySqlConnection c = new MySqlConnection(cb.ConnectionString))
       {
         c._isKillQueryConnection = true;
-        await c.OpenAsync(execAsync, cancellationToken).ConfigureAwait(false);
+        c.Open(cancellationToken);
+        string commandText = "KILL QUERY " + ServerThread;
+        MySqlCommand cmd = new MySqlCommand(commandText, c) { CommandTimeout = timeout };
+        cmd.ExecuteNonQuery();
+      }
+    }
+
+    /// <summary>
+    /// Asynchronously cancels a query using a separate non-pooled connection.
+    /// </summary>
+    /// <param name="timeout">The timeout in seconds for the cancel operation.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private async Task CancelQueryInternalAsync(int timeout, CancellationToken cancellationToken)
+    {
+      var cb = new MySqlConnectionStringBuilder(Settings.ConnectionString, IsConnectionStringAnalyzed);
+      cb.Pooling = false;
+      cb.AutoEnlist = false;
+      cb.ConnectionTimeout = (uint)timeout;
+
+      using (MySqlConnection c = new MySqlConnection(cb.ConnectionString))
+      {
+        c._isKillQueryConnection = true;
+        await c.OpenAsync(cancellationToken).ConfigureAwait(false);
         string commandText = "KILL QUERY " + ServerThread;
         MySqlCommand cmd = new MySqlCommand(commandText, c) { CommandTimeout = timeout };
         cmd.ExecuteNonQuery();
@@ -948,7 +1343,7 @@ namespace MySql.Data.MySqlClient
     /// Returns schema information for the data source of this <see cref="DbConnection"/>.
     /// </summary>
     /// <returns>A <see cref="DataTable"/> that contains schema information. </returns>
-    public override DataTable GetSchema() => GetSchemaAsync(false).GetAwaiter().GetResult();
+    public override DataTable GetSchema() => GetSchemaInternal();
 
     /// <summary>
     /// Returns schema information for the data source of this 
@@ -956,7 +1351,7 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <param name="collectionName">Specifies the name of the schema to return.</param>
     /// <returns>A <see cref="DataTable"/> that contains schema information.</returns>
-    public override DataTable GetSchema(string collectionName) => GetSchemaAsync(false, collectionName).GetAwaiter().GetResult();
+    public override DataTable GetSchema(string collectionName) => GetSchemaInternal(collectionName);
 
     /// <summary>
     /// Returns schema information for the data source of this <see cref="DbConnection"/>
@@ -966,7 +1361,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="collectionName">Specifies the name of the schema to return.</param>
     /// <param name="restrictionValues">Specifies a set of restriction values for the requested schema.</param>
     /// <returns>A <see cref="DataTable"/> that contains schema information.</returns>
-    public override DataTable GetSchema(string collectionName, string[] restrictionValues) => GetSchemaAsync(false, collectionName, restrictionValues).GetAwaiter().GetResult();
+    public override DataTable GetSchema(string collectionName, string[] restrictionValues) => GetSchemaInternal(collectionName, restrictionValues);
 
     /// <summary>
     /// Asynchronous version of <see cref="GetSchema()"/>.
@@ -978,7 +1373,7 @@ namespace MySql.Data.MySqlClient
 #else
     public override Task<DataTable> GetSchemaAsync(CancellationToken cancellationToken = default)
 #endif
-      => GetSchemaAsync(true, cancellationToken: cancellationToken);
+      => GetSchemaInternalAsync(cancellationToken: cancellationToken);
 
 
     /// <summary>
@@ -992,7 +1387,7 @@ namespace MySql.Data.MySqlClient
 #else
     public override Task<DataTable> GetSchemaAsync(string collectionName, CancellationToken cancellationToken = default)
 #endif
-      => GetSchemaAsync(true, collectionName, cancellationToken: cancellationToken);
+      => GetSchemaInternalAsync(collectionName, cancellationToken: cancellationToken);
 
     /// <summary>
     /// Asynchronous version of <see cref="GetSchema(string, string[])"/>.
@@ -1006,13 +1401,35 @@ namespace MySql.Data.MySqlClient
 #else
     public override Task<DataTable> GetSchemaAsync(string collectionName, string[] restrictionValues, CancellationToken cancellationToken = default)
 #endif
-      => GetSchemaAsync(true, collectionName, restrictionValues, cancellationToken);
+      => GetSchemaInternalAsync(collectionName, restrictionValues, cancellationToken);
 
-    internal async Task<DataTable> GetSchemaAsync(bool execAsync, string collectionName = null, string[] restrictionValues = null, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Retrieves schema information for the data source using the schema provider.
+    /// </summary>
+    /// <param name="collectionName">The name of the schema collection. Defaults to MetaCollection.</param>
+    /// <param name="restrictionValues">Array of restriction values for the schema query. Defaults to null.</param>
+    /// <param name="cancellationToken">A token to cancel the operation. Defaults to none.</param>
+    /// <returns>A <see cref="DataTable"/> containing the schema information.</returns>
+    internal DataTable GetSchemaInternal(string collectionName = null, string[] restrictionValues = null, CancellationToken cancellationToken = default)
     {
       collectionName ??= SchemaProvider.MetaCollection;
       string[] restrictions = _schemaProvider.CleanRestrictions(restrictionValues);
-      MySqlSchemaCollection c = await _schemaProvider.GetSchemaAsync(collectionName, restrictions, execAsync, cancellationToken).ConfigureAwait(false);
+      MySqlSchemaCollection c = _schemaProvider.GetSchema(collectionName, restrictions, cancellationToken);
+      return c.AsDataTable();
+    }
+
+    /// <summary>
+    /// Asynchronously retrieves schema information for the data source using the schema provider.
+    /// </summary>
+    /// <param name="collectionName">The name of the schema collection. Defaults to MetaCollection.</param>
+    /// <param name="restrictionValues">Array of restriction values for the schema query. Defaults to null.</param>
+    /// <param name="cancellationToken">A token to cancel the operation. Defaults to none.</param>
+    /// <returns>A task that represents the asynchronous operation, containing a <see cref="DataTable"/> with schema information.</returns>
+    internal async Task<DataTable> GetSchemaInternalAsync(string collectionName = null, string[] restrictionValues = null, CancellationToken cancellationToken = default)
+    {
+      collectionName ??= SchemaProvider.MetaCollection;
+      string[] restrictions = _schemaProvider.CleanRestrictions(restrictionValues);
+      MySqlSchemaCollection c = await _schemaProvider.GetSchemaAsync(collectionName, restrictions, cancellationToken).ConfigureAwait(false);
       return c.AsDataTable();
     }
 
@@ -1022,7 +1439,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="collectionName">The name of the collection.</param>
     /// <param name="restrictionValues">The values to restrict.</param>
     /// <returns>A schema collection object.</returns>
-    public MySqlSchemaCollection GetSchemaCollection(string collectionName, string[] restrictionValues) => GetSchemaCollectionAsync(collectionName, restrictionValues, false, CancellationToken.None).GetAwaiter().GetResult();
+    public MySqlSchemaCollection GetSchemaCollection(string collectionName, string[] restrictionValues) => GetSchemaCollectionInternal(collectionName, restrictionValues, CancellationToken.None);
 
     /// <summary>
     /// Asynchronous version of the <see cref="GetSchemaCollection(string, string[])"/> method.
@@ -1031,22 +1448,37 @@ namespace MySql.Data.MySqlClient
     /// <param name="restrictionValues">The values to restrict.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of schema objects.</returns>
-    public Task<MySqlSchemaCollection> GetSchemaCollectionAsync(string collectionName, string[] restrictionValues, CancellationToken cancellationToken = default) => GetSchemaCollectionAsync(collectionName, restrictionValues, true, cancellationToken);
+    public Task<MySqlSchemaCollection> GetSchemaCollectionAsync(string collectionName, string[] restrictionValues, CancellationToken cancellationToken = default) => GetSchemaCollectionInternalAsync(collectionName, restrictionValues, cancellationToken);
 
     /// <summary>
-    /// Asynchronous version of the <see cref="GetSchemaCollection(string, string[])"/> method.
+    /// Synchronous version of the <see cref="GetSchemaCollection(string, string[])"/> method.
     /// </summary>
     /// <param name="collectionName">The name of the collection.</param>
     /// <param name="restrictionValues">The values to restrict.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
-    /// <returns>A collection of schema objects.</returns>
-    private async Task<MySqlSchemaCollection> GetSchemaCollectionAsync(string collectionName, string[] restrictionValues, bool execAsync, CancellationToken cancellationToken)
+    /// <returns>A <see cref="MySqlSchemaCollection"/> containing the schema information.</returns>
+    private MySqlSchemaCollection GetSchemaCollectionInternal(string collectionName, string[] restrictionValues, CancellationToken cancellationToken)
     {
       collectionName ??= SchemaProvider.MetaCollection;
 
       string[] restrictions = _schemaProvider.CleanRestrictions(restrictionValues);
-      MySqlSchemaCollection c = await _schemaProvider.GetSchemaAsync(collectionName, restrictions, execAsync, cancellationToken).ConfigureAwait(false);
+      MySqlSchemaCollection c = _schemaProvider.GetSchema(collectionName, restrictions, cancellationToken);
+      return c;
+    }
+
+    /// <summary>
+    /// Asynchronous version of the <see cref="GetSchemaCollection(string, string[])"/> method.
+    /// </summary>
+    /// <param name="collectionName">The name of the collection.</param>
+    /// <param name="restrictionValues">The values to restrict.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation, containing a <see cref="MySqlSchemaCollection"/> with schema information.</returns>
+    private async Task<MySqlSchemaCollection> GetSchemaCollectionInternalAsync(string collectionName, string[] restrictionValues, CancellationToken cancellationToken)
+    {
+      collectionName ??= SchemaProvider.MetaCollection;
+
+      string[] restrictions = _schemaProvider.CleanRestrictions(restrictionValues);
+      MySqlSchemaCollection c = await _schemaProvider.GetSchemaAsync(collectionName, restrictions, cancellationToken).ConfigureAwait(false);
       return c;
     }
 
@@ -1088,7 +1520,7 @@ namespace MySql.Data.MySqlClient
 
         // close existing driver
         // set this new driver as our existing driver
-        CloseFullyAsync(false).GetAwaiter().GetResult();
+        CloseFully();
         driver = existingDriver;
       }
 
@@ -1223,9 +1655,7 @@ namespace MySql.Data.MySqlClient
     #region Pool Routines
 
     /// <summary>Empties the connection pool associated with the specified connection.</summary>
-    /// <param name="connection">
-    ///  The <see cref="MySqlConnection"/> associated with the pool to be cleared.
-    /// </param>
+    /// <param name="connection"> The <see cref="MySqlConnection"/> associated with the pool to be cleared.</param>
     /// <remarks>
     ///  <para>
     ///    <see cref="ClearPool(MySqlConnection)"/> clears the connection pool that is associated with the connection.
@@ -1234,35 +1664,63 @@ namespace MySql.Data.MySqlClient
     ///    when <see cref="Close"/> is called on them.
     ///  </para>
     /// </remarks>
-    public static void ClearPool(MySqlConnection connection) => ClearPoolAsync(connection, false, CancellationToken.None).GetAwaiter().GetResult();
+    public static void ClearPool(MySqlConnection connection) => ClearPoolInternal(connection, CancellationToken.None);
 
     /// <summary>
     /// Asynchronous version of the <see cref="ClearPool(MySqlConnection)"/> method.
     /// </summary>
     /// <param name="connection">The connection associated with the pool to be cleared.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    public Task ClearPoolAsync(MySqlConnection connection, CancellationToken cancellationToken = default) => ClearPoolAsync(connection, true, cancellationToken);
+    public Task ClearPoolAsync(MySqlConnection connection, CancellationToken cancellationToken = default) => ClearPoolInternalAsync(connection, cancellationToken);
 
-    private static async Task ClearPoolAsync(MySqlConnection connection, bool execAsync, CancellationToken cancellationToken)
+    /// <summary>
+    /// Internal static method to clear the connection pool associated with the given connection's settings.
+    /// </summary>
+    /// <param name="connection">The <see cref="MySqlConnection"/> whose pool to clear.</param>
+    /// <param name="cancellationToken">A token to cancel the operation. Not used in sync version.</param>
+    private static void ClearPoolInternal(MySqlConnection connection, CancellationToken cancellationToken)
     {
-      await MySqlPoolManager.ClearPoolAsync(connection.Settings, execAsync).ConfigureAwait(false);
+      MySqlPoolManager.ClearPool(connection.Settings);
+    }
+
+    /// <summary>
+    /// Internal static asynchronous method to clear the connection pool associated with the given connection's settings.
+    /// </summary>
+    /// <param name="connection">The <see cref="MySqlConnection"/> whose pool to clear.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private static async Task ClearPoolInternalAsync(MySqlConnection connection, CancellationToken cancellationToken)
+    {
+      await MySqlPoolManager.ClearPoolAsync(connection.Settings).ConfigureAwait(false);
     }
 
     /// <summary>
     /// Clears all connection pools.
     /// </summary>
     /// <remarks>ClearAllPools essentially performs a <see cref="ClearPool"/> on all current connection pools.</remarks>
-    public static void ClearAllPools() => ClearAllPoolsAsync(false).GetAwaiter().GetResult();
+    public static void ClearAllPools() => ClearAllPoolsInternal();
 
     /// <summary>
     /// Asynchronous version of the <see cref="ClearAllPools"/> method.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    public Task ClearAllPoolsAsync(CancellationToken cancellationToken = default) => ClearAllPoolsAsync(true);
+    public Task ClearAllPoolsAsync(CancellationToken cancellationToken = default) => ClearAllPoolsAsync();
 
-    private static async Task ClearAllPoolsAsync(bool execAsync)
+    /// <summary>
+    /// Static method to clear all active connection pools.
+    /// </summary>
+    private static void ClearAllPoolsInternal()
     {
-      await MySqlPoolManager.ClearAllPoolsAsync(execAsync).ConfigureAwait(false);
+      MySqlPoolManager.ClearAllPools();
+    }
+
+    /// <summary>
+    /// Static asynchronous method to clear all active connection pools.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private static async Task ClearAllPoolsAsync()
+    {
+      await MySqlPoolManager.ClearAllPoolsAsync().ConfigureAwait(false);
     }
 
     #endregion

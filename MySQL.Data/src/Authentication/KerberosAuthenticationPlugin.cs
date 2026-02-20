@@ -100,13 +100,23 @@ namespace MySql.Data.MySqlClient.Authentication
       return posAt < 0 ? Username : Username.Substring(0, posAt);
     }
 
-    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
-    {
-      if (Settings.KerberosAuthMode == KerberosAuthMode.GSSAPI)
-        return Task.FromResult<byte[]>(GssapiMode(data));
-      else
-        return Task.FromResult<byte[]>(SspiMode(data));
-    }
+    /// <summary>
+    /// Processes additional data during the Kerberos authentication handshake.
+    /// This method handles the security context initialization and challenge-response
+    /// using either GSSAPI or SSPI based on the configured authentication mode.
+    /// </summary>
+    /// <param name="data">The byte array received from the server, representing the challenge.</param>
+    /// <returns>A byte array containing the security response to send to the server, or null if authentication is complete.</returns>
+    protected override byte[] MoreData(byte[] data) => HandleMoreData(data);
+
+    /// <summary>
+    /// Asynchronously processes additional data during the Kerberos authentication handshake.
+    /// This method handles the security context initialization and challenge-response
+    /// using either GSSAPI or SSPI based on the configured authentication mode.
+    /// </summary>
+    /// <param name="data">The byte array received from the server, representing the challenge.</param>
+    /// <returns>A task representing the asynchronous operation, containing the security response to send to the server, or null if complete.</returns>
+    protected override Task<byte[]> MoreDataAsync(byte[] data) => Task.FromResult(HandleMoreData(data));
 
     private byte[] SspiMode(byte[] data)
     {
@@ -139,6 +149,19 @@ namespace MySql.Data.MySqlClient.Authentication
         return null;
 
       return response;
+    }
+
+    /// <summary>
+    /// Handles the processing of additional data for Kerberos authentication by delegating to the appropriate mode (GSSAPI or SSPI) based on the configured authentication mode.
+    /// </summary>
+    /// <param name="data">The byte array received from the server, representing the challenge.</param>
+    /// <returns>A byte array containing the security response to send to the server, or null if authentication is complete.</returns>
+    private byte[] HandleMoreData(byte[] data)
+    {
+      if (Settings.KerberosAuthMode == KerberosAuthMode.GSSAPI)
+        return GssapiMode(data);
+      else
+        return SspiMode(data);
     }
   }
 }

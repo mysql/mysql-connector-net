@@ -53,13 +53,21 @@ namespace MySql.Data.MySqlClient.Authentication
         base.SetAuthData(data);
     }
 
-    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
-    {
-      byte[] passBytes = (GetPassword() ?? new byte[1]) as byte[];
-      byte[] buffer = new byte[passBytes.Length - 1];
-      Array.Copy(passBytes, 1, buffer, 0, passBytes.Length - 1);
-      return Task.FromResult<byte[]>(buffer);
-    }
+    /// <summary>
+    /// Processes additional data during the mysql_native_password authentication handshake.
+    /// This method prepares the scrambled password response based on the authentication data.
+    /// </summary>
+    /// <param name="data">The byte array received from the server (not used directly in this implementation).</param>
+    /// <returns>A byte array containing the scrambled password to send to the server.</returns>
+    protected override byte[] MoreData(byte[] data) => PreparePasswordBuffer();
+
+    /// <summary>
+    /// Asynchronously processes additional data during the mysql_native_password authentication handshake.
+    /// This method prepares the scrambled password response based on the authentication data.
+    /// </summary>
+    /// <param name="data">The byte array received from the server (not used directly in this implementation).</param>
+    /// <returns>A task representing the asynchronous operation, containing the scrambled password to send to the server.</returns>
+    protected override Task<byte[]> MoreDataAsync(byte[] data) => Task.FromResult(PreparePasswordBuffer());
 
     public override object GetPassword()
     {
@@ -105,6 +113,18 @@ namespace MySql.Data.MySqlClient.Authentication
       for (int i = 1; i < finalHash.Length; i++)
         finalHash[i] = (byte)(finalHash[i] ^ firstHash[i - 1]);
       return finalHash;
+    }
+
+    /// <summary>
+    /// Prepares the password buffer by extracting the scrambled password bytes, excluding the first byte.
+    /// </summary>
+    /// <returns>A byte array containing the prepared password buffer.</returns>
+    private byte[] PreparePasswordBuffer()
+    {
+      byte[] passBytes = (GetPassword() ?? new byte[1]) as byte[];
+      byte[] buffer = new byte[passBytes.Length - 1];
+      Array.Copy(passBytes, 1, buffer, 0, passBytes.Length - 1);
+      return buffer;
     }
   }
 }

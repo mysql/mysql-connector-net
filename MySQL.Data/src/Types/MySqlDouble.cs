@@ -62,16 +62,46 @@ namespace MySql.Data.Types
 
     string IMySqlValue.MySqlTypeName => "DOUBLE";
 
-    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
+    /// <summary>
+    /// Writes the double value to the MySQL packet, either in binary or text format.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write the value in binary (<c>true</c>) or text (<c>false</c>) format.</param>
+    /// <param name="val">The double value to write.</param>
+    /// <param name="length">The length of the value.</param>
+    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
       double v = val as double? ?? Convert.ToDouble(val);
       if (binary)
-        await packet.WriteAsync(PacketBitConverter.GetBytes(v), execAsync).ConfigureAwait(false);
+        packet.Write(PacketBitConverter.GetBytes(v));
       else
-        await packet.WriteStringNoNullAsync(v.ToString("R", CultureInfo.InvariantCulture), execAsync).ConfigureAwait(false);
+        packet.WriteStringNoNull(v.ToString("R", CultureInfo.InvariantCulture));
     }
 
-    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
+    /// <summary>
+    /// Asynchronously writes the double value to the MySQL packet, either in binary or text format.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write the value in binary (<c>true</c>) or text (<c>false</c>) format.</param>
+    /// <param name="val">The double value to write.</param>
+    /// <param name="length">The length of the value.</param>
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length)
+    {
+      double v = val as double? ?? Convert.ToDouble(val);
+      if (binary)
+        await packet.WriteAsync(PacketBitConverter.GetBytes(v)).ConfigureAwait(false);
+      else
+        await packet.WriteStringNoNullAsync(v.ToString("R", CultureInfo.InvariantCulture)).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Reads the double value from the MySQL packet.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates binary format (8 bytes).</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlDouble"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>. Handles overflow by clamping to min/max double values for older MySQL servers.</returns>
+    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
     {
       if (nullVal)
         return new MySqlDouble(true);
@@ -79,29 +109,35 @@ namespace MySql.Data.Types
       if (length == -1)
       {
         byte[] b = new byte[8];
-        await packet.ReadAsync(b, 0, 8, execAsync).ConfigureAwait(false);
+        packet.Read(b, 0, 8);
         return new MySqlDouble(PacketBitConverter.ToDouble(b, 0));
       }
 
-      string s = await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false);
-      double d;
+      string s = packet.ReadString(length);
+      return new MySqlDouble(SafeParse(s));
+    }
 
-      try
+    /// <summary>
+    /// Asynchronously reads the double value from the MySQL packet.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates binary format (8 bytes).</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlDouble"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>. Handles overflow by clamping to min/max double values for older MySQL servers.</returns>
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal)
+    {
+      if (nullVal)
+        return new MySqlDouble(true);
+
+      if (length == -1)
       {
-        d = Double.Parse(s, CultureInfo.InvariantCulture);
-      }
-      catch (OverflowException)
-      {
-        // MySQL server < 5.5 can return values not compatible with
-        // Double.Parse(), i.e out of range for double.
-
-        if (s.StartsWith("-", StringComparison.Ordinal))
-          d = double.MinValue;
-        else
-          d = double.MaxValue;
+        byte[] b = new byte[8];
+        await packet.ReadAsync(b, 0, 8).ConfigureAwait(false);
+        return new MySqlDouble(PacketBitConverter.ToDouble(b, 0));
       }
 
-      return new MySqlDouble(d);
+      string s = await packet.ReadStringAsync(length).ConfigureAwait(false);
+      return new MySqlDouble(SafeParse(s));
     }
 
     void IMySqlValue.SkipValue(MySqlPacket packet)
@@ -140,6 +176,28 @@ namespace MySql.Data.Types
       row["LiteralPrefix"] = null;
       row["LiteralSuffix"] = null;
       row["NativeDataType"] = null;
+    }
+
+    /// <summary>
+    /// Safely parses a string to a double, handling overflow exceptions by clamping to min/max values for compatibility with older MySQL servers (< 5.5).
+    /// </summary>
+    /// <param name="stringToParse">The string representation of the double value.</param>
+    /// <returns>The parsed double value, or clamped to <see cref="double.MinValue"/> or <see cref="double.MaxValue"/> on overflow.</returns>
+    private double SafeParse(string stringToParse)
+    {
+      try
+      {
+        return Double.Parse(stringToParse, CultureInfo.InvariantCulture);
+      }
+      catch (OverflowException)
+      {
+        // MySQL server < 5.5 can return values not compatible with
+        // Double.Parse(), i.e. out of range for double.
+        if (stringToParse.StartsWith("-", StringComparison.Ordinal))
+          return double.MinValue;
+        else
+          return double.MaxValue;
+      }
     }
   }
 }

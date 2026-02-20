@@ -36,6 +36,7 @@ namespace MySql.Data.Types
   internal struct MySqlBinary : IMySqlValue
   {
     private readonly MySqlDbType _type;
+
     private readonly byte[] _mValue;
 
     public MySqlBinary(MySqlDbType type, bool isNull)
@@ -80,82 +81,99 @@ namespace MySql.Data.Types
       }
     }
 
-    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
+    /// <summary>
+    /// Writes the binary value to the MySQL packet. Supports both binary protocol format and escaped text format for non-binary mode.
+    /// Converts input value (byte[] or string) to bytes using the packet's encoding if necessary.
+    /// </summary>
+    /// <param name="packet">The MySQL packet stream to write the value into.</param>
+    /// <param name="binary">If true, writes in binary format (length-prefixed); if false, writes as escaped string prefixed with '_binary '.</param>
+    /// <param name="val">The value to write; must be byte[], char[], or string. Throws MySqlException if unsupported type.</param>
+    /// <param name="length">The maximum length to write; 0 or greater than value length means write all.</param>
+    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
-      byte[] buffToWrite = (val as byte[]);
-      if (buffToWrite == null)
-      {
-        char[] valAsChar = (val as Char[]);
-        if (valAsChar != null)
-          buffToWrite = packet.Encoding.GetBytes(valAsChar);
-        else
-        {
-          string s = val.ToString();
-          if (length == 0)
-            length = s.Length;
-          else
-            s = s.Substring(0, length);
-          buffToWrite = packet.Encoding.GetBytes(s);
-        }
-      }
-
-      // we assume zero or maxsize length means write all of the value
-      if (length == 0 || buffToWrite.Length < length)
-        length = buffToWrite.Length;
-
-      if (buffToWrite == null)
-        throw new MySqlException("Only byte arrays and strings can be serialized by MySqlBinary");
-
+      GetBytesToWrite(packet, val, length, out byte[] buffToWrite, out int writeLength);
       if (binary)
       {
-        await packet.WriteLengthAsync(length, execAsync).ConfigureAwait(false);
-        await packet.WriteAsync(buffToWrite, 0, length, execAsync).ConfigureAwait(false);
+        packet.WriteLength(writeLength);
+        packet.Write(buffToWrite, 0, writeLength);
       }
       else
       {
-        await packet.WriteStringNoNullAsync("_binary ", execAsync).ConfigureAwait(false);
+        packet.WriteStringNoNull("_binary ");
         packet.WriteByte((byte)'\'');
-        EscapeByteArray(buffToWrite, length, packet);
+        EscapeByteArray(buffToWrite, writeLength, packet);
         packet.WriteByte((byte)'\'');
       }
     }
 
-    private static void EscapeByteArray(byte[] bytes, int length, MySqlPacket packet)
+    /// <summary>
+    /// Asynchronously writes the binary value to the MySQL packet. Supports both binary protocol format and escaped text format for non-binary mode.
+    /// Converts input value (byte[] or string) to bytes using the packet's encoding if necessary.
+    /// </summary>
+    /// <param name="packet">The MySQL packet stream to write the value into.</param>
+    /// <param name="binary">If true, writes in binary format (length-prefixed); if false, writes as escaped string prefixed with '_binary '.</param>
+    /// <param name="val">The value to write; must be byte[], char[], or string. Throws MySqlException if unsupported type.</param>
+    /// <param name="length">The maximum length to write; 0 or greater than value length means write all.</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length)
     {
-      for (int x = 0; x < length; x++)
+      GetBytesToWrite(packet, val, length, out byte[] buffToWrite, out int writeLength);
+      if (binary)
       {
-        byte b = bytes[x];
-        if (b == '\0')
-        {
-          packet.WriteByte((byte)'\\');
-          packet.WriteByte((byte)'0');
-        }
-
-        else if (b == '\\' || b == '\'' || b == '\"')
-        {
-          packet.WriteByte((byte)'\\');
-          packet.WriteByte(b);
-        }
-        else
-          packet.WriteByte(b);
+        await packet.WriteLengthAsync(writeLength).ConfigureAwait(false);
+        await packet.WriteAsync(buffToWrite, 0, writeLength).ConfigureAwait(false);
+      }
+      else
+      {
+        await packet.WriteStringNoNullAsync("_binary ").ConfigureAwait(false);
+        packet.WriteByte((byte)'\'');
+        EscapeByteArray(buffToWrite, writeLength, packet);
+        packet.WriteByte((byte)'\'');
       }
     }
 
-    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
+    /// <summary>
+    /// Reads the binary value from the MySQL packet.
+    /// If the value is null, returns a null MySqlBinary instance.
+    /// Otherwise, reads the length (if not provided) and the binary data bytes from the packet.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read the value from.</param>
+    /// <param name="length">The length of the binary data; -1 indicates the length should be read from the packet.</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A MySqlBinary instance representing the read value.</returns>
+    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
     {
-      MySqlBinary b;
       if (nullVal)
-        b = new MySqlBinary(_type, true);
-      else
       {
-        if (length == -1)
-          length = (long)packet.ReadFieldLength();
-
-        byte[] newBuff = new byte[length];
-        await packet.ReadAsync(newBuff, 0, (int)length, execAsync).ConfigureAwait(false);
-        b = new MySqlBinary(_type, newBuff);
+        return new MySqlBinary(_type, true); 
       }
-      return b;
+
+      long effectiveLength = length == -1 ? (long)packet.ReadFieldLength(): length;
+      byte[] newBuff = new byte[effectiveLength];
+      packet.Read(newBuff, 0, (int)effectiveLength);
+      return new MySqlBinary(_type, newBuff);
+    }
+
+    /// <summary>
+    /// Asynchronously reads the binary value from the MySQL packet.
+    /// If the value is null, returns a null MySqlBinary instance.
+    /// Otherwise, reads the length (if not provided) and the binary data bytes from the packet.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read the value from.</param>
+    /// <param name="length">The length of the binary data; -1 indicates the length should be read from the packet.</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A task that represents the asynchronous read operation, returning a MySqlBinary instance.</returns>
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal)
+    {
+      if (nullVal)
+      {
+        return new MySqlBinary(_type, true);
+      }
+
+      long effectiveLength = length == -1 ? (long)packet.ReadFieldLength(): length;
+      byte[] newBuff = new byte[effectiveLength];
+      await packet.ReadAsync(newBuff, 0, (int)effectiveLength).ConfigureAwait(false);
+      return new MySqlBinary(_type, newBuff);
     }
 
     void IMySqlValue.SkipValue(MySqlPacket packet)
@@ -206,6 +224,66 @@ namespace MySql.Data.Types
         row["LiteralSuffix"] = DBNull.Value;
         row["NativeDataType"] = DBNull.Value;
       }
+    }
+
+    private static void EscapeByteArray(byte[] bytes, int length, MySqlPacket packet)
+    {
+      for (int x = 0; x < length; x++)
+      {
+        byte b = bytes[x];
+        if (b == '\0')
+        {
+          packet.WriteByte((byte)'\\');
+          packet.WriteByte((byte)'0');
+        }
+
+        else if (b == '\\' || b == '\'' || b == '\"')
+        {
+          packet.WriteByte((byte)'\\');
+          packet.WriteByte(b);
+        }
+        else
+          packet.WriteByte(b);
+      }
+    }
+
+    /// <summary>
+    /// Converts the input value to a byte array and determines the effective length to write.
+    /// Supports byte[], char[], and string inputs. For strings, applies truncation based on length if specified.
+    /// Uses the packet's encoding for conversions. Throws MySqlException if the input type is unsupported.
+    /// </summary>
+    /// <param name="packet">The MySQL packet providing the encoding for conversions.</param>
+    /// <param name="val">The input value to convert; must be byte[], char[], or string.</param>
+    /// <param name="length">The maximum length; 0 means use full length.</param>
+    /// <param name="buffToWrite">Output: The converted byte array.</param>
+    /// <param name="writeLength">Output: The effective length to write (min of specified length and buffer length).</param>
+    private static void GetBytesToWrite(MySqlPacket packet, object val, int length, out byte[] buffToWrite, out int writeLength)
+    {
+      buffToWrite = (val as byte[]);
+      if (buffToWrite == null)
+      {
+        char[] valAsChar = (val as Char[]);
+        if (valAsChar != null)
+          buffToWrite = packet.Encoding.GetBytes(valAsChar);
+        else
+        {
+          string s = val.ToString();
+          if (length == 0)
+            length = s.Length;
+          else
+            s = s.Substring(0, length);
+          buffToWrite = packet.Encoding.GetBytes(s);
+        }
+      }
+
+      // we assume zero or maxsize length means write all of the value
+      if (length == 0 || buffToWrite.Length < length)
+        writeLength = buffToWrite.Length;
+      else
+        writeLength = length;
+
+      if (buffToWrite == null)
+        throw new MySqlException("Only byte arrays and strings can be serialized by MySqlBinary");
     }
   }
 }

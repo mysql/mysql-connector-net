@@ -45,12 +45,21 @@ namespace MySql.Data.MySqlClient.Authentication
 
     public override string PluginName => "sha256_password";
 
-    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
-    {
-      rawPubkey = data;
-      byte[] buffer = GetNonLengthEncodedPassword();
-      return Task.FromResult<byte[]>(buffer);
-    }
+    /// <summary>
+    /// Processes additional data during the sha256_password authentication handshake.
+    /// This method stores the server's public key and prepares the password response.
+    /// </summary>
+    /// <param name="data">The byte array received from the server.</param>
+    /// <returns>A byte array containing the password response to send to the server.</returns>
+    protected override byte[] MoreData(byte[] data) => HandleMoreData(data);
+
+    /// <summary>
+    /// Asynchronously processes additional data during the sha256_password authentication handshake.
+    /// This method stores the server's public key and prepares the password response.
+    /// </summary>
+    /// <param name="data">The byte array received from the server.</param>
+    /// <returns>A task representing the asynchronous operation, containing the password response to send to the server.</returns>
+    protected override Task<byte[]> MoreDataAsync(byte[] data) => Task.FromResult(HandleMoreData(data));
 
     public override object GetPassword()
     {
@@ -121,6 +130,18 @@ namespace MySql.Data.MySqlClient.Authentication
         result[i] = (byte)(src2[i] ^ (pattern[i % pattern.Length]));
       }
       return result;
+    }
+
+    /// <summary>
+    /// Handles the processing of additional data during the sha256_password authentication handshake by storing the server's public key and preparing the password response.
+    /// </summary>
+    /// <param name="data">The byte array received from the server.</param>
+    /// <returns>A byte array containing the password response to send to the server.</returns>
+    private byte[] HandleMoreData(byte[] data)
+    {
+      rawPubkey = data;
+      byte[] buffer = GetNonLengthEncodedPassword();
+      return buffer;
     }
   }
 }

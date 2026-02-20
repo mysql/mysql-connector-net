@@ -67,7 +67,12 @@ namespace MySql.Data.MySqlClient.Authentication
         throw new MySqlException(Resources.FidoRegistrationMissing);
     }
 
-    protected byte[] MoreData(byte[] data)
+    /// <summary>
+    /// Processes additional data during the WebAuthn authentication handshake.
+    /// </summary>
+    /// <param name="data">The byte array received from the server, which may contain challenge or credential data.</param>
+    /// <returns>A byte array containing the assertion response or status indicator to send to the server.</returns>
+    protected override byte[] MoreData(byte[] data)
     {
       switch (_state)
       {

@@ -83,6 +83,163 @@ namespace MySql.Data.Failover
     }
 
     /// <summary>
+    /// Builds the connection string for a given host in the failover group.
+    /// </summary>
+    /// <param name="originalConnectionString">The original connection string.</param>
+    /// <param name="currentHost">The current failover server host.</param>
+    /// <returns>The updated connection string including the host and port.</returns>
+    private static string BuildConnectionString(string originalConnectionString, FailoverServer currentHost)
+    {
+      string connectionString = "server=" + currentHost.Host + ";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';') + 1);
+      if (currentHost.Port != -1)
+        connectionString += ";port=" + currentHost.Port;
+      return connectionString;
+    }
+
+    /// <summary>
+    /// Demotes a host in a pooling scenario by moving it to demoted hosts and setting up the timer if necessary.
+    /// </summary>
+    /// <param name="mySqlPoolManager">Flag indicating if it's a pooling scenario.</param>
+    /// <param name="tmpHost">The host to demote.</param>
+    private static void DemoteHost(bool mySqlPoolManager, FailoverServer tmpHost)
+    {
+      if (mySqlPoolManager)
+      {
+        tmpHost.DemotedTime = DateTime.Now;
+        MySqlPoolManager.Hosts.Remove(tmpHost);
+        MySqlPoolManager.DemotedHosts.Enqueue(tmpHost);
+
+        if (MySqlPoolManager.DemotedServersTimer == null)
+          MySqlPoolManager.DemotedServersTimer = new Timer(new TimerCallback(MySqlPoolManager.ReleaseDemotedHosts),
+            null, MySqlPoolManager.DEMOTED_TIMEOUT, Timeout.Infinite);
+      }
+    }
+
+    /// <summary>
+    /// Attempts to establish a connection to a host specified from the list synchronously.
+    /// </summary>
+    /// <param name="connection">MySqlConnection object where the new driver will be assigned</param>
+    /// <param name="originalConnectionString">The original connection string set by the user.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <param name="mySqlPoolManager">A flag indicating if it's a pooling scenario.</param>
+    /// <returns>The updated connection string if successful.</returns>
+    internal static string AttemptConnection(MySqlConnection connection, string originalConnectionString, CancellationToken cancellationToken, bool mySqlPoolManager = false)
+    {
+      if (mySqlPoolManager)
+        if (MySqlPoolManager.Hosts == null)
+        {
+          MySqlPoolManager.Hosts = FailoverGroup.Hosts;
+          MySqlPoolManager.DemotedHosts = new ConcurrentQueue<FailoverServer>();
+        }
+        else
+          FailoverGroup.Hosts = MySqlPoolManager.Hosts;
+
+      FailoverServer currentHost = FailoverGroup.ActiveHost;
+      FailoverServer initialHost = currentHost;
+      Driver driver = null;
+      int attempts = 0;
+      MySqlConnectionStringBuilder msb;
+      string connectionString;
+
+      do
+      {
+        connectionString = BuildConnectionString(originalConnectionString, currentHost);
+        msb = new MySqlConnectionStringBuilder(connectionString, connection.IsConnectionStringAnalyzed);
+
+        if ((FailoverGroup.Hosts.Count == 1 && !mySqlPoolManager) ||
+          (mySqlPoolManager && MySqlPoolManager.Hosts.Count == 1 && MySqlPoolManager.DemotedHosts.IsEmpty))
+          return msb.ConnectionString;
+
+        try
+        {
+          driver = Driver.Create(msb, cancellationToken);
+          if (!mySqlPoolManager)
+            connection.driver = driver;
+          break;
+        }
+        catch (Exception ex)
+        {
+          if (ex.GetType() == typeof(MySqlException) && attempts == FailoverGroup.Hosts.Count)
+            throw;
+        }
+
+        var tmpHost = currentHost;
+        currentHost = FailoverGroup.GetNextHost();
+        DemoteHost(mySqlPoolManager, tmpHost);
+
+        attempts++;
+      } while (!currentHost.Equals(initialHost));
+
+      // All connection attempts failed.
+      if (driver == null)
+        throw new MySqlException(Resources.UnableToConnectToHost);
+
+      return msb.ConnectionString;
+    }
+
+    /// <summary>
+    /// Attempts to establish a connection to a host specified from the list asynchronously.
+    /// </summary>
+    /// <param name="connection">MySqlConnection object where the new driver will be assigned</param>
+    /// <param name="originalConnectionString">The original connection string set by the user.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <param name="mySqlPoolManager">A flag indicating if it's a pooling scenario.</param>
+    /// <returns>A task representing the asynchronous operation, containing the updated connection string if successful.</returns>
+    internal static async Task<string> AttemptConnectionAsync(MySqlConnection connection, string originalConnectionString, CancellationToken cancellationToken, bool mySqlPoolManager = false)
+    {
+      if (mySqlPoolManager)
+        if (MySqlPoolManager.Hosts == null)
+        {
+          MySqlPoolManager.Hosts = FailoverGroup.Hosts;
+          MySqlPoolManager.DemotedHosts = new ConcurrentQueue<FailoverServer>();
+        }
+        else
+          FailoverGroup.Hosts = MySqlPoolManager.Hosts;
+
+      FailoverServer currentHost = FailoverGroup.ActiveHost;
+      FailoverServer initialHost = currentHost;
+      Driver driver = null;
+      int attempts = 0;
+      MySqlConnectionStringBuilder msb;
+      string connectionString;
+
+      do
+      {
+        connectionString = BuildConnectionString(originalConnectionString, currentHost);
+        msb = new MySqlConnectionStringBuilder(connectionString, connection.IsConnectionStringAnalyzed);
+
+        if ((FailoverGroup.Hosts.Count == 1 && !mySqlPoolManager) ||
+          (mySqlPoolManager && MySqlPoolManager.Hosts.Count == 1 && MySqlPoolManager.DemotedHosts.IsEmpty))
+          return msb.ConnectionString;
+
+        try
+        {
+          driver = await Driver.CreateAsync(msb, cancellationToken).ConfigureAwait(false);
+          if (!mySqlPoolManager)
+            connection.driver = driver;
+          break;
+        }
+        catch (Exception ex)
+        {
+          if (ex.GetType() == typeof(MySqlException) && attempts == FailoverGroup.Hosts.Count)
+            throw;
+        }
+
+        var tmpHost = currentHost;
+        currentHost = FailoverGroup.GetNextHost();
+        DemoteHost(mySqlPoolManager, tmpHost);
+
+        attempts++;
+      } while (!currentHost.Equals(initialHost));
+
+      // All connection attempts failed.
+      if (driver == null)
+        throw new MySqlException(Resources.UnableToConnectToHost);
+
+      return msb.ConnectionString;
+    }
+
+    /// <summary>
     /// Attempts to establish a connection to a host specified from the list.
     /// </summary>
     /// <param name="originalConnectionString">The original connection string set by the user.</param>
@@ -162,80 +319,6 @@ namespace MySql.Data.Failover
         throw new MySqlException(Resources.UnableToConnectToHost);
 
       return internalSession;
-    }
-
-    /// <summary>
-    /// Attempts to establish a connection to a host specified from the list.
-    /// </summary>
-    /// <param name="connection">MySqlConnection object where the new driver will be assigned</param>
-    /// <param name="originalConnectionString">The original connection string set by the user.</param>
-    /// <param name="connectionString">An out parameter that stores the updated connection string.</param>
-    /// <param name="mySqlPoolManager">A <see cref="MySqlPoolManager"> in case this is a pooling scenario."/></param>
-    internal static async Task<string> AttemptConnectionAsync(MySqlConnection connection, string originalConnectionString, bool execAsync, CancellationToken cancellationToken, bool mySqlPoolManager = false)
-    {
-      if (mySqlPoolManager)
-        if (MySqlPoolManager.Hosts == null)
-        {
-          MySqlPoolManager.Hosts = FailoverGroup.Hosts;
-          MySqlPoolManager.DemotedHosts = new ConcurrentQueue<FailoverServer>();
-        }
-        else
-          FailoverGroup.Hosts = MySqlPoolManager.Hosts;
-
-      FailoverServer currentHost = FailoverGroup.ActiveHost;
-      FailoverServer initialHost = currentHost;
-      Driver driver = null;
-      int attempts = 0;
-      MySqlConnectionStringBuilder msb;
-      string connectionString;
-
-      do
-      {
-        // Attempt to connect to each host by retrieving the next host based on the failover method being used
-        connectionString = "server=" + currentHost.Host + ";" + originalConnectionString.Substring(originalConnectionString.IndexOf(';') + 1);
-        if (currentHost != null && currentHost.Port != -1)
-          connectionString += ";port=" + currentHost.Port;
-        msb = new MySqlConnectionStringBuilder(connectionString, connection.IsConnectionStringAnalyzed);
-
-        if ((FailoverGroup.Hosts.Count == 1 && !mySqlPoolManager) ||
-          (mySqlPoolManager && MySqlPoolManager.Hosts.Count == 1 && MySqlPoolManager.DemotedHosts.IsEmpty))
-          return msb.ConnectionString;
-
-        try
-        {
-          driver = await Driver.CreateAsync(msb, execAsync, cancellationToken).ConfigureAwait(false);
-          if (!mySqlPoolManager)
-            connection.driver = driver;
-          break;
-        }
-        catch (Exception ex)
-        {
-          if (ex.GetType() == typeof(MySqlException) && attempts == FailoverGroup.Hosts.Count)
-            throw;
-        }
-
-        var tmpHost = currentHost;
-        currentHost = FailoverGroup.GetNextHost();
-
-        if (mySqlPoolManager)
-        {
-          tmpHost.DemotedTime = DateTime.Now;
-          MySqlPoolManager.Hosts.Remove(tmpHost);
-          MySqlPoolManager.DemotedHosts.Enqueue(tmpHost);
-
-          if (MySqlPoolManager.DemotedServersTimer == null)
-            MySqlPoolManager.DemotedServersTimer = new Timer(new TimerCallback(MySqlPoolManager.ReleaseDemotedHosts),
-              null, MySqlPoolManager.DEMOTED_TIMEOUT, Timeout.Infinite);
-        }
-
-        attempts++;
-      } while (!currentHost.Equals(initialHost));
-
-      // All connection attempts failed.
-      if (driver == null)
-        throw new MySqlException(Resources.UnableToConnectToHost);
-
-      return msb.ConnectionString;
     }
 
     /// <summary>

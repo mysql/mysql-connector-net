@@ -58,9 +58,16 @@ namespace MySql.Data.MySqlClient
     }
 
     #region ExecuteNonQuery
-    private static async Task<int> ExecuteNonQueryAsync(bool execAsync, MySqlConnection connection, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
+
+    /// <summary>
+    /// Prepares a MySqlCommand for execution of a non-query SQL command.
+    /// </summary>
+    /// <param name="connection">The MySqlConnection to associate with the command.</param>
+    /// <param name="commandText">The SQL command text.</param>
+    /// <param name="commandParameters">Optional array of MySqlParameter objects to add to the command.</param>
+    /// <returns>A prepared MySqlCommand ready for execution.</returns>
+    private static MySqlCommand PrepareExecuteNonQueryCommand(MySqlConnection connection, string commandText, MySqlParameter[] commandParameters)
     {
-      //create a command and prepare it for execution
       MySqlCommand cmd = new MySqlCommand();
       cmd.Connection = connection;
       cmd.CommandText = commandText;
@@ -70,21 +77,66 @@ namespace MySql.Data.MySqlClient
         foreach (MySqlParameter p in commandParameters)
           cmd.Parameters.Add(p);
 
-      int result = await cmd.ExecuteNonQueryAsync(execAsync, cancellationToken).ConfigureAwait(false);
+      return cmd;
+    }
+
+    /// <summary>
+    /// Executes a SQL command against the database using the provided connection and returns the number of affected rows.
+    /// This internal method creates a MySqlCommand, sets parameters if provided, executes it synchronously, and clears parameters afterward.
+    /// </summary>
+    /// <param name="connection">The open MySqlConnection to use for execution.</param>
+    /// <param name="commandText">The SQL command text to execute.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <param name="commandParameters">Optional array of MySqlParameter objects to add to the command.</param>
+    /// <returns>The number of rows affected by the command.</returns>
+    private static int ExecuteNonQueryInternal(MySqlConnection connection, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
+    {
+      MySqlCommand cmd = PrepareExecuteNonQueryCommand(connection, commandText, commandParameters);
+      int result = cmd.ExecuteNonQuery(cancellationToken);
       cmd.Parameters.Clear();
 
       return result;
     }
 
-    private static async Task<int> ExecuteNonQueryAsync(bool execAsync, string connectionString, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
+    /// <summary>
+    /// Asynchronously executes a SQL command against the database using the provided connection and returns the number of affected rows.
+    /// This internal method creates a MySqlCommand, sets parameters if provided, executes it asynchronously, and clears parameters afterward.
+    /// </summary>
+    /// <param name="connection">The open MySqlConnection to use for execution.</param>
+    /// <param name="commandText">The SQL command text to execute.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <param name="commandParameters">Optional array of MySqlParameter objects to add to the command.</param>
+    /// <returns>A task that represents the asynchronous operation, containing the number of rows affected by the command.</returns>
+    private static async Task<int> ExecuteNonQueryInternalAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
+    {
+      MySqlCommand cmd = PrepareExecuteNonQueryCommand(connection, commandText, commandParameters);
+      int result = await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+      cmd.Parameters.Clear();
+
+      return result;
+    }
+
+    private static int ExecuteNonQueryInternal(string connectionString, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
     {
       //create & open a SqlConnection, and dispose of it after we are done.
       using (MySqlConnection cn = new MySqlConnection(connectionString))
       {
-        await cn.OpenAsync(execAsync, cancellationToken).ConfigureAwait(false);
+        cn.Open(cancellationToken);
 
         //call the overload that takes a connection in place of the connection string
-        return await ExecuteNonQueryAsync(execAsync, cn, commandText, cancellationToken, commandParameters).ConfigureAwait(false);
+        return ExecuteNonQueryInternal(cn, commandText, cancellationToken, commandParameters);
+      }
+    }
+
+    private static async Task<int> ExecuteNonQueryInternalAsync(string connectionString, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
+    {
+      //create & open a SqlConnection, and dispose of it after we are done.
+      using (MySqlConnection cn = new MySqlConnection(connectionString))
+      {
+        await cn.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+        //call the overload that takes a connection in place of the connection string
+        return await ExecuteNonQueryAsync(cn, commandText, cancellationToken, commandParameters).ConfigureAwait(false);
       }
     }
 
@@ -96,7 +148,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="commandText">The SQL command to be executed.</param>
     /// <param name="commandParameters">An array of <see cref="MySqlParameter"/> objects to use with the command.</param>
     /// <returns>The number of affected records.</returns>
-    public static int ExecuteNonQuery(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters) => ExecuteNonQueryAsync(false, connection, commandText, commandParameters: commandParameters).GetAwaiter().GetResult();
+    public static int ExecuteNonQuery(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters) => ExecuteNonQueryInternal(connection, commandText, commandParameters: commandParameters);
 
     /// <summary>
     /// Executes a single command against a MySQL database.
@@ -106,7 +158,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="commandParameters">An array of <see cref="MySqlParameter"/> objects to use with the command.</param>
     /// <returns>The number of affected records.</returns>
     /// <remarks>A new <see cref="MySqlConnection"/> is created using the <see cref="MySqlConnection.ConnectionString"/> given.</remarks>
-    public static int ExecuteNonQuery(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteNonQueryAsync(false, connectionString, commandText, commandParameters: commandParameters).GetAwaiter().GetResult();
+    public static int ExecuteNonQuery(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteNonQueryInternal(connectionString, commandText, commandParameters: commandParameters);
 
     /// <summary>
     /// Async version of ExecuteNonQuery
@@ -115,9 +167,9 @@ namespace MySql.Data.MySqlClient
     /// <param name="commandText">The SQL command to be executed.</param>
     /// <param name="commandParameters">An array of <see cref="MySqlParameter"/> objects to use with the command.</param>
     /// <returns>Rows affected.</returns>
-    public static Task<int> ExecuteNonQueryAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters) => ExecuteNonQueryAsync(true, connection, commandText, commandParameters: commandParameters);
+    public static Task<int> ExecuteNonQueryAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters) => ExecuteNonQueryInternalAsync(connection, commandText, commandParameters: commandParameters);
 
-    public static Task<int> ExecuteNonQueryAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters) => ExecuteNonQueryAsync(true, connection, commandText, cancellationToken, commandParameters);
+    public static Task<int> ExecuteNonQueryAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters) => ExecuteNonQueryInternalAsync(connection, commandText, cancellationToken, commandParameters);
 
     /// <summary>
     /// Asynchronous version of the ExecuteNonQuery method.
@@ -126,7 +178,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="commandText">The SQL command to be executed.</param>
     /// <param name="commandParameters">An array of <see cref="MySqlParameter"/> objects to use with the command.</param>
     /// <returns>The number of rows affected.</returns>
-    public static Task<int> ExecuteNonQueryAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteNonQueryAsync(true, connectionString, commandText, commandParameters: commandParameters);
+    public static Task<int> ExecuteNonQueryAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteNonQueryInternalAsync(connectionString, commandText, commandParameters: commandParameters);
 
     /// <summary>
     /// Asynchronous version of the ExecuteNonQuery method.
@@ -136,11 +188,20 @@ namespace MySql.Data.MySqlClient
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <param name="commandParameters">An array of <see cref="MySqlParameter"/> objects to use with the command.</param>
     /// <returns>The number of rows affected.</returns>
-    public static Task<int> ExecuteNonQueryAsync(string connectionString, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters) => ExecuteNonQueryAsync(true, connectionString, commandText, cancellationToken, commandParameters);
+    public static Task<int> ExecuteNonQueryAsync(string connectionString, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters) => ExecuteNonQueryInternalAsync(connectionString, commandText, cancellationToken, commandParameters);
     #endregion
 
     #region ExecuteDataReader
-    private static async Task<MySqlDataReader> ExecuteReaderAsync(bool execAsync, MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool externalConn, CancellationToken cancellationToken = default)
+
+    /// <summary>
+    /// Prepares a MySqlCommand for execution of a query that returns a data reader.
+    /// </summary>
+    /// <param name="connection">The MySqlConnection to associate with the command.</param>
+    /// <param name="transaction">The MySqlTransaction to associate with the command, if any.</param>
+    /// <param name="commandText">The SQL command text.</param>
+    /// <param name="commandParameters">Optional array of MySqlParameter objects to add to the command.</param>
+    /// <returns>A prepared MySqlCommand ready for execution.</returns>
+    private static MySqlCommand PrepareExecuteReaderCommand(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters)
     {
       //create a command and prepare it for execution
       MySqlCommand cmd = new MySqlCommand();
@@ -153,14 +214,32 @@ namespace MySql.Data.MySqlClient
         foreach (MySqlParameter p in commandParameters)
           cmd.Parameters.Add(p);
 
+      return cmd;
+    }
+
+    /// <summary>
+    /// Executes a SQL command against the database using the provided connection and transaction, returning a MySqlDataReader for result sets.
+    /// This internal method creates a MySqlCommand, sets parameters and transaction if provided, executes with appropriate CommandBehavior based on external connection flag, and clears parameters afterward.
+    /// </summary>
+    /// <param name="connection">The MySqlConnection to use for execution.</param>
+    /// <param name="transaction">The MySqlTransaction to associate with the command, if any.</param>
+    /// <param name="commandText">The SQL command text to execute.</param>
+    /// <param name="commandParameters">Optional array of MySqlParameter objects to add to the command.</param>
+    /// <param name="externalConn">True if the connection is external and should not be closed; false otherwise.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A MySqlDataReader object containing the results of the command.</returns>
+    private static MySqlDataReader ExecuteReaderInternal(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool externalConn, CancellationToken cancellationToken = default)
+    {
+      var cmd = PrepareExecuteReaderCommand(connection, transaction, commandText, commandParameters);
+
       //create a reader
       MySqlDataReader dr;
 
       // call ExecuteReader with the appropriate CommandBehavior
       if (externalConn)
-        dr = await cmd.ExecuteReaderAsync(default, execAsync, cancellationToken).ConfigureAwait(false);
+        dr = cmd.ExecuteReader(default, cancellationToken);
       else
-        dr = await cmd.ExecuteReaderAsync(CommandBehavior.CloseConnection, execAsync, cancellationToken).ConfigureAwait(false);
+        dr = cmd.ExecuteReader(CommandBehavior.CloseConnection, cancellationToken);
 
       // detach the SqlParameters from the command object, so they can be used again.
       cmd.Parameters.Clear();
@@ -168,14 +247,54 @@ namespace MySql.Data.MySqlClient
       return dr;
     }
 
-    private static async Task<MySqlDataReader> ExecuteReaderAsync(bool execAsync, string connectionString, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
+    /// <summary>
+    /// Asynchronously executes a SQL command against the database using the provided connection and transaction, returning a MySqlDataReader for result sets.
+    /// This internal method creates a MySqlCommand, sets parameters and transaction if provided, executes asynchronously with appropriate CommandBehavior based on external connection flag, and clears parameters afterward.
+    /// </summary>
+    /// <param name="connection">The MySqlConnection to use for execution.</param>
+    /// <param name="transaction">The MySqlTransaction to associate with the command, if any.</param>
+    /// <param name="commandText">The SQL command text to execute.</param>
+    /// <param name="commandParameters">Optional array of MySqlParameter objects to add to the command.</param>
+    /// <param name="externalConn">True if the connection is external and should not be closed; false otherwise.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation, containing a MySqlDataReader object with the results.</returns>
+    private static async Task<MySqlDataReader> ExecuteReaderInternalAsync(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool externalConn, CancellationToken cancellationToken = default)
+    {
+      var cmd = PrepareExecuteReaderCommand(connection, transaction, commandText, commandParameters);
+
+      //create a reader
+      MySqlDataReader dr;
+
+      // call ExecuteReader with the appropriate CommandBehavior
+      if (externalConn)
+        dr = await cmd.ExecuteReaderAsync(default, cancellationToken).ConfigureAwait(false);
+      else
+        dr = await cmd.ExecuteReaderAsync(CommandBehavior.CloseConnection, cancellationToken).ConfigureAwait(false);
+
+      // detach the SqlParameters from the command object, so they can be used again.
+      cmd.Parameters.Clear();
+
+      return dr;
+    }
+
+    private static MySqlDataReader ExecuteReaderInternal(string connectionString, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
     {
       //create & open a SqlConnection
       MySqlConnection cn = new MySqlConnection(connectionString);
-      await cn.OpenAsync(execAsync, cancellationToken).ConfigureAwait(false);
+      cn.Open(cancellationToken);
 
       //call the private overload that takes an internally owned connection in place of the connection string
-      return await ExecuteReaderAsync(execAsync, cn, null, commandText, commandParameters, false, cancellationToken).ConfigureAwait(false);
+      return ExecuteReaderInternal(cn, null, commandText, commandParameters, false, cancellationToken);
+    }
+
+    private static async Task<MySqlDataReader> ExecuteReaderInternalAsync(string connectionString, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
+    {
+      //create & open a SqlConnection
+      MySqlConnection cn = new MySqlConnection(connectionString);
+      await cn.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+      //call the private overload that takes an internally owned connection in place of the connection string
+      return await ExecuteReaderAsync(cn, null, commandText, commandParameters, false, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -187,7 +306,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="commandParameters">Array of <see cref="MySqlParameter"/> objects to use with the command</param>
     /// <param name="externalConn">True if the connection should be preserved, false if not</param>
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
-    private static MySqlDataReader ExecuteReader(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool externalConn) => ExecuteReaderAsync(false, connection, transaction, commandText, commandParameters, externalConn).GetAwaiter().GetResult();
+    private static MySqlDataReader ExecuteReader(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool externalConn) => ExecuteReaderInternal(connection, transaction, commandText, commandParameters, externalConn);
 
     /// <summary>
     /// Executes a single command against a MySQL database.
@@ -195,7 +314,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="connectionString">Settings to use for this command</param>
     /// <param name="commandText">Command text to use</param>
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
-    public static MySqlDataReader ExecuteReader(string connectionString, string commandText) => ExecuteReaderAsync(false, connectionString, commandText, commandParameters: null).GetAwaiter().GetResult();
+    public static MySqlDataReader ExecuteReader(string connectionString, string commandText) => ExecuteReaderInternal(connectionString, commandText, commandParameters: null);
 
     /// <summary>
     /// Executes a single command against a MySQL database.
@@ -203,7 +322,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="connection"><see cref="MySqlConnection"/> object to use for the command</param>
     /// <param name="commandText">Command text to use</param>
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
-    public static MySqlDataReader ExecuteReader(MySqlConnection connection, string commandText) => ExecuteReaderAsync(false, connection, null, commandText, null, true).GetAwaiter().GetResult();
+    public static MySqlDataReader ExecuteReader(MySqlConnection connection, string commandText) => ExecuteReaderInternal(connection, null, commandText, null, true);
 
     /// <summary>
     /// Executes a single command against a MySQL database.
@@ -212,7 +331,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="commandText">Command text to use</param>
     /// <param name="commandParameters">Array of <see cref="MySqlParameter"/> objects to use with the command</param>
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
-    public static MySqlDataReader ExecuteReader(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteReaderAsync(false, connectionString, commandText, commandParameters: commandParameters).GetAwaiter().GetResult();
+    public static MySqlDataReader ExecuteReader(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteReaderInternal(connectionString, commandText, commandParameters: commandParameters);
 
     /// <summary>
     /// Executes a single command against a MySQL database.
@@ -221,7 +340,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="commandText">Command text to use</param>
     /// <param name="commandParameters">Array of <see cref="MySqlParameter"/> objects to use with the command</param>
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
-    public static MySqlDataReader ExecuteReader(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters) => ExecuteReaderAsync(false, connection, null, commandText, commandParameters, true).GetAwaiter().GetResult();
+    public static MySqlDataReader ExecuteReader(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters) => ExecuteReaderInternal(connection, null, commandText, commandParameters, true);
 
     /// <summary>
     /// Async version of ExecuteReader
@@ -232,9 +351,9 @@ namespace MySql.Data.MySqlClient
     /// <param name="commandParameters">Array of <see cref="MySqlParameter"/> objects to use with the command</param>
     /// <param name="ExternalConn">True if the connection should be preserved, false if not</param>
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
-    private static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool ExternalConn) => ExecuteReaderAsync(true, connection, transaction, commandText, commandParameters, ExternalConn, CancellationToken.None);
+    private static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool ExternalConn) => ExecuteReaderInternalAsync(connection, transaction, commandText, commandParameters, ExternalConn, CancellationToken.None);
 
-    private static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool ExternalConn, CancellationToken cancellationToken) => ExecuteReaderAsync(true, connection, transaction, commandText, commandParameters, ExternalConn, cancellationToken);
+    private static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, MySqlTransaction transaction, string commandText, MySqlParameter[] commandParameters, bool ExternalConn, CancellationToken cancellationToken) => ExecuteReaderInternalAsync(connection, transaction, commandText, commandParameters, ExternalConn, cancellationToken);
 
     /// <summary>
     /// Async version of ExecuteReader
@@ -242,9 +361,9 @@ namespace MySql.Data.MySqlClient
     /// <param name="connectionString">Settings to use for this command</param>
     /// <param name="commandText">Command text to use</param>
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
-    public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText) => ExecuteReaderAsync(true, connectionString, commandText, commandParameters: null);
+    public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText) => ExecuteReaderAsync(connectionString, commandText, commandParameters: null);
 
-    public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText, CancellationToken cancellationToken) => ExecuteReaderAsync(true, connectionString, commandText, cancellationToken, null);
+    public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText, CancellationToken cancellationToken) => ExecuteReaderAsync(connectionString, commandText, cancellationToken, null);
 
     /// <summary>
     /// Async version of ExecuteReader
@@ -252,9 +371,9 @@ namespace MySql.Data.MySqlClient
     /// <param name="connection"><see cref="MySqlConnection"/> object to use for the command</param>
     /// <param name="commandText">Command text to use</param>
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command</returns>
-    public static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, string commandText) => ExecuteReaderAsync(true, connection, null, commandText, null, true);
+    public static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, string commandText) => ExecuteReaderAsync(connection, null, commandText, null, true);
 
-    public static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken) => ExecuteReaderAsync(true, connection, null, commandText, null, true, cancellationToken);
+    public static Task<MySqlDataReader> ExecuteReaderAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken) => ExecuteReaderAsync(connection, null, commandText, null, true, cancellationToken);
 
     /// <summary>
     /// Async version of ExecuteReader
@@ -263,9 +382,9 @@ namespace MySql.Data.MySqlClient
     /// <param name="commandText">Command text to use.</param>
     /// <param name="commandParameters">An array of <see cref="MySqlParameter"/> objects to use with the command.</param>
     /// <returns><see cref="MySqlDataReader"/> object ready to read the results of the command.</returns>
-    public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteReaderAsync(true, connectionString, commandText, commandParameters: commandParameters);
+    public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteReaderInternalAsync(connectionString, commandText, commandParameters: commandParameters);
 
-    public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters) => ExecuteReaderAsync(true, connectionString, commandText, cancellationToken, commandParameters);
+    public static Task<MySqlDataReader> ExecuteReaderAsync(string connectionString, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters) => ExecuteReaderInternalAsync(connectionString, commandText, cancellationToken, commandParameters);
 
     /// <summary>
     /// Async version of ExecuteReader
@@ -281,7 +400,17 @@ namespace MySql.Data.MySqlClient
     #endregion
 
     #region ExecuteScalar
-    private static async Task<object> ExecuteScalarAsync(bool execAsync, MySqlConnection connection, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
+
+    /// <summary>
+    /// Executes a SQL command against the database using the provided connection and returns a single scalar value from the first column of the first row.
+    /// This internal method creates a MySqlCommand, sets parameters if provided, executes it synchronously, and clears parameters afterward.
+    /// </summary>
+    /// <param name="connection">The open MySqlConnection to use for execution.</param>
+    /// <param name="commandText">The SQL command text to execute.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <param name="commandParameters">Optional array of MySqlParameter objects to add to the command.</param>
+    /// <returns>The first column of the first row in the result set, or null if the result set is empty.</returns>
+    private static object ExecuteScalarInternal(MySqlConnection connection, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
     {
       //create a command and prepare it for execution
       MySqlCommand cmd = new MySqlCommand();
@@ -294,22 +423,63 @@ namespace MySql.Data.MySqlClient
           cmd.Parameters.Add(p);
 
       //execute the command & return the results
-      object retval = await cmd.ExecuteScalarAsync(execAsync, cancellationToken).ConfigureAwait(false);
+      object retval = cmd.ExecuteScalar(cancellationToken);
 
       // detach the SqlParameters from the command object, so they can be used again.
       cmd.Parameters.Clear();
       return retval;
     }
 
-    private static async Task<object> ExecuteScalarAsync(bool execAsync, string connectionString, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
+    /// <summary>
+    /// Asynchronously executes a SQL command against the database using the provided connection and returns a single scalar value from the first column of the first row.
+    /// This internal method creates a MySqlCommand, sets parameters if provided, executes it asynchronously, and clears parameters afterward.
+    /// </summary>
+    /// <param name="connection">The open MySqlConnection to use for execution.</param>
+    /// <param name="commandText">The SQL command text to execute.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <param name="commandParameters">Optional array of MySqlParameter objects to add to the command.</param>
+    /// <returns>A task that represents the asynchronous operation, containing the first column of the first row in the result set, or null if empty.</returns>
+    private static async Task<object> ExecuteScalarInternalAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
+    {
+      //create a command and prepare it for execution
+      MySqlCommand cmd = new MySqlCommand();
+      cmd.Connection = connection;
+      cmd.CommandText = commandText;
+      cmd.CommandType = CommandType.Text;
+
+      if (commandParameters != null)
+        foreach (MySqlParameter p in commandParameters)
+          cmd.Parameters.Add(p);
+
+      //execute the command & return the results
+      object retval = await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+
+      // detach the SqlParameters from the command object, so they can be used again.
+      cmd.Parameters.Clear();
+      return retval;
+    }
+
+    private static object ExecuteScalarInternal(string connectionString, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
     {
       //create & open a SqlConnection, and dispose of it after we are done.
       using (MySqlConnection cn = new MySqlConnection(connectionString))
       {
-        await cn.OpenAsync(execAsync, cancellationToken).ConfigureAwait(false);
+        cn.Open(cancellationToken);
 
         //call the overload that takes a connection in place of the connection string
-        return await ExecuteScalarAsync(execAsync, cn, commandText, commandParameters: commandParameters).ConfigureAwait(false);
+        return ExecuteScalar(cn, commandText, commandParameters: commandParameters);
+      }
+    }
+
+    private static async Task<object> ExecuteScalarInternalAsync(string connectionString, string commandText, CancellationToken cancellationToken = default, params MySqlParameter[] commandParameters)
+    {
+      //create & open a SqlConnection, and dispose of it after we are done.
+      using (MySqlConnection cn = new MySqlConnection(connectionString))
+      {
+        await cn.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+        //call the overload that takes a connection in place of the connection string
+        return await ExecuteScalarAsync(cn, commandText, commandParameters: commandParameters).ConfigureAwait(false);
       }
     }
 
@@ -319,7 +489,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="connectionString">Settings to use for the update</param>
     /// <param name="commandText">Command text to use for the update</param>
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
-    public static object ExecuteScalar(string connectionString, string commandText) => ExecuteScalarAsync(false, connectionString, commandText, commandParameters: null).GetAwaiter().GetResult();
+    public static object ExecuteScalar(string connectionString, string commandText) => ExecuteScalarInternal(connectionString, commandText, commandParameters: null);
 
     /// <summary>
     /// Execute a single command against a MySQL database.
@@ -328,7 +498,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="commandText">Command text to use for the command</param>
     /// <param name="commandParameters">Parameters to use for the command</param>
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
-    public static object ExecuteScalar(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteScalarAsync(false, connectionString, commandText, commandParameters: commandParameters).GetAwaiter().GetResult();
+    public static object ExecuteScalar(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteScalarInternal(connectionString, commandText, commandParameters: commandParameters);
 
     /// <summary>
     /// Execute a single command against a MySQL database.
@@ -336,7 +506,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="connection"><see cref="MySqlConnection"/> object to use</param>
     /// <param name="commandText">Command text to use for the command</param>
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
-    public static object ExecuteScalar(MySqlConnection connection, string commandText) => ExecuteScalarAsync(false, connection, commandText, commandParameters: null).GetAwaiter().GetResult();
+    public static object ExecuteScalar(MySqlConnection connection, string commandText) => ExecuteScalar(connection, commandText, commandParameters: null);
 
     /// <summary>
     /// Execute a single command against a MySQL database.
@@ -345,7 +515,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="commandText">Command text to use for the command</param>
     /// <param name="commandParameters">Parameters to use for the command</param>
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
-    public static object ExecuteScalar(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters) => ExecuteScalarAsync(false, connection, commandText, commandParameters: commandParameters).GetAwaiter().GetResult();
+    public static object ExecuteScalar(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters) => ExecuteScalarInternal(connection, commandText, commandParameters: commandParameters);
 
     /// <summary>
     /// Async version of ExecuteScalar
@@ -353,9 +523,9 @@ namespace MySql.Data.MySqlClient
     /// <param name="connectionString">Settings to use for the update</param>
     /// <param name="commandText">Command text to use for the update</param>
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
-    public static Task<object> ExecuteScalarAsync(string connectionString, string commandText) => ExecuteScalarAsync(true, connectionString, commandText, commandParameters: null);
+    public static Task<object> ExecuteScalarAsync(string connectionString, string commandText) => ExecuteScalarInternalAsync(connectionString, commandText, commandParameters: null);
 
-    public static Task<object> ExecuteScalarAsync(string connectionString, string commandText, CancellationToken cancellationToken) => ExecuteScalarAsync(true, connectionString, commandText, cancellationToken, null);
+    public static Task<object> ExecuteScalarAsync(string connectionString, string commandText, CancellationToken cancellationToken) => ExecuteScalarInternalAsync(connectionString, commandText, cancellationToken, null);
 
     /// <summary>
     /// Async version of ExecuteScalar
@@ -364,9 +534,9 @@ namespace MySql.Data.MySqlClient
     /// <param name="commandText">Command text to use for the command</param>
     /// <param name="commandParameters">Parameters to use for the command</param>
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
-    public static Task<object> ExecuteScalarAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteScalarAsync(true, connectionString, commandText, commandParameters: commandParameters);
+    public static Task<object> ExecuteScalarAsync(string connectionString, string commandText, params MySqlParameter[] commandParameters) => ExecuteScalarInternalAsync(connectionString, commandText, commandParameters: commandParameters);
 
-    public static Task<object> ExecuteScalarAsync(string connectionString, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters) => ExecuteScalarAsync(true, connectionString, commandText, cancellationToken, commandParameters);
+    public static Task<object> ExecuteScalarAsync(string connectionString, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters) => ExecuteScalarInternalAsync(connectionString, commandText, cancellationToken, commandParameters);
 
     /// <summary>
     /// Async version of ExecuteScalar
@@ -374,9 +544,9 @@ namespace MySql.Data.MySqlClient
     /// <param name="connection"><see cref="MySqlConnection"/> object to use</param>
     /// <param name="commandText">Command text to use for the command</param>
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
-    public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText) => ExecuteScalarAsync(true, connection, commandText, commandParameters: null);
+    public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText) => ExecuteScalarAsync(connection, commandText, commandParameters: null);
 
-    public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken) => ExecuteScalarAsync(true, connection, commandText, cancellationToken, null);
+    public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken) => ExecuteScalarInternalAsync(connection, commandText, cancellationToken, null);
 
     /// <summary>
     /// Async version of ExecuteScalar
@@ -385,9 +555,9 @@ namespace MySql.Data.MySqlClient
     /// <param name="commandText">Command text to use for the command</param>
     /// <param name="commandParameters">Parameters to use for the command</param>
     /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty.</returns>
-    public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters) => ExecuteScalarAsync(true, connection, commandText, commandParameters: commandParameters);
+    public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText, params MySqlParameter[] commandParameters) => ExecuteScalarInternalAsync(connection, commandText, commandParameters: commandParameters);
 
-    public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters) => ExecuteScalarAsync(true, connection, commandText, cancellationToken, commandParameters);
+    public static Task<object> ExecuteScalarAsync(MySqlConnection connection, string commandText, CancellationToken cancellationToken, params MySqlParameter[] commandParameters) => ExecuteScalarInternalAsync(connection, commandText, cancellationToken, commandParameters);
 
     #endregion
 

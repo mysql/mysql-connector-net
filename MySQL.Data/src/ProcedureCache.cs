@@ -54,7 +54,14 @@ namespace MySql.Data.MySqlClient
       _procHash = new Dictionary<int, ProcedureCacheEntry>(_maxSize);
     }
 
-    public async Task<ProcedureCacheEntry> GetProcedureAsync(MySqlConnection conn, string spName, string cacheKey, bool execAsync)
+    /// <summary>
+    /// Retrieves a ProcedureCacheEntry for the specified stored procedure, using the cache if available.
+    /// </summary>
+    /// <param name="conn">The MySqlConnection to use for querying if not in cache.</param>
+    /// <param name="spName">The name of the stored procedure.</param>
+    /// <param name="cacheKey">The key for cache lookup.</param>
+    /// <returns>The ProcedureCacheEntry for the stored procedure.</returns>
+    public ProcedureCacheEntry GetProcedure(MySqlConnection conn, string spName, string cacheKey)
     {
       ProcedureCacheEntry proc = null;
 
@@ -69,7 +76,45 @@ namespace MySql.Data.MySqlClient
       }
       if (proc == null)
       {
-        proc = await AddNewAsync(conn, spName, execAsync).ConfigureAwait(false);
+        proc = AddNew(conn, spName);
+        conn.PerfMonitor.AddHardProcedureQuery();
+        if (conn.Settings.Logging)
+          MySqlTrace.LogInformation(conn.ServerThread,
+            String.Format(Resources.HardProcQuery, spName));
+      }
+      else
+      {
+        conn.PerfMonitor.AddSoftProcedureQuery();
+        if (conn.Settings.Logging)
+          MySqlTrace.LogInformation(conn.ServerThread,
+            String.Format(Resources.SoftProcQuery, spName));
+      }
+      return proc;
+    }
+
+    /// <summary>
+    /// Asynchronously retrieves a ProcedureCacheEntry for the specified stored procedure, using the cache if available.
+    /// </summary>
+    /// <param name="conn">The MySqlConnection to use for querying if not in cache.</param>
+    /// <param name="spName">The name of the stored procedure.</param>
+    /// <param name="cacheKey">The key for cache lookup.</param>
+    /// <returns>A task that resolves to the ProcedureCacheEntry for the stored procedure.</returns>
+    public async Task<ProcedureCacheEntry> GetProcedureAsync(MySqlConnection conn, string spName, string cacheKey)
+    {
+      ProcedureCacheEntry proc = null;
+
+      if (cacheKey != null)
+      {
+        int hash = cacheKey.GetHashCode();
+
+        lock (_procHash)
+        {
+          _procHash.TryGetValue(hash, out proc);
+        }
+      }
+      if (proc == null)
+      {
+        proc = await AddNewAsync(conn, spName).ConfigureAwait(false);
         conn.PerfMonitor.AddHardProcedureQuery();
         if (conn.Settings.Logging)
           MySqlTrace.LogInformation(conn.ServerThread,
@@ -108,11 +153,15 @@ namespace MySql.Data.MySqlClient
       return retValue + key.ToString();
     }
 
-    private async Task<ProcedureCacheEntry> AddNewAsync(MySqlConnection connection, string spName, bool execAsync)
+    /// <summary>
+    /// Adds the ProcedureCacheEntry to the cache if the cache is enabled and the entry is not already present.
+    /// Handles trimming the cache if it exceeds the maximum size.
+    /// </summary>
+    /// <param name="procData">The ProcedureCacheEntry to add.</param>
+    /// <param name="spName">The name of the stored procedure.</param>
+    private void AddToCache(ProcedureCacheEntry procData, string spName)
     {
-      ProcedureCacheEntry procData = await GetProcDataAsync(connection, spName, execAsync).ConfigureAwait(false);
-
-      if (_maxSize <= 0) return procData;
+      if (_maxSize <= 0) return;
 
       string cacheKey = GetCacheKey(spName, procData);
       int hash = cacheKey.GetHashCode();
@@ -126,6 +175,31 @@ namespace MySql.Data.MySqlClient
           _hashQueue.Enqueue(hash);
         }
       }
+    }
+
+    /// <summary>
+    /// Adds a new ProcedureCacheEntry to the cache for the specified stored procedure.
+    /// </summary>
+    /// <param name="connection">The MySqlConnection to use for retrieving procedure data.</param>
+    /// <param name="spName">The name of the stored procedure.</param>
+    /// <returns>The ProcedureCacheEntry for the stored procedure.</returns>
+    private ProcedureCacheEntry AddNew(MySqlConnection connection, string spName)
+    {
+      ProcedureCacheEntry procData = GetProcData(connection, spName);
+      AddToCache(procData, spName);
+      return procData;
+    }
+
+    /// <summary>
+    /// Asynchronously adds a new ProcedureCacheEntry to the cache for the specified stored procedure.
+    /// </summary>
+    /// <param name="connection">The MySqlConnection to use for retrieving procedure data.</param>
+    /// <param name="spName">The name of the stored procedure.</param>
+    /// <returns>A task that resolves to the ProcedureCacheEntry for the stored procedure.</returns>
+    private async Task<ProcedureCacheEntry> AddNewAsync(MySqlConnection connection, string spName)
+    {
+      ProcedureCacheEntry procData = await GetProcDataAsync(connection, spName).ConfigureAwait(false);
+      AddToCache(procData, spName);
       return procData;
     }
 
@@ -135,7 +209,13 @@ namespace MySql.Data.MySqlClient
       _procHash.Remove(oldestHash);
     }
 
-    private static async Task<ProcedureCacheEntry> GetProcDataAsync(MySqlConnection connection, string spName, bool execAsync)
+    /// <summary>
+    /// Retrieves procedure data including parameters for the specified stored procedure.
+    /// </summary>
+    /// <param name="connection">The MySqlConnection to query schema information.</param>
+    /// <param name="spName">The name of the stored procedure.</param>
+    /// <returns>The ProcedureCacheEntry containing procedure and parameter information.</returns>
+    private static ProcedureCacheEntry GetProcData(MySqlConnection connection, string spName)
     {
       SplitSchemaAndEntity(spName, out string schema, out string entity);
 
@@ -160,7 +240,44 @@ namespace MySql.Data.MySqlClient
       // know the procedure we care about.
       ISSchemaProvider isp = new ISSchemaProvider(connection);
       string[] rest = isp.CleanRestrictions(restrictions);
-      MySqlSchemaCollection parameters = await isp.GetProcedureParametersAsync(rest, proc, execAsync).ConfigureAwait(false);
+      MySqlSchemaCollection parameters = isp.GetProcedureParameters(rest, proc);
+      entry.parameters = parameters;
+
+      return entry;
+    }
+
+    /// <summary>
+    /// Asynchronously retrieves procedure data including parameters for the specified stored procedure.
+    /// </summary>
+    /// <param name="connection">The MySqlConnection to query schema information.</param>
+    /// <param name="spName">The name of the stored procedure.</param>
+    /// <returns>A task that resolves to the ProcedureCacheEntry containing procedure and parameter information.</returns>
+    private static async Task<ProcedureCacheEntry> GetProcDataAsync(MySqlConnection connection, string spName)
+    {
+      SplitSchemaAndEntity(spName, out string schema, out string entity);
+
+      string[] restrictions = new string[4];
+      restrictions[1] = string.IsNullOrEmpty(schema) ? connection.CurrentDatabase() : Utils.UnquoteString(schema);
+      restrictions[2] = Utils.UnquoteString(entity);
+      MySqlSchemaCollection proc = connection.GetSchemaCollection("procedures", restrictions);
+      if (proc.Rows.Count > 1)
+        throw new MySqlException(Resources.ProcAndFuncSameName);
+      if (proc.Rows.Count == 0)
+      {
+        string msg = string.Format(Resources.InvalidProcName, entity, schema) + " " +
+        string.Format(Resources.ExecuteProcedureUnauthorized, connection.Settings.UserID, connection.Settings.Server);
+        throw new MySqlException(msg);
+      }
+
+      ProcedureCacheEntry entry = new ProcedureCacheEntry();
+      entry.procedure = proc;
+
+      // we don't use GetSchema here because that would cause another
+      // query of procedures and we don't need that since we already
+      // know the procedure we care about.
+      ISSchemaProvider isp = new ISSchemaProvider(connection);
+      string[] rest = isp.CleanRestrictions(restrictions);
+      MySqlSchemaCollection parameters = await isp.GetProcedureParametersAsync(rest, proc).ConfigureAwait(false);
       entry.parameters = parameters;
 
       return entry;

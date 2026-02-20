@@ -85,14 +85,14 @@ namespace MySqlX.Sessions
       bool isUnix = Settings.ConnectionProtocol == MySqlConnectionProtocol.Unix ||
         Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket;
 
-      _stream = MyNetworkStream.CreateStreamAsync(
+      _stream = MyNetworkStream.CreateStream(
         Settings.Server == "127.0.0.1" || Settings.Server == "::1"
             ? "localhost"
             : Settings.Server,
         Settings.ConnectTimeout,
         Settings.Keepalive,
         Settings.Port,
-        isUnix, false).GetAwaiter().GetResult();
+        isUnix);
       _myNetworkStream = (MyNetworkStream)_stream;
       if (_stream == null)
         throw new MySqlException(ResourcesX.UnableToConnect);
@@ -131,7 +131,7 @@ namespace MySqlX.Sessions
               Settings.SslKey,
               Settings.TlsVersion,
               Settings.ConnectTimeout)
-              .StartSSLAsync(_stream, encoding, Settings.ToString(), CancellationToken.None, false).GetAwaiter().GetResult();
+              .StartSSL(_stream, encoding, Settings.ToString(), CancellationToken.None);
 
           _stream = result.Item2;
 

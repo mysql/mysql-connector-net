@@ -54,27 +54,24 @@ namespace MySql.Data.MySqlClient.Authentication
       else base.SetAuthData(data);
     }
 
-    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
-    {
-      rawPubkey = data;
+    /// <summary>
+    /// Processes additional data during the caching_sha2_password authentication handshake.
+    /// This method handles the exchange of authentication data with the server, including scramble generation,
+    /// fast authentication detection, and password transmission based on the received data.
+    /// </summary>
+    /// <param name="data">The byte array received from the server.</param>
+    /// <returns>A byte array containing the response to send to the server, or null if the handshake is complete.</returns>
+    protected override byte[] MoreData(byte[] data) => GetMoreDataResponse(data);
 
-      // Generate scramble.
-      if (data == null)
-      {
-        byte[] scramble = GetPassword() as byte[];
-        byte[] buffer = new byte[scramble.Length - 1];
-        Array.Copy(scramble, 1, buffer, 0, scramble.Length - 1);
-        return Task.FromResult<byte[]>(buffer);
-      }
-      // Fast authentication.
-      else if (data[0] == 3)
-      {
-        _authStage = AuthStage.FAST_AUTH;
-        return Task.FromResult<byte[]>(null);
-      }
-      else
-        return Task.FromResult<byte[]>(GeneratePassword());
-    }
+    /// <summary>
+    /// Asynchronously processes additional data during the caching_sha2_password authentication handshake.
+    /// This method handles the exchange of authentication data with the server in an asynchronous manner,
+    /// including scramble generation, fast authentication detection, and password transmission.
+    /// </summary>
+    /// <param name="data">The byte array received from the server.</param>
+    /// <returns>A task representing the asynchronous operation, containing a byte array response to send to the server,
+    /// or null if the handshake is complete.</returns>
+    protected override Task<byte[]> MoreDataAsync(byte[] data) => Task.FromResult(GetMoreDataResponse(data));
 
     /// <summary>
     /// Generates a byte array set with the password of the user in the expected format based on the
@@ -114,6 +111,34 @@ namespace MySql.Data.MySqlClient.Authentication
           return bytes;
         }
       }
+    }
+
+    /// <summary>
+    /// Handles the response for additional data in the caching_sha2_password authentication handshake.
+    /// This includes generating the initial scramble, detecting fast authentication, or preparing the password response.
+    /// </summary>
+    /// <param name="data">The byte array received from the server.</param>
+    /// <returns>The byte array response to send to the server, or null if authentication is complete or fast auth is detected.</returns>
+    private byte[] GetMoreDataResponse(byte[] data)
+    {
+      rawPubkey = data;
+
+      // Generate scramble.
+      if (data == null)
+      {
+        byte[] scramble = GetPassword() as byte[];
+        byte[] buffer = new byte[scramble.Length - 1];
+        Array.Copy(scramble, 1, buffer, 0, scramble.Length - 1);
+        return buffer;
+      }
+      // Fast authentication.
+      else if (data[0] == 3)
+      {
+        _authStage = AuthStage.FAST_AUTH;
+        return null;
+      }
+      else
+        return GeneratePassword();
     }
 
     private byte[] GetRsaPassword(string password, byte[] seedBytes, byte[] rawPublicKey)

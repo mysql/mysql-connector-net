@@ -176,7 +176,7 @@ namespace MySql.Data.MySqlClient
     /// <remarks>
     ///  The <see cref="Commit"/> method is equivalent to the MySQL SQL statement COMMIT.
     /// </remarks>
-    public override void Commit() => CommitAsync(false).GetAwaiter().GetResult();
+    public override void Commit() => CommitInternal();
 
     /// <summary>
     /// Asynchronously commits the database transaction.
@@ -188,9 +188,9 @@ namespace MySql.Data.MySqlClient
 #else
     public override Task CommitAsync(CancellationToken cancellationToken = default)
 #endif
-    => CommitAsync(true, cancellationToken);
+    => CommitInternalAsync(cancellationToken);
 
-    private async Task CommitAsync(bool execAsync, CancellationToken cancellationToken = default)
+    private void CommitInternal(CancellationToken cancellationToken = default)
     {
       if (Connection == null || (Connection.State != ConnectionState.Open && !Connection.SoftClosed))
         throw new InvalidOperationException("Connection must be valid and open to commit transaction");
@@ -198,7 +198,20 @@ namespace MySql.Data.MySqlClient
         throw new InvalidOperationException("Transaction has already been committed or is not pending");
       using (MySqlCommand cmd = new MySqlCommand("COMMIT", Connection))
       {
-        await cmd.ExecuteNonQueryAsync(execAsync, cancellationToken).ConfigureAwait(false);
+        cmd.ExecuteNonQuery(cancellationToken);
+        open = false;
+      }
+    }
+
+    private async Task CommitInternalAsync(CancellationToken cancellationToken = default)
+    {
+      if (Connection == null || (Connection.State != ConnectionState.Open && !Connection.SoftClosed))
+        throw new InvalidOperationException("Connection must be valid and open to commit transaction");
+      if (!open)
+        throw new InvalidOperationException("Transaction has already been committed or is not pending");
+      using (MySqlCommand cmd = new MySqlCommand("COMMIT", Connection))
+      {
+        await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         open = false;
       }
     }
@@ -212,7 +225,7 @@ namespace MySql.Data.MySqlClient
     ///  (after BeginTransaction has been called, but before Commit is
     ///  called).
     /// </remarks>
-    public override void Rollback() => RollbackAsync(false).GetAwaiter().GetResult();
+    public override void Rollback() => RollbackInternal();
 
     /// <summary>
     /// Asynchronously rolls back a transaction from a pending state.
@@ -224,9 +237,9 @@ namespace MySql.Data.MySqlClient
 #else
     public override Task RollbackAsync(CancellationToken cancellationToken = default)
 #endif
-    => RollbackAsync(true, cancellationToken);
+    => RollbackInternalAsync(cancellationToken);
 
-    private async Task RollbackAsync(bool execAsync, CancellationToken cancellationToken = default)
+    private void RollbackInternal(CancellationToken cancellationToken = default)
     {
       if (Connection == null || (Connection.State != ConnectionState.Open && !Connection.SoftClosed))
         throw new InvalidOperationException("Connection must be valid and open to rollback transaction");
@@ -234,7 +247,20 @@ namespace MySql.Data.MySqlClient
         throw new InvalidOperationException("Transaction has already been rolled back or is not pending");
       using (MySqlCommand cmd = new MySqlCommand("ROLLBACK", Connection))
       {
-        await cmd.ExecuteNonQueryAsync(execAsync, cancellationToken).ConfigureAwait(false);
+        cmd.ExecuteNonQuery(cancellationToken);
+        open = false;
+      }
+    }
+
+    private async Task RollbackInternalAsync(CancellationToken cancellationToken = default)
+    {
+      if (Connection == null || (Connection.State != ConnectionState.Open && !Connection.SoftClosed))
+        throw new InvalidOperationException("Connection must be valid and open to rollback transaction");
+      if (!open)
+        throw new InvalidOperationException("Transaction has already been rolled back or is not pending");
+      using (MySqlCommand cmd = new MySqlCommand("ROLLBACK", Connection))
+      {
+        await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         open = false;
       }
     }

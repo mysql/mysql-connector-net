@@ -187,7 +187,7 @@ namespace MySql.Data.MySqlClient
 
       try
       {
-        ProcedureCacheEntry entry = command.Connection.ProcedureCache.GetProcedureAsync(command.Connection, spName, null, false).GetAwaiter().GetResult();
+        ProcedureCacheEntry entry = command.Connection.ProcedureCache.GetProcedure(command.Connection, spName, null);
         command.Parameters.Clear();
         foreach (MySqlSchemaRow row in entry.parameters.Rows)
         {

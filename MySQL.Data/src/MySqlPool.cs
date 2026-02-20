@@ -76,19 +76,56 @@ namespace MySql.Data.MySqlClient
       ProcedureCache = new ProcedureCache((int)settings.ProcedureCacheSize);
     }
 
-    private async Task<MySqlPool> InitializeAsync(bool execAsync, CancellationToken cancellationToken)
+    /// <summary>
+    /// Initializes the pool by prepopulating the idle pool with connections up to the minimum pool size.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>The initialized MySqlPool instance.</returns>
+    private MySqlPool Initialize(CancellationToken cancellationToken)
     {
       // prepopulate the idle pool to minSize
       for (int i = 0; i < _minSize; i++)
-        EnqueueIdle(await CreateNewPooledConnectionAsync(execAsync, cancellationToken).ConfigureAwait(false));
+        EnqueueIdle(CreateNewPooledConnection(cancellationToken));
 
       return this;
     }
 
-    public static Task<MySqlPool> CreateMySqlPoolAsync(MySqlConnectionStringBuilder settings, bool execAsync, CancellationToken cancellationToken)
+    /// <summary>
+    /// Asynchronously initializes the pool by prepopulating the idle pool with connections up to the minimum pool size.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A task representing the asynchronous operation, returning the initialized MySqlPool instance.</returns>
+    private async Task<MySqlPool> InitializeAsync(CancellationToken cancellationToken)
+    {
+      // prepopulate the idle pool to minSize
+      for (int i = 0; i < _minSize; i++)
+        EnqueueIdle(await CreateNewPooledConnectionAsync(cancellationToken).ConfigureAwait(false));
+
+      return this;
+    }
+
+    /// <summary>
+    /// Creates and initializes a new MySqlPool using the given settings.
+    /// </summary>
+    /// <param name="settings">The connection string settings for the pool.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>The initialized MySqlPool instance.</returns>
+    public static MySqlPool CreateMySqlPool(MySqlConnectionStringBuilder settings, CancellationToken cancellationToken)
     {
       var pool = new MySqlPool(settings);
-      return pool.InitializeAsync(execAsync, cancellationToken);
+      return pool.Initialize(cancellationToken);
+    }
+
+    /// <summary>
+    /// Asynchronously creates and initializes a new MySqlPool using the given settings.
+    /// </summary>
+    /// <param name="settings">The connection string settings for the pool.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A task representing the asynchronous operation, returning the initialized MySqlPool instance.</returns>
+    public static Task<MySqlPool> CreateMySqlPoolAsync(MySqlConnectionStringBuilder settings, CancellationToken cancellationToken)
+    {
+      var pool = new MySqlPool(settings);
+      return pool.InitializeAsync(cancellationToken);
     }
 
     #region Properties
@@ -117,16 +154,16 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// It is assumed that this method is only called from inside an active lock.
     /// </summary>
-    private async Task<Driver> GetPooledConnectionAsync(bool execAsync, CancellationToken cancellationToken)
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>The pooled Driver instance.</returns>
+    /// <exception cref="MySqlException">Thrown if no connection is available within the timeout.</exception>
+    private Driver GetPooledConnection(CancellationToken cancellationToken)
     {
       Driver driver = null;
 
       // if we don't have an idle connection but we have room for a new
       // one, then create it here.
-      if (execAsync)
-        await idlePoolSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
-      else
-        idlePoolSemaphore.Wait(cancellationToken);
+      idlePoolSemaphore.Wait(cancellationToken);
 
       try
       {
@@ -150,7 +187,7 @@ namespace MySql.Data.MySqlClient
         }
         catch (Exception)
         {
-          await driver.CloseAsync(execAsync).ConfigureAwait(false);
+          driver.Close();
           driver = null;
         }
       }
@@ -158,27 +195,24 @@ namespace MySql.Data.MySqlClient
       if (driver != null)
       {
         // first check to see that the server is still alive
-        if (!await driver.PingAsync(execAsync).ConfigureAwait(false))
+        if (!driver.Ping())
         {
-          await driver.CloseAsync(execAsync).ConfigureAwait(false);
+          driver.Close();
           driver = null;
         }
         else if (Settings.ConnectionReset)
         {
           // if the user asks us to ping/reset pooled connections
           // do so now
-          try { await driver.ResetAsync(execAsync).ConfigureAwait(false); }
-          catch (Exception) { await ClearAsync(execAsync).ConfigureAwait(false); }
+          try { driver.Reset(); }
+          catch (Exception) { Clear(); }
         }
       }
       if (driver == null)
-        driver = await CreateNewPooledConnectionAsync(execAsync, cancellationToken).ConfigureAwait(false);
+        driver = CreateNewPooledConnection(cancellationToken);
 
       Debug.Assert(driver != null);
-      if (execAsync)
-        await inUsePoolSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
-      else
-        inUsePoolSemaphore.Wait(cancellationToken);
+      inUsePoolSemaphore.Wait(cancellationToken);
 
       try
       {
@@ -195,22 +229,107 @@ namespace MySql.Data.MySqlClient
     /// <summary>
     /// It is assumed that this method is only called from inside an active lock.
     /// </summary>
-    private async Task<Driver> CreateNewPooledConnectionAsync(bool execAsync, CancellationToken cancellationToken)
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A task representing the asynchronous operation, returning the pooled Driver instance.</returns>
+    /// <exception cref="MySqlException">Thrown if no connection is available within the timeout.</exception>
+    private async Task<Driver> GetPooledConnectionAsync(CancellationToken cancellationToken)
+    {
+      Driver driver = null;
+
+      // if we don't have an idle connection but we have room for a new
+      // one, then create it here.
+      await idlePoolSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+      try
+      {
+        if (HasIdleConnections)
+        {
+          driver = _idlePool.First.Value;
+          _idlePool.RemoveFirst();
+        }
+      }
+      finally
+      {
+        idlePoolSemaphore.Release();
+      }
+
+      // Obey the connection timeout
+      if (driver != null)
+      {
+        try
+        {
+          driver.ResetTimeout((int)Settings.ConnectionTimeout * 1000);
+        }
+        catch (Exception)
+        {
+          await driver.CloseAsync().ConfigureAwait(false);
+          driver = null;
+        }
+      }
+
+      if (driver != null)
+      {
+        // first check to see that the server is still alive
+        if (!await driver.PingAsync().ConfigureAwait(false))
+        {
+          await driver.CloseAsync().ConfigureAwait(false);
+          driver = null;
+        }
+        else if (Settings.ConnectionReset)
+        {
+          // if the user asks us to ping/reset pooled connections
+          // do so now
+          try { await driver.ResetAsync().ConfigureAwait(false); }
+          catch (Exception) { await ClearAsync().ConfigureAwait(false); }
+        }
+      }
+      if (driver == null)
+        driver = await CreateNewPooledConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+      Debug.Assert(driver != null);
+      await inUsePoolSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+      try
+      {
+        _inUsePool.Add(driver);
+      }
+      finally
+      {
+        inUsePoolSemaphore.Release();
+      }
+
+      return driver;
+    }
+
+    /// <summary>
+    /// It is assumed that this method is only called from inside an active lock.
+    /// </summary>
+    private Driver CreateNewPooledConnection(CancellationToken cancellationToken)
     {
       Debug.Assert((_maxSize - NumConnections) > 0, "Pool out of sync.");
 
-      Driver driver = await Driver.CreateAsync(Settings, execAsync, cancellationToken).ConfigureAwait(false);
+      Driver driver = Driver.Create(Settings, cancellationToken);
       driver.Pool = this;
       return driver;
     }
 
-    public async Task ReleaseConnectionAsync(Driver driver, bool execAsync)
+    /// <summary>
+    /// It is assumed that this method is only called from inside an active lock.
+    /// </summary>
+    private async Task<Driver> CreateNewPooledConnectionAsync(CancellationToken cancellationToken)
     {
-      if (execAsync)
-        await inUsePoolSemaphore.WaitAsync().ConfigureAwait(false);
-      else
-        inUsePoolSemaphore.Wait();
+      Debug.Assert((_maxSize - NumConnections) > 0, "Pool out of sync.");
 
+      Driver driver = await Driver.CreateAsync(Settings, cancellationToken).ConfigureAwait(false);
+      driver.Pool = this;
+      return driver;
+    }
+
+    /// <summary>
+    /// Releases a Driver (connection) back to the pool, removing it from in-use, reenqueuing to idle if valid (not expired or during clear), handling DNS SRV updates, and signaling availability.
+    /// </summary>
+    /// <param name="driver">The Driver to release.</param>
+    public void ReleaseConnection(Driver driver)
+    {
+      inUsePoolSemaphore.Wait();
       try
       {
         if (_inUsePool.Contains(driver))
@@ -223,16 +342,12 @@ namespace MySql.Data.MySqlClient
 
       if (driver.ConnectionLifetimeExpired() || BeingCleared)
       {
-        await driver.CloseAsync(execAsync).ConfigureAwait(false);
+        driver.Close();
         Debug.Assert(!_idlePool.Contains(driver));
       }
       else
       {
-        if (execAsync)
-          await idlePoolSemaphore.WaitAsync().ConfigureAwait(false);
-        else
-          idlePoolSemaphore.Wait();
-
+        idlePoolSemaphore.Wait();
         try
         {
           EnqueueIdle(driver);
@@ -243,11 +358,7 @@ namespace MySql.Data.MySqlClient
         }
       }
 
-      if (execAsync)
-        await dnsSrvSemaphore.WaitAsync().ConfigureAwait(false);
-      else
-        dnsSrvSemaphore.Wait();
-
+      dnsSrvSemaphore.Wait();
       try
       {
         if (driver.Settings.DnsSrv)
@@ -261,7 +372,71 @@ namespace MySql.Data.MySqlClient
             string idleServer = idleConnection.Settings.Server;
             if (!FailoverManager.FailoverGroup.Hosts.Exists(h => h.Host == idleServer) && !idleConnection.IsInActiveUse)
             {
-              await idleConnection.CloseAsync(execAsync).ConfigureAwait(false);
+              idleConnection.Close();
+            }
+          }
+        }
+      }
+      finally
+      {
+        dnsSrvSemaphore.Release();
+      }
+
+      Interlocked.Increment(ref _available);
+      _autoEvent.Set();
+    }
+
+    /// <summary>
+    /// Asynchronously releases a Driver (connection) back to the pool, removing it from in-use, reenqueuing to idle if valid (not expired or during clear), handling DNS SRV updates, and signaling availability.
+    /// </summary>
+    /// <param name="driver">The Driver to release.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public async Task ReleaseConnectionAsync(Driver driver)
+    {
+      await inUsePoolSemaphore.WaitAsync().ConfigureAwait(false);
+      try
+      {
+        if (_inUsePool.Contains(driver))
+          _inUsePool.Remove(driver);
+      }
+      finally
+      {
+        inUsePoolSemaphore.Release();
+      }
+
+      if (driver.ConnectionLifetimeExpired() || BeingCleared)
+      {
+        await driver.CloseAsync().ConfigureAwait(false);
+        Debug.Assert(!_idlePool.Contains(driver));
+      }
+      else
+      {
+        await idlePoolSemaphore.WaitAsync().ConfigureAwait(false);
+        try
+        {
+          EnqueueIdle(driver);
+        }
+        finally
+        {
+          idlePoolSemaphore.Release();
+        }
+      }
+
+      await dnsSrvSemaphore.WaitAsync().ConfigureAwait(false);
+      try
+      {
+        if (driver.Settings.DnsSrv)
+        {
+          var dnsSrvRecords = DnsSrv.GetDnsSrvRecords(DnsSrv.ServiceName);
+          FailoverManager.SetHostList(dnsSrvRecords.ConvertAll(r => new FailoverServer(r.Target, r.Port, null)),
+            FailoverMethod.Sequential);
+
+          foreach (var idleConnection in _idlePool)
+          {
+            string idleServer = idleConnection.Settings.Server;
+            if (!FailoverManager.FailoverGroup.Hosts.Exists(h => h.Host == idleServer) && !idleConnection.IsInActiveUse)
+            {
+              await idleConnection.CloseAsync().ConfigureAwait(false);
             }
           }
         }
@@ -305,7 +480,12 @@ namespace MySql.Data.MySqlClient
         MySqlPoolManager.RemoveClearedPool(this);
     }
 
-    private async Task<Driver> TryToGetDriverAsync(bool execAsync, CancellationToken cancellationToken)
+    /// <summary>
+    /// Private helper to attempt getting a Driver from the pool by decrementing availability counter; returns null if unavailable.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>The pooled Driver if available, otherwise null.</returns>
+    private Driver TryToGetDriver(CancellationToken cancellationToken)
     {
       int count = Interlocked.Decrement(ref _available);
       if (count < 0)
@@ -315,7 +495,7 @@ namespace MySql.Data.MySqlClient
       }
       try
       {
-        Driver driver = await GetPooledConnectionAsync(execAsync, cancellationToken).ConfigureAwait(false);
+        Driver driver = GetPooledConnection(cancellationToken);
         return driver;
       }
       catch (Exception ex)
@@ -326,7 +506,39 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public async Task<Driver> GetConnectionAsync(bool execAsync, CancellationToken cancellationToken)
+    /// <summary>
+    /// Private asynchronous helper to attempt getting a Driver from the pool by decrementing availability counter; returns null if unavailable.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A task representing the operation, returning the pooled Driver if available, otherwise null.</returns>
+    private async Task<Driver> TryToGetDriverAsync(CancellationToken cancellationToken)
+    {
+      int count = Interlocked.Decrement(ref _available);
+      if (count < 0)
+      {
+        Interlocked.Increment(ref _available);
+        return null;
+      }
+      try
+      {
+        Driver driver = await GetPooledConnectionAsync(cancellationToken).ConfigureAwait(false);
+        return driver;
+      }
+      catch (Exception ex)
+      {
+        MySqlTrace.LogError(-1, ex.Message);
+        Interlocked.Increment(ref _available);
+        throw;
+      }
+    }
+
+    /// <summary>
+    /// Gets a Driver (connection) from the pool, waiting up to ConnectionTimeout if none available, throwing on timeout.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>The pooled Driver.</returns>
+    /// <exception cref="MySqlException">Thrown if no connection available within timeout.</exception>
+    public Driver GetConnection(CancellationToken cancellationToken)
     {
       int fullTimeOut = (int)Settings.ConnectionTimeout * 1000;
       int timeOut = fullTimeOut;
@@ -335,7 +547,33 @@ namespace MySql.Data.MySqlClient
 
       while (timeOut > 0)
       {
-        Driver driver = await TryToGetDriverAsync(execAsync, cancellationToken).ConfigureAwait(false);
+        Driver driver = TryToGetDriver(cancellationToken);
+        if (driver != null) return driver;
+
+        // We have no tickets right now, lets wait for one.
+        if (!_autoEvent.WaitOne(timeOut, false)) break;
+
+        timeOut = fullTimeOut - (int)DateTime.Now.Subtract(start).TotalMilliseconds;
+      }
+      throw new MySqlException(Resources.TimeoutGettingConnection);
+    }
+
+    /// <summary>
+    /// Asynchronously gets a Driver (connection) from the pool, waiting up to ConnectionTimeout if none available, throwing on timeout.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A task representing the operation, returning the pooled Driver.</returns>
+    /// <exception cref="MySqlException">Thrown if no connection available within timeout.</exception>
+    public async Task<Driver> GetConnectionAsync(CancellationToken cancellationToken)
+    {
+      int fullTimeOut = (int)Settings.ConnectionTimeout * 1000;
+      int timeOut = fullTimeOut;
+
+      DateTime start = DateTime.Now;
+
+      while (timeOut > 0)
+      {
+        Driver driver = await TryToGetDriverAsync(cancellationToken).ConfigureAwait(false);
         if (driver != null) return driver;
 
         // We have no tickets right now, lets wait for one.
@@ -350,13 +588,9 @@ namespace MySql.Data.MySqlClient
     /// Clears this pool of all idle connections and marks this pool and being cleared
     /// so all other connections are closed when they are returned.
     /// </summary>
-    internal async Task ClearAsync(bool execAsync)
+    internal void Clear()
     {
-      if (execAsync)
-        await idlePoolSemaphore.WaitAsync().ConfigureAwait(false);
-      else
-        idlePoolSemaphore.Wait();
-
+      idlePoolSemaphore.Wait();
       try
       {
         // first, mark ourselves as being cleared
@@ -366,7 +600,37 @@ namespace MySql.Data.MySqlClient
         while (_idlePool.Count > 0)
         {
           Driver d = _idlePool.Last.Value;
-          await d.CloseAsync(execAsync).ConfigureAwait(false);
+          d.Close();
+          _idlePool.RemoveLast();
+        }
+      }
+      finally
+      {
+        idlePoolSemaphore.Release();
+      }
+      // there is nothing left to do here.  Now we just wait for all
+      // in use connections to be returned to the pool.  When they are
+      // they will be closed.  When the last one is closed, the pool will
+      // be destroyed.
+    }
+
+    /// <summary>
+    /// Clears this pool of all idle connections and marks this pool and being cleared
+    /// so all other connections are closed when they are returned.
+    /// </summary>
+    internal async Task ClearAsync()
+    {
+      await idlePoolSemaphore.WaitAsync().ConfigureAwait(false);
+      try
+      {
+        // first, mark ourselves as being cleared
+        BeingCleared = true;
+
+        // then we remove all connections sitting in the idle pool
+        while (_idlePool.Count > 0)
+        {
+          Driver d = _idlePool.Last.Value;
+          await d.CloseAsync().ConfigureAwait(false);
           _idlePool.RemoveLast();
         }
       }

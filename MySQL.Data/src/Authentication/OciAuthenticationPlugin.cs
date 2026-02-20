@@ -72,16 +72,23 @@ namespace MySql.Data.MySqlClient.Authentication
       base.SetAuthData(data);
     }
 
-    protected override Task<byte[]> MoreDataAsync(byte[] data, bool execAsync)
-    {
-      Dictionary<string, Dictionary<string, string>> profiles = LoadOciConfigProfiles();
-      GetOciConfigValues(profiles, out string keyFilePath, out string fingerprint, out string securityTokenFilePath);
-      string signedToken = SignData(AuthenticationData, keyFilePath);
-      string securityToken = LoadSecurityToken(securityTokenFilePath);
-      byte[] response = BuildResponse(fingerprint, signedToken, securityToken);
+    /// <summary>
+    /// Processes additional data during the OCI IAM authentication handshake.
+    /// This method loads OCI configuration, signs the authentication data with the private key,
+    /// retrieves the security token, and constructs the response payload.
+    /// </summary>
+    /// <param name="data">The byte array received from the server.</param>
+    /// <returns>A byte array containing the response to send to the server.</returns>
+    protected override byte[] MoreData(byte[] data) => HandleMoreData();
 
-      return Task.FromResult<byte[]>(response);
-    }
+    /// <summary>
+    /// Asynchronously processes additional data during the OCI IAM authentication handshake.
+    /// This method loads OCI configuration, signs the authentication data with the private key,
+    /// retrieves the security token, and constructs the response payload.
+    /// </summary>
+    /// <param name="data">The byte array received from the server.</param>
+    /// <returns>A task representing the asynchronous operation, containing the response to send to the server.</returns>
+    protected override Task<byte[]> MoreDataAsync(byte[] data) => Task.FromResult(HandleMoreData());
 
     /// <summary>
     /// Loads the profiles from the OCI config file.
@@ -220,6 +227,21 @@ namespace MySql.Data.MySqlClient.Authentication
         " \"token\": \"" + token + "\" }";
 
       return Encoding.UTF8.GetBytes(payload);
+    }
+
+    /// <summary>
+    /// Handles the OCI IAM authentication logic by loading configuration, signing data, retrieving the security token, and building the response.
+    /// </summary>
+    /// <returns>A byte array containing the response to send to the server.</returns>
+    private byte[] HandleMoreData()
+    {
+      Dictionary<string, Dictionary<string, string>> profiles = LoadOciConfigProfiles();
+      GetOciConfigValues(profiles, out string keyFilePath, out string fingerprint, out string securityTokenFilePath);
+      string signedToken = SignData(AuthenticationData, keyFilePath);
+      string securityToken = LoadSecurityToken(securityTokenFilePath);
+      byte[] response = BuildResponse(fingerprint, signedToken, securityToken);
+
+      return response;
     }
   }
 }

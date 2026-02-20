@@ -80,10 +80,27 @@ namespace MySql.Data.MySqlClient
       return retValue + key.ToString();
     }
 
-    private async Task<ProcedureCacheEntry> GetParametersAsync(string procName, bool execAsync)
+    /// <summary>
+    /// Retrieves the procedure parameters from the cache synchronously.
+    /// </summary>
+    /// <param name="procName">The name of the stored procedure.</param>
+    /// <returns>The ProcedureCacheEntry containing the parameters.</returns>
+    private ProcedureCacheEntry GetParameters(string procName)
     {
       string procCacheKey = GetCacheKey(procName);
-      ProcedureCacheEntry entry = await Connection.ProcedureCache.GetProcedureAsync(Connection, procName, procCacheKey, execAsync).ConfigureAwait(false);
+      ProcedureCacheEntry entry = Connection.ProcedureCache.GetProcedure(Connection, procName, procCacheKey);
+      return entry;
+    }
+
+    /// <summary>
+    /// Asynchronously retrieves the procedure parameters from the cache.
+    /// </summary>
+    /// <param name="procName">The name of the stored procedure.</param>
+    /// <returns>A task that resolves to the ProcedureCacheEntry containing the parameters.</returns>
+    private async Task<ProcedureCacheEntry> GetParametersAsync(string procName)
+    {
+      string procCacheKey = GetCacheKey(procName);
+      ProcedureCacheEntry entry = await Connection.ProcedureCache.GetProcedureAsync(Connection, procName, procCacheKey).ConfigureAwait(false);
       return entry;
     }
 
@@ -192,12 +209,38 @@ namespace MySql.Data.MySqlClient
       return p;
     }
 
-    private async Task<MySqlParameterCollection> CheckParametersAsync(string spName, bool execAsync)
+    /// <summary>
+    /// Checks and validates the parameters for the stored procedure synchronously.
+    /// </summary>
+    /// <param name="spName">The name of the stored procedure.</param>
+    /// <returns>The collection of validated MySqlParameters.</returns>
+    private MySqlParameterCollection CheckParameters(string spName)
     {
       MySqlParameterCollection newParms = new MySqlParameterCollection(command);
       MySqlParameter returnParameter = GetReturnParameter();
 
-      ProcedureCacheEntry entry = await GetParametersAsync(spName, execAsync).ConfigureAwait(false);
+      ProcedureCacheEntry entry = GetParameters(spName);
+      if (entry.procedure == null || entry.procedure.Rows.Count == 0)
+        throw new InvalidOperationException(String.Format(Resources.RoutineNotFound, spName));
+
+      bool realAsFloat = entry.procedure.Rows[0]["SQL_MODE"].ToString().IndexOf("REAL_AS_FLOAT") != -1;
+
+      foreach (MySqlSchemaRow param in entry.parameters.Rows)
+        newParms.Add(GetAndFixParameter(spName, param, realAsFloat, returnParameter));
+      return newParms;
+    }
+
+    /// <summary>
+    /// Asynchronously checks and validates the parameters for the stored procedure.
+    /// </summary>
+    /// <param name="spName">The name of the stored procedure.</param>
+    /// <returns>A task that resolves to the collection of validated MySqlParameters.</returns>
+    private async Task<MySqlParameterCollection> CheckParametersAsync(string spName)
+    {
+      MySqlParameterCollection newParms = new MySqlParameterCollection(command);
+      MySqlParameter returnParameter = GetReturnParameter();
+
+      ProcedureCacheEntry entry = await GetParametersAsync(spName).ConfigureAwait(false);
       if (entry.procedure == null || entry.procedure.Rows.Count == 0)
         throw new InvalidOperationException(String.Format(Resources.RoutineNotFound, spName));
 
@@ -223,7 +266,7 @@ namespace MySql.Data.MySqlClient
       MySqlParameter returnParameter = GetReturnParameter();
 
       MySqlParameterCollection parms = command.Connection.Settings.CheckParameters ?
-          CheckParametersAsync(spName, false).GetAwaiter().GetResult() : Parameters;
+          CheckParameters(spName) : Parameters;
 
       string setSql = SetUserVariables(parms, preparing);
       string callSql = CreateCallStatement(spName, returnParameter, parms);

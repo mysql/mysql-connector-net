@@ -64,16 +64,63 @@ namespace MySql.Data.Types
       get { return "BIGINT"; }
     }
 
-    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
+    /// <summary>
+    /// Writes the 64-bit integer value to the MySQL packet, either in binary or text format.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write the value in binary (<c>true</c>, 8 bytes) or text (<c>false</c>, string) format.</param>
+    /// <param name="val">The integer value to write.</param>
+    /// <param name="length">The length of the value.</param>
+    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
       long v = val as Int64? ?? Convert.ToInt64(val);
       if (binary)
-        await packet.WriteIntegerAsync(v, 8, execAsync).ConfigureAwait(false);
+        packet.WriteInteger(v, 8);
       else
-        await packet.WriteStringNoNullAsync(v.ToString(CultureInfo.InvariantCulture), execAsync).ConfigureAwait(false);
+        packet.WriteStringNoNull(v.ToString(CultureInfo.InvariantCulture));
     }
 
-    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
+    /// <summary>
+    /// Asynchronously writes the 64-bit integer value to the MySQL packet, either in binary or text format.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write the value in binary (<c>true</c>, 8 bytes) or text (<c>false</c>, string) format.</param>
+    /// <param name="val">The integer value to write.</param>
+    /// <param name="length">The length of the value.</param>
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length)
+    {
+      long v = val as Int64? ?? Convert.ToInt64(val);
+      if (binary)
+        await packet.WriteIntegerAsync(v, 8).ConfigureAwait(false);
+      else
+        await packet.WriteStringNoNullAsync(v.ToString(CultureInfo.InvariantCulture)).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Reads the 64-bit integer value from the MySQL packet.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates binary format (8 bytes).</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlInt64"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>.</returns>
+    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
+    {
+      if (nullVal)
+        return new MySqlInt64(true);
+      if (length == -1)
+        return new MySqlInt64((long)packet.ReadULong(8));
+      else
+        return new MySqlInt64(Int64.Parse(packet.ReadString(length), CultureInfo.InvariantCulture));
+    }
+
+    /// <summary>
+    /// Asynchronously reads the 64-bit integer value from the MySQL packet.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates binary format (8 bytes).</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlInt64"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>.</returns>
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal)
     {
       if (nullVal)
         return new MySqlInt64(true);
@@ -81,7 +128,7 @@ namespace MySql.Data.Types
       if (length == -1)
         return new MySqlInt64((long)packet.ReadULong(8));
       else
-        return new MySqlInt64(Int64.Parse(await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false), CultureInfo.InvariantCulture));
+        return new MySqlInt64(Int64.Parse(await packet.ReadStringAsync(length).ConfigureAwait(false), CultureInfo.InvariantCulture));
     }
 
     void IMySqlValue.SkipValue(MySqlPacket packet)

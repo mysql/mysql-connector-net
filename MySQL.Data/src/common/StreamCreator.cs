@@ -72,17 +72,17 @@ namespace MySql.Data.Common
         ConnectionTimeout = timeout
       };
 
-      return GetStreamAsync(settings, CancellationToken.None, false).GetAwaiter().GetResult();
+      return GetStream(settings, CancellationToken.None);
     }
 
-    public static async Task<Tuple<Stream, MyNetworkStream>> GetStreamAsync(MySqlConnectionStringBuilder settings, CancellationToken cancellationToken, bool execAsync)
+    public static Tuple<Stream, MyNetworkStream> GetStream(MySqlConnectionStringBuilder settings, CancellationToken cancellationToken)
     {
       switch (settings.ConnectionProtocol)
       {
         case MySqlConnectionProtocol.Tcp:
-          return await GetTcpStreamAsync(settings, cancellationToken, execAsync).ConfigureAwait(false);
+          return GetTcpStream(settings, cancellationToken);
         case MySqlConnectionProtocol.UnixSocket:
-          return await GetUnixSocketStreamAsync(settings, cancellationToken, execAsync).ConfigureAwait(false);
+          return GetUnixSocketStream(settings, cancellationToken);
         case MySqlConnectionProtocol.SharedMemory:
           return GetSharedMemoryStream(settings);
         case MySqlConnectionProtocol.NamedPipe:
@@ -91,14 +91,30 @@ namespace MySql.Data.Common
       throw new InvalidOperationException(Resources.UnknownConnectionProtocol);
     }
 
-    private static async Task<Tuple<Stream, MyNetworkStream>> GetTcpStreamAsync(MySqlConnectionStringBuilder settings,
-      CancellationToken cancellationToken, bool execAsync)
+    public static async Task<Tuple<Stream, MyNetworkStream>> GetStreamAsync(MySqlConnectionStringBuilder settings, CancellationToken cancellationToken)
+    {
+      switch (settings.ConnectionProtocol)
+      {
+        case MySqlConnectionProtocol.Tcp:
+          return await GetTcpStreamAsync(settings, cancellationToken).ConfigureAwait(false);
+        case MySqlConnectionProtocol.UnixSocket:
+          return await GetUnixSocketStreamAsync(settings, cancellationToken).ConfigureAwait(false);
+        case MySqlConnectionProtocol.SharedMemory:
+          return GetSharedMemoryStream(settings);
+        case MySqlConnectionProtocol.NamedPipe:
+          return GetNamedPipeStream(settings);
+      }
+      throw new InvalidOperationException(Resources.UnknownConnectionProtocol);
+    }
+
+    private static Tuple<Stream, MyNetworkStream> GetTcpStream(MySqlConnectionStringBuilder settings,
+      CancellationToken cancellationToken)
     {
       IPAddress[] ipAddresses;
 
       try
       {
-        ipAddresses = execAsync ? await Dns.GetHostAddressesAsync(settings.Server).ConfigureAwait(false) : Dns.GetHostAddresses(settings.Server);
+        ipAddresses = Dns.GetHostAddresses(settings.Server);
       }
       catch (SocketException)
       {
@@ -108,27 +124,8 @@ namespace MySql.Data.Common
       IPAddress addr = ipAddresses.FirstOrDefault(c => c.AddressFamily == AddressFamily.InterNetwork) ?? ipAddresses[0];
       TcpClient tcpClient = new TcpClient(addr.AddressFamily);
 
-      if (execAsync)
-      {
-        try
-        {
-          using (cancellationToken.Register(() => tcpClient.Dispose()))
-          {
-#if NETFRAMEWORK || NETSTANDARD2_1 || NETSTANDARD2_0
-            await tcpClient.ConnectAsync(settings.Server, (int)settings.Port).ConfigureAwait(false);
-#else
-            await tcpClient.ConnectAsync(settings.Server, (int)settings.Port, cancellationToken).ConfigureAwait(false);
-#endif
-          }
-        }
-        catch (Exception ex) when (ex is SocketException or ObjectDisposedException && cancellationToken.IsCancellationRequested)
-        {
-          throw new MySqlException(Resources.Timeout, new TimeoutException());
-        }
-      }
-      else
-        if (!tcpClient.ConnectAsync(settings.Server, (int)settings.Port).Wait((int)settings.ConnectionTimeout * 1000))
-          throw new MySqlException(Resources.Timeout, new TimeoutException());
+      if (!tcpClient.ConnectAsync(settings.Server, (int)settings.Port).Wait((int)settings.ConnectionTimeout * 1000))
+        throw new MySqlException(Resources.Timeout, new TimeoutException());
 
       if (settings.Keepalive > 0)
         SetKeepAlive(tcpClient.Client, settings.Keepalive);
@@ -140,11 +137,60 @@ namespace MySql.Data.Common
       return new Tuple<Stream, MyNetworkStream>(stream, myNetworkStream);
     }
 
-    internal static async Task<Tuple<Stream, MyNetworkStream>> GetUnixSocketStreamAsync(MySqlConnectionStringBuilder settings, CancellationToken cancellationToken, bool execAsync)
+    private static async Task<Tuple<Stream, MyNetworkStream>> GetTcpStreamAsync(MySqlConnectionStringBuilder settings,
+      CancellationToken cancellationToken)
+    {
+      IPAddress[] ipAddresses;
+
+      try
+      {
+        ipAddresses = await Dns.GetHostAddressesAsync(settings.Server).ConfigureAwait(false);
+      }
+      catch (SocketException)
+      {
+        throw new ArgumentException(Resources.InvalidHostNameOrAddress);
+      }
+
+      IPAddress addr = ipAddresses.FirstOrDefault(c => c.AddressFamily == AddressFamily.InterNetwork) ?? ipAddresses[0];
+      TcpClient tcpClient = new TcpClient(addr.AddressFamily);
+
+      try
+      {
+        using (cancellationToken.Register(() => tcpClient.Dispose()))
+        {
+#if NETFRAMEWORK || NETSTANDARD2_1 || NETSTANDARD2_0
+          await tcpClient.ConnectAsync(settings.Server, (int)settings.Port).ConfigureAwait(false);
+#else
+          await tcpClient.ConnectAsync(settings.Server, (int)settings.Port, cancellationToken).ConfigureAwait(false);
+#endif
+        }
+      }
+      catch (Exception ex) when (ex is SocketException or ObjectDisposedException && cancellationToken.IsCancellationRequested)
+      {
+        throw new MySqlException(Resources.Timeout, new TimeoutException());
+      }
+
+      if (settings.Keepalive > 0)
+        SetKeepAlive(tcpClient.Client, settings.Keepalive);
+
+      MyNetworkStream myNetworkStream = new MyNetworkStream(tcpClient.Client, true);
+      var stream = tcpClient.GetStream();
+      GC.SuppressFinalize(stream);
+
+      return new Tuple<Stream, MyNetworkStream>(stream, myNetworkStream);
+    }
+
+    /// <summary>
+    /// Creates a stream and network stream using a Unix socket connection based on the provided settings.
+    /// </summary>
+    /// <param name="settings">The connection string settings.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A tuple containing the created stream and MyNetworkStream.</returns>
+    internal static Tuple<Stream, MyNetworkStream> GetUnixSocketStream(MySqlConnectionStringBuilder settings, CancellationToken cancellationToken)
     {
       try
       {
-        var networkStream = new MyNetworkStream(await GetUnixSocketAsync(settings.Server, settings.ConnectionTimeout, settings.Keepalive, cancellationToken, execAsync).ConfigureAwait(false), true);
+        var networkStream = new MyNetworkStream(GetUnixSocket(settings.Server, settings.ConnectionTimeout, settings.Keepalive, cancellationToken), true);
         var stream = new NetworkStream(networkStream.Socket, true);
         return new Tuple<Stream, MyNetworkStream>(stream, networkStream);
       }
@@ -154,7 +200,27 @@ namespace MySql.Data.Common
       }
     }
 
-    internal static async Task<Socket> GetUnixSocketAsync(string server, uint connectionTimeout, uint keepAlive, CancellationToken cancellationToken, bool execAsync)
+    /// <summary>
+    /// Asynchronously creates a stream and network stream using a Unix socket connection based on the provided settings.
+    /// </summary>
+    /// <param name="settings">The connection string settings.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a tuple with the created stream and MyNetworkStream.</returns>
+    internal static async Task<Tuple<Stream, MyNetworkStream>> GetUnixSocketStreamAsync(MySqlConnectionStringBuilder settings, CancellationToken cancellationToken)
+    {
+      try
+      {
+        var networkStream = new MyNetworkStream(await GetUnixSocketAsync(settings.Server, settings.ConnectionTimeout, settings.Keepalive, cancellationToken).ConfigureAwait(false), true);
+        var stream = new NetworkStream(networkStream.Socket, true);
+        return new Tuple<Stream, MyNetworkStream>(stream, networkStream);
+      }
+      catch (Exception)
+      {
+        throw;
+      }
+    }
+
+    internal static Socket GetUnixSocket(string server, uint connectionTimeout, uint keepAlive, CancellationToken cancellationToken)
     {
       if (Platform.IsWindows())
         throw new InvalidOperationException(Resources.NoUnixSocketsOnWindows);
@@ -170,20 +236,41 @@ namespace MySql.Data.Common
         socket.ReceiveTimeout = (int)connectionTimeout * 1000;
 
 #if NET6_0_OR_GREATER
-        if (execAsync)
-          await socket.ConnectAsync(endPoint, cancellationToken).ConfigureAwait(false);
-        else
-          socket.Connect(endPoint);
+        socket.Connect(endPoint);
 #else
-        if (execAsync)
-        {
-          SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-          args.RemoteEndPoint = endPoint;
-          socket.ConnectAsync(args);
-          await Task.Run(() => socket.ConnectAsync(args));
-        }
-        else
-          socket.Connect(endPoint);
+        socket.Connect(endPoint);
+#endif
+        return socket;
+      }
+      catch (Exception)
+      {
+        socket.Dispose();
+        throw;
+      }
+    }
+
+    internal static async Task<Socket> GetUnixSocketAsync(string server, uint connectionTimeout, uint keepAlive, CancellationToken cancellationToken)
+    {
+      if (Platform.IsWindows())
+        throw new InvalidOperationException(Resources.NoUnixSocketsOnWindows);
+
+      EndPoint endPoint = new UnixEndPoint(server);
+      Socket socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
+
+      if (keepAlive > 0)
+        SetKeepAlive(socket, keepAlive);
+
+      try
+      {
+        socket.ReceiveTimeout = (int)connectionTimeout * 1000;
+
+#if NET6_0_OR_GREATER
+        await socket.ConnectAsync(endPoint, cancellationToken).ConfigureAwait(false);
+#else
+        SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+        args.RemoteEndPoint = endPoint;
+        socket.ConnectAsync(args);
+        await Task.Run(() => socket.ConnectAsync(args));
 #endif
         return socket;
       }

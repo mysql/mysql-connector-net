@@ -90,7 +90,7 @@ namespace MySql.Data.MySqlClient
 
     private static void UnloadPoolManager()
     {
-      ClearAllPoolsAsync(false).GetAwaiter().GetResult();
+      ClearAllPools();
       timer?.Dispose();
       AppDomain.CurrentDomain.ProcessExit -= UnloadAppDomain;
       AppDomain.CurrentDomain.DomainUnload -= UnloadAppDomain;
@@ -135,22 +135,54 @@ namespace MySql.Data.MySqlClient
       return key;
     }
 
-    public static async Task<MySqlPool> GetPoolAsync(MySqlConnectionStringBuilder settings, bool execAsync, CancellationToken cancellationToken)
+    /// <summary>
+    /// Retrieves an existing connection pool for the given settings or creates a new one if none exists.
+    /// </summary>
+    /// <param name="settings">The connection string settings used to identify or create the pool.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>The MySqlPool instance for the specified settings.</returns>
+    public static MySqlPool GetPool(MySqlConnectionStringBuilder settings, CancellationToken cancellationToken)
     {
       string text = GetKey(settings);
-
-      if (execAsync)
-        await waitHandle.WaitAsync(CancellationToken.None).ConfigureAwait(false);
-      else
-        waitHandle.Wait(cancellationToken);
-
+      waitHandle.Wait(cancellationToken);
       try
       {
         MySqlPool pool;
         Pools.TryGetValue(text, out pool);
         if (pool == null)
         {
-          pool = await MySqlPool.CreateMySqlPoolAsync(settings, execAsync, cancellationToken).ConfigureAwait(false);
+          pool = MySqlPool.CreateMySqlPool(settings, cancellationToken);
+          Pools.Add(text, pool);
+        }
+        else
+          pool.Settings = settings;
+
+        return pool;
+      }
+      finally
+      {
+        waitHandle.Release();
+      }
+    }
+
+    /// <summary>
+    /// Asynchronously retrieves an existing connection pool for the given settings or creates a new one if none exists, using the specified cancellation token.
+    /// </summary>
+    /// <param name="settings">The connection string settings used to identify or create the pool.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task containing the MySqlPool instance for the specified settings.</returns>
+    public static async Task<MySqlPool> GetPoolAsync(MySqlConnectionStringBuilder settings, CancellationToken cancellationToken)
+    {
+      string text = GetKey(settings);
+
+      await waitHandle.WaitAsync(CancellationToken.None).ConfigureAwait(false);
+      try
+      {
+        MySqlPool pool;
+        Pools.TryGetValue(text, out pool);
+        if (pool == null)
+        {
+          pool = await MySqlPool.CreateMySqlPoolAsync(settings, cancellationToken).ConfigureAwait(false);
           Pools.Add(text, pool);
         }
         else
@@ -173,17 +205,39 @@ namespace MySql.Data.MySqlClient
       pool?.RemoveConnection(driver);
     }
 
-    public static async Task ReleaseConnectionAsync(Driver driver, bool execAsync)
+    /// <summary>
+    /// Releases a driver (connection) back to its associated pool for reuse.
+    /// </summary>
+    /// <param name="driver">The Driver instance representing the connection to release.</param>
+    public static void ReleaseConnection(Driver driver)
     {
       Debug.Assert(driver != null);
 
       MySqlPool pool = driver.Pool;
 
       if (pool != null)
-        await pool.ReleaseConnectionAsync(driver, execAsync).ConfigureAwait(false);
+        pool.ReleaseConnection(driver);
     }
 
-    public static async Task ClearPoolAsync(MySqlConnectionStringBuilder settings, bool execAsync)
+    /// <summary>
+    /// Asynchronously releases a driver (connection) back to its associated pool for reuse.
+    /// </summary>
+    /// <param name="driver">The Driver instance representing the connection to release.</param>
+    public static async Task ReleaseConnectionAsync(Driver driver)
+    {
+      Debug.Assert(driver != null);
+
+      MySqlPool pool = driver.Pool;
+
+      if (pool != null)
+        await pool.ReleaseConnectionAsync(driver).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Clears the connection pool associated with the given settings.
+    /// </summary>
+    /// <param name="settings">The connection string settings identifying the pool to clear.</param>
+    public static void ClearPool(MySqlConnectionStringBuilder settings)
     {
       Debug.Assert(settings != null);
       string text;
@@ -198,18 +252,41 @@ namespace MySql.Data.MySqlClient
         return;
       }
 
-      await ClearPoolByTextAsync(text, execAsync).ConfigureAwait(false);
+      ClearPoolByText(text);
     }
 
-    private static async Task ClearPoolByTextAsync(string key, bool execAsync)
+    /// <summary>
+    /// Asynchronously clears the connection pool associated with the given settings.
+    /// </summary>
+    /// <param name="settings">The connection string settings identifying the pool to clear.</param>
+    public static async Task ClearPoolAsync(MySqlConnectionStringBuilder settings)
     {
-      if (execAsync)
-        await waitHandle.WaitAsync().ConfigureAwait(false);
-      else
-        waitHandle.Wait();
+      Debug.Assert(settings != null);
+      string text;
+      try
+      {
+        text = GetKey(settings);
+      }
+      catch (MySqlException)
+      {
+        // Cannot retrieve windows identity for IntegratedSecurity=true
+        // This can be ignored.
+        return;
+      }
+
+      await ClearPoolByTextAsync(text).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Internally clears the connection pool identified by the specified key.
+    /// </summary>
+    /// <param name="key">The key identifying the pool to clear.</param>
+    private static void ClearPoolByText(string key)
+    {
+      waitHandle.Wait();
 
       try
-      { 
+      {
         // if pools doesn't have it, then this pool must already have been cleared
         if (!Pools.ContainsKey(key)) return;
 
@@ -218,7 +295,7 @@ namespace MySql.Data.MySqlClient
         ClearingPools.Add(pool);
 
         // now tell the pool to clear itself
-        await pool.ClearAsync(execAsync).ConfigureAwait(false);
+        pool.Clear();
 
         // and then remove the pool from the active pools list
         Pools.Remove(key);
@@ -229,7 +306,38 @@ namespace MySql.Data.MySqlClient
       }
     }
 
-    public static async Task ClearAllPoolsAsync(bool execAsync)
+    /// <summary>
+    /// Asynchronously clears the connection pool identified by the specified key.
+    /// </summary>
+    /// <param name="key">The key identifying the pool to clear.</param>
+    private static async Task ClearPoolByTextAsync(string key)
+    {
+      await waitHandle.WaitAsync().ConfigureAwait(false);
+      try
+      { 
+        // if pools doesn't have it, then this pool must already have been cleared
+        if (!Pools.ContainsKey(key)) return;
+
+        // add the pool to our list of pools being cleared
+        MySqlPool pool = (Pools[key] as MySqlPool);
+        ClearingPools.Add(pool);
+
+        // now tell the pool to clear itself
+        await pool.ClearAsync().ConfigureAwait(false);
+
+        // and then remove the pool from the active pools list
+        Pools.Remove(key);
+      }
+      finally
+      {
+        waitHandle.Release();
+      }
+    }
+
+    /// <summary>
+    /// Clears all connection pools managed by the pool manager.
+    /// </summary>
+    public static void ClearAllPools()
     {
 
 
@@ -241,7 +349,38 @@ namespace MySql.Data.MySqlClient
 
         // Remove all pools by key.
         foreach (string key in keys)
-          await ClearPoolByTextAsync(key, execAsync).ConfigureAwait(false);
+          ClearPoolByText(key);
+      }
+      catch
+      {
+        throw;
+      }
+
+      if (DemotedServersTimer != null)
+      {
+        DemotedServersTimer.Dispose();
+        Hosts?.Clear();
+        while (!DemotedHosts.IsEmpty)
+          DemotedHosts.TryDequeue(out _);
+      }
+    }
+
+    /// <summary>
+    /// Asynchronously clears all connection pools managed by the pool manager.
+    /// </summary>
+    public static async Task ClearAllPoolsAsync()
+    {
+
+
+      try
+      {
+        // Create separate keys list.
+        List<string> keys = new List<string>(Pools.Count);
+        keys.AddRange(Pools.Keys);
+
+        // Remove all pools by key.
+        foreach (string key in keys)
+          await ClearPoolByTextAsync(key).ConfigureAwait(false);
       }
       catch
       {
@@ -280,7 +419,7 @@ namespace MySql.Data.MySqlClient
 
       foreach (Driver driver in oldDrivers)
       {
-        await driver.CloseAsync(false).ConfigureAwait(false);
+        driver.Close();
       }
     }
 

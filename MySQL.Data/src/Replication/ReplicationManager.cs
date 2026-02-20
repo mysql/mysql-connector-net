@@ -135,22 +135,17 @@ namespace MySql.Data.MySqlClient.Replication
     }
 
     /// <summary>
-    /// Assigns a new server driver to the connection object
+    /// Assigns a new server driver to the connection object using replication or load balancing.
     /// </summary>
-    /// <param name="groupName">Group name</param>
-    /// <param name="source">True if the server connection to assign must be a source</param>
-    /// <param name="connection">MySqlConnection object where the new driver will be assigned</param>
-    /// <param name="execAsync">Boolean that indicates if the function will be executed asynchronously.</param>
-    /// <param name="cancellationToken">the cancellation token.</param>
-    internal static async Task GetNewConnectionAsync(string groupName, bool source, MySqlConnection connection, bool execAsync, CancellationToken cancellationToken)
+    /// <param name="groupName">The name of the replication group.</param>
+    /// <param name="source">True if the server must be a source server.</param>
+    /// <param name="connection">The MySqlConnection to assign the new driver to.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    internal static void GetNewConnection(string groupName, bool source, MySqlConnection connection, CancellationToken cancellationToken)
     {
       do
       {
-        if (execAsync)
-          await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
-        else
-          semaphoreSlim.Wait(cancellationToken);
-
+        semaphoreSlim.Wait(cancellationToken);
         try
         {
           if (!IsReplicationGroup(groupName)) return;
@@ -178,7 +173,73 @@ namespace MySql.Data.MySqlClient.Replication
             }
             if (isNewServer)
             {
-              Driver driver = await Driver.CreateAsync(new MySqlConnectionStringBuilder(server.ConnectionString), execAsync, cancellationToken).ConfigureAwait(false);
+              Driver driver = Driver.Create(new MySqlConnectionStringBuilder(server.ConnectionString), cancellationToken);
+              connection.driver = driver;
+            }
+            return;
+          }
+          catch (MySqlException ex)
+          {
+            connection.driver = null;
+            server.IsAvailable = false;
+            MySqlTrace.LogError(ex.Number, ex.ToString());
+            if (ex.Number == 1042)
+            {
+              // retry to open a failed connection and update its status
+              group.HandleFailover(server, ex);
+            }
+            else
+              throw;
+          }
+        }
+        finally
+        {
+          semaphoreSlim.Release();
+        }
+      } while (true);
+    }
+
+    /// <summary>
+    /// Asynchronously assigns a new server driver to the connection object using replication or load balancing.
+    /// </summary>
+    /// <param name="groupName">The name of the replication group.</param>
+    /// <param name="source">True if the server must be a source server.</param>
+    /// <param name="connection">The MySqlConnection to assign the new driver to.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    internal static async Task GetNewConnectionAsync(string groupName, bool source, MySqlConnection connection, CancellationToken cancellationToken)
+    {
+      do
+      {
+        await semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+          if (!IsReplicationGroup(groupName)) return;
+
+          ReplicationServerGroup group = GetGroup(groupName);
+          ReplicationServer server = group.GetServer(source, connection.Settings);
+
+          if (server == null)
+            throw new MySqlException(Resources.Replication_NoAvailableServer);
+
+          try
+          {
+            bool isNewServer = false;
+            if (connection.driver == null || !connection.driver.IsOpen)
+            {
+              isNewServer = true;
+            }
+            else
+            {
+              MySqlConnectionStringBuilder msb = new MySqlConnectionStringBuilder(server.ConnectionString);
+              if (!msb.Equals(connection.driver.Settings))
+              {
+                isNewServer = true;
+              }
+            }
+            if (isNewServer)
+            {
+              Driver driver = await Driver.CreateAsync(new MySqlConnectionStringBuilder(server.ConnectionString), cancellationToken).ConfigureAwait(false);
               connection.driver = driver;
             }
             return;

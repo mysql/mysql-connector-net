@@ -55,7 +55,11 @@ namespace MySql.Data.MySqlClient
       this.simpleTransaction = simpleTransaction;
     }
 
-    public async Task RollbackAsync(SinglePhaseEnlistment singlePhaseEnlistment, bool execAsync)
+    /// <summary>
+    /// Synchronously rolls back the transaction scope by aborting the enlistment and cleaning up resources.
+    /// </summary>
+    /// <param name="singlePhaseEnlistment">The single-phase enlistment to abort.</param>
+    public void Rollback(SinglePhaseEnlistment singlePhaseEnlistment)
     {
       // prevent commands in main thread to run concurrently
       Driver driver = connection.driver;
@@ -77,13 +81,45 @@ namespace MySql.Data.MySqlClient
       driver.currentTransaction = null;
 
       if (connection.State == ConnectionState.Closed)
-        await connection.CloseFullyAsync(execAsync).ConfigureAwait(false);
+        connection.CloseFully();
       rollbackThreadId = 0;
 
       semaphoreSlim.Release();
     }
 
-    public async Task SinglePhaseCommitAsync(SinglePhaseEnlistment singlePhaseEnlistment, bool execAsync)
+    /// <summary>
+    /// Asynchronously rolls back the transaction scope by aborting the enlistment and cleaning up resources.
+    /// </summary>
+    /// <param name="singlePhaseEnlistment">The single-phase enlistment to
+    public async Task RollbackAsync(SinglePhaseEnlistment singlePhaseEnlistment)
+    {
+      // prevent commands in main thread to run concurrently
+      Driver driver = connection.driver;
+
+      SemaphoreSlim semaphoreSlim = new(1);
+      semaphoreSlim.Wait();
+
+      rollbackThreadId = Thread.CurrentThread.ManagedThreadId;
+      while (connection.Reader != null)
+      {
+        // wait for reader to finish. Maybe we should not wait 
+        // forever and cancel it after some time?
+        System.Threading.Thread.Sleep(100);
+      }
+      simpleTransaction.Rollback();
+      singlePhaseEnlistment.Aborted();
+      DriverTransactionManager.RemoveDriverInTransaction(baseTransaction);
+
+      driver.currentTransaction = null;
+
+      if (connection.State == ConnectionState.Closed)
+        await connection.CloseFullyAsync().ConfigureAwait(false);
+      rollbackThreadId = 0;
+
+      semaphoreSlim.Release();
+    }
+
+    public void SinglePhaseCommit(SinglePhaseEnlistment singlePhaseEnlistment)
     {
       simpleTransaction.Commit();
       singlePhaseEnlistment.Committed();
@@ -91,7 +127,18 @@ namespace MySql.Data.MySqlClient
       connection.driver.currentTransaction = null;
 
       if (connection.State == ConnectionState.Closed)
-        await connection.CloseFullyAsync(execAsync).ConfigureAwait(false);
+        connection.CloseFully();
+    }
+
+    public async Task SinglePhaseCommitAsync(SinglePhaseEnlistment singlePhaseEnlistment)
+    {
+      simpleTransaction.Commit();
+      singlePhaseEnlistment.Committed();
+      DriverTransactionManager.RemoveDriverInTransaction(baseTransaction);
+      connection.driver.currentTransaction = null;
+
+      if (connection.State == ConnectionState.Closed)
+        await connection.CloseFullyAsync().ConfigureAwait(false);
     }
 
     public void ChangeConnection(MySqlConnection connection)
@@ -183,13 +230,13 @@ namespace MySql.Data.MySqlClient
     {
 
       MySqlTransactionScope current = scopeStack.Peek();
-      current.RollbackAsync(singlePhaseEnlistment, false).GetAwaiter().GetResult();
+      current.Rollback(singlePhaseEnlistment);
       scopeStack.Pop();
     }
 
     void IPromotableSinglePhaseNotification.SinglePhaseCommit(SinglePhaseEnlistment singlePhaseEnlistment)
     {
-      scopeStack.Pop().SinglePhaseCommitAsync(singlePhaseEnlistment, false).GetAwaiter().GetResult();
+      scopeStack.Pop().SinglePhaseCommit(singlePhaseEnlistment);
     }
 
     byte[] ITransactionPromoter.Promote()

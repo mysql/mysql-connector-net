@@ -83,8 +83,8 @@ namespace MySql.Data.MySqlClient
   /// <example>
   ///  The following example creates a <see cref="MySqlCommand"/> and a <see cref="MySqlConnection"/>.
   ///  The <see cref="MySqlConnection"/> is opened and set as the <see cref="MySqlCommand.Connection"/> for the
-  ///  <see cref="MySqlCommand"/>. The example then calls <see cref="MySqlCommand.ExecuteNonQuery"/>, and closes
-  ///  the connection. To accomplish this, the <see cref="MySqlCommand.ExecuteNonQuery"/> is
+  ///  <see cref="MySqlCommand"/>. The example then calls <see cref="MySqlCommand.ExecuteNonQuery()"/>, and closes
+  ///  the connection. To accomplish this, the <see cref="MySqlCommand.ExecuteNonQuery()"/> is
   ///  passed a connection string and a query string that is a SQL INSERT
   ///  statement.
   ///  <code lang="C#">
@@ -594,6 +594,16 @@ namespace MySql.Data.MySqlClient
     #region Async
     #region Fill
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataSet)"/> method.
+    /// </summary>
+    /// <param name="dataSet">The <see cref="DataSet"/> to fill records with.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataSet"/>.</returns>
+    public new int Fill(DataSet dataSet)
+    {
+      return Fill(dataSet, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill records with.</param>
@@ -601,6 +611,22 @@ namespace MySql.Data.MySqlClient
     public Task<int> FillAsync(DataSet dataSet)
     {
       return FillAsync(dataSet, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataSet)"/> method.
+    /// </summary>
+    /// <param name="dataSet">The <see cref="DataSet"/> to fill records with.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataSet"/>.</returns>
+    public int Fill(DataSet dataSet, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Fill(dataSet);
     }
 
     /// <summary>
@@ -632,6 +658,16 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataTable)"/> method.
+    /// </summary>
+    /// <param name="dataTable">The name of the <see cref="DataTable"/> to use for table mapping.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
+    public new int Fill(DataTable dataTable)
+    {
+      return Fill(dataTable, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataTable)"/> method.
     /// </summary>
     /// <param name="dataTable">The name of the <see cref="DataTable"/> to use for table mapping.</param>
@@ -639,6 +675,22 @@ namespace MySql.Data.MySqlClient
     public Task<int> FillAsync(DataTable dataTable)
     {
       return FillAsync(dataTable, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataTable)"/> method.
+    /// </summary>
+    /// <param name="dataTable">The name of the <see cref="DataTable"/> to use for table mapping.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
+    public int Fill(DataTable dataTable, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Fill(dataTable);
     }
 
     /// <summary>
@@ -670,6 +722,17 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataSet, string)"/> method.
+    /// </summary>
+    /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
+    /// <param name="srcTable">The name of the source table to use for table mapping.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataSet"/>.</returns>
+    public new int Fill(DataSet dataSet, string srcTable)
+    {
+      return Fill(dataSet, srcTable, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet, string)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
@@ -678,6 +741,23 @@ namespace MySql.Data.MySqlClient
     public Task<int> FillAsync(DataSet dataSet, string srcTable)
     {
       return FillAsync(dataSet, srcTable, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataSet, string)"/> method.
+    /// </summary>
+    /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
+    /// <param name="srcTable">The name of the source table to use for table mapping.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataSet"/>.</returns>
+    public int Fill(DataSet dataSet, string srcTable, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Fill(dataSet, srcTable);
     }
 
     /// <summary>
@@ -710,6 +790,17 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataTable)"/> method.
+    /// </summary>
+    /// <param name="dataTable">The <see cref="DataTable"/> to fill with records.</param>
+    /// <param name="dataReader">An instance of <see cref="IDataReader"/>.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
+    public new int Fill(DataTable dataTable, IDataReader dataReader)
+    {
+      return Fill(dataTable, dataReader, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataTable)"/> method.
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable"/> to fill with records.</param>
@@ -718,6 +809,23 @@ namespace MySql.Data.MySqlClient
     public Task<int> FillAsync(DataTable dataTable, IDataReader dataReader)
     {
       return FillAsync(dataTable, dataReader, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataTable)"/> method.
+    /// </summary>
+    /// <param name="dataTable">The <see cref="DataTable"/> to fill with records.</param>
+    /// <param name="dataReader">An instance of <see cref="IDataReader"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
+    public int Fill(DataTable dataTable, IDataReader dataReader, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Fill(dataTable, dataReader);
     }
 
     /// <summary>
@@ -750,6 +858,18 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataTable, IDbCommand, CommandBehavior)"/> method.
+    /// </summary>
+    /// <param name="dataTable">The <see cref="DataTable"/> to fill with records.</param>
+    /// <param name="command">The SQL SELECT statement used to retrieve rows from the data source.</param>
+    /// <param name="behavior">One of the <see cref="CommandBehavior"/> values.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
+    public new int Fill(DataTable dataTable, IDbCommand command, CommandBehavior behavior)
+    {
+      return Fill(dataTable, command, behavior, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataTable, IDbCommand, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataTable">The <see cref="DataTable"/> to fill with records.</param>
@@ -759,6 +879,24 @@ namespace MySql.Data.MySqlClient
     public Task<int> FillAsync(DataTable dataTable, IDbCommand command, CommandBehavior behavior)
     {
       return FillAsync(dataTable, command, behavior, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataTable, IDbCommand, CommandBehavior)"/> method.
+    /// </summary>
+    /// <param name="dataTable">The <see cref="DataTable"/> to fill with records.</param>
+    /// <param name="command">The SQL SELECT statement used to retrieve rows from the data source.</param>
+    /// <param name="behavior">One of the <see cref="CommandBehavior"/> values.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
+    public int Fill(DataTable dataTable, IDbCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Fill(dataTable, command, behavior);
     }
 
     /// <summary>
@@ -792,6 +930,18 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(int, int, DataTable[])"/> method.
+    /// </summary>
+    /// <param name="startRecord">The start record.</param>
+    /// <param name="maxRecords">The max number of affected records.</param>
+    /// <param name="dataTables">The <see cref="DataTable"/>s to fill with records.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
+    public new int Fill(int startRecord, int maxRecords, params DataTable[] dataTables)
+    {
+      return Fill(startRecord, maxRecords, CancellationToken.None, dataTables);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.Fill(int, int, DataTable[])"/> method.
     /// </summary>
     /// <param name="startRecord">The start record.</param>
@@ -801,6 +951,24 @@ namespace MySql.Data.MySqlClient
     public Task<int> FillAsync(int startRecord, int maxRecords, params DataTable[] dataTables)
     {
       return FillAsync(startRecord, maxRecords, CancellationToken.None, dataTables);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(int, int, DataTable[])"/> method.
+    /// </summary>
+    /// <param name="startRecord">The start record.</param>
+    /// <param name="maxRecords">The max number of affected records.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <param name="dataTables">The <see cref="DataTable"/>s to fill with records.</param>
+    /// <returns>The number of rows successfully added to or refreshed in the <see cref="DataTable"/>.</returns>
+    public int Fill(int startRecord, int maxRecords, CancellationToken cancellationToken, params DataTable[] dataTables)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Fill(startRecord, maxRecords, dataTables);
     }
 
     /// <summary>
@@ -834,6 +1002,14 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string)"/> method.
+    /// </summary>
+    public new int Fill(DataSet dataSet, int startRecord, int maxRecords, string srcTable)
+    {
+      return Fill(dataSet, startRecord, maxRecords, srcTable, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
@@ -844,6 +1020,19 @@ namespace MySql.Data.MySqlClient
     public Task<int> FillAsync(DataSet dataSet, int startRecord, int maxRecords, string srcTable)
     {
       return FillAsync(dataSet, startRecord, maxRecords, srcTable, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string)"/> method.
+    /// </summary>
+    public int Fill(DataSet dataSet, int startRecord, int maxRecords, string srcTable, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Fill(dataSet, startRecord, maxRecords, srcTable);
     }
 
     /// <summary>
@@ -878,6 +1067,14 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string)"/> method.
+    /// </summary>
+    public new int Fill(DataSet dataSet, string srcTable, IDataReader dataReader, int startRecord, int maxRecords)
+    {
+      return Fill(dataSet, srcTable, dataReader, startRecord, maxRecords, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
@@ -889,6 +1086,19 @@ namespace MySql.Data.MySqlClient
     public Task<int> FillAsync(DataSet dataSet, string srcTable, IDataReader dataReader, int startRecord, int maxRecords)
     {
       return FillAsync(dataSet, srcTable, dataReader, startRecord, maxRecords, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string)"/> method.
+    /// </summary>
+    public int Fill(DataSet dataSet, string srcTable, IDataReader dataReader, int startRecord, int maxRecords, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Fill(dataSet, srcTable, dataReader, startRecord, maxRecords);
     }
 
     /// <summary>
@@ -924,6 +1134,14 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataTable[], int, int, IDbCommand, CommandBehavior)"/> method.
+    /// </summary>
+    public new int Fill(DataTable[] dataTables, int startRecord, int maxRecords, IDbCommand command, CommandBehavior behavior)
+    {
+      return Fill(dataTables, startRecord, maxRecords, command, behavior, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataTable[], int, int, IDbCommand, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataTables">The <see cref="DataTable"/>s to fill with records.</param>
@@ -935,6 +1153,19 @@ namespace MySql.Data.MySqlClient
     public Task<int> FillAsync(DataTable[] dataTables, int startRecord, int maxRecords, IDbCommand command, CommandBehavior behavior)
     {
       return FillAsync(dataTables, startRecord, maxRecords, command, behavior, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataTable[], int, int, IDbCommand, CommandBehavior)"/> method.
+    /// </summary>
+    public int Fill(DataTable[] dataTables, int startRecord, int maxRecords, IDbCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Fill(dataTables, startRecord, maxRecords, command, behavior);
     }
 
     /// <summary>
@@ -970,6 +1201,14 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string, IDbCommand, CommandBehavior)"/> method.
+    /// </summary>
+    public new int Fill(DataSet dataSet, int startRecord, int maxRecords, string srcTable, IDbCommand command, CommandBehavior behavior)
+    {
+      return Fill(dataSet, startRecord, maxRecords, srcTable, command, behavior, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string, IDbCommand, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataSet">The <see cref="DataSet"/> to fill with records.</param>
@@ -982,6 +1221,19 @@ namespace MySql.Data.MySqlClient
     public Task<int> FillAsync(DataSet dataSet, int startRecord, int maxRecords, string srcTable, IDbCommand command, CommandBehavior behavior)
     {
       return FillAsync(dataSet, startRecord, maxRecords, srcTable, command, behavior, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.Fill(DataSet, int, int, string, IDbCommand, CommandBehavior)"/> method.
+    /// </summary>
+    public int Fill(DataSet dataSet, int startRecord, int maxRecords, string srcTable, IDbCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Fill(dataSet, startRecord, maxRecords, srcTable, command, behavior);
     }
 
     /// <summary>
@@ -1020,6 +1272,15 @@ namespace MySql.Data.MySqlClient
     #endregion
 
     #region FillSchema
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType)"/> method.
+    /// </summary>
+    public new DataTable[] FillSchema(DataSet dataSet, SchemaType schemaType)
+    {
+      return FillSchema(dataSet, schemaType, CancellationToken.None);
+    }
+
     /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType)"/> method.
     /// </summary>
@@ -1029,6 +1290,18 @@ namespace MySql.Data.MySqlClient
     public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType)
     {
       return FillSchemaAsync(dataSet, schemaType, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType)"/> method.
+    /// </summary>
+    public DataTable[] FillSchema(DataSet dataSet, SchemaType schemaType, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+      return base.FillSchema(dataSet, schemaType);
     }
 
     /// <summary>
@@ -1061,6 +1334,14 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, string)"/> method.
+    /// </summary>
+    public new DataTable[] FillSchema(DataSet dataSet, SchemaType schemaType, string srcTable)
+    {
+      return FillSchema(dataSet, schemaType, srcTable, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, string)"/> method.
     /// </summary>
     /// <param name="dataSet">DataSet to use.</param>
@@ -1070,6 +1351,18 @@ namespace MySql.Data.MySqlClient
     public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, string srcTable)
     {
       return FillSchemaAsync(dataSet, schemaType, srcTable, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, string)"/> method.
+    /// </summary>
+    public DataTable[] FillSchema(DataSet dataSet, SchemaType schemaType, string srcTable, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+      return base.FillSchema(dataSet, schemaType, srcTable);
     }
 
     /// <summary>
@@ -1103,6 +1396,14 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, string)"/> method.
+    /// </summary>
+    public new DataTable[] FillSchema(DataSet dataSet, SchemaType schemaType, string srcTable, IDataReader dataReader)
+    {
+      return FillSchema(dataSet, schemaType, srcTable, dataReader, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, string)"/> method.
     /// </summary>
     /// <param name="dataSet">DataSet to use.</param>
@@ -1113,6 +1414,18 @@ namespace MySql.Data.MySqlClient
     public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, string srcTable, IDataReader dataReader)
     {
       return FillSchemaAsync(dataSet, schemaType, srcTable, dataReader, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, string)"/> method.
+    /// </summary>
+    public DataTable[] FillSchema(DataSet dataSet, SchemaType schemaType, string srcTable, IDataReader dataReader, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+      return base.FillSchema(dataSet, schemaType, srcTable, dataReader);
     }
 
     /// <summary>
@@ -1147,6 +1460,14 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, IDbCommand, string, CommandBehavior)"/> method.
+    /// </summary>
+    public new DataTable[] FillSchema(DataSet dataSet, SchemaType schemaType, IDbCommand command, string srcTable, CommandBehavior behavior)
+    {
+      return FillSchema(dataSet, schemaType, command, srcTable, behavior, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, IDbCommand, string, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataSet">DataSet to use.</param>
@@ -1158,6 +1479,18 @@ namespace MySql.Data.MySqlClient
     public Task<DataTable[]> FillSchemaAsync(DataSet dataSet, SchemaType schemaType, IDbCommand command, string srcTable, CommandBehavior behavior)
     {
       return FillSchemaAsync(dataSet, schemaType, command, srcTable, behavior, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.FillSchema(DataSet, SchemaType, IDbCommand, string, CommandBehavior)"/> method.
+    /// </summary>
+    public DataTable[] FillSchema(DataSet dataSet, SchemaType schemaType, IDbCommand command, string srcTable, CommandBehavior behavior, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+      return base.FillSchema(dataSet, schemaType, command, srcTable, behavior);
     }
 
     /// <summary>
@@ -1193,6 +1526,14 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType)"/> method.
+    /// </summary>
+    public new DataTable FillSchema(DataTable dataTable, SchemaType schemaType)
+    {
+      return FillSchema(dataTable, schemaType, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType)"/> method.
     /// </summary>
     /// <param name="dataTable">DataTable to use.</param>
@@ -1201,6 +1542,18 @@ namespace MySql.Data.MySqlClient
     public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType)
     {
       return FillSchemaAsync(dataTable, schemaType, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType)"/> method.
+    /// </summary>
+    public DataTable FillSchema(DataTable dataTable, SchemaType schemaType, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+      return base.FillSchema(dataTable, schemaType);
     }
 
     /// <summary>
@@ -1233,6 +1586,14 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType)"/> method.
+    /// </summary>
+    public new DataTable FillSchema(DataTable dataTable, SchemaType schemaType, IDataReader dataReader)
+    {
+      return FillSchema(dataTable, schemaType, dataReader, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType)"/> method.
     /// </summary>
     /// <param name="dataTable">DataTable to use.</param>
@@ -1242,6 +1603,18 @@ namespace MySql.Data.MySqlClient
     public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType, IDataReader dataReader)
     {
       return FillSchemaAsync(dataTable, schemaType, dataReader, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType)"/> method.
+    /// </summary>
+    public DataTable FillSchema(DataTable dataTable, SchemaType schemaType, IDataReader dataReader, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+      return base.FillSchema(dataTable, schemaType, dataReader);
     }
 
     /// <summary>
@@ -1275,6 +1648,14 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType, IDbCommand, CommandBehavior)"/> method.
+    /// </summary>
+    public new DataTable FillSchema(DataTable dataTable, SchemaType schemaType, IDbCommand command, CommandBehavior behavior)
+    {
+      return FillSchema(dataTable, schemaType, command, behavior, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType, IDbCommand, CommandBehavior)"/> method.
     /// </summary>
     /// <param name="dataTable">DataTable to use.</param>
@@ -1285,6 +1666,18 @@ namespace MySql.Data.MySqlClient
     public Task<DataTable> FillSchemaAsync(DataTable dataTable, SchemaType schemaType, IDbCommand command, CommandBehavior behavior)
     {
       return FillSchemaAsync(dataTable, schemaType, command, behavior, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DbDataAdapter.FillSchema(DataTable, SchemaType, IDbCommand, CommandBehavior)"/> method.
+    /// </summary>
+    public DataTable FillSchema(DataTable dataTable, SchemaType schemaType, IDbCommand command, CommandBehavior behavior, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+      return base.FillSchema(dataTable, schemaType, command, behavior);
     }
 
     /// <summary>
@@ -1322,6 +1715,16 @@ namespace MySql.Data.MySqlClient
 
     #region Update
     /// <summary>
+    /// Synchronous version of the <see cref="DataAdapter.Update"/> method.
+    /// </summary>
+    /// <param name="dataRows">DataRow[] to use.</param>
+    /// <returns>The number of rows successfully updated from the <see cref="DataSet"/>.</returns>
+    public new int Update(DataRow[] dataRows)
+    {
+      return Update(dataRows, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DataAdapter.Update"/> method.
     /// </summary>
     /// <param name="dataRows">DataRow[] to use.</param>
@@ -1329,6 +1732,23 @@ namespace MySql.Data.MySqlClient
     public Task<int> UpdateAsync(DataRow[] dataRows)
     {
       return UpdateAsync(dataRows, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DataAdapter.Update"/> method.
+    /// </summary>
+    /// <param name="dataRows">DataRow[] to use.</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/> to use.</param>
+    /// <returns>The number of rows successfully updated from the <see cref="DataSet"/>.</returns>
+
+    public int Update(DataRow[] dataRows, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Update(dataRows);
     }
 
     /// <summary>
@@ -1361,6 +1781,18 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DataAdapter.Update"/> method.
+    /// </summary>
+    /// <param name="dataSet">DataSet to use.</param>
+    /// <returns>The number of rows successfully updated from the <see cref="DataSet"/>.</returns>
+
+    public new int Update(DataSet dataSet)
+    {
+      return Update(dataSet, CancellationToken.None);
+    }
+
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DataAdapter.Update"/> method.
     /// </summary>
     /// <param name="dataSet">DataSet to use.</param>
@@ -1369,6 +1801,23 @@ namespace MySql.Data.MySqlClient
     public Task<int> UpdateAsync(DataSet dataSet)
     {
       return UpdateAsync(dataSet, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DataAdapter.Update"/> method.
+    /// </summary>
+    /// <param name="dataSet">DataSet to use.</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/> to use.</param>
+    /// <returns>The number of rows successfully updated from the <see cref="DataSet"/>.</returns>
+
+    public int Update(DataSet dataSet, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Update(dataSet);
     }
 
     /// <summary>
@@ -1401,6 +1850,17 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DataAdapter.Update"/> method.
+    /// </summary>
+    /// <param name="dataTable">DataTable to use.</param>
+    /// <returns>The number of rows successfully updated from the <see cref="DataSet"/>.</returns>
+
+    public new int Update(DataTable dataTable)
+    {
+      return Update(dataTable, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DataAdapter.Update"/> method.
     /// </summary>
     /// <param name="dataTable">DataTable to use.</param>
@@ -1409,6 +1869,22 @@ namespace MySql.Data.MySqlClient
     public Task<int> UpdateAsync(DataTable dataTable)
     {
       return UpdateAsync(dataTable, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DataAdapter.Update"/> method.
+    /// </summary>
+    /// <param name="dataTable">DataTable to use.</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/> to use.</param>
+    /// <returns>The number of rows successfully updated from the <see cref="DataSet"/>.</returns>
+    public int Update(DataTable dataTable, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Update(dataTable);
     }
 
     /// <summary>
@@ -1453,6 +1929,23 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DataAdapter.Update"/> method.
+    /// </summary>
+    /// <param name="dataRows">DataRow[] to use.</param>
+    /// <param name="tableMapping">Data Table Mapping</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/> to use.</param>
+    /// <returns>The number of rows successfully updated from the <see cref="DataSet"/>.</returns>
+    public int Update(DataRow[] dataRows, DataTableMapping tableMapping, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Update(dataRows, tableMapping);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DataAdapter.Update"/> method.
     /// </summary>
     /// <param name="dataRows">DataRow[] to use.</param>
@@ -1483,6 +1976,18 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Synchronous version of the <see cref="DataAdapter.Update"/> method.
+    /// </summary>
+    /// <param name="dataSet">DataSet to use.</param>
+    /// <param name="srcTable">Source table to use.</param>
+    /// <returns>The number of rows successfully updated from the <see cref="DataSet"/>.</returns>
+
+    public new int Update(DataSet dataSet, string srcTable)
+    {
+      return Update(dataSet, srcTable, CancellationToken.None);
+    }
+
+    /// <summary>
     /// Asynchronous version of the <see cref="DataAdapter.Update"/> method.
     /// </summary>
     /// <param name="dataSet">DataSet to use.</param>
@@ -1492,6 +1997,24 @@ namespace MySql.Data.MySqlClient
     public Task<int> UpdateAsync(DataSet dataSet, string srcTable)
     {
       return UpdateAsync(dataSet, srcTable, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Synchronous version of the <see cref="DataAdapter.Update"/> method.
+    /// </summary>
+    /// <param name="dataSet">DataSet to use.</param>
+    /// <param name="srcTable">Source table to use.</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/> to use.</param>
+    /// <returns>The number of rows successfully updated from the <see cref="DataSet"/>.</returns>
+
+    public int Update(DataSet dataSet, string srcTable, CancellationToken cancellationToken)
+    {
+      if (cancellationToken.IsCancellationRequested)
+      {
+        throw new OperationCanceledException(cancellationToken);
+      }
+
+      return base.Update(dataSet, srcTable);
     }
 
     /// <summary>

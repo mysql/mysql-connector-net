@@ -177,7 +177,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         c.Open();
         threadId = c.ServerThread;
-        c.AbortAsync(false).GetAwaiter().GetResult();
+        c.Abort();
       }
 
       using (MySqlConnection c1 = new MySqlConnection(connStr))

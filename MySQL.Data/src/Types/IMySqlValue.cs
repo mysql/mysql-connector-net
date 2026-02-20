@@ -40,8 +40,14 @@ namespace MySql.Data.Types
     Type SystemType { get; }
     string MySqlTypeName { get; }
 
-    Task WriteValueAsync(MySqlPacket packet, bool binary, object value, int length, bool execAsync);
-    Task<IMySqlValue> ReadValueAsync(MySqlPacket packet, long length, bool isNull, bool execAsync);
+    void WriteValue(MySqlPacket packet, bool binary, object value, int length);
+
+    Task WriteValueAsync(MySqlPacket packet, bool binary, object value, int length);
+
+    IMySqlValue ReadValue(MySqlPacket packet, long length, bool isNull);
+
+    Task<IMySqlValue> ReadValueAsync(MySqlPacket packet, long length, bool isNull);
+
     void SkipValue(MySqlPacket packet);
   }
 }

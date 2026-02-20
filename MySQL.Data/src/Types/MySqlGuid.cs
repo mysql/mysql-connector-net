@@ -60,54 +60,95 @@ namespace MySql.Data.Types
 
     string IMySqlValue.MySqlTypeName => OldGuids ? "BINARY(16)" : "CHAR(36)";
 
-    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
+    /// <summary>
+    /// Writes the GUID value to the MySQL packet.
+    /// If <see cref="OldGuids"/> is <c>true</c>, writes in the old binary format (16 bytes). Otherwise, writes as a string in "D" format (CHAR(36)), with length prefix in binary mode or escaped quoted string in text mode.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write in binary mode (<c>true</c>) or text mode (<c>false</c>).</param>
+    /// <param name="val">The GUID value to write, which can be a Guid, string, or byte array.</param>
+    /// <param name="length">The length of the value.</param>
+    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
-      Guid guid = Guid.Empty;
-      string valAsString = val as string;
-      byte[] valAsByte = val as byte[];
-
-      if (val is Guid)
-        guid = (Guid)val;
-      else
-      {
-        try
-        {
-          if (valAsString != null)
-            guid = new Guid(valAsString);
-          else if (valAsByte != null)
-            guid = new Guid(valAsByte);
-        }
-        catch (Exception ex)
-        {
-          throw new MySqlException(Resources.DataNotInSupportedFormat, ex);
-        }
-      }
+      Guid guid = GetGuid(val);
 
       if (OldGuids)
-        await WriteOldGuidAsync(packet, guid, binary, execAsync).ConfigureAwait(false);
+        WriteOldGuid(packet, guid, binary);
       else
       {
-        guid.ToString("D");
-
         if (binary)
-          await packet.WriteLenStringAsync(guid.ToString("D"), execAsync).ConfigureAwait(false);
+          packet.WriteLenString(guid.ToString("D"));
         else
-          await packet.WriteStringNoNullAsync("'" + MySqlHelper.EscapeString(guid.ToString("D")) + "'", execAsync).ConfigureAwait(false);
+          packet.WriteStringNoNull("'" + MySqlHelper.EscapeString(guid.ToString("D")) + "'");
       }
     }
 
-    private async Task WriteOldGuidAsync(MySqlPacket packet, Guid guid, bool binary, bool execAsync)
+    /// <summary>
+    /// Asynchronously writes the GUID value to the MySQL packet.
+    /// If <see cref="OldGuids"/> is <c>true</c>, writes in the old binary format (16 bytes). Otherwise, writes as a string in "D" format (CHAR(36)), with length prefix in binary mode or escaped quoted string in text mode.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="binary">Indicates whether to write in binary mode (<c>true</c>) or text mode (<c>false</c>).</param>
+    /// <param name="val">The GUID value to write, which can be a Guid, string, or byte array.</param>
+    /// <param name="length">The length of the value.</param>
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length)
+    {
+      Guid guid = GetGuid(val);
+
+      if (OldGuids)
+        await WriteOldGuidAsync(packet, guid, binary).ConfigureAwait(false);
+      else
+      {
+        if (binary)
+          await packet.WriteLenStringAsync(guid.ToString("D")).ConfigureAwait(false);
+        else
+          await packet.WriteStringNoNullAsync("'" + MySqlHelper.EscapeString(guid.ToString("D")) + "'").ConfigureAwait(false);
+      }
+    }
+
+    /// <summary>
+    /// Writes the GUID in the old binary format (16 bytes) to the MySQL packet.
+    /// In binary mode, writes with length prefix; in text mode, prefixes with "_binary " and writes escaped hex bytes as a quoted string.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="guid">The GUID value to write.</param>
+    /// <param name="binary">Indicates whether to write in binary mode (<c>true</c>) or text mode (<c>false</c>).</param>
+    private void WriteOldGuid(MySqlPacket packet, Guid guid, bool binary)
+    {
+      byte[] bytes = guid.ToByteArray();
+      if (binary)
+      {
+        packet.WriteLength(bytes.Length);
+        packet.Write(bytes);
+      }
+      else
+      {
+        packet.WriteStringNoNull("_binary ");
+        packet.WriteByte((byte)'\'');
+        EscapeByteArray(bytes, bytes.Length, packet);
+        packet.WriteByte((byte)'\'');
+      }
+    }
+
+    /// <summary>
+    /// Asynchronously writes the GUID in the old binary format (16 bytes) to the MySQL packet.
+    /// In binary mode, writes with length prefix; in text mode, prefixes with "_binary " and writes escaped hex bytes as a quoted string.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to write the value to.</param>
+    /// <param name="guid">The GUID value to write.</param>
+    /// <param name="binary">Indicates whether to write in binary mode (<c>true</c>) or text mode (<c>false</c>).</param>
+    private async Task WriteOldGuidAsync(MySqlPacket packet, Guid guid, bool binary)
     {
       byte[] bytes = guid.ToByteArray();
 
       if (binary)
       {
-        await packet.WriteLengthAsync(bytes.Length, execAsync).ConfigureAwait(false);
-        await packet.WriteAsync(bytes, execAsync).ConfigureAwait(false);
+        await packet.WriteLengthAsync(bytes.Length).ConfigureAwait(false);
+        await packet.WriteAsync(bytes).ConfigureAwait(false);
       }
       else
       {
-        await packet.WriteStringNoNullAsync("_binary ", execAsync).ConfigureAwait(false);
+        await packet.WriteStringNoNullAsync("_binary ").ConfigureAwait(false);
         packet.WriteByte((byte)'\'');
         EscapeByteArray(bytes, bytes.Length, packet);
         packet.WriteByte((byte)'\'');
@@ -135,19 +176,68 @@ namespace MySql.Data.Types
       }
     }
 
-    private async Task<MySqlGuid> ReadOldGuidAsync(MySqlPacket packet, long length, bool execAsync)
+    /// <summary>
+    /// Parses the input value to a Guid, supporting Guid, string, or byte array inputs.
+    /// </summary>
+    /// <param name="val">The input value to parse as Guid.</param>
+    /// <returns>The parsed Guid value.</returns>
+    /// <exception cref="MySqlException">Thrown if the value cannot be parsed as a Guid.</exception>
+    private Guid GetGuid(object val)
+    {
+      Guid guid = Guid.Empty;
+      string valAsString = val as string;
+      byte[] valAsByte = val as byte[];
+      if (val is Guid)
+        return (Guid)val;
+      else
+      {
+        try
+        {
+          if (valAsString != null)
+            return new Guid(valAsString);
+          else if (valAsByte != null)
+            return new Guid(valAsByte);
+        }
+        catch (Exception ex)
+        {
+          throw new MySqlException(Resources.DataNotInSupportedFormat, ex);
+        }
+      }
+      return guid;
+    }
+
+    private MySqlGuid ReadOldGuid(MySqlPacket packet, long length)
     {
       if (length == -1)
         length = (long)packet.ReadFieldLength();
-
       byte[] buff = new byte[length];
-      await packet.ReadAsync(buff, 0, (int)length, execAsync).ConfigureAwait(false);
+      packet.Read(buff, 0, (int)length);
       MySqlGuid g = new MySqlGuid(buff);
       g.OldGuids = OldGuids;
       return g;
     }
 
-    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
+    private async Task<MySqlGuid> ReadOldGuidAsync(MySqlPacket packet, long length)
+    {
+      if (length == -1)
+        length = (long)packet.ReadFieldLength();
+
+      byte[] buff = new byte[length];
+      await packet.ReadAsync(buff, 0, (int)length).ConfigureAwait(false);
+      MySqlGuid g = new MySqlGuid(buff);
+      g.OldGuids = OldGuids;
+      return g;
+    }
+
+    /// <summary>
+    /// Reads the GUID value from the MySQL packet.
+    /// If <see cref="OldGuids"/> is <c>true</c>, reads as binary bytes (16 bytes) and constructs a GUID. Otherwise, reads as a string and parses to GUID.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates length-prefixed reading.</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlGuid"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>.</returns>
+    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
     {
       MySqlGuid g = new MySqlGuid();
       g.IsNull = true;
@@ -155,12 +245,40 @@ namespace MySql.Data.Types
       if (!nullVal)
       {
         if (OldGuids)
-          return await ReadOldGuidAsync(packet, length, execAsync).ConfigureAwait(false);
+          return ReadOldGuid(packet, length);
         string s = String.Empty;
         if (length == -1)
-          s = await packet.ReadLenStringAsync(execAsync).ConfigureAwait(false);
+          s = packet.ReadLenString();
         else
-          s = await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false);
+          s = packet.ReadString(length);
+        g.Value = new Guid(s);
+        g.IsNull = false;
+      }
+      return g;
+    }
+
+    /// <summary>
+    /// Asynchronously reads the GUID value from the MySQL packet.
+    /// If <see cref="OldGuids"/> is <c>true</c>, reads as binary bytes (16 bytes) and constructs a GUID. Otherwise, reads as a string and parses to GUID.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The length of the value to read. A value of -1 indicates length-prefixed reading.</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A new <see cref="MySqlGuid"/> instance representing the read value, or a null instance if <paramref name="nullVal"/> is <c>true</c>.</returns>
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal)
+    {
+      MySqlGuid g = new MySqlGuid();
+      g.IsNull = true;
+      g.OldGuids = OldGuids;
+      if (!nullVal)
+      {
+        if (OldGuids)
+          return await ReadOldGuidAsync(packet, length).ConfigureAwait(false);
+        string s = String.Empty;
+        if (length == -1)
+          s = await packet.ReadLenStringAsync().ConfigureAwait(false);
+        else
+          s = await packet.ReadStringAsync(length).ConfigureAwait(false);
         g.Value = new Guid(s);
         g.IsNull = false;
       }

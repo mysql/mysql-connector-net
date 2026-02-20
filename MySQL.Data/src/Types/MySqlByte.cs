@@ -71,16 +71,50 @@ namespace MySql.Data.Types
 
     string IMySqlValue.MySqlTypeName => "TINYINT";
 
-    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length, bool execAsync)
+    /// <summary>
+    /// Writes the TINYINT (signed byte) value to the MySQL packet.
+    /// Converts the input value to sbyte. In binary mode, writes as single byte. In text mode, writes as string representation.
+    /// </summary>
+    /// <param name="packet">The MySQL packet stream to write into.</param>
+    /// <param name="binary">True for binary protocol (single byte), false for text protocol (string).</param>
+    /// <param name="val">The value to write, convertible to sbyte.</param>
+    /// <param name="length">Not used for TINYINT type.</param>
+    void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
     {
       sbyte v = val as sbyte? ?? Convert.ToSByte(val);
       if (binary)
         packet.WriteByte((byte)v);
       else
-        await packet.WriteStringNoNullAsync(v.ToString(CultureInfo.InvariantCulture), execAsync).ConfigureAwait(false);
+        packet.WriteStringNoNull(v.ToString(CultureInfo.InvariantCulture));
     }
 
-    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal, bool execAsync)
+    /// <summary>
+    /// Asynchronously writes the TINYINT (signed byte) value to the MySQL packet.
+    /// Converts the input value to sbyte. In binary mode, writes as single byte. In text mode, writes as string representation.
+    /// </summary>
+    /// <param name="packet">The MySQL packet stream to write into.</param>
+    /// <param name="binary">True for binary protocol (single byte), false for text protocol (string).</param>
+    /// <param name="val">The value to write, convertible to sbyte.</param>
+    /// <param name="length">Not used for TINYINT type.</param>
+    /// <returns>A task representing the asynchronous write operation.</returns>
+    async Task IMySqlValue.WriteValueAsync(MySqlPacket packet, bool binary, object val, int length)
+    {
+      sbyte v = val as sbyte? ?? Convert.ToSByte(val);
+      if (binary)
+        packet.WriteByte((byte)v);
+      else
+        await packet.WriteStringNoNullAsync(v.ToString(CultureInfo.InvariantCulture)).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Reads the TINYINT (signed byte) value from the MySQL packet.
+    /// If nullVal, returns a null instance preserving TreatAsBoolean. For binary (length==-1), reads single byte as sbyte. For text, parses string to sbyte.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The field length; -1 indicates binary single-byte read, otherwise text string length.</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A MySqlByte instance with the read value, setting TreatAsBoolean.</returns>
+    IMySqlValue IMySqlValue.ReadValue(MySqlPacket packet, long length, bool nullVal)
     {
       if (nullVal)
         return new MySqlByte(true) { TreatAsBoolean = TreatAsBoolean };
@@ -90,7 +124,33 @@ namespace MySql.Data.Types
         b = new MySqlByte((sbyte)packet.ReadByte());
       else
       {
-        string s = await packet.ReadStringAsync(length, execAsync).ConfigureAwait(false);
+        string s = packet.ReadString(length);
+        b = new MySqlByte(SByte.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture));
+      }
+
+      b.TreatAsBoolean = TreatAsBoolean;
+      return b;
+    }
+
+    /// <summary>
+    /// Asynchronously reads the TINYINT (signed byte) value from the MySQL packet.
+    /// If nullVal, returns a null instance preserving TreatAsBoolean. For binary (length==-1), reads single byte as sbyte. For text, parses string to sbyte.
+    /// </summary>
+    /// <param name="packet">The MySQL packet to read from.</param>
+    /// <param name="length">The field length; -1 indicates binary single-byte read, otherwise text string length.</param>
+    /// <param name="nullVal">Indicates if the value is null.</param>
+    /// <returns>A task that returns a MySqlByte instance with the read value, setting TreatAsBoolean.</returns>
+    async Task<IMySqlValue> IMySqlValue.ReadValueAsync(MySqlPacket packet, long length, bool nullVal)
+    {
+      if (nullVal)
+        return new MySqlByte(true) { TreatAsBoolean = TreatAsBoolean };
+
+      MySqlByte b;
+      if (length == -1)
+        b = new MySqlByte((sbyte)packet.ReadByte());
+      else
+      {
+        string s = await packet.ReadStringAsync(length).ConfigureAwait(false);
         b = new MySqlByte(SByte.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture));
       }
 

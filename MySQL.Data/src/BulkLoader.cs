@@ -180,7 +180,7 @@ namespace MySql.Data.MySqlClient
       if (string.IsNullOrWhiteSpace(FileName))
         throw new MySqlException("FileName property of MySqlBulkLoader cannot be null or an empty string.");
 
-      return LoadAsync(null, false).GetAwaiter().GetResult();
+      return Load(null);
     }
 
     /// <summary>
@@ -188,20 +188,20 @@ namespace MySql.Data.MySqlClient
     /// </summary>
     /// <param name="stream">A <see cref="Stream"/> object containing the data to be loaded.</param>
     /// <returns>The number of rows inserted.</returns>
-    public int Load(Stream stream) => LoadAsync(stream, false).GetAwaiter().GetResult();
+    public int Load(Stream stream) => LoadInternal(stream);
 
     /// <summary>
     /// Asynchronous version of the load operation.
     /// </summary>
     /// <returns>The number of rows inserted.</returns>
-    public Task<int> LoadAsync() => LoadAsync(null, true);
+    public Task<int> LoadAsync() => LoadInternalAsync(null);
 
     /// <summary>
     /// Asynchronous version of the load operation that accepts a data stream.
     /// </summary>
     /// <param name="stream">A <see cref="Stream"/> containing the data to be loaded.</param>
     /// <returns>The number of rows inserted.</returns>
-    public Task<int> LoadAsync(Stream stream) => LoadAsync(stream, true);
+    public Task<int> LoadAsync(Stream stream) => LoadInternalAsync(stream);
 
     /// <summary>
     /// Executes the load operation asynchronously while the cancellation isn't requested.
@@ -209,9 +209,15 @@ namespace MySql.Data.MySqlClient
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <param name="stream">A <see cref="Stream"/> containing the data to be loaded.</param>
     /// <returns>The number of rows inserted.</returns>
-    public Task<int> LoadAsync(Stream stream, CancellationToken cancellationToken) => LoadAsync(stream, true, cancellationToken);
+    public Task<int> LoadAsync(Stream stream, CancellationToken cancellationToken) => LoadInternalAsync(stream, cancellationToken);
 
-    private async Task<int> LoadAsync(Stream stream, bool execAsync, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Performs the bulk load operation synchronously using the given stream and cancellation token.
+    /// </summary>
+    /// <param name="stream">The stream containing the data to load, or null to use the file.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>The number of rows affected by the load operation.</returns>
+    private int LoadInternal(Stream stream, CancellationToken cancellationToken = default)
     {
       bool openedConnection = false;
 
@@ -221,7 +227,7 @@ namespace MySql.Data.MySqlClient
       // next we open up the connetion if it is not already open
       if (Connection.State != ConnectionState.Open)
       {
-        await Connection.OpenAsync(execAsync, cancellationToken).ConfigureAwait(false);
+        Connection.Open(cancellationToken);
         openedConnection = true;
       }
 
@@ -230,7 +236,7 @@ namespace MySql.Data.MySqlClient
         string sql = BuildSqlCommand(stream is not null);
         Connection.driver.BulkLoaderStream = stream;
         using MySqlCommand cmd = new MySqlCommand(sql, Connection) { CommandTimeout = Timeout };
-        return await cmd.ExecuteNonQueryAsync(execAsync, cancellationToken).ConfigureAwait(false);
+        return cmd.ExecuteNonQuery(cancellationToken);
       }
       finally
       {
@@ -238,7 +244,44 @@ namespace MySql.Data.MySqlClient
           Connection.driver.BulkLoaderStream.Dispose();
 
         if (openedConnection)
-          await Connection.CloseAsync(execAsync).ConfigureAwait(false);
+          Connection.Close();
+      }
+    }
+
+    /// <summary>
+    /// Performs the bulk load operation asynchronously using the given stream and cancellation token.
+    /// </summary>
+    /// <param name="stream">The stream containing the data to load, or null to use the file.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the number of rows affected.</returns>
+    private async Task<int> LoadInternalAsync(Stream stream, CancellationToken cancellationToken = default)
+    {
+      bool openedConnection = false;
+
+      if (Connection == null)
+        throw new InvalidOperationException(Resources.ConnectionNotSet);
+
+      // next we open up the connetion if it is not already open
+      if (Connection.State != ConnectionState.Open)
+      {
+        await Connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        openedConnection = true;
+      }
+
+      try
+      {
+        string sql = BuildSqlCommand(stream is not null);
+        Connection.driver.BulkLoaderStream = stream;
+        using MySqlCommand cmd = new MySqlCommand(sql, Connection) { CommandTimeout = Timeout };
+        return await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+      }
+      finally
+      {
+        if (stream is not null)
+          Connection.driver.BulkLoaderStream.Dispose();
+
+        if (openedConnection)
+          await Connection.CloseAsync().ConfigureAwait(false);
       }
     }
 
