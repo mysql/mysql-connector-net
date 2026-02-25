@@ -1278,12 +1278,22 @@ namespace MySql.Data.MySqlClient
         r["IsReadOnly"] = false;
         r["IsRowVersion"] = false;
         r["IsUnique"] = false;
-        r["IsKey"] = f.IsPrimaryKey;
-        r["IsAutoIncrement"] = f.IsAutoIncrement;
         r["BaseSchemaName"] = f.DatabaseName;
         r["BaseCatalogName"] = null;
         r["BaseTableName"] = f.RealTableName;
         r["BaseColumnName"] = f.OriginalColumnName;
+
+        // Check if key info has been requested.
+        if ((CommandBehavior & CommandBehavior.KeyInfo) != 0)
+        {
+          r["IsKey"] = f.IsPrimaryKey;
+          r["IsAutoIncrement"] = f.IsAutoIncrement;
+        }
+        else
+        {
+          r["IsKey"] = false;
+          r["IsAutoIncrement"] = false;
+        }
 
         dataTableSchema.Rows.Add(r);
       }

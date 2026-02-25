@@ -33,6 +33,7 @@ using System;
 using System.Data;
 using System.Data.SqlTypes;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace MySql.Data.MySqlClient.Tests
@@ -163,7 +164,7 @@ namespace MySql.Data.MySqlClient.Tests
     }
 
     /// <summary>
-    /// Bug #59989	MysqlDataReader.GetSchemaTable returns incorrect Values an types
+    /// Bug #59989	MysqlDataReader.GetSchemaTable returns incorrect values and types
     /// </summary>
     [Test]
     public void GetSchema()
@@ -180,11 +181,11 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         DataTable dt = reader.GetSchemaTable();
-        Assert.That(true == (Boolean)dt.Rows[0]["IsAutoIncrement"], "Checking auto increment");
+        Assert.That((bool)dt.Rows[0]["IsAutoIncrement"], Is.False, "Checking auto increment");
         Assert.That((bool)dt.Rows[0]["IsUnique"], Is.False, "Checking IsUnique");
-        Assert.That((bool)dt.Rows[0]["IsKey"]);
-        Assert.That(false == (Boolean)dt.Rows[0]["AllowDBNull"], "Checking AllowDBNull");
-        Assert.That(false == (Boolean)dt.Rows[1]["AllowDBNull"], "Checking AllowDBNull");
+        Assert.That((bool)dt.Rows[0]["IsKey"], Is.False, "Checking IsKey");
+        Assert.That((bool)dt.Rows[0]["AllowDBNull"], Is.False, "Checking AllowDBNull");
+        Assert.That((bool)dt.Rows[1]["AllowDBNull"], Is.False, "Checking AllowDBNull");
         Assert.That(dt.Rows[1]["ColumnSize"], Is.EqualTo(255));
         Assert.That(dt.Rows[2]["ColumnSize"], Is.EqualTo(40));
 
@@ -843,5 +844,85 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.That(Encoding.UTF8.GetString(((MemoryStream)reader.GetFieldValue<Stream>(5)).ToArray()), Is.EqualTo(str).IgnoreCase);
       }
     }
+
+    /// <summary>
+    /// Bug#38458249 - missing rows in query result
+    /// Creates the test table and populates it with data.
+    /// </summary>
+    private void Bug38458249_CreateAndPopulateTestTable()
+    {
+      var query = @"
+DROP TABLE IF EXISTS testBug38458249;
+
+CREATE TABLE testBug38458249 (
+  id INT(11) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+INSERT INTO testBug38458249 (id) VALUES (1);
+INSERT INTO testBug38458249 (id) VALUES (2);
+INSERT INTO testBug38458249 (id) VALUES (3);
+INSERT INTO testBug38458249 (id) VALUES (4);
+INSERT INTO testBug38458249 (id) VALUES (5);
+";
+      ExecuteSQL(query);
+    }
+
+    /// <summary>
+    /// Bug#38458249 - missing rows in query result
+    /// DataTable.Load() does not collapse/remove rows when ORDER BY is used and no key info is present.
+    /// </summary>
+    [Test]
+    public void Bug38458249_DataTableLoadDoesNotCollapseRowsByDefault()
+    {
+      Bug38458249_CreateAndPopulateTestTable();
+      using (var command = new MySqlCommand("SELECT * FROM testBug38458249 a LEFT JOIN testBug38458249 b ON a.id < b.id WHERE a.id = 1 ORDER BY b.id;", Connection))
+      using (var reader = command.ExecuteReader())
+      {
+        var dataTable = new DataTable();
+        dataTable.Load(reader);
+        Assert.That(dataTable.Rows.Count, Is.EqualTo(4));
+      }
+    }
+
+    /// <summary>
+    /// Bug#38458249 - missing rows in query result
+    /// MySqlDataReader.GetSchemaTable() reports key info when requested with CommandBehavior.KeyInfo.
+    /// </summary>
+    [Test]
+    public void Bug38458249_GetSchemaTableReportsIsKeyWhenKeyInfoRequested()
+    {
+      Bug38458249_CreateAndPopulateTestTable();
+      using (var command = new MySqlCommand("SELECT * FROM testBug38458249 a LEFT JOIN testBug38458249 b ON a.id < b.id WHERE a.id = 1 ORDER BY b.id;", Connection))
+      using (var reader = command.ExecuteReader(CommandBehavior.KeyInfo))
+      {
+        var schema = reader.GetSchemaTable();
+
+        // Find the rows corresponding to id columns and assert that at least the base pk column is marked as key.
+        bool anyIsKeyTrue = schema.Rows.Cast<DataRow>()
+            .Where(r => r["ColumnName"]?.ToString() == "id" || r["ColumnName"]?.ToString() == "id1")
+            .Any(r => r["IsKey"] != DBNull.Value && (bool)r["IsKey"]);
+
+        Assert.That(anyIsKeyTrue, Is.True);
+      }
+    }
+
+    [Test]
+    public void Bug38458249_GetSchemaTableKeyInfoIsFalseWithoutKeyInfo()
+    {
+      Bug38458249_CreateAndPopulateTestTable();
+      using (var command = new MySqlCommand("SELECT * FROM testBug38458249 a LEFT JOIN testBug38458249 b ON a.id < b.id WHERE a.id = 1 ORDER BY b.id;", Connection))
+      using (var reader = command.ExecuteReader())
+      {
+        var schema = reader.GetSchemaTable();
+        foreach (DataRow row in schema.Rows)
+        {
+          Assert.That(row["IsUnique"], Is.False);
+          Assert.That(row["IsKey"], Is.False);
+          Assert.That(row["IsAutoIncrement"], Is.False);
+        }
+      }
+    }
+
   }
 }
