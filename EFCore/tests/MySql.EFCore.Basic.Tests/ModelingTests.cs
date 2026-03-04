@@ -197,5 +197,55 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         Assert.That(ls, Is.Not.Empty);
       }
     }
+
+    /// <summary>
+    /// Bug#39041159 - Contribution: Apply type mapping to arguments in `StartsWith/EndsWith` translation
+    /// Ensure that parameters are correctly mapped when calling StartsWith.
+    /// </summary>
+    [Test]
+    public void Bug39041159_CorrectMappingWhenUsingStartsWith()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        // No exception thrown for null values.
+        Assert.DoesNotThrow(() => context.Actor.Where(actor => actor.FirstName.StartsWith(null)));
+
+        // Sending a constant value.
+        var matchingActors = context.Actor.Where(actor => actor.FirstName.StartsWith("J"));
+        Assert.DoesNotThrow(() => matchingActors.Count());
+        Assert.That(matchingActors.All(actor => actor.FirstName.StartsWith("J")), Is.True);
+
+        // Sending a variable.
+        var letter = "J";
+        matchingActors = context.Actor.Where(actor => actor.FirstName.StartsWith(letter));
+        Assert.DoesNotThrow(() => matchingActors.Count());
+        Assert.That(matchingActors.All(actor => actor.FirstName.StartsWith(letter)), Is.True);
+      }
+    }
+
+    /// <summary>
+    /// Bug#39041159 - Contribution: Apply type mapping to arguments in `StartsWith/EndsWith` translation
+    /// Ensure that parameters are correctly mapped when calling EndsWith.
+    /// </summary>
+    [Test]
+    public void Bug39041159_CorrectMappingWhenUsingEndsWith()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        // No exception thrown for null values.
+        Assert.DoesNotThrow(() => context.Actor.Where(actor => actor.FirstName.EndsWith(null)));
+
+        // Sending a constant value.
+        var matchingActors = context.Actor.Where(actor => actor.FirstName.EndsWith("n"));
+        Assert.DoesNotThrow(() => matchingActors.Count());
+        Assert.That(matchingActors.All(actor => actor.FirstName.EndsWith("n")), Is.True);
+
+        // Sending a variable.
+        var letter = "n";
+        matchingActors = context.Actor.Where(actor => actor.FirstName.EndsWith(letter));
+        Assert.DoesNotThrow(() => matchingActors.Count());
+        Assert.That(matchingActors.All(actor => actor.FirstName.EndsWith(letter)), Is.True);
+      }
+    }
   }
 }

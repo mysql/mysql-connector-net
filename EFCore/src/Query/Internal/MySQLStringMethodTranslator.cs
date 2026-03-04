@@ -179,14 +179,20 @@ namespace MySql.EntityFrameworkCore.Query.Internal
 
       if (_startsWithMethodInfo.Equals(method))
       {
+        // Ensure that argument is mapped to a known data type.
+        var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance!, arguments[0]);
+
         return new MySQLStringComparisonMethodTranslator(_sqlExpressionFactory)
-          .MakeStartsWithExpression(instance!, arguments[0], _sqlExpressionFactory.Constant(StringComparison.CurrentCulture));
+          .MakeStartsWithExpression(instance!, stringTypeMapping != null ? _sqlExpressionFactory.ApplyTypeMapping(arguments[0], stringTypeMapping) : arguments[0], _sqlExpressionFactory.Constant(StringComparison.CurrentCulture));
       }
 
       if (_endsWithMethodInfo.Equals(method))
       {
+        // Ensure that argument is mapped to a known data type.
+        var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance!, arguments[0]);
+
         return new MySQLStringComparisonMethodTranslator(_sqlExpressionFactory)
-          .MakeEndsWithExpression(instance!, arguments[0], _sqlExpressionFactory.Constant(StringComparison.CurrentCulture));
+          .MakeEndsWithExpression(instance!, stringTypeMapping != null ? _sqlExpressionFactory.ApplyTypeMapping(arguments[0], stringTypeMapping) : arguments[0], _sqlExpressionFactory.Constant(StringComparison.CurrentCulture));
       }
 
       if (_padLeftWithOneArg.Equals(method))

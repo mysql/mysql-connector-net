@@ -1,4 +1,5 @@
 9.7.0
+- Fixed bug Apply type mapping to arguments in `StartsWith/EndsWith` translation (MySQL Bug #119338, Oracle Bug #39041159). Thanks to Ma Liming for the contribution.
 
 9.6.0
 
