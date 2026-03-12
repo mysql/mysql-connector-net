@@ -1,8 +1,10 @@
-Connector/NET 9.6 Release Notes
+Connector/NET 9.7 Release Notes
 ------------------------------------
-Welcome to the release notes for Connector/NET 9.6
+Welcome to the release notes for Connector/NET 9.7
 
-What's new in 9.6
+What's new in 9.7
 --------------------
 
-Connector/NET now supports the GA version of .NET 10 and EF Core 10.
+Connector/NET now has improved performance for synchronous operations.
+Connector/NET enhanced EF Core 10 compatibility by adding support for `StartsWith` and `EndsWith` in LINQ queries.
+Connector/NET fixed an issue that could cause missing rows in specific data-retrieval scenarios.

@@ -1,5 +1,8 @@
 9.7.0
 - Fixed bug Apply type mapping to arguments in `StartsWith/EndsWith` translation (MySQL Bug #119338, Oracle Bug #39041159). Thanks to Ma Liming for the contribution.
+- Fixed bug missing rows in query result (MySQL Bug #118978, Oracle Bug #38458249).
+- Fixed bug BeginTransaction() doesn't use the MySQL Instance's default, but use a hard-coded "Repetable Read" (Oracle Bug #38675191).
+- Separated synchronous and asynchronous code paths resulting in improved performance for synchronous operations and bettter code readability (WL17260).
 
 9.6.0
 
