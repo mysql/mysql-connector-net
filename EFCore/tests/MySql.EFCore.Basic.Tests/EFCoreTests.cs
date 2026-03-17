@@ -292,5 +292,17 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         }
       }
     }
+
+    [Test]
+    public void StringComparisonCheck()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        context.InitContext();
+                
+        var test = context.Customer.Where(x => x.LastName!.StartsWith("SMIT", StringComparison.OrdinalIgnoreCase)).ToList();
+        Assert.That(test.Count, Is.GreaterThan(0));
+      }
+    }
   }
 }

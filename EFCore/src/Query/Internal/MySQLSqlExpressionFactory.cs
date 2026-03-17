@@ -293,7 +293,13 @@ namespace MySql.EntityFrameworkCore.Query.Internal
     private MySQLCollateExpression ApplyTypeMappingOnCollate(MySQLCollateExpression collateExpression)
     {
 #if NET9_0_OR_GREATER
-      return new MySQLCollateExpression(collateExpression.Operand, collateExpression.Charset, collateExpression.Collation);
+      var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(collateExpression.Operand)
+  ?? _typeMappingSource.FindMapping(collateExpression.Operand.Type);
+
+      return new MySQLCollateExpression(
+          ApplyTypeMapping(collateExpression.Operand, inferredTypeMapping),
+          collateExpression.Charset,
+          collateExpression.Collation);
 #else
       var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(collateExpression.ValueExpression)
   ?? _typeMappingSource.FindMapping(collateExpression.ValueExpression.Type);
