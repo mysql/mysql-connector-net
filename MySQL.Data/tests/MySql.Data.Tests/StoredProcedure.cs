@@ -1066,7 +1066,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         while (rdr.Read())
         {
-          Assert.That(rdr.GetString(0), Is.EqualTo("5"));
+          Assert.That(rdr.GetInt64(0), Is.EqualTo(5));
         }
       }
 
