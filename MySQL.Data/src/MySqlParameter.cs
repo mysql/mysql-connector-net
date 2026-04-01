@@ -365,7 +365,7 @@ namespace MySql.Data.MySqlClient
     internal async Task SerializeAsync(MySqlPacket packet, bool binary, MySqlConnectionStringBuilder settings, bool execAsync)
     {
       if (!binary && (_paramValue == null || _paramValue == DBNull.Value))
-        await packet.WriteStringNoNullAsync("@NULL", execAsync).ConfigureAwait(false);
+        await packet.WriteStringNoNullAsync("NULL", execAsync).ConfigureAwait(false);
       else
       {
         if (ValueObject.MySqlDbType == MySqlDbType.Guid)
