@@ -319,9 +319,30 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         {
           return _clrTypeMappings.FirstOrDefault(t => t.Value.GetType() == typeof(MySQLGuidTypeMapping)).Value;
         }
+        else if (IsCollectionParameterType(clrType)
+          && mappingInfo.ElementTypeMapping is RelationalTypeMapping elementTypeMapping)
+        {
+          return _longtextUnicode.Clone(clrType: clrType, elementMapping: elementTypeMapping);
+        }
       }
 
       return null;
+    }
+
+    /// <summary>
+    /// Determines whether the CLR type represents a collection parameter
+    /// that can use element-based mapping.
+    /// </summary>
+    private static bool IsCollectionParameterType(Type clrType)
+    {
+      if (clrType == typeof(string) || clrType == typeof(byte[]))
+        return false;
+
+      return clrType.IsArray
+        || clrType.IsGenericType && clrType.GetGenericTypeDefinition() == typeof(IEnumerable<>)
+        || clrType.GetInterfaces().Any(
+          interfaceType => interfaceType.IsGenericType
+            && interfaceType.GetGenericTypeDefinition() == typeof(IEnumerable<>));
     }
 
     protected override string ParseStoreTypeName(string? storeTypeName, ref bool? unicode, ref int? size, ref int? precision, ref int? scale)

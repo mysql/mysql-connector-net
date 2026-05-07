@@ -43,6 +43,9 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     {
       using (var context = new ContextGUID())
         context.Database.EnsureDeleted();
+
+      using (var context = new ContextGUIDChar())
+        context.Database.EnsureDeleted();
     }
 
     /// <summary>
@@ -52,7 +55,7 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     [Test]
     public void TestEmptyGUID()
     {
-      MySQLTestStore.Execute("drop database if exists DbContextGuid; Create database DbContextGuid; ");
+      MySQLTestStore.Execute("DROP DATABASE IF EXISTS DbContextGuid; CREATE DATABASE DbContextGuid;");
       using (var context = new ContextGUID())
       {
         context.Database.EnsureDeleted();
@@ -70,6 +73,29 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         filter[0] = guid;
         var resultFilter2 = context.Guidtable.Where(t => filter.Contains(t.Uuid)).ToArray();
         Assert.That(resultFilter2.Count(), Is.EqualTo(1));
+      }
+    }
+
+    /// <summary>
+    /// Guid collection parameters preserve the provider's char GUID mapping.
+    /// </summary>
+    [Test]
+    public void GuidArrayParameterContainsWithDefaultGuidFormat()
+    {
+      MySQLTestStore.Execute("DROP DATABASE IF EXISTS DbContextGuidChar; CREATE DATABASE DbContextGuidChar;");
+      using (var context = new ContextGUIDChar())
+      {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        var guid = Guid.NewGuid();
+        var filter = new[] { guid };
+        var record = new GuidTable { Id = 1, Uuid = guid };
+        context.Guidtable.Add(record);
+        context.SaveChanges();
+
+        var resultFilter = context.Guidtable.Where(t => filter.Contains(t.Uuid)).ToArray();
+
+        Assert.That(resultFilter.Count(), Is.EqualTo(1));
       }
     }
 
@@ -106,6 +132,44 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
           entity.Property(e => e.Uuid)
               .HasColumnName("uuid")
               .HasColumnType("binary(16)");
+        });
+      }
+    }
+
+    /// <summary>
+    /// Context used to verify GUID values mapped with the default char GUID format.
+    /// </summary>
+    public class ContextGUIDChar : DbContext
+    {
+      /// <summary>
+      /// Gets or sets the GUID table mapped with the default char GUID format.
+      /// </summary>
+      public DbSet<GuidTable> Guidtable { get; set; }
+
+      protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+      {
+        // get the class name of the caller to get a unique name for the database
+        if (!optionsBuilder.IsConfigured
+          || optionsBuilder.Options.FindExtension<MySQLOptionsExtension>() == null)
+        {
+          optionsBuilder.UseMySQL($"server=localhost;user id=root;password=;port={MySQLTestStore.Port()};pooling = false;database=DbContextGuidChar;defaultcommandtimeout=50;");
+        }
+      }
+      protected override void OnModelCreating(ModelBuilder modelBuilder)
+      {
+        modelBuilder.Entity<GuidTable>(entity =>
+        {
+          entity.HasKey(e => e.Id);
+
+          entity.ToTable("GuidTable");
+
+          entity.Property(e => e.Id)
+              .HasColumnName("id")
+              .HasColumnType("int");
+
+          entity.Property(e => e.Uuid)
+              .HasColumnName("uuid")
+              .HasColumnType("char(36)");
         });
       }
     }

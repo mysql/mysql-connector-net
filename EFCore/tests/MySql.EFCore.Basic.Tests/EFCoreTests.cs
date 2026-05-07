@@ -30,8 +30,10 @@ using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Basic.Tests.DbContextClasses;
 using MySql.EntityFrameworkCore.Basic.Tests.Utils;
+using MySql.EntityFrameworkCore.Infrastructure.Internal;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 
@@ -198,6 +200,355 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         Assert.That(test.Count, Is.EqualTo(0));
         test = context.Bugs.Where(x => x.CreatedDate.Date == DateTime.Today).ToList();
         Assert.That(test.Count, Is.EqualTo(1));
+      }
+    }
+
+    /// <summary>
+    /// Bug #39328452 - MySql.EntityFrameworkCore error when using Linq with .Contains in fails
+    /// Verifies string array collection parameters used with Contains are translated correctly.
+    /// </summary>
+    [Test]
+    public void StringCollectionParameterContainsInPredicateSucceeds()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        string[] lastNames = { "LOLLOBRIGIDA", "NICHOLSON" };
+
+        var result = context.Actor
+          .Where(x => lastNames.Contains(x.LastName!))
+          .ToList();
+
+        AssertLastNames(result, lastNames);
+      }
+    }
+
+    /// <summary>
+    /// Bug #39328452 - MySql.EntityFrameworkCore error when using Linq with .Contains in fails
+    /// Verifies string list collection parameters used with Contains are translated correctly.
+    /// </summary>
+    [Test]
+    public void StringListParameterContainsInPredicateSucceeds()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        List<string> lastNames = new List<string> { "LOLLOBRIGIDA", "NICHOLSON" };
+
+        var result = context.Actor
+          .Where(x => lastNames.Contains(x.LastName!))
+          .ToList();
+
+        AssertLastNames(result, lastNames);
+      }
+    }
+
+    /// <summary>
+    /// Bug #39328452 - MySql.EntityFrameworkCore error when using Linq with .Contains in fails
+    /// Verifies string enumerable collection parameters used with Contains are translated correctly.
+    /// </summary>
+    [Test]
+    public void StringEnumerableParameterContainsInPredicateSucceeds()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        IEnumerable<string> lastNames = new[] { "LOLLOBRIGIDA", "NICHOLSON" };
+
+        var result = context.Actor
+          .Where(x => lastNames.Contains(x.LastName!))
+          .ToList();
+
+        AssertLastNames(result, lastNames);
+      }
+    }
+
+    /// <summary>
+    /// Bug #39328452 - MySql.EntityFrameworkCore error when using Linq with .Contains in fails
+    /// Verifies large string collection parameters used with Contains are not constrained by the element column size.
+    /// </summary>
+    [Test]
+    public void LargeStringCollectionParameterContainsInPredicateSucceeds()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        string[] lastNames = Enumerable.Range(0, 40)
+          .Select(i => $"NOT_MATCHING_{i:D2}")
+          .Concat(new[] { "LOLLOBRIGIDA", "NICHOLSON" })
+          .ToArray();
+
+        var result = context.Actor
+          .Where(x => lastNames.Contains(x.LastName!))
+          .ToList();
+
+        AssertLastNames(result, new[] { "LOLLOBRIGIDA", "NICHOLSON" });
+      }
+    }
+
+    /// <summary>
+    /// Bug #39328452 - MySql.EntityFrameworkCore error when using Linq with .Contains in fails
+    /// Verifies numeric collection parameters used with Contains are translated correctly.
+    /// </summary>
+    [Test]
+    public void NumericCollectionParameterContainsInPredicateSucceeds()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        short[] actorIds = { 1, 2 };
+
+        var result = context.Actor
+          .Where(x => actorIds.Contains(x.ActorId))
+          .ToList();
+
+        Assert.That(result.Select(x => x.ActorId), Is.EquivalentTo(actorIds));
+      }
+    }
+
+    /// <summary>
+    /// Bug #39328452 - MySql.EntityFrameworkCore error when using Linq with .Contains in fails
+    /// Verifies empty collection parameters used with Contains are translated correctly.
+    /// </summary>
+    [Test]
+    public void EmptyCollectionParameterContainsInPredicateSucceeds()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        string[] lastNames = Array.Empty<string>();
+
+        var result = context.Actor
+          .Where(x => lastNames.Contains(x.LastName!))
+          .ToList();
+
+        Assert.That(result, Is.Empty);
+      }
+    }
+
+    /// <summary>
+    /// Bug #39328452 - MySql.EntityFrameworkCore error when using Linq with .Contains in fails
+    /// Verifies nullable collection parameters used with Contains are translated correctly.
+    /// </summary>
+    [Test]
+    public void NullableCollectionParameterContainsInPredicateSucceeds()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        byte?[] languageIds = { null, 1 };
+
+        var result = context.Film
+          .Where(x => languageIds.Contains(x.OriginalLanguageId))
+          .ToList();
+
+        AssertContainsOnly(result.Select(x => x.OriginalLanguageId), languageIds);
+      }
+    }
+
+    /// <summary>
+    /// LINQ Contains with a byte array collection parameter in a predicate.
+    /// This documents that byte arrays remain excluded from the generic collection mapping path
+    /// while still working as byte collection parameters against byte columns.
+    /// </summary>
+    [Test]
+    public void ByteArrayCollectionParameterContainsInPredicateSucceeds()
+    {
+      using (SakilaLiteContext context = new SakilaLiteContext())
+      {
+        byte[] languageIds = { 1 };
+
+        var result = context.Film
+          .Where(x => languageIds.Contains(x.LanguageId))
+          .ToList();
+
+        AssertContainsOnly(result.Select(x => x.LanguageId), languageIds);
+      }
+    }
+
+    /// <summary>
+    /// LINQ Contains with collection parameters preserves enum and value-converted enum mappings.
+    /// </summary>
+    [Test]
+    public void EnumCollectionParameterContainsInPredicateSucceeds()
+    {
+      using (CollectionParameterContext context = CreateCollectionParameterContext(nameof(EnumCollectionParameterContainsInPredicateSucceeds)))
+      {
+        CollectionParameterStatus[] enabledStatuses = { CollectionParameterStatus.Enabled };
+        CollectionParameterStatus[] disabledStatuses = { CollectionParameterStatus.Disabled };
+
+        var enumResult = context.Entities
+          .Where(x => enabledStatuses.Contains(x.Status))
+          .ToList();
+
+        var convertedResult = context.Entities
+          .Where(x => disabledStatuses.Contains(x.ConvertedStatus))
+          .ToList();
+
+        Assert.That(enumResult.Select(x => x.Status), Is.EquivalentTo(enabledStatuses));
+        Assert.That(convertedResult.Select(x => x.ConvertedStatus), Is.EquivalentTo(disabledStatuses));
+      }
+    }
+
+    /// <summary>
+    /// Bug #39328452 - LINQ collection parameter mapping should not enable primitive collection properties.
+    /// </summary>
+    [Test]
+    public void PrimitiveCollectionPropertyDoesNotUseCollectionParameterMapping()
+    {
+      using (PrimitiveCollectionPropertyContext context = new PrimitiveCollectionPropertyContext())
+      {
+        var exception = Assert.Throws<InvalidOperationException>(() => _ = context.Model);
+
+        Assert.That(exception!.Message, Does.Contain(nameof(PrimitiveCollectionEntity.Tags)));
+      }
+    }
+
+    /// <summary>
+    /// Verifies that the actor query returned exactly the expected last names.
+    /// </summary>
+    private static void AssertLastNames(IEnumerable<Actor> actors, IEnumerable<string> expectedLastNames)
+    {
+      Assert.That(actors.Select(x => x.LastName), Is.EquivalentTo(expectedLastNames));
+    }
+
+    /// <summary>
+    /// Verifies that a non-empty result contains only values from the expected collection.
+    /// </summary>
+    private static void AssertContainsOnly<T>(IEnumerable<T> actualValues, IEnumerable<T> expectedValues)
+    {
+      T[] values = actualValues.ToArray();
+      Assert.That(values, Is.Not.Empty);
+      Assert.That(values, Is.All.Matches<T>(x => expectedValues.Contains(x)));
+    }
+
+    /// <summary>
+    /// Entity used to verify that collection parameter mapping does not enable primitive collection properties.
+    /// </summary>
+    public class PrimitiveCollectionEntity
+    {
+      /// <summary>
+      /// Gets or sets the entity identifier.
+      /// </summary>
+      public int Id { get; set; }
+
+      /// <summary>
+      /// Gets or sets the primitive collection property.
+      /// </summary>
+      public List<string> Tags { get; set; } = new List<string>();
+    }
+
+    /// <summary>
+    /// Context used to verify primitive collection property mapping behavior.
+    /// </summary>
+    public class PrimitiveCollectionPropertyContext : DbContext
+    {
+      /// <summary>
+      /// Gets or sets the entities with primitive collection properties.
+      /// </summary>
+      public DbSet<PrimitiveCollectionEntity> Entities { get; set; }
+
+      protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+      {
+        if (!optionsBuilder.IsConfigured
+          || optionsBuilder.Options.FindExtension<MySQLOptionsExtension>() == null)
+        {
+          optionsBuilder.UseMySQL(MySQLTestStore.GetContextConnectionStringWithName("PrimitiveCollectionProperty"));
+        }
+      }
+
+      protected override void OnModelCreating(ModelBuilder modelBuilder)
+      {
+        modelBuilder.Entity<PrimitiveCollectionEntity>()
+          .Property(e => e.Tags);
+      }
+    }
+
+    /// <summary>
+    /// Creates a seeded context for collection parameter mapping tests.
+    /// </summary>
+    private static CollectionParameterContext CreateCollectionParameterContext(string databaseName)
+    {
+      CollectionParameterContext context = new CollectionParameterContext(databaseName);
+      context.Database.EnsureDeleted();
+      context.Database.EnsureCreated();
+      context.Entities.AddRange(
+        new CollectionParameterEntity
+        {
+          Id = 1,
+          Status = CollectionParameterStatus.Enabled,
+          ConvertedStatus = CollectionParameterStatus.Enabled
+        },
+        new CollectionParameterEntity
+        {
+          Id = 2,
+          Status = CollectionParameterStatus.Disabled,
+          ConvertedStatus = CollectionParameterStatus.Disabled
+        });
+      context.SaveChanges();
+
+      return context;
+    }
+
+    /// <summary>
+    /// Status values used by collection parameter mapping tests.
+    /// </summary>
+    public enum CollectionParameterStatus
+    {
+      Enabled = 1,
+      Disabled = 2
+    }
+
+    /// <summary>
+    /// Entity used by collection parameter mapping tests.
+    /// </summary>
+    public class CollectionParameterEntity
+    {
+      /// <summary>
+      /// Gets or sets the entity identifier.
+      /// </summary>
+      public int Id { get; set; }
+
+      /// <summary>
+      /// Gets or sets the enum status.
+      /// </summary>
+      public CollectionParameterStatus Status { get; set; }
+
+      /// <summary>
+      /// Gets or sets the value-converted enum status.
+      /// </summary>
+      public CollectionParameterStatus ConvertedStatus { get; set; }
+    }
+
+    /// <summary>
+    /// Context used by collection parameter mapping tests.
+    /// </summary>
+    public class CollectionParameterContext : DbContext
+    {
+      private readonly string _databaseName;
+
+      /// <summary>
+      /// Initializes a new instance of the <see cref="CollectionParameterContext"/> class.
+      /// </summary>
+      /// <param name="databaseName">The database name for the test context.</param>
+      public CollectionParameterContext(string databaseName)
+      {
+        _databaseName = databaseName;
+      }
+
+      /// <summary>
+      /// Gets or sets the collection parameter test entities.
+      /// </summary>
+      public DbSet<CollectionParameterEntity> Entities { get; set; }
+
+      protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+      {
+        if (!optionsBuilder.IsConfigured
+          || optionsBuilder.Options.FindExtension<MySQLOptionsExtension>() == null)
+        {
+          optionsBuilder.UseMySQL(MySQLTestStore.GetContextConnectionStringWithName(_databaseName));
+        }
+      }
+
+      protected override void OnModelCreating(ModelBuilder modelBuilder)
+      {
+        modelBuilder.Entity<CollectionParameterEntity>()
+          .Property(e => e.ConvertedStatus)
+          .HasConversion<string>()
+          .HasColumnType("varchar(16)");
       }
     }
 
