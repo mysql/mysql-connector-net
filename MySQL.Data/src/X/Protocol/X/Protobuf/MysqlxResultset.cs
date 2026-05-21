@@ -791,7 +791,7 @@ namespace Mysqlx.Resultset {
   ///@note
   ///The encoding used for the different ``bytes`` fields in the
   ///meta data is externally controlled. See also:
-  ///https://dev.mysql.com/doc/refman/5.0/en/charset-connection.html
+  ///https://dev.mysql.com/doc/refman/en/charset-connection.html
   ///
   ///@par
   ///@note
@@ -870,7 +870,7 @@ namespace Mysqlx.Resultset {
   ///
   ///@par Tip
   ///Definition of ``M`` are in
-  ///https://dev.mysql.com/doc/refman/5.5/en/numeric-type-overview.html.
+  ///https://dev.mysql.com/doc/refman/en/numeric-type-overview.html.
   ///
   ///- ``value``@n
   ///Variable length encoded signed 64 integer.
@@ -897,7 +897,7 @@ namespace Mysqlx.Resultset {
   ///
   ///@par Tip
   ///Definition of ``M`` are in
-  ///https://dev.mysql.com/doc/refman/5.5/en/numeric-type-overview.html.
+  ///https://dev.mysql.com/doc/refman/en/numeric-type-overview.html.
   ///
   ///- ``value`` @n
   ///Variable length encoded unsigned 64 integer.
@@ -910,7 +910,7 @@ namespace Mysqlx.Resultset {
   ///The valid range for M of the ``BIT`` type is 1 - 64.
   ///
   ///@par Tip
-  ///https://dev.mysql.com/doc/refman/5.5/en/numeric-type-overview.html
+  ///https://dev.mysql.com/doc/refman/en/numeric-type-overview.html
   ///
   ///- ``value`` @n
   ///Variable length encoded unsigned 64 integer.
