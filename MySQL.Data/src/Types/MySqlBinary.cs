@@ -86,7 +86,7 @@ namespace MySql.Data.Types
     /// Converts input value (byte[] or string) to bytes using the packet's encoding if necessary.
     /// </summary>
     /// <param name="packet">The MySQL packet stream to write the value into.</param>
-    /// <param name="binary">If true, writes in binary format (length-prefixed); if false, writes as escaped string prefixed with '_binary '.</param>
+    /// <param name="binary">If true, writes in binary format (length-prefixed); if false, writes as a binary string literal.</param>
     /// <param name="val">The value to write; must be byte[], char[], or string. Throws MySqlException if unsupported type.</param>
     /// <param name="length">The maximum length to write; 0 or greater than value length means write all.</param>
     void IMySqlValue.WriteValue(MySqlPacket packet, bool binary, object val, int length)
@@ -99,10 +99,7 @@ namespace MySql.Data.Types
       }
       else
       {
-        packet.WriteStringNoNull("_binary ");
-        packet.WriteByte((byte)'\'');
-        EscapeByteArray(buffToWrite, writeLength, packet);
-        packet.WriteByte((byte)'\'');
+        MySqlHelper.WriteBinaryLiteral(packet, buffToWrite, writeLength);
       }
     }
 
@@ -111,7 +108,7 @@ namespace MySql.Data.Types
     /// Converts input value (byte[] or string) to bytes using the packet's encoding if necessary.
     /// </summary>
     /// <param name="packet">The MySQL packet stream to write the value into.</param>
-    /// <param name="binary">If true, writes in binary format (length-prefixed); if false, writes as escaped string prefixed with '_binary '.</param>
+    /// <param name="binary">If true, writes in binary format (length-prefixed); if false, writes as a binary string literal.</param>
     /// <param name="val">The value to write; must be byte[], char[], or string. Throws MySqlException if unsupported type.</param>
     /// <param name="length">The maximum length to write; 0 or greater than value length means write all.</param>
     /// <returns>A task that represents the asynchronous write operation.</returns>
@@ -125,10 +122,7 @@ namespace MySql.Data.Types
       }
       else
       {
-        await packet.WriteStringNoNullAsync("_binary ").ConfigureAwait(false);
-        packet.WriteByte((byte)'\'');
-        EscapeByteArray(buffToWrite, writeLength, packet);
-        packet.WriteByte((byte)'\'');
+        MySqlHelper.WriteBinaryLiteral(packet, buffToWrite, writeLength);
       }
     }
 
@@ -223,27 +217,6 @@ namespace MySql.Data.Types
         row["LiteralPrefix"] = "0x";
         row["LiteralSuffix"] = DBNull.Value;
         row["NativeDataType"] = DBNull.Value;
-      }
-    }
-
-    private static void EscapeByteArray(byte[] bytes, int length, MySqlPacket packet)
-    {
-      for (int x = 0; x < length; x++)
-      {
-        byte b = bytes[x];
-        if (b == '\0')
-        {
-          packet.WriteByte((byte)'\\');
-          packet.WriteByte((byte)'0');
-        }
-
-        else if (b == '\\' || b == '\'' || b == '\"')
-        {
-          packet.WriteByte((byte)'\\');
-          packet.WriteByte(b);
-        }
-        else
-          packet.WriteByte(b);
       }
     }
 

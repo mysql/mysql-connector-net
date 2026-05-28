@@ -83,7 +83,7 @@ namespace MySql.Data.Types
       if (binary)
         packet.WriteLenString(v);
       else
-        packet.WriteStringNoNull("'" + MySqlHelper.EscapeString(v) + "'");
+        MySqlHelper.WriteStringLiteral(packet, v);
     }
 
     /// <summary>
@@ -105,7 +105,7 @@ namespace MySql.Data.Types
       if (binary)
         await packet.WriteLenStringAsync(v).ConfigureAwait(false);
       else
-        await packet.WriteStringNoNullAsync("'" + MySqlHelper.EscapeString(v) + "'").ConfigureAwait(false);
+        await MySqlHelper.WriteStringLiteralAsync(packet, v).ConfigureAwait(false);
     }
 
     /// <summary>

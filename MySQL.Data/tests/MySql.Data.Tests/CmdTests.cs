@@ -808,6 +808,250 @@ namespace MySql.Data.MySqlClient.Tests
 
     #endregion
 
+    /// <summary>
+    /// Bug #39255116 Parameterized queries handle escaped quotes incorrectly with NO_BACKSLASH_ESCAPES.
+    /// Verifies an unprepared text-protocol parameter with embedded quotes is matched as a single literal value.
+    /// </summary>
+    [Test]
+    public void NoBackslashEscapesUnpreparedParameter()
+    {
+      string sqlMode = (string)ExecuteScalar("SELECT @@SESSION.sql_mode");
+      try
+      {
+        ExecuteSQL("SET SESSION sql_mode = 'NO_BACKSLASH_ESCAPES'");
+        ExecuteSQL("DROP TABLE IF EXISTS Test");
+        ExecuteSQL("CREATE TABLE Test(name VARCHAR(100))");
+        ExecuteSQL("INSERT INTO Test VALUES ('name1'), ('name2'), ('name3')");
+
+        using MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test WHERE name = ?name", Connection);
+        cmd.Parameters.Add("?name", MySqlDbType.VarChar).Value = "name1' OR name = 'name2";
+
+        Assert.That(Convert.ToInt64(cmd.ExecuteScalar()), Is.EqualTo(0));
+      }
+      finally
+      {
+        ExecuteSQL($"SET SESSION sql_mode = '{sqlMode.Replace("'", "''")}'");
+      }
+    }
+
+    /// <summary>
+    /// Bug #39255116 Parameterized queries handle escaped quotes incorrectly with NO_BACKSLASH_ESCAPES.
+    /// Verifies the same quote-handling behavior through the async command path.
+    /// </summary>
+    [Test]
+    public async Task NoBackslashEscapesUnpreparedParameterAsync()
+    {
+      string sqlMode = (string)ExecuteScalar("SELECT @@SESSION.sql_mode");
+      try
+      {
+        ExecuteSQL("SET SESSION sql_mode = 'NO_BACKSLASH_ESCAPES'");
+        ExecuteSQL("DROP TABLE IF EXISTS Test");
+        ExecuteSQL("CREATE TABLE Test(name VARCHAR(100))");
+        ExecuteSQL("INSERT INTO Test VALUES ('name1'), ('name2'), ('name3')");
+
+        using MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM Test WHERE name = ?name", Connection);
+        cmd.Parameters.Add("?name", MySqlDbType.VarChar).Value = "name1' OR name = 'name2";
+
+        Assert.That(Convert.ToInt64(await cmd.ExecuteScalarAsync()), Is.EqualTo(0));
+      }
+      finally
+      {
+        ExecuteSQL($"SET SESSION sql_mode = '{sqlMode.Replace("'", "''")}'");
+      }
+    }
+
+    /// <summary>
+    /// Bug #39255116 Parameterized queries handle escaped quotes incorrectly with NO_BACKSLASH_ESCAPES.
+    /// Verifies string parameters preserve backslashes and embedded quotes in this SQL mode.
+    /// </summary>
+    [Test]
+    public void NoBackslashEscapesStringFidelity()
+    {
+      string sqlMode = (string)ExecuteScalar("SELECT @@SESSION.sql_mode");
+      string value = @"a\b'c";
+      try
+      {
+        ExecuteSQL("SET SESSION sql_mode = 'NO_BACKSLASH_ESCAPES'");
+        ExecuteSQL("DROP TABLE IF EXISTS Test");
+        ExecuteSQL("CREATE TABLE Test(value VARCHAR(100))");
+
+        using MySqlCommand insert = new MySqlCommand("INSERT INTO Test VALUES (?value)", Connection);
+        insert.Parameters.Add("?value", MySqlDbType.VarChar).Value = value;
+        insert.ExecuteNonQuery();
+
+        using MySqlCommand select = new MySqlCommand("SELECT value FROM Test", Connection);
+        Assert.That((string)select.ExecuteScalar(), Is.EqualTo(value));
+      }
+      finally
+      {
+        ExecuteSQL($"SET SESSION sql_mode = '{sqlMode.Replace("'", "''")}'");
+      }
+    }
+
+    /// <summary>
+    /// Bug #39255116 Parameterized queries handle escaped quotes incorrectly with NO_BACKSLASH_ESCAPES.
+    /// Verifies command parameter discovery follows the server string-literal parsing rules.
+    /// </summary>
+    [Test]
+    public void NoBackslashEscapesTokenizerMatchesServerStringParsing()
+    {
+      string sqlMode = (string)ExecuteScalar("SELECT @@SESSION.sql_mode");
+      try
+      {
+        ExecuteSQL("SET SESSION sql_mode = 'NO_BACKSLASH_ESCAPES'");
+
+        using MySqlCommand cmd = new MySqlCommand("SELECT '\\' AS literal, ?value", Connection);
+        cmd.Parameters.Add("?value", MySqlDbType.VarChar).Value = "bound";
+
+        using MySqlDataReader reader = cmd.ExecuteReader();
+
+        Assert.That(reader.Read(), Is.True);
+        Assert.That(reader.GetString(0), Is.EqualTo("\\"));
+        Assert.That(reader.GetString(1), Is.EqualTo("bound"));
+      }
+      finally
+      {
+        ExecuteSQL($"SET SESSION sql_mode = '{sqlMode.Replace("'", "''")}'");
+      }
+    }
+
+    /// <summary>
+    /// Bug #39255116 Parameterized queries handle escaped quotes incorrectly with NO_BACKSLASH_ESCAPES.
+    /// Verifies binary parameters preserve bytes that require special literal handling in this SQL mode.
+    /// </summary>
+    [Test]
+    public void NoBackslashEscapesBinaryFidelity()
+    {
+      string sqlMode = (string)ExecuteScalar("SELECT @@SESSION.sql_mode");
+      byte[] value = new byte[] { 0x00, (byte)'\'', (byte)'\"', (byte)'\\', 0xFF };
+      try
+      {
+        ExecuteSQL("SET SESSION sql_mode = 'NO_BACKSLASH_ESCAPES'");
+        ExecuteSQL("DROP TABLE IF EXISTS Test");
+        ExecuteSQL("CREATE TABLE Test(value VARBINARY(16))");
+
+        using MySqlCommand insert = new MySqlCommand("INSERT INTO Test VALUES (?value)", Connection);
+        insert.Parameters.Add("?value", MySqlDbType.VarBinary).Value = value;
+        insert.ExecuteNonQuery();
+
+        using MySqlCommand select = new MySqlCommand("SELECT value FROM Test", Connection);
+        CollectionAssert.AreEqual(value, (byte[])select.ExecuteScalar());
+      }
+      finally
+      {
+        ExecuteSQL($"SET SESSION sql_mode = '{sqlMode.Replace("'", "''")}'");
+      }
+    }
+
+    /// <summary>
+    /// Bug #39255116 Parameterized queries handle escaped quotes incorrectly with NO_BACKSLASH_ESCAPES.
+    /// Verifies a binary introducer can be combined with a hexadecimal literal without altering bytes.
+    /// </summary>
+    [Test]
+    public void NoBackslashEscapesBinaryHexIntroducerLiteralFidelity()
+    {
+      string sqlMode = (string)ExecuteScalar("SELECT @@SESSION.sql_mode");
+      try
+      {
+        ExecuteSQL("SET SESSION sql_mode = 'NO_BACKSLASH_ESCAPES'");
+
+        using MySqlCommand cmd = new MySqlCommand("SELECT HEX(_binary X'001A27225CFF')", Connection);
+
+        Assert.That((string)cmd.ExecuteScalar(), Is.EqualTo("001A27225CFF"));
+      }
+      finally
+      {
+        ExecuteSQL($"SET SESSION sql_mode = '{sqlMode.Replace("'", "''")}'");
+      }
+    }
+
+    /// <summary>
+    /// Bug #39255116 Parameterized queries handle escaped quotes incorrectly with NO_BACKSLASH_ESCAPES.
+    /// Compares quoted binary literal bytes with the hexadecimal literal form used in this SQL mode.
+    /// </summary>
+    [Test]
+    public void NoBackslashEscapesQuotedBinaryLiteralComparison()
+    {
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder(Connection.ConnectionString)
+      {
+        CharacterSet = "latin1"
+      };
+
+      using MySqlConnection connection = new MySqlConnection(settings.ConnectionString);
+      connection.Open();
+
+      using MySqlCommand sqlModeCommand = new MySqlCommand("SELECT @@SESSION.sql_mode", connection);
+      string sqlMode = (string)sqlModeCommand.ExecuteScalar();
+      try
+      {
+        using MySqlCommand setSqlModeCommand = new MySqlCommand("SET SESSION sql_mode = 'NO_BACKSLASH_ESCAPES'", connection);
+        setSqlModeCommand.ExecuteNonQuery();
+
+        string quotedLiteralBody = "\0" + "\x1A" + "''" + "\"" + "\\" + "\u00FF";
+        string commandText = "SELECT HEX(_binary '" + quotedLiteralBody + "'), HEX(_binary X'001A27225CFF')";
+
+        using MySqlCommand command = new MySqlCommand(commandText, connection);
+        using MySqlDataReader reader = command.ExecuteReader();
+
+        Assert.That(reader.Read(), Is.True);
+        Assert.That(reader.GetString(0), Is.EqualTo("001A27225CFF"));
+        Assert.That(reader.GetString(0), Is.EqualTo(reader.GetString(1)));
+      }
+      finally
+      {
+        using MySqlCommand restoreSqlModeCommand = new MySqlCommand($"SET SESSION sql_mode = '{sqlMode.Replace("'", "''")}'", connection);
+        restoreSqlModeCommand.ExecuteNonQuery();
+      }
+    }
+
+    /// <summary>
+    /// Bug #39255116 Parameterized queries handle escaped quotes incorrectly with NO_BACKSLASH_ESCAPES.
+    /// Verifies the default text-protocol binary literal keeps binary behavior in bit operations.
+    /// </summary>
+    [Test]
+    public void BinaryParameterPreservesLegacyBinaryContextInBitOperations()
+    {
+      Assume.That(Version >= new Version(8, 4, 0), "This test is for MySQL 8.4.0 or higher.");
+      string sqlMode = (string)ExecuteScalar("SELECT @@SESSION.sql_mode");
+      try
+      {
+        ExecuteSQL("SET SESSION sql_mode = ''");
+
+        using MySqlCommand cmd = new MySqlCommand("SELECT HEX(?value | X'02')", Connection);
+        cmd.Parameters.Add("?value", MySqlDbType.VarBinary).Value = new byte[] { 0x01 };
+
+        Assert.That((string)cmd.ExecuteScalar(), Is.EqualTo("03"));
+      }
+      finally
+      {
+        ExecuteSQL($"SET SESSION sql_mode = '{sqlMode.Replace("'", "''")}'");
+      }
+    }
+
+    /// <summary>
+    /// Bug #39255116 Parameterized queries handle escaped quotes incorrectly with NO_BACKSLASH_ESCAPES.
+    /// Verifies the text-protocol binary literal keeps binary behavior in bit operations in this SQL mode.
+    /// </summary>
+    [Test]
+    public void NoBackslashEscapesBinaryParameterPreservesBinaryContextInBitOperations()
+    {
+      Assume.That(Version >= new Version(8, 4, 0), "This test is for MySQL 8.4.0 or higher.");
+      string sqlMode = (string)ExecuteScalar("SELECT @@SESSION.sql_mode");
+      try
+      {
+        ExecuteSQL("SET SESSION sql_mode = 'NO_BACKSLASH_ESCAPES'");
+
+        using MySqlCommand cmd = new MySqlCommand("SELECT HEX(?value | X'02')", Connection);
+        cmd.Parameters.Add("?value", MySqlDbType.VarBinary).Value = new byte[] { 0x01 };
+
+        Assert.That((string)cmd.ExecuteScalar(), Is.EqualTo("03"));
+      }
+      finally
+      {
+        ExecuteSQL($"SET SESSION sql_mode = '{sqlMode.Replace("'", "''")}'");
+      }
+    }
+
     [Test, Description("Timeout using Big Table ")]
     public void TimeoutBigTable()
     {

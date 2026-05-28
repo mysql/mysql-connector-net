@@ -314,7 +314,11 @@ namespace MySql.Data.MySqlClient
     private MySqlPacket BuildQueryAttributesPacket(MySqlAttributeCollection attributes)
     {
       MySqlPacket packet;
-      packet = new MySqlPacket(Driver.Encoding) { Version = Driver.Version };
+      packet = new MySqlPacket(Driver.Encoding)
+      {
+        Version = Driver.Version,
+        NoBackslashEscapes = Driver.HasStatus(ServerStatusFlags.NoBackslashEscapes)
+      };
       packet.WriteByte(0);
 
       if (attributes.Count > 0 && !Driver.SupportsQueryAttributes)
@@ -369,7 +373,11 @@ namespace MySql.Data.MySqlClient
     private async Task<MySqlPacket> BuildQueryAttributesPacketAsync(MySqlAttributeCollection attributes)
     {
       MySqlPacket packet;
-      packet = new MySqlPacket(Driver.Encoding) { Version = Driver.Version };
+      packet = new MySqlPacket(Driver.Encoding)
+      {
+        Version = Driver.Version,
+        NoBackslashEscapes = Driver.HasStatus(ServerStatusFlags.NoBackslashEscapes)
+      };
       packet.WriteByte(0);
 
       if (attributes.Count > 0 && !Driver.SupportsQueryAttributes)
@@ -430,6 +438,7 @@ namespace MySql.Data.MySqlClient
       MySqlTokenizer tokenizer = new MySqlTokenizer(sql)
       {
         ReturnComments = true,
+        BackslashEscapes = !packet.NoBackslashEscapes,
         SqlServerMode = sqlServerMode
       };
 
@@ -480,6 +489,7 @@ namespace MySql.Data.MySqlClient
       MySqlTokenizer tokenizer = new MySqlTokenizer(sql)
       {
         ReturnComments = true,
+        BackslashEscapes = !packet.NoBackslashEscapes,
         SqlServerMode = sqlServerMode
       };
 

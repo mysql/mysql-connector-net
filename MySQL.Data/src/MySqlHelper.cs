@@ -607,6 +607,142 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Escapes the string using the literal escaping rules for the current SQL mode.
+    /// </summary>
+    /// <param name="value">The string to escape.</param>
+    /// <param name="noBackslashEscapes">Indicates whether backslash is treated as a literal character by the server.</param>
+    /// <returns>The escaped string value.</returns>
+    internal static string EscapeString(string value, bool noBackslashEscapes)
+    {
+      if (!noBackslashEscapes)
+      {
+        return EscapeString(value);
+      }
+
+      if (value.IndexOf('\'') == -1)
+      {
+        return value;
+      }
+
+      var sb = new StringBuilder();
+      foreach (char c in value)
+      {
+        if (c == '\'')
+        {
+          sb.Append(c);
+        }
+
+        sb.Append(c);
+      }
+
+      return sb.ToString();
+    }
+
+    /// <summary>
+    /// Writes a quoted SQL string literal to the packet using the packet's SQL mode context.
+    /// </summary>
+    /// <param name="packet">The packet to write the literal to.</param>
+    /// <param name="value">The string value to write.</param>
+    internal static void WriteStringLiteral(MySqlPacket packet, string value)
+    {
+      packet.WriteByte((byte)'\'');
+      packet.WriteStringNoNull(EscapeString(value, packet.NoBackslashEscapes));
+      packet.WriteByte((byte)'\'');
+    }
+
+    /// <summary>
+    /// Asynchronously writes a quoted SQL string literal to the packet using the packet's SQL mode context.
+    /// </summary>
+    /// <param name="packet">The packet to write the literal to.</param>
+    /// <param name="value">The string value to write.</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
+    internal static async Task WriteStringLiteralAsync(MySqlPacket packet, string value)
+    {
+      packet.WriteByte((byte)'\'');
+      await packet.WriteStringNoNullAsync(EscapeString(value, packet.NoBackslashEscapes)).ConfigureAwait(false);
+      packet.WriteByte((byte)'\'');
+    }
+
+    /// <summary>
+    /// Writes a quoted binary string literal to the packet using the packet's SQL mode context.
+    /// </summary>
+    /// <param name="packet">The packet to write the literal to.</param>
+    /// <param name="bytes">The bytes to encode.</param>
+    /// <param name="length">The number of bytes from <paramref name="bytes"/> to write.</param>
+    internal static void WriteBinaryLiteral(MySqlPacket packet, byte[] bytes, int length)
+    {
+      packet.WriteStringNoNull("_binary ");
+
+      if (packet.NoBackslashEscapes)
+      {
+        WriteHexLiteral(packet, bytes, length);
+        return;
+      }
+
+      packet.WriteByte((byte)'\'');
+      WriteEscapedByteArray(bytes, length, packet);
+      packet.WriteByte((byte)'\'');
+    }
+
+    /// <summary>
+    /// Writes a SQL hexadecimal literal for the specified byte range.
+    /// </summary>
+    /// <param name="packet">The packet to write the literal to.</param>
+    /// <param name="bytes">The bytes to encode.</param>
+    /// <param name="length">The number of bytes from <paramref name="bytes"/> to write.</param>
+    private static void WriteHexLiteral(MySqlPacket packet, byte[] bytes, int length)
+    {
+      packet.WriteStringNoNull("X'");
+      WriteHexLiteralValue(packet, bytes, length);
+      packet.WriteByte((byte)'\'');
+    }
+
+    /// <summary>
+    /// Writes the hexadecimal body of a SQL hexadecimal literal.
+    /// </summary>
+    /// <param name="packet">The packet to write the encoded bytes to.</param>
+    /// <param name="bytes">The bytes to encode.</param>
+    /// <param name="length">The number of bytes from <paramref name="bytes"/> to write.</param>
+    private static void WriteHexLiteralValue(MySqlPacket packet, byte[] bytes, int length)
+    {
+      const string HEX_CHARS = "0123456789ABCDEF";
+      for (int i = 0; i < length; i++)
+      {
+        byte b = bytes[i];
+        packet.WriteByte((byte)HEX_CHARS[b >> 4]);
+        packet.WriteByte((byte)HEX_CHARS[b & 0x0F]);
+      }
+    }
+
+    /// <summary>
+    /// Writes bytes using the legacy backslash-escaped binary string literal format.
+    /// </summary>
+    /// <param name="bytes">The bytes to encode.</param>
+    /// <param name="length">The number of bytes from <paramref name="bytes"/> to write.</param>
+    /// <param name="packet">The packet to write the escaped bytes to.</param>
+    private static void WriteEscapedByteArray(byte[] bytes, int length, MySqlPacket packet)
+    {
+      for (int i = 0; i < length; i++)
+      {
+        byte b = bytes[i];
+        if (b == '\0')
+        {
+          packet.WriteByte((byte)'\\');
+          packet.WriteByte((byte)'0');
+        }
+        else if (b == '\\' || b == '\'' || b == '\"')
+        {
+          packet.WriteByte((byte)'\\');
+          packet.WriteByte(b);
+        }
+        else
+        {
+          packet.WriteByte(b);
+        }
+      }
+    }
+
+    /// <summary>
     /// Replaces quotes with double quotes.
     /// </summary>
     /// <param name="value">The string to modidify.</param>

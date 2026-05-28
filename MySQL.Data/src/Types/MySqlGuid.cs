@@ -79,7 +79,7 @@ namespace MySql.Data.Types
         if (binary)
           packet.WriteLenString(guid.ToString("D"));
         else
-          packet.WriteStringNoNull("'" + MySqlHelper.EscapeString(guid.ToString("D")) + "'");
+          MySqlHelper.WriteStringLiteral(packet, guid.ToString("D"));
       }
     }
 
@@ -102,13 +102,13 @@ namespace MySql.Data.Types
         if (binary)
           await packet.WriteLenStringAsync(guid.ToString("D")).ConfigureAwait(false);
         else
-          await packet.WriteStringNoNullAsync("'" + MySqlHelper.EscapeString(guid.ToString("D")) + "'").ConfigureAwait(false);
+          await MySqlHelper.WriteStringLiteralAsync(packet, guid.ToString("D")).ConfigureAwait(false);
       }
     }
 
     /// <summary>
     /// Writes the GUID in the old binary format (16 bytes) to the MySQL packet.
-    /// In binary mode, writes with length prefix; in text mode, prefixes with "_binary " and writes escaped hex bytes as a quoted string.
+    /// In binary mode, writes with length prefix; in text mode, writes a binary string literal.
     /// </summary>
     /// <param name="packet">The MySQL packet to write the value to.</param>
     /// <param name="guid">The GUID value to write.</param>
@@ -123,16 +123,13 @@ namespace MySql.Data.Types
       }
       else
       {
-        packet.WriteStringNoNull("_binary ");
-        packet.WriteByte((byte)'\'');
-        EscapeByteArray(bytes, bytes.Length, packet);
-        packet.WriteByte((byte)'\'');
+        MySqlHelper.WriteBinaryLiteral(packet, bytes, bytes.Length);
       }
     }
 
     /// <summary>
     /// Asynchronously writes the GUID in the old binary format (16 bytes) to the MySQL packet.
-    /// In binary mode, writes with length prefix; in text mode, prefixes with "_binary " and writes escaped hex bytes as a quoted string.
+    /// In binary mode, writes with length prefix; in text mode, writes a binary string literal.
     /// </summary>
     /// <param name="packet">The MySQL packet to write the value to.</param>
     /// <param name="guid">The GUID value to write.</param>
@@ -148,31 +145,7 @@ namespace MySql.Data.Types
       }
       else
       {
-        await packet.WriteStringNoNullAsync("_binary ").ConfigureAwait(false);
-        packet.WriteByte((byte)'\'');
-        EscapeByteArray(bytes, bytes.Length, packet);
-        packet.WriteByte((byte)'\'');
-      }
-    }
-
-    private static void EscapeByteArray(byte[] bytes, int length, MySqlPacket packet)
-    {
-      for (int x = 0; x < length; x++)
-      {
-        byte b = bytes[x];
-        if (b == '\0')
-        {
-          packet.WriteByte((byte)'\\');
-          packet.WriteByte((byte)'0');
-        }
-
-        else if (b == '\\' || b == '\'' || b == '\"')
-        {
-          packet.WriteByte((byte)'\\');
-          packet.WriteByte(b);
-        }
-        else
-          packet.WriteByte(b);
+        MySqlHelper.WriteBinaryLiteral(packet, bytes, bytes.Length);
       }
     }
 

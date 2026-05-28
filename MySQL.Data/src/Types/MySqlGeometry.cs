@@ -181,7 +181,7 @@ namespace MySql.Data.Types
 
     /// <summary>
     /// Writes the geometry value to the MySQL packet.
-    /// For text mode, prefixes with "_binary " and writes an escaped hexadecimal representation of the geometry bytes. For binary mode, writes the string representation (WKT) of the value with a length prefix.
+    /// For text mode, writes a binary string literal containing the geometry bytes. For binary mode, writes the string representation (WKT) of the value with a length prefix.
     /// </summary>
     /// <param name="packet">The MySQL packet to write the value to.</param>
     /// <param name="binary">Indicates whether to write in binary mode (<c>true</c>) or text mode (<c>false</c>).</param>
@@ -200,10 +200,7 @@ namespace MySql.Data.Types
       }
       if (!binary)
       {
-        packet.WriteStringNoNull("_binary ");
-        packet.WriteByte((byte)'\'');
-        EscapeByteArray(result, GEOMETRY_LENGTH, packet);
-        packet.WriteByte((byte)'\'');
+        MySqlHelper.WriteBinaryLiteral(packet, result, GEOMETRY_LENGTH);
       }
       else
       {
@@ -213,7 +210,7 @@ namespace MySql.Data.Types
 
     /// <summary>
     /// Asynchronously writes the geometry value to the MySQL packet.
-    /// For text mode, prefixes with "_binary " and writes an escaped hexadecimal representation of the geometry bytes. For binary mode, writes the string representation (WKT) of the value with a length prefix.
+    /// For text mode, writes a binary string literal containing the geometry bytes. For binary mode, writes the string representation (WKT) of the value with a length prefix.
     /// </summary>
     /// <param name="packet">The MySQL packet to write the value to.</param>
     /// <param name="binary">Indicates whether to write in binary mode (<c>true</c>) or text mode (<c>false</c>).</param>
@@ -233,34 +230,10 @@ namespace MySql.Data.Types
 
       if (!binary)
       {
-        await packet.WriteStringNoNullAsync("_binary ").ConfigureAwait(false);
-        packet.WriteByte((byte)'\'');
-        EscapeByteArray(result, GEOMETRY_LENGTH, packet);
-        packet.WriteByte((byte)'\'');
+        MySqlHelper.WriteBinaryLiteral(packet, result, GEOMETRY_LENGTH);
       }
       else
         await packet.WriteLenStringAsync(val.ToString()).ConfigureAwait(false);
-    }
-
-    private static void EscapeByteArray(byte[] bytes, int length, MySqlPacket packet)
-    {
-      for (int x = 0; x < length; x++)
-      {
-        byte b = bytes[x];
-        if (b == '\0')
-        {
-          packet.WriteByte((byte)'\\');
-          packet.WriteByte((byte)'0');
-        }
-
-        else if (b == '\\' || b == '\'' || b == '\"')
-        {
-          packet.WriteByte((byte)'\\');
-          packet.WriteByte(b);
-        }
-        else
-          packet.WriteByte(b);
-      }
     }
 
     /// <summary>

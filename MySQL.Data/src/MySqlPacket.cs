@@ -110,6 +110,11 @@ namespace MySql.Data.MySqlClient
 
     public DBVersion Version { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether text literals written to this packet must avoid backslash escaping.
+    /// </summary>
+    internal bool NoBackslashEscapes { get; set; }
+
     #endregion
 
     public void Clear()
