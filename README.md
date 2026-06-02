@@ -1,5 +1,23 @@
 # MySQL Connector/NET
 
+Copyright (c) 2004, 2026, Oracle and/or its affiliates.
+
+This is a release of MySQL Connector/NET, Oracle's fully managed ADO .NET Driver
+for MySQL.
+
+License information can be found in the LICENSE file.
+This distribution may include materials developed by third parties. For license
+and attribution notices for these materials, please refer to the LICENSE file.
+
+For more information on MySQL Connector/NET visit http://dev.mysql.com/doc/connector-net/en/
+For additional downloads and the source of MySQL Connector/NET visit http://dev.mysql.com/downloads/
+
+Contributing information for code and non-code submissions can be found in the CONTRIBUTING.md file.
+
+MySQL Connector/NET is brought to you by the MySQL team at Oracle.
+
+## Description
+
 [![GitHub top language](https://img.shields.io/github/languages/top/mysql/mysql-connector-net)](https://github.com/mysql/mysql-connector-net) [![License: GPLv2 with FOSS exception](https://img.shields.io/badge/license-GPLv2_with_FOSS_exception-c30014)](LICENSE) [![NuGet Version](https://img.shields.io/nuget/v/MySQL.Data)](https://www.nuget.org/profiles/MySQL/)
 
 MySQL provides connectivity for client applications developed in .NET compatible programming languages with Connector/NET.
@@ -35,10 +53,6 @@ From MySQL Connector/NET 9.6, the driver adds support for [EF Core 10](https://l
 From MySQL Connector/NET 9.7, the driver improves performance of synchronous operations and improves support for [EF Core 10](https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-10.0/whatsnew).
 
 For detailed information please visit the official [MySQL Connector/NET documentation](https://dev.mysql.com/doc/connector-net/en/).
-
-## Licensing
-
-Please refer to files [README](README) and [LICENSE](LICENSE), available in this repository, and [Legal Notices in documentation](https://dev.mysql.com/doc/connector-net/en/preface.html) for further details.
 
 ## Security
 

@@ -1,6 +1,11 @@
 # Contributing Guidelines
 
-We greatly appreciate feedback from our users, including bug reports and code contributions. Your input helps us improve, and we thank you for any issues you report or code you contribute.
+We welcome your code contributions. Before submitting code via a GitHub pull
+request, or by filing a bug in https://bugs.mysql.com you will need to have
+signed the Oracle Contributor Agreement (see https://oca.opensource.oracle.com).
+
+Only pull requests from committers that can be verified as having signed the OCA
+can be accepted.
 
 ## Reporting Issues
 
@@ -20,9 +25,6 @@ We welcome your code contributions. Before submitting code via a GitHub pull
 request, or by filing a bug in [bugs.mysql.com](https://bugs.mysql.com) you will need to have
 signed the [Oracle Contributor Agreement](https://oca.opensource.oracle.com).
 
-**Only pull requests from committers that can be verified as having signed the OCA
-can be accepted.**
-
 ### Submitting Code Contribution
 
 1. Make sure you have a user account at [bugs.mysql.com](https://bugs.mysql.com). You'll need to reference this
@@ -32,6 +34,15 @@ can be accepted.**
 4. Verify that the entire test suite passes with your code applied.
 5. Submit your pull request via [GitHub](https://github.com/mysql/mysql-connector-net/pulls/) or uploading it using the contribution tab to a bug
    record in [bugs.mysql.com](https://bugs.mysql.com) (using the 'contribution' tab).
+
+### Developing Your Pull Request
+
+1. Create your pull request, following the [project's requirements](https://dev.mysql.com/doc/connector-net/en/connector-net-installation.html).
+2. Include sufficient tests to validate the new functionality.
+3. Confirm that the entire test suite passes with your changes applied.
+4. Submit the pull request via [GitHub](https://github.com/mysql/mysql-connector-net/pulls/) or directly via [bugs.mysql.com](https://bugs.mysql.com).
+
+We deeply value contributions to MySQL and thank you for supporting open-source development.
 
 ### None-Code Contributions
 
@@ -57,15 +68,6 @@ market, sublicense and distribute the Submissions as incorporated or embedded in
 product or service distributed or offered by Oracle without compensation to you.
 All Users, Oracle, and their sublicensees are responsible for any modifications they
 make to the Submissions of others.
-
-### Developing Your Pull Request
-
-1. Create your pull request, following the [project's requirements](https://dev.mysql.com/doc/connector-net/en/connector-net-installation.html).
-2. Include sufficient tests to validate the new functionality.
-3. Confirm that the entire test suite passes with your changes applied.
-4. Submit the pull request via [GitHub](https://github.com/mysql/mysql-connector-net/pulls/) or directly via [bugs.mysql.com](https://bugs.mysql.com).
-
-We deeply value contributions to MySQL and thank you for supporting open-source development.
 
 ## Setting Up a Development Environment
 
