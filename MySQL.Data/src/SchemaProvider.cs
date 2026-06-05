@@ -112,17 +112,19 @@ namespace MySql.Data.MySqlClient
       Regex regex = null;
       int caseSetting = Int32.Parse(connection.driver.Property("lower_case_table_names"), CultureInfo.InvariantCulture);
 
-      string sql = "SHOW DATABASES";
-
-      // if lower_case_table_names is zero, then case lookup should be sensitive
-      // so we can use LIKE to do the matching.
-      if (caseSetting == 0)
+      MySqlSchemaCollection c;
+      using (MySqlCommand cmd = new MySqlCommand("SHOW DATABASES", connection))
       {
-        if (restrictions != null && restrictions.Length >= 1)
-          sql = sql + " LIKE '" + restrictions[0] + "'";
-      }
+        // if lower_case_table_names is zero, then case lookup should be sensitive
+        // so we can use LIKE to do the matching.
+        if (caseSetting == 0)
+        {
+          if (restrictions != null && restrictions.Length >= 1)
+            cmd.CommandText += " LIKE " + AddRestrictionParameter(cmd, 0, restrictions[0]);
+        }
 
-      MySqlSchemaCollection c = QueryCollection("Databases", sql, cancellationToken);
+        c = QueryCollection("Databases", cmd, cancellationToken);
+      }
 
       if (caseSetting != 0 && restrictions != null && restrictions.Length >= 1 && restrictions[0] != null)
         regex = new Regex(restrictions[0], RegexOptions.IgnoreCase);
@@ -152,17 +154,19 @@ namespace MySql.Data.MySqlClient
       Regex regex = null;
       int caseSetting = Int32.Parse(connection.driver.Property("lower_case_table_names"), CultureInfo.InvariantCulture);
 
-      string sql = "SHOW DATABASES";
-
-      // if lower_case_table_names is zero, then case lookup should be sensitive
-      // so we can use LIKE to do the matching.
-      if (caseSetting == 0)
+      MySqlSchemaCollection c;
+      using (MySqlCommand cmd = new MySqlCommand("SHOW DATABASES", connection))
       {
-        if (restrictions != null && restrictions.Length >= 1)
-          sql = sql + " LIKE '" + restrictions[0] + "'";
-      }
+        // if lower_case_table_names is zero, then case lookup should be sensitive
+        // so we can use LIKE to do the matching.
+        if (caseSetting == 0)
+        {
+          if (restrictions != null && restrictions.Length >= 1)
+            cmd.CommandText += " LIKE " + AddRestrictionParameter(cmd, 0, restrictions[0]);
+        }
 
-      MySqlSchemaCollection c = await QueryCollectionAsync("Databases", sql, cancellationToken).ConfigureAwait(false);
+        c = await QueryCollectionAsync("Databases", cmd, cancellationToken).ConfigureAwait(false);
+      }
 
       if (caseSetting != 0 && restrictions != null && restrictions.Length >= 1 && restrictions[0] != null)
         regex = new Regex(restrictions[0], RegexOptions.IgnoreCase);
@@ -404,7 +408,7 @@ namespace MySql.Data.MySqlClient
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     private void LoadTableColumns(MySqlSchemaCollection schemaCollection, string schema, string tableName, string columnRestriction, CancellationToken cancellationToken = default)
     {
-      string sql = String.Format("SHOW FULL COLUMNS FROM `{0}`.`{1}`", schema, tableName);
+      string sql = String.Format("SHOW FULL COLUMNS FROM `{0}`.`{1}`", MySqlHelper.DoubleQuoteString(schema), MySqlHelper.DoubleQuoteString(tableName));
       using MySqlCommand cmd = new MySqlCommand(sql, connection);
 
       int pos = 1;
@@ -430,7 +434,7 @@ namespace MySql.Data.MySqlClient
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task LoadTableColumnsAsync(MySqlSchemaCollection schemaCollection, string schema, string tableName, string columnRestriction, CancellationToken cancellationToken = default)
     {
-      string sql = String.Format("SHOW FULL COLUMNS FROM `{0}`.`{1}`", schema, tableName);
+      string sql = String.Format("SHOW FULL COLUMNS FROM `{0}`.`{1}`", MySqlHelper.DoubleQuoteString(schema), MySqlHelper.DoubleQuoteString(tableName));
       using MySqlCommand cmd = new MySqlCommand(sql, connection);
 
       int pos = 1;
@@ -706,7 +710,7 @@ namespace MySql.Data.MySqlClient
       MySqlSchemaCollection tables = GetTables(tableRestrictions, cancellationToken);
       foreach (MySqlSchemaRow table in tables.Rows)
       {
-        string sql = String.Format("SHOW INDEX FROM `{0}`.`{1}`", table["TABLE_SCHEMA"], table["TABLE_NAME"]);
+        string sql = String.Format("SHOW INDEX FROM `{0}`.`{1}`", MySqlHelper.DoubleQuoteString((string)table["TABLE_SCHEMA"]), MySqlHelper.DoubleQuoteString((string)table["TABLE_NAME"]));
         using MySqlCommand cmd = new MySqlCommand(sql, connection);
         using (MySqlDataReader reader = cmd.ExecuteReader(default, cancellationToken))
         {
@@ -733,7 +737,7 @@ namespace MySql.Data.MySqlClient
       MySqlSchemaCollection tables = await GetTablesAsync(tableRestrictions, cancellationToken).ConfigureAwait(false);
       foreach (MySqlSchemaRow table in tables.Rows)
       {
-        string sql = String.Format("SHOW INDEX FROM `{0}`.`{1}`", table["TABLE_SCHEMA"], table["TABLE_NAME"]);
+        string sql = String.Format("SHOW INDEX FROM `{0}`.`{1}`", MySqlHelper.DoubleQuoteString((string)table["TABLE_SCHEMA"]), MySqlHelper.DoubleQuoteString((string)table["TABLE_NAME"]));
         using MySqlCommand cmd = new MySqlCommand(sql, connection);
         using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, cancellationToken).ConfigureAwait(false))
         {
@@ -970,7 +974,7 @@ namespace MySql.Data.MySqlClient
       if (filterName != null)
         filterName = StringUtility.ToLowerInvariant(filterName);
 
-      string sql = string.Format("SHOW CREATE TABLE `{0}`.`{1}`", tableToParse["TABLE_SCHEMA"], tableToParse["TABLE_NAME"]);
+      string sql = String.Format("SHOW CREATE TABLE `{0}`.`{1}`", MySqlHelper.DoubleQuoteString((string)tableToParse["TABLE_SCHEMA"]), MySqlHelper.DoubleQuoteString((string)tableToParse["TABLE_NAME"]));
       string lowerBody = null, body = null;
       using MySqlCommand cmd = new MySqlCommand(sql, connection);
       using (MySqlDataReader reader = cmd.ExecuteReader(default, cancellationToken))
@@ -1016,7 +1020,7 @@ namespace MySql.Data.MySqlClient
       if (filterName != null)
         filterName = StringUtility.ToLowerInvariant(filterName);
 
-      string sql = string.Format("SHOW CREATE TABLE `{0}`.`{1}`", tableToParse["TABLE_SCHEMA"], tableToParse["TABLE_NAME"]);
+      string sql = String.Format("SHOW CREATE TABLE `{0}`.`{1}`", MySqlHelper.DoubleQuoteString((string)tableToParse["TABLE_SCHEMA"]), MySqlHelper.DoubleQuoteString((string)tableToParse["TABLE_NAME"]));
       string lowerBody = null, body = null;
       using MySqlCommand cmd = new MySqlCommand(sql, connection);
       using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, cancellationToken).ConfigureAwait(false))
@@ -1128,10 +1132,12 @@ namespace MySql.Data.MySqlClient
     public MySqlSchemaCollection GetUsers(string[] restrictions, CancellationToken cancellationToken = default)
     {
       StringBuilder sb = new StringBuilder("SELECT Host, User FROM mysql.user");
+      using MySqlCommand cmd = new MySqlCommand(null, connection);
       if (restrictions != null && restrictions.Length > 0)
-        sb.AppendFormat(CultureInfo.InvariantCulture, " WHERE User LIKE '{0}'", restrictions[0]);
+        sb.AppendFormat(CultureInfo.InvariantCulture, " WHERE User LIKE {0}", AddRestrictionParameter(cmd, 0, restrictions[0]));
 
-      MySqlSchemaCollection c = QueryCollection("Users", sb.ToString(), cancellationToken);
+      cmd.CommandText = sb.ToString();
+      MySqlSchemaCollection c = QueryCollection("Users", cmd, cancellationToken);
       c.Columns[0].Name = "HOST";
       c.Columns[1].Name = "USERNAME";
 
@@ -1147,10 +1153,12 @@ namespace MySql.Data.MySqlClient
     public async Task<MySqlSchemaCollection> GetUsersAsync(string[] restrictions, CancellationToken cancellationToken = default)
     {
       StringBuilder sb = new StringBuilder("SELECT Host, User FROM mysql.user");
+      using MySqlCommand cmd = new MySqlCommand(null, connection);
       if (restrictions != null && restrictions.Length > 0)
-        sb.AppendFormat(CultureInfo.InvariantCulture, " WHERE User LIKE '{0}'", restrictions[0]);
+        sb.AppendFormat(CultureInfo.InvariantCulture, " WHERE User LIKE {0}", AddRestrictionParameter(cmd, 0, restrictions[0]));
 
-      MySqlSchemaCollection c = await QueryCollectionAsync("Users", sb.ToString(), cancellationToken).ConfigureAwait(false);
+      cmd.CommandText = sb.ToString();
+      MySqlSchemaCollection c = await QueryCollectionAsync("Users", cmd, cancellationToken).ConfigureAwait(false);
       c.Columns[0].Name = "HOST";
       c.Columns[1].Name = "USERNAME";
 
@@ -1409,23 +1417,29 @@ namespace MySql.Data.MySqlClient
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     private void FindTables(MySqlSchemaCollection schema, string[] restrictions, CancellationToken cancellationToken = default)
     {
+      if (restrictions == null || restrictions.Length < 2 || restrictions[1] == null)
+        return;
+
+      string schemaName = restrictions[1];
       StringBuilder sql = new StringBuilder();
       StringBuilder where = new StringBuilder();
-      sql.AppendFormat(CultureInfo.InvariantCulture, "SHOW TABLE STATUS FROM `{0}`", restrictions[1]);
-
-      if (restrictions != null && restrictions.Length >= 3 && restrictions[2] != null)
-        where.AppendFormat(CultureInfo.InvariantCulture, " LIKE '{0}'", restrictions[2]);
-
-      sql.Append(where.ToString());
-      string table_type = restrictions[1].ToLower() == "information_schema" ? "SYSTEM VIEW" : "BASE TABLE";
-      using MySqlCommand cmd = new MySqlCommand(sql.ToString(), connection);
-
-      using (MySqlDataReader reader = cmd.ExecuteReader(default, cancellationToken))
+      sql.AppendFormat(CultureInfo.InvariantCulture, "SHOW TABLE STATUS FROM `{0}`", MySqlHelper.DoubleQuoteString(schemaName));
+      using (MySqlCommand cmd = new MySqlCommand(null, connection))
       {
-        while (reader.Read(cancellationToken))
+        if (restrictions.Length >= 3 && restrictions[2] != null)
+          where.AppendFormat(CultureInfo.InvariantCulture, " LIKE {0}", AddRestrictionParameter(cmd, 2, restrictions[2]));
+
+        sql.Append(where.ToString());
+        string tableType = String.Equals(schemaName, "information_schema", StringComparison.OrdinalIgnoreCase) ? "SYSTEM VIEW" : "BASE TABLE";
+        cmd.CommandText = sql.ToString();
+
+        using (MySqlDataReader reader = cmd.ExecuteReader(default, cancellationToken))
         {
-          MySqlSchemaRow row = schema.AddRow();
-          LoadTableStatusRow(row, reader, restrictions[1], table_type);
+          while (reader.Read(cancellationToken))
+          {
+            MySqlSchemaRow row = schema.AddRow();
+            LoadTableStatusRow(row, reader, schemaName, tableType);
+          }
         }
       }
     }
@@ -1439,23 +1453,29 @@ namespace MySql.Data.MySqlClient
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task FindTablesAsync(MySqlSchemaCollection schema, string[] restrictions, CancellationToken cancellationToken = default)
     {
+      if (restrictions == null || restrictions.Length < 2 || restrictions[1] == null)
+        return;
+
+      string schemaName = restrictions[1];
       StringBuilder sql = new StringBuilder();
       StringBuilder where = new StringBuilder();
-      sql.AppendFormat(CultureInfo.InvariantCulture, "SHOW TABLE STATUS FROM `{0}`", restrictions[1]);
-
-      if (restrictions != null && restrictions.Length >= 3 && restrictions[2] != null)
-        where.AppendFormat(CultureInfo.InvariantCulture, " LIKE '{0}'", restrictions[2]);
-
-      sql.Append(where.ToString());
-      string table_type = restrictions[1].ToLower() == "information_schema" ? "SYSTEM VIEW" : "BASE TABLE";
-      using MySqlCommand cmd = new MySqlCommand(sql.ToString(), connection);
-
-      using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, cancellationToken).ConfigureAwait(false))
+      sql.AppendFormat(CultureInfo.InvariantCulture, "SHOW TABLE STATUS FROM `{0}`", MySqlHelper.DoubleQuoteString(schemaName));
+      using (MySqlCommand cmd = new MySqlCommand(null, connection))
       {
-        while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+        if (restrictions.Length >= 3 && restrictions[2] != null)
+          where.AppendFormat(CultureInfo.InvariantCulture, " LIKE {0}", AddRestrictionParameter(cmd, 2, restrictions[2]));
+
+        sql.Append(where.ToString());
+        string tableType = String.Equals(schemaName, "information_schema", StringComparison.OrdinalIgnoreCase) ? "SYSTEM VIEW" : "BASE TABLE";
+        cmd.CommandText = sql.ToString();
+
+        using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, cancellationToken).ConfigureAwait(false))
         {
-          MySqlSchemaRow row = schema.AddRow();
-          LoadTableStatusRow(row, reader, restrictions[1], table_type);
+          while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+          {
+            MySqlSchemaRow row = schema.AddRow();
+            LoadTableStatusRow(row, reader, schemaName, tableType);
+          }
         }
       }
     }
@@ -1477,34 +1497,38 @@ namespace MySql.Data.MySqlClient
     public MySqlSchemaCollection GetUDF(string[] restrictions, CancellationToken cancellationToken = default)
     {
       string sql = "SELECT name,ret,dl FROM mysql.func";
-      if (restrictions?.Length >= 1 && !String.IsNullOrEmpty(restrictions[0]))
-        sql += $" WHERE name LIKE '{restrictions[0]}'";
 
       MySqlSchemaCollection dt = new MySqlSchemaCollection("User-defined Functions");
       dt.AddColumn("NAME", typeof(string));
       dt.AddColumn("RETURN_TYPE", typeof(int));
       dt.AddColumn("LIBRARY_NAME", typeof(string));
 
-      using MySqlCommand cmd = new MySqlCommand(sql, connection);
-
-      try
+      using (MySqlCommand cmd = new MySqlCommand(null, connection))
       {
-        using (MySqlDataReader reader = cmd.ExecuteReader(default, cancellationToken))
+        if (restrictions?.Length >= 1 && !String.IsNullOrEmpty(restrictions[0]))
+          sql += " WHERE name LIKE " + AddRestrictionParameter(cmd, 0, restrictions[0]);
+
+        cmd.CommandText = sql;
+
+        try
         {
-          while (reader.Read(cancellationToken))
+          using (MySqlDataReader reader = cmd.ExecuteReader(default, cancellationToken))
           {
-            MySqlSchemaRow row = dt.AddRow();
-            row[0] = reader.GetString(0);
-            row[1] = reader.GetInt32(1);
-            row[2] = reader.GetString(2);
+            while (reader.Read(cancellationToken))
+            {
+              MySqlSchemaRow row = dt.AddRow();
+              row[0] = reader.GetString(0);
+              row[1] = reader.GetInt32(1);
+              row[2] = reader.GetString(2);
+            }
           }
         }
-      }
-      catch (MySqlException ex)
-      {
-        if (ex.Number != (int)MySqlErrorCode.TableAccessDenied)
-          throw;
-        throw new MySqlException(Resources.UnableToEnumerateUDF, ex);
+        catch (MySqlException ex)
+        {
+          if (ex.Number != (int)MySqlErrorCode.TableAccessDenied)
+            throw;
+          throw new MySqlException(Resources.UnableToEnumerateUDF, ex);
+        }
       }
 
       return dt;
@@ -1520,34 +1544,38 @@ namespace MySql.Data.MySqlClient
     public async Task<MySqlSchemaCollection> GetUDFAsync(string[] restrictions, CancellationToken cancellationToken = default)
     {
       string sql = "SELECT name,ret,dl FROM mysql.func";
-      if (restrictions?.Length >= 1 && !String.IsNullOrEmpty(restrictions[0]))
-        sql += $" WHERE name LIKE '{restrictions[0]}'";
 
       MySqlSchemaCollection dt = new MySqlSchemaCollection("User-defined Functions");
       dt.AddColumn("NAME", typeof(string));
       dt.AddColumn("RETURN_TYPE", typeof(int));
       dt.AddColumn("LIBRARY_NAME", typeof(string));
 
-      using MySqlCommand cmd = new MySqlCommand(sql, connection);
-
-      try
+      using (MySqlCommand cmd = new MySqlCommand(null, connection))
       {
-        using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, cancellationToken).ConfigureAwait(false))
+        if (restrictions?.Length >= 1 && !String.IsNullOrEmpty(restrictions[0]))
+          sql += " WHERE name LIKE " + AddRestrictionParameter(cmd, 0, restrictions[0]);
+
+        cmd.CommandText = sql;
+
+        try
         {
-          while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+          using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, cancellationToken).ConfigureAwait(false))
           {
-            MySqlSchemaRow row = dt.AddRow();
-            row[0] = reader.GetString(0);
-            row[1] = reader.GetInt32(1);
-            row[2] = reader.GetString(2);
+            while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+            {
+              MySqlSchemaRow row = dt.AddRow();
+              row[0] = reader.GetString(0);
+              row[1] = reader.GetInt32(1);
+              row[2] = reader.GetString(2);
+            }
           }
         }
-      }
-      catch (MySqlException ex)
-      {
-        if (ex.Number != (int)MySqlErrorCode.TableAccessDenied)
-          throw;
-        throw new MySqlException(Resources.UnableToEnumerateUDF, ex);
+        catch (MySqlException ex)
+        {
+          if (ex.Number != (int)MySqlErrorCode.TableAccessDenied)
+            throw;
+          throw new MySqlException(Resources.UnableToEnumerateUDF, ex);
+        }
       }
 
       return dt;
@@ -1695,6 +1723,20 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
+    /// Adds a schema restriction value as a command parameter.
+    /// </summary>
+    /// <param name="cmd">The command that receives the restriction parameter.</param>
+    /// <param name="index">The restriction index used to build a stable parameter name.</param>
+    /// <param name="value">The restriction value to bind.</param>
+    /// <returns>The parameter name added to <paramref name="cmd"/>.</returns>
+    protected static string AddRestrictionParameter(MySqlCommand cmd, int index, string value)
+    {
+      string parameterName = "@restriction" + index.ToString(CultureInfo.InvariantCulture);
+      cmd.Parameters.Add(parameterName, MySqlDbType.VarChar).Value = value ?? String.Empty;
+      return parameterName;
+    }
+
+    /// <summary>
     /// Executes a SQL query on the connection and populates a MySqlSchemaCollection with the results.
     /// </summary>
     /// <param name="name">The name of the schema collection (used for the collection's title).</param>
@@ -1703,8 +1745,13 @@ namespace MySql.Data.MySqlClient
     /// <returns>A MySqlSchemaCollection populated with the query results.</returns>
     protected MySqlSchemaCollection QueryCollection(string name, string sql, CancellationToken cancellationToken = default)
     {
-      MySqlSchemaCollection c = new MySqlSchemaCollection(name);
       using MySqlCommand cmd = new MySqlCommand(sql, connection);
+      return QueryCollection(name, cmd, cancellationToken);
+    }
+
+    protected MySqlSchemaCollection QueryCollection(string name, MySqlCommand cmd, CancellationToken cancellationToken = default)
+    {
+      MySqlSchemaCollection c = new MySqlSchemaCollection(name);
       using MySqlDataReader reader = cmd.ExecuteReader(default, cancellationToken);
 
       for (int i = 0; i < reader.FieldCount; i++)
@@ -1726,13 +1773,25 @@ namespace MySql.Data.MySqlClient
     /// Asynchronously executes a SQL query on the connection and populates a MySqlSchemaCollection with the results.
     /// </summary>
     /// <param name="name">The name of the schema collection (used for the collection's title).</param>
-    /// <param name="sql">The SQL query to execute (e.g., "SHOW DATABASES").</param>
+    /// <param name="sql">The SQL query to execute.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>A task representing the asynchronous operation, returning a MySqlSchemaCollection populated with the query results.</returns>
     protected async Task<MySqlSchemaCollection> QueryCollectionAsync(string name, string sql, CancellationToken cancellationToken = default)
     {
-      MySqlSchemaCollection c = new MySqlSchemaCollection(name);
       using MySqlCommand cmd = new MySqlCommand(sql, connection);
+      return await QueryCollectionAsync(name, cmd, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Asynchronously executes a prepared schema query command and populates a MySqlSchemaCollection with the results.
+    /// </summary>
+    /// <param name="name">The name of the schema collection (used for the collection's title).</param>
+    /// <param name="cmd">The command to execute, including any bound restriction parameters.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <returns>A task representing the asynchronous operation, returning a MySqlSchemaCollection populated with the command results.</returns>
+    protected async Task<MySqlSchemaCollection> QueryCollectionAsync(string name, MySqlCommand cmd, CancellationToken cancellationToken = default)
+    {
+      MySqlSchemaCollection c = new MySqlSchemaCollection(name);
       using MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, cancellationToken).ConfigureAwait(false);
 
       for (int i = 0; i < reader.FieldCount; i++)

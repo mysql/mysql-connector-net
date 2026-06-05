@@ -219,26 +219,26 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Builds the SQL query for retrieving view columns, including JOIN and WHERE clause based on restrictions.
+    /// Builds the command for retrieving columns that belong to views, including the
+    /// INFORMATION_SCHEMA.VIEWS join and restriction filters.
     /// </summary>
     /// <param name="restrictions">An array of filter values for database, schema, table (view name), and column name.</param>
-    /// <returns>The constructed SQL query string.</returns>
-    private string BuildViewColumnsQuery(string[] restrictions)
+    /// <returns>The command configured with the query text and restriction parameters.</returns>
+    private MySqlCommand BuildViewColumnsCommand(string[] restrictions)
     {
       StringBuilder where = new StringBuilder();
       StringBuilder sql = new StringBuilder("SELECT C.* FROM information_schema.columns C");
+      MySqlCommand cmd = new MySqlCommand(null, connection);
       sql.Append(" JOIN information_schema.views V ");
       sql.Append("ON C.table_schema=V.table_schema AND C.table_name=V.table_name ");
-      if (restrictions != null && restrictions.Length >= 2 &&
-          restrictions[1] != null)
-        where.AppendFormat(CultureInfo.InvariantCulture, "C.table_schema='{0}' ", restrictions[1]);
+      if (restrictions != null && restrictions.Length >= 2 && restrictions[1] != null)
+        where.AppendFormat(CultureInfo.InvariantCulture, "C.table_schema={0} ", AddRestrictionParameter(cmd, 1, restrictions[1]));
       
-      if (restrictions != null && restrictions.Length >= 3 &&
-          restrictions[2] != null)
+      if (restrictions != null && restrictions.Length >= 3 && restrictions[2] != null)
       {
         if (where.Length > 0)
           where.Append("AND ");
-        where.AppendFormat(CultureInfo.InvariantCulture, "C.table_name='{0}' ", restrictions[2]);
+        where.AppendFormat(CultureInfo.InvariantCulture, "C.table_name={0} ", AddRestrictionParameter(cmd, 2, restrictions[2]));
       }
 
       if (restrictions != null && restrictions.Length == 4 &&
@@ -246,13 +246,14 @@ namespace MySql.Data.MySqlClient
       {
         if (where.Length > 0)
           where.Append("AND ");
-        where.AppendFormat(CultureInfo.InvariantCulture, "C.column_name='{0}' ", restrictions[3]);
+        where.AppendFormat(CultureInfo.InvariantCulture, "C.column_name={0} ", AddRestrictionParameter(cmd, 3, restrictions[3]));
       }
 
       if (where.Length > 0)
         sql.AppendFormat(CultureInfo.InvariantCulture, " WHERE {0}", where);
       
-      return sql.ToString();
+      cmd.CommandText = sql.ToString();
+      return cmd;
     }
 
     /// <summary>
@@ -277,8 +278,8 @@ namespace MySql.Data.MySqlClient
     /// <returns>A <see cref="MySqlSchemaCollection"/> containing view column information.</returns>
     private MySqlSchemaCollection GetViewColumns(string[] restrictions, CancellationToken cancellationToken = default)
     {
-      string sql = BuildViewColumnsQuery(restrictions);
-      MySqlSchemaCollection dt = GetTable(sql, cancellationToken);
+      using MySqlCommand cmd = BuildViewColumnsCommand(restrictions);
+      MySqlSchemaCollection dt = GetTable(cmd, cancellationToken);
       ProcessViewColumnsCollection(dt);
       return dt;
     }
@@ -292,8 +293,8 @@ namespace MySql.Data.MySqlClient
     /// <returns>A task that represents the asynchronous operation, yielding a <see cref="MySqlSchemaCollection"/> containing view column information.</returns>
     private async Task<MySqlSchemaCollection> GetViewColumnsAsync(string[] restrictions, CancellationToken cancellationToken = default)
     {
-      string sql = BuildViewColumnsQuery(restrictions);
-      MySqlSchemaCollection dt = await GetTableAsync(sql, cancellationToken).ConfigureAwait(false);
+      using MySqlCommand cmd = BuildViewColumnsCommand(restrictions);
+      MySqlSchemaCollection dt = await GetTableAsync(cmd, cancellationToken).ConfigureAwait(false);
       ProcessViewColumnsCollection(dt);
       return dt;
     }
@@ -375,13 +376,13 @@ namespace MySql.Data.MySqlClient
         "ROUTINE_TYPE",
         "PARAMETER_NAME",
       ];
-      StringBuilder sql = new StringBuilder(@"SELECT * FROM INFORMATION_SCHEMA.PARAMETERS");
+      using MySqlCommand cmd = new MySqlCommand(@"SELECT * FROM INFORMATION_SCHEMA.PARAMETERS", connection);
       // now get our where clause and append it if there is one
-      string where = GetWhereClause(null, keys, restrictions);
+      string where = GetWhereClause(cmd, null, keys, restrictions);
       if (!string.IsNullOrEmpty(where))
-        sql.AppendFormat(CultureInfo.InvariantCulture, " WHERE {0}", where);
+        cmd.CommandText = String.Format(CultureInfo.InvariantCulture, "{0} WHERE {1}", cmd.CommandText, where);
 
-      MySqlSchemaCollection coll = QueryCollection("parameters", sql.ToString(), cancellationToken);
+      MySqlSchemaCollection coll = QueryCollection("parameters", cmd, cancellationToken);
 
       if ((coll.Rows.Count != 0) && ((string)coll.Rows[0]["routine_type"] == "FUNCTION"))
       {
@@ -410,13 +411,13 @@ namespace MySql.Data.MySqlClient
         "ROUTINE_TYPE",
         "PARAMETER_NAME",
       ];
-      StringBuilder sql = new StringBuilder(@"SELECT * FROM INFORMATION_SCHEMA.PARAMETERS");
+      using MySqlCommand cmd = new MySqlCommand(@"SELECT * FROM INFORMATION_SCHEMA.PARAMETERS", connection);
       // now get our where clause and append it if there is one
-      string where = GetWhereClause(null, keys, restrictions);
+      string where = GetWhereClause(cmd, null, keys, restrictions);
       if (!string.IsNullOrEmpty(where))
-        sql.AppendFormat(CultureInfo.InvariantCulture, " WHERE {0}", where);
+        cmd.CommandText = String.Format(CultureInfo.InvariantCulture, "{0} WHERE {1}", cmd.CommandText, where);
 
-      MySqlSchemaCollection coll = await QueryCollectionAsync("parameters", sql.ToString(), cancellationToken).ConfigureAwait(false);
+      MySqlSchemaCollection coll = await QueryCollectionAsync("parameters", cmd, cancellationToken).ConfigureAwait(false);
 
       if ((coll.Rows.Count != 0) && ((string)coll.Rows[0]["routine_type"] == "FUNCTION"))
       {
@@ -544,7 +545,15 @@ namespace MySql.Data.MySqlClient
       return null;
     }
 
-    private static string GetWhereClause(string initial_where, string[] keys, string[] values)
+    /// <summary>
+    /// Builds a WHERE clause fragment for schema restrictions and binds each restriction value to <paramref name="cmd"/>.
+    /// </summary>
+    /// <param name="cmd">The command that receives the generated restriction parameters.</param>
+    /// <param name="initial_where">An optional fixed WHERE clause fragment to prepend before generated restrictions.</param>
+    /// <param name="keys">The INFORMATION_SCHEMA column names used in restriction predicates.</param>
+    /// <param name="values">The restriction values to bind as parameters.</param>
+    /// <returns>A WHERE clause fragment containing fixed column names and parameter placeholders.</returns>
+    private static string GetWhereClause(MySqlCommand cmd, string initial_where, string[] keys, string[] values)
     {
       StringBuilder where = new StringBuilder(initial_where);
       if (values != null)
@@ -556,14 +565,14 @@ namespace MySql.Data.MySqlClient
           if (where.Length > 0)
             where.Append(" AND ");
           where.AppendFormat(CultureInfo.InvariantCulture,
-              "{0} LIKE '{1}'", keys[i], values[i]);
+              "{0} LIKE {1}", keys[i], AddRestrictionParameter(cmd, i, values[i]));
         }
       }
       return where.ToString();
     }
 
     /// <summary>
-    /// Constructs the query SQL using <see cref="BuildQueryString"/> and executes it against an INFORMATION_SCHEMA table.
+    /// Constructs the query SQL using <see cref="BuildQueryCommand"/> and executes it against an INFORMATION_SCHEMA table.
     /// Applies initial WHERE clause and restrictions based on keys. Adds ordering for COLUMNS table.
     /// Intended for internal use in schema retrieval.
     /// </summary>
@@ -575,12 +584,12 @@ namespace MySql.Data.MySqlClient
     /// <returns>A <see cref="MySqlSchemaCollection"/> populated with the query results.</returns>
     private MySqlSchemaCollection Query(string tableName, string initialWhere, string[] keys, string[] values, CancellationToken cancellationToken = default)
     {
-      string sql = BuildQueryString(tableName, initialWhere, keys, values);
-      return GetTable(sql, cancellationToken);
+      using MySqlCommand cmd = BuildQueryCommand(tableName, initialWhere, keys, values);
+      return GetTable(cmd, cancellationToken);
     }
 
     /// <summary>
-    /// Asynchronously constructs the query SQL using <see cref="BuildQueryString"/> and executes it against an INFORMATION_SCHEMA table.
+    /// Asynchronously constructs the query SQL using <see cref="BuildQueryCommand"/> and executes it against an INFORMATION_SCHEMA table.
     /// Applies initial WHERE clause and restrictions based on keys. Adds ordering for COLUMNS table.
     /// Intended for internal use in schema retrieval.
     /// </summary>
@@ -592,8 +601,8 @@ namespace MySql.Data.MySqlClient
     /// <returns>A task that represents the asynchronous operation, yielding a <see cref="MySqlSchemaCollection"/> populated with the query results.</returns>
     private async Task<MySqlSchemaCollection> QueryAsync(string tableName, string initialWhere, string[] keys, string[] values, CancellationToken cancellationToken = default)
     {
-      string sql = BuildQueryString(tableName, initialWhere, keys, values);
-      return await GetTableAsync(sql, cancellationToken).ConfigureAwait(false);
+      using MySqlCommand cmd = BuildQueryCommand(tableName, initialWhere, keys, values);
+      return await GetTableAsync(cmd, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -604,13 +613,14 @@ namespace MySql.Data.MySqlClient
     /// <param name="initialWhere">An initial WHERE clause fragment to append.</param>
     /// <param name="keys">An array of column names used for building restriction filters.</param>
     /// <param name="values">An array of filter values corresponding to the keys.</param>
-    /// <returns>The complete SQL query string.</returns>
-    private string BuildQueryString(string tableName, string initialWhere, string[] keys, string[] values)
+    /// <returns>The complete command.</returns>
+    private MySqlCommand BuildQueryCommand(string tableName, string initialWhere, string[] keys, string[] values)
     {
       StringBuilder query = new StringBuilder("SELECT * FROM INFORMATION_SCHEMA.");
+      MySqlCommand cmd = new MySqlCommand(null, connection);
       query.Append(tableName);
 
-      string where = GetWhereClause(initialWhere, keys, values);
+      string where = GetWhereClause(cmd, initialWhere, keys, values);
 
       if (where.Length > 0)
         query.AppendFormat(CultureInfo.InvariantCulture, " WHERE {0}", where);
@@ -618,28 +628,24 @@ namespace MySql.Data.MySqlClient
       if (tableName.Equals("COLUMNS", StringComparison.OrdinalIgnoreCase))
         query.Append(" ORDER BY ORDINAL_POSITION");
 
-      return query.ToString();
+      cmd.CommandText = query.ToString();
+      return cmd;
     }
 
     /// <summary>
-    /// Executes a SQL query and populates a MySqlSchemaCollection from the results.
-    /// Dynamically adds columns based on the reader and reads all rows. Intended for internal schema queries.
+    /// Executes a prepared schema query command and populates a MySqlSchemaCollection from the results.
     /// </summary>
-    /// <param name="sql">The SQL query to execute against the connection.</param>
+    /// <param name="cmd">The command to execute, including any bound restriction parameters.</param>
     /// <param name="cancellationToken">A token to allow cancellation of the operation.</param>
-    /// <returns>A <see cref="MySqlSchemaCollection"/> populated with the query results, including columns and rows.</returns>
-    private MySqlSchemaCollection GetTable(string sql, CancellationToken cancellationToken = default)
+    /// <returns>A <see cref="MySqlSchemaCollection"/> populated with the command results.</returns>
+    private MySqlSchemaCollection GetTable(MySqlCommand cmd, CancellationToken cancellationToken = default)
     {
       MySqlSchemaCollection c = new MySqlSchemaCollection();
-      using MySqlCommand cmd = new MySqlCommand(sql, connection);
-      MySqlDataReader reader = cmd.ExecuteReader(default, cancellationToken);
-
-      // add columns
-      for (int i = 0; i < reader.FieldCount; i++)
-        c.AddColumn(reader.GetName(i), reader.GetFieldType(i));
-
-      using (reader)
+      using (MySqlDataReader reader = cmd.ExecuteReader(default, cancellationToken))
       {
+        for (int i = 0; i < reader.FieldCount; i++)
+          c.AddColumn(reader.GetName(i), reader.GetFieldType(i));
+
         while (reader.Read(cancellationToken))
         {
           MySqlSchemaRow row = c.AddRow();
@@ -652,24 +658,19 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Asynchronously executes a SQL query and populates a MySqlSchemaCollection from the results.
-    /// Dynamically adds columns based on the reader and reads all rows. Intended for internal schema queries.
+    /// Asynchronously executes a prepared schema query command and populates a MySqlSchemaCollection from the results.
     /// </summary>
-    /// <param name="sql">The SQL query to execute against the connection.</param>
+    /// <param name="cmd">The command to execute, including any bound restriction parameters.</param>
     /// <param name="cancellationToken">A token to allow cancellation of the asynchronous operation.</param>
-    /// <returns>A task that represents the asynchronous operation, yielding a <see cref="MySqlSchemaCollection"/> populated with the query results, including columns and rows.</returns>
-    private async Task<MySqlSchemaCollection> GetTableAsync(string sql, CancellationToken cancellationToken = default)
+    /// <returns>A task that represents the asynchronous operation, yielding a <see cref="MySqlSchemaCollection"/> populated with the command results.</returns>
+    private async Task<MySqlSchemaCollection> GetTableAsync(MySqlCommand cmd, CancellationToken cancellationToken = default)
     {
       MySqlSchemaCollection c = new MySqlSchemaCollection();
-      using MySqlCommand cmd = new MySqlCommand(sql, connection);
-      MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, cancellationToken).ConfigureAwait(false);
-
-      // add columns
-      for (int i = 0; i < reader.FieldCount; i++)
-        c.AddColumn(reader.GetName(i), reader.GetFieldType(i));
-
-      using (reader)
+      using (MySqlDataReader reader = await cmd.ExecuteReaderAsync(default, cancellationToken).ConfigureAwait(false))
       {
+        for (int i = 0; i < reader.FieldCount; i++)
+          c.AddColumn(reader.GetName(i), reader.GetFieldType(i));
+
         while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
         {
           MySqlSchemaRow row = c.AddRow();
@@ -682,7 +683,7 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Retrieves metadata about foreign keys in the database using <see cref="BuildForeignKeysSql"/>.
+    /// Retrieves metadata about foreign keys in the database using <see cref="BuildForeignKeysCommand"/>.
     /// For MySQL 5.1.16+, queries INFORMATION_SCHEMA with JOINs between REFERENTIAL_CONSTRAINTS and KEY_COLUMN_USAGE, applying restrictions. Falls back to base for older versions.
     /// </summary>
     /// <param name="restrictions">An array of filter values for constraint schema, table name, and constraint name.</param>
@@ -693,13 +694,13 @@ namespace MySql.Data.MySqlClient
       if (!connection.driver.Version.isAtLeast(5, 1, 16))
         return base.GetForeignKeys(restrictions, cancellationToken);
 
-      string sql = BuildForeignKeysSql(restrictions);
+      using MySqlCommand cmd = BuildForeignKeysCommand(restrictions);
 
-      return GetTable(sql, cancellationToken);
+      return GetTable(cmd, cancellationToken);
     }
 
     /// <summary>
-    /// Asynchronously retrieves metadata about foreign keys in the database using <see cref="BuildForeignKeysSql"/>.
+    /// Asynchronously retrieves metadata about foreign keys in the database using <see cref="BuildForeignKeysCommand"/>.
     /// For MySQL 5.1.16+, queries INFORMATION_SCHEMA with JOINs between REFERENTIAL_CONSTRAINTS and KEY_COLUMN_USAGE, applying restrictions. Falls back to base for older versions.
     /// </summary>
     /// <param name="restrictions">An array of filter values for constraint schema, table name, and constraint name.</param>
@@ -710,9 +711,9 @@ namespace MySql.Data.MySqlClient
       if (!connection.driver.Version.isAtLeast(5, 1, 16))
         return await base.GetForeignKeysAsync(restrictions, cancellationToken).ConfigureAwait(false);
 
-      string sql = BuildForeignKeysSql(restrictions);
+      using MySqlCommand cmd = BuildForeignKeysCommand(restrictions);
 
-      return await GetTableAsync(sql, cancellationToken).ConfigureAwait(false);
+      return await GetTableAsync(cmd, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -729,21 +730,21 @@ namespace MySql.Data.MySqlClient
 
       string sql = @"SELECT kcu.* FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu
                 WHERE kcu.referenced_table_name IS NOT NULL";
+      using (MySqlCommand cmd = new MySqlCommand(null, connection))
+      {
+        StringBuilder where = new StringBuilder();
+        if (restrictions != null && restrictions.Length >= 2 && !String.IsNullOrEmpty(restrictions[1]))
+          where.AppendFormat(CultureInfo.InvariantCulture, " AND kcu.constraint_schema LIKE {0}", AddRestrictionParameter(cmd, 1, restrictions[1]));
+        if (restrictions != null && restrictions.Length >= 3 && !String.IsNullOrEmpty(restrictions[2]))
+          where.AppendFormat(CultureInfo.InvariantCulture, " AND kcu.table_name LIKE {0}", AddRestrictionParameter(cmd, 2, restrictions[2]));
+        if (restrictions != null && restrictions.Length >= 4 && !String.IsNullOrEmpty(restrictions[3]))
+          where.AppendFormat(CultureInfo.InvariantCulture, " AND kcu.constraint_name LIKE {0}", AddRestrictionParameter(cmd, 3, restrictions[3]));
 
-      StringBuilder where = new StringBuilder();
-      if (restrictions.Length >= 2 && !String.IsNullOrEmpty(restrictions[1]))
-        where.AppendFormat(CultureInfo.InvariantCulture,
-            " AND kcu.constraint_schema LIKE '{0}'", restrictions[1]);
-      if (restrictions.Length >= 3 && !String.IsNullOrEmpty(restrictions[2]))
-        where.AppendFormat(CultureInfo.InvariantCulture,
-            " AND kcu.table_name LIKE '{0}'", restrictions[2]);
-      if (restrictions.Length >= 4 && !String.IsNullOrEmpty(restrictions[3]))
-        where.AppendFormat(CultureInfo.InvariantCulture,
-            " AND kcu.constraint_name LIKE '{0}'", restrictions[3]);
+        sql += where.ToString();
+        cmd.CommandText = sql;
 
-      sql += where.ToString();
-
-      return GetTable(sql, cancellationToken);
+        return GetTable(cmd, cancellationToken);
+      }
     }
 
     /// <summary>
@@ -751,8 +752,8 @@ namespace MySql.Data.MySqlClient
     /// Intended for internal use in schema retrieval for MySQL 5.1.16+.
     /// </summary>
     /// <param name="restrictions">An array of filter values for constraint schema, table name, and constraint name.</param>
-    /// <returns>The complete SQL query string.</returns>
-    private string BuildForeignKeysSql(string[] restrictions)
+    /// <returns>The complete command.</returns>
+    private MySqlCommand BuildForeignKeysCommand(string[] restrictions)
     {
       string sql = @"SELECT rc.constraint_catalog, rc.constraint_schema,
                 rc.constraint_name, kcu.table_catalog, kcu.table_schema, rc.table_name,
@@ -765,20 +766,22 @@ namespace MySql.Data.MySqlClient
                 kcu.constraint_schema <=> rc.constraint_schema AND 
                 kcu.constraint_name <=> rc.constraint_name 
                 WHERE 1=1 AND kcu.ORDINAL_POSITION=1";
+      MySqlCommand cmd = new MySqlCommand(null, connection);
 
       StringBuilder where = new StringBuilder();
-      if (restrictions.Length >= 2 && !String.IsNullOrEmpty(restrictions[1]))
-        where.AppendFormat(CultureInfo.InvariantCulture, " AND rc.constraint_schema LIKE '{0}'", restrictions[1]);
+      if (restrictions != null && restrictions.Length >= 2 && !String.IsNullOrEmpty(restrictions[1]))
+        where.AppendFormat(CultureInfo.InvariantCulture, " AND rc.constraint_schema LIKE {0}", AddRestrictionParameter(cmd, 1, restrictions[1]));
       
-      if (restrictions.Length >= 3 && !String.IsNullOrEmpty(restrictions[2]))
-        where.AppendFormat(CultureInfo.InvariantCulture, " AND rc.table_name LIKE '{0}'", restrictions[2]);
+      if (restrictions != null && restrictions.Length >= 3 && !String.IsNullOrEmpty(restrictions[2]))
+        where.AppendFormat(CultureInfo.InvariantCulture, " AND rc.table_name LIKE {0}", AddRestrictionParameter(cmd, 2, restrictions[2]));
       
-      if (restrictions.Length >= 4 && !String.IsNullOrEmpty(restrictions[3]))
-        where.AppendFormat(CultureInfo.InvariantCulture, " AND rc.constraint_name LIKE '{0}'", restrictions[2]);
+      if (restrictions != null && restrictions.Length >= 4 && !String.IsNullOrEmpty(restrictions[3]))
+        where.AppendFormat(CultureInfo.InvariantCulture, " AND rc.constraint_name LIKE {0}", AddRestrictionParameter(cmd, 3, restrictions[3]));
 
       sql += where.ToString();
+      cmd.CommandText = sql;
 
-      return sql;
+      return cmd;
     }
 
     /// <summary>
@@ -795,21 +798,21 @@ namespace MySql.Data.MySqlClient
 
       string sql = @"SELECT kcu.* FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu
                 WHERE kcu.referenced_table_name IS NOT NULL";
+      using (MySqlCommand cmd = new MySqlCommand(null, connection))
+      {
+        StringBuilder where = new StringBuilder();
+        if (restrictions != null && restrictions.Length >= 2 && !String.IsNullOrEmpty(restrictions[1]))
+          where.AppendFormat(CultureInfo.InvariantCulture, " AND kcu.constraint_schema LIKE {0}", AddRestrictionParameter(cmd, 1, restrictions[1]));
+        if (restrictions != null && restrictions.Length >= 3 && !String.IsNullOrEmpty(restrictions[2]))
+          where.AppendFormat(CultureInfo.InvariantCulture, " AND kcu.table_name LIKE {0}", AddRestrictionParameter(cmd, 2, restrictions[2]));
+        if (restrictions != null && restrictions.Length >= 4 && !String.IsNullOrEmpty(restrictions[3]))
+          where.AppendFormat(CultureInfo.InvariantCulture, " AND kcu.constraint_name LIKE {0}", AddRestrictionParameter(cmd, 3, restrictions[3]));
 
-      StringBuilder where = new StringBuilder();
-      if (restrictions.Length >= 2 && !String.IsNullOrEmpty(restrictions[1]))
-        where.AppendFormat(CultureInfo.InvariantCulture,
-            " AND kcu.constraint_schema LIKE '{0}'", restrictions[1]);
-      if (restrictions.Length >= 3 && !String.IsNullOrEmpty(restrictions[2]))
-        where.AppendFormat(CultureInfo.InvariantCulture,
-            " AND kcu.table_name LIKE '{0}'", restrictions[2]);
-      if (restrictions.Length >= 4 && !String.IsNullOrEmpty(restrictions[3]))
-        where.AppendFormat(CultureInfo.InvariantCulture,
-            " AND kcu.constraint_name LIKE '{0}'", restrictions[3]);
+        sql += where.ToString();
+        cmd.CommandText = sql;
 
-      sql += where.ToString();
-
-      return await GetTableAsync(sql, cancellationToken).ConfigureAwait(false);
+        return await GetTableAsync(cmd, cancellationToken).ConfigureAwait(false);
+      }
     }
   }
 }

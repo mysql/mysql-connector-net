@@ -32,14 +32,60 @@ using NUnit.Framework.Legacy;
 using System;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MySql.Data.MySqlClient.Tests
 {
   public class GetSchemaTests : TestBase
   {
+    /// <summary>
+    /// The table name used to verify escaped metadata identifiers in IndexColumns.
+    /// </summary>
+    private const string SchemaIdentifierIndexColumnsTable = "SchemaIdentIdx`Quoted";
+
+    /// <summary>
+    /// The table name used to verify escaped metadata identifiers in async IndexColumns.
+    /// </summary>
+    private const string SchemaIdentifierIndexColumnsAsyncTable = "SchemaIdentIdxAsync`Quoted";
+
     protected override void Cleanup()
     {
       ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
+      DropSchemaMetadataTable(SchemaIdentifierIndexColumnsTable);
+      DropSchemaMetadataTable(SchemaIdentifierIndexColumnsAsyncTable);
+    }
+
+    /// <summary>
+    /// Quotes a MySQL identifier part.
+    /// </summary>
+    /// <param name="identifier">The identifier part to quote.</param>
+    /// <returns>The quoted identifier part.</returns>
+    private static string QuoteIdentifier(string identifier)
+    {
+      return String.Format("`{0}`", identifier.Replace("`", "``"));
+    }
+
+    /// <summary>
+    /// Drops a table using escaped identifier parts.
+    /// </summary>
+    /// <param name="tableName">The table name to drop from the current database.</param>
+    private void DropSchemaMetadataTable(string tableName)
+    {
+      ExecuteSQL(String.Format("DROP TABLE IF EXISTS {0}.{1}",
+        QuoteIdentifier(Connection.Database),
+        QuoteIdentifier(tableName)));
+    }
+
+    /// <summary>
+    /// Creates an indexed table with escaped identifier parts.
+    /// </summary>
+    /// <param name="tableName">The table name to create in the current database.</param>
+    private void CreateSchemaIndexedTable(string tableName)
+    {
+      DropSchemaMetadataTable(tableName);
+      ExecuteSQL(String.Format("CREATE TABLE {0}.{1} (id int, KEY idx_id (id))",
+        QuoteIdentifier(Connection.Database),
+        QuoteIdentifier(tableName)));
     }
 
     [Test]
@@ -587,6 +633,145 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.That(dt.TableName, Is.EqualTo("Tables"));
       Assert.That(dt.Rows[0][2], Is.EqualTo("test1"));
       Assert.That(restrictions[2], Is.EqualTo("`test1`"));
+    }
+
+    /// <summary>
+    /// Bug #39255163 Incorrect restriction value handling in GetSchema metadata queries.
+    /// Verifies that a Tables restriction value with special characters is handled as a literal filter.
+    /// </summary>
+    [Test]
+    public void GetSchemaTablesRestrictionValuesAreHandledAsLiterals()
+    {
+      string[] restrictions = new string[4];
+      restrictions[1] = Connection.Database;
+      restrictions[2] = "missing'value";
+
+      DataTable dt = Connection.GetSchema("Tables", restrictions);
+
+      Assert.That(dt.Rows.Count, Is.EqualTo(0),
+        "Tables restriction values must be treated as literal filter values.");
+    }
+
+    /// <summary>
+    /// Bug #39255163 Incorrect restriction value handling in GetSchema metadata queries.
+    /// Verifies that a Columns restriction value with special characters is handled as a literal filter.
+    /// </summary>
+    [Test]
+    public void GetSchemaColumnsRestrictionValuesAreHandledAsLiterals()
+    {
+      string[] restrictions = new string[4];
+      restrictions[1] = Connection.Database;
+      restrictions[2] = "missing'value";
+
+      DataTable dt = Connection.GetSchema("Columns", restrictions);
+
+      Assert.That(dt.Rows.Count, Is.EqualTo(0),
+        "Columns restriction values must be treated as literal filter values.");
+    }
+
+    /// <summary>
+    /// Bug #39255163 Incorrect restriction value handling in GetSchema metadata queries.
+    /// Verifies that a Procedures restriction value with special characters is handled as a literal filter.
+    /// </summary>
+    [Test]
+    public void GetSchemaProceduresRestrictionValuesAreHandledAsLiterals()
+    {
+      string[] restrictions = new string[4];
+      restrictions[1] = Connection.Database;
+      restrictions[2] = "missing'value";
+
+      DataTable dt = Connection.GetSchema("Procedures", restrictions);
+
+      Assert.That(dt.Rows.Count, Is.EqualTo(0),
+        "Procedures restriction values must be treated as literal filter values.");
+    }
+
+    /// <summary>
+    /// Bug #39255163 Incorrect restriction value handling in GetSchema metadata queries.
+    /// Verifies that a Databases restriction value with special characters is handled as a literal filter.
+    /// </summary>
+    [Test]
+    public void GetSchemaDatabasesRestrictionValuesAreHandledAsLiterals()
+    {
+      string[] restrictions = new string[1];
+      restrictions[0] = "missing'value";
+
+      DataTable dt = Connection.GetSchema("Databases", restrictions);
+
+      Assert.That(dt.Rows.Count, Is.EqualTo(0),
+        "Databases restriction values must be treated as literal filter values.");
+    }
+
+    /// <summary>
+    /// Bug #39255163 Incorrect restriction value handling in GetSchema metadata queries.
+    /// Verifies that a Triggers restriction value with special characters is handled as a literal filter.
+    /// </summary>
+    [Test]
+    public void GetSchemaTriggersRestrictionValuesAreHandledAsLiterals()
+    {
+      string[] restrictions = new string[4];
+      restrictions[1] = Connection.Database;
+      restrictions[2] = "missing'value";
+
+      DataTable dt = Connection.GetSchema("Triggers", restrictions);
+
+      Assert.That(dt.Rows.Count, Is.EqualTo(0),
+        "Triggers restriction values must be treated as literal filter values.");
+    }
+
+    /// <summary>
+    /// Bug #39255163 Incorrect restriction value handling in GetSchema metadata queries.
+    /// Verifies that a ViewColumns restriction value with special characters is handled as a literal filter.
+    /// </summary>
+    [Test]
+    public void GetSchemaViewColumnsRestrictionValuesAreHandledAsLiterals()
+    {
+      string[] restrictions = new string[4];
+      restrictions[1] = Connection.Database;
+      restrictions[2] = "missing'value";
+
+      DataTable dt = Connection.GetSchema("ViewColumns", restrictions);
+
+      Assert.That(dt.Rows.Count, Is.EqualTo(0),
+        "ViewColumns restriction values must be treated as literal filter values.");
+    }
+
+    /// <summary>
+    /// Bug #39255163 Incorrect identifier handling in GetSchema metadata queries.
+    /// Verifies that table names returned from metadata are escaped before SHOW INDEX is executed.
+    /// </summary>
+    [Test]
+    public void GetSchemaIndexColumnsMetadataIdentifiersAreEscaped()
+    {
+      CreateSchemaIndexedTable(SchemaIdentifierIndexColumnsTable);
+
+      string[] restrictions = new string[5];
+      restrictions[1] = Connection.Database;
+      restrictions[2] = SchemaIdentifierIndexColumnsTable;
+
+      DataTable dt = Connection.GetSchema("IndexColumns", restrictions);
+
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["TABLE_NAME"].ToString(), Is.EqualTo(SchemaIdentifierIndexColumnsTable).IgnoreCase);
+    }
+
+    /// <summary>
+    /// Bug #39255163 Incorrect identifier handling in GetSchema metadata queries.
+    /// Verifies that table names returned from metadata are escaped before async SHOW INDEX is executed.
+    /// </summary>
+    [Test]
+    public async Task GetSchemaIndexColumnsMetadataIdentifiersAreEscapedAsync()
+    {
+      CreateSchemaIndexedTable(SchemaIdentifierIndexColumnsAsyncTable);
+
+      string[] restrictions = new string[5];
+      restrictions[1] = Connection.Database;
+      restrictions[2] = SchemaIdentifierIndexColumnsAsyncTable;
+
+      DataTable dt = await Connection.GetSchemaAsync("IndexColumns", restrictions);
+
+      Assert.That(dt.Rows.Count, Is.EqualTo(1));
+      Assert.That(dt.Rows[0]["TABLE_NAME"].ToString(), Is.EqualTo(SchemaIdentifierIndexColumnsAsyncTable).IgnoreCase);
     }
 
     [Test]
