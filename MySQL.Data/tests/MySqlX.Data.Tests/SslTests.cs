@@ -33,6 +33,10 @@ using NUnit.Framework;
 using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Security;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MySqlX.Data.Tests
 {
@@ -565,14 +569,138 @@ namespace MySqlX.Data.Tests
       builder.SslCa = sslCa;
       builder.SslCert = sslCert;
       builder.SslKey = sslKey;
-      builder.SslMode = MySqlSslMode.VerifyFull;
+      builder.SslMode = MySqlSslMode.VerifyCA;
       using (var session = MySQLX.GetSession(builder.ConnectionString))
       {
         session.Close();
       }
 
       builder.SslKey = sslKey.Replace("client-key.pem", "client-key_altered.pem");
+      builder.SslMode = MySqlSslMode.VerifyFull;
       Assert.Throws<MySqlException>(() => MySQLX.GetSession(builder.ConnectionString));
+    }
+
+    /// <summary>
+    /// Verifies that PEM VerifyFull rejects certificates whose identity does not match the connection host.
+    /// </summary>
+    [Test]
+    [Property("Category", "Security")]
+    public void PemVerifyFullRejectsRemoteCertificateNameMismatch()
+    {
+      var exception = AssertPemServerCertificateRejected(
+        MySqlSslMode.VerifyFull,
+        SslPolicyErrors.RemoteCertificateNameMismatch);
+
+      Assert.That(exception.Message, Is.EqualTo(MySql.Data.Resources.SslConnectionError));
+      Assert.That(exception.InnerException.Message, Is.EqualTo(MySql.Data.Resources.SslCertificateHostNameMismatch));
+    }
+
+    /// <summary>
+    /// Verifies that PEM VerifyFull rejects host name mismatches even when other SSL policy errors are present.
+    /// </summary>
+    [Test]
+    [Property("Category", "Security")]
+    public void PemVerifyFullRejectsRemoteCertificateNameMismatchWithChainErrors()
+    {
+      var exception = AssertPemServerCertificateRejected(
+        MySqlSslMode.VerifyFull,
+        SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateChainErrors);
+
+      Assert.That(exception.Message, Is.EqualTo(MySql.Data.Resources.SslConnectionError));
+      Assert.That(exception.InnerException.Message, Is.EqualTo(MySql.Data.Resources.SslCertificateHostNameMismatch));
+    }
+
+    /// <summary>
+    /// Verifies that PEM VerifyCA tolerates certificates whose identity does not match the connection host.
+    /// </summary>
+    [Test]
+    [Property("Category", "Security")]
+    public void PemVerifyCAToleratesRemoteCertificateNameMismatch()
+    {
+      var accepted = InvokePemServerCertificateValidation(
+        MySqlSslMode.VerifyCA,
+        SslPolicyErrors.RemoteCertificateNameMismatch);
+
+      Assert.That(accepted, Is.True, "PEM VerifyCA must tolerate server certificate hostname mismatches.");
+    }
+
+    /// <summary>
+    /// Invokes PEM server certificate validation and returns the expected MySQL exception.
+    /// </summary>
+    /// <param name="sslMode">The SSL mode to use for validation.</param>
+    /// <param name="sslPolicyErrors">The SSL policy errors to pass to the server certificate validation callback.</param>
+    /// <returns>The <see cref="MySqlException"/> raised by the certificate validation callback.</returns>
+    private MySqlException AssertPemServerCertificateRejected(MySqlSslMode sslMode, SslPolicyErrors sslPolicyErrors)
+    {
+      try
+      {
+        InvokePemServerCertificateValidation(sslMode, sslPolicyErrors);
+      }
+      catch (TargetInvocationException exception) when (exception.InnerException is MySqlException mySqlException)
+      {
+        return mySqlException;
+      }
+
+      throw new AssertionException("PEM certificate validation was expected to reject the server certificate.");
+    }
+
+    /// <summary>
+    /// Invokes the server certificate validation callback using the PEM certificates from the test suite.
+    /// </summary>
+    /// <param name="sslMode">The SSL mode to use for validation.</param>
+    /// <param name="sslPolicyErrors">The SSL policy errors to pass to the server certificate validation callback.</param>
+    /// <returns><c>true</c> if the callback accepts the certificate; otherwise, <c>false</c>.</returns>
+    private bool InvokePemServerCertificateValidation(MySqlSslMode sslMode, SslPolicyErrors sslPolicyErrors)
+    {
+      var builder = new MySqlConnectionStringBuilder(ConnectionString);
+      builder.SslCa = sslCa;
+      builder.SslCert = sslCert;
+      builder.SslKey = sslKey;
+      builder.SslMode = sslMode;
+
+      var serverCertPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "server-cert.pem");
+      Assert.That(File.Exists(sslCa), Is.True, $"Test certificate not found: {sslCa}");
+      Assert.That(File.Exists(sslCert), Is.True, $"Test certificate not found: {sslCert}");
+      Assert.That(File.Exists(sslKey), Is.True, $"Test key not found: {sslKey}");
+      Assert.That(File.Exists(serverCertPath), Is.True, $"Test certificate not found: {serverCertPath}");
+
+#if NET9_0_OR_GREATER
+      using (var serverCertificate = X509CertificateLoader.LoadCertificateFromFile(serverCertPath))
+      using (var caCertificate = X509CertificateLoader.LoadCertificateFromFile(sslCa))
+#else
+      using (var serverCertificate = new X509Certificate2(serverCertPath))
+      using (var caCertificate = new X509Certificate2(sslCa))
+#endif
+      using (var chain = new X509Chain())
+      {
+#if NETFRAMEWORK
+        chain.ChainPolicy.ExtraStore.Add(caCertificate);
+        chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+        chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
+        chain.Build(serverCertificate);
+        Assert.That(
+          chain.ChainElements.Count,
+          Is.GreaterThan(0),
+          "The repo server certificate must produce a chain for this test.");
+#else
+        chain.ChainPolicy.CustomTrustStore.Add(caCertificate);
+        chain.ChainPolicy.ExtraStore.Add(caCertificate);
+        chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+        chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
+        Assert.That(
+          chain.Build(serverCertificate),
+          Is.True,
+          "The repo server certificate must chain to the repo CA certificate for this test.");
+#endif
+
+        var ssl = new Ssl(builder);
+        var method = typeof(Ssl).GetMethod("ServerCheckValidation", BindingFlags.NonPublic | BindingFlags.Instance);
+        Assert.That(method, Is.Not.Null);
+
+        return (bool)method.Invoke(
+          ssl,
+          new object[] { null, serverCertificate, chain, sslPolicyErrors });
+      }
     }
 
     [Test]
@@ -1352,7 +1480,7 @@ namespace MySqlX.Data.Tests
     public void SecurityTlsCheck()
     {
       Assume.That(Platform.IsWindows(), "This test is only for Windows OS.");
-      MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA, MySqlSslMode.VerifyFull };
+      MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA };
       String[] version, ver1Tls;
       var conStrX = $"{ConnectionString};SslCa={sslCa};SslCert={sslCert};SslKey={sslKey};ssl-ca-pwd={sslCertificatePassword}";
       foreach (MySqlSslMode mode in modes)

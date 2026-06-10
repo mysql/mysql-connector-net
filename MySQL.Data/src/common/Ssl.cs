@@ -444,7 +444,7 @@ namespace MySql.Data.Common
       // Validate PEM certificates using Bouncy Castle.
       if (_treatCertificatesAsPemFormat)
       {
-        SslPemCertificateValidator.ValidateCertificate(chain, _settings);
+        SslPemCertificateValidator.ValidateCertificate(chain, _settings, sslPolicyErrors);
         return true;
       }
       // Validate PFX certificate errors.

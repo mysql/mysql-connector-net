@@ -44,7 +44,7 @@ namespace MySql.Data.common
   /// </summary>
   internal static class SslPemCertificateValidator
   {
-    public static void ValidateCertificate(X509Chain chain, MySqlBaseConnectionStringBuilder settings)
+    public static void ValidateCertificate(X509Chain chain, MySqlBaseConnectionStringBuilder settings, SslPolicyErrors sslPolicyErrors)
     {
       if (settings.SslMode >= MySqlSslMode.VerifyCA)
       {
@@ -73,6 +73,7 @@ namespace MySql.Data.common
         VerifyEmptyOrWhitespaceSslConnectionOption(settings.SslKey, nameof(settings.SslKey));
         var sslKey = ReadKey(settings.SslKey);
         VerifyKeyCorrespondsToCertificateKey(sslCert, sslKey);
+        VerifyIdentity(sslPolicyErrors);
       }
     }
 
@@ -253,12 +254,12 @@ namespace MySql.Data.common
     }
 
     /// <summary>
-    /// Verifies that no SSL policy errors regarding the identitfy of the host were raised.
+    /// Verifies that no SSL policy errors regarding the identity of the host were raised.
     /// </summary>
     /// <param name="sslPolicyErrors">A <see cref="SslPolicyErrors"/> instance set with the raised SSL errors.</param>
     private static void VerifyIdentity(SslPolicyErrors sslPolicyErrors)
     {
-      if (sslPolicyErrors == SslPolicyErrors.RemoteCertificateNameMismatch)
+      if ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateNameMismatch) != 0)
         throw new MySqlException(Resources.SslConnectionError, new Exception(Resources.SslCertificateHostNameMismatch));
     }
 
