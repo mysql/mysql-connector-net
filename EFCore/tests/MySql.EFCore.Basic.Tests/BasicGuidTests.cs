@@ -53,24 +53,42 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
     public void TestEmptyGUID()
     {
       MySQLTestStore.Execute("drop database if exists DbContextGuid; Create database DbContextGuid; ");
-      using (var context = new ContextGUID())
-      {
-        context.Database.EnsureDeleted();
-        context.Database.EnsureCreated();
-        var filter = new[] { Guid.Empty };
-        var resultFilter = context.Guidtable.Where(t => filter.Contains(t.Uuid)).ToArray();
-        Assert.That(resultFilter, Is.Not.Null);
-        Random rnd = new Random();
-        var guid = Guid.NewGuid();
-        var record = new GuidTable { Id = rnd.Next(100), Uuid = guid };
-        context.Guidtable.Add(record);
-        context.SaveChanges();
-        var rows = context.Guidtable.Count();
-        Assert.That(rows, Is.EqualTo(1));
-        filter[0] = guid;
-        var resultFilter2 = context.Guidtable.Where(t => filter.Contains(t.Uuid)).ToArray();
-        Assert.That(resultFilter2.Count(), Is.EqualTo(1));
-      }
+      using var context = new ContextGUID();
+      context.Database.EnsureDeleted();
+      context.Database.EnsureCreated();
+      var filter = new[] { Guid.Empty };
+      var resultFilter = context.Guidtable.Where(t => filter.Contains(t.Uuid)).ToArray();
+      Assert.That(resultFilter, Is.Not.Null);
+      Random rnd = new Random();
+      var guid = Guid.NewGuid();
+      var record = new GuidTable { Id = rnd.Next(100), Uuid = guid };
+      context.Guidtable.Add(record);
+      context.SaveChanges();
+      var rows = context.Guidtable.Count();
+      Assert.That(rows, Is.EqualTo(1));
+      filter[0] = guid;
+      var resultFilter2 = context.Guidtable.Where(t => filter.Contains(t.Uuid)).ToArray();
+      Assert.That(resultFilter2.Count(), Is.EqualTo(1));
+    }
+
+    [Test]
+    public void TestGuidContains()
+    {
+      MySQLTestStore.Execute("drop database if exists DbContextGuid; Create database DbContextGuid; ");
+      using var context = new ContextGUID();
+      context.Database.EnsureDeleted();
+      context.Database.EnsureCreated();
+      var guid1 = Guid.NewGuid();
+      var guid2 = Guid.NewGuid();
+      var guidTable1 = new GuidTable() { Id = 1, Uuid = guid1 };
+      var guidTable2 = new GuidTable() { Id = 2, Uuid = guid2 };
+      context.Guidtable.Add(guidTable1);
+      context.Guidtable.Add(guidTable2);
+      context.SaveChanges();
+      var filter = new[] { guid1 };
+      var resultFilter = context.Guidtable.Where(t => filter.Contains(t.Uuid)).ToArray();
+      Assert.That(resultFilter.Count(), Is.EqualTo(1));
+      Assert.That(resultFilter.First(), Is.EqualTo(guidTable1));
     }
 
     public class GuidTable

@@ -236,6 +236,51 @@ namespace MySql.EntityFrameworkCore.Query.Internal
         _ => base.ApplyTypeMapping(sqlExpression, typeMapping)
       };
 
+
+#if NET10_0_OR_GREATER
+	/// <summary>
+	///   Overrides the base <c>In(item, valuesParameter)</c> so that the resulting <see cref="InExpression"/>'s
+	///   <see cref="InExpression.ValuesParameter"/> always carries a non-null type mapping.
+	/// </summary>
+	/// <remarks>
+	///   <para>
+	///     The base implementation looks up a collection type mapping via
+	///     <c>TypeMappingSource.FindMapping(valuesParameter.Type, model, elementMapping)</c>.
+	///     This can leave the values parameter unmapped if the parameter is an IEnumerable
+	///   </para>
+	/// </remarks>
+	public override SqlExpression In(SqlExpression item, SqlParameterExpression valuesParameter)
+	{
+		var inExpression = (InExpression)base.In(item, valuesParameter);
+	
+		if (inExpression.ValuesParameter is not { TypeMapping: null } unmappedValuesParameter)
+		{
+			return inExpression;
+		}
+		
+		var model = Dependencies.Model;
+		var elementMapping = inExpression.Item.TypeMapping
+							 ?? _typeMappingSource.FindMapping(inExpression.Item.Type, model);
+		if (elementMapping is null)
+		{
+			return inExpression;
+		}
+	
+		// Back-apply the element mapping to the item if it was missing one.
+		var mappedItem = inExpression.Item.TypeMapping is null
+			? ApplyTypeMapping(inExpression.Item, elementMapping)
+			: inExpression.Item;
+	
+		var collectionMapping = _typeMappingSource.FindMapping(unmappedValuesParameter.Type, model, elementMapping);
+		if (collectionMapping is null)
+		{
+			collectionMapping = (RelationalTypeMapping)elementMapping.Clone(elementMapping: elementMapping);
+		}
+	
+		return inExpression.Update(mappedItem, unmappedValuesParameter.ApplyTypeMapping(collectionMapping));
+	}
+#endif
+
     private SqlBinaryExpression ApplyTypeMappingOnSqlBinary(SqlBinaryExpression sqlBinaryExpression, RelationalTypeMapping typeMapping)
     {
       // The default SqlExpressionFactory behavior is to assume that the two operands have the same type, and so to infer one side's
@@ -292,8 +337,13 @@ namespace MySql.EntityFrameworkCore.Query.Internal
 
     private MySQLCollateExpression ApplyTypeMappingOnCollate(MySQLCollateExpression collateExpression)
     {
-#if NET9_0_OR_GREATER
-      return new MySQLCollateExpression(collateExpression.Operand, collateExpression.Charset, collateExpression.Collation);
+#if NET9_0_OR_GREATER 
+      var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(collateExpression.Operand)
+                                ?? _typeMappingSource.FindMapping(collateExpression.Operand.Type);
+      return new MySQLCollateExpression(
+        ApplyTypeMapping(collateExpression.Operand, inferredTypeMapping),
+        collateExpression.Charset,
+        collateExpression.Collation);
 #else
       var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(collateExpression.ValueExpression)
   ?? _typeMappingSource.FindMapping(collateExpression.ValueExpression.Type);
