@@ -40,8 +40,8 @@ using System.Resources;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("26.07.0")]
-[assembly: AssemblyInformationalVersion("26.07.0.0")]
-[assembly: AssemblyFileVersion("26.07.0.0")]
+[assembly: AssemblyVersion("26.7.0")]
+[assembly: AssemblyInformationalVersion("26.7.0.0")]
+[assembly: AssemblyFileVersion("26.7.0.0")]
 [assembly: NeutralResourcesLanguage("en-US")]
 
