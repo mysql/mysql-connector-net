@@ -1,23 +1,5 @@
 # MySQL Connector/NET
 
-Copyright (c) 2004, 2026, Oracle and/or its affiliates.
-
-This is a release of MySQL Connector/NET, Oracle's fully managed ADO .NET Driver
-for MySQL.
-
-License information can be found in the LICENSE file.
-This distribution may include materials developed by third parties. For license
-and attribution notices for these materials, please refer to the LICENSE file.
-
-For more information on MySQL Connector/NET visit http://dev.mysql.com/doc/connector-net/en/
-For additional downloads and the source of MySQL Connector/NET visit http://dev.mysql.com/downloads/
-
-Contributing information for code and non-code submissions can be found in the CONTRIBUTING.md file.
-
-MySQL Connector/NET is brought to you by the MySQL team at Oracle.
-
-## Description
-
 [![GitHub top language](https://img.shields.io/github/languages/top/mysql/mysql-connector-net)](https://github.com/mysql/mysql-connector-net) [![License: GPLv2 with FOSS exception](https://img.shields.io/badge/license-GPLv2_with_FOSS_exception-c30014)](LICENSE) [![NuGet Version](https://img.shields.io/nuget/v/MySQL.Data)](https://www.nuget.org/profiles/MySQL/)
 
 MySQL provides connectivity for client applications developed in .NET compatible programming languages with Connector/NET.
@@ -54,6 +36,14 @@ From MySQL Connector/NET 9.7, the driver improves performance of synchronous ope
 
 For detailed information please visit the official [MySQL Connector/NET documentation](https://dev.mysql.com/doc/connector-net/en/).
 
+## Licensing
+
+Please refer to files [README](README) and [LICENSE](LICENSE), available in this repository, and [Legal Notices in documentation](https://dev.mysql.com/doc/connector-net/en/preface.html) for further details.
+
+## Contributing
+
+We greatly appreciate feedback from our users, including bug reports and code contributions. Your input helps us improve, and we thank you for any issues you report or code you contribute. Please refer to the [contributing](CONTRIBUTING.md) document for additional information.
+
 ## Security
 
 Oracle values the independent security research community and believes that responsible disclosure of security vulnerabilities helps us ensure the security and privacy of all our users. Please refer to the [security guidelines](SECURITY.md) document for additional information.
@@ -74,10 +64,6 @@ This driver can also be complied and installed from the sources available in thi
 
 This repository contains the MySQL Connector/NET source code as per latest released version. You should expect to see the same content here and within the latest released Connector/NET package.
 
-## Contributing
-
-We greatly appreciate feedback from our users, including bug reports and code contributions. Your input helps us improve, and we thank you for any issues you report or code you contribute. Please refer to the [contributing guidelines](CONTRIBUTING.md) document for additional information.
-
 ### Additional Resources
 
 * [MySQL Connector/NET Developer Guide](https://dev.mysql.com/doc/connector-net/en/)
@@ -93,4 +79,4 @@ We greatly appreciate feedback from our users, including bug reports and code co
 
 For more information about this and other MySQL products, please visit [MySQL Contact & Questions](https://www.mysql.com/about/contact/).
 
-[![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/MySQL.svg?label=Follow%20%40MySQL&style=social)](https://x.com/intent/follow?screen_name=MySQL)
+[![X Follow](https://img.shields.io/twitter/follow/MySQL.svg?label=Follow%20%40MySQL&style=social)](https://x.com/intent/follow?screen_name=MySQL)
