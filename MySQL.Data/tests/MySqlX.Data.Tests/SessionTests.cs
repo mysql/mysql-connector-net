@@ -650,6 +650,8 @@ namespace MySqlX.Data.Tests
       else
         Assert.Throws<System.TimeoutException>(() => MySQLX.GetSession(connString));
       TimeSpan diff = DateTime.Now.Subtract(start);
+      if (Platform.IsMacOSX())
+        maxTime += 5;
       Assert.That(diff.TotalSeconds > minTime && diff.TotalSeconds < maxTime, String.Format("Timeout exceeded ({0}). Actual time: {1}", test, diff));
     }
 

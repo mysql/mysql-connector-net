@@ -680,13 +680,8 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.That(File.Exists(_sslKey), Is.True, $"Test key not found: {_sslKey}");
       Assert.That(File.Exists(serverCertPath), Is.True, $"Test certificate not found: {serverCertPath}");
 
-#if NET9_0_OR_GREATER
-      using (var serverCertificate = X509CertificateLoader.LoadCertificateFromFile(serverCertPath))
-      using (var caCertificate = X509CertificateLoader.LoadCertificateFromFile(_sslCa))
-#else
-      using (var serverCertificate = new X509Certificate2(serverCertPath))
-      using (var caCertificate = new X509Certificate2(_sslCa))
-#endif
+      using (var serverCertificate = LoadCertificateForCallback(serverCertPath))
+      using (var caCertificate = LoadCertificateForCallback(_sslCa))
       using (var chain = new X509Chain())
       {
 #if NETFRAMEWORK
@@ -717,6 +712,36 @@ namespace MySql.Data.MySqlClient.Tests
           ssl,
           new object[] { null, serverCertificate, chain, sslPolicyErrors });
       }
+    }
+
+    /// <summary>
+    /// Loads a certificate for the server certificate validation callback.
+    /// </summary>
+    /// <param name="certificatePath">The certificate file path.</param>
+    /// <returns>The loaded <see cref="X509Certificate2"/> instance.</returns>
+    private X509Certificate2 LoadCertificateForCallback(string certificatePath)
+    {
+      if (Platform.IsMacOSX())
+      {
+        using (var reader = File.OpenText(certificatePath))
+        {
+          var certificate = new Org.BouncyCastle.OpenSsl.PemReader(reader).ReadObject()
+            as Org.BouncyCastle.X509.X509Certificate;
+          Assert.That(certificate, Is.Not.Null, $"Test certificate could not be read as PEM: {certificatePath}");
+
+#if NET9_0_OR_GREATER
+          return X509CertificateLoader.LoadCertificate(certificate.GetEncoded());
+#else
+          return new X509Certificate2(certificate.GetEncoded());
+#endif
+        }
+      }
+
+#if NET9_0_OR_GREATER
+      return X509CertificateLoader.LoadCertificateFromFile(certificatePath);
+#else
+      return new X509Certificate2(certificatePath);
+#endif
     }
 
     [Test]

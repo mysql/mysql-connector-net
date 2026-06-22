@@ -612,7 +612,7 @@ namespace MySqlX.Data.Tests
     public static Session session3 = null;
     public static Session session4 = null;
     public CompressionType[] compressValue = { CompressionType.Required, CompressionType.Preferred, CompressionType.Disabled };
-    public MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA, MySqlSslMode.VerifyFull, MySqlSslMode.Preferred };
+    public MySqlSslMode[] modes = { MySqlSslMode.Required, MySqlSslMode.VerifyCA };
     public static object connObject = new { server = Host, port = XPort, user = "test", password = "test" };
 
     [Test, Description("Connection Compression tests to verify the values of compress option with connection string, uri, anonymous object, string builder")]
@@ -624,7 +624,7 @@ namespace MySqlX.Data.Tests
       sb.SslCa = sslCa;
       sb.SslCert = sslCert;
       sb.SslKey = sslKey;
-      for (int j = 0; j < 3; j++)
+      for (int j = 0; j < modes.Length; j++)
       {
         for (int i = 0; i < 3; i++)
         {

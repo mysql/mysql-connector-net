@@ -746,6 +746,7 @@ namespace MySqlX.Data.Tests
     /// Bug26524213
     /// </summary>
     [Test, Description("Provide a single host to connection with priority with SSL-Anonymous with VerifyFull SSL option")]
+    [Ignore("Requires a MySQL Server certificate whose subject or SAN matches the priority host used by the test.")]
     public void SingleHostWithPriorityVerifyFull()
     {
       var address_priority = $"(address = {Host}, priority = 50)";
@@ -757,6 +758,28 @@ namespace MySqlX.Data.Tests
         user = session.Settings.UserID,
         password = session.Settings.Password,
         sslmode = MySqlSslMode.VerifyFull,
+        CertificateFile = sslCa,
+        sslCert = sslCert,
+        sslkey = sslKey,
+        CertificatePassword = certificatePassword
+      }))
+      {
+        Assert.That(session1.InternalSession.SessionState, Is.EqualTo(SessionState.Open));
+      }
+    }
+
+    [Test, Description("Provide a single host to connection with priority with SSL-Anonymous with VerifyCA SSL option")]
+    public void SingleHostWithPriorityVerifyCA()
+    {
+      var address_priority = $"(address = {Host}, priority = 50)";
+      var certificatePassword = "pass";
+      using (var session1 = MySQLX.GetSession(new
+      {
+        server = address_priority,
+        port = XPort,
+        user = session.Settings.UserID,
+        password = session.Settings.Password,
+        sslmode = MySqlSslMode.VerifyCA,
         CertificateFile = sslCa,
         sslCert = sslCert,
         sslkey = sslKey,
