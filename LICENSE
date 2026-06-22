@@ -1,6 +1,6 @@
 Licensing Information User Manual
 
-MySQL Connector/NET 9.7.0 Community
+MySQL Connector/NET 26.7.0 Community
      __________________________________________________________________
 
 Introduction
@@ -8,31 +8,19 @@ Introduction
    This License Information User Manual contains Oracle's product license
    and other licensing information, including licensing information for
    third-party software which may be included in this distribution of
-   MySQL Connector/NET 9.7.0 Community.
+   MySQL Connector/NET 26.7.0 Community.
 
-   Last updated: February 2026
+   Last updated: June 2026
 
 Licensing Information
 
-   This release of MySQL Connector/NET 9.7.0 Community is brought to you
-   by the MySQL team at Oracle. This software is released under version 2
-   of the GNU General Public License (GPLv2), as set forth below, with the
-   following additional permissions:
+Product License - MySQL Connector/NET 26.7.0 Community
 
-   This distribution of MySQL Connector/NET 9.7.0 Community is designed to
-   work with certain software (including but not limited to OpenSSL) that
-   is licensed under separate terms, as designated in a particular file or
-   component or in the license documentation. Without limiting your rights
-   under the GPLv2, the authors of MySQL hereby grant you an additional
-   permission to link the program and your derivative works with the
-   separately licensed software that they have either included with the
-   program or referenced in the documentation.
-
-   Without limiting the foregoing grant of rights under the GPLv2 and
-   additional permission as to separately licensed software, this
-   Connector is also subject to the Universal FOSS Exception, version 1.0,
-   a copy of which is reproduced below and can also be found along with
-   its FAQ at http://oss.oracle.com/licenses/universal-foss-exception.
+   This is a release of MySQL Connector/NET 26.7.0 Community, the
+   dual-license .NET API for MySQL. For the avoidance of doubt, this
+   particular copy of the software is released under version 2 of the GNU
+   General Public License. MySQL Connector/NET 26.7.0 Community is brought
+   to you by the MySQL team at Oracle.
 
    Copyright (c) 2004, 2026, Oracle and/or its affiliates.
 
@@ -412,64 +400,19 @@ you may consider it more useful to permit linking proprietary
 applications with the library.  If this is what you want to do, use
 the GNU Lesser General Public License instead of this License.
 
-   ======================================================================
-   ======================================================================
+MySQL FOSS License Exception
 
-The Universal FOSS Exception, Version 1.0
+   We want free and open source software applications under certain
+   licenses to be able to use the GPL-licensed MySQL Connector/NET 26.7.0
+   Community despite the fact that not all such FOSS licenses are
+   compatible with version 2 of the GNU General Public License. Therefore
+   there are special exceptions to the terms and conditions of the GPLv2
+   as applied to these client libraries, which are identified and
+   described in more detail in the FOSS License Exception at
+   http://www.mysql.com/about/legal/licensing/foss-exception/.
 
-   In addition to the rights set forth in the other license(s) included in
-   the distribution for this software, data, and/or documentation
-   (collectively the "Software", and such licenses collectively with this
-   additional permission the "Software License"), the copyright holders
-   wish to facilitate interoperability with other software, data, and/or
-   documentation distributed with complete corresponding source under a
-   license that is OSI-approved and/or categorized by the FSF as free
-   (collectively "Other FOSS"). We therefore hereby grant the following
-   additional permission with respect to the use and distribution of the
-   Software with Other FOSS, and the constants, function signatures, data
-   structures and other invocation methods used to run or interact with
-   each of them (as to each, such software's "Interfaces"):
-
-    i. The Software's Interfaces may, to the extent permitted by the
-       license of the Other FOSS, be copied into, used and distributed in
-       the Other FOSS in order to enable interoperability, without
-       requiring a change to the license of the Other FOSS other than as
-       to any Interfaces of the Software embedded therein. The Software's
-       Interfaces remain at all times under the Software License,
-       including without limitation as used in the Other FOSS (which upon
-       any such use also then contains a portion of the Software under the
-       Software License).
-
-   ii. The Other FOSS's Interfaces may, to the extent permitted by the
-       license of the Other FOSS, be copied into, used and distributed in
-       the Software in order to enable interoperability, without requiring
-       that such Interfaces be licensed under the terms of the Software
-       License or otherwise altering their original terms, if this does
-       not require any portion of the Software other than such Interfaces
-       to be licensed under the terms other than the Software License.
-
-   iii. If only Interfaces and no other code is copied between the
-       Software and the Other FOSS in either direction, the use and/or
-       distribution of the Software with the Other FOSS shall not be
-       deemed to require that the Other FOSS be licensed under the license
-       of the Software, other than as to any Interfaces of the Software
-       copied into the Other FOSS. This includes, by way of example and
-       without limitation, statically or dynamically linking the Software
-       together with Other FOSS after enabling interoperability using the
-       Interfaces of one or both, and distributing the resulting
-       combination under different licenses for the respective portions
-       thereof.
-
-       For avoidance of doubt, a license which is OSI-approved or
-       categorized by the FSF as free, includes, for the purpose of this
-       permission, such licenses with additional permissions, and any
-       license that has previously been so approved or categorized as
-       free, even if now deprecated or otherwise no longer recognized as
-       approved or free. Nothing in this additional permission grants any
-       right to distribute any portion of the Software on terms other than
-       those of the Software License or grants any additional permission
-       of any kind for use or distribution of the Software in conjunction
-       with software other than Other FOSS.
+   This software is OSI Certified Open Source Software. OSI Certified is a
+   certification mark of the Open Source Initiative.
 
    ======================================================================
    ======================================================================
