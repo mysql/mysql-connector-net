@@ -1,10 +1,12 @@
-Connector/NET 9.7 Release Notes
+Connector/NET 26.7 Release Notes
 ------------------------------------
-Welcome to the release notes for Connector/NET 9.7
+Welcome to the release notes for Connector/NET 26.7
 
-What's new in 9.7
+What's new in 26.7
 --------------------
 
-Connector/NET now has improved performance for synchronous operations.
-Connector/NET enhanced EF Core 10 compatibility by adding support for `StartsWith` and `EndsWith` in LINQ queries.
-Connector/NET fixed an issue that could cause missing rows in specific data-retrieval scenarios.
+Connector/NET updated third-party dependencies.
+Connector/NET fixed an issue where LINQ .Contains predicates with collection parameters could fail in EF Core because the collection elements were not mapped correctly.
+Connector/NET fixed an issue with parameterized query handling.
+Connector/NET fixed an issue with restriction value handling in GetSchema metadata queries.
+Connector/NET fixed an issue with TLS certificate validation.

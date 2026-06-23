@@ -34,6 +34,8 @@ From MySQL Connector/NET 9.6, the driver adds support for [EF Core 10](https://l
 
 From MySQL Connector/NET 9.7, the driver improves performance of synchronous operations and improves support for [EF Core 10](https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-10.0/whatsnew).
 
+From MySQL Connector/NET 26.7, the driver adds support for the latest version of [EF Core 10](https://learn.microsoft.com/en-us/ef/core/what-is-new/ef-core-10.0/whatsnew).
+
 For detailed information please visit the official [MySQL Connector/NET documentation](https://dev.mysql.com/doc/connector-net/en/).
 
 ## Licensing

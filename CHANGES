@@ -1,4 +1,8 @@
 26.7.0
+- Fixed bug MySql.EntityFrameworkCore error when using LINQ with `.Contains` (MySQL Bug #119461, Oracle Bug #39328452).
+- Fixed bug in parameterized query handling (Oracle Bug #39255116).
+- Fixed bug Incorrect restriction value handling in GetSchema metadata queries (Oracle Bug #39255163).
+- Fixed bug in TLS certificate validation (Oracle Bug #39270237).
 - Updated third party dependencies (WL17283).
 
 9.7.0
