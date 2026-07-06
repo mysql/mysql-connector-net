@@ -242,6 +242,12 @@ namespace MySql.Data.MySqlClient
         // eat, on the same reason we eat IO exceptions wrapped into 
         // MySqlExceptions reasons, described above.
       }
+      catch (TimeoutException)
+      {
+        // eat, socket timeouts during sync IO are now surfaced as TimeoutException
+        // (converted in TimedStream.ReadAsync). Same reasoning as IOException above:
+        // we are closing the reader and do not want the exception to propagate.
+      }
       finally
       {
         // always ensure internal reader is null (Bug #55558)
@@ -319,6 +325,12 @@ namespace MySql.Data.MySqlClient
       {
         // eat, on the same reason we eat IO exceptions wrapped into 
         // MySqlExceptions reasons, described above.
+      }
+      catch (TimeoutException)
+      {
+        // eat, socket timeouts during async IO are now surfaced as TimeoutException
+        // (converted in TimedStream.ReadAsync). Same reasoning as IOException above:
+        // we are closing the reader and do not want the exception to propagate.
       }
       finally
       {
