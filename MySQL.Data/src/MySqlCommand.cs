@@ -873,6 +873,7 @@ namespace MySql.Data.MySqlClient
         MySqlDataReader reader = new MySqlDataReader(this, statement, behavior);
         connection.Reader = reader;
         Canceled = false;
+        using var cancellationRegistration = cancellationToken.Register(() => Cancel());
         // execute the statement
         statement.Execute();
         // wait for data to return
@@ -918,9 +919,14 @@ namespace MySql.Data.MySqlClient
             throw new MySqlException(ex.Message, true, ex);
           }
 
-          // if we caught an exception because of a cancel, then just return null
+          // if we caught an exception because of a cancel, propagate as OperationCanceledException
+          // when triggered by a cancellation token, otherwise return null (e.g. timeout-driven abort)
           if (mySqlException.IsQueryAborted)
+          {
+            if (cancellationToken.IsCancellationRequested)
+              throw new OperationCanceledException(cancellationToken);
             return null;
+          }
           if (mySqlException.IsFatal)
             Connection.Close();
           if (mySqlException.Number == 0)
@@ -1053,6 +1059,7 @@ namespace MySql.Data.MySqlClient
         MySqlDataReader reader = new MySqlDataReader(this, statement, behavior);
         connection.Reader = reader;
         Canceled = false;
+        using var cancellationRegistration = cancellationToken.Register(() => Cancel());
         // execute the statement
         await statement.ExecuteAsync().ConfigureAwait(false);
         // wait for data to return
@@ -1098,9 +1105,14 @@ namespace MySql.Data.MySqlClient
             throw new MySqlException(ex.Message, true, ex);
           }
 
-          // if we caught an exception because of a cancel, then just return null
+          // if we caught an exception because of a cancel, propagate as OperationCanceledException
+          // when triggered by a cancellation token, otherwise return null (e.g. timeout-driven abort)
           if (mySqlException.IsQueryAborted)
+          {
+            if (cancellationToken.IsCancellationRequested)
+              throw new OperationCanceledException(cancellationToken);
             return null;
+          }
           if (mySqlException.IsFatal)
             await Connection.CloseAsync().ConfigureAwait(false);
           if (mySqlException.Number == 0)
