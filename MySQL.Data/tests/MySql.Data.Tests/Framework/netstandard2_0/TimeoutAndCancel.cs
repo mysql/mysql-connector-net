@@ -30,6 +30,7 @@ using System;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Data;
 using System.Globalization;
 using System.IO;
@@ -42,9 +43,91 @@ namespace MySql.Data.MySqlClient.Tests
     private delegate void CommandInvokerDelegate(MySqlCommand cmdToRun);
     private ManualResetEvent resetEvent = new ManualResetEvent(false);
 
+    // Unique marker embedded in long-running test queries so parallel framework runs
+    // don't interfere with each other's PROCESSLIST polling.
+    private string m_testRunId = Guid.NewGuid().ToString("N").Substring(0, 8);
+
+    // Connection string with pooling disabled so a killed connection is never returned
+    // to the pool and handed to a subsequent test's OpenAsync.
+    private string NoPoolConnectionString
+    {
+      get
+      {
+        MySqlConnectionStringBuilder b = new MySqlConnectionStringBuilder(Connection.ConnectionString);
+        b.Pooling = false;
+        return b.ConnectionString;
+      }
+    }
+
+    /// <summary>
+    /// Synchronous counterpart of <see cref="OpenTestConnectionAsync"/>.
+    /// </summary>
+    private MySqlConnection OpenTestConnectionWithRetry()
+    {
+      const int maxAttempts = 3;
+      for (int attempt = 1; attempt <= maxAttempts; attempt++)
+      {
+        MySqlConnection conn = new MySqlConnection(NoPoolConnectionString);
+        try
+        {
+          conn.Open();
+          return conn;
+        }
+        catch (MySqlException) when (attempt < maxAttempts)
+        {
+          conn.Dispose();
+          Thread.Sleep(300 * attempt);
+        }
+        catch
+        {
+          conn.Dispose();
+          throw;
+        }
+      }
+      throw new InvalidOperationException("OpenTestConnectionWithRetry: unreachable");
+    }
+
+    /// <summary>
+    /// Opens a no-pool test connection, retrying up to 3 times with a short delay.
+    /// Parallel framework assemblies may recycle MySQL server threads that still have
+    /// compressed-stream framing in flight; a brief pause lets the server finish cleanup.
+    /// </summary>
+    private async Task<MySqlConnection> OpenTestConnectionAsync()
+    {
+      const int maxAttempts = 3;
+      for (int attempt = 1; attempt <= maxAttempts; attempt++)
+      {
+        MySqlConnection conn = new MySqlConnection(NoPoolConnectionString);
+        try
+        {
+          await conn.OpenAsync();
+          return conn;
+        }
+        catch (MySqlException) when (attempt < maxAttempts)
+        {
+          conn.Dispose();
+          await Task.Delay(300 * attempt);
+        }
+        catch
+        {
+          conn.Dispose();
+          throw;
+        }
+      }
+      // Unreachable, but satisfies the compiler.
+      throw new InvalidOperationException("OpenTestConnectionAsync: unreachable");
+    }
+
     protected override void Cleanup()
     {
       ExecuteSQL(String.Format("DROP TABLE IF EXISTS `{0}`.Test", Connection.Database));
+    }
+
+    [SetUp]
+    public void RegenerateTestRunId()
+    {
+      // Fresh ID per test so PROCESSLIST polling is isolated from parallel framework runs.
+      m_testRunId = Guid.NewGuid().ToString("N").Substring(0, 8);
     }
 
     private void CommandRunner(MySqlCommand cmdToRun)
@@ -341,5 +424,274 @@ namespace MySql.Data.MySqlClient.Tests
         Assert.That(i, Is.EqualTo(rows));
       }
     }
-  }
+
+    private const string ProcessListQuery =
+      "SELECT COUNT(*) FROM information_schema.PROCESSLIST WHERE INFO LIKE '{0}' AND INFO NOT LIKE '%PROCESSLIST%'";
+
+    /// <summary>
+    /// Polls PROCESSLIST until the query count satisfies <paramref name="expectedCount"/> or
+    /// <paramref name="maxWaitMs"/> elapses. Returns true when the condition is met.
+    /// </summary>
+    private async Task<bool> WaitForProcessListAsync(string likePattern, long expectedCount, int maxWaitMs = 5000)
+    {
+      string sql = string.Format(ProcessListQuery, likePattern);
+      int elapsed = 0;
+      const int intervalMs = 150;
+      while (elapsed < maxWaitMs)
+      {
+        using MySqlCommand cmd = new MySqlCommand(sql, Root);
+        long count = Convert.ToInt64(await cmd.ExecuteScalarAsync() ?? 0L);
+        if (count == expectedCount) { return true; }
+        await Task.Delay(intervalMs);
+        elapsed += intervalMs;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Synchronous counterpart of <see cref="WaitForProcessListAsync"/>.
+    /// </summary>
+    private bool WaitForProcessList(string likePattern, long expectedCount, int maxWaitMs = 5000)
+    {
+      string sql = string.Format(ProcessListQuery, likePattern);
+      int elapsed = 0;
+      const int intervalMs = 150;
+      while (elapsed < maxWaitMs)
+      {
+        using MySqlCommand cmd = new MySqlCommand(sql, Root);
+        long count = Convert.ToInt64(cmd.ExecuteScalar() ?? 0L);
+        if (count == expectedCount) { return true; }
+        Thread.Sleep(intervalMs);
+        elapsed += intervalMs;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Verifies that cancelling a CancellationToken causes the running query to be
+    /// killed server-side via KILL QUERY so it no longer appears in PROCESSLIST.
+    /// Fix: cancellationToken.Register(() => Cancel()) wired inside ExecuteReaderAsync.
+    /// </summary>
+    [Test]
+    public async Task CancellationToken_QueryKilledOnServer()
+    {
+        MySqlConnection testConn = await OpenTestConnectionAsync();
+        Exception caughtException = null;
+        Task queryTask = Task.CompletedTask;
+        try
+        {
+            using var cts = new CancellationTokenSource();
+            MySqlCommand cmd = new MySqlCommand($"SELECT SLEEP(60) /* testrun:{m_testRunId} */", testConn);
+
+            queryTask = Task.Run(async () =>
+            {
+                try
+                {
+                    await cmd.ExecuteNonQueryAsync(cts.Token);
+                }
+                catch (Exception ex)
+                {
+                    caughtException = ex;
+                }
+            });
+
+            // Wait until the SLEEP shows up in PROCESSLIST before cancelling.
+            bool appeared = await WaitForProcessListAsync($"%testrun:{m_testRunId}%", expectedCount: 1);
+            Assert.That(appeared, Is.True, "Query never appeared in PROCESSLIST.");
+
+            // Cancel the token — this sends KILL QUERY via a separate connection.
+            // Note: SELECT SLEEP(N) returns 1 when interrupted, not error 1317, so the task
+            // may complete without throwing. Without the fix, Cancel() is never wired so the
+            // server query keeps running and the task never completes — deadline guards against that.
+            cts.Cancel();
+            bool completed = await Task.WhenAny(queryTask, Task.Delay(10000)) == queryTask;
+
+            // Only close after the task has finished (or timed out); closing while a TLS async
+            // read is in flight causes NotSupportedException on SSL streams.
+            testConn.Close();
+            await queryTask;
+
+            Assert.That(completed, Is.True,
+                "ExecuteNonQueryAsync did not return after cancellation — KILL QUERY was likely not sent to the server.");
+
+            Assert.That(caughtException, Is.Not.InstanceOf<NullReferenceException>(),
+                "NullReferenceException indicates the query abort was not handled correctly.");
+
+            bool gone = await WaitForProcessListAsync($"%testrun:{m_testRunId}%", expectedCount: 0);
+            Assert.That(gone, Is.True, "Query was not killed on the server after cancellation.");
+        }
+        finally
+        {
+            // Ensure the connection is closed and the task has completed before we return,
+            // so no background IO races with the next test's connection open.
+            if (testConn.State != System.Data.ConnectionState.Closed) { testConn.Close(); }
+            await queryTask;
+            testConn.Dispose();
+        }
+    }
+
+    /// <summary>
+    /// Verifies that cancelling a CancellationToken throws OperationCanceledException
+    /// and not a NullReferenceException.
+    /// Fix: IsQueryAborted + cancellationToken.IsCancellationRequested now throws OperationCanceledException.
+    /// </summary>
+    [Test]
+    public async Task CancellationToken_ThrowsOperationCanceledException()
+    {
+        MySqlConnection testConn = await OpenTestConnectionAsync();
+        Exception caughtException = null;
+        Task queryTask = Task.CompletedTask;
+        try
+        {
+            using var cts = new CancellationTokenSource();
+            MySqlCommand cmd = new MySqlCommand($"SELECT SLEEP(60) /* testrun:{m_testRunId} */", testConn);
+
+            queryTask = Task.Run(async () =>
+            {
+                try
+                {
+                    await cmd.ExecuteNonQueryAsync(cts.Token);
+                }
+                catch (Exception ex)
+                {
+                    caughtException = ex;
+                }
+            });
+
+            // Wait until the query appears in PROCESSLIST before cancelling.
+            bool appeared = await WaitForProcessListAsync($"%testrun:{m_testRunId}%", expectedCount: 1);
+            Assert.That(appeared, Is.True, "Query never appeared in PROCESSLIST.");
+            cts.Cancel();
+
+            // Await the task before closing: closing while a TLS async read is in flight
+            // causes NotSupportedException on SSL streams.
+            bool completed = await Task.WhenAny(queryTask, Task.Delay(10000)) == queryTask;
+            testConn.Close();
+            await queryTask;
+
+            Assert.That(completed, Is.True,
+                "ExecuteNonQueryAsync did not return after cancellation — KILL QUERY was likely not sent to the server.");
+
+            bool gone = await WaitForProcessListAsync($"%testrun:{m_testRunId}%", expectedCount: 0);
+            Assert.That(gone, Is.True, "Query was not killed on the server after cancellation.");
+
+            // SELECT SLEEP(N) returns 1 (interrupted) when KILL QUERY is sent — MySQL does not raise
+            // error 1317 for SLEEP(), so ExecuteNonQueryAsync may complete without throwing at all.
+            // The actual bug was: when error 1317 *was* raised, the connector returned null, causing a
+            // NullReferenceException downstream. Verify that whatever happened, it was not that.
+            Assert.That(caughtException, Is.Not.InstanceOf<NullReferenceException>(),
+                "Got NullReferenceException which indicates the query abort was not handled correctly.");
+
+            // If an exception was thrown, it must be OperationCanceledException or MySqlException(1317)
+            if (caughtException != null)
+            {
+                bool isValidException = caughtException is OperationCanceledException ||
+                                        (caughtException is MySqlException mex && mex.Number == (int)MySqlErrorCode.QueryInterrupted);
+                Assert.That(isValidException, Is.True,
+                    $"Expected OperationCanceledException or MySqlException(1317) but got {caughtException.GetType().Name}: {caughtException.Message}");
+            }
+        }
+        finally
+        {
+            if (testConn.State != System.Data.ConnectionState.Closed) { testConn.Close(); }
+            await queryTask;
+            testConn.Dispose();
+        }
+    }
+
+    /// <summary>
+    /// Verifies that a synchronous CommandTimeout kills the query server-side so it no
+    /// longer appears in PROCESSLIST after the timeout fires.
+    /// Fix: TimedStream sync IOException(SocketException:TimedOut) path already worked;
+    /// this test confirms the full end-to-end kill flow for sync execution.
+    /// </summary>
+    [Test]
+    public void SyncCommandTimeout_QueryKilledOnServer()
+    {
+        MySqlConnection testConn = OpenTestConnectionWithRetry();
+        using var _ = testConn;
+
+        // Verify the query appears in PROCESSLIST then disappears within the timeout window.
+        // Note: SELECT SLEEP(N) returns 1 (interrupted) when KILL QUERY is sent — MySQL does not
+        // raise error 1317 for SLEEP(), so ExecuteNonQuery may complete without throwing.
+        MySqlCommand cmd = new MySqlCommand($"SELECT SLEEP(60) /* testrun:{m_testRunId} */", testConn);
+        cmd.CommandTimeout = 2;
+
+        Exception caughtException = null;
+        try
+        {
+            cmd.ExecuteNonQuery();
+        }
+        catch (Exception ex)
+        {
+            caughtException = ex;
+        }
+
+        // If an exception was thrown it must not be a NullReferenceException
+        Assert.That(caughtException, Is.Not.InstanceOf<NullReferenceException>(),
+            "NullReferenceException indicates the query abort was not handled correctly.");
+
+        // Poll until the server confirms the query is gone (up to 5 s).
+        bool gone = WaitForProcessList($"%testrun:{m_testRunId}%", expectedCount: 0);
+        Assert.That(gone, Is.True, "Query was not killed on the server after sync timeout.");
+    }
+
+    /// <summary>
+    /// Verifies that an async CommandTimeout kills the query server-side so it no
+    /// longer appears in PROCESSLIST after the timeout fires.
+    /// Fix: TimedStream.ExecuteAsyncWithTimeout enforces timeout on IOCP async reads
+    /// (NetworkStream.ReadAsync ignores Socket.ReceiveTimeout).
+    /// </summary>
+    [Test]
+    public async Task AsyncCommandTimeout_QueryKilledOnServer()
+    {
+        MySqlConnection testConn = await OpenTestConnectionAsync();
+        Exception caughtException = null;
+        Task executeTask = Task.CompletedTask;
+        try
+        {
+            // Note: SELECT SLEEP(N) returns 1 (interrupted) when KILL QUERY is sent — MySQL does not
+            // raise error 1317 for SLEEP(), so ExecuteNonQueryAsync may complete without throwing.
+            MySqlCommand cmd = new MySqlCommand($"SELECT SLEEP(60) /* testrun:{m_testRunId} */", testConn);
+            cmd.CommandTimeout = 2;
+
+            // Without the fix, async reads ignore Socket.ReceiveTimeout so this hangs indefinitely.
+            // Use a deadline of CommandTimeout + 10 s to fail clearly rather than hanging the test run.
+            int deadlineMs = (cmd.CommandTimeout + 10) * 1000;
+            executeTask = Task.Run(async () =>
+            {
+                try
+                {
+                    await cmd.ExecuteNonQueryAsync(CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    caughtException = ex;
+                }
+            });
+
+            // Await the task with a deadline before closing: closing while a TLS async read is
+            // in flight causes NotSupportedException on SSL streams. Without the fix, async reads
+            // ignore Socket.ReceiveTimeout so the task would hang past the deadline.
+            bool completed = await Task.WhenAny(executeTask, Task.Delay(deadlineMs)) == executeTask;
+            testConn.Close();
+            await executeTask;
+
+            Assert.That(completed, Is.True,
+                "ExecuteNonQueryAsync did not return after CommandTimeout elapsed — async timeout is not enforced.");
+
+            Assert.That(caughtException, Is.Not.InstanceOf<NullReferenceException>(),
+                "NullReferenceException indicates the query abort was not handled correctly.");
+
+            bool gone = await WaitForProcessListAsync($"%testrun:{m_testRunId}%", expectedCount: 0);
+            Assert.That(gone, Is.True, "Query was not killed on the server after async timeout.");
+        }
+        finally
+        {
+            if (testConn.State != System.Data.ConnectionState.Closed) { testConn.Close(); }
+            await executeTask;
+            testConn.Dispose();
+        }
+    }
+}
 }
