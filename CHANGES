@@ -1,3 +1,6 @@
+26.10.0
+
+
 26.7.0
 - Fixed bug MySql.EntityFrameworkCore error when using LINQ with `.Contains` (MySQL Bug #119461, Oracle Bug #39328452).
 - Fixed bug in parameterized query handling (Oracle Bug #39255116).
