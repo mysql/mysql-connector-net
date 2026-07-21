@@ -30,6 +30,7 @@ using NUnit.Framework;
 using NUnit.Framework.Legacy;
 using System;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
@@ -657,6 +658,7 @@ namespace MySql.Data.MySqlClient.Tests
     [TestCase(false, null, false)]
     [TestCase(false, "otherPath/", false)]
     [TestCase(false, "tmp/", true)]
+    [TestCase(false, "tmp/data/", true)]
     [TestCase(false, "c:/SymLink/", false)] // symbolic link
     public void BulkLoadUsingSafePath(bool allowLoadLocalInfile, string allowLoadLocalInfileInPath, bool shouldPass)
     {
@@ -726,6 +728,159 @@ namespace MySql.Data.MySqlClient.Tests
       File.Delete(path);
       Directory.Delete("tmp", true);
       Directory.Delete("otherPath");
+    }
+
+    /// <summary>
+    /// Bug#39261524 [Fix safe-path validation for AllowLoadLocalInfileInPath.]
+    /// Verifies that sibling and relative paths resolving outside the safe directory are rejected.
+    /// </summary>
+    /// <param name="useRelativePath">Indicates whether to use a relative path that resolves outside the safe directory.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void BulkLoadUsingSafePathRejectsPathOutsideSafeDirectory(bool useRelativePath)
+    {
+      string testDirectory = Path.Combine(
+        Path.GetTempPath(),
+        string.Format("{0}_{1}", nameof(BulkLoadUsingSafePathRejectsPathOutsideSafeDirectory), Guid.NewGuid()));
+      string safeDirectory = Path.Combine(testDirectory, "data");
+      string outsideDirectory = Path.Combine(testDirectory, "data_backup");
+
+      try
+      {
+        Directory.CreateDirectory(safeDirectory);
+        Directory.CreateDirectory(outsideDirectory);
+        File.WriteAllText(Path.Combine(outsideDirectory, "file.tmp"), "1\tTest");
+
+        using MySqlConnection connection = GetConnection();
+        connection.Settings.AllowLoadLocalInfile = false;
+        connection.Settings.AllowLoadLocalInfileInPath = safeDirectory;
+        using MySqlCommand command = connection.CreateCommand();
+        command.CommandText = string.Format("CREATE TABLE `{0}`.Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))", connection.Database);
+        command.ExecuteNonQuery();
+        string filePath = useRelativePath
+          ? Path.Combine(safeDirectory, "..", "data_backup", "file.tmp")
+          : Path.Combine(outsideDirectory, "file.tmp");
+
+        MySqlBulkLoader loader = new MySqlBulkLoader(connection)
+        {
+          TableName = "Test",
+          FileName = filePath,
+          Timeout = 0,
+          Local = true
+        };
+
+        var ex = Assert.Throws<MySqlException>(() => loader.Load());
+        Assert.That(ex.Message, Does.Contain("allowloadlocalinfileinpath"));
+      }
+      finally
+      {
+        if (Directory.Exists(testDirectory))
+          Directory.Delete(testDirectory, true);
+      }
+    }
+
+    /// <summary>
+    /// Bug#39261524 [Fix safe-path validation for AllowLoadLocalInfileInPath.]
+    /// Verifies that links resolving outside the safe directory are rejected and legacy .NET Framework targets reject all reparse points.
+    /// </summary>
+    /// <param name="linkOutsideSafeDirectory">Indicates whether the symbolic link resolves outside the safe directory.</param>
+    [TestCase(false)]
+    [TestCase(true)]
+    public void BulkLoadUsingSafePathHandlesSymbolicLinks(bool linkOutsideSafeDirectory)
+    {
+      string testDirectory = Path.Combine(
+        Path.GetTempPath(),
+        string.Format("{0}_{1}", nameof(BulkLoadUsingSafePathHandlesSymbolicLinks), Guid.NewGuid()));
+      string safeDirectory = Path.Combine(testDirectory, "safe");
+      string insideDirectory = Path.Combine(safeDirectory, "inside");
+      string outsideDirectory = Path.Combine(testDirectory, "outside");
+      string linkPath = Path.Combine(safeDirectory, linkOutsideSafeDirectory ? "outside-link" : "inside-link");
+      string targetDirectory = linkOutsideSafeDirectory ? outsideDirectory : insideDirectory;
+
+      try
+      {
+        Directory.CreateDirectory(insideDirectory);
+        Directory.CreateDirectory(outsideDirectory);
+        File.WriteAllText(Path.Combine(insideDirectory, "file.tmp"), "1\tTest");
+        File.WriteAllText(Path.Combine(outsideDirectory, "file.tmp"), "1\tTest");
+
+        CreateDirectoryLink(linkPath, targetDirectory);
+
+        using MySqlConnection connection = GetConnection();
+        connection.Settings.AllowLoadLocalInfile = false;
+        connection.Settings.AllowLoadLocalInfileInPath = safeDirectory;
+        using MySqlCommand command = connection.CreateCommand();
+        command.CommandText = string.Format("CREATE TABLE `{0}`.Test (id INT NOT NULL, name VARCHAR(250), PRIMARY KEY(id))", connection.Database);
+        command.ExecuteNonQuery();
+
+        MySqlBulkLoader loader = new MySqlBulkLoader(connection)
+        {
+          TableName = "Test",
+          FileName = Path.Combine(linkPath, "file.tmp"),
+          Timeout = 0,
+          Local = true
+        };
+
+        bool shouldPass = !linkOutsideSafeDirectory;
+#if NETFRAMEWORK
+        shouldPass = false;
+#endif
+        if (!shouldPass)
+        {
+          var ex = Assert.Throws<MySqlException>(() => loader.Load());
+          Assert.That(ex.Message, Does.Contain("allowloadlocalinfileinpath"));
+        }
+        else
+        {
+          int count = loader.Load();
+          Assert.That(count, Is.EqualTo(1));
+        }
+      }
+      finally
+      {
+        if (Directory.Exists(linkPath))
+          Directory.Delete(linkPath);
+
+        if (Directory.Exists(testDirectory))
+          Directory.Delete(testDirectory, true);
+      }
+    }
+
+    /// <summary>
+    /// Creates a directory symbolic link or, when symbolic links are unavailable on Windows, a directory junction.
+    /// </summary>
+    /// <param name="linkPath">Path of the directory link to create.</param>
+    /// <param name="targetDirectory">Existing directory targeted by the link.</param>
+    private static void CreateDirectoryLink(string linkPath, string targetDirectory)
+    {
+      MethodInfo createSymbolicLink = typeof(Directory).GetMethod("CreateSymbolicLink", new[] { typeof(string), typeof(string) });
+      if (createSymbolicLink != null)
+      {
+        try
+        {
+          createSymbolicLink.Invoke(null, new object[] { linkPath, targetDirectory });
+          return;
+        }
+        catch (TargetInvocationException ex) when (ex.InnerException is UnauthorizedAccessException || ex.InnerException is IOException)
+        {
+        }
+      }
+
+      using Process junctionProcess = Process.Start(new ProcessStartInfo
+      {
+        FileName = "cmd.exe",
+        Arguments = string.Format("/c mklink /J \"{0}\" \"{1}\"", linkPath, targetDirectory),
+        CreateNoWindow = true,
+        RedirectStandardError = true,
+        UseShellExecute = false
+      });
+      junctionProcess.WaitForExit();
+
+      if (junctionProcess.ExitCode != 0)
+      {
+        string error = junctionProcess.StandardError.ReadToEnd();
+        Assert.Fail(string.Format("Unable to create a directory link. {0}", error));
+      }
     }
 
     [Test, Description("MySQL Bulk Loader ran with Automation")]

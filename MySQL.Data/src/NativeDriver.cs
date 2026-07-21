@@ -931,7 +931,7 @@ namespace MySql.Data.MySqlClient
           string filename = packet.ReadString();
 
           if (!Settings.AllowLoadLocalInfile)
-            ValidateLocalInfileSafePath(filename);
+            filename = ValidateLocalInfileSafePath(filename);
 
           SendFileToServer(filename);
 
@@ -1001,7 +1001,7 @@ namespace MySql.Data.MySqlClient
           string filename = packet.ReadString();
 
           if (!Settings.AllowLoadLocalInfile)
-            await ValidateLocalInfileSafePathAsync(filename).ConfigureAwait(false);
+            filename = await ValidateLocalInfileSafePathAsync(filename).ConfigureAwait(false);
 
           await SendFileToServerAsync(filename).ConfigureAwait(false);
 
@@ -1034,19 +1034,89 @@ namespace MySql.Data.MySqlClient
     }
 
     /// <summary>
-    /// Verify that the file to upload is in a valid directory
-    /// according to the safe path entered by a user under
-    /// "AllowLoadLocalInfileInPath" connection option.
+    /// Gets the resolved path for a file located under the configured safe directory.
     /// </summary>
     /// <param name="filePath">File to validate against the safe path.</param>
-    /// <exception cref="MySqlException">Thrown if path is unsafe.</exception>
-    private void ValidateLocalInfileSafePath(string filePath)
+    /// <param name="safeFilePath">Resolved safe path when validation succeeds.</param>
+    /// <returns><c>true</c> if the file is under the configured safe directory; otherwise, <c>false</c>.</returns>
+    private bool TryGetLocalInfileSafePath(string filePath, out string safeFilePath)
     {
-      if (!Path.GetFullPath(filePath).StartsWith(Path.GetFullPath(Settings.AllowLoadLocalInfileInPath)))
+      string fullFilePath = Path.GetFullPath(filePath);
+      string safeDirectory = Path.GetFullPath(Settings.AllowLoadLocalInfileInPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+      safeFilePath = null;
+
+      // Windows paths are case-insensitive; Unix paths are case-sensitive. Use an ordinal comparison to avoid culture-dependent matching.
+      StringComparison comparison = Path.DirectorySeparatorChar == '\\'
+        ? StringComparison.OrdinalIgnoreCase
+        : StringComparison.Ordinal;
+
+      if (!fullFilePath.StartsWith(safeDirectory + Path.DirectorySeparatorChar, comparison))
+        return false;
+
+      if (!TryResolvePath(safeDirectory, out string resolvedSafeDirectory) || !TryResolvePath(fullFilePath, out string resolvedFilePath))
+        return false;
+
+      if (!resolvedFilePath.StartsWith(resolvedSafeDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar, comparison))
+        return false;
+
+      safeFilePath = resolvedFilePath;
+      return true;
+    }
+
+    /// <summary>
+    /// Resolves symbolic links and junctions in the specified path.
+    /// </summary>
+    /// <param name="path">Absolute path to resolve.</param>
+    /// <param name="resolvedPath">Resolved path when resolution succeeds.</param>
+    /// <returns><c>true</c> if the path has no reparse points or all reparse points can be resolved; otherwise,
+    /// <c>false</c>.</returns>
+    private static bool TryResolvePath(string path, out string resolvedPath)
+    {
+      string root = Path.GetPathRoot(path);
+      string relativePath = path.Substring(root.Length);
+      string[] pathSegments = relativePath.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
+
+      // ResolveLinkTarget is unavailable in .NET Standard 2.0, .NET Standard 2.1, and .NET Framework. Reflection
+      // lets the .NET Standard assembly use the API when it runs on a runtime that provides it.
+      MethodInfo resolveLinkTarget = typeof(FileSystemInfo).GetMethod("ResolveLinkTarget", new[] { typeof(bool) });
+
+      resolvedPath = root;
+      try
       {
-        stream.Close();
-        throw new MySqlException(Resources.UnsafePathForLoadLocalInfile, (int)MySqlErrorCode.LoadInfo);
+        foreach (string pathSegment in pathSegments)
+        {
+          resolvedPath = Path.Combine(resolvedPath, pathSegment);
+          FileSystemInfo fileSystemInfo = Directory.Exists(resolvedPath)
+            ? (FileSystemInfo)new DirectoryInfo(resolvedPath)
+            : new FileInfo(resolvedPath);
+
+          if (resolveLinkTarget == null)
+          {
+            // Paths without reparse points are unaffected. Reject a reparse point when its target cannot be verified.
+            if (fileSystemInfo.Attributes.HasFlag(FileAttributes.ReparsePoint))
+            {
+              resolvedPath = null;
+              return false;
+            }
+
+            continue;
+          }
+
+          FileSystemInfo linkTarget = resolveLinkTarget.Invoke(fileSystemInfo, new object[] { true }) as FileSystemInfo;
+          if (linkTarget != null)
+            resolvedPath = linkTarget.FullName;
+        }
       }
+      catch (Exception ex) when (ex is IOException ||
+        ex is UnauthorizedAccessException ||
+        ex is System.Security.SecurityException ||
+        ex is TargetInvocationException)
+      {
+        resolvedPath = null;
+        return false;
+      }
+
+      return true;
     }
 
     /// <summary>
@@ -1055,15 +1125,35 @@ namespace MySql.Data.MySqlClient
     /// "AllowLoadLocalInfileInPath" connection option.
     /// </summary>
     /// <param name="filePath">File to validate against the safe path.</param>
-    /// <returns>A task representing the validation operation.</returns>
     /// <exception cref="MySqlException">Thrown if path is unsafe.</exception>
-    private async Task ValidateLocalInfileSafePathAsync(string filePath)
+    private string ValidateLocalInfileSafePath(string filePath)
     {
-      if (!Path.GetFullPath(filePath).StartsWith(Path.GetFullPath(Settings.AllowLoadLocalInfileInPath)))
+      if (!TryGetLocalInfileSafePath(filePath, out string safeFilePath))
+      {
+        stream.Close();
+        throw new MySqlException(Resources.UnsafePathForLoadLocalInfile, (int)MySqlErrorCode.LoadInfo);
+      }
+
+      return safeFilePath;
+    }
+
+    /// <summary>
+    /// Verify that the file to upload is in a valid directory
+    /// according to the safe path entered by a user under
+    /// "AllowLoadLocalInfileInPath" connection option.
+    /// </summary>
+    /// <param name="filePath">File to validate against the safe path.</param>
+    /// <returns>A task returning the resolved safe path.</returns>
+    /// <exception cref="MySqlException">Thrown if path is unsafe.</exception>
+    private async Task<string> ValidateLocalInfileSafePathAsync(string filePath)
+    {
+      if (!TryGetLocalInfileSafePath(filePath, out string safeFilePath))
       {
         await stream.CloseAsync().ConfigureAwait(false);
         throw new MySqlException(Resources.UnsafePathForLoadLocalInfile, (int)MySqlErrorCode.LoadInfo);
       }
+
+      return safeFilePath;
     }
 
     /// <summary>
