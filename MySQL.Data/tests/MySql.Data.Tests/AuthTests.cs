@@ -34,6 +34,7 @@ using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -42,6 +43,96 @@ namespace MySql.Data.MySqlClient.Tests
 {
   public class AuthTests : TestBase
   {
+    /// <summary>
+    /// Bug#39261868 [Handle connection state during authentication]
+    /// Verifies authentication plugins use the active connection state.
+    /// </summary>
+    [Test]
+    public void AuthenticationPluginsUseNegotiatedSslState()
+    {
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder
+      {
+        Password = "password",
+        SslMode = MySqlSslMode.Preferred
+      };
+
+      using (Driver driver = new Driver(settings))
+      {
+        NativeDriver nativeDriver = new NativeDriver(driver);
+        FieldInfo baseStreamField = typeof(NativeDriver).GetField("baseStream", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        baseStreamField.SetValue(nativeDriver, new MemoryStream());
+        Assert.That(nativeDriver.IsSecureConnection, Is.False);
+        AssertAuthenticationPluginResponses(nativeDriver, false, settings.Password);
+      }
+    }
+
+    /// <summary>
+    /// Verifies local connection protocols are classified correctly.
+    /// </summary>
+    /// <param name="protocol">The connection protocol to test.</param>
+    /// <param name="isSecure">Whether the protocol is expected to be secure.</param>
+    [Test]
+    [TestCase(MySqlConnectionProtocol.UnixSocket, true)]
+    [TestCase(MySqlConnectionProtocol.NamedPipe, false)]
+    [TestCase(MySqlConnectionProtocol.SharedMemory, true)]
+    public void AuthenticationPluginsClassifyLocalConnectionProtocols(MySqlConnectionProtocol protocol, bool isSecure)
+    {
+      if (!Platform.IsWindows() && (protocol == MySqlConnectionProtocol.NamedPipe || protocol == MySqlConnectionProtocol.SharedMemory))
+        Assert.Ignore("Named pipe and shared memory connections are only supported on Windows.");
+
+      MySqlConnectionStringBuilder settings = new MySqlConnectionStringBuilder
+      {
+        Password = "password",
+        SslMode = MySqlSslMode.Disabled,
+        ConnectionProtocol = protocol
+      };
+
+      using (Driver driver = new Driver(settings))
+      {
+        NativeDriver nativeDriver = new NativeDriver(driver);
+        Assert.That(nativeDriver.IsSecureConnection, Is.EqualTo(isSecure));
+        AssertAuthenticationPluginResponses(nativeDriver, isSecure, settings.Password);
+      }
+    }
+
+    /// <summary>
+    /// Verifies authentication plugins return the expected responses for the connection state.
+    /// </summary>
+    /// <param name="nativeDriver">The driver that represents the connection.</param>
+    /// <param name="isSecure">Whether the connection is secure.</param>
+    /// <param name="password">The password used by the plugins.</param>
+    private void AssertAuthenticationPluginResponses(NativeDriver nativeDriver, bool isSecure, string password)
+    {
+      MySqlAuthenticationPlugin sha256Plugin = MySqlAuthenticationPlugin.GetPlugin("sha256_password", nativeDriver, new byte[] { 1 });
+      MySqlAuthenticationPlugin cachingSha2Plugin = MySqlAuthenticationPlugin.GetPlugin("caching_sha2_password", nativeDriver, new byte[] { 1 });
+      MySqlAuthenticationPlugin clearPasswordPlugin = MySqlAuthenticationPlugin.GetPlugin("mysql_clear_password", nativeDriver, new byte[] { 1 });
+      MethodInfo cachingSha2MoreDataMethod = typeof(CachingSha2AuthenticationPlugin).GetMethod("MoreData", BindingFlags.Instance | BindingFlags.NonPublic);
+      MethodInfo clearPasswordMoreDataMethod = typeof(MySqlClearPasswordPlugin).GetMethod("MoreData", BindingFlags.Instance | BindingFlags.NonPublic);
+
+      if (isSecure)
+      {
+        byte[] terminatedPassword = Encoding.UTF8.GetBytes(password + "\0");
+        byte[] sha256Response = (byte[])sha256Plugin.GetPassword();
+        byte[] cachingSha2Response = (byte[])cachingSha2MoreDataMethod.Invoke(cachingSha2Plugin, new object[] { new byte[] { 4 } });
+        byte[] clearPasswordResponse = (byte[])clearPasswordMoreDataMethod.Invoke(clearPasswordPlugin, new object[] { null });
+
+        Assert.That(sha256Response[0], Is.EqualTo(terminatedPassword.Length));
+        Assert.That(sha256Response.Skip(1), Is.EqualTo(terminatedPassword));
+        Assert.That(cachingSha2Response, Is.EqualTo(terminatedPassword));
+        Assert.That(clearPasswordResponse, Is.EqualTo(Encoding.UTF8.GetBytes(password)));
+        return;
+      }
+
+      Assert.That(sha256Plugin.GetPassword(), Is.EqualTo(new byte[] { 1 }));
+      byte[] insecureCachingSha2Response = (byte[])cachingSha2MoreDataMethod.Invoke(cachingSha2Plugin, new object[] { new byte[] { 4 } });
+      Assert.That(insecureCachingSha2Response, Is.EqualTo(new byte[] { 2 }));
+
+      TargetInvocationException exception = Assert.Throws<TargetInvocationException>(() => clearPasswordMoreDataMethod.Invoke(clearPasswordPlugin, new object[] { null }));
+      Assert.That(exception.InnerException, Is.TypeOf<MySqlException>());
+      Assert.That(exception.InnerException.Message, Is.EqualTo(Resources.ClearPasswordNotSupported));
+    }
+
     [OneTimeTearDown]
     public void OneTimeTearDown()
     {

@@ -62,9 +62,7 @@ namespace MySql.Data.MySqlClient.Authentication
       /// <exception cref="MySqlException">Thrown if the connection is not secure (no SSL or Unix socket).</exception>
       private byte[] GetClearPasswordBytes()
       {
-        if ((Settings.SslMode != MySqlSslMode.Disabled &&
-        Settings.ConnectionProtocol != MySqlConnectionProtocol.UnixSocket) ||
-        (Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket))
+        if (IsSecureConnection)
         {
           return System.Text.Encoding.UTF8.GetBytes(GetMFAPassword());
         }

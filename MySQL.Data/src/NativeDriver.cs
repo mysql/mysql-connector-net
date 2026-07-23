@@ -33,6 +33,7 @@ using System;
 using System.Collections;
 using System.ComponentModel;
 using System.IO;
+using System.Net.Security;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -107,6 +108,19 @@ namespace MySql.Data.MySqlClient
     internal Encoding Encoding
     {
       get { return owner.Encoding; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether the active connection is secure.
+    /// </summary>
+    internal bool IsSecureConnection
+    {
+      get
+      {
+        return (baseStream is SslStream sslStream && sslStream.IsAuthenticated) ||
+          Settings.ConnectionProtocol == MySqlConnectionProtocol.UnixSocket ||
+          Settings.ConnectionProtocol == MySqlConnectionProtocol.SharedMemory;
+      }
     }
 
     /// <summary>

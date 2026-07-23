@@ -81,7 +81,7 @@ namespace MySql.Data.MySqlClient.Authentication
     protected byte[] GeneratePassword()
     {
       // If connection is secure perform full authentication.
-      if (Settings.SslMode != MySqlSslMode.Disabled)
+      if (IsSecureConnection)
       {
         _authStage = AuthStage.FULL_AUTH;
 

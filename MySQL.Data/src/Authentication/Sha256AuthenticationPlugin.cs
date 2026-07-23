@@ -63,7 +63,7 @@ namespace MySql.Data.MySqlClient.Authentication
 
     public override object GetPassword()
     {
-      if (Settings.SslMode != MySqlSslMode.Disabled)
+      if (IsSecureConnection)
       {
         // send as clear text, since the channel is already encrypted
         byte[] passBytes = Encoding.GetBytes(GetMFAPassword());
@@ -92,7 +92,7 @@ namespace MySql.Data.MySqlClient.Authentication
     private byte[] GetNonLengthEncodedPassword()
     {
       // Required for AuthChange requests.
-      if (Settings.SslMode != MySqlSslMode.Disabled)
+      if (IsSecureConnection)
       {
         // Send as clear text, since the channel is already encrypted.
         byte[] passBytes = Encoding.GetBytes(GetMFAPassword());

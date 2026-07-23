@@ -123,6 +123,11 @@ namespace MySql.Data.MySqlClient.Authentication
     protected Encoding Encoding => _driver.Encoding;
 
     /// <summary>
+    /// Gets a value indicating whether the active transport securely carries credentials.
+    /// </summary>
+    protected bool IsSecureConnection => _driver.IsSecureConnection;
+
+    /// <summary>
     /// Sets the authentication data required to encode, encrypt, or convert the password of the user.
     /// </summary>
     /// <param name="data">A byte array containing the authentication data provided by the server.</param>
