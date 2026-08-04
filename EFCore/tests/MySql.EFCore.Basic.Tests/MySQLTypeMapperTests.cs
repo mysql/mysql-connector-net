@@ -207,5 +207,162 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
         }
       }
     }
+
+    /// <summary>
+    /// Verifies that DateOnly arrays use a collection parameter mapping when generating SQL.
+    /// </summary>
+    [Test]
+    public void DateOnlyArrayContainsGeneratesSql()
+    {
+      var days = new[] { new DateOnly(2026, 6, 25), new DateOnly(2026, 6, 26) };
+
+      AssertContainsGeneratesSql(context => context.Entities.Where(entity => days.Contains(entity.Day)));
+    }
+
+    /// <summary>
+    /// Verifies that DateOnly lists use a collection parameter mapping when generating SQL.
+    /// </summary>
+    [Test]
+    public void DateOnlyListContainsGeneratesSql()
+    {
+      var days = new List<DateOnly> { new DateOnly(2026, 6, 25), new DateOnly(2026, 6, 26) };
+
+      AssertContainsGeneratesSql(context => context.Entities.Where(entity => days.Contains(entity.Day)));
+    }
+
+    /// <summary>
+    /// Verifies that DateOnly hash sets use a collection parameter mapping when generating SQL.
+    /// </summary>
+    [Test]
+    public void DateOnlyHashSetContainsGeneratesSql()
+    {
+      var days = new HashSet<DateOnly> { new DateOnly(2026, 6, 25), new DateOnly(2026, 6, 26) };
+
+      AssertContainsGeneratesSql(context => context.Entities.Where(entity => days.Contains(entity.Day)));
+    }
+
+    /// <summary>
+    /// Verifies that string arrays use a collection parameter mapping when generating SQL.
+    /// </summary>
+    [Test]
+    public void StringArrayContainsGeneratesSql()
+    {
+      var codes = new[] { "alpha", "beta" };
+
+      AssertContainsGeneratesSql(context => context.Entities.Where(entity => codes.Contains(entity.Code)));
+    }
+
+    /// <summary>
+    /// Verifies that string lists use a collection parameter mapping when generating SQL.
+    /// </summary>
+    [Test]
+    public void StringListContainsGeneratesSql()
+    {
+      var codes = new List<string> { "alpha", "beta" };
+
+      AssertContainsGeneratesSql(context => context.Entities.Where(entity => codes.Contains(entity.Code)));
+    }
+
+    /// <summary>
+    /// Verifies that string hash sets use a collection parameter mapping when generating SQL.
+    /// </summary>
+    [Test]
+    public void StringHashSetContainsGeneratesSql()
+    {
+      var codes = new HashSet<string> { "alpha", "beta" };
+
+      AssertContainsGeneratesSql(context => context.Entities.Where(entity => codes.Contains(entity.Code)));
+    }
+
+    /// <summary>
+    /// Verifies that integer arrays use a collection parameter mapping when generating SQL.
+    /// </summary>
+    [Test]
+    public void IntegerArrayContainsGeneratesSql()
+    {
+      var values = new[] { 1, 2 };
+
+      AssertContainsGeneratesSql(context => context.Entities.Where(entity => values.Contains(entity.Number)));
+    }
+
+    /// <summary>
+    /// Verifies that integer lists use a collection parameter mapping when generating SQL.
+    /// </summary>
+    [Test]
+    public void IntegerListContainsGeneratesSql()
+    {
+      var values = new List<int> { 1, 2 };
+
+      AssertContainsGeneratesSql(context => context.Entities.Where(entity => values.Contains(entity.Number)));
+    }
+
+    /// <summary>
+    /// Verifies that integer hash sets use a collection parameter mapping when generating SQL.
+    /// </summary>
+    [Test]
+    public void IntegerHashSetContainsGeneratesSql()
+    {
+      var values = new HashSet<int> { 1, 2 };
+
+      AssertContainsGeneratesSql(context => context.Entities.Where(entity => values.Contains(entity.Number)));
+    }
+
+    /// <summary>
+    /// Generates SQL for a collection parameter query and verifies the query uses an IN predicate.
+    /// </summary>
+    /// <param name="queryFactory">Creates the query to validate.</param>
+    private static void AssertContainsGeneratesSql(Func<CollectionParameterContext, IQueryable<CollectionParameterEntity>> queryFactory)
+    {
+      using (var context = new CollectionParameterContext())
+      {
+        var sql = queryFactory(context).ToQueryString();
+
+        Assert.That(sql, Does.Contain("IN"));
+      }
+    }
+
+    /// <summary>
+    /// Defines the minimal model used to test collection query translation.
+    /// </summary>
+    private sealed class CollectionParameterContext : DbContext
+    {
+      /// <summary>
+      /// Gets the entity set used by the test.
+      /// </summary>
+      public DbSet<CollectionParameterEntity> Entities => Set<CollectionParameterEntity>();
+
+      /// <summary>
+      /// Configures the MySQL provider without opening a database connection.
+      /// </summary>
+      /// <param name="optionsBuilder">The context options builder.</param>
+      protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseMySQL("Server=localhost;Database=collection_parameter;Uid=test;Pwd=test;");
+    }
+
+    /// <summary>
+    /// Represents an entity with collection-query properties.
+    /// </summary>
+    private sealed class CollectionParameterEntity
+    {
+      /// <summary>
+      /// Gets or sets the primary key.
+      /// </summary>
+      public int Id { get; set; }
+
+      /// <summary>
+      /// Gets or sets the day.
+      /// </summary>
+      public DateOnly Day { get; set; }
+
+      /// <summary>
+      /// Gets or sets the code.
+      /// </summary>
+      public string Code { get; set; } = string.Empty;
+
+      /// <summary>
+      /// Gets or sets the numeric value.
+      /// </summary>
+      public int Number { get; set; }
+    }
   }
 }

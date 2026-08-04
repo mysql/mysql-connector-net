@@ -32,11 +32,15 @@ using MySql.EntityFrameworkCore.Infrastructure.Internal;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MySql.EntityFrameworkCore.Basic.Tests
 {
-  public class BasicGuidTests
+  /// <summary>
+  /// Tests GUID mappings and collection query translation.
+  /// </summary>
+  public class GuidTests
   {
     [OneTimeTearDown]
     public void OneTimeTearDown()
@@ -97,6 +101,103 @@ namespace MySql.EntityFrameworkCore.Basic.Tests
 
         Assert.That(resultFilter.Count(), Is.EqualTo(1));
       }
+    }
+
+    /// <summary>
+    /// Bug#39825453 [Bug #119461 fix incomplete: .Contains() on a Guid[] array still throws NullReferenceException]
+    /// Verifies that Guid arrays use a collection parameter mapping when generating SQL.
+    /// </summary>
+    [Test]
+    public void GuidArrayContainsGeneratesSql()
+    {
+      var guids = new[] { Guid.NewGuid(), Guid.NewGuid() };
+
+      AssertContainsGeneratesSql(context => context.Entities.Where(entity => guids.Contains(entity.ExternalId)), guids);
+    }
+
+    /// <summary>
+    /// Bug#39825453 [Bug #119461 fix incomplete: .Contains() on a Guid[] array still throws NullReferenceException]
+    /// Verifies that Guid arrays wrapped by EF.Constant use a collection parameter mapping when generating SQL.
+    /// </summary>
+    [Test]
+    public void GuidArrayConstantContainsGeneratesSql()
+    {
+      var guids = new[] { Guid.NewGuid(), Guid.NewGuid() };
+
+      AssertContainsGeneratesSql(context => context.Entities.Where(entity => EF.Constant(guids).Contains(entity.ExternalId)), guids);
+    }
+
+    /// <summary>
+    /// Verifies that GUID lists use a collection parameter mapping when generating SQL.
+    /// </summary>
+    [Test]
+    public void GuidListContainsGeneratesSql()
+    {
+      var guids = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
+
+      AssertContainsGeneratesSql(context => context.Entities.Where(entity => guids.Contains(entity.ExternalId)), guids);
+    }
+
+    /// <summary>
+    /// Verifies that GUID hash sets use a collection parameter mapping when generating SQL.
+    /// </summary>
+    [Test]
+    public void GuidHashSetContainsGeneratesSql()
+    {
+      var guids = new HashSet<Guid> { Guid.NewGuid(), Guid.NewGuid() };
+
+      AssertContainsGeneratesSql(context => context.Entities.Where(entity => guids.Contains(entity.ExternalId)), guids);
+    }
+
+    /// <summary>
+    /// Generates SQL for a collection parameter query and verifies the WHERE clause uses an IN predicate containing the expected GUIDs.
+    /// </summary>
+    /// <param name="queryFactory">Creates the query to validate.</param>
+    /// <param name="guids">The GUIDs expected in the generated SQL.</param>
+    private static void AssertContainsGeneratesSql(Func<CollectionParameterContext, IQueryable<CollectionParameterEntity>> queryFactory, IEnumerable<Guid> guids)
+    {
+      using (var context = new CollectionParameterContext())
+      {
+        var sql = queryFactory(context).ToQueryString();
+
+        Assert.That(sql, Does.Match(@"(?s)\bWHERE\b.*?\bIN\s*\("));
+        foreach (var guid in guids)
+          Assert.That(sql, Does.Contain(guid.ToString()));
+      }
+    }
+
+    /// <summary>
+    /// Defines the minimal model used to test collection query translation.
+    /// </summary>
+    private sealed class CollectionParameterContext : DbContext
+    {
+      /// <summary>
+      /// Gets the entity set used by the test.
+      /// </summary>
+      public DbSet<CollectionParameterEntity> Entities => Set<CollectionParameterEntity>();
+
+      /// <summary>
+      /// Configures the MySQL provider without opening a database connection.
+      /// </summary>
+      /// <param name="optionsBuilder">The context options builder.</param>
+      protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseMySQL("Server=localhost;Database=collection_parameter;Uid=test;Pwd=test;");
+    }
+
+    /// <summary>
+    /// Represents an entity with collection-query properties.
+    /// </summary>
+    private sealed class CollectionParameterEntity
+    {
+      /// <summary>
+      /// Gets or sets the primary key.
+      /// </summary>
+      public int Id { get; set; }
+
+      /// <summary>
+      /// Gets or sets the external identifier.
+      /// </summary>
+      public Guid ExternalId { get; set; }
     }
 
     public class GuidTable

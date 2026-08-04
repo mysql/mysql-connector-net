@@ -1,5 +1,6 @@
 26.10.0
 - Fixed validation of the `AllowLoadLocalInfileInPath` connection option (Oracle Bug #39261524).
+- Fixed a NullReferenceException when using a GUID array in an Entity Framework Core LINQ `Contains` query (MySQL Bug #121029, Oracle Bug #39825453).
 
 26.7.0
 - Fixed bug MySql.EntityFrameworkCore error when using LINQ with `.Contains` (MySQL Bug #119461, Oracle Bug #39328452).
