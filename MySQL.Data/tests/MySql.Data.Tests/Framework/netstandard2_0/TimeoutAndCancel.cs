@@ -30,6 +30,7 @@ using System;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Data;
 using System.Globalization;
 using System.IO;
@@ -166,6 +167,52 @@ namespace MySql.Data.MySqlClient.Tests
       MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(1)", Connection);
       cmd.CommandTimeout = 0; // infinite timeout
       cmd.ExecuteNonQuery();
+    }
+
+    /// <summary>
+    /// Async counterpart of <see cref="TimeoutExpiring"/>. Regression test for the case where
+    /// CommandTimeout was not enforced on the async I/O path: TimedStream.ReadInternalAsync
+    /// simply awaited the base stream's ReadAsync with no deadline (Stream.ReadTimeout is
+    /// documented to affect only the synchronous Read() overload, never ReadAsync()), so an
+    /// async command against a slow/unresponsive server hung indefinitely instead of honoring
+    /// CommandTimeout - see bugs.mysql.com/bug.php?id=110790, verified by Oracle in 2023 and
+    /// still open as of 9.7.0. Before the fix this test would hang until the 5s SLEEP()
+    /// completed (or longer, e.g. against `odconfig.dev.socketlabs.com` in production, where
+    /// the server was simply idle/slow to respond, not literally sleeping - the effect is the
+    /// same: the async read has no deadline).
+    /// </summary>
+    [Test]
+    public void TimeoutExpiringAsync()
+    {
+      // Uses its own connection, deliberately not the shared fixture Connection: the
+      // pre-existing HandleTimeoutOrThreadAbort[Async] "fast cancel" this exercises (see below)
+      // can end up aborting the connection it runs on, and Cleanup()/TearDown() reuse the
+      // shared Connection afterward - isolating this test avoids tearing that down for every
+      // other test in the fixture.
+      string connStr = Connection.ConnectionString;
+      using (MySqlConnection c = new MySqlConnection(connStr))
+      {
+        c.Open();
+        MySqlCommand cmd = new MySqlCommand("SELECT SLEEP(5)", c) { CommandTimeout = 1 };
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+        MySqlException ex = Assert.ThrowsAsync<MySqlException>(async () => await cmd.ExecuteScalarAsync());
+        stopwatch.Stop();
+
+        Assert.That(ex.InnerException, Is.InstanceOf<TimeoutException>());
+        // Upper bound covers both the 1s CommandTimeout deadline itself AND the subsequent
+        // HandleTimeoutOrThreadAbort[Async] "fast cancel" (MySqlConnection.cs), which opens a
+        // side-channel connection to send KILL QUERY and allows itself up to 5s
+        // (driver.ResetTimeout(5000), CancelQuery(5)) - unrelated to this fix, pre-existing for
+        // both sync and async, and observed to run close to that full 5s under UseCompression
+        // (the side channel negotiates compression too, and can even exceed its own budget and
+        // abort the connection - a pre-existing characteristic of that mechanism, not this fix).
+        // The bound asserted here is about proving the hang is gone (the bug would have blocked
+        // for the full 5s SLEEP() and beyond, unbounded), not about racing the pre-existing
+        // cancel window's own internal budget.
+        Assert.That(stopwatch.Elapsed, Is.LessThan(TimeSpan.FromSeconds(8)),
+          "ExecuteScalarAsync did not honor CommandTimeout - async read has no enforced deadline");
+      }
     }
 
     [Test]
