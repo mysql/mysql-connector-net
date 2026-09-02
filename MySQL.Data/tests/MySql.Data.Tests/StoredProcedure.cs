@@ -228,10 +228,10 @@ namespace MySql.Data.MySqlClient.Tests
 
       MySqlCommand cmd = new MySqlCommand("spTest", Connection);
       cmd.CommandType = CommandType.StoredProcedure;
-      cmd.Parameters.AddWithValue("?valin", 20.4);
+      cmd.Parameters.AddWithValue("?valin", 20.4m);
       cmd.Parameters.AddWithValue("?val2", 4);
       decimal val = (decimal)cmd.ExecuteScalar();
-      Decimal d = new Decimal(20.4);
+      Decimal d = 20.4m;
       Assert.That(val, Is.EqualTo(d));
 
       // create our second procedure

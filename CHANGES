@@ -1,4 +1,5 @@
 26.10.0
+- Added support for .NET 11 and EF Core 11 preview versions (WL17281).
 - Fixed validation of the `AllowLoadLocalInfileInPath` connection option (Oracle Bug #39261524).
 - Fixed a NullReferenceException when using a GUID array in an Entity Framework Core LINQ `Contains` query (MySQL Bug #121029, Oracle Bug #39825453).
 - Fixed authentication handling when the active connection transport differs from the configured connection settings (Oracle Bug #39261868).

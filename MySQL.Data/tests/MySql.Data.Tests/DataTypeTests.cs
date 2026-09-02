@@ -136,17 +136,17 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("?fl", MySqlDbType.Float);
       cmd.Parameters.Add("?db", MySqlDbType.Double);
       cmd.Parameters.Add("?dec", MySqlDbType.Decimal);
-      cmd.Parameters[0].Value = 2.3;
+      cmd.Parameters[0].Value = 2.3f;
       cmd.Parameters[1].Value = 4.6;
-      cmd.Parameters[2].Value = 23.82;
+      cmd.Parameters[2].Value = 23.82m;
       if (prepared)
         cmd.Prepare();
       int count = cmd.ExecuteNonQuery();
       Assert.That(count, Is.EqualTo(1));
 
-      cmd.Parameters[0].Value = 1.5;
+      cmd.Parameters[0].Value = 1.5f;
       cmd.Parameters[1].Value = 47.85;
-      cmd.Parameters[2].Value = 123.85;
+      cmd.Parameters[2].Value = 123.85m;
       count = cmd.ExecuteNonQuery();
       Assert.That(count, Is.EqualTo(1));
 
@@ -156,14 +156,14 @@ namespace MySql.Data.MySqlClient.Tests
       using (MySqlDataReader reader = cmd.ExecuteReader())
       {
         Assert.That(reader.Read());
-        Assert.That((decimal)2.3 == (decimal)reader.GetFloat(0));
+        Assert.That(reader.GetFloat(0), Is.EqualTo(2.3f));
         Assert.That(reader.GetDouble(1), Is.EqualTo(4.6));
-        Assert.That((decimal)23.82 == reader.GetDecimal(2));
+        Assert.That(reader.GetDecimal(2), Is.EqualTo(23.82m));
 
         Assert.That(reader.Read());
-        Assert.That((decimal)1.5 == (decimal)reader.GetFloat(0));
+        Assert.That(reader.GetFloat(0), Is.EqualTo(1.5f));
         Assert.That(reader.GetDouble(1), Is.EqualTo(47.85));
-        Assert.That((decimal)123.85 == reader.GetDecimal(2));
+        Assert.That(reader.GetDecimal(2), Is.EqualTo(123.85m));
       }
     }
 
@@ -310,7 +310,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("CREATE TABLE Test (val decimal(10,1))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(?dec)", Connection);
-      cmd.Parameters.AddWithValue("?dec", (decimal)2.4);
+      cmd.Parameters.AddWithValue("?dec", 2.4m);
       Assert.That(cmd.ExecuteNonQuery(), Is.EqualTo(1));
 
       cmd.Prepare();
@@ -321,11 +321,11 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Assert.That(reader.Read());
         Assert.That(reader[0] is Decimal);
-        Assert.That(Convert.ToDecimal(reader[0]), Is.EqualTo((decimal)2.4));
+        Assert.That(Convert.ToDecimal(reader[0]), Is.EqualTo(2.4m));
 
         Assert.That(reader.Read());
         Assert.That(reader[0] is Decimal);
-        Assert.That(Convert.ToDecimal(reader[0]), Is.EqualTo((decimal)2.4));
+        Assert.That(Convert.ToDecimal(reader[0]), Is.EqualTo(2.4m));
 
         Assert.That(reader.Read(), Is.False);
         Assert.That(reader.NextResult(), Is.False);
@@ -338,7 +338,7 @@ namespace MySql.Data.MySqlClient.Tests
       ExecuteSQL("CREATE TABLE Test (val decimal(10,1))");
 
       MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES(?dec)", Connection);
-      cmd.Parameters.AddWithValue("?dec", (decimal)2.4);
+      cmd.Parameters.AddWithValue("?dec", 2.4m);
       Assert.That(cmd.ExecuteNonQuery(), Is.EqualTo(1));
 
       cmd.Prepare();
@@ -349,11 +349,11 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Assert.That(reader.Read());
         Assert.That(reader[0] is Decimal);
-        Assert.That(Convert.ToDecimal(reader[0]), Is.EqualTo((decimal)2.4));
+        Assert.That(Convert.ToDecimal(reader[0]), Is.EqualTo(2.4m));
 
         Assert.That(reader.Read());
         Assert.That(reader[0] is Decimal);
-        Assert.That(Convert.ToDecimal(reader[0]), Is.EqualTo((decimal)2.4));
+        Assert.That(Convert.ToDecimal(reader[0]), Is.EqualTo(2.4m));
 
         Assert.That(reader.Read(), Is.False);
         Assert.That(reader.NextResult(), Is.False);

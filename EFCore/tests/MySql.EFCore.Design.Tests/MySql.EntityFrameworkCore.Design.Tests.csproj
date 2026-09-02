@@ -11,6 +11,11 @@
     <Nullable>enable</Nullable>
     <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
     <NoWarn>$(NoWarn);CS1591,EF1001</NoWarn>
+    <IncludePreviewTargetFrameworks Condition="'$(IncludePreviewTargetFrameworks)'==''">false</IncludePreviewTargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IncludePreviewTargetFrameworks)'=='true'">
+    <TargetFrameworks>net11.0;$(TargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,6 +44,10 @@
 
   <ItemGroup Condition="'$(TargetFramework)'=='net10.0'">
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net11.0'">
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="11.0.0-preview.7.26381.103" />
   </ItemGroup>
 
   <ItemGroup>

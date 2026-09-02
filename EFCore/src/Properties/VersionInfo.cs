@@ -1,4 +1,4 @@
-﻿// Copyright © 2024, 2026, Oracle and/or its affiliates.
+// Copyright © 2024, 2026, Oracle and/or its affiliates.
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2.0, as
@@ -53,6 +53,11 @@ using System.Resources;
 #elif NET10_0
 [assembly: AssemblyVersion("26.10.0")]
 [assembly: AssemblyInformationalVersion("10.0.12.0+MySQL26.10.0")]
+[assembly: AssemblyFileVersion("26.10.0.0")]
+[assembly: NeutralResourcesLanguage("en-US")]
+#elif NET11_0
+[assembly: AssemblyVersion("26.10.0.0")]
+[assembly: AssemblyInformationalVersion("11.0.0.0-preview+MySQL26.10.0")]
 [assembly: AssemblyFileVersion("26.10.0.0")]
 [assembly: NeutralResourcesLanguage("en-US")]
 #endif

@@ -51,7 +51,7 @@ namespace MySql.Data.MySqlClient.Tests
       da.Fill(dt);
       DataRow row = dt.NewRow();
       row["id"] = DBNull.Value;
-      row["dec1"] = 23.4;
+      row["dec1"] = 23.4m;
       dt.Rows.Add(row);
       da.Update(dt);
 
@@ -59,7 +59,7 @@ namespace MySql.Data.MySqlClient.Tests
       da.Fill(dt);
       Assert.That(dt.Rows.Count, Is.EqualTo(1));
       Assert.That(dt.Rows[0]["id"], Is.EqualTo(1));
-      Assert.That(Convert.ToDecimal(dt.Rows[0]["dec1"]), Is.EqualTo((decimal)23.4));
+      Assert.That(Convert.ToDecimal(dt.Rows[0]["dec1"]), Is.EqualTo(23.4m));
       cb.Dispose();
     }
 

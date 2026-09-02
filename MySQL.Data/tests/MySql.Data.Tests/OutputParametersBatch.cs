@@ -93,7 +93,7 @@ namespace MySql.Data.MySqlClient.Tests
       Assert.That(cmd.Parameters[0].Value, Is.EqualTo("42"));
       Assert.That(cmd.Parameters[1].Value, Is.EqualTo(33));
       Assert.That(Convert.ToDateTime(cmd.Parameters[2].Value), Is.EqualTo(new DateTime(2004, 6, 5, 7, 58, 9)));
-      Assert.That((decimal)(float)cmd.Parameters[3].Value, Is.EqualTo((decimal)1.2));
+      Assert.That((float)cmd.Parameters[3].Value, Is.EqualTo(1.2f));
       Assert.That(cmd.Parameters[4].Value, Is.EqualTo("test"));
       Assert.That(cmd.Parameters[5].Value, Is.EqualTo(66));
     }

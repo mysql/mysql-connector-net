@@ -57,7 +57,7 @@ namespace MySql.Data.MySqlClient.Tests
       {
         Assert.That(reader.Read());
         Assert.That(reader.GetInt32(0), Is.EqualTo(1));
-        Assert.That(reader.GetDecimal(1), Is.EqualTo((decimal)345.12));
+        Assert.That(reader.GetDecimal(1), Is.EqualTo(345.12m));
         Assert.That(reader.GetString(2), Is.EqualTo("abcd"));
         Assert.That(reader.GetInt16(3), Is.EqualTo(2019));
       }

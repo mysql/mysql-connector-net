@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>MySql.EntityFrameworkCore.Migrations.Tests Class Library</Description>
@@ -11,6 +11,11 @@
     <Nullable>enable</Nullable>
     <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
     <NoWarn>$(NoWarn);CS1591,EF1001</NoWarn>
+    <IncludePreviewTargetFrameworks Condition="'$(IncludePreviewTargetFrameworks)'==''">false</IncludePreviewTargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IncludePreviewTargetFrameworks)'=='true'">
+    <TargetFrameworks>net11.0;$(TargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

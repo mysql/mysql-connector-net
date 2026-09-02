@@ -154,14 +154,26 @@ namespace MySql.Data.MySqlClient.Authentication
         RSACryptoServiceProvider rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
         if (rsa == null) throw new MySqlException(Resources.UnableToReadRSAKey);
 
+#if NET11_0_OR_GREATER
+        // The Boolean overload is obsolete in .NET 11. OAEP with SHA-1 is the explicit
+        // equivalent of true and preserves the padding required by MySQL 8.0.5 or later.
+        return rsa.Encrypt(obfuscated, RSAEncryptionPadding.OaepSHA1);
+#else
         return rsa.Encrypt(obfuscated, true);
+#endif
       }
       else
       {
         RSACryptoServiceProvider rsa = MySqlPemReader.ConvertPemToRSAProvider(rawPublicKey);
         if (rsa == null) throw new MySqlException(Resources.UnableToReadRSAKey);
 
+#if NET11_0_OR_GREATER
+        // The Boolean overload is obsolete in .NET 11. PKCS#1 is the explicit equivalent
+        // of false and preserves compatibility with servers earlier than MySQL 8.0.5.
+        return rsa.Encrypt(obfuscated, RSAEncryptionPadding.Pkcs1);
+#else
         return rsa.Encrypt(obfuscated, false);
+#endif
       }
     }
 

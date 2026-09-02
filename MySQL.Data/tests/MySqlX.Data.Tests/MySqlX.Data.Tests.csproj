@@ -26,6 +26,11 @@
     <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
     <NoWarn>CS1591,CS1587,CS1574,CS1570,CS1701,CA2100</NoWarn>
     <LangVersion>latest</LangVersion>
+    <IncludePreviewTargetFrameworks Condition="'$(IncludePreviewTargetFrameworks)'==''">false</IncludePreviewTargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IncludePreviewTargetFrameworks)'=='true'">
+    <TargetFrameworks>net11.0;$(TargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">

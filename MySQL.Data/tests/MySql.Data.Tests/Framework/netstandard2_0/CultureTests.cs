@@ -69,9 +69,9 @@ namespace MySql.Data.MySqlClient.Tests
       cmd.Parameters.Add("?fl", MySqlDbType.Float);
       cmd.Parameters.Add("?db", MySqlDbType.Double);
       cmd.Parameters.Add("?dec", MySqlDbType.Decimal);
-      cmd.Parameters[0].Value = 2.3;
+      cmd.Parameters[0].Value = 2.3f;
       cmd.Parameters[1].Value = 4.6;
-      cmd.Parameters[2].Value = 23.82;
+      cmd.Parameters[2].Value = 23.82m;
       if (prepared)
         cmd.Prepare();
       int count = cmd.ExecuteNonQuery();
@@ -84,9 +84,9 @@ namespace MySql.Data.MySqlClient.Tests
         using (MySqlDataReader reader = cmd.ExecuteReader())
         {
           reader.Read();
-          Assert.That((decimal)reader.GetFloat(0), Is.EqualTo((decimal)2.3));
+          Assert.That(reader.GetFloat(0), Is.EqualTo(2.3f));
           Assert.That(reader.GetDouble(1), Is.EqualTo(4.6));
-          Assert.That(reader.GetDecimal(2), Is.EqualTo((decimal)23.82));
+          Assert.That(reader.GetDecimal(2), Is.EqualTo(23.82m));
         }
       }
       finally
@@ -173,8 +173,8 @@ namespace MySql.Data.MySqlClient.Tests
           DataTable dt = new DataTable();
           da.Fill(dt);
           Assert.That(dt.Rows.Count, Is.EqualTo(1));
-          Assert.That((decimal)dt.Rows[0][0], Is.EqualTo((decimal)1.25));
-          Assert.That((decimal)dt.Rows[0][1], Is.EqualTo((decimal)5.99));
+          Assert.That((decimal)dt.Rows[0][0], Is.EqualTo(1.25m));
+          Assert.That((decimal)dt.Rows[0][1], Is.EqualTo(5.99m));
         }
       }
       finally

@@ -318,7 +318,13 @@ namespace MySql.EntityFrameworkCore.Storage.Internal
         else if (IsCollectionParameterType(clrType)
           && mappingInfo.ElementTypeMapping is RelationalTypeMapping elementTypeMapping)
         {
+#if NET11_0_OR_GREATER
+          // EF Core 11 removed the Clone overload that accepts clrType separately.
+          // The collection type and its mapping facets are now supplied through mappingInfo.
+          return _longtextUnicode.Clone(mappingInfo: mappingInfo, elementMapping: elementTypeMapping);
+#else
           return _longtextUnicode.Clone(clrType: clrType, elementMapping: elementTypeMapping);
+#endif
         }
       }
 

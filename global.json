@@ -2,7 +2,26 @@
   "msbuild-sdks": {
     "Microsoft.Build.Traversal": "4.1.0"
   },
+  // Visual Studio .NET 11 development:
+  // 1. In Visual Studio, enable Tools > Options > Environment > Preview Features >
+  //    Use previews of the .NET SDK.
+  // 2. Close all Visual Studio instances.
+  // 3. Comment the default SDK entries and uncomment the .NET 11 entries below.
+  // 4. From a Visual Studio Developer PowerShell, set the property and open a solution:
+  //    $env:IncludePreviewTargetFrameworks = "true"
+  //    devenv .\MySQL.Data\MySql.Data.sln
+  //    devenv .\EFCore\MySql.EntityFrameworkCore.sln
+  // 5. To return to .NET 10, reverse step 3, clear the property, and reopen Visual Studio:
+  //    $env:IncludePreviewTargetFrameworks = $null
   "sdk": {
+    // Default SDK used by builds for existing target frameworks.
+    "version": "10.0.100",
+    "rollForward": "latestFeature",
     "allowPrerelease": false
+
+    // Local Visual Studio alternative for the latest compatible .NET 11 SDK.
+    // "version": "11.0.100-preview.7.26381.103",
+    // "rollForward": "latestFeature",
+    // "allowPrerelease": true
   }
 }
