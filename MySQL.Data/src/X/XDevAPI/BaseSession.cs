@@ -524,6 +524,18 @@ namespace MySqlX.XDevAPI
       try
       {
         uri = new Uri(connectionUri);
+
+        // Newer runtimes can parse a relative Unix socket as a host followed by URI segments
+        // instead of rejecting the host. Detect the supported Unix socket syntax explicitly.
+        string[] splitUri = connectionUri.Split('@', '?');
+        if (splitUri.Length > 1 && IsUnixSocket(splitUri[1]))
+        {
+          hierPart = splitUri[1];
+          parseServerAsUnixSocket = true;
+          updatedUri = splitUri[0] + "@localhost" +
+            (splitUri.Length > 2 ? "?" + splitUri[2] : string.Empty);
+          uri = new Uri(updatedUri);
+        }
       }
       catch (UriFormatException ex)
       {

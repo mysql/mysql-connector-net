@@ -12,6 +12,7 @@
     <AssemblyOriginatorKeyFile>..\..\..\ConnectorNetPublicKey.snk</AssemblyOriginatorKeyFile>
     <NoWarn>CS1591,CS1701,CS1702,EF1001</NoWarn>
     <IncludePreviewTargetFrameworks Condition="'$(IncludePreviewTargetFrameworks)'==''">false</IncludePreviewTargetFrameworks>
+    <RestoreAdditionalProjectSources Condition="'$(IncludePreviewTargetFrameworks)'=='true'">https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json;$(RestoreAdditionalProjectSources)</RestoreAdditionalProjectSources>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(IncludePreviewTargetFrameworks)'=='true'">
