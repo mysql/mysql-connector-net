@@ -1,12 +1,11 @@
-Connector/NET 26.7 Release Notes
+Connector/NET 26.10 Release Notes
 ------------------------------------
-Welcome to the release notes for Connector/NET 26.7
+Welcome to the release notes for Connector/NET 26.10
 
-What's new in 26.7
+What's new in 26.10
 --------------------
 
-Connector/NET updated third-party dependencies.
-Connector/NET fixed an issue where LINQ .Contains predicates with collection parameters could fail in EF Core because the collection elements were not mapped correctly.
-Connector/NET fixed an issue with parameterized query handling.
-Connector/NET fixed an issue with restriction value handling in GetSchema metadata queries.
-Connector/NET fixed an issue with TLS certificate validation.
+Connector/NET added support for .NET 11 and EF Core 11 preview versions.
+Connector/NET fixed validation of the AllowLoadLocalInfileInPath connection option.
+Connector/NET fixed a NullReferenceException when using a GUID array in an Entity Framework Core LINQ Contains query.
+Connector/NET fixed authentication handling when the active connection transport differs from the configured connection settings.
