@@ -35,6 +35,9 @@ using MySqlX.XDevAPI.Common;
 using MySqlX.XDevAPI.Relational;
 using System;
 using System.IO;
+#if NET11_0
+using System.Net.Sockets;
+#endif
 
 namespace MySqlX.Sessions
 {
@@ -79,7 +82,13 @@ namespace MySqlX.Sessions
           SetDefaultCollation(session, settings.CharacterSet);
           break;
         }
-        catch (IOException ex)
+        // .NET 11 can surface a synchronous NetworkStream transport failure as a
+        // SocketException rather than the IOException returned by earlier runtimes.
+        catch (Exception ex) when (ex is IOException
+#if NET11_0
+          || ex is SocketException
+#endif
+        )
         {
           // Retry SSL connection (manual fallback).
           if (count++ >= 5)

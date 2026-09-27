@@ -56,7 +56,7 @@ using System.Resources;
 [assembly: AssemblyFileVersion("26.10.0.0")]
 [assembly: NeutralResourcesLanguage("en-US")]
 #elif NET11_0
-[assembly: AssemblyVersion("26.10.0.0")]
+[assembly: AssemblyVersion("26.10.0")]
 [assembly: AssemblyInformationalVersion("11.0.0.0-preview+MySQL26.10.0")]
 [assembly: AssemblyFileVersion("26.10.0.0")]
 [assembly: NeutralResourcesLanguage("en-US")]
