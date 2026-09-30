@@ -35,15 +35,20 @@ using MySql.EntityFrameworkCore.Basic.Tests.Utils;
 using MySql.EntityFrameworkCore.Extensions;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
+using System;
 
 namespace MySql.EntityFrameworkCore.Migrations.Tests
 {
   public partial class MySQLHistoryRepositoryTests
   {
-    private static IHistoryRepository CreateHistoryRepository()
+    private static IHistoryRepository CreateHistoryRepository(string? table = null, string? schema = null)
     {
       var optionsBuilder = new DbContextOptionsBuilder();
-      optionsBuilder.UseMySQL(MySQLTestStore.RootConnectionString + "database=test;");
+      optionsBuilder.UseMySQL(MySQLTestStore.RootConnectionString + "database=test;", options =>
+      {
+        if (table != null)
+          options.MigrationsHistoryTable(table, schema);
+      });
 
       var serviceCollection = new ServiceCollection();
       serviceCollection.AddEntityFrameworkMySQL()
@@ -59,6 +64,7 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     {
       var repository = CreateHistoryRepository();
       var script = repository.GetBeginIfNotExistsScript("Migration1");
+      Assert.That(script, Is.EqualTo(BeginScript("NOT EXISTS", "`__EFMigrationsHistory`", "Migration1")));
     }
 
     [Test]
@@ -66,6 +72,34 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
     {
       var repository = CreateHistoryRepository();
       var script = repository.GetBeginIfExistsScript("Migration1");
+      Assert.That(script, Is.EqualTo(BeginScript("EXISTS", "`__EFMigrationsHistory`", "Migration1")));
+    }
+
+    private static string BeginScript(string condition, string table, string migrationId)
+      => string.Join(Environment.NewLine,
+        "DROP PROCEDURE IF EXISTS `__EFMigrationsHistory_Migrate`;",
+        "DELIMITER $$",
+        "CREATE PROCEDURE `__EFMigrationsHistory_Migrate`()",
+        "SQL SECURITY INVOKER",
+        "BEGIN",
+        $"IF {condition}(SELECT * FROM {table} WHERE `MigrationId` = '{migrationId}') THEN");
+
+    [Test]
+    public void Idempotent_guards_escape_history_identifiers_and_migration_ids()
+    {
+      var repository = CreateHistoryRepository("history`table", "schema`name");
+      Assert.That(repository.GetBeginIfNotExistsScript("Migration'1"),
+        Is.EqualTo(BeginScript("NOT EXISTS", "`schema``name`.`history``table`", "Migration''1")));
+      Assert.That(repository.GetBeginIfExistsScript("Migration'1"),
+        Is.EqualTo(BeginScript("EXISTS", "`schema``name`.`history``table`", "Migration''1")));
+    }
+
+    [Test]
+    public void GetEndIfScript_calls_and_removes_the_helper()
+    {
+      Assert.That(CreateHistoryRepository().GetEndIfScript(), Is.EqualTo(string.Join(Environment.NewLine,
+        "END IF;", "END$$", "DELIMITER ;", "CALL `__EFMigrationsHistory_Migrate`();",
+        "DROP PROCEDURE `__EFMigrationsHistory_Migrate`;", "")));
     }
 
     [Test]
@@ -82,7 +116,8 @@ namespace MySql.EntityFrameworkCore.Migrations.Tests
 
       var cmdBuilder = context.GetService<IRawSqlCommandBuilder>();
       Assert.That(!creator.Exists());
-      Assert.That(cmdBuilder.Build(repository.GetBeginIfExistsScript("MigrationId")).CommandText.Replace("\r", string.Empty), Is.EqualTo("IF EXISTS(SELECT * FROM `__EFMigrationsHistory` WHERE `MigrationId` = 'MigrationId')\nBEGIN"));
+      Assert.That(cmdBuilder.Build(repository.GetBeginIfExistsScript("MigrationId")).CommandText,
+        Is.EqualTo(BeginScript("EXISTS", "`__EFMigrationsHistory`", "MigrationId")));
     }
   }
 }

@@ -36,6 +36,25 @@ To get started, review the following main classes:
 
 For additional information about MySQL Connector/NET, see the [MySQL Connector/NET Developer Guide](https://dev.mysql.com/doc/connector-net/en/).
 
+### EF Core Idempotent Migration Scripts
+
+Generate an idempotent script with `dotnet ef migrations script --idempotent`.
+Run it with the `mysql` command-line client or a script runner that supports
+`DELIMITER` directives, such as Connector/NET's `MySqlScript`. The script uses
+`IF ... THEN ... END IF` inside a helper stored procedure to apply each command
+only when the migration's history record has the appropriate state. This also
+supports idempotent downgrade scripts.
+
+The execution account needs `CREATE ROUTINE`, `ALTER ROUTINE`, and `EXECUTE`
+privileges in addition to the privileges required by the migration itself.
+The name `__EFMigrationsHistory_Migrate` is reserved for the script's helper.
+The script removes the helper after each successful command and replaces any
+helper left by an interrupted execution. Run migration scripts sequentially.
+
+MySQL routine DDL implicitly commits transactions, so these scripts do not
+provide atomic rollback of a migration. Custom migration SQL must be valid
+inside a stored procedure; MySQL does not permit nested routine definitions.
+
 ### Additional Resources
 
 * [MySQL](http://www.mysql.com/)

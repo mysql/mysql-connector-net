@@ -49,6 +49,8 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
   /// </summary>
   internal partial class MySQLHistoryRepository : HistoryRepository
   {
+    private const string IdempotentProcedureName = "__EFMigrationsHistory_Migrate";
+
     public MySQLHistoryRepository([NotNull] HistoryRepositoryDependencies dependencies)
       : base(dependencies)
     {
@@ -159,38 +161,33 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
     protected override bool InterpretExistsResult(object? value) => value != null;
 
     public override string GetBeginIfExistsScript(string migrationId)
-    {
-      Check.NotEmpty(migrationId, nameof(migrationId));
-
-      var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
-
-      return new StringBuilder()
-        .Append("IF EXISTS(SELECT * FROM ")
-        .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
-        .Append(" WHERE ")
-        .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
-        .Append(" = ")
-        .Append(stringTypeMapping.GenerateSqlLiteral(migrationId))
-        .AppendLine(")")
-        .Append("BEGIN")
-        .ToString();
-    }
+      => GetBeginIfScript(migrationId, exists: true);
 
     public override string GetBeginIfNotExistsScript(string migrationId)
+      => GetBeginIfScript(migrationId, exists: false);
+
+    private string GetBeginIfScript(string migrationId, bool exists)
     {
       Check.NotEmpty(migrationId, nameof(migrationId));
 
       var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+      var procedure = SqlGenerationHelper.DelimitIdentifier(IdempotentProcedureName);
 
+      // MySQL only permits IF statements inside stored programs. Reset the
+      // helper first so a script can be retried after an interrupted CALL.
       return new StringBuilder()
-        .Append("IF NOT EXISTS(SELECT * FROM ")
+        .Append("DROP PROCEDURE IF EXISTS ").Append(procedure).AppendLine(";")
+        .AppendLine("DELIMITER $$")
+        .Append("CREATE PROCEDURE ").Append(procedure).AppendLine("()")
+        .AppendLine("SQL SECURITY INVOKER")
+        .AppendLine("BEGIN")
+        .Append(exists ? "IF EXISTS(SELECT * FROM " : "IF NOT EXISTS(SELECT * FROM ")
         .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
         .Append(" WHERE ")
         .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
         .Append(" = ")
         .Append(stringTypeMapping.GenerateSqlLiteral(migrationId))
-        .AppendLine(")")
-        .Append("BEGIN")
+        .Append(") THEN")
         .ToString();
     }
 
@@ -200,6 +197,16 @@ namespace MySql.EntityFrameworkCore.Migrations.Internal
       return script.Insert(script.IndexOf("CREATE TABLE", StringComparison.Ordinal) + 12, " IF NOT EXISTS");
     }
 
-    public override string GetEndIfScript() => "END;" + Environment.NewLine;
+    public override string GetEndIfScript()
+    {
+      var procedure = SqlGenerationHelper.DelimitIdentifier(IdempotentProcedureName);
+      return new StringBuilder()
+        .AppendLine("END IF;")
+        .AppendLine("END$$")
+        .AppendLine("DELIMITER ;")
+        .Append("CALL ").Append(procedure).AppendLine("();")
+        .Append("DROP PROCEDURE ").Append(procedure).AppendLine(";")
+        .ToString();
+    }
   }
 }
