@@ -352,6 +352,8 @@ namespace MySql.Data.MySqlClient
 
     internal bool InternallyCreated { get; set; }
 
+    private UpdateRowSource updatedRowSource;
+
     /// <summary>
     ///  Gets or sets how command results are applied to the <see cref="DataRow"/>
     ///  when used by the <see cref="DbDataAdapter.Update()"/> method of the <see cref="DbDataAdapter"/>.
@@ -366,7 +368,16 @@ namespace MySql.Data.MySqlClient
     ///    <see cref="MySqlCommandBuilder"/>), in which case the default is <b>None</b>.
     ///  </para>
     /// </remarks>
-    public override UpdateRowSource UpdatedRowSource { get; set; }
+    public override UpdateRowSource UpdatedRowSource
+    {
+      get { return updatedRowSource; }
+      set
+      {
+        if (!Enum.IsDefined(typeof(UpdateRowSource), value))
+          throw new ArgumentException("The value is not a valid UpdateRowSource.", nameof(value));
+        updatedRowSource = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether the command object should be visible in a Windows Form Designer control. 
