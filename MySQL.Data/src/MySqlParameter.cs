@@ -462,6 +462,7 @@ namespace MySql.Data.MySqlClient
           case "UInt64": MySqlDbType = MySqlDbType.UInt64; break;
           case "DateTime": MySqlDbType = MySqlDbType.DateTime; break;
           case "String": MySqlDbType = MySqlDbType.VarChar; break;
+          case "Char": MySqlDbType = MySqlDbType.String; break;
           case "Single": MySqlDbType = MySqlDbType.Float; break;
           case "Double": MySqlDbType = MySqlDbType.Double; break;
           case "MySqlGeometry": MySqlDbType = MySqlDbType.Geometry; break;
