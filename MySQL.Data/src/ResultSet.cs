@@ -139,8 +139,8 @@ namespace MySql.Data.MySqlClient
     {
       get
       {
-        if (_rowIndex < 0)
-          throw new MySqlException(Resources.AttemptToAccessBeforeRead);
+        if (_rowIndex < 0 || (_readDone && !Cached))
+          throw new InvalidOperationException(Resources.AttemptToAccessBeforeRead);
 
         // keep count of how many columns we have left to access
         _uaFieldsUsed[index] = true;
