@@ -26,7 +26,10 @@
 // along with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 
@@ -72,6 +75,37 @@ namespace MySql.Data.MySqlClient.Tests
 
     private void StateChangeHandler(object sender, StateChangeEventArgs e)
     {
+    }
+
+    /// <summary>
+    /// Opening a connection raises StateChange for Closed to Connecting and then Connecting to Open; the second event's
+    /// OriginalState is the state the connection was in before it, not Open.
+    /// See https://learn.microsoft.com/dotnet/api/system.data.statechangeeventargs.originalstate.
+    /// </summary>
+    [Test]
+    public void OpenRaisesConnectingThenOpen()
+    {
+      var transitions = new List<string>();
+      using (var connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        connection.StateChange += (sender, e) => transitions.Add($"{e.OriginalState}->{e.CurrentState}");
+        connection.Open();
+      }
+
+      Assert.That(transitions.Take(2), Is.EqualTo(new[] { "Closed->Connecting", "Connecting->Open" }));
+    }
+
+    [Test]
+    public async Task OpenAsyncRaisesConnectingThenOpen()
+    {
+      var transitions = new List<string>();
+      using (var connection = new MySqlConnection(Settings.ConnectionString))
+      {
+        connection.StateChange += (sender, e) => transitions.Add($"{e.OriginalState}->{e.CurrentState}");
+        await connection.OpenAsync();
+      }
+
+      Assert.That(transitions.Take(2), Is.EqualTo(new[] { "Closed->Connecting", "Connecting->Open" }));
     }
   }
 }

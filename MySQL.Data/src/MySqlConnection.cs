@@ -800,7 +800,9 @@ namespace MySql.Data.MySqlClient
         EnlistTransaction(Transaction.Current);
 
       hasBeenOpen = true;
-      SetState(ConnectionState.Open, true);
+      // The state became Open without an event above so the session could be configured;
+      // the transition callers see is still Connecting to Open.
+      OnStateChange(new StateChangeEventArgs(ConnectionState.Connecting, ConnectionState.Open));
     }
 
     internal async Task OpenInternalAsync(CancellationToken cancellationToken)
@@ -929,7 +931,9 @@ namespace MySql.Data.MySqlClient
         EnlistTransaction(Transaction.Current);
 
       hasBeenOpen = true;
-      SetState(ConnectionState.Open, true);
+      // The state became Open without an event above so the session could be configured;
+      // the transition callers see is still Connecting to Open.
+      OnStateChange(new StateChangeEventArgs(ConnectionState.Connecting, ConnectionState.Open));
     }
 
     /// <summary>
