@@ -95,6 +95,26 @@ namespace MySql.Data.MySqlClient.Tests
       }
     }
 
+    /// <summary>
+    /// A char value is text: the ADO.NET type inference table infers DbType.StringFixedLength for Char.
+    /// It was inferred as a blob and stored as "System.Byte[]".
+    /// See https://learn.microsoft.com/dotnet/framework/data/adonet/configuring-parameters-and-parameter-data-types.
+    /// </summary>
+    [Test]
+    public void CharParameterIsStoredAsText()
+    {
+      ExecuteSQL("CREATE TABLE Test (id INT NOT NULL, name VARCHAR(10), PRIMARY KEY(id))");
+
+      MySqlCommand cmd = new MySqlCommand("INSERT INTO Test VALUES (1, ?name)", Connection);
+      MySqlParameter parameter = new MySqlParameter("?name", '~');
+      cmd.Parameters.Add(parameter);
+      cmd.ExecuteNonQuery();
+
+      Assert.That(parameter.DbType, Is.EqualTo(DbType.StringFixedLength));
+      cmd = new MySqlCommand("SELECT name FROM Test WHERE id=1", Connection);
+      Assert.That(cmd.ExecuteScalar(), Is.EqualTo("~"));
+    }
+
     [Test]
     public void TestDateTimeParameter()
     {
