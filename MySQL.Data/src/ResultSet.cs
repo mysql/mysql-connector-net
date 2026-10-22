@@ -39,6 +39,7 @@ namespace MySql.Data.MySqlClient
   {
     private Driver _driver;
     private bool[] _uaFieldsUsed;
+    private Dictionary<string, int> _fieldHashCs;
     private Dictionary<string, int> _fieldHashCi;
     private int _rowIndex;
     private bool _readDone;
@@ -159,7 +160,10 @@ namespace MySql.Data.MySqlClient
     {
       int ordinal;
 
-      // quick hash lookup using CI hash
+      // ADO.NET requires an ordinal (case-sensitive) lookup before the case-insensitive fallback.
+      if (_fieldHashCs.TryGetValue(name, out ordinal))
+        return ordinal;
+
       if (_fieldHashCi.TryGetValue(name, out ordinal))
         return ordinal;
 
@@ -450,11 +454,14 @@ namespace MySql.Data.MySqlClient
       int numCols = Fields.Length;
       Values = new IMySqlValue[numCols];
       _uaFieldsUsed = new bool[numCols];
+      _fieldHashCs = new Dictionary<string, int>(StringComparer.Ordinal);
       _fieldHashCi = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
       for (int i = 0; i < numCols; i++)
       {
         string columnName = Fields[i].ColumnName;
+        if (!_fieldHashCs.ContainsKey(columnName))
+          _fieldHashCs.Add(columnName, i);
         if (!_fieldHashCi.ContainsKey(columnName))
           _fieldHashCi.Add(columnName, i);
         Values[i] = Fields[i].GetValueObject();
