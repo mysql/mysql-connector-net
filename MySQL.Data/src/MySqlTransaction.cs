@@ -141,6 +141,26 @@ namespace MySql.Data.MySqlClient
     /// </remarks>
     public override IsolationLevel IsolationLevel { get; }
 
+#if NET8_0_OR_GREATER
+    /// <summary>Gets whether this transaction supports database savepoints.</summary>
+    public override bool SupportsSavepoints => false;
+
+    public override void Save(string savepointName) => throw new NotSupportedException("Savepoints are not supported.");
+
+    public override void Rollback(string savepointName) => throw new NotSupportedException("Savepoints are not supported.");
+
+    public override void Release(string savepointName) => throw new NotSupportedException("Savepoints are not supported.");
+
+    public override Task SaveAsync(string savepointName, CancellationToken cancellationToken = default) =>
+      Task.FromException(new NotSupportedException("Savepoints are not supported."));
+
+    public override Task RollbackAsync(string savepointName, CancellationToken cancellationToken = default) =>
+      Task.FromException(new NotSupportedException("Savepoints are not supported."));
+
+    public override Task ReleaseAsync(string savepointName, CancellationToken cancellationToken = default) =>
+      Task.FromException(new NotSupportedException("Savepoints are not supported."));
+#endif
+
     /// <summary>
     /// Gets the <see cref="DbConnection"/> object associated with the transaction,
     /// or a null reference if the transaction is no longer valid.
