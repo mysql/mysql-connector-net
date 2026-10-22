@@ -52,7 +52,7 @@ namespace MySql.Data.MySqlClient
   {
     private const int UNSIGNED_MASK = 0x8000;
     private object _paramValue;
-    private string _paramName;
+    private string _paramName = String.Empty;
     private MySqlDbType _mySqlDbType;
     private bool _inferType = true;
     private const int GEOMETRY_LENGTH = 25;
@@ -72,14 +72,14 @@ namespace MySql.Data.MySqlClient
       Size = size;
       Direction = ParameterDirection.Input;
       SourceColumn = sourceColumn;
-      SourceVersion = DataRowVersion.Default;
+      SourceVersion = DataRowVersion.Current;
     }
 
     public MySqlParameter()
     {
       DbType = DbType.String;
       MySqlDbType = MySqlDbType.VarChar;
-      SourceVersion = DataRowVersion.Default;
+      SourceVersion = DataRowVersion.Current;
       Direction = ParameterDirection.Input;
       _inferType = true;
     }
