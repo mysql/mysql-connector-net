@@ -245,6 +245,29 @@ namespace MySql.EntityFrameworkCore
       return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema,commandPosition);
     }
 
+    /// <summary>
+    ///   MySQL has no <c>DEFAULT VALUES</c>: a row with no column to write is inserted with an empty
+    ///   column list and an empty value list, <c>INSERT INTO `t` () VALUES ()</c>.
+    /// </summary>
+    protected override void AppendInsertCommandHeader(
+      [NotNull] StringBuilder commandStringBuilder,
+      [NotNull] string name,
+      string? schema,
+      [NotNull] IReadOnlyList<IColumnModification> operations)
+    {
+      base.AppendInsertCommandHeader(commandStringBuilder, name, schema, operations);
+
+      if (operations.Count == 0)
+      {
+        commandStringBuilder.Append(" ()");
+      }
+    }
+
+    protected override void AppendValuesHeader(
+      [NotNull] StringBuilder commandStringBuilder,
+      [NotNull] IReadOnlyList<IColumnModification> operations)
+      => commandStringBuilder.AppendLine().Append("VALUES ");
+
     protected override void AppendValues(
       [NotNull] StringBuilder commandStringBuilder,
       [NotNull] string name,
