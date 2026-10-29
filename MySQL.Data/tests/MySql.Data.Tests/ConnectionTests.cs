@@ -111,8 +111,7 @@ namespace MySql.Data.MySqlClient.Tests
       for (var i = 0; i <= 11; i++)
       {
         var ex = Assert.Catch<MySqlException>(() => CreateCommandTimeoutException());
-        //Prior to the fix the exception thrown was 'error connecting: Timeout expired.  The timeout period elapsed prior to obtaining a connection from the pool.  This may have occurred because all pooled connections were in use and max pool size was reached.' after the 10th execution.
-        Assert.That(ex.Message, Is.EqualTo("Fatal error encountered during command execution"));
+        Assert.That(ex.Message, Does.StartWith("Timeout expired."));
       }
     }
 

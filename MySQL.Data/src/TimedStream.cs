@@ -29,6 +29,7 @@
 using MySql.Data.Common;
 using System;
 using System.IO;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -177,7 +178,7 @@ namespace MySql.Data.MySqlClient
       try
       {
         StartTimer(IOKind.Write);
-        await _baseStream.FlushAsync(CancellationToken.None).ConfigureAwait(false);
+        await ExecuteAsyncWithTimeout(ct => _baseStream.FlushAsync(ct)).ConfigureAwait(false);
         StopTimer();
       }
       catch (Exception e)
@@ -221,6 +222,14 @@ namespace MySql.Data.MySqlClient
         StopTimer();
         return retval;
       }
+      catch (IOException e) when (e.GetBaseException() is SocketException { SocketErrorCode: SocketError.TimedOut })
+      {
+        // Sync path: socket read timeout manifests as IOException wrapping SocketException(TimedOut).
+        // Convert to TimeoutException so the caller routes it through HandleTimeoutOrThreadAbortAsync,
+        // which sends KILL QUERY to stop the query on the server.
+        HandleException(e);
+        throw new TimeoutException("Timeout in IO operation", e);
+      }
       catch (Exception e)
       {
         HandleException(e);
@@ -240,7 +249,7 @@ namespace MySql.Data.MySqlClient
       try
       {
         StartTimer(IOKind.Read);
-        int retval = await _baseStream.ReadAsync(buffer, offset, count).ConfigureAwait(false);
+        int retval = await ExecuteAsyncWithTimeout(ct => _baseStream.ReadAsync(buffer, offset, count, ct)).ConfigureAwait(false);
         StopTimer();
         return retval;
       }
@@ -314,7 +323,7 @@ namespace MySql.Data.MySqlClient
       try
       {
         StartTimer(IOKind.Write);
-        await _baseStream.WriteAsync(buffer, offset, count).ConfigureAwait(false);
+        await ExecuteAsyncWithTimeout(ct => _baseStream.WriteAsync(buffer, offset, count, ct)).ConfigureAwait(false);
         StopTimer();
       }
       catch (Exception e)
@@ -354,6 +363,51 @@ namespace MySql.Data.MySqlClient
       else
         _timeout = newTimeout;
       _stopwatch.Reset();
+    }
+
+    /// <summary>
+    /// Executes an async IO operation enforcing the remaining command timeout via a
+    /// <see cref="CancellationTokenSource"/>, because <see cref="Socket.ReceiveTimeout"/>
+    /// and <see cref="Socket.SendTimeout"/> are not honoured by async socket IO operations.
+    /// Callers are responsible for invoking <see cref="HandleException"/> on failure.
+    /// </summary>
+    private async Task<T> ExecuteAsyncWithTimeout<T>(Func<CancellationToken, Task<T>> operation)
+    {
+      if (_timeout == Timeout.Infinite)
+      {
+        return await operation(CancellationToken.None).ConfigureAwait(false);
+      }
+
+      int remainingMs = Math.Max(1, _timeout - (int)_stopwatch.ElapsedMilliseconds);
+      using var cts = new CancellationTokenSource(remainingMs);
+      try
+      {
+        return await operation(cts.Token).ConfigureAwait(false);
+      }
+      catch (OperationCanceledException e) when (cts.IsCancellationRequested)
+      {
+        throw new TimeoutException("Timeout in IO operation", e);
+      }
+    }
+
+    private async Task ExecuteAsyncWithTimeout(Func<CancellationToken, Task> operation)
+    {
+      if (_timeout == Timeout.Infinite)
+      {
+        await operation(CancellationToken.None).ConfigureAwait(false);
+        return;
+      }
+
+      int remainingMs = Math.Max(1, _timeout - (int)_stopwatch.ElapsedMilliseconds);
+      using var cts = new CancellationTokenSource(remainingMs);
+      try
+      {
+        await operation(cts.Token).ConfigureAwait(false);
+      }
+      catch (OperationCanceledException e) when (cts.IsCancellationRequested)
+      {
+        throw new TimeoutException("Timeout in IO operation", e);
+      }
     }
 
     /// <summary>

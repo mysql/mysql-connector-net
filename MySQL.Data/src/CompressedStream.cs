@@ -378,7 +378,7 @@ namespace MySql.Data.MySqlClient
       compressedBuffer.WriteByte(0x9c);
       var outCompStream = new DeflateStream(compressedBuffer, CompressionMode.Compress, true);
 
-      await outCompStream.WriteAsync(cacheBytes, 0, (int)cacheBytes.Length).ConfigureAwait(false);
+      await outCompStream.WriteAsync(cacheBytes, 0, (int)cache.Length).ConfigureAwait(false);
       outCompStream.Dispose();
       int adler = IPAddress.HostToNetworkOrder(Adler32(cacheBytes, 0, (int)cache.Length));
       await compressedBuffer.WriteAsync(BitConverter.GetBytes(adler), 0, sizeof(uint)).ConfigureAwait(false);
