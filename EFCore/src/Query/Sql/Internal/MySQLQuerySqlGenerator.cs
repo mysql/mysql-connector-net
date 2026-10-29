@@ -314,6 +314,41 @@ namespace MySql.EntityFrameworkCore.Query
       return castMapping;
     }
 
+    /// <summary>
+    ///   MySQL refuses LIMIT in an IN subquery (error 1235, "This version of MySQL doesn't yet support
+    ///   'LIMIT &amp; IN/ALL/ANY/SOME subquery'"), but a derived table may be paged, so a paged subquery
+    ///   is read through one: <c>x IN (SELECT * FROM (SELECT ... LIMIT n) AS `t`)</c>.
+    /// </summary>
+    protected override void GenerateIn(InExpression inExpression, bool negated)
+    {
+      var subquery = inExpression.Subquery;
+      if (subquery == null || (subquery.Limit == null && subquery.Offset == null))
+      {
+        base.GenerateIn(inExpression, negated);
+        return;
+      }
+
+      Visit(inExpression.Item);
+      Sql.AppendLine(negated ? " NOT IN (" : " IN (");
+
+      using (Sql.Indent())
+      {
+        Sql.AppendLine("SELECT *").AppendLine("FROM (");
+
+        using (Sql.Indent())
+        {
+          Visit(subquery);
+        }
+
+        Sql.AppendLine()
+          .Append(") AS ")
+          .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier("t"))
+          .AppendLine();
+      }
+
+      Sql.Append(")");
+    }
+
     protected override void GenerateLimitOffset([NotNull] SelectExpression selectExpression)
     {
       Check.NotNull(selectExpression, nameof(selectExpression));
