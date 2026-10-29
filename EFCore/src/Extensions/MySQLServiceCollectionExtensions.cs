@@ -161,7 +161,7 @@ namespace MySql.EntityFrameworkCore.Extensions
           .TryAddProviderSpecificServices(m => m
           .TryAddSingleton<IMySQLOptions, MySQLOptions>()
           .TryAddScoped<IMySQLRelationalConnection, MySQLRelationalConnection>()
-          .TryAddScoped<IMySQLUpdateSqlGenerator, MySQLUpdateSqlGenerator>());
+          .TryAddSingleton<IMySQLUpdateSqlGenerator, MySQLUpdateSqlGenerator>());
 
       builder.TryAddCoreServices();
 
